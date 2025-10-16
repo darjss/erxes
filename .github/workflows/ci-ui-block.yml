@@ -1,4 +1,4 @@
-name: CI plugin-block-ui
+name: CI plugin-block_ui
 
 on:
   push:

@@ -1,4 +1,4 @@
-name: CI core-ui
+name: CI core_ui
 
 on:
   push:
