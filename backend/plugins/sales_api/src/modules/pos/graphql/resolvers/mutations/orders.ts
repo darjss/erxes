@@ -6,7 +6,7 @@ const orderMutations = {
   async posOrderReturnBill(
     _root,
     { _id }: { _id: string },
-    { models, subdomain }: IContext,
+    { models }: IContext,
   ) {
     const order = await models.PosOrders.findOne({ _id }).lean();
     if (!order) {
@@ -20,7 +20,7 @@ const orderMutations = {
       throw new Error('Already returned');
     }
 
-    const ebarimtMainConfig = await getConfig(subdomain, 'EBARIMT', {});
+    const ebarimtMainConfig = await getConfig('EBARIMT', {});
 
     await sendTRPCMessage({
       subdomain,

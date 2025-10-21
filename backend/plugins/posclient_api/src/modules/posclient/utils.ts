@@ -167,7 +167,7 @@ export class Builder {
     //   segmentData,
     // );
     const selector = await sendTRPCMessage({
-      subdomain: this.subdomain,
+      subdomain,
 
       pluginName: 'core',
       method: 'query',
@@ -210,7 +210,7 @@ export class Builder {
       // });
 
       const segment = await sendTRPCMessage({
-        subdomain: this.subdomain,
+        subdomain,
 
         method: 'query',
         pluginName: 'core',

@@ -62,35 +62,34 @@ export const sendTRPCMessage = async ({
 
   const VERSION = getEnv({ name: 'VERSION' });
 
+<<<<<<< HEAD
   let client;
 
-  try {
-    if (VERSION && VERSION === 'saas') {
-      client = createTRPCUntypedClient({
-        links: [
-          httpBatchLink({
-            url: `https://${subdomain}.next.erxes.io/gateway/pl:${pluginName}/trpc`,
-          }),
-        ],
-      });
-    } else {
-      client = createTRPCUntypedClient({
-        links: [httpBatchLink({ url: `${pluginInfo.address}/trpc` })],
-      });
-    }
-
-    // Extract subdomain from context
-
-    const result = await client[method](
-      `${module}.${action}`,
-      { subdomain, ...input },
-      options,
-    );
-    return result || defaultValue;
-  } catch (e) {
-    console.log(e, 'e');
-    return defaultValue;
+  if (VERSION && VERSION === 'saas') {
+    client = createTRPCUntypedClient({
+      links: [
+        httpBatchLink({
+          url: `https://${subdomain}.next.erxes.com/gateway/pl:${pluginName}/trpc`,
+        }),
+      ],
+    });
+  } else {
+    client = createTRPCUntypedClient({
+      links: [httpBatchLink({ url: `${pluginInfo.address}/trpc` })],
+    });
   }
+
+  // Extract subdomain from context
+
+=======
+>>>>>>> 3e99781b09 (fix send trpc message)
+  const result = await client[method](
+    `${module}.${action}`,
+    { subdomain, ...input },
+    options,
+  );
+
+  return result || defaultValue;
 };
 
 export const createTRPCContext =

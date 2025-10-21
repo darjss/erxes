@@ -1,8 +1,7 @@
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
-import { IContext } from '~/connectionResolvers';
 
 const resolver = {
-  customerDetail: async ({ _id, customerType }, _, { subdomain }: IContext) => {
+  customerDetail: async ({ _id, customerType }) => {
     if (customerType === 'user') {
       return await sendTRPCMessage({
         subdomain,
