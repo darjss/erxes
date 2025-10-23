@@ -41,6 +41,10 @@ export const BLOCK_GET_PROJECT_DETAIL = gql`
         price
         priceType
       }
+      projectAmenities {
+        amenities
+        category
+      }
     }
   }
 `;

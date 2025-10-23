@@ -28,7 +28,9 @@ export const ProjectCard = ({ name, _id, coverImage, location }: IProject) => {
           <IconMapPinFilled className=" size-4" />
           <p className="text-sm">
             {location
-              ? `${location?.address}, ${location?.district}, ${location?.city}`
+              ? `${location?.address}, ${location?.district}, ${
+                  location?.city || 'Улаанбаатар'
+                }`
               : 'No address'}
           </p>
         </div>

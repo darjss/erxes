@@ -30,6 +30,7 @@ export interface IProjectDetail extends IProject {
   mainPrice: number;
   prices: IProjectPrice[];
   bankPartners: string[];
+  projectAmenities: { category: string; amenities: string[] }[];
 }
 
 export interface IProjectGeneralInput {
@@ -40,6 +41,7 @@ export interface IProjectGeneralInput {
   mainPrice: number | null;
   prices: IProjectPrice[] | null;
   bankPartners: string[] | null;
+  projectAmenities: { category: string; amenities: string[] }[];
 }
 
 export interface IProjectMember {
