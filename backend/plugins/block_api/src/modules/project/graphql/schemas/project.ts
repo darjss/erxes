@@ -59,7 +59,6 @@ export const types = `
     coverImage: String
     mainPrice: Int
     prices: [BlockProjectPrice]
-    bankPartners: [String]
     projectAmenities: [BlockProjectAmenity]
     bankPartners: [String]
   }
