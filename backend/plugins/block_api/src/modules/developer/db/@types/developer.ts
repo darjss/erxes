@@ -1,15 +1,29 @@
 import { IAddress } from 'erxes-api-shared/core-types';
 import { Document } from 'mongoose';
 
+export interface IBlockDeveloperSocialLink {
+  facebook?: string;
+  twitter?: string;
+  instagram?: string;
+  linkedin?: string;
+  youtube?: string;
+  website?: string;
+}
 export interface IBlockDeveloper {
   name: string;
   description: string;
+  about: string;
   logo: string;
   website: string;
   email: string;
   phone: string;
   address: IAddress;
   dateFounded: Date;
+  primaryPhone: string;
+  phones: string[];
+  socialLinks: IBlockDeveloperSocialLink;
+  isVerified: boolean;
+  converImage: string;
 }
 
 export interface IBlockDeveloperDocument extends IBlockDeveloper, Document {
