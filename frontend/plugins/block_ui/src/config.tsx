@@ -15,7 +15,7 @@ export const CONFIG: IUIConfig = {
       name: 'block',
       icon: IconBlocks,
       path: 'block',
-      hasSettings: true,
+      hasSettings: false,
     },
   ],
   navigationGroup: {

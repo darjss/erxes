@@ -19,6 +19,12 @@ export const StackingPlanPage = lazy(() =>
   })),
 );
 
+const DeveloperInfoPage = lazy(() =>
+  import('~/pages/DeveloperInfoPage').then((module) => ({
+    default: module.DeveloperInfoPage,
+  })),
+);
+
 const Main = () => {
   return (
     <Suspense fallback={<div />}>
@@ -26,6 +32,7 @@ const Main = () => {
         <Route path="/projects" element={<ProjectsPage />} />
         <Route path="/projects/:id" element={<ProjectDetail />} />
         <Route path="/stacking-plan" element={<StackingPlanPage />} />
+        <Route path="/developer-info" element={<DeveloperInfoPage />} />
       </Routes>
     </Suspense>
   );

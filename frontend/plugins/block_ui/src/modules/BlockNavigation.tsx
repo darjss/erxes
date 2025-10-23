@@ -1,7 +1,7 @@
 import { NavigationMenuLinkItem } from 'erxes-ui';
 import {
+  IconBuilding,
   IconClipboardTextFilled,
-  IconLayoutDashboardFilled,
   IconStackFilled,
 } from '@tabler/icons-react';
 
@@ -9,10 +9,10 @@ export const BlockNavigation = () => {
   return (
     <>
       <NavigationMenuLinkItem
-        name="Dashboard"
-        icon={IconLayoutDashboardFilled}
+        name="Developer Info"
+        icon={IconBuilding}
         pathPrefix="block"
-        path="dashboard"
+        path="developer-info"
       />
       <NavigationMenuLinkItem
         name="Projects"
