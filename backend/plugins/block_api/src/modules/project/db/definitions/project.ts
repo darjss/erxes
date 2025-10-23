@@ -14,6 +14,14 @@ const locationSchema = new Schema(
   { _id: false },
 );
 
+export const projectAmenitySchema = new Schema(
+  {
+    category: { type: String, label: 'Category' },
+    amenities: { type: [String], label: 'Amenities' },
+  },
+  { _id: false },
+);
+
 export const projectPriceSchema = new Schema(
   {
     currency: { type: String, label: 'Currency' },
@@ -38,6 +46,10 @@ export const projectSchema = new Schema(
     mainPrice: { type: Number, label: 'Price' },
     prices: { type: [projectPriceSchema], label: 'Prices' },
     bankPartners: { type: [String], label: 'Bank Partners' },
+    projectAmenities: {
+      type: [projectAmenitySchema],
+      label: 'Project Amenities',
+    },
   },
   {
     timestamps: true,

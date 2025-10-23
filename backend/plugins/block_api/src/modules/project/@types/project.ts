@@ -6,6 +6,11 @@ export interface IProjectPrice {
   price: number;
 }
 
+export interface IProjectAmenity {
+  category: string;
+  amenities: string[];
+}
+
 export interface IProject {
   name?: string;
   coverImage?: string;
@@ -15,6 +20,7 @@ export interface IProject {
   mainPrice?: number;
   prices?: IProjectPrice[];
   bankPartners?: string[];
+  projectAmenities?: IProjectAmenity[];
 }
 
 export interface IProjectLocation {

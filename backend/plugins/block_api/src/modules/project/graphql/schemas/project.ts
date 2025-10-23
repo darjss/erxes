@@ -40,6 +40,16 @@ export const types = `
     price: Int
   }
 
+  input BlockProjectAmenityInput {
+    category: String
+    amenities: [String]
+  }
+
+  type BlockProjectAmenity {
+    category: String
+    amenities: [String]
+  }
+
   type BlockProject {
     _id: String
     name: String
@@ -49,6 +59,8 @@ export const types = `
     coverImage: String
     mainPrice: Int
     prices: [BlockProjectPrice]
+    bankPartners: [String]
+    projectAmenities: [BlockProjectAmenity]
     bankPartners: [String]
   }
 
@@ -60,6 +72,7 @@ export const types = `
     mainPrice: Int
     prices: [BlockProjectPriceInput]
     bankPartners: [String]
+    projectAmenities: [BlockProjectAmenityInput]
   }
 `;
 
