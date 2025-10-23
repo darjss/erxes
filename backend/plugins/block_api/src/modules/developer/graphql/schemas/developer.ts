@@ -19,7 +19,7 @@ export const types = `
     dateFounded: Date
     email: String
     primaryPhone: String
-    converImage: String
+    coverImage: String
     phones: [String]
     socialLinks: DeveloperSocialLink
     isVerified: Boolean
@@ -44,7 +44,7 @@ export const types = `
     dateFounded: Date
     email: String
     primaryPhone: String
-    converImage: String
+    coverImage: String
     phones: [String]
     socialLinks: DeveloperSocialLinkInput
   }

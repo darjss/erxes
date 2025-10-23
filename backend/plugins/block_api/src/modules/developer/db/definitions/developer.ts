@@ -27,5 +27,5 @@ export const developerSchema = new Schema<IBlockDeveloperDocument>({
   phones: { type: [String] },
   socialLinks: { type: blockDeveloperSocialLinkSchema },
   isVerified: { type: Boolean, default: false },
-  converImage: { type: String },
+  coverImage: { type: String },
 });

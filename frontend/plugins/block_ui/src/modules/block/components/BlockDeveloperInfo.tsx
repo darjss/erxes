@@ -1,22 +1,16 @@
 import { useDeveloperInfo } from '@/block/hooks/useDeveloperInfo';
 import { UploadImage } from './upload';
-import {
-  Button,
-  Form,
-  formatPhoneNumber,
-  Input,
-  PhoneInput,
-  Select,
-  Textarea,
-  toast,
-} from 'erxes-ui';
-import { useForm, UseFormReturn } from 'react-hook-form';
+import { Button, Form, Input, Select, Textarea, toast } from 'erxes-ui';
+import { Path, useForm, UseFormReturn } from 'react-hook-form';
 import { developerInfoSchema } from '@/block/constants/developerInfoSchema';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { ADDRESS_CITY, ADDRESS_DISTRICT } from '@/project/constants/address';
 import { useCallback, useEffect } from 'react';
 import { useUpdateDeveloperInfo } from '@/block/hooks/useUpdateDeveloperInfo';
+import { BlockEditorField } from './BlockEditor';
+import { BlockPhones } from './BlockPhones';
+import { SOCIAL_LINKS } from '../constants/socialLinks';
 
 export const BlockDeveloperInfo = () => {
   const { developerInfo, loading } = useDeveloperInfo();
@@ -41,15 +35,27 @@ export const BlockDeveloperInfoForm = ({
       name: developerInfo.name || '',
       description: developerInfo.description || '',
       logo: developerInfo.logo || '',
+      coverImage: developerInfo.coverImage || '',
       website: developerInfo.website || '',
       email: developerInfo.email || '',
-      phone: developerInfo.phone || '',
+      primaryPhone: developerInfo.primaryPhone || '',
+      phones: developerInfo.phones || [],
       dateFounded: developerInfo.dateFounded || '',
+      about: developerInfo.about || '',
       address: {
         city: developerInfo.address?.city || ADDRESS_CITY[0],
         district: developerInfo.address?.district || '',
         address: developerInfo.address?.address || '',
       },
+      socialLinks:
+        developerInfo.socialLinks ||
+        ({
+          facebook: '',
+          instagram: '',
+          twitter: '',
+          linkedin: '',
+          youtube: '',
+        } as z.infer<typeof developerInfoSchema>['socialLinks']),
     };
   }, [developerInfo]);
 
@@ -90,7 +96,9 @@ export const BlockDeveloperInfoForm = ({
     <Form {...form}>
       <form
         className="gap-4 grid grid-cols-2"
-        onSubmit={form.handleSubmit(onSubmit)}
+        onSubmit={form.handleSubmit(onSubmit, (errors) => {
+          console.log(errors);
+        })}
       >
         <Form.Field
           name="logo"
@@ -102,6 +110,22 @@ export const BlockDeveloperInfoForm = ({
                 value={field.value}
                 onValueChange={(value) => field.onChange(value)}
                 className="size-16"
+              />
+              <Form.Message />
+            </Form.Item>
+          )}
+        />
+        <Form.Field
+          name="coverImage"
+          control={form.control}
+          render={({ field }) => (
+            <Form.Item className="col-span-2">
+              <Form.Label>Cover Image</Form.Label>
+              <UploadImage
+                value={field.value}
+                onValueChange={(value) => field.onChange(value)}
+                uploaderClassName="w-full"
+                className="w-full aspect-video"
               />
               <Form.Message />
             </Form.Item>
@@ -147,26 +171,17 @@ export const BlockDeveloperInfoForm = ({
           )}
         />
         <Form.Field
-          name="phone"
+          name="primaryPhone"
           control={form.control}
-          render={({ field }) => (
+          render={() => (
             <Form.Item>
               <Form.Label>Phone</Form.Label>
-              <Form.Control>
-                <Input
-                  value={formatPhoneNumber({
-                    value: field.value,
-                    defaultCountry: 'MN',
-                  })}
-                  onChange={(e) =>
-                    field.onChange(e.target.value.replace(' ', ''))
-                  }
-                />
-              </Form.Control>
+              <BlockPhones form={form} />
               <Form.Message />
             </Form.Item>
           )}
         />
+
         <Form.Field
           name="dateFounded"
           control={form.control}
@@ -202,9 +217,20 @@ export const BlockDeveloperInfoForm = ({
               <Form.Control>
                 <Textarea {...field} />
               </Form.Control>
+              <Form.Description>
+                A quick summary meant to grab attention and explain what the
+                developer company
+              </Form.Description>
               <Form.Message />
             </Form.Item>
           )}
+        />
+        <BlockEditorField
+          control={form.control}
+          setValue={form.setValue}
+          name="about"
+          label="About"
+          initialContent={developerInfo.about}
         />
         <Form.Field
           name="address.city"
@@ -251,6 +277,31 @@ export const BlockDeveloperInfoForm = ({
             </Form.Item>
           )}
         />
+        <div className="col-span-2 flex flex-col gap-2">
+          {SOCIAL_LINKS.map((item: { label: string; value: string }) => (
+            <Form.Field
+              key={item.value}
+              name={
+                `socialLinks.${item.value}` as Path<
+                  z.infer<typeof developerInfoSchema>
+                >
+              }
+              control={form.control}
+              render={({ field }) => (
+                <Form.Item>
+                  <Form.Label>{item.label}</Form.Label>
+                  <Form.Control>
+                    <Input
+                      value={field.value as string}
+                      onChange={(e) => field.onChange(e.target.value)}
+                    />
+                  </Form.Control>
+                  <Form.Message />
+                </Form.Item>
+              )}
+            />
+          ))}
+        </div>
         <Button
           type="submit"
           className="mt-2"

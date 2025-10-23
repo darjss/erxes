@@ -142,17 +142,19 @@ export const UploadImage = ({
   value,
   onValueChange,
   className,
+  uploaderClassName,
 }: {
   value?: string;
   onValueChange: (value: string) => void;
   className?: string;
+  uploaderClassName?: string;
 }) => {
   return (
     <UploadProvider
       value={value}
       onValueChange={(value) => onValueChange(value as string)}
     >
-      <Upload>
+      <Upload className={uploaderClassName}>
         <div
           className={cn(
             'aspect-square relative flex items-center justify-center',

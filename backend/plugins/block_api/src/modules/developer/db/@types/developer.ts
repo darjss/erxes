@@ -23,7 +23,7 @@ export interface IBlockDeveloper {
   phones: string[];
   socialLinks: IBlockDeveloperSocialLink;
   isVerified: boolean;
-  converImage: string;
+  coverImage: string;
 }
 
 export interface IBlockDeveloperDocument extends IBlockDeveloper, Document {

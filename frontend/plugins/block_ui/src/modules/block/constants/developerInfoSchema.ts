@@ -4,6 +4,8 @@ export const developerInfoSchema = z.object({
   name: z.string(),
   description: z.string().optional(),
   logo: z.string().optional(),
+  coverImage: z.string().optional(),
+  about: z.string().optional(),
   website: z.string().url().optional(),
   address: z.object({
     city: z.string().min(1),
@@ -12,5 +14,13 @@ export const developerInfoSchema = z.object({
   }),
   dateFounded: z.string().optional(),
   email: z.string().email(),
-  phone: z.string().regex(/^\d+$/, 'Invalid phone number format'),
+  primaryPhone: z.string().optional(),
+  phones: z.array(z.string()).optional(),
+  socialLinks: z.object({
+    facebook: z.string().url().or(z.literal('')).optional(),
+    twitter: z.string().url().or(z.literal('')).optional(),
+    instagram: z.string().url().or(z.literal('')).optional(),
+    linkedin: z.string().url().or(z.literal('')).optional(),
+    youtube: z.string().url().or(z.literal('')).optional(),
+  }),
 });
