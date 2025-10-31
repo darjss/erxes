@@ -132,9 +132,7 @@ export const OfferAddForm = ({ onClose }: { onClose: () => void }) => {
     <Form {...form}>
       <form
         className="flex-auto flex flex-col overflow-hidden"
-        onSubmit={form.handleSubmit(handleSubmit, (errors) => {
-          console.log(errors);
-        })}
+        onSubmit={form.handleSubmit(handleSubmit)}
       >
         <Sheet.Content className="flex-auto overflow-hidden">
           <ScrollArea className="h-full">

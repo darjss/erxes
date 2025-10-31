@@ -96,9 +96,7 @@ export const BlockDeveloperInfoForm = ({
     <Form {...form}>
       <form
         className="gap-4 grid grid-cols-2"
-        onSubmit={form.handleSubmit(onSubmit, (errors) => {
-          console.log(errors);
-        })}
+        onSubmit={form.handleSubmit(onSubmit)}
       >
         <Form.Field
           name="logo"
