@@ -4,6 +4,12 @@ export interface IBuilding {
   description: string;
   project: string;
   usageType: string;
+  coverImage: string;
+
+  status: string;
+
+  startDate?: Date;
+  endDate?: Date;
 }
 
 export interface IBuildingDocument extends IBuilding, Document {
