@@ -1,0 +1,101 @@
+import { Router } from 'express';
+import { generateModels } from '~/connectionResolvers';
+
+const router: Router = Router();
+
+router.post('/blockCreateBuilding', async (req, res) => {
+  const models = await generateModels();
+
+  try {
+    const { subdomain, payload } = req.body || {};
+
+    const { entityId, data } = payload || {};
+
+    const { input } = data || {};
+
+    models.Building.createBuilding({ subdomain, entityId, ...input });
+
+    return res.status(200).json({
+      success: true,
+    });
+  } catch (error) {
+    return res.status(400).json({
+      error: error.message,
+    });
+  }
+});
+
+router.post('/blockUpdateBuilding', async (req, res) => {
+  const models = await generateModels();
+
+  try {
+    const { subdomain, payload } = req.body || {};
+
+    const { entityId, data } = payload || {};
+
+    const { input } = data || {};
+
+    models.Building.updateBuilding(subdomain, entityId, input);
+
+    return res.status(200).json({
+      success: true,
+    });
+  } catch (error) {
+    return res.status(400).json({
+      error: error.message,
+    });
+  }
+});
+
+router.post('/blockDeleteBuilding', async (req, res) => {
+  const models = await generateModels();
+
+  try {
+    const { subdomain, payload } = req.body || {};
+
+    const { entityId } = payload || {};
+
+    models.Building.deleteBuilding(subdomain, entityId);
+
+    return res.status(200).json({
+      success: true,
+    });
+  } catch (error) {
+    return res.status(400).json({
+      error: error.message,
+    });
+  }
+});
+
+router.post('/blockDupplicateBuilding', async (req, res) => {
+  const models = await generateModels();
+
+  try {
+    const { subdomain, payload } = req.body || {};
+
+    const { entityId, data } = payload || {};
+
+    const { buildingId } = data || {};
+
+    const building = await models.Building.getBuilding(subdomain, buildingId);
+
+    const { _id, ...rest } = building;
+
+    models.Building.createBuilding({
+      ...rest,
+      name: `${rest.name} duplicated`,
+      subdomain,
+      entityId,
+    });
+
+    return res.status(200).json({
+      success: true,
+    });
+  } catch (error) {
+    return res.status(400).json({
+      error: error.message,
+    });
+  }
+});
+
+export { router };

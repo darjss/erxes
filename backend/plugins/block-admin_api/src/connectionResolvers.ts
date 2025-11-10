@@ -1,0 +1,143 @@
+import { IBlockAttachmentDocument } from '@/attachment/@types/attachment';
+import {
+  IBlockAttachmentModel,
+  loadBlockAttachmentClass,
+} from '@/attachment/db/models/Attachment';
+import { IBuildingDocument } from '@/building/@types/building';
+import { IZoningDocument } from '@/building/@types/zoning';
+import {
+  IBuildingModel,
+  loadBuildingClass,
+} from '@/building/db/models/Building';
+import { IZoningModel, loadZoningClass } from '@/building/db/models/Zoning';
+import { IContractDocument } from '@/contract/@types/contract';
+import { IOfferDocument } from '@/contract/@types/offer';
+import {
+  IContractModel,
+  loadContractClass,
+} from '@/contract/db/models/Contract';
+import { IOfferModel, loadOfferClass } from '@/contract/db/models/Offer';
+import { IBlockDeveloperDocument } from '@/developer/db/@types/developer';
+import {
+  IBlockDeveloperModel,
+  loadBlockDeveloperClass,
+} from '@/developer/db/models/Developer';
+import { IBlockDocumentDocument } from '@/document/@types/document';
+import {
+  IBlockDocumentModel,
+  loadBlockDocumentClass,
+} from '@/document/db/models/Document';
+import { IInvoiceDocument } from '@/invoice/@types/invoice';
+import { IInvoiceModel, loadInvoiceClass } from '@/invoice/db/models/Invoice';
+import { IProjectMemberDocument } from '@/project/@types/member';
+import { IProjectPaymentPlan } from '@/project/@types/payment';
+import { IProjectDocument } from '@/project/@types/project';
+import {
+  IProjectMemberModel,
+  loadProjectMemberClass,
+} from '@/project/db/models/Member';
+import {
+  IProjectPaymentPlanModel,
+  loadProjectPaymentPlanClass,
+} from '@/project/db/models/Payment';
+import { IProjectModel, loadProjectClass } from '@/project/db/models/Project';
+import { IUnitDocument } from '@/unit/@types/unit';
+import { IUnitLeadDocument } from '@/unit/@types/unitLead';
+import { IUnitModel, loadUnitClass } from '@/unit/db/models/Unit';
+import { IUnitLeadModel, loadUnitLeadClass } from '@/unit/db/models/UnitLead';
+import { IMainContext } from 'erxes-api-shared/core-types';
+import mongoose from 'mongoose';
+import { createGenerateModels } from './db';
+
+export interface IModels {
+  Project: IProjectModel;
+  ProjectPaymentPlan: IProjectPaymentPlanModel;
+  Building: IBuildingModel;
+  Zoning: IZoningModel;
+  Unit: IUnitModel;
+  UnitLead: IUnitLeadModel;
+  BlockDocument: IBlockDocumentModel;
+  BlockAttachment: IBlockAttachmentModel;
+  Developer: IBlockDeveloperModel;
+  Contract: IContractModel;
+  ProjectMember: IProjectMemberModel;
+  Offer: IOfferModel;
+  Invoice: IInvoiceModel;
+}
+
+export interface IContext extends IMainContext {
+  models: IModels;
+}
+
+export const loadClasses = (db: mongoose.Connection): IModels => {
+  const models = {} as IModels;
+
+  models.Project = db.model<IProjectDocument, IProjectModel>(
+    'block_admin_projects',
+    loadProjectClass(models),
+  );
+
+  models.ProjectPaymentPlan = db.model<
+    IProjectPaymentPlan,
+    IProjectPaymentPlanModel
+  >('block_admin_project_payment_plans', loadProjectPaymentPlanClass(models));
+
+  models.Building = db.model<IBuildingDocument, IBuildingModel>(
+    'block_admin_buildings',
+    loadBuildingClass(models),
+  );
+
+  models.Zoning = db.model<IZoningDocument, IZoningModel>(
+    'block_admin_zonings',
+    loadZoningClass(models),
+  );
+
+  models.Unit = db.model<IUnitDocument, IUnitModel>(
+    'block_admin_units',
+    loadUnitClass(models),
+  );
+
+  models.BlockDocument = db.model<IBlockDocumentDocument, IBlockDocumentModel>(
+    'block_admin_documents',
+    loadBlockDocumentClass(models),
+  );
+
+  models.BlockAttachment = db.model<
+    IBlockAttachmentDocument,
+    IBlockAttachmentModel
+  >('block_admin_attachments', loadBlockAttachmentClass(models));
+
+  models.Developer = db.model<IBlockDeveloperDocument, IBlockDeveloperModel>(
+    'block_admin_developers',
+    loadBlockDeveloperClass(models),
+  );
+
+  models.Contract = db.model<IContractDocument, IContractModel>(
+    'block_admin_contracts',
+    loadContractClass(models),
+  );
+
+  models.ProjectMember = db.model<IProjectMemberDocument, IProjectMemberModel>(
+    'block_admin_project_members',
+    loadProjectMemberClass(models),
+  );
+
+  models.UnitLead = db.model<IUnitLeadDocument, IUnitLeadModel>(
+    'block_admin_unit_leads',
+    loadUnitLeadClass(models),
+  );
+
+  models.Offer = db.model<IOfferDocument, IOfferModel>(
+    'block_admin_offers',
+    loadOfferClass(models),
+  );
+
+  models.Invoice = db.model<IInvoiceDocument, IInvoiceModel>(
+    'block_admin_invoices',
+    loadInvoiceClass(models),
+  );
+
+  return models;
+};
+
+export const generateModels = createGenerateModels<IModels>(loadClasses);
