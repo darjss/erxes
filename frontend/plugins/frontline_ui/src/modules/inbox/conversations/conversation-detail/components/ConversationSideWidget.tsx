@@ -1,9 +1,13 @@
-import { useConversationContext } from '@/inbox/conversations/hooks/useConversationContext';
-
 import { SideMenu } from 'erxes-ui';
 import { useRelationWidget } from 'ui-modules';
 
-export const ConversationSideWidget = ({customerId, _id}: {customerId: string, _id: string}) => {
+export const ConversationSideWidget = ({
+  customerId,
+  _id,
+}: {
+  customerId: string;
+  _id: string;
+}) => {
   const { relationWidgetsModules, RelationWidget } = useRelationWidget();
 
   return (
