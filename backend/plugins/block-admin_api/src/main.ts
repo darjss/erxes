@@ -1,17 +1,17 @@
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import * as dotenv from 'dotenv';
-import express from 'express';
-import * as http from 'http';
-import { initApolloServer } from './apollo/apolloServer';
-import routes from './routes';
-
 import {
   closeMongooose,
   isDev,
   joinErxesGateway,
   leaveErxesGateway,
 } from 'erxes-api-shared/utils';
+import express from 'express';
+import * as http from 'http';
+import { initApolloServer } from './apollo/apolloServer';
+import { validator } from './middlewares/validationMiddleware';
+import routes from './routes';
 
 dotenv.config();
 
@@ -49,6 +49,7 @@ app.use(cors(corsOptions));
 
 app.options('*', cors(corsOptions));
 
+app.use(validator);
 app.use(routes);
 
 app.get('/health', async (_req, res) => {

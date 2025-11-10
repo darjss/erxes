@@ -17,17 +17,10 @@ export const types = `
     parcelId: String
   }
 
-  enum BlockProjectVerificationStatus {
+  enum BlockProjectStatus {
     verified
     unverified
     pending
-  }
-
-  enum BlockProjectStatus {
-    planned
-    on_going
-    on_sale
-    completed
   }
 
   enum BlockProjectPriceType {
@@ -62,31 +55,23 @@ export const types = `
     name: String
     isPublished: Boolean
     location: BlockProjectLocation
-    verificationStatus: BlockProjectVerificationStatus
     status: BlockProjectStatus
     coverImage: String
     mainPrice: Int
     prices: [BlockProjectPrice]
     projectAmenities: [BlockProjectAmenity]
     bankPartners: [String]
-
-    startDate: Date
-    endDate: Date
   }
 
   input BlockProjectGeneralInput {
     name: String
     coverImage: String
     location: BlockProjectLocationInput
-    verificationStatus: BlockProjectVerificationStatus
     status: BlockProjectStatus
     mainPrice: Int
     prices: [BlockProjectPriceInput]
     bankPartners: [String]
     projectAmenities: [BlockProjectAmenityInput]
-
-    startDate: Date
-    endDate: Date
   }
 `;
 

@@ -1,12 +1,4 @@
 export const types = `
-
-  enum BlockBuildingStatus {
-    planned
-    on_going
-    on_sale
-    completed
-  }
-
   type BlockBuilding {
     _id: String
     name: String
@@ -14,10 +6,6 @@ export const types = `
     description: String 
     project: String 
     coverImage: String
-
-    status: BlockBuildingStatus
-    startDate: Date
-    endDate: Date
   }
 
   input BlockBuildingInput {
@@ -26,10 +14,6 @@ export const types = `
     description: String
     project: String
     coverImage: String
-
-    status: BlockBuildingStatus
-    startDate: Date
-    endDate: Date
   }
 `;
 

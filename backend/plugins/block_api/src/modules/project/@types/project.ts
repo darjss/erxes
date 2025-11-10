@@ -15,16 +15,12 @@ export interface IProject {
   name?: string;
   coverImage?: string;
   location?: IProjectLocation;
-  verificationStatus?: string;
   status?: string;
   isPublished?: boolean;
   mainPrice?: number;
   prices?: IProjectPrice[];
   bankPartners?: string[];
   projectAmenities?: IProjectAmenity[];
-
-  startDate?: Date;
-  endDate?: Date;
 }
 
 export interface IProjectLocation {
