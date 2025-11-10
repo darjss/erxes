@@ -1,0 +1,71 @@
+import { ContractPartyType } from '@/contract/@types/contract';
+import { OfferAmountType, OfferStatus } from '@/contract/@types/offer';
+import {
+  BlockProjectPaymentPlanFrequency,
+  BlockProjectPaymentPlanInterestType,
+  BlockProjectPaymentPlanType,
+} from '@/project/@types/payment';
+import { Schema } from 'mongoose';
+import { schemaWrapper } from '~/utils';
+
+const offerPartySchema = new Schema(
+  {
+    type: {
+      type: String,
+      enum: Object.values(ContractPartyType),
+      required: true,
+    },
+    id: { type: String, required: true },
+  },
+  { _id: false },
+);
+
+const offerPaymentPlanSchema = new Schema(
+  {
+    downPaymentPercentage: { type: Number },
+    description: { type: String },
+    interestPercentage: { type: Number },
+    interestType: {
+      type: String,
+      enum: Object.values(BlockProjectPaymentPlanInterestType),
+    },
+    advancePaymentPercentage: { type: Number },
+    discountPercentage: { type: Number },
+    installment: { type: Number },
+    frequency: {
+      type: String,
+      enum: Object.values(BlockProjectPaymentPlanFrequency),
+    },
+    penaltyPercentage: { type: Number },
+    vatIncluded: { type: Boolean },
+    type: { type: String, enum: Object.values(BlockProjectPaymentPlanType) },
+    paymentDates: { type: [Number] },
+    firstPaymentDate: { type: Date },
+    advancePaymentDate: { type: Date },
+  },
+  { _id: false },
+);
+
+export const offerSchema = schemaWrapper(
+  new Schema(
+    {
+      number: { type: String, required: true },
+      currency: { type: String, required: true },
+      unit: { type: Schema.Types.ObjectId, ref: 'block_units', required: true },
+      date: { type: Date, required: true },
+      amount: { type: Number, required: true },
+      amountType: { type: String, enum: Object.values(OfferAmountType) },
+      endDate: { type: Date },
+      party: { type: offerPartySchema, required: true },
+      description: { type: String },
+      paymentPlan: { type: offerPaymentPlanSchema, required: true },
+      status: {
+        type: String,
+        enum: Object.values(OfferStatus),
+        default: OfferStatus.DRAFT,
+      },
+      user: { type: String },
+    },
+    { timestamps: true },
+  ),
+);
