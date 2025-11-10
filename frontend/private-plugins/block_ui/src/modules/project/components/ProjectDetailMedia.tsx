@@ -14,7 +14,7 @@ import {
 
 export const ProjectDetailMedia = () => {
   return (
-    <div className="p-8 lg:grid-cols-2 grid gap-6">
+    <div className="p-8 blk:lg:grid-cols-2 grid gap-6">
       <ProjectImage field="coverImage" />
       <ProjectImage field="logo" />
       <ProjectImages />

@@ -66,7 +66,7 @@ export const StackingDisplay = () => {
   return (
     <>
       <div className="p-4 flex-auto overflow-hidden">
-        <ScrollArea className="bg-primary/5 h-full w-full shadow-xs p-3">
+        <ScrollArea className="blk:bg-primary/5 h-full w-full shadow-xs p-3">
           <div className="flex flex-col gap-3">
             {!loading &&
               buildingZonings &&
@@ -119,7 +119,7 @@ export const StackingZone = ({ zone }: { zone: IZoning }) => {
         .map((unit) => (
           <StackingUnitItem key={unit._id} {...unit} />
         ))}
-      {notUsedSize > 0 && (
+      {/* {notUsedSize > 0 && (
         <div
           className="h-28 border"
           style={{
@@ -127,7 +127,7 @@ export const StackingZone = ({ zone }: { zone: IZoning }) => {
             backgroundImage: `url("data:image/svg+xml,%3Csvg width='6' height='6' viewBox='0 0 6 6' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%239C92AC' fill-opacity='0.4' fill-rule='evenodd'%3E%3Cpath d='M5 0h1L0 6V5zM6 5v1H5z'/%3E%3C/g%3E%3C/svg%3E")`,
           }}
         />
-      )}
+      )} */}
     </div>
   );
 };

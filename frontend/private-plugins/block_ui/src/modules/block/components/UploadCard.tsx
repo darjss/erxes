@@ -89,7 +89,7 @@ export const ImageDisplay = ({
 }) => {
   return (
     <Upload>
-      <div className="relative aspect-[2/1] bg-muted rounded-lg flex items-center justify-center overflow-hidden">
+      <div className="relative blk:aspect-2/1 bg-muted rounded-lg flex items-center justify-center overflow-hidden">
         {value ? (
           <>
             <img

@@ -1,7 +1,7 @@
 {
   "name": "block_ui",
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "frontend/plugins/block_ui/src",
+  "sourceRoot": "frontend/private-plugins/block_ui/src",
   "projectType": "application",
   "tags": [],
   "targets": {
@@ -11,11 +11,11 @@
       "defaultConfiguration": "production",
       "options": {
         "target": "web",
-        "outputPath": "dist/frontend/plugins/block_ui",
-        "main": "frontend/plugins/block_ui/src/main.ts",
-        "tsConfig": "frontend/plugins/block_ui/tsconfig.app.json",
-        "rspackConfig": "frontend/plugins/block_ui/rspack.config.ts",
-        "assets": ["frontend/plugins/block_ui/src/assets"]
+        "outputPath": "dist/frontend/private-plugins/block_ui",
+        "main": "frontend/private-plugins/block_ui/src/main.ts",
+        "tsConfig": "frontend/private-plugins/block_ui/tsconfig.app.json",
+        "rspackConfig": "frontend/private-plugins/block_ui/rspack.config.ts",
+        "assets": ["frontend/private-plugins/block_ui/src/assets"]
       },
       "configurations": {
         "development": {
@@ -25,7 +25,7 @@
           "mode": "production",
           "optimization": true,
           "sourceMap": false,
-          "rspackConfig": "frontend/plugins/block_ui/rspack.config.prod.ts"
+          "rspackConfig": "frontend/private-plugins/block_ui/rspack.config.prod.ts"
         }
       }
     },

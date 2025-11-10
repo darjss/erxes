@@ -33,7 +33,11 @@ export const StackingLayout = ({ children }: { children: React.ReactNode }) => {
 export const StackingSidebar = () => {
   return (
     <Sidebar collapsible="none" className="border-r flex-none">
-      <NavigationMenuGroup className="py-2.5" name="Project" separate={false}>
+      <NavigationMenuGroup
+        className="blk:py-2.5"
+        name="Project"
+        separate={false}
+      >
         <ProjectList />
       </NavigationMenuGroup>
       <NavigationMenuGroup name="Building">

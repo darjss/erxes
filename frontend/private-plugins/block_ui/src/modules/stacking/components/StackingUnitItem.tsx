@@ -8,10 +8,10 @@ export const StackingUnitItem = ({ number, size, _id, status }: IUnit) => {
   return (
     <div
       key={number}
-      className={cn('h-28 flex-none overflow-hidden min-w-px bgborder')}
+      className={cn('blk:size-28 flex-none overflow-hidden min-w-px bgborder')}
       onClick={() => setUnitId(_id)}
       style={{
-        width: `${Math.max(size * 4 - 12, 0)}px`,
+        // width: `${Math.max(size * 4 - 12, 0)}px`,
         backgroundColor:
           UNIT_SALE_STATUS[
             (status as keyof typeof UNIT_SALE_STATUS) || 'available'

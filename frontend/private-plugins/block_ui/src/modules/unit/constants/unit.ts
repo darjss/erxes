@@ -2,7 +2,7 @@ export const UNIT_SALE_STATUS = {
   available: {
     mn: 'Нээлттэй',
     en: 'Available',
-    color: 'hsl(var(--border))',
+    color: 'var(--border)',
   },
   reserved: {
     mn: 'Түр хадгалсан',

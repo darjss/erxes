@@ -24,7 +24,7 @@ export const PaymentPlans = () => {
     >
       <InfoCardContent>
         <div className="grid grid-cols-12 gap-3">
-          <div className="col-span-11 grid grid-cols-8 gap-3 px-2">
+          <div className="blk:col-span-11 grid blk:grid-cols-8 gap-3 px-2">
             <Label asChild>
               <div className="col-span-2">Plan Name</div>
             </Label>
@@ -126,7 +126,7 @@ export const PaymentPlanItem = ({
 
   return (
     <div className="grid grid-cols-12 gap-3">
-      <div className="col-span-11 grid grid-cols-8 gap-3">
+      <div className="blk:col-span-11 grid blk:grid-cols-8 gap-3">
         <Input
           value={paymentPlanValue.name}
           onBlur={handleBlur}

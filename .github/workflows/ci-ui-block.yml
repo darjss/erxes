@@ -5,12 +5,12 @@ on:
     branches:
       - main
     paths:
-      - 'frontend/plugins/block_ui/**'
+      - 'frontend/private-plugins/block_ui/**'
       - 'frontend/libs/**'
       - '.github/workflows/ci-ui-block.yml'
   pull_request:
     paths:
-      - 'frontend/plugins/block_ui/**'
+      - 'frontend/private-plugins/block_ui/**'
       - 'frontend/libs/**'
       - '.github/workflows/ci-ui-block.yml'
 
@@ -49,5 +49,5 @@ jobs:
 
       - name: Sync to Cloudflare R2
         run: |
-          aws s3 sync dist/frontend/plugins/block_ui s3://erxes-next/latest/block_ui/ \
+          aws s3 sync dist/frontend/private-plugins/block_ui s3://erxes-next/latest/block_ui/ \
             --endpoint-url https://7c8392aff8ac4518aa06dfa4b6337ef2.r2.cloudflarestorage.com
