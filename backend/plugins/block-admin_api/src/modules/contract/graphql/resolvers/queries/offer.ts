@@ -1,5 +1,5 @@
-import { IContext } from '~/connectionResolvers';
 import { requireLogin } from 'erxes-api-shared/core-modules';
+import { IContext } from '~/connectionResolvers';
 
 export const offerQueries = {
   blockGetOffer: async (
@@ -7,7 +7,13 @@ export const offerQueries = {
     { _id }: { _id: string },
     { models }: IContext,
   ) => {
-    return models.Offer.getOffer(_id);
+    const offer = await models.Offer.findOne({ _id }).lean();
+
+    if (!offer) {
+      throw new Error('Offer not found');
+    }
+
+    return offer;
   },
 
   blockGetOffers: async (

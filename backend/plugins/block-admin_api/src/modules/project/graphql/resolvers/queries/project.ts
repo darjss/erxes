@@ -1,5 +1,5 @@
-import { IContext } from '~/connectionResolvers';
 import { requireLogin } from 'erxes-api-shared/core-modules';
+import { IContext } from '~/connectionResolvers';
 
 export const projectQueries = {
   blockGetProject: async (
@@ -7,7 +7,13 @@ export const projectQueries = {
     { _id },
     { models }: IContext,
   ) => {
-    return models.Project.getProject(_id);
+    const project = await models.Project.findOne({ _id }).lean();
+
+    if (!project) {
+      throw new Error('Project not found');
+    }
+
+    return project;
   },
 
   blockGetProjects: async (
@@ -15,7 +21,7 @@ export const projectQueries = {
     _args: undefined,
     { models }: IContext,
   ) => {
-    return models.Project.getProjects();
+    return models.Project.find({}).lean();
   },
 };
 

@@ -1,5 +1,5 @@
-import { IContext } from '~/connectionResolvers';
 import { requireLogin } from 'erxes-api-shared/core-modules';
+import { IContext } from '~/connectionResolvers';
 
 export const contractQueries = {
   blockGetContract: async (
@@ -7,7 +7,13 @@ export const contractQueries = {
     { _id }: { _id: string },
     { models }: IContext,
   ) => {
-    return models.Contract.getContract(_id);
+    const contract = await models.Contract.findOne({ _id }).lean();
+
+    if (!contract) {
+      throw new Error('Contract not found');
+    }
+
+    return contract;
   },
 
   blockGetContracts: async (

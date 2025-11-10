@@ -6,7 +6,13 @@ export const zoningQueries = {
     { _id }: { _id: string },
     { models }: IContext,
   ) => {
-    return models.Zoning.getBuildingZoning(_id);
+    const zoning = await models.Zoning.findOne({ _id }).lean();
+
+    if (!zoning) {
+      throw new Error('Zoning not found');
+    }
+
+    return zoning;
   },
 
   blockGetBuildingZonings: async (
