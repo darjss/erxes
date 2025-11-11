@@ -4,13 +4,29 @@ import {
 } from '@/developer/db/@types/developer';
 import { cursorPaginate } from 'erxes-api-shared/utils';
 import { FilterQuery } from 'mongoose';
-import { IContext } from '~/connectionResolvers';
+import { IContext, IModels } from '~/connectionResolvers';
 
-const generateFilter = (params: DeveloperQueryParams) => {
+const generateFilter = async (params: DeveloperQueryParams, models: IModels) => {
+  const { searchValue, isVerified, developerId } = params;
+
   const filter: FilterQuery<IBlockDeveloperDocument> = {};
 
-  if (params.isVerified) {
-    filter.isVerified = params.isVerified;
+  if (isVerified) {
+    filter.isVerified = isVerified;
+  }
+
+  if (searchValue) {
+    filter.name = { $regex: searchValue, $options: 'i' };
+  }
+
+  if (developerId) {
+    const { subdomain } = await models.Developer.findOne({ _id: developerId }).lean() || {};
+    
+    if (!subdomain) {
+      throw new Error('Developer not found');
+    }
+    
+    filter.subdomain = subdomain;
   }
 
   return filter;
@@ -22,7 +38,7 @@ export const developerQueries = {
     params: DeveloperQueryParams,
     { models }: IContext,
   ) => {
-    const filter = generateFilter(params);
+    const filter = await generateFilter(params, models);
 
     return await cursorPaginate<IBlockDeveloperDocument>({
       model: models.Developer,

@@ -36,6 +36,8 @@ export const types = `
 
 const queryParams = `
   isVerified: Boolean
+  searchValue: String
+  developerId: String
   
   ${GQL_CURSOR_PARAM_DEFS}
 `;

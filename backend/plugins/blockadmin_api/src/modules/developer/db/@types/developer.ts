@@ -40,5 +40,6 @@ export interface IBlockDeveloperDocument extends IBlockDeveloper, Document {
 export interface DeveloperQueryParams
   extends ICursorPaginateParams,
     IListParams {
-  isVerified: string;
+  isVerified?: string;
+  developerId?: string;
 }
