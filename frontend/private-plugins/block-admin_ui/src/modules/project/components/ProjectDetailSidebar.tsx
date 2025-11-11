@@ -1,5 +1,5 @@
-import { PROJECT_TABS } from '@/project/constants/project';
 import { Separator, Sidebar, useQueryState } from 'erxes-ui';
+import { PROJECT_TABS } from 'frontend/private-plugins/blockadmin_ui/src/modules/project/constants/project';
 
 export const ProjectDetailSidebar = () => {
   const [activeTab, setActiveTab] = useQueryState('activeTab', {

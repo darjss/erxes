@@ -1,6 +1,6 @@
-import { BLOCK_GET_UNITS } from '@/unit/graphql/unitQueries';
-import { IUnit } from '@/unit/types/unitType';
 import { QueryHookOptions, useQuery } from '@apollo/client';
+import { BLOCK_GET_UNITS } from 'frontend/private-plugins/blockadmin_ui/src/modules/unit/graphql/unitQueries';
+import { IUnit } from 'frontend/private-plugins/blockadmin_ui/src/modules/unit/types/unitType';
 
 export const useUnits = (
   options?: QueryHookOptions<{ blockGetUnits: IUnit[] }>,

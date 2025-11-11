@@ -1,13 +1,13 @@
-import { Button, Form, Sheet, Spinner, toast } from 'erxes-ui';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { IconPlus } from '@tabler/icons-react';
+import { Button, Form, Sheet, Spinner, toast } from 'erxes-ui';
+import { BLOCK_GET_PROJECT_MEMBERS } from 'frontend/private-plugins/blockadmin_ui/src/modules/project/graphql/projectQueries';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { SelectMember } from 'ui-modules';
-import { useAddProjectMembers } from '../hooks/useProjectMembers';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
 import { useParams } from 'react-router';
-import { BLOCK_GET_PROJECT_MEMBERS } from '@/project/graphql/projectQueries';
+import { SelectMember } from 'ui-modules';
+import { z } from 'zod';
+import { useAddProjectMembers } from '../hooks/useProjectMembers';
 
 export const ProjectDetailAddMember = ({ members }: { members: string[] }) => {
   const [open, setOpen] = useState(false);

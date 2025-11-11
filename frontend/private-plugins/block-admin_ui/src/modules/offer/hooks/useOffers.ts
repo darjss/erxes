@@ -1,6 +1,6 @@
 import { useQuery } from '@apollo/client';
-import { GET_OFFERS, GET_OFFER } from '../graphql/offerQueries';
-import { IOffer } from '@/offer/types/offerTypes';
+import { IOffer } from 'frontend/private-plugins/blockadmin_ui/src/modules/offer/types/offerTypes';
+import { GET_OFFER, GET_OFFERS } from '../graphql/offerQueries';
 
 export const useOffers = (unit?: string) => {
   const { data, loading, error, refetch } = useQuery<{

@@ -1,12 +1,12 @@
 import { MutationFunctionOptions, useMutation } from '@apollo/client';
+import { toast } from 'erxes-ui';
 import {
   CREATE_PAYMENT_PLAN,
-  UPDATE_PAYMENT_PLAN,
   REMOVE_PAYMENT_PLAN,
-} from '@/pricing/graphql/paymentPlanMutations';
-import { GET_PAYMENT_PLANS_BY_PROJECT } from '@/pricing/graphql/paymentPlanQueries';
-import { IPaymentPlanInput } from '@/pricing/types/paymentPlanTypes';
-import { toast } from 'erxes-ui';
+  UPDATE_PAYMENT_PLAN,
+} from 'frontend/private-plugins/blockadmin_ui/src/modules/pricing/graphql/paymentPlanMutations';
+import { GET_PAYMENT_PLANS_BY_PROJECT } from 'frontend/private-plugins/blockadmin_ui/src/modules/pricing/graphql/paymentPlanQueries';
+import { IPaymentPlanInput } from 'frontend/private-plugins/blockadmin_ui/src/modules/pricing/types/paymentPlanTypes';
 import { useParams } from 'react-router-dom';
 
 export function useCreatePaymentPlan() {

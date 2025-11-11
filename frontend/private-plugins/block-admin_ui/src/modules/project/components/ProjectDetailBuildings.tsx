@@ -1,5 +1,5 @@
+import { BuildingsCard } from 'frontend/private-plugins/blockadmin_ui/src/modules/building/components/BuildingsCard';
 import { useProjectDetail } from '../hooks/useProjectDetail';
-import { BuildingsCard } from '@/building/components/BuildingsCard';
 
 export const ProjectDetailBuildings = () => {
   const { loading, project } = useProjectDetail();

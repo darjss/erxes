@@ -1,11 +1,13 @@
-import { InfoCard, InfoCardContent } from '@/block/components/card';
+import {
+  InfoCard,
+  InfoCardContent,
+} from 'frontend/private-plugins/blockadmin_ui/src/modules/block/components/card';
 import {
   Upload,
   UploadProvider,
   UploadRemoveButton,
-} from '@/block/components/upload';
+} from 'frontend/private-plugins/blockadmin_ui/src/modules/block/components/upload';
 
-import { Badge, Button, cn, Dialog, readImage } from 'erxes-ui';
 import {
   IconFile,
   IconFilePlus,
@@ -13,6 +15,7 @@ import {
   IconTrash,
   IconUpload,
 } from '@tabler/icons-react';
+import { Badge, Button, cn, Dialog, readImage } from 'erxes-ui';
 
 export const UploadCard = ({
   title,

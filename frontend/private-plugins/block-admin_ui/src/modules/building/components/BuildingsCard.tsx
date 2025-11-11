@@ -1,13 +1,16 @@
-import { InfoCard, InfoCardContent } from '@/block/components/card';
 import { Input, Label, Select, Spinner, Textarea } from 'erxes-ui';
-import { IProjectDetail } from '@/project/types/projectTypes';
-import { useBuildings } from '@/building/hooks/useBuildings';
-import { AddBuilding } from '@/building/components/AddBuilding';
-import { IBuilding } from '@/building/types/buildingTypes';
-import { UploadImage } from '@/block/components/upload';
-import { useBuildingUpdate } from '@/building/hooks/useBuildingUpdate';
+import {
+  InfoCard,
+  InfoCardContent,
+} from 'frontend/private-plugins/blockadmin_ui/src/modules/block/components/card';
+import { UploadImage } from 'frontend/private-plugins/blockadmin_ui/src/modules/block/components/upload';
+import { AddBuilding } from 'frontend/private-plugins/blockadmin_ui/src/modules/building/components/AddBuilding';
+import { useBuildings } from 'frontend/private-plugins/blockadmin_ui/src/modules/building/hooks/useBuildings';
+import { useBuildingUpdate } from 'frontend/private-plugins/blockadmin_ui/src/modules/building/hooks/useBuildingUpdate';
+import { IBuilding } from 'frontend/private-plugins/blockadmin_ui/src/modules/building/types/buildingTypes';
+import { PROJECT_TYPES } from 'frontend/private-plugins/blockadmin_ui/src/modules/project/constants/project';
+import { IProjectDetail } from 'frontend/private-plugins/blockadmin_ui/src/modules/project/types/projectTypes';
 import { useState } from 'react';
-import { PROJECT_TYPES } from '@/project/constants/project';
 
 export const BuildingsCard = ({ project }: { project: IProjectDetail }) => {
   const { buildings, loading } = useBuildings({ projectId: project._id });

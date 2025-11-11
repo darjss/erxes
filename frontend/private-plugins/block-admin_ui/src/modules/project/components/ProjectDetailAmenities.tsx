@@ -1,15 +1,18 @@
-import { InfoCard, InfoCardContent } from '@/block/components/card';
-import { PROJECT_AMENITIES } from '@/project/constants/amenities';
+import { IconPlus } from '@tabler/icons-react';
 import {
-  Label,
-  Separator,
   Badge,
   Button,
   Combobox,
-  Popover,
   Command,
+  Label,
+  Popover,
+  Separator,
 } from 'erxes-ui';
-import { IconPlus } from '@tabler/icons-react';
+import {
+  InfoCard,
+  InfoCardContent,
+} from 'frontend/private-plugins/blockadmin_ui/src/modules/block/components/card';
+import { PROJECT_AMENITIES } from 'frontend/private-plugins/blockadmin_ui/src/modules/project/constants/amenities';
 import { useEffect, useState } from 'react';
 import { useProjectDetail } from '../hooks/useProjectDetail';
 import { useUpdateProjectGeneralInfo } from '../hooks/useUpdateProject';

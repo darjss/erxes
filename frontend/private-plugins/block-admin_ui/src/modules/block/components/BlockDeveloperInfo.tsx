@@ -1,16 +1,19 @@
-import { useDeveloperInfo } from '@/block/hooks/useDeveloperInfo';
-import { UploadImage } from './upload';
-import { Button, Form, Input, Select, Textarea, toast } from 'erxes-ui';
-import { Path, useForm, UseFormReturn } from 'react-hook-form';
-import { developerInfoSchema } from '@/block/constants/developerInfoSchema';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-import { ADDRESS_CITY, ADDRESS_DISTRICT } from '@/project/constants/address';
+import { Button, Form, Input, Select, Textarea, toast } from 'erxes-ui';
+import { developerInfoSchema } from 'frontend/private-plugins/blockadmin_ui/src/modules/block/constants/developerInfoSchema';
+import { useDeveloperInfo } from 'frontend/private-plugins/blockadmin_ui/src/modules/block/hooks/useDeveloperInfo';
+import { useUpdateDeveloperInfo } from 'frontend/private-plugins/blockadmin_ui/src/modules/block/hooks/useUpdateDeveloperInfo';
+import {
+  ADDRESS_CITY,
+  ADDRESS_DISTRICT,
+} from 'frontend/private-plugins/blockadmin_ui/src/modules/project/constants/address';
 import { useCallback, useEffect } from 'react';
-import { useUpdateDeveloperInfo } from '@/block/hooks/useUpdateDeveloperInfo';
+import { Path, useForm, UseFormReturn } from 'react-hook-form';
+import { z } from 'zod';
+import { SOCIAL_LINKS } from '../constants/socialLinks';
 import { BlockEditorField } from './BlockEditor';
 import { BlockPhones } from './BlockPhones';
-import { SOCIAL_LINKS } from '../constants/socialLinks';
+import { UploadImage } from './upload';
 
 export const BlockDeveloperInfo = () => {
   const { developerInfo, loading } = useDeveloperInfo();

@@ -1,6 +1,6 @@
-import { OfferFormData } from '@/offer/constants/offerSchema';
-import { IProjectPrice } from '@/project/types/projectTypes';
-import { Combobox, Popover, Command } from 'erxes-ui';
+import { Combobox, Command, Popover } from 'erxes-ui';
+import { OfferFormData } from 'frontend/private-plugins/blockadmin_ui/src/modules/offer/constants/offerSchema';
+import { IProjectPrice } from 'frontend/private-plugins/blockadmin_ui/src/modules/project/types/projectTypes';
 import { useState } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 

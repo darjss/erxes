@@ -1,3 +1,4 @@
+import { IconFilter2 } from '@tabler/icons-react';
 import {
   Button,
   NavigationMenuGroup,
@@ -5,10 +6,9 @@ import {
   PageSubHeader,
   Sidebar,
 } from 'erxes-ui';
+import { BuildingList } from 'frontend/private-plugins/blockadmin_ui/src/modules/building/components/BuildingList';
+import { ProjectList } from 'frontend/private-plugins/blockadmin_ui/src/modules/project/components/ProjectList';
 import { StackingHeader } from './StackingHeader';
-import { ProjectList } from '@/project/components/ProjectList';
-import { IconFilter2 } from '@tabler/icons-react';
-import { BuildingList } from '@/building/components/BuildingList';
 
 export const StackingLayout = ({ children }: { children: React.ReactNode }) => {
   return (

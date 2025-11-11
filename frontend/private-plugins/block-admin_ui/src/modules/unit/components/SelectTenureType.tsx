@@ -1,5 +1,5 @@
-import { UNIT_MARKET_TYPE } from '@/unit/constants/unit';
 import { Form, Select } from 'erxes-ui';
+import { UNIT_MARKET_TYPE } from 'frontend/private-plugins/blockadmin_ui/src/modules/unit/constants/unit';
 import React from 'react';
 
 export const SelectTenureType = ({

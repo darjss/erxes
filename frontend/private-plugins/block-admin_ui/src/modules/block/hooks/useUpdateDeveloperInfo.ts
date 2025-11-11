@@ -1,5 +1,5 @@
-import { UPDATE_DEVELOPER_INFO } from '@/block/graphql/blockMutations';
 import { useMutation } from '@apollo/client';
+import { UPDATE_DEVELOPER_INFO } from 'frontend/private-plugins/blockadmin_ui/src/modules/block/graphql/blockMutations';
 
 export const useUpdateDeveloperInfo = () => {
   const [updateDeveloperInfo, { loading }] = useMutation(UPDATE_DEVELOPER_INFO);

@@ -1,4 +1,4 @@
-name: CI plugin--block-admin_api
+name: CI plugin-blockadmin_api
 
 on:
   push:
@@ -6,18 +6,18 @@ on:
       - main
     paths:
       - 'backend/plugins/block_api/**'
-      - 'backend/plugins/block-admin_api/**'
+      - 'backend/plugins/blockadmin_api/**'
       - 'backend/erxes-api-shared/**'
-      - '.github/workflows/ci-api-block-admin.yml'
+      - '.github/workflows/ci-api-blockadmin.yml'
   pull_request:
     paths:
       - 'backend/plugins/block_api/**'
-      - 'backend/plugins/block-admin_api/**'
+      - 'backend/plugins/blockadmin_api/**'
       - 'backend/erxes-api-shared/**'
-      - '.github/workflows/ci-api-block-admin.yml'
+      - '.github/workflows/ci-api-blockadmin.yml'
 
 jobs:
-  block-admin_api-ci:
+  blockadmin_api-ci:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -41,8 +41,8 @@ jobs:
       - name: Build shared module
         run: pnpm nx build erxes-api-shared
 
-      - name: Build block-admin_api
-        run: pnpm nx build block-admin_api
+      - name: Build blockadmin_api
+        run: pnpm nx build blockadmin_api
 
       # Buildx setup
       - name: Set up QEMU
@@ -63,9 +63,9 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          file: backend/plugins/block-admin_api/Dockerfile
+          file: backend/plugins/blockadmin_api/Dockerfile
           push: true
           platforms: linux/amd64,linux/arm64
           tags: |
-            erxes/erxes-next-block-admin_api:latest
-            erxes/erxes-next-block-admin_api:${{ env.DATE }}-${{ env.SHORT_SHA }}
+            erxes/erxes-next-blockadmin_api:latest
+            erxes/erxes-next-blockadmin_api:${{ env.DATE }}-${{ env.SHORT_SHA }}

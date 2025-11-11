@@ -1,10 +1,13 @@
 import { useMutation } from '@apollo/client';
+import { toast } from 'erxes-ui';
+import {
+  IBuilding,
+  IZoning,
+} from 'frontend/private-plugins/blockadmin_ui/src/modules/building/types/buildingTypes';
 import {
   BLOCK_UPDATE_BUILDING,
   BLOCK_UPDATE_BUILDING_ZONING,
 } from '../graphql/buildingMutations';
-import { IBuilding, IZoning } from '@/building/types/buildingTypes';
-import { toast } from 'erxes-ui';
 
 export const useBuildingUpdate = ({ id }: { id: string }) => {
   const [mutate, { loading }] = useMutation(BLOCK_UPDATE_BUILDING);

@@ -1,21 +1,24 @@
 import {
+  Badge,
+  Button,
   Combobox,
+  Command,
   Label,
   Popover,
   Textarea,
-  Command,
-  Badge,
-  Button,
 } from 'erxes-ui';
-import { useProjectDetail } from '../hooks/useProjectDetail';
-import { InfoCard, InfoCardContent } from '@/block/components/card';
+import {
+  InfoCard,
+  InfoCardContent,
+} from 'frontend/private-plugins/blockadmin_ui/src/modules/block/components/card';
 import { useEffect, useState } from 'react';
+import { useProjectDetail } from '../hooks/useProjectDetail';
 
-import { PROJECT_TYPES } from '../constants/project';
-import { ProjectAddress } from '@/project/components/ProjectAddress';
-import { useDeveloperInfo } from '@/block/hooks/useDeveloperInfo';
-import { Link } from 'react-router';
 import { IconArrowUpRight } from '@tabler/icons-react';
+import { useDeveloperInfo } from 'frontend/private-plugins/blockadmin_ui/src/modules/block/hooks/useDeveloperInfo';
+import { ProjectAddress } from 'frontend/private-plugins/blockadmin_ui/src/modules/project/components/ProjectAddress';
+import { Link } from 'react-router';
+import { PROJECT_TYPES } from '../constants/project';
 
 export const ProjectDetailGeneral = () => {
   const { loading } = useProjectDetail();

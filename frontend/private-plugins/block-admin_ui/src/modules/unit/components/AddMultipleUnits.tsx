@@ -1,23 +1,23 @@
-import { SelectUsageType } from '@/unit/components/SelectUsageType';
-import { addUnitsMultipleSchema } from '@/unit/constants/addUnitSchema';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { IconAlertCircle, IconPlus } from '@tabler/icons-react';
 import {
   Alert,
   Button,
+  CurrencyField,
   Form,
   Separator,
   Sheet,
   Spinner,
   toast,
 } from 'erxes-ui';
-import { useForm } from 'react-hook-form';
-import { CurrencyField } from 'erxes-ui';
+import { IZoning } from 'frontend/private-plugins/blockadmin_ui/src/modules/building/types/buildingTypes';
+import { SelectTenureType } from 'frontend/private-plugins/blockadmin_ui/src/modules/unit/components/SelectTenureType';
+import { SelectUsageType } from 'frontend/private-plugins/blockadmin_ui/src/modules/unit/components/SelectUsageType';
+import { addUnitsMultipleSchema } from 'frontend/private-plugins/blockadmin_ui/src/modules/unit/constants/addUnitSchema';
+import { useUnitCreate } from 'frontend/private-plugins/blockadmin_ui/src/modules/unit/hooks/useUnitCreate';
 import { useState } from 'react';
-import { useUnitCreate } from '@/unit/hooks/useUnitCreate';
-import { IZoning } from '@/building/types/buildingTypes';
+import { useForm } from 'react-hook-form';
 import { z } from 'zod';
-import { SelectTenureType } from '@/unit/components/SelectTenureType';
 
 export const AddUnitsMultiple = ({ zone }: { zone: IZoning }) => {
   const [open, setOpen] = useState(false);

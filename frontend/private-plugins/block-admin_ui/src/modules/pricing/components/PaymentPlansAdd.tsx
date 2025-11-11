@@ -10,14 +10,14 @@ import {
 } from 'erxes-ui';
 import { useState } from 'react';
 
-import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { SelectPaymentPlanFrequency } from 'frontend/private-plugins/blockadmin_ui/src/modules/pricing/components/SelectPaymentPlanFrequency';
+import { PAYMENT_PLAN_TYPE } from 'frontend/private-plugins/blockadmin_ui/src/modules/pricing/constants/paymentPlans';
+import { useCreatePaymentPlan } from 'frontend/private-plugins/blockadmin_ui/src/modules/pricing/hooks/useManagePaymentPlan';
+import { IPaymentPlan } from 'frontend/private-plugins/blockadmin_ui/src/modules/pricing/types/paymentPlanTypes';
+import { useForm } from 'react-hook-form';
 import { paymentPlanSchema } from '../constants/paymentPlanSchema';
-import { IPaymentPlan } from '@/pricing/types/paymentPlanTypes';
 import { SelectPaymentPlanType } from './SelectPaymentPlanType';
-import { useCreatePaymentPlan } from '@/pricing/hooks/useManagePaymentPlan';
-import { PAYMENT_PLAN_TYPE } from '@/pricing/constants/paymentPlans';
-import { SelectPaymentPlanFrequency } from '@/pricing/components/SelectPaymentPlanFrequency';
 
 export const PaymentPlansAdd = () => {
   const [open, setOpen] = useState(false);

@@ -1,12 +1,12 @@
-import {
-  UploadButton,
-  RemoveButton,
-  UploadCard,
-} from '@/block/components/UploadCard';
-import { useMutateAttachment } from '@/unit/hooks/useMutateAttachment';
-import { useUnitAttachments } from '@/unit/hooks/useUnit';
-import { IUnitAttachment } from '@/unit/types/unitType';
 import { Spinner, useQueryState } from 'erxes-ui';
+import {
+  RemoveButton,
+  UploadButton,
+  UploadCard,
+} from 'frontend/private-plugins/blockadmin_ui/src/modules/block/components/UploadCard';
+import { useMutateAttachment } from 'frontend/private-plugins/blockadmin_ui/src/modules/unit/hooks/useMutateAttachment';
+import { useUnitAttachments } from 'frontend/private-plugins/blockadmin_ui/src/modules/unit/hooks/useUnit';
+import { IUnitAttachment } from 'frontend/private-plugins/blockadmin_ui/src/modules/unit/types/unitType';
 
 export const UnitMedia = () => {
   const [unitId] = useQueryState<string>('unitId');

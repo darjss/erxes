@@ -8,10 +8,10 @@ import {
   Skeleton,
   Tooltip,
 } from 'erxes-ui';
-import { useUpdateProjectGeneralInfo } from '../hooks/useUpdateProject';
+import { useProjects } from 'frontend/private-plugins/blockadmin_ui/src/modules/project/hooks/useProjects';
 import { useEffect, useState } from 'react';
-import { useProjects } from '@/project/hooks/useProjects';
 import { useNavigate, useParams } from 'react-router-dom';
+import { useUpdateProjectGeneralInfo } from '../hooks/useUpdateProject';
 
 export const ProjectDetailNameBreadcrumb = () => {
   const { projects, loading: projectsLoading } = useProjects(true);

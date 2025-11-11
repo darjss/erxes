@@ -1,5 +1,5 @@
-import { PAYMENT_PLAN_TYPE } from '@/pricing/constants/paymentPlans';
 import { Form, Select } from 'erxes-ui';
+import { PAYMENT_PLAN_TYPE } from 'frontend/private-plugins/blockadmin_ui/src/modules/pricing/constants/paymentPlans';
 import React from 'react';
 
 export const SelectPaymentPlanType = ({

@@ -1,8 +1,8 @@
-import { PageContainer, Separator, ScrollArea } from 'erxes-ui';
+import { PageContainer, ScrollArea, Separator } from 'erxes-ui';
+import { CreateProject } from 'frontend/private-plugins/blockadmin_ui/src/modules/project/components/CreateProject';
+import { ProjectBreadcrumb } from 'frontend/private-plugins/blockadmin_ui/src/modules/project/components/ProjectBreadcrumb';
+import { Projects } from 'frontend/private-plugins/blockadmin_ui/src/modules/project/components/Projects';
 import { PageHeader } from 'ui-modules';
-import { CreateProject } from '@/project/components/CreateProject';
-import { Projects } from '@/project/components/Projects';
-import { ProjectBreadcrumb } from '@/project/components/ProjectBreadcrumb';
 
 export const ProjectsPage = () => {
   return (

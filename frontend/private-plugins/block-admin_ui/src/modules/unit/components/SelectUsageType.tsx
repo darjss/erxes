@@ -1,5 +1,5 @@
 import { Form, Select } from 'erxes-ui';
-import { UNIT_USAGE_TYPE } from '@/unit/constants/unit';
+import { UNIT_USAGE_TYPE } from 'frontend/private-plugins/blockadmin_ui/src/modules/unit/constants/unit';
 import React from 'react';
 
 export const SelectUsageType = ({

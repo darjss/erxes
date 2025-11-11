@@ -6,10 +6,10 @@ import {
   useMultiQueryState,
   useQueryState,
 } from 'erxes-ui';
-import { UnitSidebar } from '@/unit/components/UnitSidebar';
-import { UnitTabs } from '@/unit/components/UnitTabs';
-import { useUnit } from '@/unit/hooks/useUnit';
-import { UnitContext } from '@/unit/context/unitContext';
+import { UnitSidebar } from 'frontend/private-plugins/blockadmin_ui/src/modules/unit/components/UnitSidebar';
+import { UnitTabs } from 'frontend/private-plugins/blockadmin_ui/src/modules/unit/components/UnitTabs';
+import { UnitContext } from 'frontend/private-plugins/blockadmin_ui/src/modules/unit/context/unitContext';
+import { useUnit } from 'frontend/private-plugins/blockadmin_ui/src/modules/unit/hooks/useUnit';
 
 export const UnitDetailSheet = () => {
   const [{ unitId }, setQueries] = useMultiQueryState<{

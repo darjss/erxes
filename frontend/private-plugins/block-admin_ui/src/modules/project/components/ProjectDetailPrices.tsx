@@ -1,6 +1,6 @@
-import { PaymentPlans } from '@/pricing/components/PaymentPlans';
-import { ProjectBankPartners } from '@/project/components/ProjectBankPartners';
-import { ProjectPrice } from '@/project/components/ProjectPrice';
+import { PaymentPlans } from 'frontend/private-plugins/blockadmin_ui/src/modules/pricing/components/PaymentPlans';
+import { ProjectBankPartners } from 'frontend/private-plugins/blockadmin_ui/src/modules/project/components/ProjectBankPartners';
+import { ProjectPrice } from 'frontend/private-plugins/blockadmin_ui/src/modules/project/components/ProjectPrice';
 
 export const ProjectDetailPrices = () => {
   return (

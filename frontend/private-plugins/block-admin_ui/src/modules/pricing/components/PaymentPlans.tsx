@@ -1,17 +1,20 @@
-import { InfoCard, InfoCardContent } from '@/block/components/card';
-import { Label, Button, Input, CurrencyField, Spinner } from 'erxes-ui';
 import { IconTrash } from '@tabler/icons-react';
-import { usePaymentPlansByProject } from '../hooks/usePaymentPlans';
-import { IPaymentPlan } from '../types/paymentPlanTypes';
+import { Button, CurrencyField, Input, Label, Spinner } from 'erxes-ui';
+import {
+  InfoCard,
+  InfoCardContent,
+} from 'frontend/private-plugins/blockadmin_ui/src/modules/block/components/card';
+import { SelectPaymentPlanFrequency } from 'frontend/private-plugins/blockadmin_ui/src/modules/pricing/components/SelectPaymentPlanFrequency';
+import { SelectPaymentPlanType } from 'frontend/private-plugins/blockadmin_ui/src/modules/pricing/components/SelectPaymentPlanType';
 import { useState } from 'react';
+import { useParams } from 'react-router-dom';
 import {
   useRemovePaymentPlan,
   useUpdatePaymentPlan,
 } from '../hooks/useManagePaymentPlan';
+import { usePaymentPlansByProject } from '../hooks/usePaymentPlans';
+import { IPaymentPlan } from '../types/paymentPlanTypes';
 import { PaymentPlansAdd } from './PaymentPlansAdd';
-import { SelectPaymentPlanFrequency } from '@/pricing/components/SelectPaymentPlanFrequency';
-import { useParams } from 'react-router-dom';
-import { SelectPaymentPlanType } from '@/pricing/components/SelectPaymentPlanType';
 
 export const PaymentPlans = () => {
   const { paymentPlans, loading } = usePaymentPlansByProject();

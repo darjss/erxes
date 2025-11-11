@@ -1,5 +1,3 @@
-import { useProjects } from '@/project/hooks/useProjects';
-import { IProject } from '@/project/types/projectTypes';
 import { IconCheck } from '@tabler/icons-react';
 import {
   Button,
@@ -8,6 +6,8 @@ import {
   useMultiQueryState,
   useQueryState,
 } from 'erxes-ui';
+import { useProjects } from 'frontend/private-plugins/blockadmin_ui/src/modules/project/hooks/useProjects';
+import { IProject } from 'frontend/private-plugins/blockadmin_ui/src/modules/project/types/projectTypes';
 import { useEffect } from 'react';
 
 export const ProjectList = () => {

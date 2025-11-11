@@ -1,9 +1,12 @@
-import { InfoCard, InfoCardContent } from '@/block/components/card';
-import { BANKS } from '@/project/constants/banks';
-import { useProjectDetail } from '@/project/hooks/useProjectDetail';
-import { useUpdateProjectGeneralInfo } from '@/project/hooks/useUpdateProject';
 import { IconPlus, IconTrash } from '@tabler/icons-react';
-import { Button, Label, Select } from 'erxes-ui';
+import { Button, Select } from 'erxes-ui';
+import {
+  InfoCard,
+  InfoCardContent,
+} from 'frontend/private-plugins/blockadmin_ui/src/modules/block/components/card';
+import { BANKS } from 'frontend/private-plugins/blockadmin_ui/src/modules/project/constants/banks';
+import { useProjectDetail } from 'frontend/private-plugins/blockadmin_ui/src/modules/project/hooks/useProjectDetail';
+import { useUpdateProjectGeneralInfo } from 'frontend/private-plugins/blockadmin_ui/src/modules/project/hooks/useUpdateProject';
 import { useEffect, useState } from 'react';
 
 export const ProjectBankPartners = () => {

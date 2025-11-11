@@ -1,4 +1,4 @@
-import { PAYMENT_PLAN_FREQUENCY } from '@/pricing/constants/paymentPlans';
+import { PAYMENT_PLAN_FREQUENCY } from 'frontend/private-plugins/blockadmin_ui/src/modules/pricing/constants/paymentPlans';
 
 export interface IPaymentPlanInput {
   advancePaymentPercentage: number;

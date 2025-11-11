@@ -1,5 +1,8 @@
-import { UNIT_LEASE_STATUS, UNIT_SALE_STATUS } from '@/unit/constants/unit';
 import { Form, Select } from 'erxes-ui';
+import {
+  UNIT_LEASE_STATUS,
+  UNIT_SALE_STATUS,
+} from 'frontend/private-plugins/blockadmin_ui/src/modules/unit/constants/unit';
 import React from 'react';
 
 export const SelectUnitStatus = ({

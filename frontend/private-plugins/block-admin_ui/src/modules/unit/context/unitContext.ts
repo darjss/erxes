@@ -1,4 +1,4 @@
-import { IUnit } from '@/unit/types/unitType';
+import { IUnit } from 'frontend/private-plugins/blockadmin_ui/src/modules/unit/types/unitType';
 import { createContext, useContext } from 'react';
 
 export const UnitContext = createContext<{

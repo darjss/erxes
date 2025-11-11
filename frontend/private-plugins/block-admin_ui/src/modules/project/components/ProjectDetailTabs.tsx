@@ -1,6 +1,6 @@
-import { PROJECT_TABS } from '@/project/constants/project';
-import { useProjectDetail } from '@/project/hooks/useProjectDetail';
 import { Spinner, useQueryState } from 'erxes-ui';
+import { PROJECT_TABS } from 'frontend/private-plugins/blockadmin_ui/src/modules/project/constants/project';
+import { useProjectDetail } from 'frontend/private-plugins/blockadmin_ui/src/modules/project/hooks/useProjectDetail';
 import { Suspense, lazy } from 'react';
 
 const ProjectDetailGeneral = lazy(() =>

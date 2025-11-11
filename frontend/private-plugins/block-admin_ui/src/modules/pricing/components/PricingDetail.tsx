@@ -1,6 +1,6 @@
-import { SelectPriceType } from '@/pricing/components/SelectPriceType';
-import { IProjectPrice } from '@/project/types/projectTypes';
 import { CurrencyCode, CurrencyField, Label } from 'erxes-ui';
+import { SelectPriceType } from 'frontend/private-plugins/blockadmin_ui/src/modules/pricing/components/SelectPriceType';
+import { IProjectPrice } from 'frontend/private-plugins/blockadmin_ui/src/modules/project/types/projectTypes';
 import { useState } from 'react';
 
 export const PricingDetail = ({

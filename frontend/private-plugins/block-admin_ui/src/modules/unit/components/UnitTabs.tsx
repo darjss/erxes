@@ -1,5 +1,5 @@
-import { UNIT_DOCUMENT_TABS_KEYS } from '@/unit/constants/unit';
 import { useQueryState } from 'erxes-ui';
+import { UNIT_DOCUMENT_TABS_KEYS } from 'frontend/private-plugins/blockadmin_ui/src/modules/unit/constants/unit';
 import { lazy, Suspense } from 'react';
 
 const UnitDetailOverview = lazy(() =>

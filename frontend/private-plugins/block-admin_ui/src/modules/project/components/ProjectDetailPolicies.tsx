@@ -1,5 +1,8 @@
-import { InfoCard, InfoCardContent } from '@/block/components/card';
 import { Editor, Label } from 'erxes-ui';
+import {
+  InfoCard,
+  InfoCardContent,
+} from 'frontend/private-plugins/blockadmin_ui/src/modules/block/components/card';
 import { useState } from 'react';
 
 export const ProjectDetailPolicies = () => {

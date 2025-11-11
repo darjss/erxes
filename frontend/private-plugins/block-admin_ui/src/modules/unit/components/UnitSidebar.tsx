@@ -1,5 +1,5 @@
-import { UNIT_DOCUMENT_TABS } from '@/unit/constants/unit';
 import { Sidebar, useQueryState } from 'erxes-ui';
+import { UNIT_DOCUMENT_TABS } from 'frontend/private-plugins/blockadmin_ui/src/modules/unit/constants/unit';
 
 export const UnitSidebar = () => {
   const [activeUnitTab, setActiveUnitTab] = useQueryState('activeUnitTab', {

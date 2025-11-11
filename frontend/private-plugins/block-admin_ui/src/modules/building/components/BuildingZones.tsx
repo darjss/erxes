@@ -1,9 +1,12 @@
-import { InfoCard, InfoCardContent } from '@/block/components/card';
-import { SelectBuilding } from '@/building/components/SelectBuilding';
-import { useBuildingZonings } from '@/building/hooks/useBuildings';
-import { IZoning } from '@/building/types/buildingTypes';
-import { UnitsList } from '@/unit/components/UnitsList';
 import { Spinner, useMultiQueryState } from 'erxes-ui';
+import {
+  InfoCard,
+  InfoCardContent,
+} from 'frontend/private-plugins/blockadmin_ui/src/modules/block/components/card';
+import { SelectBuilding } from 'frontend/private-plugins/blockadmin_ui/src/modules/building/components/SelectBuilding';
+import { useBuildingZonings } from 'frontend/private-plugins/blockadmin_ui/src/modules/building/hooks/useBuildings';
+import { IZoning } from 'frontend/private-plugins/blockadmin_ui/src/modules/building/types/buildingTypes';
+import { UnitsList } from 'frontend/private-plugins/blockadmin_ui/src/modules/unit/components/UnitsList';
 import { useState } from 'react';
 
 export const BuildingUnitsByZones = ({ projectId }: { projectId?: string }) => {

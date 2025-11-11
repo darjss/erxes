@@ -1,13 +1,16 @@
-import { InfoCard, InfoCardContent } from '@/block/components/card';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { IconTrash } from '@tabler/icons-react';
 import { Button, Form, Input, Label, Select, Sheet } from 'erxes-ui';
+import {
+  InfoCard,
+  InfoCardContent,
+} from 'frontend/private-plugins/blockadmin_ui/src/modules/block/components/card';
+import { UploadProvider } from 'frontend/private-plugins/blockadmin_ui/src/modules/block/components/upload';
+import { UploadButton } from 'frontend/private-plugins/blockadmin_ui/src/modules/block/components/UploadCard';
 import { useState } from 'react';
 import { useForm, UseFormReturn } from 'react-hook-form';
 import { MembersInline } from 'ui-modules';
 import { z } from 'zod';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { UploadProvider } from '@/block/components/upload';
-import { UploadButton } from '@/block/components/UploadCard';
 
 export const ProjectDetailDocument = () => {
   return (

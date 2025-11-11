@@ -1,12 +1,12 @@
 import { ScrollArea } from 'erxes-ui';
 
-import { ProjectBreadcrumb } from '@/project/components/ProjectBreadcrumb';
 import { PageContainer } from 'erxes-ui';
+import { ProjectBreadcrumb } from 'frontend/private-plugins/blockadmin_ui/src/modules/project/components/ProjectBreadcrumb';
+import { ProjectDetailNameBreadcrumb } from 'frontend/private-plugins/blockadmin_ui/src/modules/project/components/ProjectDetailName';
+import { ProjectDetailProfile } from 'frontend/private-plugins/blockadmin_ui/src/modules/project/components/ProjectDetailProfile';
+import { ProjectDetailSidebar } from 'frontend/private-plugins/blockadmin_ui/src/modules/project/components/ProjectDetailSidebar';
+import { ProjectDetailTabs } from 'frontend/private-plugins/blockadmin_ui/src/modules/project/components/ProjectDetailTabs';
 import { PageHeader } from 'ui-modules';
-import { ProjectDetailNameBreadcrumb } from '@/project/components/ProjectDetailName';
-import { ProjectDetailSidebar } from '@/project/components/ProjectDetailSidebar';
-import { ProjectDetailTabs } from '@/project/components/ProjectDetailTabs';
-import { ProjectDetailProfile } from '@/project/components/ProjectDetailProfile';
 
 export const ProjectDetail = () => {
   return (

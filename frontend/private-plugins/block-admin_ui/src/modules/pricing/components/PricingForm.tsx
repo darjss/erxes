@@ -1,6 +1,6 @@
-import { addUnitSchema } from '@/unit/constants/addUnitSchema';
 import { IconPlus, IconTrash } from '@tabler/icons-react';
-import { Form, Checkbox, CurrencyField, Button, Select, Label } from 'erxes-ui';
+import { Button, Checkbox, CurrencyField, Form, Label, Select } from 'erxes-ui';
+import { addUnitSchema } from 'frontend/private-plugins/blockadmin_ui/src/modules/unit/constants/addUnitSchema';
 import { useFieldArray, UseFormReturn } from 'react-hook-form';
 import { z } from 'zod';
 

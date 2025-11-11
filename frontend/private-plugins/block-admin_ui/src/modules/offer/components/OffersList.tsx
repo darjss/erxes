@@ -1,10 +1,13 @@
-import { useOffers } from '../hooks/useOffers';
-import { IOffer } from '../types/offerTypes';
-import { InfoCard, InfoCardContent } from '@/block/components/card';
-import { OfferAddSheet } from '@/offer/components/OfferAdd';
 import { format } from 'date-fns';
 import { Button, Label, useQueryState } from 'erxes-ui';
-import { CustomersInline, CompaniesInline, MembersInline } from 'ui-modules';
+import {
+  InfoCard,
+  InfoCardContent,
+} from 'frontend/private-plugins/blockadmin_ui/src/modules/block/components/card';
+import { OfferAddSheet } from 'frontend/private-plugins/blockadmin_ui/src/modules/offer/components/OfferAdd';
+import { CompaniesInline, CustomersInline, MembersInline } from 'ui-modules';
+import { useOffers } from '../hooks/useOffers';
+import { IOffer } from '../types/offerTypes';
 
 interface OffersListProps {
   unitId?: string;

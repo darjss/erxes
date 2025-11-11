@@ -1,5 +1,5 @@
-import { useBuildings } from '@/building/hooks/useBuildings';
 import { Select } from 'erxes-ui';
+import { useBuildings } from 'frontend/private-plugins/blockadmin_ui/src/modules/building/hooks/useBuildings';
 import { useEffect } from 'react';
 
 export const SelectBuilding = ({

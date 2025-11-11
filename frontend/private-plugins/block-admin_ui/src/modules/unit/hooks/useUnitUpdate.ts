@@ -1,7 +1,7 @@
-import { BLOCK_UPDATE_UNIT } from '@/unit/graphql/unitMutations';
-import { IUnit } from '@/unit/types/unitType';
 import { useMutation } from '@apollo/client';
 import { toast } from 'erxes-ui';
+import { BLOCK_UPDATE_UNIT } from 'frontend/private-plugins/blockadmin_ui/src/modules/unit/graphql/unitMutations';
+import { IUnit } from 'frontend/private-plugins/blockadmin_ui/src/modules/unit/types/unitType';
 
 export const useUnitUpdate = ({ id }: { id: string }) => {
   const [mutate] = useMutation(BLOCK_UPDATE_UNIT);

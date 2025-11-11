@@ -1,12 +1,12 @@
 import { useMutation } from '@apollo/client';
+import { toast } from 'erxes-ui';
+import { BLOCK_GET_PROJECT_MEMBERS } from 'frontend/private-plugins/blockadmin_ui/src/modules/project/graphql/projectQueries';
+import { useParams } from 'react-router';
 import {
   BLOCK_ADD_PROJECT_MEMBERS,
   BLOCK_DELETE_PROJECT_MEMBER,
   BLOCK_UPDATE_PROJECT_MEMBER,
 } from '../graphql/projectMutations';
-import { toast } from 'erxes-ui';
-import { BLOCK_GET_PROJECT_MEMBERS } from '@/project/graphql/projectQueries';
-import { useParams } from 'react-router';
 
 export const useAddProjectMembers = () => {
   const [addProjectMembers, { loading, error }] = useMutation(

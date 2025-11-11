@@ -1,10 +1,13 @@
-import { InfoCard, InfoCardContent } from '@/block/components/card';
-import { Button, CurrencyCode, CurrencyField, Label, Select } from 'erxes-ui';
 import { IconPlus, IconTrash } from '@tabler/icons-react';
-import { useProjectDetail } from '../hooks/useProjectDetail';
+import { Button, CurrencyCode, CurrencyField, Label, Select } from 'erxes-ui';
+import {
+  InfoCard,
+  InfoCardContent,
+} from 'frontend/private-plugins/blockadmin_ui/src/modules/block/components/card';
+import { useUpdateProjectGeneralInfo } from 'frontend/private-plugins/blockadmin_ui/src/modules/project/hooks/useUpdateProject';
+import { IProjectPrice } from 'frontend/private-plugins/blockadmin_ui/src/modules/project/types/projectTypes';
 import { useEffect, useState } from 'react';
-import { useUpdateProjectGeneralInfo } from '@/project/hooks/useUpdateProject';
-import { IProjectPrice } from '@/project/types/projectTypes';
+import { useProjectDetail } from '../hooks/useProjectDetail';
 
 export const ProjectPrice = () => {
   const { project } = useProjectDetail();

@@ -1,9 +1,15 @@
-import { InfoCard, InfoCardContent } from '@/block/components/card';
-import { ADDRESS_CITY, ADDRESS_DISTRICT } from '@/project/constants/address';
-import { useProjectDetail } from '@/project/hooks/useProjectDetail';
-import { useUpdateProjectGeneralInfo } from '@/project/hooks/useUpdateProject';
-import { IProjectLocation } from '@/project/types/projectTypes';
-import { Label, Select, Input, Textarea } from 'erxes-ui';
+import { Input, Label, Select, Textarea } from 'erxes-ui';
+import {
+  InfoCard,
+  InfoCardContent,
+} from 'frontend/private-plugins/blockadmin_ui/src/modules/block/components/card';
+import {
+  ADDRESS_CITY,
+  ADDRESS_DISTRICT,
+} from 'frontend/private-plugins/blockadmin_ui/src/modules/project/constants/address';
+import { useProjectDetail } from 'frontend/private-plugins/blockadmin_ui/src/modules/project/hooks/useProjectDetail';
+import { useUpdateProjectGeneralInfo } from 'frontend/private-plugins/blockadmin_ui/src/modules/project/hooks/useUpdateProject';
+import { IProjectLocation } from 'frontend/private-plugins/blockadmin_ui/src/modules/project/types/projectTypes';
 import { useState } from 'react';
 
 export const ProjectAddress = () => {

@@ -1,11 +1,14 @@
-import { InfoCard, InfoCardContent } from '@/block/components/card';
+import { Button, Input, Label, Textarea } from 'erxes-ui';
+import {
+  InfoCard,
+  InfoCardContent,
+} from 'frontend/private-plugins/blockadmin_ui/src/modules/block/components/card';
 import {
   RemoveButton,
   UploadButton,
   UploadCard,
-} from '@/block/components/UploadCard';
-import { useProjectDetail } from '@/project/hooks/useProjectDetail';
-import { Button, Input, Label, Textarea } from 'erxes-ui';
+} from 'frontend/private-plugins/blockadmin_ui/src/modules/block/components/UploadCard';
+import { useProjectDetail } from 'frontend/private-plugins/blockadmin_ui/src/modules/project/hooks/useProjectDetail';
 import { useState } from 'react';
 
 export const ProjectDetailSeo = () => {

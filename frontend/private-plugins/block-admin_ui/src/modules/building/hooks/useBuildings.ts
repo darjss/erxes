@@ -1,9 +1,12 @@
+import { useQuery } from '@apollo/client';
 import {
   BLOCK_GET_BUILDING_LIST,
   BLOCK_GET_BUILDING_ZONINGS,
-} from '@/building/graphql/buildingQueries';
-import { useQuery } from '@apollo/client';
-import { IBuilding, IZoning } from '@/building/types/buildingTypes';
+} from 'frontend/private-plugins/blockadmin_ui/src/modules/building/graphql/buildingQueries';
+import {
+  IBuilding,
+  IZoning,
+} from 'frontend/private-plugins/blockadmin_ui/src/modules/building/types/buildingTypes';
 
 export const useBuildings = ({ projectId }: { projectId: string }) => {
   const { data, loading } = useQuery<{ blockGetBuildings: IBuilding[] }>(

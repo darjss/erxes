@@ -1,13 +1,16 @@
-import { InfoCard, InfoCardContent } from '@/block/components/card';
-import { useProjectMembers } from '@/project/hooks/useProjectDetail';
+import { IconTrash } from '@tabler/icons-react';
 import { Button, Label, Select, SkeletonArray, useConfirm } from 'erxes-ui';
-import { ProjectDetailAddMember } from './ProjectDetailAddMember';
-import { MembersInline } from 'ui-modules';
+import {
+  InfoCard,
+  InfoCardContent,
+} from 'frontend/private-plugins/blockadmin_ui/src/modules/block/components/card';
+import { useProjectMembers } from 'frontend/private-plugins/blockadmin_ui/src/modules/project/hooks/useProjectDetail';
 import {
   useDeleteProjectMember,
   useUpdateProjectMember,
-} from '@/project/hooks/useProjectMembers';
-import { IconTrash } from '@tabler/icons-react';
+} from 'frontend/private-plugins/blockadmin_ui/src/modules/project/hooks/useProjectMembers';
+import { MembersInline } from 'ui-modules';
+import { ProjectDetailAddMember } from './ProjectDetailAddMember';
 
 export const ProjectDetailMembers = () => {
   const { projectMembers, loading } = useProjectMembers();

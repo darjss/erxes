@@ -2,7 +2,7 @@ import {
   RemoveButton,
   UploadButton,
   UploadCard,
-} from '@/block/components/UploadCard';
+} from 'frontend/private-plugins/blockadmin_ui/src/modules/block/components/UploadCard';
 import { useState } from 'react';
 
 export const UnitDocument = () => {

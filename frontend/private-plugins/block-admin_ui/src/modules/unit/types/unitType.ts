@@ -1,4 +1,4 @@
-import { IProjectPrice } from '@/project/types/projectTypes';
+import { IProjectPrice } from 'frontend/private-plugins/blockadmin_ui/src/modules/project/types/projectTypes';
 
 export interface IUnit {
   _id: string;

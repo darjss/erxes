@@ -1,12 +1,8 @@
-import { Badge, Separator, Spinner, Button, cn } from 'erxes-ui';
+import { IconClockFilled, IconShieldFilled } from '@tabler/icons-react';
+import { Badge, cn, Spinner } from 'erxes-ui';
+import { ProjectDetailActions } from 'frontend/private-plugins/blockadmin_ui/src/modules/project/components/ProjectDetailActions';
 import { useProjectDetail } from '../hooks/useProjectDetail';
-import {
-  IconClockFilled,
-  IconDotsVertical,
-  IconShieldFilled,
-} from '@tabler/icons-react';
 import { ProjectDetailName } from './ProjectDetailName';
-import { ProjectDetailActions } from '@/project/components/ProjectDetailActions';
 
 export const ProjectDetailProfile = () => {
   const { project, loading } = useProjectDetail();

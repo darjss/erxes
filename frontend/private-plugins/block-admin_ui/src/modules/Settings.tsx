@@ -1,7 +1,7 @@
-import { BlockDeveloperInfo } from '@/block/components/BlockDeveloperInfo';
-import { BlockSettingsSidebar } from '@/block/components/BlockSettingsSidebar';
 import { IconStackFilled } from '@tabler/icons-react';
 import { Button, PageContainer } from 'erxes-ui';
+import { BlockDeveloperInfo } from 'frontend/private-plugins/blockadmin_ui/src/modules/block/components/BlockDeveloperInfo';
+import { BlockSettingsSidebar } from 'frontend/private-plugins/blockadmin_ui/src/modules/block/components/BlockSettingsSidebar';
 import { Link } from 'react-router-dom';
 import { SettingsHeader } from 'ui-modules';
 

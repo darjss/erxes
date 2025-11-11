@@ -1,4 +1,4 @@
-import { BuildingZoneList } from '@/building/components/BuildingZoneList';
+import { BuildingZoneList } from 'frontend/private-plugins/blockadmin_ui/src/modules/building/components/BuildingZoneList';
 import { useProjectDetail } from '../hooks/useProjectDetail';
 
 export const ProjectDetailZoning = () => {

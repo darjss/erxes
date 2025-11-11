@@ -1,9 +1,3 @@
-import { useBuildingZonings } from '@/building/hooks/useBuildings';
-import { IZoning } from '@/building/types/buildingTypes';
-import { StackingUnitItem } from '@/stacking/components/StackingUnitItem';
-import { UNIT_SALE_STATUS } from '@/unit/constants/unit';
-import { UnitDetailSheet } from '@/unit/components/UnitDetailSheet';
-import { useUnits } from '@/unit/hooks/useUnits';
 import {
   IconBuildingPlus,
   IconClipboardText,
@@ -15,6 +9,12 @@ import {
   useMultiQueryState,
   useQueryState,
 } from 'erxes-ui';
+import { useBuildingZonings } from 'frontend/private-plugins/blockadmin_ui/src/modules/building/hooks/useBuildings';
+import { IZoning } from 'frontend/private-plugins/blockadmin_ui/src/modules/building/types/buildingTypes';
+import { StackingUnitItem } from 'frontend/private-plugins/blockadmin_ui/src/modules/stacking/components/StackingUnitItem';
+import { UnitDetailSheet } from 'frontend/private-plugins/blockadmin_ui/src/modules/unit/components/UnitDetailSheet';
+import { UNIT_SALE_STATUS } from 'frontend/private-plugins/blockadmin_ui/src/modules/unit/constants/unit';
+import { useUnits } from 'frontend/private-plugins/blockadmin_ui/src/modules/unit/hooks/useUnits';
 import { Link } from 'react-router-dom';
 
 export const StackingDisplay = () => {

@@ -1,4 +1,4 @@
-import { BlockDeveloperInfo } from '@/block/components/BlockDeveloperInfo';
+import { BlockDeveloperInfo } from 'frontend/private-plugins/blockadmin_ui/src/modules/block/components/BlockDeveloperInfo';
 
 export const DeveloperInfoPage = () => {
   return (

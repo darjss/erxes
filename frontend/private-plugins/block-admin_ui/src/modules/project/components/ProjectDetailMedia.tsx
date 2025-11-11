@@ -1,16 +1,22 @@
-import { InfoCard, InfoCardContent } from '@/block/components/card';
-import { Upload, UploadProvider } from '@/block/components/upload';
-import { useProjectDetail } from '@/project/hooks/useProjectDetail';
-import { useUpdateProjectGeneralInfo } from '@/project/hooks/useUpdateProject';
 import { IconPhotoCirclePlus, IconUpload, IconX } from '@tabler/icons-react';
-import { Button, readImage, Input, Dialog } from 'erxes-ui';
-import { UploadRemoveButton } from '@/block/components/upload';
-import { useState } from 'react';
+import { Button, Dialog, Input, readImage } from 'erxes-ui';
+import {
+  InfoCard,
+  InfoCardContent,
+} from 'frontend/private-plugins/blockadmin_ui/src/modules/block/components/card';
+import {
+  Upload,
+  UploadProvider,
+  UploadRemoveButton,
+} from 'frontend/private-plugins/blockadmin_ui/src/modules/block/components/upload';
 import {
   RemoveButton,
   UploadButton,
   UploadCard,
-} from '@/block/components/UploadCard';
+} from 'frontend/private-plugins/blockadmin_ui/src/modules/block/components/UploadCard';
+import { useProjectDetail } from 'frontend/private-plugins/blockadmin_ui/src/modules/project/hooks/useProjectDetail';
+import { useUpdateProjectGeneralInfo } from 'frontend/private-plugins/blockadmin_ui/src/modules/project/hooks/useUpdateProject';
+import { useState } from 'react';
 
 export const ProjectDetailMedia = () => {
   return (

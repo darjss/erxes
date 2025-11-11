@@ -1,11 +1,11 @@
+import { useMutation } from '@apollo/client';
 import {
   BLOCK_CREATE_UNIT_ATTACHMENT,
   BLOCK_REMOVE_UNIT_ATTACHMENT,
   BLOCK_UPDATE_UNIT_ATTACHMENT,
-} from '@/unit/graphql/unitMutations';
-import { BLOCK_UNIT_ATTACHMENTS } from '@/unit/graphql/unitQueries';
-import { IUnitAttachment } from '@/unit/types/unitType';
-import { useMutation } from '@apollo/client';
+} from 'frontend/private-plugins/blockadmin_ui/src/modules/unit/graphql/unitMutations';
+import { BLOCK_UNIT_ATTACHMENTS } from 'frontend/private-plugins/blockadmin_ui/src/modules/unit/graphql/unitQueries';
+import { IUnitAttachment } from 'frontend/private-plugins/blockadmin_ui/src/modules/unit/types/unitType';
 
 export const useMutateAttachment = ({ unitId }: { unitId: string | null }) => {
   const refetchQueries = [

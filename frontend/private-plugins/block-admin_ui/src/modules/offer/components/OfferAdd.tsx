@@ -1,43 +1,49 @@
+import { zodResolver } from '@hookform/resolvers/zod';
+import { IconPlus } from '@tabler/icons-react';
+import { addDays } from 'date-fns';
 import {
   Button,
-  Sheet,
-  Spinner,
+  CurrencyCode,
+  CurrencyField,
+  DatePicker,
   Form,
-  ScrollArea,
-  Select,
   Input,
   Label,
+  ScrollArea,
+  Select,
   Separator,
-  useQueryState,
-  CurrencyField,
-  CurrencyCode,
-  DatePicker,
+  Sheet,
+  Spinner,
   toast,
+  useQueryState,
 } from 'erxes-ui';
-import { IconPlus } from '@tabler/icons-react';
-import { useState } from 'react';
-import { useCreateOffer } from '@/offer/hooks/useManageOffer';
-import { useForm, UseFormReturn } from 'react-hook-form';
-import { OfferFormData, offerSchema } from '@/offer/constants/offerSchema';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
 import {
-  SelectCustomer,
-  SelectCompany,
-  SelectMember,
-  currentUserState,
-} from 'ui-modules';
+  InfoCard,
+  InfoCardContent,
+} from 'frontend/private-plugins/blockadmin_ui/src/modules/block/components/card';
+import {
+  OfferFormData,
+  offerSchema,
+} from 'frontend/private-plugins/blockadmin_ui/src/modules/offer/constants/offerSchema';
+import { useCreateOffer } from 'frontend/private-plugins/blockadmin_ui/src/modules/offer/hooks/useManageOffer';
+import { SelectPaymentPlan } from 'frontend/private-plugins/blockadmin_ui/src/modules/pricing/components/SelectPaymentPlan';
+import { SelectPaymentPlanFrequency } from 'frontend/private-plugins/blockadmin_ui/src/modules/pricing/components/SelectPaymentPlanFrequency';
+import { SelectPaymentPlanType } from 'frontend/private-plugins/blockadmin_ui/src/modules/pricing/components/SelectPaymentPlanType';
+import { SelectPrice } from 'frontend/private-plugins/blockadmin_ui/src/modules/pricing/components/SelectPrice';
+import { SelectPriceType } from 'frontend/private-plugins/blockadmin_ui/src/modules/pricing/components/SelectPriceType';
+import { IProjectPrice } from 'frontend/private-plugins/blockadmin_ui/src/modules/project/types/projectTypes';
+import { useUnit } from 'frontend/private-plugins/blockadmin_ui/src/modules/unit/hooks/useUnit';
+import { IUnit } from 'frontend/private-plugins/blockadmin_ui/src/modules/unit/types/unitType';
 import { useAtomValue } from 'jotai';
-import { SelectPaymentPlan } from '@/pricing/components/SelectPaymentPlan';
-import { SelectPaymentPlanType } from '@/pricing/components/SelectPaymentPlanType';
-import { SelectPaymentPlanFrequency } from '@/pricing/components/SelectPaymentPlanFrequency';
-import { useUnit } from '@/unit/hooks/useUnit';
-import { IUnit } from '@/unit/types/unitType';
-import { InfoCard, InfoCardContent } from '@/block/components/card';
-import { SelectPrice } from '@/pricing/components/SelectPrice';
-import { IProjectPrice } from '@/project/types/projectTypes';
-import { SelectPriceType } from '@/pricing/components/SelectPriceType';
-import { addDays } from 'date-fns';
+import { useState } from 'react';
+import { useForm, UseFormReturn } from 'react-hook-form';
+import {
+  currentUserState,
+  SelectCompany,
+  SelectCustomer,
+  SelectMember,
+} from 'ui-modules';
+import { z } from 'zod';
 
 export const OfferAddSheet = () => {
   const [open, setOpen] = useState(false);

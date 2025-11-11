@@ -1,6 +1,6 @@
-import { UNIT_SALE_STATUS } from '@/unit/constants/unit';
-import { IUnit } from '@/unit/types/unitType';
 import { cn, useQueryState } from 'erxes-ui';
+import { UNIT_SALE_STATUS } from 'frontend/private-plugins/blockadmin_ui/src/modules/unit/constants/unit';
+import { IUnit } from 'frontend/private-plugins/blockadmin_ui/src/modules/unit/types/unitType';
 
 export const StackingUnitItem = ({ number, size, _id, status }: IUnit) => {
   const [, setUnitId] = useQueryState<string>('unitId');

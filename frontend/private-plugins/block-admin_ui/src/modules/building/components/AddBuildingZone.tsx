@@ -1,15 +1,15 @@
-import {
-  buildingZoneSchema,
-  generateByFloorRangeSchema,
-} from '@/building/constants/buildingSchema';
-import { BLOCK_GET_BUILDING_ZONINGS } from '@/building/graphql/buildingQueries';
-import { useBuildingsCreateZone } from '@/building/hooks/useBuildingsCreate';
-import { IBuilding } from '@/building/types/buildingTypes';
-import { SelectTenureType } from '@/unit/components/SelectTenureType';
-import { SelectUsageType } from '@/unit/components/SelectUsageType';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { IconPlus } from '@tabler/icons-react';
 import { Button, Form, Input, Separator, Sheet, Spinner } from 'erxes-ui';
+import {
+  buildingZoneSchema,
+  generateByFloorRangeSchema,
+} from 'frontend/private-plugins/blockadmin_ui/src/modules/building/constants/buildingSchema';
+import { BLOCK_GET_BUILDING_ZONINGS } from 'frontend/private-plugins/blockadmin_ui/src/modules/building/graphql/buildingQueries';
+import { useBuildingsCreateZone } from 'frontend/private-plugins/blockadmin_ui/src/modules/building/hooks/useBuildingsCreate';
+import { IBuilding } from 'frontend/private-plugins/blockadmin_ui/src/modules/building/types/buildingTypes';
+import { SelectTenureType } from 'frontend/private-plugins/blockadmin_ui/src/modules/unit/components/SelectTenureType';
+import { SelectUsageType } from 'frontend/private-plugins/blockadmin_ui/src/modules/unit/components/SelectUsageType';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';

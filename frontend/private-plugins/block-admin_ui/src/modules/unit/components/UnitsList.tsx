@@ -1,3 +1,4 @@
+import { IconPencil, IconTrash } from '@tabler/icons-react';
 import {
   Button,
   CurrencyField,
@@ -7,18 +8,17 @@ import {
   useConfirm,
   useQueryState,
 } from 'erxes-ui';
-import { AddUnitSheet } from './AddUnit';
-import { SelectUsageType } from '@/unit/components/SelectUsageType';
-import { useUnits } from '@/unit/hooks/useUnits';
-import { IUnit } from '@/unit/types/unitType';
-import { IZoning } from '@/building/types/buildingTypes';
+import { IZoning } from 'frontend/private-plugins/blockadmin_ui/src/modules/building/types/buildingTypes';
+import { AddUnitsMultiple } from 'frontend/private-plugins/blockadmin_ui/src/modules/unit/components/AddMultipleUnits';
+import { SelectTenureType } from 'frontend/private-plugins/blockadmin_ui/src/modules/unit/components/SelectTenureType';
+import { SelectUsageType } from 'frontend/private-plugins/blockadmin_ui/src/modules/unit/components/SelectUsageType';
+import { BLOCK_GET_UNITS } from 'frontend/private-plugins/blockadmin_ui/src/modules/unit/graphql/unitQueries';
+import { useUnitRemove } from 'frontend/private-plugins/blockadmin_ui/src/modules/unit/hooks/useUnitRemove';
+import { useUnits } from 'frontend/private-plugins/blockadmin_ui/src/modules/unit/hooks/useUnits';
+import { useUnitUpdate } from 'frontend/private-plugins/blockadmin_ui/src/modules/unit/hooks/useUnitUpdate';
+import { IUnit } from 'frontend/private-plugins/blockadmin_ui/src/modules/unit/types/unitType';
 import { useEffect, useState } from 'react';
-import { useUnitUpdate } from '@/unit/hooks/useUnitUpdate';
-import { useUnitRemove } from '@/unit/hooks/useUnitRemove';
-import { IconPencil, IconTrash } from '@tabler/icons-react';
-import { BLOCK_GET_UNITS } from '@/unit/graphql/unitQueries';
-import { SelectTenureType } from '@/unit/components/SelectTenureType';
-import { AddUnitsMultiple } from '@/unit/components/AddMultipleUnits';
+import { AddUnitSheet } from './AddUnit';
 
 export const UnitsList = ({
   zone,

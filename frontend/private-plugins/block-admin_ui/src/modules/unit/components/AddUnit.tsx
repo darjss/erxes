@@ -1,9 +1,8 @@
-import { SelectUsageType } from '@/unit/components/SelectUsageType';
-import { addUnitSchema } from '@/unit/constants/addUnitSchema';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { IconPlus } from '@tabler/icons-react';
 import {
   Button,
+  CurrencyField,
   Form,
   Input,
   ScrollArea,
@@ -11,15 +10,16 @@ import {
   Sheet,
   Spinner,
 } from 'erxes-ui';
-import { useForm } from 'react-hook-form';
-import { CurrencyField } from 'erxes-ui';
+import { IZoning } from 'frontend/private-plugins/blockadmin_ui/src/modules/building/types/buildingTypes';
+import { PricingForm } from 'frontend/private-plugins/blockadmin_ui/src/modules/pricing/components/PricingForm';
+import { useProjectDetail } from 'frontend/private-plugins/blockadmin_ui/src/modules/project/hooks/useProjectDetail';
+import { SelectTenureType } from 'frontend/private-plugins/blockadmin_ui/src/modules/unit/components/SelectTenureType';
+import { SelectUsageType } from 'frontend/private-plugins/blockadmin_ui/src/modules/unit/components/SelectUsageType';
+import { addUnitSchema } from 'frontend/private-plugins/blockadmin_ui/src/modules/unit/constants/addUnitSchema';
+import { useUnitCreate } from 'frontend/private-plugins/blockadmin_ui/src/modules/unit/hooks/useUnitCreate';
 import { useState } from 'react';
-import { useUnitCreate } from '@/unit/hooks/useUnitCreate';
-import { IZoning } from '@/building/types/buildingTypes';
+import { useForm } from 'react-hook-form';
 import { z } from 'zod';
-import { SelectTenureType } from '@/unit/components/SelectTenureType';
-import { PricingForm } from '@/pricing/components/PricingForm';
-import { useProjectDetail } from '@/project/hooks/useProjectDetail';
 
 export const AddUnit = ({
   onClose,

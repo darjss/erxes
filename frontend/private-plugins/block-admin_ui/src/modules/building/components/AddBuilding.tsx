@@ -1,24 +1,24 @@
+import { zodResolver } from '@hookform/resolvers/zod';
 import { IconPlus } from '@tabler/icons-react';
 import {
   Button,
-  Sheet,
   Form,
-  toast,
-  Spinner,
   Input,
-  Textarea,
   Select,
+  Sheet,
+  Spinner,
+  Textarea,
+  toast,
 } from 'erxes-ui';
-import { useForm } from 'react-hook-form';
-import { IProjectDetail } from '@/project/types/projectTypes';
+import { UploadImage } from 'frontend/private-plugins/blockadmin_ui/src/modules/block/components/upload';
+import { buildingSchema } from 'frontend/private-plugins/blockadmin_ui/src/modules/building/constants/buildingSchema';
+import { BLOCK_GET_BUILDING_LIST } from 'frontend/private-plugins/blockadmin_ui/src/modules/building/graphql/buildingQueries';
+import { useBuildingsCreate } from 'frontend/private-plugins/blockadmin_ui/src/modules/building/hooks/useBuildingsCreate';
+import { PROJECT_TYPES } from 'frontend/private-plugins/blockadmin_ui/src/modules/project/constants/project';
+import { IProjectDetail } from 'frontend/private-plugins/blockadmin_ui/src/modules/project/types/projectTypes';
 import { useState } from 'react';
-import { buildingSchema } from '@/building/constants/buildingSchema';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
 import { z } from 'zod';
-import { useBuildingsCreate } from '@/building/hooks/useBuildingsCreate';
-import { BLOCK_GET_BUILDING_LIST } from '@/building/graphql/buildingQueries';
-import { PROJECT_TYPES } from '@/project/constants/project';
-import { UploadImage } from '@/block/components/upload';
 
 export const AddBuilding = ({ project }: { project: IProjectDetail }) => {
   const [open, setOpen] = useState(false);

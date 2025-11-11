@@ -1,6 +1,6 @@
-import { OfferFormData } from '@/offer/constants/offerSchema';
-import { usePaymentPlansByProject } from '@/pricing/hooks/usePaymentPlans';
-import { Combobox, Command, Label, Popover, RadioGroup } from 'erxes-ui';
+import { Combobox, Command, Popover } from 'erxes-ui';
+import { OfferFormData } from 'frontend/private-plugins/blockadmin_ui/src/modules/offer/constants/offerSchema';
+import { usePaymentPlansByProject } from 'frontend/private-plugins/blockadmin_ui/src/modules/pricing/hooks/usePaymentPlans';
 import { useState } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 

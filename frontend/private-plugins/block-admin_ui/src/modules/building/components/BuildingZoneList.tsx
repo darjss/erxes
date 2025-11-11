@@ -1,21 +1,27 @@
-import { InfoCard, InfoCardContent } from '@/block/components/card';
+import { IconTrash } from '@tabler/icons-react';
+import { Button, CurrencyField, Spinner, toast, useConfirm } from 'erxes-ui';
+import {
+  InfoCard,
+  InfoCardContent,
+} from 'frontend/private-plugins/blockadmin_ui/src/modules/block/components/card';
 import {
   AddBuildingZone,
   GenerateByFloorRange,
-} from '@/building/components/AddBuildingZone';
-import { BLOCK_GET_BUILDING_ZONINGS } from '@/building/graphql/buildingQueries';
+} from 'frontend/private-plugins/blockadmin_ui/src/modules/building/components/AddBuildingZone';
+import { BLOCK_GET_BUILDING_ZONINGS } from 'frontend/private-plugins/blockadmin_ui/src/modules/building/graphql/buildingQueries';
 import {
   useBuildings,
   useBuildingZonings,
-} from '@/building/hooks/useBuildings';
-import { useBuildingZoningUpdate } from '@/building/hooks/useBuildingUpdate';
-import { useBuildingZoningRemove } from '@/building/hooks/useBuildingZoningRemove';
-import { IBuilding, IZoning } from '@/building/types/buildingTypes';
-import { IProjectDetail } from '@/project/types/projectTypes';
-import { SelectTenureType } from '@/unit/components/SelectTenureType';
-import { SelectUsageType } from '@/unit/components/SelectUsageType';
-import { IconTrash } from '@tabler/icons-react';
-import { Button, CurrencyField, Spinner, toast, useConfirm } from 'erxes-ui';
+} from 'frontend/private-plugins/blockadmin_ui/src/modules/building/hooks/useBuildings';
+import { useBuildingZoningUpdate } from 'frontend/private-plugins/blockadmin_ui/src/modules/building/hooks/useBuildingUpdate';
+import { useBuildingZoningRemove } from 'frontend/private-plugins/blockadmin_ui/src/modules/building/hooks/useBuildingZoningRemove';
+import {
+  IBuilding,
+  IZoning,
+} from 'frontend/private-plugins/blockadmin_ui/src/modules/building/types/buildingTypes';
+import { IProjectDetail } from 'frontend/private-plugins/blockadmin_ui/src/modules/project/types/projectTypes';
+import { SelectTenureType } from 'frontend/private-plugins/blockadmin_ui/src/modules/unit/components/SelectTenureType';
+import { SelectUsageType } from 'frontend/private-plugins/blockadmin_ui/src/modules/unit/components/SelectUsageType';
 import { useEffect, useState } from 'react';
 
 export const BuildingZoneList = ({ project }: { project: IProjectDetail }) => {

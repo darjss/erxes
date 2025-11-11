@@ -1,7 +1,7 @@
 import { MutationFunctionOptions, useMutation } from '@apollo/client';
-import { BLOCK_CREATE_UNIT } from '@/unit/graphql/unitMutations';
-import { BLOCK_GET_UNITS } from '@/unit/graphql/unitQueries';
 import { toast } from 'erxes-ui';
+import { BLOCK_CREATE_UNIT } from 'frontend/private-plugins/blockadmin_ui/src/modules/unit/graphql/unitMutations';
+import { BLOCK_GET_UNITS } from 'frontend/private-plugins/blockadmin_ui/src/modules/unit/graphql/unitQueries';
 
 export const useUnitCreate = ({ zoning }: { zoning: string }) => {
   const [mutate, { loading }] = useMutation(BLOCK_CREATE_UNIT);

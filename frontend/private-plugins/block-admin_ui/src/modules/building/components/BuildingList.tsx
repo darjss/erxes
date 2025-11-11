@@ -1,7 +1,7 @@
-import { useBuildings } from '@/building/hooks/useBuildings';
-import { IBuilding } from '@/building/types/buildingTypes';
 import { IconCheck } from '@tabler/icons-react';
-import { cn, Button, useQueryState, SkeletonArray } from 'erxes-ui';
+import { Button, cn, SkeletonArray, useQueryState } from 'erxes-ui';
+import { useBuildings } from 'frontend/private-plugins/blockadmin_ui/src/modules/building/hooks/useBuildings';
+import { IBuilding } from 'frontend/private-plugins/blockadmin_ui/src/modules/building/types/buildingTypes';
 import { useEffect } from 'react';
 
 export const BuildingList = () => {

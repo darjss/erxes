@@ -1,10 +1,10 @@
-import { PricingDetail } from '@/pricing/components/PricingDetail';
-import { SelectTenureType } from '@/unit/components/SelectTenureType';
-import { SelectUnitStatus } from '@/unit/components/SelectUnitStatus';
-import { SelectUsageType } from '@/unit/components/SelectUsageType';
-import { useUnitContext } from '@/unit/context/unitContext';
-import { useUnitUpdate } from '@/unit/hooks/useUnitUpdate';
 import { CurrencyField, Input, Label, Separator } from 'erxes-ui';
+import { PricingDetail } from 'frontend/private-plugins/blockadmin_ui/src/modules/pricing/components/PricingDetail';
+import { SelectTenureType } from 'frontend/private-plugins/blockadmin_ui/src/modules/unit/components/SelectTenureType';
+import { SelectUnitStatus } from 'frontend/private-plugins/blockadmin_ui/src/modules/unit/components/SelectUnitStatus';
+import { SelectUsageType } from 'frontend/private-plugins/blockadmin_ui/src/modules/unit/components/SelectUsageType';
+import { useUnitContext } from 'frontend/private-plugins/blockadmin_ui/src/modules/unit/context/unitContext';
+import { useUnitUpdate } from 'frontend/private-plugins/blockadmin_ui/src/modules/unit/hooks/useUnitUpdate';
 import { useEffect, useState } from 'react';
 
 export const UnitDetailOverview = () => {

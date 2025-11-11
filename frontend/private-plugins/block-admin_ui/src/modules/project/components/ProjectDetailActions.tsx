@@ -1,7 +1,7 @@
-import { BLOCK_GET_PROJECT_LIST } from '@/project/graphql/projectQueries';
-import { useRemoveProject } from '@/project/hooks/useRemoveProject';
 import { IconArrowUp, IconDotsVertical, IconTrash } from '@tabler/icons-react';
 import { Button, DropdownMenu, toast, useConfirm } from 'erxes-ui';
+import { BLOCK_GET_PROJECT_LIST } from 'frontend/private-plugins/blockadmin_ui/src/modules/project/graphql/projectQueries';
+import { useRemoveProject } from 'frontend/private-plugins/blockadmin_ui/src/modules/project/hooks/useRemoveProject';
 import { useNavigate, useParams } from 'react-router-dom';
 
 export const ProjectDetailActions = () => {
