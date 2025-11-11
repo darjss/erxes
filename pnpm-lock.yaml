@@ -782,13 +782,13 @@ importers:
         specifier: workspace:^
         version: link:../../erxes-api-shared
 
-  backend/plugins/block-admin_api:
+  backend/plugins/block_api:
     dependencies:
       erxes-api-shared:
         specifier: workspace:^
         version: link:../../erxes-api-shared
 
-  backend/plugins/block_api:
+  backend/plugins/blockadmin_api:
     dependencies:
       erxes-api-shared:
         specifier: workspace:^

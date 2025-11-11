@@ -2,7 +2,7 @@ import { requireLogin } from 'erxes-api-shared/core-modules';
 import { IContext } from '~/connectionResolvers';
 
 export const projectQueries = {
-  blockGetProject: async (
+  blockAdminGetProject: async (
     _parent: undefined,
     { _id },
     { models }: IContext,
@@ -16,7 +16,7 @@ export const projectQueries = {
     return project;
   },
 
-  blockGetProjects: async (
+  blockAdminGetProjects: async (
     _parent: undefined,
     _args: undefined,
     { models }: IContext,
@@ -25,5 +25,5 @@ export const projectQueries = {
   },
 };
 
-requireLogin(projectQueries, 'blockGetProject');
-requireLogin(projectQueries, 'blockGetProjects');
+requireLogin(projectQueries, 'blockAdminGetProject');
+requireLogin(projectQueries, 'blockAdminGetProjects');
