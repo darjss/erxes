@@ -1,15 +1,40 @@
-import { requireLogin } from 'erxes-api-shared/core-modules';
+import {
+  DeveloperQueryParams,
+  IBlockDeveloperDocument,
+} from '@/developer/db/@types/developer';
+import { cursorPaginate } from 'erxes-api-shared/utils';
+import { FilterQuery } from 'mongoose';
+import { IContext } from '~/connectionResolvers';
 
-export const developerQueries = {
-  getDeveloperInfo: async (_, __, { models }) => {
-    let existingDeveloper = await models.Developer.findOne({});
+const generateFilter = (params: DeveloperQueryParams) => {
+  const filter: FilterQuery<IBlockDeveloperDocument> = {};
 
-    if (!existingDeveloper) {
-      existingDeveloper = await models.Developer.createDeveloper({});
-    }
+  if (params.isVerified) {
+    filter.isVerified = params.isVerified;
+  }
 
-    return existingDeveloper;
-  },
+  return filter;
 };
 
-requireLogin(developerQueries, 'getDeveloperInfo');
+export const developerQueries = {
+  getBlockAdminDevelopers: async (
+    _root: undefined,
+    params: DeveloperQueryParams,
+    { models }: IContext,
+  ) => {
+    const filter = generateFilter(params);
+
+    return await cursorPaginate<IBlockDeveloperDocument>({
+      model: models.Developer,
+      params,
+      query: filter,
+    });
+  },
+  getBlockAdminDeveloperInfo: async (
+    _root: undefined,
+    { _id }: { _id: string },
+    { models }: IContext,
+  ) => {
+    return await models.Developer.findOne({ _id });
+  },
+};

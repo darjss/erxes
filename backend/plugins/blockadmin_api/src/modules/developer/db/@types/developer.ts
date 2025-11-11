@@ -1,4 +1,8 @@
-import { IAddress } from 'erxes-api-shared/core-types';
+import {
+  IAddress,
+  ICursorPaginateParams,
+  IListParams,
+} from 'erxes-api-shared/core-types';
 import { Document } from 'mongoose';
 import { IBlock } from '~/types';
 
@@ -31,4 +35,10 @@ export interface IBlockDeveloperDocument extends IBlockDeveloper, Document {
   _id: string;
   createdAt: Date;
   updatedAt: Date;
+}
+
+export interface DeveloperQueryParams
+  extends ICursorPaginateParams,
+    IListParams {
+  isVerified: string;
 }

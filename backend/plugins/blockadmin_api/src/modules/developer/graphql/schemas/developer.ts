@@ -1,5 +1,7 @@
+import { GQL_CURSOR_PARAM_DEFS } from 'erxes-api-shared/utils';
+
 export const types = `
-  type DeveloperSocialLink {
+  type BlockAdminDeveloperSocialLink {
     facebook: String
     twitter: String
     instagram: String
@@ -8,7 +10,7 @@ export const types = `
     website: String
   }
 
-  type Developer {
+  type BlockAdminDeveloper {
     _id: String
     name: String
     description: String
@@ -21,11 +23,24 @@ export const types = `
     primaryPhone: String
     coverImage: String
     phones: [String]
-    socialLinks: DeveloperSocialLink
+    socialLinks: BlockAdminDeveloperSocialLink
     isVerified: Boolean
+  }
+
+  type BlockAdminDeveloperListResponse {
+    list: [BlockAdminDeveloper]
+    pageInfo: PageInfo
+    totalCount: Int
   }
 `;
 
+const queryParams = `
+  isVerified: Boolean
+  
+  ${GQL_CURSOR_PARAM_DEFS}
+`;
+
 export const queries = `
-  getDeveloperInfo: Developer
+  getBlockAdminDevelopers(${queryParams}): BlockAdminDeveloperListResponse
+  getBlockAdminDeveloperInfo(_id: String): BlockAdminDeveloper
 `;
