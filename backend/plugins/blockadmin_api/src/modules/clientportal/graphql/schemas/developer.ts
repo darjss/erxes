@@ -1,7 +1,7 @@
-import { GQL_CURSOR_PARAM_DEFS } from 'erxes-api-shared/utils';
+import { GQL_OFFSET_PARAM_DEFS } from 'erxes-api-shared/utils';
 
 export const types = `
-  type BlockAdminDeveloper {
+  type CpBlockAdminDeveloper {
     _id: String
     name: String
     description: String
@@ -17,22 +17,17 @@ export const types = `
     socialLinks: BlockAdminDeveloperSocialLink
     isVerified: Boolean
   }
-
-  type BlockAdminDeveloperListResponse {
-    list: [BlockAdminDeveloper]
-    pageInfo: PageInfo
-    totalCount: Int
-  }
 `;
 
 const queryParams = `
   isVerified: Boolean
   searchValue: String
+  location: JSON
   
-  ${GQL_CURSOR_PARAM_DEFS}
+  ${GQL_OFFSET_PARAM_DEFS}
 `;
 
 export const queries = `
-  getBlockAdminDevelopers(${queryParams}): BlockAdminDeveloperListResponse
-  getBlockAdminDeveloperInfo(_id: String): BlockAdminDeveloper
+  cpBlockAdminDevelopers(${queryParams}): [CpBlockAdminDeveloper]
+  cpBlockAdminDeveloperInfo(_id: String): CpBlockAdminDeveloper
 `;

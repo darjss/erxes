@@ -42,3 +42,11 @@ export interface IProjectDocument extends IProject, Document {
   createdAt: Date;
   updatedAt: Date;
 }
+
+export interface IProjectQueryParams {
+  searchValue?: string;
+  developerId?: string;
+  location?: IProjectLocation;
+  priceMin?: number;
+  priceMax?: number;
+}

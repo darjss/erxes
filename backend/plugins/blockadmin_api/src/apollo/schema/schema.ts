@@ -68,7 +68,15 @@ import {
   types as SubmissionTypes,
 } from '@/form/graphql/schemas';
 
+import {
+  queries as ClientPortalBlockQueries,
+  types as ClientPortalBlockTypes,
+} from '~/modules/clientportal/graphql/schemas';
+
+import { TypeExtensions } from './extensions';
+
 export const types = `
+  ${TypeExtensions}
   ${ProjectTypes}
   ${PaymentTypes}
   ${BuildingTypes}
@@ -83,6 +91,8 @@ export const types = `
   ${ContractTypes}
   ${OfferTypes}
   ${SubmissionTypes}
+
+  ${ClientPortalBlockTypes}
   `;
 
 export const queries = `
@@ -99,6 +109,8 @@ export const queries = `
   ${InvoiceQueries}
   ${ContractQueries}
   ${OfferQueries}
+
+  ${ClientPortalBlockQueries}
   `;
 
 export const mutations = `

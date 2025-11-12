@@ -1,7 +1,7 @@
-import { GQL_CURSOR_PARAM_DEFS } from 'erxes-api-shared/utils';
+import { GQL_OFFSET_PARAM_DEFS } from 'erxes-api-shared/utils';
 
 export const types = `
-  type BlockAdminProject {
+  type CpBlockAdminProject {
     _id: String
     name: String
     isPublished: Boolean
@@ -26,10 +26,10 @@ const queryParams = `
   priceMin: Int
   priceMax: Int
 
-  ${GQL_CURSOR_PARAM_DEFS}
+  ${GQL_OFFSET_PARAM_DEFS}
 `;
 
 export const queries = `
-  blockAdminGetProject(_id: String!): BlockAdminProject
-  blockAdminGetProjects(${queryParams}): [BlockAdminProject]
+  cpBlockAdminProject(_id: String!): CpBlockAdminProject
+  cpBlockAdminProjects(${queryParams}): [CpBlockAdminProject]
 `;

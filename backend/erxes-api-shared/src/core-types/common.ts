@@ -16,6 +16,16 @@ export interface ILink {
 export interface IRuleDocument extends IRule, Document {
   _id: string;
 }
+
+export interface IOffsetPaginateParams {
+  limit?: number;
+  page?: number;
+  perPage?: number;
+
+  sortField?: string;
+  sortDirection?: SortOrder;
+}
+
 export interface ICursorPaginateParams {
   limit?: number;
   cursor?: string;
@@ -35,7 +45,7 @@ export interface ICursorPaginateResult<T> {
   totalCount: number;
 }
 
-export interface IListParams extends ICursorPaginateParams {
+export interface IListParams {
   searchValue?: string;
   sortField?: string;
 }
@@ -54,7 +64,13 @@ export interface ICustomField {
 }
 
 export interface IPropertyField {
-  [key: string]: string | number | boolean | Date | Array<string | number | boolean | Date> | null;
+  [key: string]:
+    | string
+    | number
+    | boolean
+    | Date
+    | Array<string | number | boolean | Date>
+    | null;
 }
 
 export interface IBrowserInfo {
