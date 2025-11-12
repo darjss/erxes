@@ -32,6 +32,7 @@ export const BLOCK_GET_PROJECT_DETAIL = gql`
         lng
         parcelId
       }
+      verificationStatus
       status
       coverImage
       bankPartners
