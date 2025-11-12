@@ -12,7 +12,7 @@ export const types = `
     size: Int
     createdAt: Date
     updatedAt: Date
-    status: String
+    status: BlockUnitStatus
   } 
 
   input BlockUnitInput {
@@ -25,7 +25,7 @@ export const types = `
     prices: [BlockProjectPriceInput]
     useProjectPrice: Boolean
     size: Int
-    status: String
+    status: BlockUnitStatus
   }
 `;
 

@@ -28,9 +28,17 @@ export const types = `
 
   enum BlockBuildingUnitTenureType {
     forSale
-    forRent
     forLease
     any
+  }
+    
+  enum BlockUnitStatus {
+    available
+    reserved
+    sold
+    underFinance
+    cancelled
+    onHold
   }
 
   input BlockBuildingZoningInput {

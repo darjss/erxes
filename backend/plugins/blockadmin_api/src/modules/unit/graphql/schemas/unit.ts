@@ -12,7 +12,7 @@ export const types = `
     size: Int
     createdAt: Date
     updatedAt: Date
-    status: String
+    status: BlockAdminUnitStatus
   } 
 `;
 
