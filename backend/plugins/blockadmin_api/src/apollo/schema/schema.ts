@@ -63,6 +63,11 @@ import {
   types as OfferTypes,
 } from '@/contract/graphql/schemas/offer';
 
+import {
+  mutations as SubmissionMutations,
+  types as SubmissionTypes,
+} from '@/form/graphql/schemas';
+
 export const types = `
   ${ProjectTypes}
   ${PaymentTypes}
@@ -77,6 +82,7 @@ export const types = `
   ${InvoiceTypes}
   ${ContractTypes}
   ${OfferTypes}
+  ${SubmissionTypes}
   `;
 
 export const queries = `
@@ -95,4 +101,8 @@ export const queries = `
   ${OfferQueries}
   `;
 
-export default { types, queries };
+export const mutations = `
+  ${SubmissionMutations}
+  `;
+
+export default { types, queries, mutations };

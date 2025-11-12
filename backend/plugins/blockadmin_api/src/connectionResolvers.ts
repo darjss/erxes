@@ -48,6 +48,7 @@ import { IUnitLeadModel, loadUnitLeadClass } from '@/unit/db/models/UnitLead';
 import { IMainContext } from 'erxes-api-shared/core-types';
 import mongoose from 'mongoose';
 import { createGenerateModels } from './db';
+import { ISubmissionDocument, ISubmissionModel, loadSubmissionClass } from './modules/form/db/models/Submission';
 
 export interface IModels {
   Project: IProjectModel;
@@ -63,6 +64,7 @@ export interface IModels {
   ProjectMember: IProjectMemberModel;
   Offer: IOfferModel;
   Invoice: IInvoiceModel;
+  Submission: ISubmissionModel;
 }
 
 export interface IContext extends IMainContext {
@@ -135,6 +137,11 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
   models.Invoice = db.model<IInvoiceDocument, IInvoiceModel>(
     'block_admin_invoices',
     loadInvoiceClass(models),
+  );
+
+  models.Submission = db.model<ISubmissionDocument, ISubmissionModel>(
+    'block_admin_submissions',
+    loadSubmissionClass(models),
   );
 
   return models;

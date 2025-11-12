@@ -19,7 +19,7 @@ dotenv.config();
 let apolloServer;
 
 export const initApolloServer = async (app, httpServer) => {
-  const { types, queries } = typeDefDetails;
+  const { types, queries, mutations } = typeDefDetails;
 
   const typeDefs = async () => {
     return gql(`
@@ -29,6 +29,10 @@ export const initApolloServer = async (app, httpServer) => {
 
       extend type Query {
         ${queries}
+      }
+
+      extend type Mutation {
+        ${mutations}
       }
     `);
   };
