@@ -6,6 +6,9 @@ export const types = `
     description: String 
     project: String 
     coverImage: String
+
+    startDate: Date
+    endDate: Date
   }
 
   input BlockBuildingInput {
@@ -14,6 +17,9 @@ export const types = `
     description: String
     project: String
     coverImage: String
+
+    startDate: Date
+    endDate: Date
   }
 `;
 

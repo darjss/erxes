@@ -4,6 +4,9 @@ export interface IBuilding {
   description: string;
   project: string;
   usageType: string;
+
+  startDate: Date;
+  endDate: Date;
 }
 
 export interface IBuildingDocument extends IBuilding, Document {

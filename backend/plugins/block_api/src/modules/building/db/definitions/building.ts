@@ -10,6 +10,9 @@ export const buildingSchema = new Schema(
       required: true,
       ref: 'block_projects',
     },
+
+    startDate: { type: Date, label: 'Start Date' },
+    endDate: { type: Date, label: 'End Date' },
   },
   {
     timestamps: true,
