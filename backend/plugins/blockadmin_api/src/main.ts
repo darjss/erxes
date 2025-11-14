@@ -21,6 +21,6 @@ startPlugin({
   },
   onServerInit: async (app) => {
     app.use(validationMiddleware);
-    app.use(routes);
+    app.use('/api', routes);
   },
 });

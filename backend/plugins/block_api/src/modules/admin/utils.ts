@@ -14,7 +14,7 @@ interface SendMessagePayload {
 }
 
 const sendMessage = ({ subdomain, path, payload }: SendMessagePayload) => {
-  const API_ENDPOINT = `${BLOCK_ADMIN_API_URL}/${path}`;
+  const API_ENDPOINT = `${BLOCK_ADMIN_API_URL}/api/${path}`;
 
   if (!BLOCK_ADMIN_API_URL || !BLOCK_ADMIN_SECRET) {
     return console.log('BLOCK_ADMIN_API_URL or BLOCK_ADMIN_SECRET is not set');
