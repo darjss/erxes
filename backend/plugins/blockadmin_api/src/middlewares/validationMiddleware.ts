@@ -1,30 +1,30 @@
+import crypto from 'crypto';
 import { NextFunction, Request, Response } from 'express';
-import jwt, { JwtPayload } from 'jsonwebtoken';
 
 const { BLOCK_ADMIN_SECRET = '' } = process.env || {};
 
 export const validator = (req: Request, res: Response, next: NextFunction) => {
-  const authHeader = req.headers.authorization;
+  const signature = req.headers['x-signature'];
 
-  if (!authHeader?.startsWith('Bearer ')) {
-    return res.status(401).json({ message: 'Unauthorized' });
-  }
-
-  const token = authHeader.split(' ')[1];
-
-  if (!token) {
-    return res.status(401).json({ message: 'Unauthorized' });
-  }
+  if (!signature) {
+    console.log('Missing signature');
+    return res.status(401).json({ message: 'Missing signature' })
+  };
 
   try {
-    const decoded = jwt.verify(token, BLOCK_ADMIN_SECRET) as JwtPayload;
+    const expected = crypto
+      .createHmac('sha256', BLOCK_ADMIN_SECRET)
+      .update(JSON.stringify(req.body))
+      .digest('hex');
 
-    if (!decoded || typeof decoded !== 'object') {
-      return res.status(401).json({ message: 'Unauthorized' });
+    if (signature !== `sha256=${expected}`) {
+      console.log('Invalid signature');
+      return res.status(401).json({ message: 'Invalid signature' });
     }
 
     next();
   } catch {
+    console.log('Unauthorized');
     return res.status(401).json({ message: 'Unauthorized' });
   }
 };
