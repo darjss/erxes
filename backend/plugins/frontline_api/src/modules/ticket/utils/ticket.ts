@@ -1,8 +1,8 @@
-import { TICKET_DEFAULT_STATUSES } from '@/ticket/constants/types';
-import { IModels, generateModels } from '~/connectionResolvers';
-import { sendNotification } from 'erxes-api-shared/core-modules';
 import { ITicket, ITicketDocument } from '@/ticket/@types/ticket';
-import { subMinutes, isAfter } from 'date-fns';
+import { TICKET_DEFAULT_STATUSES } from '@/ticket/constants/types';
+import { isAfter, subMinutes } from 'date-fns';
+import { sendNotification } from 'erxes-api-shared/core-modules';
+import { IModels, generateModels } from '~/connectionResolvers';
 
 export const generateDefaultStatuses = (pipelineId: string) => {
   return TICKET_DEFAULT_STATUSES.map((status, index) => ({
