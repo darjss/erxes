@@ -9,7 +9,7 @@ export const BlockNavigation = () => {
   return (
     <>
       <NavigationMenuLinkItem
-        name="Company Info"
+        name="Developer Info"
         icon={IconBuilding}
         pathPrefix="block"
         path="developer-info"
