@@ -1,18 +1,15 @@
-import { ITicketUpdate } from '~/modules/ticket/@types/ticket';
 import { requireLogin } from 'erxes-api-shared/core-modules';
 import { graphqlPubsub } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
+import { ITicketUpdate } from '~/modules/ticket/@types/ticket';
 
 export const ticketMutations = {
   createTicket: async (
     _parent: undefined,
     params: ITicketUpdate,
-    { models, user }: IContext,
+    { models, user, subdomain }: IContext,
   ) => {
-    const ticket = await models.Ticket.addTicket({
-      ...params,
-      userId: user._id,
-    });
+    const ticket = await models.Ticket.addTicket(params, user._id, subdomain);
 
     graphqlPubsub.publish(`ticketChanged:${ticket._id}`, {
       ticketChanged: { type: 'create', ticket },
