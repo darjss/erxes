@@ -5,9 +5,9 @@ export const types = `
     zoning: String
     number: String
     type: String
-    size: Number
+    size: Int
     leads: [String]
-    mainPrice: Number
+    mainPrice: Int
     prices: [String]
     status: String
     tenureType: String
