@@ -1,50 +1,70 @@
 import { Router } from 'express';
 import { generateModels } from '~/connectionResolvers';
+import { IRequest, IResponse } from '~/types';
+import { IContract } from '../@types/contract';
 
 const router: Router = Router();
 
-router.post('/blockCreateContract', async (req, res) => {
-  const models = await generateModels();
+router.post(
+  '/blockCreateContract',
+  async (req: IRequest<IContract>, res: IResponse) => {
+    const models = await generateModels();
 
-  try {
-    const { subdomain, payload } = req.body || {};
+    try {
+      const { subdomain, payload } = req.body || {};
 
-    const { entityId, data } = payload || {};
+      const { entityId, data } = payload || {};
 
-    const { input } = data || {};
+      const { input } = data || {};
 
-    models.Contract.createContract({ subdomain, entityId, ...input });
+      const unit = await models.Unit.getUnit(subdomain, input.unit);
 
-    return res.status(200).json({
-      success: true,
-    });
-  } catch (error) {
-    return res.status(400).json({
-      error: error.message,
-    });
-  }
-});
+      models.Contract.createContract({
+        ...input,
+        subdomain,
+        entityId,
+        unit: unit._id,
+      });
 
-router.post('/blockUpdateContract', async (req, res) => {
-  const models = await generateModels();
+      return res.status(200).json({
+        success: true,
+      });
+    } catch (error) {
+      return res.status(400).json({
+        error: error.message,
+      });
+    }
+  },
+);
 
-  try {
-    const { subdomain, payload } = req.body || {};
+router.post(
+  '/blockUpdateContract',
+  async (req: IRequest<IContract>, res: IResponse) => {
+    const models = await generateModels();
 
-    const { entityId, data } = payload || {};
+    try {
+      const { subdomain, payload } = req.body || {};
 
-    const { input } = data || {};
+      const { entityId, data } = payload || {};
 
-    models.Contract.updateContract(subdomain, entityId, input);
+      const { input } = data || {};
 
-    return res.status(200).json({
-      success: true,
-    });
-  } catch (error) {
-    return res.status(400).json({
-      error: error.message,
-    });
-  }
-});
+      const unit = await models.Unit.getUnit(subdomain, input.unit);
+
+      models.Contract.updateContract(subdomain, entityId, {
+        ...input,
+        unit: unit._id,
+      });
+
+      return res.status(200).json({
+        success: true,
+      });
+    } catch (error) {
+      return res.status(400).json({
+        error: error.message,
+      });
+    }
+  },
+);
 
 export { router };

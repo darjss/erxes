@@ -1,5 +1,7 @@
 import { Router } from 'express';
 import { generateModels } from '~/connectionResolvers';
+import { IRequest, IResponse } from '~/types';
+import { IProjectMember } from '../@types/member';
 
 const router: Router = Router();
 
@@ -29,46 +31,52 @@ const router: Router = Router();
 //   }
 // });
 
-router.post('/blockUpdateProjectMember', async (req, res) => {
-  const models = await generateModels();
+router.post(
+  '/blockUpdateProjectMember',
+  async (req: IRequest<IProjectMember, { role: string }>, res: IResponse) => {
+    const models = await generateModels();
 
-  try {
-    const { subdomain, payload } = req.body || {};
+    try {
+      const { subdomain, payload } = req.body || {};
 
-    const { entityId, data } = payload || {};
+      const { entityId, data } = payload || {};
 
-    const { role } = data || {};
+      const { role } = data || {};
 
-    models.ProjectMember.updateProjectMember(subdomain, entityId, role);
+      models.ProjectMember.updateProjectMember(subdomain, entityId, role);
 
-    return res.status(200).json({
-      success: true,
-    });
-  } catch (error) {
-    return res.status(400).json({
-      error: error.message,
-    });
-  }
-});
+      return res.status(200).json({
+        success: true,
+      });
+    } catch (error) {
+      return res.status(400).json({
+        error: error.message,
+      });
+    }
+  },
+);
 
-router.post('/blockDeleteProjectMember', async (req, res) => {
-  const models = await generateModels();
+router.post(
+  '/blockDeleteProjectMember',
+  async (req: IRequest<IProjectMember>, res: IResponse) => {
+    const models = await generateModels();
 
-  try {
-    const { subdomain, payload } = req.body || {};
+    try {
+      const { subdomain, payload } = req.body || {};
 
-    const { entityId } = payload || {};
+      const { entityId } = payload || {};
 
-    models.ProjectMember.deleteProjectMember(subdomain, entityId);
+      models.ProjectMember.deleteProjectMember(subdomain, entityId);
 
-    return res.status(200).json({
-      success: true,
-    });
-  } catch (error) {
-    return res.status(400).json({
-      error: error.message,
-    });
-  }
-});
+      return res.status(200).json({
+        success: true,
+      });
+    } catch (error) {
+      return res.status(400).json({
+        error: error.message,
+      });
+    }
+  },
+);
 
 export { router };

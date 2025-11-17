@@ -1,4 +1,7 @@
-import { IBlockDocumentDocument } from '@/document/@types/document';
+import {
+  IBlockDocument,
+  IBlockDocumentDocument,
+} from '@/document/@types/document';
 import { documentSchema } from '@/document/db/definitions/document';
 import { Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
@@ -8,15 +11,11 @@ export interface IBlockDocumentModel extends Model<IBlockDocumentDocument> {
     subdomain: string,
     entityId: string,
   ): Promise<IBlockDocumentDocument>;
-  createBlockDocument({
-    input,
-  }: {
-    input: IBlockDocumentDocument;
-  }): Promise<IBlockDocumentDocument>;
+  createBlockDocument(input: IBlockDocument): Promise<IBlockDocumentDocument>;
   updateBlockDocument(
     subdomain: string,
     entityId: string,
-    input: IBlockDocumentDocument,
+    input: IBlockDocument,
   ): Promise<IBlockDocumentDocument>;
   removeBlockDocument(
     subdomain: string,
@@ -39,18 +38,14 @@ export const loadBlockDocumentClass = (models: IModels) => {
       return blockDocument;
     }
 
-    public static async createBlockDocument({
-      input,
-    }: {
-      input: IBlockDocumentDocument;
-    }) {
+    public static async createBlockDocument(input: IBlockDocument) {
       return models.BlockDocument.create(input);
     }
 
     public static async updateBlockDocument(
       subdomain: string,
       entityId: string,
-      input: IBlockDocumentDocument,
+      input: IBlockDocument,
     ) {
       const { _id } = await models.BlockDocument.getBlockDocument(
         subdomain,
