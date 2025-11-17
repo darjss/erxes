@@ -1,0 +1,127 @@
+import {
+  mutations as ProjectMutations,
+  queries as ProjectQueries,
+  types as ProjectTypes,
+} from '@/project/graphql/schemas/project';
+
+import {
+  mutations as PaymentMutations,
+  queries as PaymentQueries,
+  types as PaymentTypes,
+} from '@/project/graphql/schemas/payment';
+
+import {
+  mutations as BuildingMutations,
+  queries as BuildingQueries,
+  types as BuildingTypes,
+} from '@/building/graphql/schemas/building';
+
+import {
+  mutations as DocumentMutations,
+  queries as DocumentQueries,
+  types as DocumentTypes,
+} from '@/document/graphql/schemas/document';
+
+import {
+  mutations as UnitMutations,
+  queries as UnitQueries,
+  types as UnitTypes,
+} from '@/unit/graphql/schemas/unit';
+
+import {
+  mutations as ZoningMutations,
+  queries as ZoningQueries,
+  types as ZoningTypes,
+} from '@/building/graphql/schemas/zoning';
+
+import {
+  mutations as AttachmentMutations,
+  queries as AttachmentQueries,
+  types as AttachmentTypes,
+} from '@/attachment/graphql/schemas/attachment';
+
+import {
+  mutations as DeveloperMutations,
+  queries as DeveloperQueries,
+  types as DeveloperTypes,
+} from '@/developer/graphql/schemas/developer';
+
+import {
+  mutations as ProjectMemberMutations,
+  queries as ProjectMemberQueries,
+  types as ProjectMemberTypes,
+} from '@/project/graphql/schemas/member';
+
+import {
+  mutations as UnitLeadMutations,
+  queries as UnitLeadQueries,
+  types as UnitLeadTypes,
+} from '@/unit/graphql/schemas/unitLead';
+
+import {
+  mutations as InvoiceMutations,
+  queries as InvoiceQueries,
+  types as InvoiceTypes,
+} from '@/invoice/graphql/schemas/invoice';
+
+import {
+  mutations as ContractMutations,
+  queries as ContractQueries,
+  types as ContractTypes,
+} from '@/contract/graphql/schemas/contract';
+
+import {
+  mutations as OfferMutations,
+  queries as OfferQueries,
+  types as OfferTypes,
+} from '@/contract/graphql/schemas/offer';
+
+export const types = `
+  ${ProjectTypes}
+  ${PaymentTypes}
+  ${BuildingTypes}
+  ${DocumentTypes}
+  ${UnitTypes}
+  ${ZoningTypes}
+  ${AttachmentTypes}
+  ${DeveloperTypes}
+  ${ProjectMemberTypes}
+  ${UnitLeadTypes}
+  ${InvoiceTypes}
+  ${ContractTypes}
+  ${OfferTypes}
+  `;
+
+export const queries = `
+  ${ProjectQueries}
+  ${PaymentQueries}
+  ${BuildingQueries}
+  ${DocumentQueries}
+  ${UnitQueries}
+  ${ZoningQueries}
+  ${AttachmentQueries}
+  ${DeveloperQueries}
+  ${ProjectMemberQueries}
+  ${UnitLeadQueries}
+  ${InvoiceQueries}
+  ${ContractQueries}
+  ${OfferQueries}
+  `;
+
+export const mutations = `
+  ${ProjectMutations}
+  ${PaymentMutations}
+  ${BuildingMutations}
+  ${DocumentMutations}
+  ${UnitMutations}
+  ${ZoningMutations}
+  ${AttachmentMutations}
+  ${DeveloperMutations}
+  ${ProjectMemberMutations}
+  ${UnitLeadMutations}
+  ${InvoiceMutations}
+  ${ContractMutations}
+  ${OfferMutations}
+  `;
+
+export default { types, queries, mutations };
