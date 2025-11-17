@@ -1,7 +1,7 @@
+import { ITicketUpdate } from '~/modules/ticket/@types/ticket';
 import { requireLogin } from 'erxes-api-shared/core-modules';
 import { graphqlPubsub } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
-import { ITicketUpdate } from '~/modules/ticket/@types/ticket';
 
 export const ticketMutations = {
   createTicket: async (

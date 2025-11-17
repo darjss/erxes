@@ -1,7 +1,7 @@
-import { ITicketPipelineUpdate } from '@/ticket/@types/pipeline';
 import { requireLogin } from 'erxes-api-shared/core-modules';
 import { graphqlPubsub } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
+import { ITicketPipelineUpdate } from '@/ticket/@types/pipeline';
 
 export const pipelineMutations = {
   createPipeline: async (
