@@ -1,3 +1,4 @@
+import { useDeals, useDealsChange } from '@/deals/cards/hooks/useDeals';
 import {
   Board,
   BoardColumnProps,
@@ -8,19 +9,19 @@ import {
   useQueryState,
 } from 'erxes-ui';
 import { atom, useAtom, useAtomValue, useSetAtom } from 'jotai';
-import { useDeals, useDealsChange } from '@/deals/cards/hooks/useDeals';
 
 import { DealsBoardCard } from '@/deals/boards/components/DealsBoardCard';
 import { DealsBoardColumnHeader } from '@/deals/boards/components/DealsBoardColumnHeader';
-import type { DragEndEvent } from '@dnd-kit/core';
-import { IDeal } from '@/deals/types/deals';
 import { StagesLoading } from '@/deals/components/loading/StagesLoading';
-import clsx from 'clsx';
+import { useStages } from '@/deals/stage/hooks/useStages';
 import { dealCountByBoardAtom } from '@/deals/states/dealsTotalCountState';
+import { IDeal } from '@/deals/types/deals';
+import type { DragEndEvent } from '@dnd-kit/core';
+import { IconBrandTrello, IconSettings } from '@tabler/icons-react';
+import clsx from 'clsx';
 import { useEffect } from 'react';
 import { useInView } from 'react-intersection-observer';
-import { useSearchParams } from 'react-router';
-import { useStages } from '@/deals/stage/hooks/useStages';
+import { Link, useSearchParams } from 'react-router';
 
 const fetchedDealsState = atom<BoardItemProps[]>([]);
 export const allDealsMapState = atom<Record<string, IDeal>>({});
@@ -159,6 +160,27 @@ export const DealsBoard = () => {
       onDragEnd={handleDragEnd}
       boardId={clsx('deals-board', pipelineId)}
       emptyUrl={'/settings/deals'}
+      fallbackComponent={
+        <div className="flex h-full w-full flex-col items-center justify-center text-center p-6 gap-2">
+          <IconBrandTrello
+            size={64}
+            stroke={1.5}
+            className="text-muted-foreground"
+          />
+          <h2 className="text-lg font-semibold text-muted-foreground">
+            No stages yet
+          </h2>
+          <p className="text-md text-muted-foreground mb-4">
+            Create a stage to start organizing your board.
+          </p>
+          <Button variant="outline" asChild>
+            <Link to={'/settings/deals'}>
+              <IconSettings />
+              Go to settings
+            </Link>
+          </Button>
+        </div>
+      }
     >
       {(column) => (
         <Board id={column.id} key={column.id} sortBy="updated" isSorted>

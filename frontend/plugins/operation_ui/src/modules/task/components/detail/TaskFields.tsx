@@ -14,6 +14,7 @@ import { ITask } from '@/task/types';
 import { Block } from '@blocknote/core';
 import { BlockEditor, Input, Separator, useBlockEditor } from 'erxes-ui';
 import { useEffect, useState } from 'react';
+import { SelectTags } from 'ui-modules';
 import { useDebounce } from 'use-debounce';
 
 export const TaskFields = ({ task }: { task: ITask }) => {
@@ -29,6 +30,7 @@ export const TaskFields = ({ task }: { task: ITask }) => {
     estimatePoint,
     cycleId,
     milestoneId,
+    tagIds,
   } = task || {};
 
   const startDate = (task as any)?.startDate;
@@ -148,6 +150,18 @@ export const TaskFields = ({ task }: { task: ITask }) => {
           variant="detail"
         />
         <ConvertToProject task={task} />
+        <SelectTags.Detail
+          value={tagIds || []}
+          tagType="operation:task"
+          onValueChange={(newTagIds: string[]) => {
+            updateTask({
+              variables: {
+                _id: taskId,
+                tagIds: newTagIds,
+              },
+            });
+          }}
+        />
       </div>
       <Separator className="my-4" />
       <div className="min-h-56 overflow-y-auto">
