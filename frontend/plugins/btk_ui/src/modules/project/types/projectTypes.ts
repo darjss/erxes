@@ -1,5 +1,7 @@
 export interface IProject {
   _id: string;
+  content: string;
+  title: string;
   name: string;
   coverImage?: string;
   location?: IProjectLocation;
@@ -26,6 +28,8 @@ export interface IProjectDetail extends IProject {
   description: string;
   logo: string;
   images: string[];
+  title: string;
+  content: string;
   type: string[];
   mainPrice: number;
   prices: IProjectPrice[];
@@ -36,6 +40,9 @@ export interface IProjectDetail extends IProject {
 export interface IProjectGeneralInput {
   name: string | null;
   location: IProjectLocation | null;
+  title: string | null;
+  content: string | null;
+  description: string | null;
   status: string | null;
   coverImage: string | null;
   mainPrice: number | null;

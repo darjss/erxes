@@ -15,7 +15,10 @@ export interface IProject {
   name?: string;
   coverImage?: string;
   location?: IProjectLocation;
+  companyId?: string;
   verificationStatus?: string;
+  content?: string;
+  title?: string;
   status?: string;
   isPublished?: boolean;
   mainPrice?: number;

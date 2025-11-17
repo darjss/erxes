@@ -9,11 +9,11 @@ import {
   ValidationStatus,
 } from 'erxes-ui';
 import { UseFormReturn } from 'react-hook-form';
-import { developerInfoSchema } from '../constants/developerInfoSchema';
+import { companyInfoSchema } from '../constants/companyInfoSchema';
 import { z } from 'zod';
 
 interface BtkPhonesProps {
-  form: UseFormReturn<z.infer<typeof developerInfoSchema>>;
+  form: UseFormReturn<z.infer<typeof companyInfoSchema>>;
 }
 
 export function BtkPhones({ form }: BtkPhonesProps) {

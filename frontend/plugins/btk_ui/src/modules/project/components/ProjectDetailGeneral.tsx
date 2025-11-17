@@ -13,7 +13,7 @@ import { useEffect, useState } from 'react';
 
 import { PROJECT_TYPES } from '../constants/project';
 import { ProjectAddress } from '@/project/components/ProjectAddress';
-import { useDeveloperInfo } from '@/btk/hooks/useDeveloperInfo';
+import { useCompanyInfo } from '@/btk/hooks/useCompanyInfo';
 import { Link } from 'react-router';
 import { IconArrowUpRight } from '@tabler/icons-react';
 
@@ -27,7 +27,7 @@ export const ProjectDetailGeneral = () => {
       <div className="col-span-2 grid grid-cols-1 lg:grid-cols-2 gap-6 p-8">
         <InfoCard title="Project Information" description="Project information">
           <InfoCardContent>
-            <ProjectDeveloper />
+            <ProjectCompany />
             <ProjectTypes />
             <ProjectDescription />
           </InfoCardContent>
@@ -39,19 +39,19 @@ export const ProjectDetailGeneral = () => {
   );
 };
 
-export const ProjectDeveloper = () => {
-  const { developerInfo } = useDeveloperInfo();
+export const ProjectCompany = () => {
+  const { companyInfo } = useCompanyInfo();
 
   return (
     <div className="space-y-2">
-      <Label>Developer</Label>
+      <Label>Company</Label>
       <Button
         variant="outline"
         className="flex w-full justify-start h-8 shadow-xs"
         asChild
       >
         <Link to="/settings/btk">
-          {developerInfo?.name}
+          {companyInfo?.name}
           <IconArrowUpRight className="ml-auto" />
         </Link>
       </Button>

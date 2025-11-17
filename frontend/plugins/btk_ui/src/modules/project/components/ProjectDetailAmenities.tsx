@@ -96,14 +96,10 @@ export const ProjectDetailAmenities = () => {
 
   return (
     <div className="p-8 grid-cols-2 grid gap-6">
-      <InfoCard
-        title="AMENITIES"
-        description="Amenities"
-        className="col-span-2"
-      >
+      <InfoCard title="CATEGORY" description="Amenities" className="col-span-2">
         <InfoCardContent>
           <div className="space-y-2">
-            <Label className="btk">Amenities</Label>
+            <Label className="block">Category</Label>
 
             <Popover
               open={open}
@@ -120,7 +116,7 @@ export const ProjectDetailAmenities = () => {
               <Popover.Trigger asChild>
                 <Button variant="outline">
                   <IconPlus />
-                  Add amenity
+                  Add category
                 </Button>
               </Popover.Trigger>
               <Combobox.Content className="min-w-96">
@@ -159,7 +155,7 @@ export const ProjectDetailAmenities = () => {
 
             {projectAmenities?.map((amenityGroup) => (
               <div className="pt-2 space-y-2">
-                <Label className="btk">
+                <Label className="block">
                   {amenitiesByCategory[amenityGroup.category].at(0)?.category}
                 </Label>
                 <div
@@ -184,7 +180,7 @@ export const ProjectDetailAmenities = () => {
         </InfoCardContent>
       </InfoCard>
       <Separator className="col-span-2" />
-      <InfoCard title="Building Amenities" description="Amenities">
+      <InfoCard title="Building Category" description="Amenities">
         <InfoCardContent>
           <div className="p-6 text-accent-foreground">Add buildings first!</div>
         </InfoCardContent>

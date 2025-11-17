@@ -1,8 +1,8 @@
 import { gql } from '@apollo/client';
 
-export const UPDATE_DEVELOPER_INFO = gql`
-  mutation UpdateDeveloperInfo($input: DeveloperInput) {
-    updateDeveloperInfo(input: $input) {
+export const UPDATE_Company_INFO = gql`
+  mutation UpdateCompanyInfo($input: CompanyInput) {
+    updateCompanyInfo(input: $input) {
       _id
     }
   }

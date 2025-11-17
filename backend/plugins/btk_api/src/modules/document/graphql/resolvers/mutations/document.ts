@@ -16,16 +16,6 @@ export const documentMutations = {
     { _id, input }: { _id: string; input: IBtkDocumentDocument },
     { models }: IContext,
   ) => {
-    const document = await models.BtkDocument.findOne({ _id });
-
-    if (document && document.itemType === 'contract') {
-      const unit = await models.Contract.findOne({ _id: document.itemId });
-
-      if (unit && unit.status === 'signed') {
-        throw new Error('Can not update document because contract is signed');
-      }
-    }
-
     return models.BtkDocument.updateBtkDocument({ _id, input });
   },
 
@@ -34,16 +24,6 @@ export const documentMutations = {
     { _id }: { _id: string },
     { models }: IContext,
   ) => {
-    const document = await models.BtkDocument.findOne({ _id });
-
-    if (document && document.itemType === 'contract') {
-      const unit = await models.Contract.findOne({ _id: document.itemId });
-
-      if (unit && unit.status === 'signed') {
-        throw new Error('Can not delete document because contract is signed');
-      }
-    }
-
     return models.BtkDocument.findByIdAndDelete({ _id });
   },
 };

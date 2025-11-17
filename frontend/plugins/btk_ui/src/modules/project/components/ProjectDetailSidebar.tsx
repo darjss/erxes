@@ -7,10 +7,6 @@ export const ProjectDetailSidebar = () => {
   });
   const properties = [
     PROJECT_TABS.GENERAL,
-    PROJECT_TABS.PRICING,
-    PROJECT_TABS.BUILDINGS,
-    PROJECT_TABS.ZONES,
-    PROJECT_TABS.UNITS,
     PROJECT_TABS.AMENITIES,
     PROJECT_TABS.MEMBERS,
   ];

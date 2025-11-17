@@ -9,18 +9,6 @@ const ProjectDetailGeneral = lazy(() =>
   })),
 );
 
-const ProjectDetailPrices = lazy(() =>
-  import('./ProjectDetailPrices').then((module) => ({
-    default: module.ProjectDetailPrices,
-  })),
-);
-
-const ProjectDetailBuildings = lazy(() =>
-  import('./ProjectDetailBuildings').then((module) => ({
-    default: module.ProjectDetailBuildings,
-  })),
-);
-
 const ProjectDetailAmenities = lazy(() =>
   import('./ProjectDetailAmenities').then((module) => ({
     default: module.ProjectDetailAmenities,
@@ -51,18 +39,6 @@ const ProjectDetailPolicies = lazy(() =>
   })),
 );
 
-const ProjectDetailZoning = lazy(() =>
-  import('./ProjectDetailZoning').then((module) => ({
-    default: module.ProjectDetailZoning,
-  })),
-);
-
-const ProjectDetailUnits = lazy(() =>
-  import('./ProjectDetailUnits').then((module) => ({
-    default: module.ProjectDetailUnits,
-  })),
-);
-
 const ProjectDetailMembers = lazy(() =>
   import('./ProjectDetailMembers').then((module) => ({
     default: module.ProjectDetailMembers,
@@ -80,11 +56,7 @@ export const ProjectDetailTabs = () => {
   return (
     <Suspense fallback={<Spinner containerClassName="py-32" />}>
       {activeTab === PROJECT_TABS.GENERAL && <ProjectDetailGeneral />}
-      {activeTab === PROJECT_TABS.PRICING && <ProjectDetailPrices />}
-      {activeTab === PROJECT_TABS.BUILDINGS && <ProjectDetailBuildings />}
-      {activeTab === PROJECT_TABS.ZONES && <ProjectDetailZoning />}
       {activeTab === PROJECT_TABS.AMENITIES && <ProjectDetailAmenities />}
-      {activeTab === PROJECT_TABS.UNITS && <ProjectDetailUnits />}
       {activeTab === PROJECT_TABS.MEMBERS && <ProjectDetailMembers />}
       {activeTab === PROJECT_TABS.MEDIA && <ProjectDetailMedia />}
       {activeTab === PROJECT_TABS.DOCUMENTS && <ProjectDetailDocument />}

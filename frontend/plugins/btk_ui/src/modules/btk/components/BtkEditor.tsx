@@ -2,13 +2,13 @@ import type React from 'react';
 import { Form, Editor } from 'erxes-ui';
 import { Control, UseFormSetValue } from 'react-hook-form';
 import { Block } from '@blocknote/core';
-import { developerInfoSchema } from '../constants/developerInfoSchema';
+import { companyInfoSchema } from '../constants/companyInfoSchema';
 import { z } from 'zod';
 
 interface BtkEditorFieldProps {
-  control: Control<z.infer<typeof developerInfoSchema>>;
-  setValue: UseFormSetValue<z.infer<typeof developerInfoSchema>>;
-  name: keyof z.infer<typeof developerInfoSchema>;
+  control: Control<z.infer<typeof companyInfoSchema>>;
+  setValue: UseFormSetValue<z.infer<typeof companyInfoSchema>>;
+  name: keyof z.infer<typeof companyInfoSchema>;
   label: string;
   initialContent?: string;
 }
@@ -62,7 +62,7 @@ export const BtkEditorField: React.FC<BtkEditorFieldProps> = ({
         hasBtksToHTMLLossy: !!editorInstance?.btksToHTMLLossy,
       });
 
-      setValue(name as keyof z.infer<typeof developerInfoSchema>, '', {
+      setValue(name as keyof z.infer<typeof companyInfoSchema>, '', {
         shouldDirty: true,
         shouldTouch: true,
         shouldValidate: false,
@@ -199,7 +199,7 @@ export const BtkEditorField: React.FC<BtkEditorFieldProps> = ({
   return (
     <Form.Field
       control={control}
-      name={name as keyof z.infer<typeof developerInfoSchema>}
+      name={name as keyof z.infer<typeof companyInfoSchema>}
       render={() => (
         <Form.Item className="col-span-2">
           <Form.Label>{label}</Form.Label>
@@ -211,7 +211,7 @@ export const BtkEditorField: React.FC<BtkEditorFieldProps> = ({
           </Form.Control>
           <Form.Description>
             A detailed overview that tells the story, mission, and deeper
-            context behind the project, developer company or organization.
+            context behind the project, company company or organization.
           </Form.Description>
           <Form.Message className="text-destructive" />
         </Form.Item>

@@ -1,9 +1,10 @@
 import { gql } from '@apollo/client';
 
 export const CREATE_PROJECT = gql`
-  mutation BtkCreateProject($name: String!) {
-    btkCreateProject(name: $name) {
+  mutation BtkCreateProject($name: String!, $companyId: String!) {
+    btkCreateProject(name: $name, companyId: $companyId) {
       _id
+      companyId
     }
   }
 `;

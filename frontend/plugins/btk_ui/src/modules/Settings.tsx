@@ -1,4 +1,4 @@
-import { BtkDeveloperInfo } from '@/btk/components/BtkDeveloperInfo';
+import { BtkCompanyInfo } from '~/modules/btk/components/BtkCompanyInfo';
 import { BtkSettingsSidebar } from '@/btk/components/BtkSettingsSidebar';
 import { IconStackFilled } from '@tabler/icons-react';
 import { Button, PageContainer } from 'erxes-ui';
@@ -12,7 +12,7 @@ export default function Settings() {
       <div className="flex flex-auto overflow-hidden">
         <BtkSettingsSidebar />
         <div className="flex flex-col h-full overflow-auto flex-1">
-          <BtkDeveloperInfo />
+          <BtkCompanyInfo />
         </div>
       </div>
     </PageContainer>

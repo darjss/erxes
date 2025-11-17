@@ -3,11 +3,13 @@ import { useRemoveProject } from '@/project/hooks/useRemoveProject';
 import { IconArrowUp, IconDotsVertical, IconTrash } from '@tabler/icons-react';
 import { Button, DropdownMenu, toast, useConfirm } from 'erxes-ui';
 import { useNavigate, useParams } from 'react-router-dom';
+import { usePublishProject } from '@/project/hooks/usePublishProject';
 
 export const ProjectDetailActions = () => {
   const { id: projectId } = useParams();
   const { confirm } = useConfirm();
   const { removeProject } = useRemoveProject();
+  const { publishProject } = usePublishProject();
   const navigate = useNavigate();
 
   return (
@@ -19,7 +21,28 @@ export const ProjectDetailActions = () => {
         </Button>
       </DropdownMenu.Trigger>
       <DropdownMenu.Content className="min-w-48" align="end">
-        <DropdownMenu.Item>
+        <DropdownMenu.Item
+          onClick={() =>
+            publishProject({
+              variables: { id: projectId },
+              refetchQueries: [{ query: BTK_GET_PROJECT_LIST }],
+              onCompleted: () => {
+                navigate('/btk/projects');
+                toast({
+                  title: 'Success',
+                  description: 'Project published successfully',
+                });
+              },
+              onError: (error) => {
+                toast({
+                  title: 'Error',
+                  description: error.message,
+                  variant: 'destructive',
+                });
+              },
+            })
+          }
+        >
           <IconArrowUp />
           Publish Project
         </DropdownMenu.Item>

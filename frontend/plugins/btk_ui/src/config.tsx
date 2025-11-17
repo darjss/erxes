@@ -1,6 +1,6 @@
 import { IUIConfig } from 'erxes-ui';
 import { Suspense, lazy } from 'react';
-import { IconLetterBSmall } from '@tabler/icons-react';
+import { IconBusinessplan } from '@tabler/icons-react';
 
 const BtkNavigation = lazy(() =>
   import('./modules/BtkNavigation').then((module) => ({
@@ -13,14 +13,14 @@ export const CONFIG: IUIConfig = {
   modules: [
     {
       name: 'btk',
-      icon: IconLetterBSmall,
+      icon: IconBusinessplan,
       path: 'btk',
       hasSettings: false,
     },
   ],
   navigationGroup: {
     name: 'btk',
-    icon: IconLetterBSmall,
+    icon: IconBusinessplan,
     content: () => (
       <Suspense fallback={<div />}>
         <BtkNavigation />

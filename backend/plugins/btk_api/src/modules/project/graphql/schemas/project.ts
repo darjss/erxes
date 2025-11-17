@@ -22,7 +22,6 @@ export const types = `
     unverified
     pending
   }
-
   enum BtkAdminProjectStatus {
     planned
     on_going
@@ -63,6 +62,9 @@ export const types = `
     isPublished: Boolean
     location: BtkProjectLocation
     verificationStatus: BtkAdminProjectVerificationStatus
+    companyId: String
+    title: String
+    content: String
     status: BtkAdminProjectStatus
     coverImage: String
     mainPrice: Int
@@ -79,6 +81,9 @@ export const types = `
     coverImage: String
     location: BtkProjectLocationInput
     verificationStatus: BtkAdminProjectVerificationStatus
+    companyId: String
+    title: String
+    content: String
     status: BtkAdminProjectStatus
     mainPrice: Int
     prices: [BtkProjectPriceInput]
@@ -96,7 +101,7 @@ export const queries = `
 `;
 
 export const mutations = `
-  btkCreateProject(name: String!): BtkProject
+  btkCreateProject(name: String!, companyId: String!): BtkProject
   btkUpdateProjectGeneralInfo(_id: String!, input: BtkProjectGeneralInput!): BtkProject
   btkPublishProject(_id: String!): BtkProject
   btkRemoveProject(_id: String!): BtkProject

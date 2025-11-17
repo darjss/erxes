@@ -13,7 +13,7 @@ export const BtkSettingsSidebar = () => {
                 isActive={pathname === '/settings/btk'}
                 asChild
               >
-                <Link to="/settings/btk">Developer Info</Link>
+                <Link to="/settings/btk">Company info</Link>
               </Sidebar.MenuButton>
             </Sidebar.MenuItem>
           </Sidebar.Menu>

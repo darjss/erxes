@@ -25,11 +25,7 @@ export const PROJECT_AMENITIES = [
 
 export const PROJECT_TABS = {
   GENERAL: 'general',
-  PRICING: 'pricing',
-  BUILDINGS: 'buildings',
-  ZONES: 'zones',
-  UNITS: 'units',
-  AMENITIES: 'amenities',
+  AMENITIES: 'category',
   MEMBERS: 'members',
   SEO: 'SEO',
   MEDIA: 'media',

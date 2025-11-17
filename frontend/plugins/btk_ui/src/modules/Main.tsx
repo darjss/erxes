@@ -14,15 +14,9 @@ const ProjectDetail = lazy(() =>
   })),
 );
 
-export const StackingPlanPage = lazy(() =>
-  import('~/pages/StackingPlanPage').then((module) => ({
-    default: module.StackingPlanPage,
-  })),
-);
-
-const DeveloperInfoPage = lazy(() =>
-  import('~/pages/DeveloperInfoPage').then((module) => ({
-    default: module.DeveloperInfoPage,
+const CompanyInfoPage = lazy(() =>
+  import('~/pages/CompanyInfoPage').then((module) => ({
+    default: module.CompanyInfoPage,
   })),
 );
 
@@ -32,8 +26,7 @@ const Main = () => {
       <Routes>
         <Route path="/projects" element={<ProjectsPage />} />
         <Route path="/projects/:id" element={<ProjectDetail />} />
-        <Route path="/stacking-plan" element={<StackingPlanPage />} />
-        <Route path="/developer-info" element={<DeveloperInfoPage />} />
+        <Route path="/company-info" element={<CompanyInfoPage />} />
       </Routes>
     </Suspense>
   );

@@ -51,6 +51,18 @@ export const projectSchema = new Schema(
       enum: BTK_VERIFICATION_STATUS.ALL,
       default: BTK_VERIFICATION_STATUS.PENDING,
     },
+    companyId: {
+      type: String,
+      label: 'Company ID',
+    },
+    title: {
+      type: String,
+      label: 'Title',
+    },
+    content: {
+      type: String,
+      label: 'Content',
+    },
     coverImage: { type: String, label: 'Cover Image' },
     mainPrice: { type: Number, label: 'Price' },
     prices: { type: [projectPriceSchema], label: 'Prices' },

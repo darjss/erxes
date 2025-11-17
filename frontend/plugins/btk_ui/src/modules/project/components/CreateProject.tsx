@@ -5,6 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useState } from 'react';
 import { useCreateProject } from '../hooks/useCreateProject';
+import { useCompanyInfo } from '~/modules/btk/hooks/useCompanyInfo';
 
 export const CreateProject = () => {
   const [open, setOpen] = useState(false);
@@ -38,11 +39,13 @@ const CreateProjectForm = ({ onClose }: { onClose: () => void }) => {
     },
   });
   const { createProject, loading } = useCreateProject();
+  const { companyInfo } = useCompanyInfo();
 
   const onSubmit = (data: { name: string }) => {
     createProject({
       variables: {
         name: data.name,
+        companyId: companyInfo?._id,
       },
       onCompleted: () => {
         toast({

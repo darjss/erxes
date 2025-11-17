@@ -33,6 +33,9 @@ export const BTK_GET_PROJECT_DETAIL = gql`
         parcelId
       }
       verificationStatus
+      companyId
+      title
+      content
       status
       coverImage
       bankPartners
