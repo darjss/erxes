@@ -96,7 +96,7 @@ export const AddUnitsMultipleForm = ({
         className="flex flex-col flex-auto"
         onSubmit={form.handleSubmit(onSubmit)}
       >
-        <Sheet.Content className="p-6 space-y-5">
+        <Sheet.Content className="p-6 blk:space-y-5">
           <Alert>
             <IconAlertCircle />
             <Alert.Title>Warning</Alert.Title>

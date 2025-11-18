@@ -85,7 +85,7 @@ export const AddBuildingForProject = ({
         className="flex flex-col flex-auto"
         onSubmit={form.handleSubmit(onSubmit)}
       >
-        <Sheet.Content className="p-5 space-y-5">
+        <Sheet.Content className="p-5 blk:space-y-5">
           <Form.Field
             name="coverImage"
             render={({ field }) => (

@@ -49,7 +49,7 @@ export const OfferAddSheet = () => {
           Add offer
         </Button>
       </Sheet.Trigger>
-      <Sheet.View className="sm:max-w-screen-lg md:w-[calc(100vw-theme(spacing.4))]">
+      <Sheet.View className="blk:sm:max-w-5xl blk:md:w-[calc(100vw-(--spacing(4)))]">
         <Sheet.Header>
           <Sheet.Title>Add offer</Sheet.Title>
           <Sheet.Close />

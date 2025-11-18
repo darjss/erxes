@@ -1,10 +1,6 @@
-import { Badge, Separator, Spinner, Button, cn } from 'erxes-ui';
+import { Badge, Spinner, cn } from 'erxes-ui';
 import { useProjectDetail } from '../hooks/useProjectDetail';
-import {
-  IconClockFilled,
-  IconDotsVertical,
-  IconShieldFilled,
-} from '@tabler/icons-react';
+import { IconShieldFilled } from '@tabler/icons-react';
 import { ProjectDetailName } from './ProjectDetailName';
 import { ProjectDetailActions } from '@/project/components/ProjectDetailActions';
 
@@ -33,10 +29,10 @@ export const ProjectDetailProfile = () => {
             {project?.status}
           </Badge>
         </div>
-        <div className="flex items-center gap-2 text-accent-foreground">
+        {/* <div className="flex items-center gap-2 text-accent-foreground">
           <IconClockFilled className="size-4" />
           <p className="text-sm">Last updated by Carl Marx, 2024-12-01 14:30</p>
-        </div>
+        </div> */}
       </div>
       <div className="ml-auto p-8">
         <ProjectDetailActions />

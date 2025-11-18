@@ -1,5 +1,5 @@
 import { useBuildings } from '@/building/hooks/useBuildings';
-import { Select } from 'erxes-ui';
+import { Button, Select, Skeleton } from 'erxes-ui';
 import { useEffect } from 'react';
 
 export const SelectBuilding = ({
@@ -11,13 +11,20 @@ export const SelectBuilding = ({
   onValueChange: (value: string) => void;
   projectId: string;
 }) => {
-  const { buildings } = useBuildings({ projectId: projectId });
+  const { buildings, loading } = useBuildings({ projectId: projectId });
 
   useEffect(() => {
     if (buildings?.length && !value) {
       onValueChange(buildings[0]._id);
     }
   }, [buildings, value, onValueChange]);
+
+  if (loading)
+    return (
+      <Button variant="outline" disabled>
+        <Skeleton className="w-32 h-4" />
+      </Button>
+    );
 
   return (
     <Select value={value} onValueChange={onValueChange}>

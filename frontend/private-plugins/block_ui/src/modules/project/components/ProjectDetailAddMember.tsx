@@ -82,7 +82,7 @@ export const ProjectDetailAddMemberForm = ({
         className="flex flex-auto flex-col"
         onSubmit={form.handleSubmit(onSubmit)}
       >
-        <Sheet.Content className="p-6 space-y-5">
+        <Sheet.Content className="p-6 blk:space-y-5">
           <Form.Field
             control={form.control}
             name="memberIds"

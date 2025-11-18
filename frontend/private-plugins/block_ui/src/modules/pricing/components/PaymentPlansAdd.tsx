@@ -76,7 +76,7 @@ export const PaymentPlansAddForm = ({ onClose }: { onClose: () => void }) => {
           console.log(error);
         })}
       >
-        <Sheet.Content className="p-6 space-y-5">
+        <Sheet.Content className="p-6 blk:space-y-5">
           <Form.Field
             name="name"
             render={({ field }) => (

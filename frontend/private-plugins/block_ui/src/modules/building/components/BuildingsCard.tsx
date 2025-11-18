@@ -1,5 +1,5 @@
 import { InfoCard, InfoCardContent } from '@/block/components/card';
-import { Input, Label, Select, Spinner, Textarea } from 'erxes-ui';
+import { Empty, Input, Label, Select, Spinner, Textarea } from 'erxes-ui';
 import { IProjectDetail } from '@/project/types/projectTypes';
 import { useBuildings } from '@/building/hooks/useBuildings';
 import { AddBuilding } from '@/building/components/AddBuilding';
@@ -32,7 +32,16 @@ export const BuildingsCard = ({ project }: { project: IProjectDetail }) => {
           </Label>
         </div>
         {loading ? (
-          <Spinner containerClassName="py-32" />
+          <Spinner containerClassName="blk:py-32" />
+        ) : buildings?.length === 0 ? (
+          <Empty>
+            <Empty.Header>
+              <Empty.Title>No buildings found</Empty.Title>
+              <Empty.Description>
+                There seems to be no buildings.
+              </Empty.Description>
+            </Empty.Header>
+          </Empty>
         ) : (
           buildings?.map((building) => (
             <BuildingsCardItem key={building._id} building={building} />

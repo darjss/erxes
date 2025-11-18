@@ -22,7 +22,7 @@ export const UnitDetailSheet = () => {
       open={!!unitId}
       onOpenChange={() => setQueries({ unitId: null, activeUnitTab: null })}
     >
-      <Sheet.View className="sm:max-w-screen-lg md:w-[calc(100vw-theme(spacing.4))]">
+      <Sheet.View className="blk:sm:max-w-5xl blk:md:w-[calc(100vw-(--spacing(4)))]">
         {unitId && <UnitDetailSheetContent />}
       </Sheet.View>
     </Sheet>

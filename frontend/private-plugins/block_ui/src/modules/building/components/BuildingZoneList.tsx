@@ -20,19 +20,11 @@ import { useEffect, useState } from 'react';
 
 export const BuildingZoneList = ({ project }: { project: IProjectDetail }) => {
   const { buildings, loading } = useBuildings({ projectId: project._id });
+
   if (loading) {
     return <Spinner containerClassName="py-32" />;
   }
 
-  if (!buildings?.length) {
-    return (
-      <div className="flex flex-col gap-6">
-        <div className="text-center text-sm text-muted-foreground">
-          No buildings found
-        </div>
-      </div>
-    );
-  }
   return (
     <div className="flex flex-col gap-6">
       {buildings?.map((building) => (
