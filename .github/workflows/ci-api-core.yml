@@ -1,4 +1,4 @@
-name: CI plugin--core-api
+name: CI plugin-core-api
 
 on:
   push:
