@@ -45,7 +45,7 @@ export interface ICursorPaginateResult<T> {
   totalCount: number;
 }
 
-export interface IListParams {
+export interface IListParams extends ICursorPaginateParams {
   searchValue?: string;
   sortField?: string;
 }
