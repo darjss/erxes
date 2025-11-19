@@ -1,6 +1,7 @@
 import { Schema } from 'mongoose';
 
-import { BLOCK_PROJECT_STATUS, BLOCK_VERIFICATION_STATUS } from '@/project/constants';
+import { BLOCK_PROJECT_STATUS } from '@/project/constants';
+import { BLOCK_VERIFICATION_STATUS } from '~/constants';
 
 const locationSchema = new Schema(
   {
@@ -36,18 +37,18 @@ export const projectSchema = new Schema(
     name: { type: String, label: 'Name' },
     isPublished: { type: Boolean, label: 'Is Published', default: false },
     location: { type: locationSchema, label: 'Location' },
-      status: {
-        type: String,
-        label: 'Status',
-        enum: BLOCK_PROJECT_STATUS.ALL,
-        default: BLOCK_PROJECT_STATUS.PLANNED,
-      },
-      verificationStatus: {
-        type: String,
-        label: 'Verification Status',
-        enum: BLOCK_VERIFICATION_STATUS.ALL,
-        default: BLOCK_VERIFICATION_STATUS.PENDING,
-      },
+    status: {
+      type: String,
+      label: 'Status',
+      enum: BLOCK_PROJECT_STATUS.ALL,
+      default: BLOCK_PROJECT_STATUS.PLANNED,
+    },
+    verificationStatus: {
+      type: String,
+      label: 'Verification Status',
+      enum: BLOCK_VERIFICATION_STATUS.ALL,
+      default: BLOCK_VERIFICATION_STATUS.PENDING,
+    },
     coverImage: { type: String, label: 'Cover Image' },
     mainPrice: { type: Number, label: 'Price' },
     prices: { type: [projectPriceSchema], label: 'Prices' },

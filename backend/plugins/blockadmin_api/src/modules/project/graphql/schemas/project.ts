@@ -6,7 +6,7 @@ export const types = `
     name: String
     isPublished: Boolean
     location: BlockAdminProjectLocation
-    verificationStatus: BlockAdminProjectVerificationStatus
+    verificationStatus: BlockAdminDeveloperVerificationStatus
     status: BlockAdminProjectStatus
     coverImage: String
     mainPrice: Int

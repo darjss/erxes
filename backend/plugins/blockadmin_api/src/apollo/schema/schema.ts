@@ -34,6 +34,7 @@ import {
 } from '@/attachment/graphql/schemas/attachment';
 
 import {
+  mutations as DeveloperMutations,
   queries as DeveloperQueries,
   types as DeveloperTypes,
 } from '@/developer/graphql/schemas/developer';
@@ -115,6 +116,7 @@ export const queries = `
 
 export const mutations = `
   ${SubmissionMutations}
+  ${DeveloperMutations}
   `;
 
 export default { types, queries, mutations };

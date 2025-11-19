@@ -12,19 +12,28 @@ export interface IBlockDeveloperSocialLink {
 }
 export interface IBlockDeveloper extends IBlock {
   name: string;
-  description: string;
+
   about: string;
+  description: string;
+
   logo: string;
-  website: string;
-  email: string;
-  phone: string;
-  address: IAddress;
-  dateFounded: Date;
-  primaryPhone: string;
-  phones: string[];
-  socialLinks: IBlockDeveloperSocialLink;
-  isVerified: boolean;
   coverImage: string;
+
+  registrationNumber: string;
+
+  address: IAddress;
+
+  primaryEmail: string;
+  primaryPhone: string;
+
+  phones: string[];
+  emails: string[];
+
+  dateFounded: string;
+  website: string;
+  verificationStatus: string;
+
+  socialLinks: IBlockDeveloperSocialLink;
 }
 
 export interface IBlockDeveloperDocument extends IBlockDeveloper, Document {
@@ -35,6 +44,6 @@ export interface IBlockDeveloperDocument extends IBlockDeveloper, Document {
 
 export interface DeveloperQueryParams {
   searchValue?: string;
-  isVerified?: string;
+  verificationStatus?: string;
   location?: IAddress;
 }

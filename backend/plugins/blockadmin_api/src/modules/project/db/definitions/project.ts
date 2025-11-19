@@ -1,9 +1,7 @@
 import { Schema } from 'mongoose';
 
-import {
-  BLOCK_PROJECT_STATUS,
-  BLOCK_VERIFICATION_STATUS,
-} from '@/project/constants';
+import { BLOCK_PROJECT_STATUS } from '@/project/constants';
+import { BLOCK_VERIFICATION_STATUS } from '~/constants';
 import { schemaWrapper } from '~/utils';
 
 const locationSchema = new Schema(

@@ -8,12 +8,9 @@ export interface IBlock {
 export interface IRequest<T, E = {}> extends Request {
   subdomain?: string;
   body: {
-    subdomain: string;
     payload: {
       entityId: string;
-      data: {
-        input: T;
-      } & E;
+      data: T & E;
     };
   };
 }

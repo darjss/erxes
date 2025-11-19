@@ -1,7 +1,7 @@
 import { IBlockDeveloperDocument } from '@/developer/db/@types/developer';
 import { developerSchema } from '@/developer/db/definitions/developer';
-import { IModels } from '~/connectionResolvers';
 import { Model } from 'mongoose';
+import { IModels } from '~/connectionResolvers';
 
 export interface IBlockDeveloperModel extends Model<IBlockDeveloperDocument> {
   createDeveloper(
@@ -10,6 +10,10 @@ export interface IBlockDeveloperModel extends Model<IBlockDeveloperDocument> {
   updateDeveloper(
     _id: string,
     input: IBlockDeveloperDocument,
+  ): Promise<IBlockDeveloperDocument>;
+  updateDeveloperVerificationStatus(
+    _id: string,
+    status: string,
   ): Promise<IBlockDeveloperDocument>;
 }
 
@@ -26,6 +30,21 @@ export const loadBlockDeveloperClass = (models: IModels) => {
       return models.Developer.findOneAndUpdate({ _id }, input, {
         new: true,
       });
+    }
+
+    public static async updateDeveloperVerificationStatus(
+      _id: string,
+      status: string,
+    ) {
+      return models.Developer.findOneAndUpdate(
+        { _id },
+        {
+          $set: { verificationStatus: status },
+        },
+        {
+          new: true,
+        },
+      );
     }
   }
 

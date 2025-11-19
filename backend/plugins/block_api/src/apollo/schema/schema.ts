@@ -77,6 +77,56 @@ import {
 } from '@/contract/graphql/schemas/offer';
 
 export const types = `
+  type DeveloperAddress {
+    countryCode: String
+    country: String
+    postCode: String
+    city: String
+    city_district: String
+    suburb: String
+    road: String
+    street: String
+    building: String
+    number: String
+    other: String
+  }
+
+  type DeveloperLocation {
+    type: String
+    coordinates: [Int]
+  }
+
+  type DeveloperAddressInfo {
+    location: DeveloperLocation
+    address: DeveloperAddress
+    short: String
+  }
+
+  input DeveloperLocationInput {
+    type: String
+    coordinates: [Int]
+  }
+
+  input DeveloperAddressInput {
+    countryCode: String
+    country: String
+    postCode: String
+    city: String
+    city_district: String
+    suburb: String
+    road: String
+    street: String
+    building: String
+    number: String
+    other: String
+  }
+
+  input DeveloperAddressInfoInput {
+    location: DeveloperLocationInput
+    address: DeveloperAddressInput
+    short: String
+  }
+
   ${ProjectTypes}
   ${PaymentTypes}
   ${BuildingTypes}

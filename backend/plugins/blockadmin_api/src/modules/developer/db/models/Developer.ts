@@ -17,6 +17,11 @@ export interface IBlockDeveloperModel extends Model<IBlockDeveloperDocument> {
     entityId: string,
     input: IBlockDeveloper,
   ): Promise<IBlockDeveloperDocument>;
+  updateDeveloperVerificationStatus(
+    subdomain: string,
+    entityId: string,
+    status: string,
+  ): Promise<IBlockDeveloperDocument>;
 }
 
 export const loadBlockDeveloperClass = (models: IModels) => {
@@ -48,6 +53,22 @@ export const loadBlockDeveloperClass = (models: IModels) => {
       return models.Developer.findOneAndUpdate({ _id }, input, {
         new: true,
       });
+    }
+
+    public static async updateDeveloperVerificationStatus(
+      subdomain: string,
+      entityId: string,
+      status: string,
+    ) {
+      const { _id } = await models.Developer.getDeveloper(subdomain, entityId);
+
+      return models.Developer.findOneAndUpdate(
+        { _id },
+        { verificationStatus: status },
+        {
+          new: true,
+        },
+      );
     }
   }
 

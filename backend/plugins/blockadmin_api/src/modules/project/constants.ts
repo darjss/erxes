@@ -1,10 +1,3 @@
-export const BLOCK_VERIFICATION_STATUS = {
-  VERIFIED: 'verified',
-  UNVERIFIED: 'unverified',
-  PENDING: 'pending',
-  ALL: ['verified', 'unverified', 'pending'],
-};
-
 export const BLOCK_PROJECT_STATUS = {
   PLANNED: 'planned',
   ON_GOING: 'on_going',

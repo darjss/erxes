@@ -15,14 +15,15 @@ export const types = `
     about: String
     logo: String
     website: String
-    address: JSON
-    dateFounded: Date
-    email: String
+    registrationNumber: String
+    address: DeveloperAddressInfo
+    dateFounded: String
+    primaryEmail: String
     primaryPhone: String
     coverImage: String
     phones: [String]
     socialLinks: DeveloperSocialLink
-    isVerified: Boolean
+    verificationStatus: String
   }
 
   input DeveloperSocialLinkInput {
@@ -40,9 +41,10 @@ export const types = `
     about: String
     logo: String
     website: String
-    address: JSON
-    dateFounded: Date
-    email: String
+    registrationNumber: String
+    address: DeveloperAddressInfoInput
+    dateFounded: String
+    primaryEmail: String
     primaryPhone: String
     coverImage: String
     phones: [String]
@@ -56,4 +58,5 @@ export const queries = `
 
 export const mutations = `
   updateDeveloperInfo(input: DeveloperInput): Developer
+  updateDeveloperVerificationStatus: Developer
 `;
