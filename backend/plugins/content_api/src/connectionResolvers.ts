@@ -92,7 +92,6 @@ export interface IContext extends IMainContext {
   models: IModels;
   portalUser: IUserDocument;
   session: any;
-  clientPortalId?: string;
   isPassed2FA?: boolean;
   subdomain: string;
 }
