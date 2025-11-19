@@ -1,4 +1,4 @@
-name: CI plugin-block-api
+name: CI plugin--core-api
 
 on:
   push:
@@ -6,17 +6,17 @@ on:
       - main
       - debug/core
     paths:
-      - 'backend/plugins/block_api/**'
+      - 'backend/core-api/**'
       - 'backend/erxes-api-shared/**'
-      - '.github/workflows/ci-api-block.yml'
+      - '.github/workflows/ci-api-core.yml'
   pull_request:
     paths:
-      - 'backend/plugins/block_api/**'
+      - 'backend/core-api/**'
       - 'backend/erxes-api-shared/**'
-      - '.github/workflows/ci-api-block.yml'
+      - '.github/workflows/ci-api-core.yml'
 
 jobs:
-  block_api-ci:
+  core-api-ci:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -41,8 +41,8 @@ jobs:
       - name: Build shared module
         run: pnpm nx build erxes-api-shared
 
-      - name: Build block_api
-        run: pnpm nx build block_api
+      - name: Build core-api
+        run: pnpm nx build core-api
 
       # Buildx setup
       - name: Set up QEMU
@@ -63,9 +63,9 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          file: backend/plugins/block_api/Dockerfile
+          file: backend/core-api/Dockerfile
           push: true
           platforms: linux/amd64,linux/arm64
           tags: |
-            erxes/erxes-next-block_api:latest
-            erxes/erxes-next-block_api:${{ env.DATE }}-${{ env.SHORT_SHA }}
+            erxes/erxes-next-core-api:latest
+            erxes/erxes-next-core-api:${{ env.DATE }}-${{ env.SHORT_SHA }}
