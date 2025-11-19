@@ -1,14 +1,14 @@
 import {
-  mutations as ProjectMutations,
-  queries as ProjectQueries,
-  types as ProjectTypes,
-} from '@/project/graphql/schemas/project';
+  mutations as NewsMutations,
+  queries as NewsQueries,
+  types as NewsTypes,
+} from '~/modules/news/graphql/schemas/news';
 
 import {
   mutations as PaymentMutations,
   queries as PaymentQueries,
   types as PaymentTypes,
-} from '@/project/graphql/schemas/payment';
+} from '~/modules/news/graphql/schemas/payment';
 
 import {
   mutations as DocumentMutations,
@@ -29,38 +29,38 @@ import {
 } from '@/company/graphql/schemas/company';
 
 import {
-  mutations as ProjectMemberMutations,
-  queries as ProjectMemberQueries,
-  types as ProjectMemberTypes,
-} from '@/project/graphql/schemas/member';
+  mutations as NewsMemberMutations,
+  queries as NewsMemberQueries,
+  types as NewsMemberTypes,
+} from '~/modules/news/graphql/schemas/member';
 
 export const types = `
-  ${ProjectTypes}
+  ${NewsTypes}
   ${PaymentTypes}
   ${DocumentTypes}
   ${AttachmentTypes}
   ${CompanyTypes}
-  ${ProjectMemberTypes}
+  ${NewsMemberTypes}
 
   `;
 
 export const queries = `
-  ${ProjectQueries}
+  ${NewsQueries}
   ${PaymentQueries}
   ${DocumentQueries}
   ${AttachmentQueries}
   ${CompanyQueries}
-  ${ProjectMemberQueries}
+  ${NewsMemberQueries}
 
   `;
 
 export const mutations = `
-  ${ProjectMutations}
+  ${NewsMutations}
   ${PaymentMutations}
   ${DocumentMutations}
   ${AttachmentMutations}
   ${CompanyMutations}
-  ${ProjectMemberMutations}
+  ${NewsMemberMutations}
 
   `;
 

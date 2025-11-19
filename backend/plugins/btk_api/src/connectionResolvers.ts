@@ -1,14 +1,14 @@
 import { createGenerateModels } from 'erxes-api-shared/utils';
 import { IMainContext } from 'erxes-api-shared/core-types';
-import { IProjectDocument } from '@/project/@types/project';
-import { IProjectPaymentPlan } from '@/project/@types/payment';
+import { INewsDocument } from '~/modules/news/@types/news';
+import { INewsPaymentPlan } from '~/modules/news/@types/payment';
 import mongoose from 'mongoose';
 
-import { loadProjectClass, IProjectModel } from '@/project/db/models/Project';
+import { loadNewsClass, INewsModel } from '~/modules/news/db/models/News';
 import {
-  loadProjectPaymentPlanClass,
-  IProjectPaymentPlanModel,
-} from '@/project/db/models/Payment';
+  loadNewsPaymentPlanClass,
+  INewsPaymentPlanModel,
+} from '~/modules/news/db/models/Payment';
 import { IBtkDocumentDocument } from '@/document/@types/document';
 
 import {
@@ -23,9 +23,9 @@ import { IBtkAttachmentDocument } from '@/attachment/@types/attachment';
 import { ICompanyModel, loadCompanyClass } from '@/company/db/models/Company';
 import { ICompanyDocument } from '@/company/db/@types/company';
 
-import { loadProjectMemberClass } from '@/project/db/models/Member';
-import { IProjectMemberDocument } from '@/project/@types/member';
-import { IProjectMemberModel } from '@/project/db/models/Member';
+import { loadNewsMemberClass } from '~/modules/news/db/models/Member';
+import { INewsMemberDocument } from '~/modules/news/@types/member';
+import { INewsMemberModel } from '~/modules/news/db/models/Member';
 import {
   IBtkActivityModel,
   loadBtkActivityClass,
@@ -33,12 +33,12 @@ import {
 import { IBtkActivityDocument } from '@/acitivity/@types/acitivy';
 
 export interface IModels {
-  Project: IProjectModel;
-  ProjectPaymentPlan: IProjectPaymentPlanModel;
+  News: INewsModel;
+  NewsPaymentPlan: INewsPaymentPlanModel;
   BtkDocument: IBtkDocumentModel;
   BtkAttachment: IBtkAttachmentModel;
   Company: ICompanyModel;
-  ProjectMember: IProjectMemberModel;
+  NewsMember: INewsMemberModel;
   BtkActivity: IBtkActivityModel;
 }
 
@@ -49,15 +49,15 @@ export interface IContext extends IMainContext {
 export const loadClasses = (db: mongoose.Connection): IModels => {
   const models = {} as IModels;
 
-  models.Project = db.model<IProjectDocument, IProjectModel>(
-    'btk_projects',
-    loadProjectClass(models),
+  models.News = db.model<INewsDocument, INewsModel>(
+    'btk_news',
+    loadNewsClass(models),
   );
 
-  models.ProjectPaymentPlan = db.model<
-    IProjectPaymentPlan,
-    IProjectPaymentPlanModel
-  >('btk_project_payment_plans', loadProjectPaymentPlanClass(models));
+  models.NewsPaymentPlan = db.model<INewsPaymentPlan, INewsPaymentPlanModel>(
+    'btk_news_payment_plans',
+    loadNewsPaymentPlanClass(models),
+  );
 
   models.BtkDocument = db.model<IBtkDocumentDocument, IBtkDocumentModel>(
     'btk_documents',
@@ -70,13 +70,13 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
   );
 
   models.Company = db.model<ICompanyDocument, ICompanyModel>(
-    'btk_companys',
+    'btk_companies',
     loadCompanyClass(models),
   );
 
-  models.ProjectMember = db.model<IProjectMemberDocument, IProjectMemberModel>(
-    'btk_project_members',
-    loadProjectMemberClass(models),
+  models.NewsMember = db.model<INewsMemberDocument, INewsMemberModel>(
+    'btk_news_members',
+    loadNewsMemberClass(models),
   );
 
   models.BtkActivity = db.model<IBtkActivityDocument, IBtkActivityModel>(

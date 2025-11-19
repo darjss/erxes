@@ -22,7 +22,16 @@ export const companySchema = new Schema<ICompanyDocument>({
   website: { type: String },
   email: { type: String },
   address: { type: Object },
-  dateFounded: { type: Date },
+
+  dateFounded: {
+    type: Date,
+    set: (value: any) => {
+      if (!value) return null;
+      const d = new Date(value);
+      return isNaN(d.getTime()) ? null : d;
+    },
+  },
+
   primaryPhone: { type: String },
   phones: { type: [String] },
   socialLinks: { type: CompanySocialLinkSchema },

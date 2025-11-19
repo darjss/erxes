@@ -1,0 +1,61 @@
+{
+  "name": "btkadmin_ui",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "frontend/plugins/btkadmin_ui/src",
+  "projectType": "application",
+  "tags": [],
+  "targets": {
+    "build": {
+      "executor": "@nx/rspack:rspack",
+      "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
+      "options": {
+        "target": "web",
+        "outputPath": "dist/frontend/plugins/btkadmin_ui",
+        "main": "frontend/plugins/btkadmin_ui/src/main.ts",
+        "tsConfig": "frontend/plugins/btkadmin_ui/tsconfig.app.json",
+        "rspackConfig": "frontend/plugins/btkadmin_ui/rspack.config.ts",
+        "assets": ["frontend/plugins/btkadmin_ui/src/assets"]
+      },
+      "configurations": {
+        "development": {
+          "mode": "development"
+        },
+        "production": {
+          "mode": "production",
+          "optimization": true,
+          "sourceMap": false,
+          "rspackConfig": "frontend/plugins/btkadmin_ui/rspack.config.prod.ts"
+        }
+      }
+    },
+    "serve": {
+      "executor": "@nx/rspack:module-federation-dev-server",
+      "options": {
+        "buildTarget": "btkadmin_ui:build:development",
+        "port": 3008
+      },
+      "configurations": {
+        "development": {},
+        "production": {
+          "buildTarget": "btkadmin_ui:build:production"
+        }
+      }
+    },
+    "serve-static": {
+      "executor": "@nx/rspack:module-federation-static-server",
+      "defaultConfiguration": "production",
+      "options": {
+        "serveTarget": "btkadmin_ui:serve"
+      },
+      "configurations": {
+        "development": {
+          "serveTarget": "btkadmin_ui:serve:development"
+        },
+        "production": {
+          "serveTarget": "btkadmin_ui:serve:production"
+        }
+      }
+    }
+  }
+}
