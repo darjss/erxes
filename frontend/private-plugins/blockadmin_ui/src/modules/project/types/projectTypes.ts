@@ -3,6 +3,7 @@ export interface IProject {
   name: string;
   coverImage?: string;
   location?: IProjectLocation;
+  developer: string;
 }
 
 export interface IProjectLocation {
@@ -31,6 +32,7 @@ export interface IProjectDetail extends IProject {
   prices: IProjectPrice[];
   bankPartners: string[];
   projectAmenities: { category: string; amenities: string[] }[];
+  developerId: string;
 }
 
 export interface IProjectGeneralInput {

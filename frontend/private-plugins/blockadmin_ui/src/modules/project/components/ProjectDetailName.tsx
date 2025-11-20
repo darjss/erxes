@@ -1,3 +1,4 @@
+import { useProjects } from '@/project/hooks/useProjects';
 import {
   Breadcrumb,
   Input,
@@ -8,7 +9,6 @@ import {
   Skeleton,
   Tooltip,
 } from 'erxes-ui';
-import { useProjects } from '@/project/hooks/useProjects';
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useUpdateProjectGeneralInfo } from '../hooks/useUpdateProject';
@@ -29,7 +29,7 @@ export const ProjectDetailNameBreadcrumb = () => {
         <Select
           value={projectId}
           onValueChange={(value) => {
-            navigate(`/block/projects/${value}`);
+            navigate(`/blockadmin/projects/${value}`);
           }}
         >
           <Select.Trigger className="min-w-32 bg-background">

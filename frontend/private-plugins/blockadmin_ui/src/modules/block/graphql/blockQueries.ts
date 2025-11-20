@@ -1,8 +1,8 @@
 import { gql } from '@apollo/client';
 
-export const BLOCK_GET_DEVELOPER_INFO = gql`
-  query GetDeveloperInfo {
-    getDeveloperInfo {
+export const BLOCK_ADMIN_GET_DEVELOPER_INFO = gql`
+  query GetBlockAdminDeveloperInfo($_id: String) {
+    getBlockAdminDeveloperInfo(_id: $_id) {
       _id
       name
       description
@@ -31,7 +31,7 @@ export const BLOCK_GET_DEVELOPER_INFO = gql`
         short
       }
       dateFounded
-      email
+      primaryEmail
       primaryPhone
       coverImage
       phones

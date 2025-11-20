@@ -7,13 +7,31 @@ export const developerInfoSchema = z.object({
   coverImage: z.string().optional(),
   about: z.string().optional(),
   website: z.string().url().optional(),
+  registrationNumber: z.string().optional(),
   address: z.object({
-    city: z.string().min(1),
-    district: z.string().min(1),
-    address: z.string().optional(),
+    address: z.object({
+      countryCode: z.string().min(1).optional(),
+      country: z.string().min(1).optional(),
+      postCode: z.string().optional(),
+      city: z.string().min(1),
+      city_district: z.string().min(1),
+      suburb: z.string().optional(),
+      road: z.string().optional(),
+      street: z.string().optional(),
+      building: z.string().optional(),
+      number: z.string().optional(),
+      other: z.string().optional(),
+    }),
+    location: z
+      .object({
+        type: z.string().min(1).optional(),
+        coordinates: z.array(z.number()).min(1).optional(),
+      })
+      .optional(),
+    short: z.string().optional(),
   }),
   dateFounded: z.string().optional(),
-  email: z.string().email(),
+  primaryEmail: z.string().email(),
   primaryPhone: z.string().optional(),
   phones: z.array(z.string()).optional(),
   socialLinks: z.object({

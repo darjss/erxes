@@ -1,6 +1,6 @@
-import { Spinner, useQueryState } from 'erxes-ui';
 import { PROJECT_TABS } from '@/project/constants/project';
 import { useProjectDetail } from '@/project/hooks/useProjectDetail';
+import { Spinner, useQueryState } from 'erxes-ui';
 import { Suspense, lazy } from 'react';
 
 const ProjectDetailGeneral = lazy(() =>
@@ -73,9 +73,11 @@ export const ProjectDetailTabs = () => {
   const [activeTab] = useQueryState('activeTab', {
     defaultValue: 'general',
   });
-  const { loading } = useProjectDetail();
+  const { loading, project } = useProjectDetail();
 
   if (loading) return null;
+
+  console.log('project', project);
 
   return (
     <Suspense fallback={<Spinner containerClassName="py-32" />}>

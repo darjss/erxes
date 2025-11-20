@@ -1,13 +1,12 @@
 import { IconMapPinFilled, IconPhotoCirclePlus } from '@tabler/icons-react';
-import { readImage, Slider } from 'erxes-ui';
-import { Badge } from 'erxes-ui';
+import { Badge, readImage, Slider } from 'erxes-ui';
 import { Link } from 'react-router-dom';
 import { IProject } from '../types/projectTypes';
 
 export const ProjectCard = ({ name, _id, coverImage, location }: IProject) => {
   return (
     <Link
-      to={`/block/projects/${_id}`}
+      to={`/blockadmin/projects/${_id}`}
       className="border bg-accent p-2 ba:rounded-[1.25rem] flex flex-col gap-3"
     >
       <div className="w-full h-full relative ba:aspect-2/1 rounded-xl overflow-hidden flex items-center justify-center">

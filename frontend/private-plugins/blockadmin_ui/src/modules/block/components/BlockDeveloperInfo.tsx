@@ -1,11 +1,12 @@
-import { zodResolver } from '@hookform/resolvers/zod';
-import { Button, Form, Input, Select, Textarea, toast } from 'erxes-ui';
 import { developerInfoSchema } from '@/block/constants/developerInfoSchema';
 import { useDeveloperInfo } from '@/block/hooks/useDeveloperInfo';
 import { useUpdateDeveloperInfo } from '@/block/hooks/useUpdateDeveloperInfo';
 import { ADDRESS_CITY, ADDRESS_DISTRICT } from '@/project/constants/address';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Button, Form, Input, Select, Textarea, toast } from 'erxes-ui';
 import { useCallback, useEffect } from 'react';
 import { Path, useForm, UseFormReturn } from 'react-hook-form';
+import { useParams } from 'react-router';
 import { z } from 'zod';
 import { SOCIAL_LINKS } from '../constants/socialLinks';
 import { BlockEditorField } from './BlockEditor';
@@ -13,7 +14,9 @@ import { BlockPhones } from './BlockPhones';
 import { UploadImage } from './upload';
 
 export const BlockDeveloperInfo = () => {
-  const { developerInfo, loading } = useDeveloperInfo();
+  const { id } = useParams();
+
+  const { developerInfo, loading } = useDeveloperInfo(id);
 
   return (
     <div className="p-6 mx-auto w-full max-w-lg flex flex-col gap-6">
@@ -30,6 +33,8 @@ export const BlockDeveloperInfoForm = ({
 }: {
   developerInfo: z.infer<typeof developerInfoSchema>;
 }) => {
+  const { address } = developerInfo || {};
+
   const getDefaultValues = useCallback(() => {
     return {
       name: developerInfo.name || '',
@@ -37,15 +42,31 @@ export const BlockDeveloperInfoForm = ({
       logo: developerInfo.logo || '',
       coverImage: developerInfo.coverImage || '',
       website: developerInfo.website || '',
-      email: developerInfo.email || '',
+      registrationNumber: developerInfo.registrationNumber || '',
+      primaryEmail: developerInfo.primaryEmail || '',
       primaryPhone: developerInfo.primaryPhone || '',
       phones: developerInfo.phones || [],
       dateFounded: developerInfo.dateFounded || '',
       about: developerInfo.about || '',
       address: {
-        city: developerInfo.address?.city || ADDRESS_CITY[0],
-        district: developerInfo.address?.district || '',
-        address: developerInfo.address?.address || '',
+        address: {
+          countryCode: address?.address?.countryCode || undefined,
+          country: address?.address?.country || undefined,
+          postCode: address?.address?.postCode || undefined,
+          city: address?.address?.city || undefined,
+          city_district: address?.address?.city_district || undefined,
+          suburb: address?.address?.suburb || undefined,
+          road: address?.address?.road || undefined,
+          street: address?.address?.street || undefined,
+          building: address?.address?.building || undefined,
+          number: address?.address?.number || undefined,
+          other: address?.address?.other || undefined,
+        },
+        location: {
+          type: address?.location?.type || undefined,
+          coordinates: address?.location?.coordinates || undefined,
+        },
+        short: address?.short || undefined,
       },
       socialLinks:
         developerInfo.socialLinks ||
@@ -96,7 +117,9 @@ export const BlockDeveloperInfoForm = ({
     <Form {...form}>
       <form
         className="gap-4 grid grid-cols-2"
-        onSubmit={form.handleSubmit(onSubmit)}
+        onSubmit={form.handleSubmit(onSubmit, (error) => {
+          console.log(error);
+        })}
       >
         <Form.Field
           name="logo"
@@ -156,7 +179,7 @@ export const BlockDeveloperInfoForm = ({
           )}
         />
         <Form.Field
-          name="email"
+          name="primaryEmail"
           control={form.control}
           render={({ field }) => (
             <Form.Item>
@@ -194,9 +217,7 @@ export const BlockDeveloperInfoForm = ({
                   <Select.Content>
                     {Array.from({ length: 100 }).map((_, index) => (
                       <Select.Item
-                        value={`${new Date().getFullYear() - index}-${
-                          index + 1
-                        }`}
+                        value={`${new Date().getFullYear() - index}`}
                       >{`${new Date().getFullYear() - index}`}</Select.Item>
                     ))}
                   </Select.Content>
@@ -206,6 +227,21 @@ export const BlockDeveloperInfoForm = ({
             </Form.Item>
           )}
         />
+
+        <Form.Field
+          name="registrationNumber"
+          control={form.control}
+          render={({ field }) => (
+            <Form.Item>
+              <Form.Label>Registration Number</Form.Label>
+              <Form.Control>
+                <Input {...field} />
+              </Form.Control>
+              <Form.Message />
+            </Form.Item>
+          )}
+        />
+
         <Form.Field
           name="description"
           control={form.control}
@@ -231,7 +267,7 @@ export const BlockDeveloperInfoForm = ({
           initialContent={developerInfo.about}
         />
         <Form.Field
-          name="address.city"
+          name="address.address.city"
           control={form.control}
           render={({ field }) => (
             <Form.Item>
@@ -240,7 +276,7 @@ export const BlockDeveloperInfoForm = ({
                 value={field.value}
                 onValueChange={(value) => {
                   field.onChange(value);
-                  form.setValue('address.district', '');
+                  form.setValue('address.address.city', value);
                 }}
               >
                 <Form.Control>
@@ -262,7 +298,7 @@ export const BlockDeveloperInfoForm = ({
         />
         <SelectAddressDistrict form={form} />
         <Form.Field
-          name="address.address"
+          name="address.short"
           control={form.control}
           render={({ field }) => (
             <Form.Item className="col-span-2">
@@ -317,10 +353,10 @@ export const SelectAddressDistrict = ({
 }: {
   form: UseFormReturn<z.infer<typeof developerInfoSchema>>;
 }) => {
-  const city = form.watch('address.city');
+  const city = form.watch('address.address.city');
   return (
     <Form.Field
-      name="address.district"
+      name="address.address.city_district"
       control={form.control}
       render={({ field }) => (
         <Form.Item>

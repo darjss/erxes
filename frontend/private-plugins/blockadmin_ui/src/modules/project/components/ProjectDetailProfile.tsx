@@ -1,6 +1,6 @@
+import { ProjectDetailActions } from '@/project/components/ProjectDetailActions';
 import { IconClockFilled, IconShieldFilled } from '@tabler/icons-react';
 import { Badge, cn, Spinner } from 'erxes-ui';
-import { ProjectDetailActions } from '@/project/components/ProjectDetailActions';
 import { useProjectDetail } from '../hooks/useProjectDetail';
 import { ProjectDetailName } from './ProjectDetailName';
 

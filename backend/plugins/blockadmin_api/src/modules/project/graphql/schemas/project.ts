@@ -13,6 +13,7 @@ export const types = `
     prices: [BlockAdminProjectPrice]
     projectAmenities: [BlockAdminProjectAmenity]
     bankPartners: [String]
+    developerId: String
 
     startDate: Date
     endDate: Date

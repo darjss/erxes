@@ -1,3 +1,4 @@
+import { InfoCard, InfoCardContent } from '@/block/components/card';
 import {
   Badge,
   Button,
@@ -7,18 +8,17 @@ import {
   Popover,
   Textarea,
 } from 'erxes-ui';
-import { InfoCard, InfoCardContent } from '@/block/components/card';
 import { useEffect, useState } from 'react';
 import { useProjectDetail } from '../hooks/useProjectDetail';
 
-import { IconArrowUpRight } from '@tabler/icons-react';
 import { useDeveloperInfo } from '@/block/hooks/useDeveloperInfo';
 import { ProjectAddress } from '@/project/components/ProjectAddress';
+import { IconArrowUpRight } from '@tabler/icons-react';
 import { Link } from 'react-router';
 import { PROJECT_TYPES } from '../constants/project';
 
 export const ProjectDetailGeneral = () => {
-  const { loading } = useProjectDetail();
+  const { loading, project } = useProjectDetail();
 
   if (loading) return null;
 
@@ -27,7 +27,7 @@ export const ProjectDetailGeneral = () => {
       <div className="col-span-2 grid grid-cols-1 lg:grid-cols-2 gap-6 p-8">
         <InfoCard title="Project Information" description="Project information">
           <InfoCardContent>
-            <ProjectDeveloper />
+            <ProjectDeveloper developerId={project?.developerId} />
             <ProjectTypes />
             <ProjectDescription />
           </InfoCardContent>
@@ -39,8 +39,8 @@ export const ProjectDetailGeneral = () => {
   );
 };
 
-export const ProjectDeveloper = () => {
-  const { developerInfo } = useDeveloperInfo();
+export const ProjectDeveloper = ({ developerId }: { developerId?: string }) => {
+  const { developerInfo } = useDeveloperInfo(developerId);
 
   return (
     <div className="space-y-2">

@@ -2,7 +2,7 @@ import { IconClipboardTextFilled } from '@tabler/icons-react';
 import { Breadcrumb, Button } from 'erxes-ui';
 import { Link } from 'react-router-dom';
 
-export const ProjectBreadcrumb = ({
+export const DevelopersBreadcrumb = ({
   children,
 }: {
   children?: React.ReactNode;
@@ -12,9 +12,9 @@ export const ProjectBreadcrumb = ({
       <Breadcrumb.List className="gap-1">
         <Breadcrumb.Item>
           <Button variant="ghost" asChild>
-            <Link to="/blockadmin/projects">
+            <Link to="/blockadmin/developers">
               <IconClipboardTextFilled className="text-accent-foreground" />
-              Projects
+              Developers
             </Link>
           </Button>
         </Breadcrumb.Item>

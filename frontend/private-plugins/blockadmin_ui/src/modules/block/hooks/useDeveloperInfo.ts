@@ -1,8 +1,11 @@
 import { useQuery } from '@apollo/client';
-import { BLOCK_GET_DEVELOPER_INFO } from '../graphql/blockQueries';
+import { BLOCK_ADMIN_GET_DEVELOPER_INFO } from '../graphql/blockQueries';
 
-export const useDeveloperInfo = () => {
-  const { data, loading, error } = useQuery(BLOCK_GET_DEVELOPER_INFO);
+export const useDeveloperInfo = (_id?: string) => {
+  const { data, loading, error } = useQuery(BLOCK_ADMIN_GET_DEVELOPER_INFO, {
+    variables: { _id },
+    skip: !_id,
+  });
   const { getDeveloperInfo: developerInfo } = data || {};
   return { loading, error, developerInfo };
 };

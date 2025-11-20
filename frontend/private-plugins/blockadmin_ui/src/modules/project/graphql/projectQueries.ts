@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client';
 
 export const BLOCK_GET_PROJECTS = gql`
-  query blockAdminGetProjects {
+  query BlockAdminGetProjects {
     blockAdminGetProjects {
       _id
       name
@@ -19,8 +19,8 @@ export const BLOCK_GET_PROJECTS = gql`
 `;
 
 export const BLOCK_GET_PROJECT_DETAIL = gql`
-  query BlockGetProject($id: String!) {
-    blockGetProject(_id: $id) {
+  query BlockAdminGetProject($id: String!) {
+    blockAdminGetProject(_id: $id) {
       _id
       name
       isPublished
@@ -46,12 +46,13 @@ export const BLOCK_GET_PROJECT_DETAIL = gql`
         amenities
         category
       }
+      developerId
     }
   }
 `;
 
 export const BLOCK_GET_PROJECT_LIST = gql`
-  query blockAdminGetProjects {
+  query BlockAdminGetProjects {
     blockAdminGetProjects {
       _id
       name
