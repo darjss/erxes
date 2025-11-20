@@ -67,6 +67,8 @@ export const types = `
     content: String
     status: BtkAdminNewsStatus
     coverImage: String
+    images: [String]
+    logo: String
     mainPrice: Int
     prices: [BtkNewsPrice]
     newsAmenities: [BtkNewsAmenity]
@@ -79,6 +81,8 @@ export const types = `
   input BtkNewsGeneralInput {
     name: String
     coverImage: String
+    logo: String
+    images: [String]
     location: BtkNewsLocationInput
     verificationStatus: BtkAdminNewsVerificationStatus
     companyId: String

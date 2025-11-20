@@ -64,6 +64,8 @@ export const newsSchema = new Schema(
       label: 'Content',
     },
     coverImage: { type: String, label: 'Cover Image' },
+    images: { type: [String], label: 'Images' },
+    logo: { type: String, label: 'Logo' },
     mainPrice: { type: Number, label: 'Price' },
     prices: { type: [newsPriceSchema], label: 'Prices' },
     bankPartners: { type: [String], label: 'Bank Partners' },

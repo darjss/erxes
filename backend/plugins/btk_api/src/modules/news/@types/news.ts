@@ -14,6 +14,8 @@ export interface INewsAmenity {
 export interface INews {
   name?: string;
   coverImage?: string;
+  images?: string[];
+  logo?: string;
   location?: INewsLocation;
   companyId?: string;
   verificationStatus?: string;

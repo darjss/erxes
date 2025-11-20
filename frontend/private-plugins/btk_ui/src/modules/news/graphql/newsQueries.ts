@@ -38,6 +38,8 @@ export const BTK_GET_NEWS_DETAIL = gql`
       content
       status
       coverImage
+      logo
+      images
       bankPartners
       mainPrice
       prices {
