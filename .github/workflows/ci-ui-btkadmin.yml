@@ -6,6 +6,8 @@ on:
       - main
       - debug/frontline
     paths:
+      - 'backend/plugins/btkadmin_api/**'
+      - 'backend/erxes-api-shared/**'
       - 'frontend/private-plugins/btkadmin_ui/**'
       - 'frontend/libs/**'
       - '.github/workflows/ci-ui-btkadmin.yml'
