@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client';
 
-export const BTK_GET_Company_INFO = gql`
+export const BTK_GET_COMPANY_INFO = gql`
   query GetCompanyInfo {
     getCompanyInfo {
       _id

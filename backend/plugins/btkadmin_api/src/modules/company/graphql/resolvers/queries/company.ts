@@ -3,25 +3,19 @@ import {
   IBtkCompanyDocument,
 } from '~/modules/company/db/@types/company';
 import { generateFilter } from '~/modules/company/utils';
-import { ICursorPaginateParams } from 'erxes-api-shared/core-types';
-import { cursorPaginate } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 
 export const companyQueries = {
-  getBtkAdminCompanies: async (
+  btkAdminCompanies: async (
     _root: undefined,
-    params: CompanyQueryParams & ICursorPaginateParams,
+    params: CompanyQueryParams,
     { models }: IContext,
   ) => {
-    const filter = await generateFilter(params);
+    const filter = await generateFilter(params, models);
 
-    return await cursorPaginate<IBtkCompanyDocument>({
-      model: models.Company,
-      params,
-      query: filter,
-    });
+    return await models.Company.find(filter).lean();
   },
-  getBtkAdminCompanyInfo: async (
+  btkAdminCompanyInfo: async (
     _root: undefined,
     { _id }: { _id: string },
     { models }: IContext,

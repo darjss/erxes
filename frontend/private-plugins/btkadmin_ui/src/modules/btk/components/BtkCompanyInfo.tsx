@@ -303,13 +303,6 @@ export const BtkCompanyInfoForm = ({
             />
           ))}
         </div>
-        <Button
-          type="submit"
-          className="mt-2"
-          disabled={!form.formState.isDirty}
-        >
-          Save
-        </Button>
       </form>
     </Form>
   );

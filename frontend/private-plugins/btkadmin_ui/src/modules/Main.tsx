@@ -14,6 +14,12 @@ const NewsDetail = lazy(() =>
   })),
 );
 
+const CompanyListPage = lazy(() =>
+  import('../pages/CompanyList').then((module) => ({
+    default: module.CompanyListPage,
+  })),
+);
+
 const CompanyInfoPage = lazy(() =>
   import('../pages/CompanyInfoPage').then((module) => ({
     default: module.CompanyInfoPage,
@@ -26,7 +32,8 @@ const Main = () => {
       <Routes>
         <Route path="/news" element={<NewsPage />} />
         <Route path="/news/:id" element={<NewsDetail />} />
-        <Route path="/company-info" element={<CompanyInfoPage />} />
+        <Route path="/companies" element={<CompanyListPage />} />
+        <Route path="/companies/:id" element={<CompanyInfoPage />} />
       </Routes>
     </Suspense>
   );
