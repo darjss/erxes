@@ -1,0 +1,103 @@
+export const types = `
+  type btkAdminNewsLocation {
+    lat: Float
+    lng: Float
+    city: String
+    district: String
+    address: String
+    parcelId: String
+  }
+
+  input btkAdminNewsLocationInput {
+    lat: Float
+    lng: Float
+    city: String
+    district: String
+    address: String
+    parcelId: String
+  }
+
+  enum btkAdminAdminNewsVerificationStatus {
+    verified
+    unverified
+    pending
+  }
+  enum btkAdminAdminNewsStatus {
+    planned
+    on_going
+    on_sale
+    completed
+  }
+
+  enum btkAdminNewsPriceType {
+    priceBySize
+    priceByUnit
+  }
+
+  type btkAdminNewsPrice {
+    currency: String
+    priceType: btkAdminNewsPriceType
+    price: Int
+  }
+
+  input btkAdminNewsPriceInput {
+    currency: String
+    priceType: btkAdminNewsPriceType
+    price: Int
+  }
+
+  input btkAdminNewsAmenityInput {
+    category: String
+    amenities: [String]
+  }
+
+  type btkAdminNewsAmenity {
+    category: String
+    amenities: [String]
+  }
+
+  type btkAdminNews {
+    _id: String
+    name: String
+    isPublished: Boolean
+    location: btkAdminNewsLocation
+    verificationStatus: btkAdminAdminNewsVerificationStatus
+    companyId: String
+    title: String
+    content: String
+    status: btkAdminAdminNewsStatus
+    coverImage: String
+    logo: String
+    mainPrice: Int
+    prices: [btkAdminNewsPrice]
+    newsAmenities: [btkAdminNewsAmenity]
+    bankPartners: [String]
+
+    startDate: Date
+    endDate: Date
+  }
+
+  input btkAdminNewsGeneralInput {
+    name: String
+    coverImage: String
+    logo: String
+    location: btkAdminNewsLocationInput
+    verificationStatus: btkAdminAdminNewsVerificationStatus
+    companyId: String
+    title: String
+    content: String
+    status: btkAdminAdminNewsStatus
+    mainPrice: Int
+    prices: [btkAdminNewsPriceInput]
+    bankPartners: [String]
+    newsAmenities: [btkAdminNewsAmenityInput]
+
+    startDate: Date
+    endDate: Date
+  }
+`;
+
+export const queries = `
+  btkAdminGetNews(_id: String!): btkAdminNews
+  btkAdminGetAllNews: [btkAdminNews]
+`;
