@@ -3,6 +3,7 @@ import { typeDefs } from '~/apollo/typeDefs';
 import { wrapMutationResolver } from '~/modules/admin/utils';
 import resolvers from './apollo/resolvers';
 import { generateModels } from './connectionResolvers';
+import { router } from './routes';
 
 startPlugin({
   name: 'block',
@@ -14,6 +15,7 @@ startPlugin({
       Mutation: wrapMutationResolver(resolvers.Mutation),
     },
   }),
+  expressRouter: router,
   apolloServerContext: async (subdomain, context) => {
     const models = await generateModels(subdomain);
 

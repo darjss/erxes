@@ -32,13 +32,13 @@ export const PaymentPlans = () => {
               <div>Type</div>
             </Label>
             <Label asChild>
-              <div>Down Payment (%)</div>
+              <div>Down Payment</div>
             </Label>
             <Label asChild>
-              <div>Interest (%)</div>
+              <div>Interest</div>
             </Label>
             <Label asChild>
-              <div>Discount (%)</div>
+              <div>Discount</div>
             </Label>
             <Label asChild>
               <div>Frequency</div>

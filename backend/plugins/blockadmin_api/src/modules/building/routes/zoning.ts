@@ -1,101 +1,136 @@
 import { Router } from 'express';
 import { generateModels } from '~/connectionResolvers';
+import { IRequest, IResponse } from '~/types';
+import { IZoning } from '../@types/zoning';
 
 const router: Router = Router();
 
-router.post('/blockCreateBuildingZoning', async (req, res) => {
-  const models = await generateModels();
+router.post(
+  '/blockCreateBuildingZoning',
+  async (req: IRequest<IZoning>, res: IResponse) => {
+    const models = await generateModels();
 
-  try {
-    const { subdomain, payload } = req.body || {};
+    try {
+      const { subdomain, payload } = req.body || {};
 
-    const { entityId, data } = payload || {};
+      const { entityId, data } = payload || {};
 
-    const { input } = data || {};
+      const { input } = data || {};
 
-    models.Zoning.createZoning({ subdomain, entityId, ...input });
+      const building = await models.Building.getBuilding(
+        subdomain,
+        input.building,
+      );
 
-    return res.status(200).json({
-      success: true,
-    });
-  } catch (error) {
-    return res.status(400).json({
-      error: error.message,
-    });
-  }
-});
+      models.Zoning.createZoning({
+        ...input,
+        subdomain,
+        entityId,
+        building: building._id,
+      });
 
-router.post('/blockUpdateBuildingZoning', async (req, res) => {
-  const models = await generateModels();
+      return res.status(200).json({
+        success: true,
+      });
+    } catch (error) {
+      return res.status(400).json({
+        error: error.message,
+      });
+    }
+  },
+);
 
-  try {
-    const { subdomain, payload } = req.body || {};
+router.post(
+  '/blockUpdateBuildingZoning',
+  async (req: IRequest<IZoning>, res: IResponse) => {
+    const models = await generateModels();
 
-    const { entityId, data } = payload || {};
+    try {
+      const { subdomain, payload } = req.body || {};
 
-    const { input } = data || {};
+      const { entityId, data } = payload || {};
 
-    models.Zoning.updateZoning(subdomain, entityId, input);
+      const { input } = data || {};
 
-    return res.status(200).json({
-      success: true,
-    });
-  } catch (error) {
-    return res.status(400).json({
-      error: error.message,
-    });
-  }
-});
+      const building = await models.Building.getBuilding(
+        subdomain,
+        input.building,
+      );
 
-router.post('/blockDeleteBuildingZoning', async (req, res) => {
-  const models = await generateModels();
+      models.Zoning.updateZoning(subdomain, entityId, {
+        ...input,
+        building: building._id,
+      });
 
-  try {
-    const { subdomain, payload } = req.body || {};
+      return res.status(200).json({
+        success: true,
+      });
+    } catch (error) {
+      return res.status(400).json({
+        error: error.message,
+      });
+    }
+  },
+);
 
-    const { entityId } = payload || {};
+router.post(
+  '/blockDeleteBuildingZoning',
+  async (req: IRequest<IZoning>, res: IResponse) => {
+    const models = await generateModels();
 
-    models.Zoning.deleteZoning(subdomain, entityId);
+    try {
+      const { subdomain, payload } = req.body || {};
 
-    return res.status(200).json({
-      success: true,
-    });
-  } catch (error) {
-    return res.status(400).json({
-      error: error.message,
-    });
-  }
-});
+      const { entityId } = payload || {};
 
-router.post('/blockDupplicateBuildingZoning', async (req, res) => {
-  const models = await generateModels();
+      models.Zoning.deleteZoning(subdomain, entityId);
 
-  try {
-    const { subdomain, payload } = req.body || {};
+      return res.status(200).json({
+        success: true,
+      });
+    } catch (error) {
+      return res.status(400).json({
+        error: error.message,
+      });
+    }
+  },
+);
 
-    const { entityId, data } = payload || {};
+router.post(
+  '/blockDupplicateBuildingZoning',
+  async (req: IRequest<{}, { zoningId: string }>, res: IResponse) => {
+    const models = await generateModels();
 
-    const { zoningId } = data || {};
+    try {
+      const { subdomain, payload } = req.body || {};
 
-    const building = await models.Zoning.getBuildingZoning(subdomain, zoningId);
+      const { entityId, data } = payload || {};
 
-    const { _id, ...rest } = building;
+      const { zoningId } = data || {};
 
-    models.Zoning.createZoning({
-      ...rest,
-      floor: rest.floor > 0 ? rest.floor + 1 : rest.floor - 1,
-      subdomain,
-      entityId,
-    });
+      const building = await models.Zoning.getBuildingZoning(
+        subdomain,
+        zoningId,
+      );
 
-    return res.status(200).json({
-      success: true,
-    });
-  } catch (error) {
-    return res.status(400).json({
-      error: error.message,
-    });
-  }
-});
+      const { _id, ...rest } = building;
+
+      models.Zoning.createZoning({
+        ...rest,
+        floor: rest.floor > 0 ? rest.floor + 1 : rest.floor - 1,
+        subdomain,
+        entityId,
+      });
+
+      return res.status(200).json({
+        success: true,
+      });
+    } catch (error) {
+      return res.status(400).json({
+        error: error.message,
+      });
+    }
+  },
+);
 
 export { router };

@@ -1,34 +1,102 @@
+import { sendNotification } from 'erxes-api-shared/core-modules';
+import { getSubdomain, sendTRPCMessage } from 'erxes-api-shared/utils';
 import { Router } from 'express';
 import { generateModels } from '~/connectionResolvers';
+import { IRequest, IResponse } from '~/types';
+import { IBlockDeveloper } from '../db/@types/developer';
 
 const router: Router = Router();
 
-router.post('/updateDeveloperInfo', async (req, res) => {
-  const models = await generateModels();
+router.post(
+  '/updateDeveloperInfo',
+  async (req: IRequest<IBlockDeveloper>, res: IResponse) => {
+    const models = await generateModels();
 
-  try {
-    const { subdomain, payload } = req.body || {};
+    try {
+      const { subdomain, payload } = req.body || {};
 
-    const { entityId, data } = payload || {};
+      const { entityId, data } = payload || {};
 
-    const { input } = data || {};
+      const { input } = data || {};
 
-    const developer = await models.Developer.findOne({ subdomain, entityId });
+      const developer = await models.Developer.findOne({ subdomain, entityId });
 
-    if (!developer) {
-      models.Developer.createDeveloper({ subdomain, entityId, ...input });
-    } else {
-      models.Developer.updateDeveloper(subdomain, entityId, input);
+      if (!developer) {
+        models.Developer.createDeveloper({ ...input, subdomain, entityId });
+      } else {
+        models.Developer.updateDeveloper(subdomain, entityId, input);
+      }
+
+      return res.status(200).json({
+        success: true,
+      });
+    } catch (error) {
+      return res.status(400).json({
+        error: error.message,
+      });
     }
+  },
+);
 
-    return res.status(200).json({
-      success: true,
-    });
-  } catch (error) {
-    return res.status(400).json({
-      error: error.message,
-    });
-  }
-});
+router.post(
+  '/updateDeveloperVerificationStatus',
+  async (req: IRequest<IBlockDeveloper>, res: IResponse) => {
+    const subdomain = getSubdomain(req);
+    const models = await generateModels();
+
+    try {
+      const { payload } = req.body || {};
+
+      const { entityId } = payload || {};
+
+      const developer = await models.Developer.getDeveloper(
+        subdomain,
+        entityId,
+      );
+
+      if (!developer) {
+        return res.status(400).json({
+          error: 'Developer not found',
+        });
+      }
+
+      models.Developer.updateDeveloperVerificationStatus(
+        subdomain,
+        entityId,
+        'pending',
+      );
+
+      const owners = await sendTRPCMessage({
+        subdomain,
+        pluginName: 'core',
+        method: 'query',
+        module: 'roles',
+        action: 'find',
+        input: {
+          query: { role: 'owner' },
+        },
+        defaultValue: [],
+      });
+
+      sendNotification(subdomain, {
+        title: 'New developer verification request',
+        message: 'A new developer verification request has been received.',
+        type: 'info',
+        userIds: owners.map((owner) => owner.userId),
+        priority: 'low',
+        kind: 'system',
+        contentType: `block:developer.verification`,
+      });
+
+      return res.status(200).json({
+        success: true,
+      });
+    } catch (error) {
+      return res.status(400).json({
+        error: error.message,
+      });
+    }
+  },
+);
 
 export { router };

@@ -24,7 +24,7 @@ export const UnitDetailOverview = () => {
 
   return (
     <div>
-      <div className="grid lg:grid-cols-3 grid-cols-2 gap-x-3 gap-y-5 p-8">
+      <div className="grid lg:grid-cols-3 grid-cols-2 blk:gap-x-3 blk:gap-y-5 p-8">
         <div className="space-y-2">
           <Label>Number</Label>
           <Input
@@ -59,7 +59,7 @@ export const UnitDetailOverview = () => {
 
       <Separator />
 
-      <div className="space-y-5 p-8">
+      <div className="blk:space-y-5 p-8">
         <PricingDetail
           mainPrice={mainPrice}
           prices={unit.prices}

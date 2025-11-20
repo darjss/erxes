@@ -5,6 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useState } from 'react';
 import { useCreateProject } from '../hooks/useCreateProject';
+import { useNavigate } from 'react-router';
 
 export const CreateProject = () => {
   const [open, setOpen] = useState(false);
@@ -27,6 +28,7 @@ export const CreateProject = () => {
 };
 
 const CreateProjectForm = ({ onClose }: { onClose: () => void }) => {
+  const navigate = useNavigate();
   const form = useForm<{ name: string }>({
     resolver: zodResolver(
       z.object({
@@ -44,13 +46,14 @@ const CreateProjectForm = ({ onClose }: { onClose: () => void }) => {
       variables: {
         name: data.name,
       },
-      onCompleted: () => {
+      onCompleted: (data) => {
         toast({
           title: 'Success',
           description: 'Project created successfully',
         });
         onClose();
         form.reset();
+        navigate(`/block/projects/${data.blockCreateProject._id}`);
       },
     });
   };

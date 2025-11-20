@@ -1,6 +1,6 @@
 import { IProjectQueryParams } from '@/project/@types/project';
 import { IOffsetPaginateParams } from 'erxes-api-shared/core-types';
-import { paginate } from 'erxes-api-shared/utils';
+import { markResolvers, paginate } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 import { generateFilter } from '~/modules/project/utils';
 
@@ -41,3 +41,9 @@ export const cpProjectQueries = {
     );
   },
 };
+
+markResolvers(cpProjectQueries, {
+  wrapperConfig: {
+    forClientPortal: true,
+  },
+});

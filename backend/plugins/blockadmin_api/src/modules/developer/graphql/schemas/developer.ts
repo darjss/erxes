@@ -8,14 +8,15 @@ export const types = `
     about: String
     logo: String
     website: String
-    address: JSON
-    dateFounded: Date
-    email: String
+    registrationNumber: String
+    address: BlockAdminDeveloperAddressInfo
+    dateFounded: String
+    primaryEmail: String
     primaryPhone: String
     coverImage: String
     phones: [String]
     socialLinks: BlockAdminDeveloperSocialLink
-    isVerified: Boolean
+    verificationStatus: String
   }
 
   type BlockAdminDeveloperListResponse {
@@ -26,7 +27,7 @@ export const types = `
 `;
 
 const queryParams = `
-  isVerified: Boolean
+  verificationStatus: String
   searchValue: String
   
   ${GQL_CURSOR_PARAM_DEFS}
@@ -35,4 +36,8 @@ const queryParams = `
 export const queries = `
   getBlockAdminDevelopers(${queryParams}): BlockAdminDeveloperListResponse
   getBlockAdminDeveloperInfo(_id: String): BlockAdminDeveloper
+`;
+
+export const mutations = `
+  updateBlockAdminDeveloperVerificationStatus(developerId: String, status: BlockAdminDeveloperVerificationStatusEnum): BlockAdminDeveloper
 `;

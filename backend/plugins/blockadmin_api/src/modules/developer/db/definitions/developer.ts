@@ -3,6 +3,7 @@ import {
   IBlockDeveloperSocialLink,
 } from '@/developer/db/@types/developer';
 import { Schema } from 'mongoose';
+import { BLOCK_VERIFICATION_STATUS } from '~/constants';
 import { schemaWrapper } from '~/utils';
 
 const blockDeveloperSocialLinkSchema = new Schema<IBlockDeveloperSocialLink>(
@@ -20,17 +21,32 @@ const blockDeveloperSocialLinkSchema = new Schema<IBlockDeveloperSocialLink>(
 export const developerSchema = schemaWrapper(
   new Schema<IBlockDeveloperDocument>({
     name: { type: String },
-    description: { type: String },
+
     about: { type: String },
+    description: { type: String },
+
     logo: { type: String },
-    website: { type: String },
-    email: { type: String },
-    address: { type: Object },
-    dateFounded: { type: Date },
-    primaryPhone: { type: String },
-    phones: { type: [String] },
-    socialLinks: { type: blockDeveloperSocialLinkSchema },
-    isVerified: { type: Boolean, default: false },
     coverImage: { type: String },
+
+    registrationNumber: { type: String },
+
+    address: { type: Object },
+
+    primaryPhone: { type: String },
+    primaryEmail: { type: String },
+
+    phones: { type: [String] },
+    emails: { type: [String] },
+
+    dateFounded: { type: String },
+    website: { type: String },
+    verificationStatus: {
+      type: String,
+      label: 'Verification Status',
+      enum: BLOCK_VERIFICATION_STATUS.ALL,
+      default: BLOCK_VERIFICATION_STATUS.PENDING,
+    },
+
+    socialLinks: { type: blockDeveloperSocialLinkSchema },
   }),
 );

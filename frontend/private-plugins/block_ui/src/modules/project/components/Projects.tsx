@@ -1,12 +1,28 @@
 import { ProjectCard } from './ProjectCard';
 import { useProjects } from '../hooks/useProjects';
-import { Spinner } from 'erxes-ui';
+import { Empty, Spinner } from 'erxes-ui';
+import { IconClipboardText } from '@tabler/icons-react';
 
 export const Projects = () => {
   const { projects, loading } = useProjects();
 
   if (loading) {
     return <Spinner containerClassName="blk:py-32" />;
+  }
+
+  if (projects?.length === 0) {
+    return (
+      <Empty>
+        <Empty.Header />
+        <Empty.Header>
+          <Empty.Media variant="icon">
+            <IconClipboardText />
+          </Empty.Media>
+          <Empty.Title>No projects found</Empty.Title>
+          <Empty.Description>There seems to be no projects.</Empty.Description>
+        </Empty.Header>
+      </Empty>
+    );
   }
 
   return (

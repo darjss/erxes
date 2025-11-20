@@ -16,6 +16,8 @@ export const BuildingUnitsByZones = ({ projectId }: { projectId?: string }) => {
     skip: !!queries.unitId,
   });
 
+  if (loading) return <Spinner containerClassName="blk:py-32" />;
+
   return (
     <div className="p-8 flex flex-col gap-6 w-auto">
       <div className="flex gap-3 items-center justify-between">

@@ -14,10 +14,12 @@ interface SendMessagePayload {
 }
 
 const sendMessage = ({ subdomain, path, payload }: SendMessagePayload) => {
-  const API_ENDPOINT = `${BLOCK_ADMIN_API_URL}/api/${path}`;
+  const API_ENDPOINT = `${BLOCK_ADMIN_API_URL}/webhook/${path}`;
 
   if (!BLOCK_ADMIN_API_URL || !BLOCK_ADMIN_SECRET) {
-    return console.log('BLOCK_ADMIN_API_URL or BLOCK_ADMIN_SECRET is not set');
+    return console.error(
+      'BLOCK_ADMIN_API_URL or BLOCK_ADMIN_SECRET is not set',
+    );
   }
 
   try {
@@ -34,7 +36,7 @@ const sendMessage = ({ subdomain, path, payload }: SendMessagePayload) => {
         'Content-Type': 'application/json',
         'X-Signature': `sha256=${signature}`,
       },
-      body: JSON.stringify({ subdomain, payload }),
+      body,
     });
   } catch (e) {
     console.error(`Failed to send message to block-admin: ${e}`);

@@ -1,5 +1,5 @@
-import { addTicketSchema } from './validations';
 import { z } from 'zod';
+import { addTicketSchema } from './validations';
 
 export interface ITicket {
   _id: string;
@@ -19,9 +19,10 @@ export interface ITicket {
   statusChangedDate: string;
   number: number;
   pipelineId: string;
+  createdBy: string;
 }
 
 export type TAddTicket = z.infer<typeof addTicketSchema>;
 
-export * from './validations';
 export * from './ticketHotkeyScope';
+export * from './validations';

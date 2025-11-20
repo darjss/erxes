@@ -1,5 +1,5 @@
 import { IOffsetPaginateParams } from 'erxes-api-shared/core-types';
-import { paginate } from 'erxes-api-shared/utils';
+import { markResolvers, paginate } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 import { DeveloperQueryParams } from '~/modules/developer/db/@types/developer';
 import { generateFilter } from '~/modules/developer/utils';
@@ -32,3 +32,9 @@ export const cpDeveloperQueries = {
     );
   },
 };
+
+markResolvers(cpDeveloperQueries, {
+  wrapperConfig: {
+    forClientPortal: true,
+  },
+});

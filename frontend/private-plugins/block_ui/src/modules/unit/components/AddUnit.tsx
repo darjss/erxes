@@ -72,7 +72,7 @@ export const AddUnit = ({
       >
         <Sheet.Content className="flex-auto overflow-hidden">
           <ScrollArea className="h-full">
-            <div className="p-6 space-y-5">
+            <div className="p-6 blk:space-y-5">
               <Form.Field
                 name="number"
                 render={({ field }) => (

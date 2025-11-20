@@ -18,9 +18,6 @@ export const IntegrationConfigPage = lazy(() =>
 );
 
 const IntegrationsConfigSettings = () => {
-  const org = useAtomValue(currentOrganizationState);
-  const isSaas = org?.type === 'saas';
-  if (isSaas) return null;
   return (
     <Suspense fallback={<div />}>
       <Routes>

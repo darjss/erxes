@@ -9,9 +9,29 @@ export const BLOCK_GET_DEVELOPER_INFO = gql`
       about
       logo
       website
-      address
+      registrationNumber
+      address {
+        address {
+          countryCode
+          country
+          postCode
+          city
+          city_district
+          suburb
+          road
+          street
+          building
+          number
+          other
+        }
+        location {
+          type
+          coordinates
+        }
+        short
+      }
       dateFounded
-      email
+      primaryEmail
       primaryPhone
       coverImage
       phones
@@ -23,7 +43,7 @@ export const BLOCK_GET_DEVELOPER_INFO = gql`
         youtube
         website
       }
-      isVerified
+      verificationStatus
     }
   }
 `;

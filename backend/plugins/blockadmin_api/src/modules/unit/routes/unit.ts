@@ -1,70 +1,91 @@
 import { Router } from 'express';
 import { generateModels } from '~/connectionResolvers';
+import { IRequest, IResponse } from '~/types';
+import { IUnit } from '../@types/unit';
 
 const router: Router = Router();
 
-router.post('/blockCreateUnit', async (req, res) => {
-  const models = await generateModels();
+router.post(
+  '/blockCreateUnit',
+  async (req: IRequest<IUnit>, res: IResponse) => {
+    const models = await generateModels();
 
-  try {
-    const { subdomain, payload } = req.body || {};
+    try {
+      const { subdomain, payload } = req.body || {};
 
-    const { entityId, data } = payload || {};
+      const { entityId, data } = payload || {};
 
-    const { input } = data || {};
+      const { input } = data || {};
 
-    models.Unit.createUnit({ subdomain, entityId, ...input });
+      const zoning = await models.Zoning.getBuildingZoning(
+        subdomain,
+        input.zoning,
+      );
 
-    return res.status(200).json({
-      success: true,
-    });
-  } catch (error) {
-    return res.status(400).json({
-      error: error.message,
-    });
-  }
-});
+      models.Unit.createUnit({
+        ...input,
+        subdomain,
+        entityId,
+        zoning: zoning._id,
+      });
 
-router.post('/blockUpdateUnit', async (req, res) => {
-  const models = await generateModels();
+      return res.status(200).json({
+        success: true,
+      });
+    } catch (error) {
+      return res.status(400).json({
+        error: error.message,
+      });
+    }
+  },
+);
 
-  try {
-    const { subdomain, payload } = req.body || {};
+router.post(
+  '/blockUpdateUnit',
+  async (req: IRequest<IUnit>, res: IResponse) => {
+    const models = await generateModels();
 
-    const { entityId, data } = payload || {};
+    try {
+      const { subdomain, payload } = req.body || {};
 
-    const { input } = data || {};
+      const { entityId, data } = payload || {};
 
-    models.Unit.updateUnit(subdomain, entityId, input);
+      const { input } = data || {};
 
-    return res.status(200).json({
-      success: true,
-    });
-  } catch (error) {
-    return res.status(400).json({
-      error: error.message,
-    });
-  }
-});
+      models.Unit.updateUnit(subdomain, entityId, input);
 
-router.post('/blockDeleteUnit', async (req, res) => {
-  const models = await generateModels();
+      return res.status(200).json({
+        success: true,
+      });
+    } catch (error) {
+      return res.status(400).json({
+        error: error.message,
+      });
+    }
+  },
+);
 
-  try {
-    const { subdomain, payload } = req.body || {};
+router.post(
+  '/blockDeleteUnit',
+  async (req: IRequest<IUnit>, res: IResponse) => {
+    const models = await generateModels();
 
-    const { entityId } = payload || {};
+    try {
+      const { subdomain, payload } = req.body || {};
 
-    models.Unit.removeUnit(subdomain, entityId);
+      const { entityId } = payload || {};
 
-    return res.status(200).json({
-      success: true,
-    });
-  } catch (error) {
-    return res.status(400).json({
-      error: error.message,
-    });
-  }
-});
+      models.Unit.removeUnit(subdomain, entityId);
+
+      return res.status(200).json({
+        success: true,
+      });
+    } catch (error) {
+      return res.status(400).json({
+        error: error.message,
+      });
+    }
+  },
+);
 
 export { router };

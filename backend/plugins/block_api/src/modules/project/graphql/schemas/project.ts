@@ -17,7 +17,7 @@ export const types = `
     parcelId: String
   }
 
-  enum BlockAdminProjectVerificationStatus {
+  enum BlockVerificationStatus {
     verified
     unverified
     pending
@@ -62,7 +62,7 @@ export const types = `
     name: String
     isPublished: Boolean
     location: BlockProjectLocation
-    verificationStatus: BlockAdminProjectVerificationStatus
+    verificationStatus: BlockVerificationStatus
     status: BlockAdminProjectStatus
     coverImage: String
     mainPrice: Int
@@ -78,7 +78,7 @@ export const types = `
     name: String
     coverImage: String
     location: BlockProjectLocationInput
-    verificationStatus: BlockAdminProjectVerificationStatus
+    verificationStatus: BlockVerificationStatus
     status: BlockAdminProjectStatus
     mainPrice: Int
     prices: [BlockProjectPriceInput]

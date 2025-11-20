@@ -1,10 +1,4 @@
 const enums = `
-  enum BlockAdminProjectVerificationStatus {
-    verified
-    unverified
-    pending
-  }
-
   enum BlockAdminProjectStatus {
     planned
     on_going
@@ -65,7 +59,7 @@ const inputs = `
     name: String
     coverImage: String
     location: BlockAdminProjectLocationInput
-    verificationStatus: BlockAdminProjectVerificationStatus
+    verificationStatus: BlockAdminDeveloperVerificationStatus
     status: BlockAdminProjectStatus
     mainPrice: Int
     prices: [BlockAdminProjectPriceInput]

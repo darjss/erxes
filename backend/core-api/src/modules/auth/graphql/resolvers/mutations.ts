@@ -1,3 +1,4 @@
+import { WorkOS } from '@workos-inc/node';
 import {
   authCookieOptions,
   getEnv,
@@ -7,7 +8,6 @@ import {
   redis,
   updateSaasOrganization,
 } from 'erxes-api-shared/utils';
-import { WorkOS } from '@workos-inc/node';
 import * as jwt from 'jsonwebtoken';
 import { IContext } from '~/connectionResolvers';
 import {
@@ -278,5 +278,7 @@ export const authMutations = {
 };
 
 markResolvers(authMutations, {
-  skipPermission: true,
+  wrapperConfig: {
+    skipPermission: true,
+  },
 });

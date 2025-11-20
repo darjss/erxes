@@ -1,4 +1,11 @@
 import {
+  usePipelineAdd,
+  usePipelineDetail,
+  usePipelineEdit,
+} from '@/deals/boards/hooks/usePipelines';
+import { PipelineHotKeyScope, TPipelineForm } from '@/deals/types/pipelines';
+import { IconGitBranch, IconPlus } from '@tabler/icons-react';
+import {
   Button,
   Form,
   Sheet,
@@ -8,20 +15,13 @@ import {
   useSetHotkeyScope,
   useToast,
 } from 'erxes-ui';
-import { IconGitBranch, IconPlus } from '@tabler/icons-react';
-import { PipelineHotKeyScope, TPipelineForm } from '@/deals/types/pipelines';
 import { useCallback, useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import {
-  usePipelineAdd,
-  usePipelineDetail,
-  usePipelineEdit,
-} from '@/deals/boards/hooks/usePipelines';
 
-import { PipelineForm } from './PipelineForm';
-import { SubmitHandler } from 'react-hook-form';
 import { usePipelineForm } from '@/deals/boards/hooks/usePipelineForm';
 import { useStages } from '@/deals/stage/hooks/useStages';
+import { SubmitHandler } from 'react-hook-form';
+import { PipelineForm } from './PipelineForm';
 
 export function PipelineFormBar() {
   const location = useLocation();
@@ -184,7 +184,7 @@ export function PipelineFormBar() {
           </Button>
         </Sheet.Trigger>
         <Sheet.View
-          className="p-0 md:max-w-(--breakpoint-2xl)"
+          className="p-0 md:max-w-6xl"
           onEscapeKeyDown={(e) => {
             e.preventDefault();
           }}

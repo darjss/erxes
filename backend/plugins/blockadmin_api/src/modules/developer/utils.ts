@@ -5,12 +5,12 @@ import {
 } from './db/@types/developer';
 
 export const generateFilter = async (params: DeveloperQueryParams) => {
-  const { searchValue, isVerified, location } = params;
+  const { searchValue, verificationStatus, location } = params;
 
   const filter: FilterQuery<IBlockDeveloperDocument> = {};
 
-  if (isVerified) {
-    filter.isVerified = isVerified;
+  if (verificationStatus) {
+    filter.verificationStatus = verificationStatus;
   }
 
   if (searchValue) {

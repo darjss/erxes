@@ -5,17 +5,19 @@ import { router as documentRoutes } from '@/document/routes';
 import { router as invoiceRoutes } from '@/invoice/routes';
 import { router as projectRoutes } from '@/project/routes';
 import { router as unitRoutes } from '@/unit/routes';
-
 import { Router } from 'express';
+import { validator as validationMiddleware } from '~/middlewares/validationMiddleware';
 
 const router: Router = Router();
 
-router.use(attachmentRoutes);
-router.use(buildingRoutes);
-router.use(developerRoutes);
-router.use(documentRoutes);
-router.use(invoiceRoutes);
-router.use(projectRoutes);
-router.use(unitRoutes);
+router.use('/webhook', validationMiddleware, [
+  attachmentRoutes,
+  buildingRoutes,
+  developerRoutes,
+  documentRoutes,
+  invoiceRoutes,
+  projectRoutes,
+  unitRoutes,
+]);
 
-export default router;
+export { router };

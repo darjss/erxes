@@ -11,11 +11,9 @@ export interface IBlockAttachmentModel extends Model<IBlockAttachmentDocument> {
     subdomain: string,
     entityId: string,
   ): Promise<IBlockAttachmentDocument>;
-  createBlockAttachment({
-    input,
-  }: {
-    input: IBlockAttachment;
-  }): Promise<IBlockAttachmentDocument>;
+  createBlockAttachment(
+    input: IBlockAttachment,
+  ): Promise<IBlockAttachmentDocument>;
   updateBlockAttachment(
     subdomain: string,
     entityId: string,
@@ -45,11 +43,7 @@ export const loadBlockAttachmentClass = (models: IModels) => {
       return blockAttachment;
     }
 
-    public static async createBlockAttachment({
-      input,
-    }: {
-      input: IBlockAttachment;
-    }) {
+    public static async createBlockAttachment(input: IBlockAttachment) {
       return models.BlockAttachment.create(input);
     }
 

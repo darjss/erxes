@@ -1,101 +1,127 @@
 import { Router } from 'express';
 import { generateModels } from '~/connectionResolvers';
+import { IRequest, IResponse } from '~/types';
+import { IBuilding } from '../@types/building';
 
 const router: Router = Router();
 
-router.post('/blockCreateBuilding', async (req, res) => {
-  const models = await generateModels();
+router.post(
+  '/blockCreateBuilding',
+  async (req: IRequest<IBuilding>, res: IResponse) => {
+    const models = await generateModels();
 
-  try {
-    const { subdomain, payload } = req.body || {};
+    try {
+      const { subdomain, payload } = req.body || {};
 
-    const { entityId, data } = payload || {};
+      const { entityId, data } = payload || {};
 
-    const { input } = data || {};
+      const { input } = data || {};
 
-    models.Building.createBuilding({ subdomain, entityId, ...input });
+      const project = await models.Project.getProject(subdomain, input.project);
 
-    return res.status(200).json({
-      success: true,
-    });
-  } catch (error) {
-    return res.status(400).json({
-      error: error.message,
-    });
-  }
-});
+      models.Building.createBuilding({
+        ...input,
+        subdomain,
+        entityId,
+        project: project._id,
+      });
 
-router.post('/blockUpdateBuilding', async (req, res) => {
-  const models = await generateModels();
+      return res.status(200).json({
+        success: true,
+      });
+    } catch (error) {
+      return res.status(400).json({
+        error: error.message,
+      });
+    }
+  },
+);
 
-  try {
-    const { subdomain, payload } = req.body || {};
+router.post(
+  '/blockUpdateBuilding',
+  async (req: IRequest<IBuilding>, res: IResponse) => {
+    const models = await generateModels();
 
-    const { entityId, data } = payload || {};
+    try {
+      const { subdomain, payload } = req.body || {};
 
-    const { input } = data || {};
+      const { entityId, data } = payload || {};
 
-    models.Building.updateBuilding(subdomain, entityId, input);
+      const { input } = data || {};
 
-    return res.status(200).json({
-      success: true,
-    });
-  } catch (error) {
-    return res.status(400).json({
-      error: error.message,
-    });
-  }
-});
+      const project = await models.Project.getProject(subdomain, input.project);
 
-router.post('/blockDeleteBuilding', async (req, res) => {
-  const models = await generateModels();
+      models.Building.updateBuilding(subdomain, entityId, {
+        ...input,
+        project: project._id,
+      });
 
-  try {
-    const { subdomain, payload } = req.body || {};
+      return res.status(200).json({
+        success: true,
+      });
+    } catch (error) {
+      return res.status(400).json({
+        error: error.message,
+      });
+    }
+  },
+);
 
-    const { entityId } = payload || {};
+router.post(
+  '/blockDeleteBuilding',
+  async (req: IRequest<IBuilding>, res: IResponse) => {
+    const models = await generateModels();
 
-    models.Building.deleteBuilding(subdomain, entityId);
+    try {
+      const { subdomain, payload } = req.body || {};
 
-    return res.status(200).json({
-      success: true,
-    });
-  } catch (error) {
-    return res.status(400).json({
-      error: error.message,
-    });
-  }
-});
+      const { entityId } = payload || {};
 
-router.post('/blockDupplicateBuilding', async (req, res) => {
-  const models = await generateModels();
+      models.Building.deleteBuilding(subdomain, entityId);
 
-  try {
-    const { subdomain, payload } = req.body || {};
+      return res.status(200).json({
+        success: true,
+      });
+    } catch (error) {
+      return res.status(400).json({
+        error: error.message,
+      });
+    }
+  },
+);
 
-    const { entityId, data } = payload || {};
+router.post(
+  '/blockDupplicateBuilding',
+  async (req: IRequest<{}, { buildingId: string }>, res: IResponse) => {
+    const models = await generateModels();
 
-    const { buildingId } = data || {};
+    try {
+      const { subdomain, payload } = req.body || {};
 
-    const building = await models.Building.getBuilding(subdomain, buildingId);
+      const { entityId, data } = payload || {};
 
-    const { _id, ...rest } = building;
+      const { buildingId } = data || {};
 
-    models.Building.createBuilding({
-      ...rest,
-      name: `${rest.name} duplicated`,
-      subdomain,
-      entityId,
-    });
+      const building = await models.Building.getBuilding(subdomain, buildingId);
 
-    return res.status(200).json({
-      success: true,
-    });
-  } catch (error) {
-    return res.status(400).json({
-      error: error.message,
-    });
-  }
-});
+      const { _id, ...rest } = building;
+
+      models.Building.createBuilding({
+        ...rest,
+        name: `${rest.name} duplicated`,
+        subdomain,
+        entityId,
+      });
+
+      return res.status(200).json({
+        success: true,
+      });
+    } catch (error) {
+      return res.status(400).json({
+        error: error.message,
+      });
+    }
+  },
+);
 
 export { router };

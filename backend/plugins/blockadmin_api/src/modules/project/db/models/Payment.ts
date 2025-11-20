@@ -12,11 +12,9 @@ export interface IProjectPaymentPlanModel
     subdomain: string,
     entityId: string,
   ): Promise<IProjectPaymentPlanDocument>;
-  createProjectPaymentPlan({
-    input,
-  }: {
-    input: IProjectPaymentPlan;
-  }): Promise<IProjectPaymentPlanDocument>;
+  createProjectPaymentPlan(
+    input: IProjectPaymentPlan,
+  ): Promise<IProjectPaymentPlanDocument>;
   updateProjectPaymentPlan(
     subdomain: string,
     entityId: string,
@@ -42,11 +40,7 @@ export const loadProjectPaymentPlanClass = (models: IModels) => {
       return projectPaymentPlan;
     }
 
-    public static async createProjectPaymentPlan({
-      input,
-    }: {
-      input: IProjectPaymentPlan;
-    }) {
+    public static async createProjectPaymentPlan(input: IProjectPaymentPlan) {
       return models.ProjectPaymentPlan.create(input);
     }
 
