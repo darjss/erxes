@@ -25,7 +25,7 @@ export const cpCompanyQueries = {
       sortDirection = 'desc',
     } = params;
 
-    const filter = await generateFilter(params);
+    const filter = await generateFilter(params, models);
 
     return await paginate(
       models.Company.find(filter).sort({ [sortField]: sortDirection }),
