@@ -12,7 +12,7 @@ startPlugin({
   port: 3306,
   graphql: async () => ({
     typeDefs: await typeDefs(),
-    resolvers: wrapApolloResolvers(resolvers),
+    resolvers,
   }),
   hasSubscriptions: true,
   subscriptionPluginPath: require('path').resolve(
