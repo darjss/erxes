@@ -6,11 +6,16 @@ on:
       - main
       - debug/frontline
     paths:
+      - 'backend/plugins/btkadmin_api/**'
+      - 'backend/erxes-api-shared/**'
       - 'frontend/private-plugins/btkadmin_ui/**'
       - 'frontend/libs/**'
       - '.github/workflows/ci-ui-btkadmin.yml'
+
   pull_request:
     paths:
+      - 'backend/plugins/btkadmin_api/**'
+      - 'backend/erxes-api-shared/**'
       - 'frontend/private-plugins/btkadmin_ui/**'
       - 'frontend/libs/**'
       - '.github/workflows/ci-ui-btkadmin.yml'
@@ -24,6 +29,7 @@ permissions:
 jobs:
   btkadmin_ui-ci:
     runs-on: ubuntu-latest
+
     env:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -34,6 +40,9 @@ jobs:
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: 'pnpm'
 
       - name: Install pnpm
         uses: pnpm/action-setup@v2
@@ -41,15 +50,17 @@ jobs:
           version: 8
 
       - name: Install dependencies
-        run: pnpm install
+        run: pnpm install --frozen-lockfile
 
-      - name: Build btk admin UI
+      - name: Build btkadmin UI
         run: |
           export NX_DAEMON=false
           pnpm nx build btkadmin_ui
 
       - name: Sync to Cloudflare R2
-        if: github.event_name == 'push' && ( github.ref == 'refs/heads/main' || github.ref == 'refs/heads/debug/frontline' )
+        if: >-
+          github.event_name == 'push' &&
+          (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/debug/frontline')
         run: |
           aws s3 sync dist/frontend/private-plugins/btkadmin_ui s3://erxes-next/latest/btkadmin_ui/ \
             --endpoint-url https://7c8392aff8ac4518aa06dfa4b6337ef2.r2.cloudflarestorage.com
