@@ -8,7 +8,6 @@ on:
     paths:
       - 'backend/plugins/btk_api/**'
       - 'backend/erxes-api-shared/**'
-
       - '.github/workflows/ci-api-btk.yml'
   pull_request:
     paths:
