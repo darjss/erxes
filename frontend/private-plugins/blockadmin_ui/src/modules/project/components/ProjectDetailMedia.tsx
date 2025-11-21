@@ -1,5 +1,3 @@
-import { IconPhotoCirclePlus, IconUpload, IconX } from '@tabler/icons-react';
-import { Button, Dialog, Input, readImage } from 'erxes-ui';
 import { InfoCard, InfoCardContent } from '@/block/components/card';
 import {
   Upload,
@@ -13,6 +11,8 @@ import {
 } from '@/block/components/UploadCard';
 import { useProjectDetail } from '@/project/hooks/useProjectDetail';
 import { useUpdateProjectGeneralInfo } from '@/project/hooks/useUpdateProject';
+import { IconPhotoCirclePlus, IconUpload, IconX } from '@tabler/icons-react';
+import { Button, Dialog, Input } from 'erxes-ui';
 import { useState } from 'react';
 
 export const ProjectDetailMedia = () => {
@@ -73,7 +73,7 @@ export const ProjectImages = () => {
                   className="relative aspect-square bg-muted rounded-lg flex items-center justify-center group"
                 >
                   <img
-                    src={readImage(image)}
+                    src={image}
                     className="size-full absolute inset-0 object-cover rounded-lg"
                     alt="project"
                   />
@@ -83,7 +83,7 @@ export const ProjectImages = () => {
                     </Dialog.Trigger>
                     <Dialog.Content className="p-0 max-w-screen-xl w-auto border-0 bg-transparent">
                       <img
-                        src={readImage(image)}
+                        src={image}
                         alt="project"
                         className="rounded-lg max-h-[90vh] max-w-[90vw] object-contain mx-auto"
                       />

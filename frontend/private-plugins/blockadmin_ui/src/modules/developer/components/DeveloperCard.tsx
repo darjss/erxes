@@ -3,7 +3,6 @@ import {
   IconMapPinFilled,
   IconPhotoCirclePlus,
 } from '@tabler/icons-react';
-import { readImage } from 'erxes-ui';
 import { Link } from 'react-router-dom';
 import { IDeveloper, IDeveloperAddress } from '../types';
 
@@ -35,7 +34,7 @@ export const DeveloperCard = ({
       <div className="w-full h-full relative ba:aspect-2/1 rounded-xl overflow-hidden flex items-center justify-center">
         {coverImage ? (
           <img
-            src={readImage(coverImage)}
+            src={coverImage}
             alt={name}
             className="object-cover absolute inset-0 object-center"
           />

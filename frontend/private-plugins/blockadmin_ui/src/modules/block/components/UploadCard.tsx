@@ -12,7 +12,7 @@ import {
   IconTrash,
   IconUpload,
 } from '@tabler/icons-react';
-import { Badge, Button, cn, Dialog, readImage } from 'erxes-ui';
+import { Badge, Button, cn, Dialog } from 'erxes-ui';
 
 export const UploadCard = ({
   title,
@@ -93,7 +93,7 @@ export const ImageDisplay = ({
         {value ? (
           <>
             <img
-              src={readImage(value)}
+              src={value}
               className={cn(
                 'size-full absolute inset-0',
                 fit === 'cover' ? 'object-cover' : 'object-contain',
@@ -127,7 +127,7 @@ export const DocumentDisplay = ({ value }: DocumentDisplayProps) => {
         <Dialog.Content className="p-0">
           <iframe
             src={`https://docs.google.com/gview?url=${encodeURIComponent(
-              readImage(value),
+              value,
             )}&embedded=true`}
             className="w-full aspect-[1/2] max-h-[80vh] rounded-lg"
             title="PDF Viewer"
