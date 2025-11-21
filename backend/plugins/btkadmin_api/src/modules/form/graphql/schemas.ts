@@ -28,3 +28,7 @@ export const types = `
 export const mutations = `
     btkAdminSubmitForm(input: BtkSubmissionInput!): BtkSubmission
 `;
+
+export const queries = `
+    btkAdminGetAllForms: [BtkSubmission]
+`;

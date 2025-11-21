@@ -336,29 +336,33 @@ export const NewsDetailAmenities = () => {
                   <Command.Input />
                   <Command.List>
                     {Object.entries(amenitiesByCategory).map(
-                      ([category, amenities]) => (
-                        <Command.Group
-                          key={category}
-                          heading={amenities.at(0)?.category}
-                        >
-                          {amenities.map((am) => (
-                            <Command.Item
-                              className="h-auto"
-                              key={am.label_mn}
-                              value={am.label_mn}
-                              onSelect={() => handleSelectAmenity(am)}
-                            >
-                              {am.label_mn}
-                              <Combobox.Check
-                                checked={isChecked(
-                                  am.label_mn,
-                                  am.category_code,
-                                )}
-                              />
-                            </Command.Item>
-                          ))}
-                        </Command.Group>
-                      ),
+                      ([category, amenities]) => {
+                        if (!amenities?.length) return null;
+
+                        return (
+                          <Command.Group
+                            key={category}
+                            heading={amenities[0].category}
+                          >
+                            {amenities.map((am) => (
+                              <Command.Item
+                                className="h-auto"
+                                key={am.label_mn}
+                                value={am.label_mn}
+                                onSelect={() => handleSelectAmenity(am)}
+                              >
+                                {am.label_mn}
+                                <Combobox.Check
+                                  checked={isChecked(
+                                    am.label_mn,
+                                    am.category_code,
+                                  )}
+                                />
+                              </Command.Item>
+                            ))}
+                          </Command.Group>
+                        );
+                      },
                     )}
                   </Command.List>
                 </Command>
