@@ -1,29 +1,29 @@
-import { useCompanyInfo } from '@/btk/hooks/useCompanyInfo';
-import { UploadImage } from './upload';
-import { Form, Input, Select, Textarea, toast } from 'erxes-ui';
-import { Path, useForm, UseFormReturn } from 'react-hook-form';
 import { companyInfoSchema } from '@/btk/constants/companyInfoSchema';
+import { useCompanyInfo } from '@/btk/hooks/useCompanyInfo';
+import { useUpdateCompanyInfo } from '@/btk/hooks/useUpdateCompanyInfo';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { Form, Input, Select, Textarea, toast } from 'erxes-ui';
+import { useCallback, useEffect } from 'react';
+import { Path, useForm, UseFormReturn } from 'react-hook-form';
+import { useParams } from 'react-router-dom';
 import { z } from 'zod';
 import {
   ADDRESS_CITY,
   ADDRESS_DISTRICT,
 } from '~/modules/news/constants/address';
-import { useCallback, useEffect } from 'react';
-import { useUpdateCompanyInfo } from '@/btk/hooks/useUpdateCompanyInfo';
+import { SOCIAL_LINKS } from '../constants/socialLinks';
 import { BtkEditorField } from './BtkEditor';
 import { BtkPhones } from './BtkPhones';
-import { SOCIAL_LINKS } from '../constants/socialLinks';
+import { UploadImage } from './upload';
 
 export const BtkCompanyInfo = () => {
-  const { companyInfo, loading } = useCompanyInfo();
+  const { id } = useParams();
+  const { companyInfo, loading } = useCompanyInfo(id || '');
 
   return (
     <div className="p-6 mx-auto w-full max-w-lg flex flex-col gap-6">
       <h1 className="text-lg font-bold mb-4">Company info</h1>
-      {!loading && companyInfo && (
-        <BtkCompanyInfoForm companyInfo={companyInfo} />
-      )}
+      <BtkCompanyInfoForm companyInfo={companyInfo} />
     </div>
   );
 };
@@ -35,23 +35,23 @@ export const BtkCompanyInfoForm = ({
 }) => {
   const getDefaultValues = useCallback(() => {
     return {
-      name: companyInfo.name || '',
-      description: companyInfo.description || '',
-      logo: companyInfo.logo || '',
-      coverImage: companyInfo.coverImage || '',
-      website: companyInfo.website || '',
-      email: companyInfo.email || '',
-      primaryPhone: companyInfo.primaryPhone || '',
-      phones: companyInfo.phones || [],
-      dateFounded: companyInfo.dateFounded || '',
-      about: companyInfo.about || '',
+      name: companyInfo?.name || '',
+      description: companyInfo?.description || '',
+      logo: companyInfo?.logo || '',
+      coverImage: companyInfo?.coverImage || '',
+      website: companyInfo?.website || '',
+      email: companyInfo?.email || '',
+      primaryPhone: companyInfo?.primaryPhone || '',
+      phones: companyInfo?.phones || [],
+      dateFounded: companyInfo?.dateFounded || '',
+      about: companyInfo?.about || '',
       address: {
-        city: companyInfo.address?.city || ADDRESS_CITY[0],
-        district: companyInfo.address?.district || '',
-        address: companyInfo.address?.address || '',
+        city: companyInfo?.address?.city || ADDRESS_CITY[0],
+        district: companyInfo?.address?.district || '',
+        address: companyInfo?.address?.address || '',
       },
       socialLinks:
-        companyInfo.socialLinks ||
+        companyInfo?.socialLinks ||
         ({
           facebook: '',
           instagram: '',
@@ -231,7 +231,7 @@ export const BtkCompanyInfoForm = ({
           setValue={form.setValue}
           name="about"
           label="About"
-          initialContent={companyInfo.about}
+          initialContent={companyInfo?.about}
         />
         <Form.Field
           name="address.city"
