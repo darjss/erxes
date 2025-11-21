@@ -1,8 +1,8 @@
 import { gql } from '@apollo/client';
 
 export const BTK_GET_COMPANY_INFO = gql`
-  query GetCompanyInfo {
-    getCompanyInfo {
+  query GetCompanyInfo($_id: String!) {
+    getCompanyInfo(_id: $_id) {
       _id
       name
       description
@@ -24,6 +24,24 @@ export const BTK_GET_COMPANY_INFO = gql`
         website
       }
       isVerified
+    }
+  }
+`;
+
+export const BTK_GET_COMPANY_LIST = gql`
+  query GetCompanyCompanies {
+    getCompanyCompanies {
+      _id
+      name
+    }
+  }
+`;
+
+export const BTK_GET_COMPANIES = gql`
+  query GetCompanyCompanies {
+    getCompanyCompanies {
+      _id
+      name
     }
   }
 `;

@@ -5,10 +5,10 @@ export const BtkNavigation = () => {
   return (
     <>
       <NavigationMenuLinkItem
-        name="Company info"
+        name="Companies"
         icon={IconBuilding}
         pathPrefix="btk"
-        path="company-info"
+        path="companies"
       />
       <NavigationMenuLinkItem
         name="News"

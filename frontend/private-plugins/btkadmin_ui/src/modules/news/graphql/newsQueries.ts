@@ -7,6 +7,8 @@ export const BTK_GET_NEWS = gql`
       name
       coverImage
       logo
+      createdAt
+      updatedAt
       location {
         address
         city
@@ -41,13 +43,6 @@ export const BTK_GET_NEWS_DETAIL = gql`
       coverImage
       logo
       images
-      bankPartners
-      mainPrice
-      prices {
-        currency
-        price
-        priceType
-      }
       newsAmenities {
         amenities
         category

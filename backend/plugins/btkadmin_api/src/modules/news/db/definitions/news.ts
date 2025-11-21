@@ -26,15 +26,6 @@ export const newsAmenitySchema = new Schema(
   { _id: false },
 );
 
-export const newsPriceSchema = new Schema(
-  {
-    currency: { type: String, label: 'Currency' },
-    priceType: { type: String, label: 'Price Type' },
-    price: { type: Number, label: 'Price' },
-  },
-  { _id: false },
-);
-
 export const newsSchema = schemaWrapper(
   new Schema(
     {
@@ -59,9 +50,7 @@ export const newsSchema = schemaWrapper(
       coverImage: { type: String, label: 'Cover Image' },
       images: { type: [String], label: 'Images' },
       logo: { type: String, label: 'Logo' },
-      mainPrice: { type: Number, label: 'Price' },
-      prices: { type: [newsPriceSchema], label: 'Prices' },
-      bankPartners: { type: [String], label: 'Bank Partners' },
+
       newsAmenities: {
         type: [newsAmenitySchema],
         label: 'News Amenities',

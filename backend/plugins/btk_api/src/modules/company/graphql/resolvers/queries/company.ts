@@ -1,15 +1,18 @@
 import { requireLogin } from 'erxes-api-shared/core-modules';
+import { IContext } from '~/connectionResolvers';
 
 export const companyQueries = {
-  getCompanyInfo: async (_, __, { models }) => {
-    let existingCompany = await models.Company.findOne({});
-
-    if (!existingCompany) {
-      existingCompany = await models.Company.createCompany({});
-    }
-
-    return existingCompany;
+  getCompanyCompanies: async (
+    _parent: undefined,
+    _args: undefined,
+    { models }: IContext,
+  ) => {
+    return await models.Company.find({}).lean();
+  },
+  getCompanyInfo: async (_parent: undefined, { _id }, { models }: IContext) => {
+    return models.Company.findOne({ _id }).lean();
   },
 };
 
 requireLogin(companyQueries, 'getCompanyInfo');
+requireLogin(companyQueries, 'getCompanyCompanies');

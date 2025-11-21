@@ -1,10 +1,9 @@
 import { gql } from '@apollo/client';
 
 export const CREATE_NEWS = gql`
-  mutation BtkCreateNews($name: String!, $companyId: String!) {
-    btkCreateNews(name: $name, companyId: $companyId) {
+  mutation BtkCreateNews($name: String!) {
+    btkCreateNews(name: $name) {
       _id
-      companyId
     }
   }
 `;

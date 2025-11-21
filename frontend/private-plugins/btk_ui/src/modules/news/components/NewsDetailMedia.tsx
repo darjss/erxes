@@ -5,10 +5,10 @@ import {
   UploadProvider,
   UploadRemoveButton,
 } from '@/btk/components/upload';
-import { useNewsDetail } from '~/modules/news/hooks/useNewsDetail';
+import { useNewsDetail, useCompany } from '~/modules/news/hooks/useNewsDetail';
 import { useUpdateNewsGeneralInfo } from '~/modules/news/hooks/useUpdateNews';
 import { IconPhotoCirclePlus, IconUpload, IconX } from '@tabler/icons-react';
-import { Button, Form, readImage, Input, Dialog } from 'erxes-ui';
+import { Button, Form, readImage, Input, Dialog, Select } from 'erxes-ui';
 import {
   RemoveButton,
   UploadButton,
@@ -26,6 +26,7 @@ import { useEffect } from 'react';
 export const NewsDetailMedia = () => {
   return (
     <div className="p-8 blk:lg:grid-cols-2 grid gap-6">
+      <NewsCompanySelect />
       <NewsDetailAmenities />
       <NewsImage field="coverImage" />
       <NewsImage field="logo" />
@@ -33,6 +34,56 @@ export const NewsDetailMedia = () => {
       <NewsVideo />
       <NewsDetailText />
     </div>
+  );
+};
+
+export const NewsCompanySelect = () => {
+  const { companies } = useCompany();
+  const { news } = useNewsDetail();
+  const { updateNewsGeneralInfo } = useUpdateNewsGeneralInfo();
+
+  const form = useForm<{ companyId: string }>({
+    defaultValues: {
+      companyId: news?.companyId || '',
+    },
+  });
+
+  const selectedCompanyId = form.watch('companyId');
+
+  useEffect(() => {
+    if (selectedCompanyId && selectedCompanyId !== news?.companyId) {
+      updateNewsGeneralInfo(news?._id || '', { companyId: selectedCompanyId });
+    }
+  }, [selectedCompanyId, news?._id, news?.companyId, updateNewsGeneralInfo]);
+
+  return (
+    <InfoCard title="Company">
+      <InfoCardContent>
+        <Form {...form}>
+          <Form.Field
+            name="companyId"
+            control={form.control}
+            render={({ field }) => (
+              <Form.Item>
+                <Form.Label>Company</Form.Label>
+                <Select value={field.value} onValueChange={field.onChange}>
+                  <Select.Trigger>
+                    <Select.Value placeholder="Select company" />
+                  </Select.Trigger>
+                  <Select.Content>
+                    {companies.map((company) => (
+                      <Select.Item key={company._id} value={company._id}>
+                        {company.name}
+                      </Select.Item>
+                    ))}
+                  </Select.Content>
+                </Select>
+              </Form.Item>
+            )}
+          />
+        </Form>
+      </InfoCardContent>
+    </InfoCard>
   );
 };
 export const NewsImage = ({ field }: { field: 'coverImage' | 'logo' }) => {

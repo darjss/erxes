@@ -69,10 +69,7 @@ export const types = `
     coverImage: String
     images: [String]
     logo: String
-    mainPrice: Int
-    prices: [BtkNewsPrice]
     newsAmenities: [BtkNewsAmenity]
-    bankPartners: [String]
 
     startDate: Date
     endDate: Date
@@ -89,9 +86,6 @@ export const types = `
     title: String
     content: String
     status: BtkAdminNewsStatus
-    mainPrice: Int
-    prices: [BtkNewsPriceInput]
-    bankPartners: [String]
     newsAmenities: [BtkNewsAmenityInput]
 
     startDate: Date
@@ -105,7 +99,7 @@ export const queries = `
 `;
 
 export const mutations = `
-  btkCreateNews(name: String!, companyId: String!): BtkNews
+  btkCreateNews(name: String!): BtkNews
   btkUpdateNewsGeneralInfo(_id: String!, input: BtkNewsGeneralInput!): BtkNews
   btkPublishNews(_id: String!): BtkNews
   btkRemoveNews(_id: String!): BtkNews

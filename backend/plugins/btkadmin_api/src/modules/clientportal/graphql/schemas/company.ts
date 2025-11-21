@@ -1,6 +1,7 @@
 import { GQL_OFFSET_PARAM_DEFS } from 'erxes-api-shared/utils';
 
 export const types = `
+
   type CpBtkAdminCompany {
     _id: String
     name: String
@@ -16,6 +17,7 @@ export const types = `
     phones: [String]
     socialLinks: BtkAdminCompanySocialLink
     isVerified: Boolean
+
   }
 `;
 

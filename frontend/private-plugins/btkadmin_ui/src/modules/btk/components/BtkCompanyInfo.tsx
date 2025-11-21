@@ -1,6 +1,6 @@
 import { useCompanyInfo } from '@/btk/hooks/useCompanyInfo';
 import { UploadImage } from './upload';
-import { Button, Form, Input, Select, Textarea, toast } from 'erxes-ui';
+import { Form, Input, Select, Textarea, toast } from 'erxes-ui';
 import { Path, useForm, UseFormReturn } from 'react-hook-form';
 import { companyInfoSchema } from '@/btk/constants/companyInfoSchema';
 import { zodResolver } from '@hookform/resolvers/zod';

@@ -6,7 +6,7 @@ export const generateFilter = async (
   params: INewsQueryParams,
   models: IModels,
 ) => {
-  const { searchValue, companyId, location, priceMin, priceMax } = params || {};
+  const { searchValue, companyId, location } = params || {};
 
   const filter: FilterQuery<INewsDocument> = {};
 
@@ -25,14 +25,6 @@ export const generateFilter = async (
 
   if (location) {
     filter.location = location;
-  }
-
-  if (priceMin) {
-    filter.priceMin = { $gte: priceMin };
-  }
-
-  if (priceMax) {
-    filter.priceMax = { $lte: priceMax };
   }
 
   return filter;
