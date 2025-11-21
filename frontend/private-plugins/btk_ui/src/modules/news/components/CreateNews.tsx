@@ -5,7 +5,6 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useState } from 'react';
 import { useCreateNews } from '../hooks/useCreateNews';
-import { useCompanyInfo } from '@/btk/hooks/useCompanyInfo';
 
 export const CreateNews = () => {
   const [open, setOpen] = useState(false);
