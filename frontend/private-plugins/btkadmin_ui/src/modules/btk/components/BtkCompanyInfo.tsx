@@ -22,8 +22,10 @@ export const BtkCompanyInfo = () => {
 
   return (
     <div className="p-6 mx-auto w-full max-w-lg flex flex-col gap-6">
-      <h1 className="text-lg font-bold mb-4">Company info</h1>
-      <BtkCompanyInfoForm companyInfo={companyInfo} />
+      <h1 className="text-lg font-bold mb-4">Developer Info</h1>
+      {!loading && companyInfo && (
+        <BtkCompanyInfoForm companyInfo={companyInfo} />
+      )}
     </div>
   );
 };
@@ -94,7 +96,6 @@ export const BtkCompanyInfoForm = ({
       },
     });
   };
-  console.log('conpanyInfo', companyInfo);
   return (
     <Form {...form}>
       <form
