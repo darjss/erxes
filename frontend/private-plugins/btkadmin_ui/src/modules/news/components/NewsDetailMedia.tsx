@@ -235,6 +235,7 @@ export const NewsDetailAmenities = () => {
   const [newsAmenities, setNewsAmenities] = useState<
     { category: string; amenities: string[] }[]
   >([]);
+  console.log('newsAmenities', newsAmenities);
   const [isChanged, setIsChanged] = useState(false);
 
   useEffect(() => {

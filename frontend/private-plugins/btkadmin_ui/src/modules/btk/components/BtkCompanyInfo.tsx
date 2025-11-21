@@ -94,7 +94,7 @@ export const BtkCompanyInfoForm = ({
       },
     });
   };
-
+  console.log('conpanyInfo', companyInfo);
   return (
     <Form {...form}>
       <form
