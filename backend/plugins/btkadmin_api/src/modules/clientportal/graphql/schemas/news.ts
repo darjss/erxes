@@ -21,7 +21,7 @@ type CpBtkAdminNews {
   createdAt: Date
   updatedAt: Date
   companyData: BtkAdminCompany
-  newsCount: Int
+
 }
 
 `;

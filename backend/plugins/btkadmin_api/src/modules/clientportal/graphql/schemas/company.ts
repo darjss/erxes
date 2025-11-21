@@ -17,7 +17,6 @@ export const types = `
     phones: [String]
     socialLinks: BtkAdminCompanySocialLink
     isVerified: Boolean
-
   }
 `;
 

@@ -12,10 +12,10 @@ export const submissionQueries = {
 
   btkAdminGetSubmissions: async (
     _parent: undefined,
-    { itemType, itemId }: { itemType: string; itemId: string },
+    params: any,
     { models }: IContext,
   ) => {
-    return models.Submission.find({ itemType, itemId });
+    return models.Submission.find().lean();
   },
 };
 

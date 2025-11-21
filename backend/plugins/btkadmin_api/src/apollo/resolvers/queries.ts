@@ -6,6 +6,7 @@ import { paymentQueries } from '~/modules/news/graphql/resolvers/queries/payment
 import { newsQueries } from '~/modules/news/graphql/resolvers/queries/news';
 
 import { cpBtkQueries } from '~/modules/clientportal/graphql/resolvers/queries';
+import { submissionQueries } from '~/modules/form/graphql/queries';
 
 export const queries = {
   ...newsQueries,
@@ -15,4 +16,5 @@ export const queries = {
   ...companyQueries,
   ...newsMemberQueries,
   ...cpBtkQueries,
+  ...submissionQueries,
 };

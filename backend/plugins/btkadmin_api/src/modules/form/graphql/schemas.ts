@@ -23,6 +23,7 @@ export const types = `
         answer5: String
         answer6: String
     }
+
 `;
 
 export const mutations = `
@@ -30,5 +31,5 @@ export const mutations = `
 `;
 
 export const queries = `
-    btkAdminGetAllForms: [BtkSubmission]
+    btkAdminGetSubmissions: [BtkSubmission]
 `;

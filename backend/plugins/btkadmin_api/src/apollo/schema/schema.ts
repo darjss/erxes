@@ -30,6 +30,7 @@ import {
 
 import {
   mutations as SubmissionMutations,
+  queries as SubmissionQueries,
   types as SubmissionTypes,
 } from '@/form/graphql/schemas';
 
@@ -60,7 +61,7 @@ export const queries = `
   ${AttachmentQueries}
   ${CompanyQueries}
   ${NewsMemberQueries}
-
+  ${SubmissionQueries}
 
   ${ClientPortalBtkQueries}
   `;

@@ -26,6 +26,12 @@ const CompanyInfoPage = lazy(() =>
   })),
 );
 
+const FormPage = lazy(() =>
+  import('../pages/FormPage').then((module) => ({
+    default: module.FormPage,
+  })),
+);
+
 const Main = () => {
   return (
     <Suspense fallback={<div />}>
@@ -34,7 +40,7 @@ const Main = () => {
         <Route path="/news/:id" element={<NewsDetail />} />
         <Route path="/companies" element={<CompanyListPage />} />
         <Route path="/companies/:id" element={<CompanyInfoPage />} />
-        {/* <Route path="forms" element={} /> */}
+        <Route path="forms" element={<FormPage />} />
       </Routes>
     </Suspense>
   );

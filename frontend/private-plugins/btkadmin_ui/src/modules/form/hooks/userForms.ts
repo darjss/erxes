@@ -1,14 +1,16 @@
 import { useQuery } from '@apollo/client';
-import { BTK_GET_NEWS_LIST, BTK_GET_NEWS } from '../graphql/newsQueries';
-import { INews } from '../types/newsTypes';
+import { BTK_GET_FORMS } from '../graphql/formsQueries';
+import { IForm } from '../types/formTypes';
 
-export const useNews = (list = false) => {
-  const { data, loading } = useQuery<{ btkAdminGetAllNews: INews[] }>(
-    list ? BTK_GET_NEWS_LIST : BTK_GET_NEWS,
-    {
-      fetchPolicy: 'cache-and-network',
-    },
-  );
+interface BtkGetAllFormsData {
+  btkAdminGetSubmissions: IForm[];
+}
 
-  return { news: data?.btkAdminGetAllNews, loading };
+export const useForms = (enabled = true) => {
+  const { data, loading, error } = useQuery<BtkGetAllFormsData>(BTK_GET_FORMS, {
+    fetchPolicy: 'cache-and-network',
+    skip: !enabled,
+  });
+
+  return { forms: data?.btkAdminGetSubmissions, loading, error };
 };
