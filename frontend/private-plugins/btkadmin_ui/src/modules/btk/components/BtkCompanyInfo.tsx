@@ -1,22 +1,24 @@
-import { useCompanyInfo } from '@/btk/hooks/useCompanyInfo';
-import { UploadImage } from './upload';
-import { Form, Input, Select, Textarea, toast } from 'erxes-ui';
-import { Path, useForm, UseFormReturn } from 'react-hook-form';
 import { companyInfoSchema } from '@/btk/constants/companyInfoSchema';
+import { useCompanyInfo } from '@/btk/hooks/useCompanyInfo';
+import { useUpdateCompanyInfo } from '@/btk/hooks/useUpdateCompanyInfo';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { Form, Input, Select, Textarea, toast } from 'erxes-ui';
+import { useCallback, useEffect } from 'react';
+import { Path, useForm, UseFormReturn } from 'react-hook-form';
+import { useParams } from 'react-router-dom';
 import { z } from 'zod';
 import {
   ADDRESS_CITY,
   ADDRESS_DISTRICT,
 } from '~/modules/news/constants/address';
-import { useCallback, useEffect } from 'react';
-import { useUpdateCompanyInfo } from '@/btk/hooks/useUpdateCompanyInfo';
+import { SOCIAL_LINKS } from '../constants/socialLinks';
 import { BtkEditorField } from './BtkEditor';
 import { BtkPhones } from './BtkPhones';
-import { SOCIAL_LINKS } from '../constants/socialLinks';
+import { UploadImage } from './upload';
 
 export const BtkCompanyInfo = () => {
-  const { companyInfo, loading } = useCompanyInfo();
+  const { id } = useParams();
+  const { companyInfo, loading } = useCompanyInfo(id || '');
 
   return (
     <div className="p-6 mx-auto w-full max-w-lg flex flex-col gap-6">
