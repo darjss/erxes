@@ -232,14 +232,15 @@ export const NewsDetailAmenities = () => {
   const { news } = useNewsDetail();
   const { updateNewsGeneralInfo } = useUpdateNewsGeneralInfo();
   const [open, setOpen] = useState(false);
-  const [newsAmenities, setNewsAmenities] =
-    useState<{ category: string; amenities: string[] }[]>();
+  const [newsAmenities, setNewsAmenities] = useState<
+    { category: string; amenities: string[] }[]
+  >([]);
   const [isChanged, setIsChanged] = useState(false);
 
   useEffect(() => {
     if (news?.newsAmenities) {
       setNewsAmenities(
-        (news?.newsAmenities || []).map((amenity) => ({
+        news.newsAmenities.map((amenity) => ({
           category: amenity.category,
           amenities: amenity.amenities,
         })),
@@ -248,16 +249,17 @@ export const NewsDetailAmenities = () => {
   }, [news?.newsAmenities]);
 
   const handleSelectAmenity = (amenity: (typeof NEWS_AMENITIES)[0]) => {
+    const categoryKey = amenity.category_code || amenity.category;
     let newAmenityGroups = newsAmenities || [];
 
     const existingCategory = newAmenityGroups.find(
-      (a) => a.category === amenity.category_code,
+      (a) => a.category === categoryKey,
     );
 
     if (existingCategory) {
       const hasAmenity = existingCategory.amenities.includes(amenity.label_mn);
       newAmenityGroups = newAmenityGroups.map((amenityGroup) =>
-        amenityGroup.category === amenity.category_code
+        amenityGroup.category === categoryKey
           ? {
               ...amenityGroup,
               amenities: hasAmenity
@@ -269,12 +271,12 @@ export const NewsDetailAmenities = () => {
     } else {
       newAmenityGroups = [
         ...newAmenityGroups,
-        { category: amenity.category_code, amenities: [amenity.label_mn] },
+        { category: categoryKey, amenities: [amenity.label_mn] },
       ];
     }
 
+    setNewsAmenities([...newAmenityGroups]);
     setIsChanged(true);
-    setNewsAmenities(newAmenityGroups);
   };
 
   const isChecked = (amenity: string, category_code: string) => {
@@ -293,56 +295,53 @@ export const NewsDetailAmenities = () => {
   }, {} as Record<string, typeof NEWS_AMENITIES>);
 
   const handleRemoveAmenity = (amenity: string, category_code: string) => {
-    updateNewsGeneralInfo(news?._id || '', {
-      newsAmenities: newsAmenities
-        ?.map((amenityGroup) => {
-          if (amenityGroup.category === category_code) {
-            return {
-              ...amenityGroup,
-              amenities: amenityGroup.amenities.filter((am) => am !== amenity),
-            };
-          }
-          return amenityGroup;
-        })
-        .filter((amenityGroup) => amenityGroup.amenities.length > 0),
-    });
+    const updatedAmenities = newsAmenities
+      ?.map((amenityGroup) => {
+        if (amenityGroup.category === category_code) {
+          return {
+            ...amenityGroup,
+            amenities: amenityGroup.amenities.filter((am) => am !== amenity),
+          };
+        }
+        return amenityGroup;
+      })
+      .filter((amenityGroup) => amenityGroup.amenities.length > 0);
+
+    setNewsAmenities(updatedAmenities || []);
+    updateNewsGeneralInfo(news?._id || '', { newsAmenities: updatedAmenities });
   };
+
+  useEffect(() => {
+    if (!open && isChanged) {
+      updateNewsGeneralInfo(news?._id || '', { newsAmenities });
+      setIsChanged(false);
+    }
+  }, [open, isChanged, newsAmenities, news?._id, updateNewsGeneralInfo]);
 
   return (
     <div className="p-8 grid-cols-2 grid gap-6">
       <InfoCard title="CATEGORY" description="Amenities" className="col-span-2">
         <InfoCardContent>
           <div className="space-y-2">
-            <Popover
-              open={open}
-              onOpenChange={(open) => {
-                setOpen(open);
-                if (!open && isChanged) {
-                  setIsChanged(false);
-                  updateNewsGeneralInfo(news?._id || '', {
-                    newsAmenities: newsAmenities,
-                  });
-                }
-              }}
-            >
+            <Popover open={open} onOpenChange={setOpen}>
               <Popover.Trigger asChild>
                 <Button variant="outline">
                   <IconPlus />
                   Add category
                 </Button>
               </Popover.Trigger>
+
               <Combobox.Content className="min-w-96">
                 <Command>
-                  <Command.Input />
+                  <Command.Input placeholder="Search amenities..." />
                   <Command.List>
                     {Object.entries(amenitiesByCategory).map(
                       ([category, amenities]) => {
                         if (!amenities?.length) return null;
-
                         return (
                           <Command.Group
                             key={category}
-                            heading={amenities[0].category}
+                            heading={amenities[0]?.category || category}
                           >
                             {amenities.map((am) => (
                               <Command.Item
@@ -370,14 +369,12 @@ export const NewsDetailAmenities = () => {
             </Popover>
 
             {newsAmenities?.map((amenityGroup) => (
-              <div className="pt-2 space-y-2">
+              <div key={amenityGroup.category} className="pt-2 space-y-2">
                 <Label className="block">
-                  {amenitiesByCategory[amenityGroup.category].at(0)?.category}
+                  {amenitiesByCategory[amenityGroup.category]?.[0]?.category ||
+                    amenityGroup.category}
                 </Label>
-                <div
-                  key={amenityGroup.category}
-                  className="flex flex-wrap gap-2 items-center "
-                >
+                <div className="flex flex-wrap gap-2 items-center">
                   {amenityGroup.amenities.map((am) => (
                     <Badge
                       key={am}
