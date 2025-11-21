@@ -2,7 +2,7 @@ import { gql } from '@apollo/client';
 
 export const BTK_GET_COMPANY_INFO = gql`
   query BtkAdminCompanyInfo($_id: String) {
-    btkAdminCompanyInfo(_id: $id) {
+    btkAdminCompanyInfo(_id: $_id) {
       _id
       name
       description
