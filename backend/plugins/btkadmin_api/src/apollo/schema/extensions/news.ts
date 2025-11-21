@@ -61,23 +61,6 @@ const inputs = `
     amenities: [String]
   }
 
-  input BtkAdminNewsGeneralInput {
-    name: String
-    coverImage: String
-    logo: String
-    location: BtkAdminNewsLocationInput
-    verificationStatus: BtkAdminNewsVerificationStatus
-    status: BtkAdminNewsStatus
-    mainPrice: Int
-    prices: [BtkAdminNewsPriceInput]
-    bankPartners: [String]
-    newsAmenities: [BtkAdminNewsAmenityInput]
-    title: String
-    content: String
-    images: [String]
-    startDate: Date
-    endDate: Date
-  }
 `;
 
 export const news = `

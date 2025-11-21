@@ -18,16 +18,20 @@ import { BtkEditorField } from '~/modules/btk/components/BtkEditor';
 import { btkNewsSchema } from '~/modules/btk/constants/btkNewsSchema';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
+import { NEWS_AMENITIES } from '~/modules/news/constants/amenities';
+import { Label, Badge, Combobox, Popover, Command } from 'erxes-ui';
+import { IconPlus } from '@tabler/icons-react';
+import { useEffect } from 'react';
 
 export const NewsDetailMedia = () => {
   return (
     <div className="p-8 blk:lg:grid-cols-2 grid gap-6">
+      <NewsDetailAmenities />
       <NewsImage field="coverImage" />
       <NewsImage field="logo" />
       <NewsImages field="images" />
       <NewsVideo />
-      <NewsTitle field="title" />
-      <NewsContent />
+      <NewsDetailText />
     </div>
   );
 };
@@ -58,29 +62,15 @@ export const NewsImage = ({ field }: { field: 'coverImage' | 'logo' }) => {
   );
 };
 
-export const NewsTitle = ({ field }: { field: 'title' }) => {
+export const NewsDetailText = () => {
   const { news } = useNewsDetail();
   const { updateNewsGeneralInfo } = useUpdateNewsGeneralInfo();
 
   const [title, setTitle] = useState<string>(news?.title || '');
 
   const saveTitle = () => {
-    updateNewsGeneralInfo(news?._id || '', { [field]: title });
+    updateNewsGeneralInfo(news?._id || '', { title });
   };
-
-  return (
-    <InfoCard title="Title">
-      <Input
-        value={title}
-        onChange={(e) => setTitle(e.target.value)}
-        onBlur={saveTitle}
-      />
-    </InfoCard>
-  );
-};
-export const NewsContent = () => {
-  const { news } = useNewsDetail();
-  const { updateNewsGeneralInfo } = useUpdateNewsGeneralInfo();
 
   const form = useForm<z.infer<typeof btkNewsSchema>>({
     defaultValues: {
@@ -94,8 +84,17 @@ export const NewsContent = () => {
   };
 
   return (
-    <InfoCard title="Content">
-      <InfoCardContent>
+    <InfoCard title="News Text">
+      <InfoCardContent className="space-y-4">
+        <div>
+          <Label>Title</Label>
+          <Input
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            onBlur={saveTitle}
+          />
+        </div>
+
         <Form {...form}>
           <BtkEditorField
             control={form.control}
@@ -104,7 +103,7 @@ export const NewsContent = () => {
             label="Content"
             initialContent={news?.content || ''}
           />
-          <Button type="button" className="mt-4" onClick={saveContent}>
+          <Button type="button" className="mt-2" onClick={saveContent}>
             Save Content
           </Button>
         </Form>
@@ -223,6 +222,173 @@ export const NewsVideo = () => {
               </div>
             </Dialog.Content>
           </Dialog>
+        </InfoCardContent>
+      </InfoCard>
+    </div>
+  );
+};
+
+export const NewsDetailAmenities = () => {
+  const { news } = useNewsDetail();
+  const { updateNewsGeneralInfo } = useUpdateNewsGeneralInfo();
+  const [open, setOpen] = useState(false);
+  const [newsAmenities, setNewsAmenities] =
+    useState<{ category: string; amenities: string[] }[]>();
+  const [isChanged, setIsChanged] = useState(false);
+
+  useEffect(() => {
+    if (news?.newsAmenities) {
+      setNewsAmenities(
+        (news?.newsAmenities || []).map((amenity) => ({
+          category: amenity.category,
+          amenities: amenity.amenities,
+        })),
+      );
+    }
+  }, [news?.newsAmenities]);
+
+  const handleSelectAmenity = (amenity: (typeof NEWS_AMENITIES)[0]) => {
+    let newAmenityGroups = newsAmenities || [];
+
+    const existingCategory = newAmenityGroups.find(
+      (a) => a.category === amenity.category_code,
+    );
+
+    if (existingCategory) {
+      const hasAmenity = existingCategory.amenities.includes(amenity.label_mn);
+      newAmenityGroups = newAmenityGroups.map((amenityGroup) =>
+        amenityGroup.category === amenity.category_code
+          ? {
+              ...amenityGroup,
+              amenities: hasAmenity
+                ? amenityGroup.amenities.filter((am) => am !== amenity.label_mn)
+                : [...amenityGroup.amenities, amenity.label_mn],
+            }
+          : amenityGroup,
+      );
+    } else {
+      newAmenityGroups = [
+        ...newAmenityGroups,
+        { category: amenity.category_code, amenities: [amenity.label_mn] },
+      ];
+    }
+
+    setIsChanged(true);
+    setNewsAmenities(newAmenityGroups);
+  };
+
+  const isChecked = (amenity: string, category_code: string) => {
+    const existingAmenityGroup = newsAmenities?.find(
+      (amenityGroup) => amenityGroup.category === category_code,
+    );
+    return existingAmenityGroup?.amenities.includes(amenity) || false;
+  };
+
+  const amenitiesByCategory = NEWS_AMENITIES.reduce((acc, amenity) => {
+    acc[amenity.category_code] = [
+      ...(acc[amenity.category_code] || []),
+      amenity,
+    ];
+    return acc;
+  }, {} as Record<string, typeof NEWS_AMENITIES>);
+
+  const handleRemoveAmenity = (amenity: string, category_code: string) => {
+    updateNewsGeneralInfo(news?._id || '', {
+      newsAmenities: newsAmenities
+        ?.map((amenityGroup) => {
+          if (amenityGroup.category === category_code) {
+            return {
+              ...amenityGroup,
+              amenities: amenityGroup.amenities.filter((am) => am !== amenity),
+            };
+          }
+          return amenityGroup;
+        })
+        .filter((amenityGroup) => amenityGroup.amenities.length > 0),
+    });
+  };
+
+  return (
+    <div className="p-8 grid-cols-2 grid gap-6">
+      <InfoCard title="CATEGORY" description="Amenities" className="col-span-2">
+        <InfoCardContent>
+          <div className="space-y-2">
+            <Popover
+              open={open}
+              onOpenChange={(open) => {
+                setOpen(open);
+                if (!open && isChanged) {
+                  setIsChanged(false);
+                  updateNewsGeneralInfo(news?._id || '', {
+                    newsAmenities: newsAmenities,
+                  });
+                }
+              }}
+            >
+              <Popover.Trigger asChild>
+                <Button variant="outline">
+                  <IconPlus />
+                  Add category
+                </Button>
+              </Popover.Trigger>
+              <Combobox.Content className="min-w-96">
+                <Command>
+                  <Command.Input />
+                  <Command.List>
+                    {Object.entries(amenitiesByCategory).map(
+                      ([category, amenities]) => (
+                        <Command.Group
+                          key={category}
+                          heading={amenities.at(0)?.category}
+                        >
+                          {amenities.map((am) => (
+                            <Command.Item
+                              className="h-auto"
+                              key={am.label_mn}
+                              value={am.label_mn}
+                              onSelect={() => handleSelectAmenity(am)}
+                            >
+                              {am.label_mn}
+                              <Combobox.Check
+                                checked={isChecked(
+                                  am.label_mn,
+                                  am.category_code,
+                                )}
+                              />
+                            </Command.Item>
+                          ))}
+                        </Command.Group>
+                      ),
+                    )}
+                  </Command.List>
+                </Command>
+              </Combobox.Content>
+            </Popover>
+
+            {newsAmenities?.map((amenityGroup) => (
+              <div className="pt-2 space-y-2">
+                <Label className="block">
+                  {amenitiesByCategory[amenityGroup.category].at(0)?.category}
+                </Label>
+                <div
+                  key={amenityGroup.category}
+                  className="flex flex-wrap gap-2 items-center "
+                >
+                  {amenityGroup.amenities.map((am) => (
+                    <Badge
+                      key={am}
+                      variant="secondary"
+                      onClose={() =>
+                        handleRemoveAmenity(am, amenityGroup.category)
+                      }
+                    >
+                      {am}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
         </InfoCardContent>
       </InfoCard>
     </div>

@@ -5,18 +5,20 @@ export const types = `
     _id: String
     name: String
     isPublished: Boolean
-    location: BtkAdminNewsLocation
-    verificationStatus: BtkAdminNewsVerificationStatus
-    status: BtkAdminNewsStatus
+    location: btkAdminNewsLocation
+    verificationStatus: btkAdminAdminNewsVerificationStatus
+    images: [String]
+    companyId: String
+    title: String
+    content: String
+    status: btkAdminAdminNewsStatus
     coverImage: String
     logo: String
-    mainPrice: Int
-    prices: [BtkAdminNewsPrice]
-    newsAmenities: [BtkAdminNewsAmenity]
-    bankPartners: [String]
+    newsAmenities: [btkAdminNewsAmenity]
 
     startDate: Date
     endDate: Date
+
   }
 `;
 
@@ -31,6 +33,6 @@ const queryParams = `
 `;
 
 export const queries = `
-  cpBtkAdminNews(_id: String!): CpBtkAdminNews
+  cpBtkAdminNewsInfo(_id: String!): CpBtkAdminNews
   cpBtkAdminAllNews(${queryParams}): [CpBtkAdminNews]
 `;

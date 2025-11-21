@@ -34,6 +34,7 @@ const Main = () => {
         <Route path="/news/:id" element={<NewsDetail />} />
         <Route path="/companies" element={<CompanyListPage />} />
         <Route path="/companies/:id" element={<CompanyInfoPage />} />
+        <Route path="forms" element={} />
       </Routes>
     </Suspense>
   );

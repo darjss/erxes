@@ -1,8 +1,8 @@
 import { gql } from '@apollo/client';
 
 export const BTK_GET_COMPANY_INFO = gql`
-  query GetCompanyInfo {
-    getCompanyInfo {
+  query BtkAdminCompanyInfo($_id: String) {
+    btkAdminCompanyInfo(_id: $id) {
       _id
       name
       description

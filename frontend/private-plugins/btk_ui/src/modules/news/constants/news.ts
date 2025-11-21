@@ -24,11 +24,5 @@ export const NEWS_AMENITIES = [
 ];
 
 export const NEWS_TABS = {
-  GENERAL: 'general',
-  AMENITIES: 'category',
-  MEMBERS: 'members',
-  SEO: 'SEO',
   MEDIA: 'media',
-  POLICIES: 'policies',
-  DOCUMENTS: 'documents',
 };

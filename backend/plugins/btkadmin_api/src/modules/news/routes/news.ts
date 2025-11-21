@@ -33,7 +33,6 @@ router.post('/btkUpdateNewsGeneralInfo', async (req, res) => {
     const { entityId, data } = payload || {};
 
     const { input } = data || {};
-    console.log(input, 'input');
     models.News.updateNews(subdomain, entityId, input);
 
     return res.status(200).json({

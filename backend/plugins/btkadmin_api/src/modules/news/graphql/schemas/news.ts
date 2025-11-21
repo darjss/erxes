@@ -62,39 +62,20 @@ export const types = `
     isPublished: Boolean
     location: btkAdminNewsLocation
     verificationStatus: btkAdminAdminNewsVerificationStatus
+    images: [String]
     companyId: String
     title: String
     content: String
     status: btkAdminAdminNewsStatus
     coverImage: String
     logo: String
-    mainPrice: Int
-    prices: [btkAdminNewsPrice]
     newsAmenities: [btkAdminNewsAmenity]
-    bankPartners: [String]
 
     startDate: Date
     endDate: Date
   }
 
-  input btkAdminNewsGeneralInput {
-    name: String
-    coverImage: String
-    logo: String
-    location: btkAdminNewsLocationInput
-    verificationStatus: btkAdminAdminNewsVerificationStatus
-    companyId: String
-    title: String
-    content: String
-    status: btkAdminAdminNewsStatus
-    mainPrice: Int
-    prices: [btkAdminNewsPriceInput]
-    bankPartners: [String]
-    newsAmenities: [btkAdminNewsAmenityInput]
 
-    startDate: Date
-    endDate: Date
-  }
 `;
 
 export const queries = `

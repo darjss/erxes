@@ -1,7 +1,4 @@
-import {
-  CompanyQueryParams,
-  IBtkCompanyDocument,
-} from '~/modules/company/db/@types/company';
+import { CompanyQueryParams } from '~/modules/company/db/@types/company';
 import { generateFilter } from '~/modules/company/utils';
 import { IContext } from '~/connectionResolvers';
 

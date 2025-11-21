@@ -5,7 +5,7 @@ import { IContext } from '~/connectionResolvers';
 import { generateFilter } from '~/modules/news/utils';
 
 export const cpNewsQueries = {
-  cpBtkAdminNews: async (
+  cpBtkAdminNewsInfo: async (
     _parent: undefined,
     { _id }: { _id: string },
     { models }: IContext,

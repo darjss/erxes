@@ -1,5 +1,9 @@
 import { NavigationMenuLinkItem } from 'erxes-ui';
-import { IconBuilding, IconClipboardTextFilled } from '@tabler/icons-react';
+import {
+  IconBuilding,
+  IconClipboardTextFilled,
+  IconForms,
+} from '@tabler/icons-react';
 
 export const BtkAdminNavigation = () => {
   return (
@@ -9,6 +13,12 @@ export const BtkAdminNavigation = () => {
         icon={IconBuilding}
         pathPrefix="btkadmin"
         path="companies"
+      />
+      <NavigationMenuLinkItem
+        name="Forms"
+        icon={IconForms}
+        pathPrefix="btkadmin"
+        path="forms"
       />
       <NavigationMenuLinkItem
         name="News"

@@ -1,4 +1,4 @@
-import { BtkCompanyInfo } from '../modules/btk/components/BtkCompanyInfo';
+import { BtkCompanyInfo } from '@/btk/components/BtkCompanyInfo';
 
 export const CompanyInfoPage = () => {
   return (
