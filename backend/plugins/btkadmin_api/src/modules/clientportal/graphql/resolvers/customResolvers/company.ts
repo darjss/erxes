@@ -7,4 +7,7 @@ export default {
     }
     return await models.Company.findOne({ entityId: companyId });
   },
+  async newsCount({ companyId }, _params, { models }: IContext) {
+    return await models.News.countDocuments({ companyId: companyId });
+  },
 };
