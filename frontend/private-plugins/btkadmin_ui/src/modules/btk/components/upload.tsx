@@ -1,7 +1,7 @@
 import { forwardRef, useState } from 'react';
 import { UploadContext, useUploadContext } from '../context/UploadContext';
 import { FileTrigger, Button, FileTriggerProps } from 'react-aria-components';
-import { buttonVariants, cn, readImage, Spinner, useUpload } from 'erxes-ui';
+import { buttonVariants, cn, Spinner, useUpload } from 'erxes-ui';
 import { Slot } from 'radix-ui';
 import { IconPhotoCirclePlus } from '@tabler/icons-react';
 
@@ -163,7 +163,7 @@ export const UploadImage = ({
         >
           {value ? (
             <img
-              src={readImage(value)}
+              src={value}
               className="w-full h-full object-cover rounded"
               alt="cover"
             />

@@ -8,7 +8,7 @@ import {
 import { useNewsDetail } from '~/modules/news/hooks/useNewsDetail';
 import { useUpdateNewsGeneralInfo } from '~/modules/news/hooks/useUpdateNews';
 import { IconPhotoCirclePlus, IconUpload, IconX } from '@tabler/icons-react';
-import { Button, Form, readImage, Input, Dialog } from 'erxes-ui';
+import { Button, Form, Input, Dialog } from 'erxes-ui';
 import {
   RemoveButton,
   UploadButton,
@@ -139,7 +139,7 @@ export const NewsImages = ({ field }: { field: 'images' }) => {
                   className="relative aspect-square bg-muted rounded-lg flex items-center justify-center group"
                 >
                   <img
-                    src={readImage(image)}
+                    src={image}
                     className="size-full absolute inset-0 object-cover rounded-lg"
                     alt="news"
                   />
@@ -149,7 +149,7 @@ export const NewsImages = ({ field }: { field: 'images' }) => {
                     </Dialog.Trigger>
                     <Dialog.Content className="p-0 max-w-screen-xl w-auto border-0 bg-transparent">
                       <img
-                        src={readImage(image)}
+                        src={image}
                         alt="news"
                         className="rounded-lg max-h-[90vh] max-w-[90vw] object-contain mx-auto"
                       />

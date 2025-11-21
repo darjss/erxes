@@ -1,5 +1,5 @@
 import { IconMapPinFilled, IconPhotoCirclePlus } from '@tabler/icons-react';
-import { readImage, Slider } from 'erxes-ui';
+import { Slider } from 'erxes-ui';
 import { Badge } from 'erxes-ui';
 import { Link } from 'react-router-dom';
 
@@ -12,7 +12,7 @@ export const BtkCompanyCard = ({ name, _id, coverImage, location }: any) => {
       <div className="w-full h-full relative blk:aspect-2/1 rounded-xl overflow-hidden flex items-center justify-center">
         {coverImage ? (
           <img
-            src={readImage(coverImage)}
+            src={coverImage}
             alt={name}
             className="object-cover absolute inset-0 object-center"
           />

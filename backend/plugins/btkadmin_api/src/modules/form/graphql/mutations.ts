@@ -1,6 +1,6 @@
 import { IContext } from '~/connectionResolvers';
 import { ISubmission } from '../db/models/Submission';
-
+import { markResolvers } from 'erxes-api-shared/utils';
 export const submissionMutation = {
   btkAdminSubmitForm: async (
     _root: undefined,
@@ -10,3 +10,9 @@ export const submissionMutation = {
     return models.Submission.createSubmission(input);
   },
 };
+
+markResolvers(submissionMutation, {
+  wrapperConfig: {
+    forClientPortal: true,
+  },
+});
