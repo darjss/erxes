@@ -1,7 +1,6 @@
 import { sendNotification } from 'erxes-api-shared/core-modules';
-import { getSubdomain, sendTRPCMessage } from 'erxes-api-shared/utils';
+import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { Router } from 'express';
-import { generateModels } from '~/connectionResolvers';
 import { IRequest, IResponse } from '~/types';
 import { IBlockDeveloper } from '../db/@types/developer';
 
@@ -10,7 +9,7 @@ const router: Router = Router();
 router.post(
   '/updateDeveloperInfo',
   async (req: IRequest<IBlockDeveloper>, res: IResponse) => {
-    const models = await generateModels();
+    const { models } = res.locals;
 
     try {
       const { subdomain, payload } = req.body || {};
@@ -41,11 +40,10 @@ router.post(
 router.post(
   '/updateDeveloperVerificationStatus',
   async (req: IRequest<IBlockDeveloper>, res: IResponse) => {
-    const subdomain = getSubdomain(req);
-    const models = await generateModels();
+    const { subdomain: block, models } = res.locals;
 
     try {
-      const { payload } = req.body || {};
+      const { subdomain, payload } = req.body || {};
 
       const { entityId } = payload || {};
 
@@ -67,7 +65,7 @@ router.post(
       );
 
       const owners = await sendTRPCMessage({
-        subdomain,
+        subdomain: block,
         pluginName: 'core',
         method: 'query',
         module: 'roles',
@@ -78,7 +76,7 @@ router.post(
         defaultValue: [],
       });
 
-      sendNotification(subdomain, {
+      sendNotification(block, {
         title: 'New developer verification request',
         message: 'A new developer verification request has been received.',
         type: 'info',

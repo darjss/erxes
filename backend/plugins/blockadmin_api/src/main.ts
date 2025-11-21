@@ -12,8 +12,8 @@ startPlugin({
     resolvers,
   }),
   expressRouter: router,
-  apolloServerContext: async (_subdomain, context) => {
-    const models = await generateModels();
+  apolloServerContext: async (subdomain, context) => {
+    const models = await generateModels(subdomain);
 
     context.models = models;
 

@@ -1,5 +1,4 @@
 import { Router } from 'express';
-import { generateModels } from '~/connectionResolvers';
 import { IRequest, IResponse } from '~/types';
 import { IUnit } from '../@types/unit';
 
@@ -8,7 +7,7 @@ const router: Router = Router();
 router.post(
   '/blockCreateUnit',
   async (req: IRequest<IUnit>, res: IResponse) => {
-    const models = await generateModels();
+    const { models } = res.locals;
 
     try {
       const { subdomain, payload } = req.body || {};
@@ -43,7 +42,7 @@ router.post(
 router.post(
   '/blockUpdateUnit',
   async (req: IRequest<IUnit>, res: IResponse) => {
-    const models = await generateModels();
+    const { models } = res.locals;
 
     try {
       const { subdomain, payload } = req.body || {};
@@ -68,7 +67,7 @@ router.post(
 router.post(
   '/blockDeleteUnit',
   async (req: IRequest<IUnit>, res: IResponse) => {
-    const models = await generateModels();
+    const { models } = res.locals;
 
     try {
       const { subdomain, payload } = req.body || {};

@@ -1,5 +1,4 @@
 import { Router } from 'express';
-import { generateModels } from '~/connectionResolvers';
 import {
   IInvoice,
   InvoiceItemType,
@@ -18,7 +17,7 @@ const router: Router = Router();
 router.post(
   '/blockCreateOffer',
   async (req: IRequest<IOffer & { invoices: IInvoice[] }>, res: IResponse) => {
-    const models = await generateModels();
+    const { models } = res.locals;
 
     try {
       const { subdomain, payload } = req.body || {};
@@ -203,7 +202,7 @@ router.post(
 router.post(
   '/blockUpdateOffer',
   async (req: IRequest<IOffer>, res: IResponse) => {
-    const models = await generateModels();
+    const { models } = res.locals;
 
     try {
       const { subdomain, payload } = req.body || {};
@@ -228,7 +227,7 @@ router.post(
 router.post(
   '/blockSendOfferEmail',
   async (req: IRequest<IOffer>, res: IResponse) => {
-    const models = await generateModels();
+    const { models } = res.locals;
 
     try {
       const { subdomain, payload } = req.body || {};

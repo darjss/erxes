@@ -1,5 +1,4 @@
 import { Router } from 'express';
-import { generateModels } from '~/connectionResolvers';
 import { IRequest, IResponse } from '~/types';
 import { IContract } from '../@types/contract';
 
@@ -8,7 +7,7 @@ const router: Router = Router();
 router.post(
   '/blockCreateContract',
   async (req: IRequest<IContract>, res: IResponse) => {
-    const models = await generateModels();
+    const { models } = res.locals;
 
     try {
       const { subdomain, payload } = req.body || {};
@@ -40,7 +39,7 @@ router.post(
 router.post(
   '/blockUpdateContract',
   async (req: IRequest<IContract>, res: IResponse) => {
-    const models = await generateModels();
+    const { models } = res.locals;
 
     try {
       const { subdomain, payload } = req.body || {};

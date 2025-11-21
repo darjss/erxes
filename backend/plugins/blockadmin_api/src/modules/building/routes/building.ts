@@ -1,5 +1,4 @@
 import { Router } from 'express';
-import { generateModels } from '~/connectionResolvers';
 import { IRequest, IResponse } from '~/types';
 import { IBuilding } from '../@types/building';
 
@@ -8,7 +7,7 @@ const router: Router = Router();
 router.post(
   '/blockCreateBuilding',
   async (req: IRequest<IBuilding>, res: IResponse) => {
-    const models = await generateModels();
+    const { models } = res.locals;
 
     try {
       const { subdomain, payload } = req.body || {};
@@ -40,7 +39,7 @@ router.post(
 router.post(
   '/blockUpdateBuilding',
   async (req: IRequest<IBuilding>, res: IResponse) => {
-    const models = await generateModels();
+    const { models } = res.locals;
 
     try {
       const { subdomain, payload } = req.body || {};
@@ -70,7 +69,7 @@ router.post(
 router.post(
   '/blockDeleteBuilding',
   async (req: IRequest<IBuilding>, res: IResponse) => {
-    const models = await generateModels();
+    const { models } = res.locals;
 
     try {
       const { subdomain, payload } = req.body || {};
@@ -93,7 +92,7 @@ router.post(
 router.post(
   '/blockDupplicateBuilding',
   async (req: IRequest<{}, { buildingId: string }>, res: IResponse) => {
-    const models = await generateModels();
+    const { models } = res.locals;
 
     try {
       const { subdomain, payload } = req.body || {};

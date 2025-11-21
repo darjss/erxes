@@ -3,7 +3,11 @@ import { NextFunction, Request, Response } from 'express';
 
 const { BLOCK_ADMIN_SECRET = '' } = process.env || {};
 
-export const validator = (req: Request, res: Response, next: NextFunction) => {
+export const validationMiddleware = (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   const signature = req.headers['x-signature'];
 
   if (!signature) {

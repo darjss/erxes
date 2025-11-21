@@ -46,9 +46,13 @@ import { IUnitLeadDocument } from '@/unit/@types/unitLead';
 import { IUnitModel, loadUnitClass } from '@/unit/db/models/Unit';
 import { IUnitLeadModel, loadUnitLeadClass } from '@/unit/db/models/UnitLead';
 import { IMainContext } from 'erxes-api-shared/core-types';
+import { createGenerateModels } from 'erxes-api-shared/utils';
 import mongoose from 'mongoose';
-import { createGenerateModels } from './db';
-import { ISubmissionDocument, ISubmissionModel, loadSubmissionClass } from './modules/form/db/models/Submission';
+import {
+  ISubmissionDocument,
+  ISubmissionModel,
+  loadSubmissionClass,
+} from './modules/form/db/models/Submission';
 
 export interface IModels {
   Project: IProjectModel;
