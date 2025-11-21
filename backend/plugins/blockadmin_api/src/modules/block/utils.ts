@@ -22,7 +22,7 @@ export const sendBlockMessage = async ({
 
   const BLOCK_DOMAIN = BLOCK_API_URL.replace('<subdomain>', subdomain);
 
-  const API_ENDPOINT = `${BLOCK_DOMAIN}/webhook/${path}`;
+  const API_ENDPOINT = `${BLOCK_DOMAIN}/pl:block/webhook/${path}`;
 
   try {
     const body = JSON.stringify({ payload });

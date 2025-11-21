@@ -1,5 +1,4 @@
 import { Router } from 'express';
-import { generateModels } from '~/connectionResolvers';
 import { IRequest, IResponse } from '~/types';
 import { IBlockDocument } from '../@types/document';
 
@@ -8,7 +7,7 @@ const router: Router = Router();
 router.post(
   '/blockCreateDocument',
   async (req: IRequest<IBlockDocument>, res: IResponse) => {
-    const models = await generateModels();
+    const { models } = res.locals;
 
     try {
       const { subdomain, payload } = req.body || {};
@@ -37,7 +36,7 @@ router.post(
 router.post(
   '/blockUpdateDocument',
   async (req: IRequest<IBlockDocument>, res: IResponse) => {
-    const models = await generateModels();
+    const { models } = res.locals;
 
     try {
       const { subdomain, payload } = req.body || {};
@@ -62,7 +61,7 @@ router.post(
 router.post(
   '/blockDeleteDocument',
   async (req: IRequest<IBlockDocument>, res: IResponse) => {
-    const models = await generateModels();
+    const { models } = res.locals;
 
     try {
       const { subdomain, payload } = req.body || {};

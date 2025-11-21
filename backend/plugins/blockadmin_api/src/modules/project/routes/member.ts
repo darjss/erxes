@@ -1,12 +1,11 @@
 import { Router } from 'express';
-import { generateModels } from '~/connectionResolvers';
 import { IRequest, IResponse } from '~/types';
 import { IProjectMember } from '../@types/member';
 
 const router: Router = Router();
 
 // router.post('/blockAddProjectMembers', async (req, res) => {
-//   const models = await generateModels();
+//   const { models } = res.locals;
 
 //   try {
 //     const { subdomain, args } = req.body || {};
@@ -34,7 +33,7 @@ const router: Router = Router();
 router.post(
   '/blockUpdateProjectMember',
   async (req: IRequest<IProjectMember, { role: string }>, res: IResponse) => {
-    const models = await generateModels();
+    const { models } = res.locals;
 
     try {
       const { subdomain, payload } = req.body || {};
@@ -59,7 +58,7 @@ router.post(
 router.post(
   '/blockDeleteProjectMember',
   async (req: IRequest<IProjectMember>, res: IResponse) => {
-    const models = await generateModels();
+    const { models } = res.locals;
 
     try {
       const { subdomain, payload } = req.body || {};

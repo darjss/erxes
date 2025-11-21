@@ -5,6 +5,12 @@ export interface IBlock {
   entityId: string;
 }
 
+export interface IImageFields {
+  logo?: string;
+  coverImage?: string;
+  images?: string;
+}
+
 export interface IRequest<T, E = {}> extends Request {
   subdomain?: string;
   body: {
