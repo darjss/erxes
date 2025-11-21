@@ -23,9 +23,7 @@ export const BtkCompanyInfo = () => {
   return (
     <div className="p-6 mx-auto w-full max-w-lg flex flex-col gap-6">
       <h1 className="text-lg font-bold mb-4">Company info</h1>
-      {!loading && companyInfo && (
-        <BtkCompanyInfoForm companyInfo={companyInfo} />
-      )}
+      <BtkCompanyInfoForm companyInfo={companyInfo} />
     </div>
   );
 };
@@ -37,23 +35,23 @@ export const BtkCompanyInfoForm = ({
 }) => {
   const getDefaultValues = useCallback(() => {
     return {
-      name: companyInfo.name || '',
-      description: companyInfo.description || '',
-      logo: companyInfo.logo || '',
-      coverImage: companyInfo.coverImage || '',
-      website: companyInfo.website || '',
-      email: companyInfo.email || '',
-      primaryPhone: companyInfo.primaryPhone || '',
-      phones: companyInfo.phones || [],
-      dateFounded: companyInfo.dateFounded || '',
-      about: companyInfo.about || '',
+      name: companyInfo?.name || '',
+      description: companyInfo?.description || '',
+      logo: companyInfo?.logo || '',
+      coverImage: companyInfo?.coverImage || '',
+      website: companyInfo?.website || '',
+      email: companyInfo?.email || '',
+      primaryPhone: companyInfo?.primaryPhone || '',
+      phones: companyInfo?.phones || [],
+      dateFounded: companyInfo?.dateFounded || '',
+      about: companyInfo?.about || '',
       address: {
-        city: companyInfo.address?.city || ADDRESS_CITY[0],
-        district: companyInfo.address?.district || '',
-        address: companyInfo.address?.address || '',
+        city: companyInfo?.address?.city || ADDRESS_CITY[0],
+        district: companyInfo?.address?.district || '',
+        address: companyInfo?.address?.address || '',
       },
       socialLinks:
-        companyInfo.socialLinks ||
+        companyInfo?.socialLinks ||
         ({
           facebook: '',
           instagram: '',
@@ -233,7 +231,7 @@ export const BtkCompanyInfoForm = ({
           setValue={form.setValue}
           name="about"
           label="About"
-          initialContent={companyInfo.about}
+          initialContent={companyInfo?.about}
         />
         <Form.Field
           name="address.city"
