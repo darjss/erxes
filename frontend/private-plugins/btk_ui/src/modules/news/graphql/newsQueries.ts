@@ -40,13 +40,7 @@ export const BTK_GET_NEWS_DETAIL = gql`
       coverImage
       logo
       images
-      bankPartners
-      mainPrice
-      prices {
-        currency
-        price
-        priceType
-      }
+
       newsAmenities {
         amenities
         category
@@ -71,6 +65,30 @@ export const BTK_GET_NEWS_MEMBERS = gql`
       memberId
       news
       role
+    }
+  }
+`;
+
+export const BTK_GET_COMPANY = gql`
+  query GetCompanyCompanies {
+    getCompanyCompanies {
+      _id
+      name
+      logo
+      coverImage
+      description
+      website
+      address
+      phones
+      socialLinks {
+        facebook
+        instagram
+        twitter
+        linkedin
+        youtube
+        website
+      }
+      isVerified
     }
   }
 `;

@@ -1,12 +1,6 @@
 import { Document } from 'mongoose';
 import { IBtk } from '~/types';
 
-export interface INewsPrice {
-  currency: string;
-  priceType: string;
-  price: number;
-}
-
 export interface INewsAmenity {
   category: string;
   amenities: string[];
@@ -19,9 +13,6 @@ export interface INews extends IBtk {
   verificationStatus?: string;
   status?: string;
   isPublished?: boolean;
-  mainPrice?: number;
-  prices?: INewsPrice[];
-  bankPartners?: string[];
   newsAmenities?: INewsAmenity[];
   companyId?: string;
   title?: string;
@@ -51,6 +42,4 @@ export interface INewsQueryParams {
   searchValue?: string;
   companyId?: string;
   location?: INewsLocation;
-  priceMin?: number;
-  priceMax?: number;
 }

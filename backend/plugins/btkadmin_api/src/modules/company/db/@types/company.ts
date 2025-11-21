@@ -11,6 +11,7 @@ export interface IBtkCompanySocialLink {
   website?: string;
 }
 export interface IBtkCompany extends IBtk {
+  _id: string;
   name: string;
   description: string;
   about: string;

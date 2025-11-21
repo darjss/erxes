@@ -51,9 +51,10 @@ export const types = `
 `;
 
 export const queries = `
-  getCompanyInfo: Company
+  getCompanyInfo(_id: String!): Company
+  getCompanyCompanies: [Company]
 `;
 
 export const mutations = `
-  updateCompanyInfo(input: CompanyInput): Company
+  updateCompanyInfo(_id: String!, input: CompanyInput): Company
 `;

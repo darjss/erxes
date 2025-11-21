@@ -29,22 +29,6 @@ export const types = `
     completed
   }
 
-  enum btkAdminNewsPriceType {
-    priceBySize
-    priceByUnit
-  }
-
-  type btkAdminNewsPrice {
-    currency: String
-    priceType: btkAdminNewsPriceType
-    price: Int
-  }
-
-  input btkAdminNewsPriceInput {
-    currency: String
-    priceType: btkAdminNewsPriceType
-    price: Int
-  }
 
   input btkAdminNewsAmenityInput {
     category: String
@@ -70,9 +54,10 @@ export const types = `
     coverImage: String
     logo: String
     newsAmenities: [btkAdminNewsAmenity]
-
     startDate: Date
     endDate: Date
+    createdAt: Date
+    updatedAt: Date
   }
 
 

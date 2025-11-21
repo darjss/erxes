@@ -39,13 +39,11 @@ const CreateNewsForm = ({ onClose }: { onClose: () => void }) => {
     },
   });
   const { createNews, loading } = useCreateNews();
-  const { companyInfo } = useCompanyInfo();
 
   const onSubmit = (data: { name: string }) => {
     createNews({
       variables: {
         name: data.name,
-        companyId: companyInfo?._id,
       },
       onCompleted: () => {
         toast({

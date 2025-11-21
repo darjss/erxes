@@ -19,12 +19,6 @@ export interface INewsLocation {
   parcelId?: string;
 }
 
-export interface INewsPrice {
-  currency: string;
-  price: number;
-  priceType: 'priceBySize' | 'priceByUnit';
-}
-
 export interface INewsDetail extends INews {
   isPublished: boolean;
   status: 'verified' | 'unverified' | 'pending';
@@ -32,16 +26,15 @@ export interface INewsDetail extends INews {
   logo: string;
   images: string[];
   title: string;
+  companyId: string;
   content: string;
   type: string[];
-  mainPrice: number;
-  prices: INewsPrice[];
-  bankPartners: string[];
   newsAmenities: { category: string; amenities: string[] }[];
 }
 
 export interface INewsGeneralInput {
   name: string | null;
+  companyId: string | null;
   location: INewsLocation | null;
   title: string | null;
   content: string | null;
@@ -51,10 +44,27 @@ export interface INewsGeneralInput {
   video: string | null;
   logo: string | null;
   images: string[] | null;
-  mainPrice: number | null;
-  prices: INewsPrice[] | null;
-  bankPartners: string[] | null;
   newsAmenities: { category: string; amenities: string[] }[];
+}
+
+export interface ICompany {
+  _id: string;
+  name: string;
+  logo: string;
+  coverImage: string;
+  description: string;
+  website: string;
+  address: INewsLocation;
+  phones: string[];
+  socialLinks: {
+    facebook: string;
+    instagram: string;
+    twitter: string;
+    linkedin: string;
+    youtube: string;
+    website: string;
+  };
+  isVerified: boolean;
 }
 
 export interface INewsMember {

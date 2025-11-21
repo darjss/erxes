@@ -1,6 +1,7 @@
 import { z } from 'zod';
 
 export const companyInfoSchema = z.object({
+  _id: z.string().optional(),
   name: z.string(),
   description: z.string().optional(),
   logo: z.string().optional(),

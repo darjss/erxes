@@ -14,9 +14,11 @@ import { useUpdateCompanyInfo } from '@/btk/hooks/useUpdateCompanyInfo';
 import { BtkEditorField } from './BtkEditor';
 import { BtkPhones } from './BtkPhones';
 import { SOCIAL_LINKS } from '../constants/socialLinks';
+import { useParams } from 'react-router-dom';
 
 export const BtkCompanyInfo = () => {
-  const { companyInfo, loading } = useCompanyInfo();
+  const { id } = useParams();
+  const { companyInfo, loading } = useCompanyInfo(id || '');
 
   return (
     <div className="p-6 mx-auto w-full max-w-lg flex flex-col gap-6">
@@ -30,8 +32,12 @@ export const BtkCompanyInfo = () => {
 
 export const BtkCompanyInfoForm = ({
   companyInfo,
+  isCreate = false,
+  onClose,
 }: {
   companyInfo: z.infer<typeof companyInfoSchema>;
+  isCreate?: boolean;
+  onClose?: () => void;
 }) => {
   const getDefaultValues = useCallback(() => {
     return {
@@ -50,15 +56,13 @@ export const BtkCompanyInfoForm = ({
         district: companyInfo.address?.district || '',
         address: companyInfo.address?.address || '',
       },
-      socialLinks:
-        companyInfo.socialLinks ||
-        ({
-          facebook: '',
-          instagram: '',
-          twitter: '',
-          linkedin: '',
-          youtube: '',
-        } as z.infer<typeof companyInfoSchema>['socialLinks']),
+      socialLinks: companyInfo.socialLinks || {
+        facebook: '',
+        instagram: '',
+        twitter: '',
+        linkedin: '',
+        youtube: '',
+      },
     };
   }, [companyInfo]);
 
@@ -66,6 +70,7 @@ export const BtkCompanyInfoForm = ({
     resolver: zodResolver(companyInfoSchema),
     defaultValues: getDefaultValues(),
   });
+
   const { updateCompanyInfo } = useUpdateCompanyInfo();
 
   useEffect(() => {
@@ -77,13 +82,17 @@ export const BtkCompanyInfoForm = ({
   const onSubmit = (data: z.infer<typeof companyInfoSchema>) => {
     updateCompanyInfo({
       variables: {
+        id: companyInfo._id || '',
         input: data,
       },
       onCompleted: () => {
         toast({
           title: 'Success',
-          description: 'Company info updated successfully',
+          description: isCreate
+            ? 'Company created successfully'
+            : 'Company info updated successfully',
         });
+        if (isCreate) onClose?.();
       },
       onError: (error) => {
         toast({
@@ -94,6 +103,8 @@ export const BtkCompanyInfoForm = ({
       },
     });
   };
+
+  const isSubmitDisabled = isCreate ? false : !form.formState.isDirty;
 
   return (
     <Form {...form}>
@@ -116,6 +127,7 @@ export const BtkCompanyInfoForm = ({
             </Form.Item>
           )}
         />
+
         <Form.Field
           name="coverImage"
           control={form.control}
@@ -132,11 +144,12 @@ export const BtkCompanyInfoForm = ({
             </Form.Item>
           )}
         />
+
         <Form.Field
           name="name"
           control={form.control}
           render={({ field }) => (
-            <Form.Item className="col-start-1">
+            <Form.Item>
               <Form.Label>Name</Form.Label>
               <Form.Control>
                 <Input {...field} />
@@ -145,6 +158,7 @@ export const BtkCompanyInfoForm = ({
             </Form.Item>
           )}
         />
+
         <Form.Field
           name="website"
           control={form.control}
@@ -158,6 +172,7 @@ export const BtkCompanyInfoForm = ({
             </Form.Item>
           )}
         />
+
         <Form.Field
           name="email"
           control={form.control}
@@ -171,6 +186,7 @@ export const BtkCompanyInfoForm = ({
             </Form.Item>
           )}
         />
+
         <Form.Field
           name="primaryPhone"
           control={form.control}
@@ -197,10 +213,11 @@ export const BtkCompanyInfoForm = ({
                   <Select.Content>
                     {Array.from({ length: 100 }).map((_, index) => (
                       <Select.Item
-                        value={`${new Date().getFullYear() - index}-${
-                          index + 1
-                        }`}
-                      >{`${new Date().getFullYear() - index}`}</Select.Item>
+                        key={index}
+                        value={`${new Date().getFullYear() - index}`}
+                      >
+                        {new Date().getFullYear() - index}
+                      </Select.Item>
                     ))}
                   </Select.Content>
                 </Select>
@@ -209,6 +226,7 @@ export const BtkCompanyInfoForm = ({
             </Form.Item>
           )}
         />
+
         <Form.Field
           name="description"
           control={form.control}
@@ -220,12 +238,13 @@ export const BtkCompanyInfoForm = ({
               </Form.Control>
               <Form.Description>
                 A quick summary meant to grab attention and explain what the
-                company company
+                company does
               </Form.Description>
               <Form.Message />
             </Form.Item>
           )}
         />
+
         <BtkEditorField
           control={form.control}
           setValue={form.setValue}
@@ -233,6 +252,7 @@ export const BtkCompanyInfoForm = ({
           label="About"
           initialContent={companyInfo.about}
         />
+
         <Form.Field
           name="address.city"
           control={form.control}
@@ -263,14 +283,15 @@ export const BtkCompanyInfoForm = ({
             </Form.Item>
           )}
         />
+
         <SelectAddressDistrict form={form} />
+
         <Form.Field
           name="address.address"
           control={form.control}
           render={({ field }) => (
             <Form.Item className="col-span-2">
               <Form.Label>Address</Form.Label>
-
               <Form.Control>
                 <Textarea {...field} />
               </Form.Control>
@@ -278,6 +299,7 @@ export const BtkCompanyInfoForm = ({
             </Form.Item>
           )}
         />
+
         <div className="col-span-2 flex flex-col gap-2">
           {SOCIAL_LINKS.map((item: { label: string; value: string }) => (
             <Form.Field
@@ -303,13 +325,17 @@ export const BtkCompanyInfoForm = ({
             />
           ))}
         </div>
-        <Button
-          type="submit"
-          className="mt-2"
-          disabled={!form.formState.isDirty}
-        >
-          Save
-        </Button>
+
+        <div className="col-span-2 flex gap-2 justify-end">
+          {isCreate && (
+            <Button type="button" variant="outline" onClick={onClose}>
+              Cancel
+            </Button>
+          )}
+          <Button type="submit" disabled={isSubmitDisabled}>
+            {isCreate ? 'Create Company' : 'Save'}
+          </Button>
+        </div>
       </form>
     </Form>
   );
