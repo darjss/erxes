@@ -11,11 +11,54 @@ export const submissionQueries = {
   },
 
   btkAdminGetSubmissions: async (
-    _parent: undefined,
-    params: any,
+    _root: any,
+    { query }: { query?: any },
     { models }: IContext,
   ) => {
-    return models.Submission.find().lean();
+    const {
+      page = 1,
+      perPage = 20,
+      search = '',
+      sortField = 'submittedAt',
+      sortDirection = -1,
+    } = query || {};
+
+    const filter: any = {};
+
+    if (search) {
+      const searchRegex = { $regex: search.trim(), $options: 'i' };
+      filter.$or = [
+        { email: searchRegex },
+        { name: searchRegex },
+        { phone: searchRegex },
+        { answer1: searchRegex },
+        { answer2: searchRegex },
+        { answer3: searchRegex },
+        { answer4: searchRegex },
+        { answer5: searchRegex },
+        { answer6: searchRegex },
+      ];
+    }
+
+    const sort: any = {};
+    sort[sortField] = sortDirection;
+
+    const list = await models.Submission.find(filter)
+      .sort(sort)
+      .skip((page - 1) * perPage)
+      .limit(perPage + 1)
+      .lean();
+
+    const totalCount = await models.Submission.countDocuments(filter);
+
+    const hasMore = list.length > perPage;
+    if (hasMore) list.pop();
+
+    return {
+      list,
+      totalCount,
+      hasMore,
+    };
   },
 };
 

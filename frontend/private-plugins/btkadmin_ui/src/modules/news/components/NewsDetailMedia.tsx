@@ -8,7 +8,7 @@ import {
 import { useNewsDetail } from '~/modules/news/hooks/useNewsDetail';
 import { useUpdateNewsGeneralInfo } from '~/modules/news/hooks/useUpdateNews';
 import { IconPhotoCirclePlus, IconUpload, IconX } from '@tabler/icons-react';
-import { Button, Form, Input, Dialog } from 'erxes-ui';
+import { Button, Form, Input, Dialog, readImage } from 'erxes-ui';
 import {
   RemoveButton,
   UploadButton,
@@ -28,7 +28,6 @@ export const NewsDetailMedia = () => {
     <div className="p-8 blk:lg:grid-cols-2 grid gap-6">
       <NewsDetailAmenities />
       <NewsImage field="coverImage" />
-      <NewsImage field="logo" />
       <NewsImages field="images" />
       <NewsVideo />
       <NewsDetailText />
@@ -43,8 +42,14 @@ export const NewsImage = ({ field }: { field: 'coverImage' | 'logo' }) => {
   const { updateNewsGeneralInfo } = useUpdateNewsGeneralInfo();
 
   const onValueChange = (value?: string) => {
-    setImageValue(value || '');
-    updateNewsGeneralInfo(news?._id || '', { [field]: value || null });
+    const finalValue = value || '';
+    setImageValue(finalValue);
+    updateNewsGeneralInfo(news?._id || '', { [field]: finalValue || null });
+  };
+
+  const handleUpload = (value: string | string[]) => {
+    const finalValue = Array.isArray(value) ? value[0] : value;
+    onValueChange(finalValue);
   };
 
   return (
@@ -54,10 +59,52 @@ export const NewsImage = ({ field }: { field: 'coverImage' | 'logo' }) => {
       onValueChange={onValueChange}
       fit="cover"
     >
-      <div className="grid grid-cols-2 gap-2">
-        <UploadButton value={imageValue} />
-        <RemoveButton value={imageValue} />
+      <div className="w-full mb-3 relative group">
+        {imageValue ? (
+          <Dialog>
+            <Dialog.Trigger asChild>
+              <img
+                src={readImage(imageValue)}
+                alt="Preview"
+                className="w-full h-48 object-cover rounded-lg border cursor-pointer hover:opacity-90 transition"
+              />
+            </Dialog.Trigger>
+
+            <Dialog.Content className="p-0 max-w-screen-xl w-auto border-0 bg-transparent">
+              <img
+                src={readImage(imageValue)}
+                alt="news"
+                className="rounded-lg max-h-[90vh] max-w-[90vw] object-contain mx-auto"
+              />
+            </Dialog.Content>
+
+            <Dialog.Close asChild>
+              <Button
+                variant="secondary"
+                size="icon"
+                className="absolute top-4 right-4 z-50"
+              >
+                <IconX />
+              </Button>
+            </Dialog.Close>
+          </Dialog>
+        ) : (
+          <div className="w-full h-48 bg-muted flex items-center justify-center border rounded-lg">
+            <span className="opacity-50">No image uploaded</span>
+          </div>
+        )}
       </div>
+
+      <UploadProvider
+        mode="single"
+        value={imageValue}
+        onValueChange={handleUpload as any}
+      >
+        <div className="grid grid-cols-2 gap-2">
+          <UploadButton value={imageValue} />
+          <RemoveButton value={imageValue} />
+        </div>
+      </UploadProvider>
     </UploadCard>
   );
 };
@@ -65,12 +112,6 @@ export const NewsImage = ({ field }: { field: 'coverImage' | 'logo' }) => {
 export const NewsDetailText = () => {
   const { news } = useNewsDetail();
   const { updateNewsGeneralInfo } = useUpdateNewsGeneralInfo();
-
-  const [title, setTitle] = useState<string>(news?.title || '');
-
-  const saveTitle = () => {
-    updateNewsGeneralInfo(news?._id || '', { title });
-  };
 
   const form = useForm<z.infer<typeof btkNewsSchema>>({
     defaultValues: {
@@ -86,15 +127,6 @@ export const NewsDetailText = () => {
   return (
     <InfoCard title="News Text">
       <InfoCardContent className="space-y-4">
-        <div>
-          <Label>Title</Label>
-          <Input
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            onBlur={saveTitle}
-          />
-        </div>
-
         <Form {...form}>
           <BtkEditorField
             control={form.control}
@@ -135,11 +167,11 @@ export const NewsImages = ({ field }: { field: 'images' }) => {
             {images.length > 0 ? (
               images.map((image) => (
                 <div
-                  key={image}
+                  key={readImage(image)}
                   className="relative aspect-square bg-muted rounded-lg flex items-center justify-center group"
                 >
                   <img
-                    src={image}
+                    src={readImage(image)}
                     className="size-full absolute inset-0 object-cover rounded-lg"
                     alt="news"
                   />
@@ -149,13 +181,13 @@ export const NewsImages = ({ field }: { field: 'images' }) => {
                     </Dialog.Trigger>
                     <Dialog.Content className="p-0 max-w-screen-xl w-auto border-0 bg-transparent">
                       <img
-                        src={image}
+                        src={readImage(image)}
                         alt="news"
                         className="rounded-lg max-h-[90vh] max-w-[90vw] object-contain mx-auto"
                       />
                     </Dialog.Content>
                   </Dialog>
-                  <UploadRemoveButton url={image}>
+                  <UploadRemoveButton url={readImage(image)}>
                     <Button
                       variant="secondary"
                       size="icon"

@@ -10,3 +10,16 @@ export interface IForm {
   answer6: string;
   submittedAt: Date;
 }
+
+export interface BtkSubmissionsQueryInput {
+  page: number;
+  perPage: number;
+  search: string;
+  sortField: string;
+  sortDirection: number;
+}
+
+export interface BtkGetAllFormsData {
+  list: IForm[];
+  totalCount: number;
+}
