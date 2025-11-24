@@ -6,6 +6,6 @@ export const useCompanyInfo = (_id?: string) => {
     variables: { _id },
     skip: !_id,
   });
-  const { getCompanyInfo: companyInfo } = data || {};
+  const { btkAdminCompanyInfo: companyInfo } = data || {};
   return { loading, error, companyInfo };
 };
