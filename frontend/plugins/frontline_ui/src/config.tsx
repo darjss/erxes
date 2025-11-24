@@ -55,6 +55,11 @@ export const CONFIG: IUIConfig = {
       hasSettings: false,
       hasAutomation: true,
     },
+    {
+      name: 'ticket',
+      path: 'frontline/ticket',
+      settingsOnly: true,
+    }
   ],
 
   relationWidgets: [
