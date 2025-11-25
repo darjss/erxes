@@ -1,19 +1,7 @@
-import { Document, Model } from 'mongoose';
+import { ISubmission, ISubmissionDocument } from '@/form/@types';
+import { Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
 import { submissionSchema } from '../definitions/submission';
-
-export interface ISubmission {
-  userId: string;
-  form: number;
-  answer1: string;
-  answer2: string;
-  answer3: string;
-  answer4: string;
-}
-
-export interface ISubmissionDocument extends ISubmission, Document {
-  submittedAt: Date;
-}
 
 export interface ISubmissionModel extends Model<ISubmissionDocument> {
   createSubmission(input: ISubmission): Promise<ISubmissionDocument>;

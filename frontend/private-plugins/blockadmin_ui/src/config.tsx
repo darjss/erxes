@@ -8,6 +8,12 @@ const BlockNavigation = lazy(() =>
   })),
 );
 
+const FormNavigation = lazy(() =>
+  import('./modules/navigation/FormNavigation').then((module) => ({
+    default: module.FormNavigation,
+  })),
+);
+
 export const CONFIG: IUIConfig = {
   name: 'blockadmin',
   modules: [
@@ -24,6 +30,11 @@ export const CONFIG: IUIConfig = {
     content: () => (
       <Suspense fallback={<div />}>
         <BlockNavigation />
+      </Suspense>
+    ),
+    subGroups: () => (
+      <Suspense fallback={<div />}>
+        <FormNavigation />
       </Suspense>
     ),
   },

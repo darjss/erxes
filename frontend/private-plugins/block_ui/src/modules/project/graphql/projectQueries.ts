@@ -5,25 +5,9 @@ export const BLOCK_GET_PROJECTS = gql`
     blockGetProjects {
       _id
       name
-      coverImage
-      location {
-        address
-        city
-        district
-        lat
-        lng
-        parcelId
-      }
-    }
-  }
-`;
-
-export const BLOCK_GET_PROJECT_DETAIL = gql`
-  query BlockGetProject($id: String!) {
-    blockGetProject(_id: $id) {
-      _id
-      name
       isPublished
+      shortDescription
+      description
       location {
         address
         city
@@ -42,6 +26,49 @@ export const BLOCK_GET_PROJECT_DETAIL = gql`
         price
         priceType
       }
+      types
+      projectAmenities {
+        amenities
+        category
+      }
+
+      startDate
+      endDate
+
+      counts
+      priceRanges
+      progress
+    }
+  }
+`;
+
+export const BLOCK_GET_PROJECT_DETAIL = gql`
+  query BlockGetProject($id: String!) {
+    blockGetProject(_id: $id) {
+      _id
+      name
+      isPublished
+      shortDescription
+      description
+      location {
+        address
+        city
+        district
+        lat
+        lng
+        parcelId
+      }
+      verificationStatus
+      status
+      coverImage
+      bankPartners
+      mainPrice
+      prices {
+        currency
+        price
+        priceType
+      }
+      types
       projectAmenities {
         amenities
         category

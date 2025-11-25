@@ -5,7 +5,7 @@ export const offerSchema = z.object({
   price: z.object({
     currency: z.string().min(1, 'Currency is required'),
     price: z.number().min(0, 'Price is required'),
-    priceType: z.enum(['priceBySize', 'priceByQuantity']),
+    priceType: z.enum(['priceBySize', 'priceByUnit']),
   }),
   paymentPlanId: z.string().optional(),
   paymentPlan: z.object({

@@ -7,20 +7,24 @@ export const ProjectDetailSidebar = () => {
   });
   const properties = [
     PROJECT_TABS.GENERAL,
-    PROJECT_TABS.PRICING,
+    // PROJECT_TABS.PRICING,
+    // PROJECT_TABS.AMENITIES,
+    // PROJECT_TABS.SEO,
+    // PROJECT_TABS.POLICIES,
+    PROJECT_TABS.SPECIFICATIONS,
+    PROJECT_TABS.TARGET,
+    PROJECT_TABS.CONTACT,
+    PROJECT_TABS.MEDIA,
+    PROJECT_TABS.DOCUMENTS,
+  ];
+
+  const stacking = [
     PROJECT_TABS.BUILDINGS,
     PROJECT_TABS.ZONES,
     PROJECT_TABS.UNITS,
-    PROJECT_TABS.AMENITIES,
-    PROJECT_TABS.MEMBERS,
   ];
 
-  const cmsTabs = [
-    PROJECT_TABS.MEDIA,
-    PROJECT_TABS.SEO,
-    PROJECT_TABS.POLICIES,
-    PROJECT_TABS.DOCUMENTS,
-  ];
+  const settings = [PROJECT_TABS.MEMBERS, PROJECT_TABS.INSIDER];
 
   return (
     <Sidebar
@@ -29,7 +33,7 @@ export const ProjectDetailSidebar = () => {
     >
       <Sidebar.Group>
         <Sidebar.GroupContent>
-          <Sidebar.GroupLabel>Block Admin</Sidebar.GroupLabel>
+          <Sidebar.GroupLabel>PROJECT OVERVIEW</Sidebar.GroupLabel>
           <Sidebar.Menu>
             {properties.map((tab) => (
               <Sidebar.MenuItem key={tab}>
@@ -48,9 +52,28 @@ export const ProjectDetailSidebar = () => {
       <Separator />
       <Sidebar.Group>
         <Sidebar.GroupContent>
-          <Sidebar.GroupLabel>Content Management</Sidebar.GroupLabel>
+          <Sidebar.GroupLabel>Stacking plan</Sidebar.GroupLabel>
           <Sidebar.Menu>
-            {cmsTabs.map((tab) => (
+            {stacking.map((tab) => (
+              <Sidebar.MenuItem key={tab}>
+                <Sidebar.MenuButton
+                  isActive={activeTab === tab}
+                  onClick={() => setActiveTab(tab)}
+                  className="capitalize"
+                >
+                  {tab}
+                </Sidebar.MenuButton>
+              </Sidebar.MenuItem>
+            ))}
+          </Sidebar.Menu>
+        </Sidebar.GroupContent>
+      </Sidebar.Group>
+      <Separator />
+      <Sidebar.Group>
+        <Sidebar.GroupContent>
+          <Sidebar.GroupLabel>Internal Settings</Sidebar.GroupLabel>
+          <Sidebar.Menu>
+            {settings.map((tab) => (
               <Sidebar.MenuItem key={tab}>
                 <Sidebar.MenuButton
                   isActive={activeTab === tab}

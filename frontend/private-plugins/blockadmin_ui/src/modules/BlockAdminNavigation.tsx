@@ -1,5 +1,9 @@
+import {
+  IconBuildingCommunity,
+  IconCrane,
+  IconListCheck,
+} from '@tabler/icons-react';
 import { NavigationMenuLinkItem } from 'erxes-ui';
-import { IconBuildingCommunity, IconCrane } from '@tabler/icons-react';
 
 export const BlockNavigation = () => {
   return (
@@ -15,6 +19,12 @@ export const BlockNavigation = () => {
         icon={IconBuildingCommunity}
         pathPrefix="blockadmin"
         path="projects"
+      />
+      <NavigationMenuLinkItem
+        name="Form"
+        icon={IconListCheck}
+        pathPrefix="blockadmin"
+        path="form"
       />
     </>
   );

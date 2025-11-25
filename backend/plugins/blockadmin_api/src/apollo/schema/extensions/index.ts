@@ -1,4 +1,5 @@
 import { developer as developerExtension } from './developer';
+import { extension } from './extension';
 import { project as projectExtension } from './project';
 
 export const TypeExtensions = `
@@ -13,6 +14,7 @@ export const TypeExtensions = `
         unverified
     }
 
+    ${extension}
     ${projectExtension}
     ${developerExtension}
 `;

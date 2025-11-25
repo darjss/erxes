@@ -1,7 +1,7 @@
-import { ProjectCard } from './ProjectCard';
-import { useProjects } from '../hooks/useProjects';
-import { Empty, Spinner } from 'erxes-ui';
 import { IconClipboardText } from '@tabler/icons-react';
+import { Empty, Spinner } from 'erxes-ui';
+import { useProjects } from '../hooks/useProjects';
+import { ProjectCard } from './ProjectCard';
 
 export const Projects = () => {
   const { projects, loading } = useProjects();

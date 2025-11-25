@@ -1,3 +1,4 @@
+import { useProjects } from '@/project/hooks/useProjects';
 import {
   Breadcrumb,
   Input,
@@ -8,10 +9,9 @@ import {
   Skeleton,
   Tooltip,
 } from 'erxes-ui';
-import { useUpdateProjectGeneralInfo } from '../hooks/useUpdateProject';
 import { useEffect, useState } from 'react';
-import { useProjects } from '@/project/hooks/useProjects';
 import { useNavigate, useParams } from 'react-router-dom';
+import { useUpdateProjectGeneralInfo } from '../hooks/useUpdateProject';
 
 export const ProjectDetailNameBreadcrumb = () => {
   const { projects, loading: projectsLoading } = useProjects(true);
@@ -83,12 +83,13 @@ export const ProjectDetailName = ({
             </Popover.Trigger>
           </Tooltip.Trigger>
           <Tooltip.Content>
-            <p>Edit project name</p>
+            <p>Вэб дээр харагдах албан нэр</p>
           </Tooltip.Content>
         </Tooltip>
       </Tooltip.Provider>
       <RecordTableInlineCell.Content sideOffset={-24}>
         <Input
+          placeholder="Төслийн нэрийг оруулна уу"
           value={nameValue}
           onChange={(e) => setNameValue(e.target.value)}
         />

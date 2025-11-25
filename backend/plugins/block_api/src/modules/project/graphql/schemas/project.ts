@@ -61,6 +61,8 @@ export const types = `
     _id: String
     name: String
     isPublished: Boolean
+    shortDescription: String
+    description: String
     location: BlockProjectLocation
     verificationStatus: BlockVerificationStatus
     status: BlockAdminProjectStatus
@@ -69,14 +71,22 @@ export const types = `
     prices: [BlockProjectPrice]
     projectAmenities: [BlockProjectAmenity]
     bankPartners: [String]
+    types: [String]
 
     startDate: Date
     endDate: Date
+
+    counts: JSON
+    priceRanges: JSON
+    progress: Float
   }
 
   input BlockProjectGeneralInput {
     name: String
+    logo: String
     coverImage: String
+    shortDescription: String
+    description: String
     location: BlockProjectLocationInput
     verificationStatus: BlockVerificationStatus
     status: BlockAdminProjectStatus
@@ -84,6 +94,7 @@ export const types = `
     prices: [BlockProjectPriceInput]
     bankPartners: [String]
     projectAmenities: [BlockProjectAmenityInput]
+    types: [String]
 
     startDate: Date
     endDate: Date

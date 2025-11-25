@@ -37,6 +37,10 @@ export const projectSchema = new Schema(
     name: { type: String, label: 'Name' },
     isPublished: { type: Boolean, label: 'Is Published', default: false },
     location: { type: locationSchema, label: 'Location' },
+
+    shortDescription: { type: String, label: 'Short Description' },
+    description: { type: String, label: 'Description' },
+
     status: {
       type: String,
       label: 'Status',
@@ -57,6 +61,8 @@ export const projectSchema = new Schema(
       type: [projectAmenitySchema],
       label: 'Project Amenities',
     },
+
+    types: { type: [String], label: 'Types' },
 
     startDate: { type: Date, label: 'Start Date' },
     endDate: { type: Date, label: 'End Date' },

@@ -65,6 +65,7 @@ import {
 } from '@/contract/graphql/schemas/offer';
 
 import {
+  queries as FormQueries,
   mutations as SubmissionMutations,
   types as SubmissionTypes,
 } from '@/form/graphql/schemas';
@@ -110,6 +111,7 @@ export const queries = `
   ${InvoiceQueries}
   ${ContractQueries}
   ${OfferQueries}
+  ${FormQueries}
 
   ${ClientPortalBlockQueries}
   `;

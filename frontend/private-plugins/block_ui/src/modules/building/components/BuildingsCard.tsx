@@ -1,15 +1,15 @@
 import { InfoCard, InfoCardContent } from '@/block/components/card';
-import { Empty, Input, Label, Select, Spinner, Textarea } from 'erxes-ui';
-import { IProjectDetail } from '@/project/types/projectTypes';
-import { useBuildings } from '@/building/hooks/useBuildings';
-import { AddBuilding } from '@/building/components/AddBuilding';
-import { IBuilding } from '@/building/types/buildingTypes';
 import { UploadImage } from '@/block/components/upload';
+import { AddBuilding } from '@/building/components/AddBuilding';
+import { useBuildings } from '@/building/hooks/useBuildings';
 import { useBuildingUpdate } from '@/building/hooks/useBuildingUpdate';
-import { useState } from 'react';
+import { IBuilding } from '@/building/types/buildingTypes';
 import { PROJECT_TYPES } from '@/project/constants/project';
+import { IProject } from '@/project/types/projectTypes';
+import { Empty, Input, Label, Select, Spinner, Textarea } from 'erxes-ui';
+import { useState } from 'react';
 
-export const BuildingsCard = ({ project }: { project: IProjectDetail }) => {
+export const BuildingsCard = ({ project }: { project: IProject }) => {
   const { buildings, loading } = useBuildings({ projectId: project._id });
   return (
     <InfoCard title="Buildings" description="Buildings">
@@ -19,16 +19,10 @@ export const BuildingsCard = ({ project }: { project: IProjectDetail }) => {
             <div className="px-2">Image</div>
           </Label>
           <Label asChild>
-            <div className="px-2 col-span-3">Name</div>
+            <div className="col-span-5">Information</div>
           </Label>
           <Label asChild>
-            <div className="px-2 col-span-2">Type</div>
-          </Label>
-          <Label asChild>
-            <div className="px-2 col-span-4">Description</div>
-          </Label>
-          <Label asChild>
-            <div className="px-2 col-span-2">Actions</div>
+            <div className="col-span-6">Description</div>
           </Label>
         </div>
         {loading ? (
@@ -60,18 +54,17 @@ export const BuildingsCardItem = ({ building }: { building: IBuilding }) => {
   return (
     <div className="grid grid-cols-12 gap-3">
       <UploadImage
+        className="max-h-48"
         value={building.coverImage}
         onValueChange={(value) => updateBuilding({ coverImage: value })}
       />
-      <div className="px-2 col-span-3">
+      <div className="col-span-5 flex flex-col gap-3">
         <Input
           value={name}
           onChange={(e) => setName(e.target.value)}
           onBlur={() => name !== building.name && updateBuilding({ name })}
           className="font-medium"
         />
-      </div>
-      <div className="px-2 col-span-2">
         <Select
           value={building.type}
           onValueChange={(value) => updateBuilding({ type: value })}
@@ -80,16 +73,17 @@ export const BuildingsCardItem = ({ building }: { building: IBuilding }) => {
             <Select.Value />
           </Select.Trigger>
           <Select.Content>
-            {PROJECT_TYPES.map((type: string) => (
-              <Select.Item key={type} value={type}>
-                {type}
+            {PROJECT_TYPES.map((type) => (
+              <Select.Item key={type.value} value={type.value}>
+                {type.label}
               </Select.Item>
             ))}
           </Select.Content>
         </Select>
       </div>
-      <div className="px-2 col-span-4">
+      <div className="col-span-6 flex">
         <Textarea
+          className="flex-1"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           onBlur={() =>
@@ -98,7 +92,6 @@ export const BuildingsCardItem = ({ building }: { building: IBuilding }) => {
           }
         />
       </div>
-      <div className="px-2 col-span-2"></div>
     </div>
   );
 };

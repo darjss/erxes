@@ -11,14 +11,14 @@ import {
 import { useBuildingZoningUpdate } from '@/building/hooks/useBuildingUpdate';
 import { useBuildingZoningRemove } from '@/building/hooks/useBuildingZoningRemove';
 import { IBuilding, IZoning } from '@/building/types/buildingTypes';
-import { IProjectDetail } from '@/project/types/projectTypes';
+import { IProject } from '@/project/types/projectTypes';
 import { SelectTenureType } from '@/unit/components/SelectTenureType';
 import { SelectUsageType } from '@/unit/components/SelectUsageType';
 import { IconTrash } from '@tabler/icons-react';
 import { Button, CurrencyField, Spinner, toast, useConfirm } from 'erxes-ui';
 import { useEffect, useState } from 'react';
 
-export const BuildingZoneList = ({ project }: { project: IProjectDetail }) => {
+export const BuildingZoneList = ({ project }: { project: IProject }) => {
   const { buildings, loading } = useBuildings({ projectId: project._id });
 
   if (loading) {

@@ -1,6 +1,9 @@
+import { GQL_CURSOR_PARAM_DEFS } from 'erxes-api-shared/utils';
+
 export const types = `
     type BlockSubmission {
-        userId: String
+        _id: String
+        lead: Customer
         form: Int
         answer1: String
         answer2: String
@@ -10,13 +13,31 @@ export const types = `
     }
 
     input BlockSubmissionInput {
-        userId: String
         form: Int
         answer1: String
         answer2: String
         answer3: String
         answer4: String
+
+        name: String
+        phone: String
+        email: String
     }
+
+    type BlockSubmissionList {
+        list: [BlockSubmission]
+        totalCount: Int
+        pageInfo: PageInfo
+    }
+`;
+
+const queryParams = `
+    formId: Int
+    ${GQL_CURSOR_PARAM_DEFS}
+`;
+
+export const queries = `
+    blockAdminGetSubmissions(${queryParams}): BlockSubmissionList
 `;
 
 export const mutations = `

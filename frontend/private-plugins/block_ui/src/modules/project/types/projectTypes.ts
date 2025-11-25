@@ -1,10 +1,3 @@
-export interface IProject {
-  _id: string;
-  name: string;
-  coverImage?: string;
-  location?: IProjectLocation;
-}
-
 export interface IProjectLocation {
   address?: string;
   city?: string;
@@ -14,15 +7,16 @@ export interface IProjectLocation {
   parcelId?: string;
 }
 
-export interface IProjectPrice {
-  currency: string;
-  price: number;
-  priceType: 'priceBySize' | 'priceByUnit';
-}
+export interface IProject {
+  _id: string;
+  name: string;
+  coverImage?: string;
+  location?: IProjectLocation;
 
-export interface IProjectDetail extends IProject {
   isPublished: boolean;
-  status: 'verified' | 'unverified' | 'pending';
+  status: 'planned' | 'on_going' | 'on_sale' | 'completed';
+  verificationStatus: 'verified' | 'unverified' | 'pending';
+  shortDescription: string;
   description: string;
   logo: string;
   images: string[];
@@ -31,10 +25,28 @@ export interface IProjectDetail extends IProject {
   prices: IProjectPrice[];
   bankPartners: string[];
   projectAmenities: { category: string; amenities: string[] }[];
+  types: string[];
+
+  startDate: Date;
+  endDate: Date;
+
+  counts?: Record<string, number>;
+  priceRanges?: Record<string, { min: number; max: number }>;
+  progress?: number;
+  metrics?: Record<string, number>;
+  targets?: Record<string, string>;
+}
+
+export interface IProjectPrice {
+  currency: string;
+  price: number;
+  priceType: 'priceBySize' | 'priceByUnit';
 }
 
 export interface IProjectGeneralInput {
   name: string | null;
+  shortDescription: string | null;
+  description: string | null;
   location: IProjectLocation | null;
   status: string | null;
   coverImage: string | null;
@@ -42,6 +54,14 @@ export interface IProjectGeneralInput {
   prices: IProjectPrice[] | null;
   bankPartners: string[] | null;
   projectAmenities: { category: string; amenities: string[] }[];
+  types: string[] | null;
+
+  startDate: Date;
+  endDate: Date;
+
+  counts?: Record<string, number>;
+  metrics?: Record<string, number>;
+  targets?: Record<string, string>;
 }
 
 export interface IProjectMember {

@@ -1,5 +1,5 @@
 import { Suspense, lazy } from 'react';
-import { Route, Routes } from 'react-router';
+import { Navigate, Route, Routes } from 'react-router';
 import '../styles.css';
 
 const ProjectsPage = lazy(() =>
@@ -32,6 +32,12 @@ const DeveloperDetail = lazy(() =>
   })),
 );
 
+const SubmissionsPage = lazy(() =>
+  import('~/pages/SubmissionsPage').then((module) => ({
+    default: module.SubmissionsPage,
+  })),
+);
+
 const Main = () => {
   return (
     <Suspense fallback={<div />}>
@@ -41,6 +47,14 @@ const Main = () => {
 
         <Route path="/developers" element={<DevelopersPage />} />
         <Route path="/developers/:id" element={<DeveloperDetail />} />
+
+        <Route path="/form">
+          <Route index element={<Navigate to="submissions" replace />} />
+          <Route path="submissions">
+            <Route index element={<Navigate to="1" replace />} />
+            <Route path=":id" element={<SubmissionsPage />} />
+          </Route>
+        </Route>
 
         <Route path="/stacking-plan" element={<StackingPlanPage />} />
       </Routes>

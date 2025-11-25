@@ -9,18 +9,18 @@ import { IProjectDetail, IProjectMember } from '../types/projectTypes';
 export const useProjectDetail = () => {
   const { id } = useParams();
 
-  const { data, loading } = useQuery<{ blockGetProject: IProjectDetail }>(
+  const { data, loading } = useQuery<{ blockAdminGetProject: IProjectDetail }>(
     BLOCK_GET_PROJECT_DETAIL,
     { variables: { id } },
   );
 
-  return { project: data?.blockGetProject, loading };
+  return { project: data?.blockAdminGetProject, loading };
 };
 
 export const useProjectMembers = () => {
   const { id } = useParams();
   const { data, loading } = useQuery<{
-    blockGetProjectMembers: IProjectMember[];
+    blockAdminGetProjectMembers: IProjectMember[];
   }>(BLOCK_GET_PROJECT_MEMBERS, { variables: { project: id } });
-  return { projectMembers: data?.blockGetProjectMembers, loading };
+  return { projectMembers: data?.blockAdminGetProjectMembers, loading };
 };

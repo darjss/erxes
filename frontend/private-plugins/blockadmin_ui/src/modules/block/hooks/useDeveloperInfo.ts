@@ -6,6 +6,6 @@ export const useDeveloperInfo = (_id?: string) => {
     variables: { _id },
     skip: !_id,
   });
-  const { getDeveloperInfo: developerInfo } = data || {};
+  const { getBlockAdminDeveloperInfo: developerInfo } = data || {};
   return { loading, error, developerInfo };
 };

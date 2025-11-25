@@ -1,21 +1,22 @@
+import { InfoCard, InfoCardContent } from '@/block/components/card';
 import {
+  Badge,
+  Button,
   Combobox,
+  Command,
   Label,
   Popover,
   Textarea,
-  Command,
-  Badge,
-  Button,
 } from 'erxes-ui';
-import { useProjectDetail } from '../hooks/useProjectDetail';
-import { InfoCard, InfoCardContent } from '@/block/components/card';
 import { useEffect, useState } from 'react';
+import { useProjectDetail } from '../hooks/useProjectDetail';
 
-import { PROJECT_TYPES } from '../constants/project';
-import { ProjectAddress } from '@/project/components/ProjectAddress';
 import { useDeveloperInfo } from '@/block/hooks/useDeveloperInfo';
-import { Link } from 'react-router';
+import { ProjectAddress } from '@/project/components/ProjectAddress';
 import { IconArrowUpRight } from '@tabler/icons-react';
+import { Link } from 'react-router';
+import { PROJECT_TYPES } from '../constants/project';
+import { useUpdateProjectGeneralInfo } from '../hooks/useUpdateProject';
 
 export const ProjectDetailGeneral = () => {
   const { loading } = useProjectDetail();
@@ -23,18 +24,22 @@ export const ProjectDetailGeneral = () => {
   if (loading) return null;
 
   return (
-    <div className="grid lg:grid-cols-3 flex-auto">
-      <div className="col-span-2 grid grid-cols-1 lg:grid-cols-2 gap-6 p-8">
-        <InfoCard title="Project Information" description="Project information">
-          <InfoCardContent>
-            <ProjectDeveloper />
-            <ProjectTypes />
-            <ProjectDescription />
-          </InfoCardContent>
-        </InfoCard>
-        <ProjectAddress />
-      </div>
-      <div className="border-l min-h-full bg-background"></div>
+    <div className="flex flex-col gap-6 p-8">
+      <InfoCard title="Project Information" description="Project information">
+        <InfoCardContent>
+          <div className="grid grid-cols-3 gap-3">
+            <div className="col-span-1 flex flex-col gap-3">
+              <ProjectDeveloper />
+              <ProjectTypes />
+              <ProjectShortDescription />
+            </div>
+            <div className="col-span-2 h-full">
+              <ProjectDescription />
+            </div>
+          </div>
+        </InfoCardContent>
+      </InfoCard>
+      <ProjectAddress />
     </div>
   );
 };
@@ -59,11 +64,47 @@ export const ProjectDeveloper = () => {
   );
 };
 
+export const ProjectShortDescription = () => {
+  const { project } = useProjectDetail();
+  const [descriptionValue, setDescriptionValue] = useState(
+    project?.shortDescription,
+  );
+  const { updateProjectGeneralInfo } = useUpdateProjectGeneralInfo();
+
+  useEffect(() => {
+    if (project?.shortDescription) {
+      setDescriptionValue(project?.shortDescription);
+    }
+  }, [project?.shortDescription]);
+
+  const onBlur = () => {
+    if (descriptionValue !== project?.shortDescription) {
+      updateProjectGeneralInfo(project?._id || '', {
+        shortDescription: descriptionValue,
+      });
+    }
+  };
+
+  return (
+    <div className="space-y-2">
+      <Label>Short Description</Label>
+
+      <Textarea
+        placeholder="Товч танилцуулга бичнэ үү"
+        value={descriptionValue}
+        onChange={(e) => setDescriptionValue(e.target.value)}
+        onBlur={onBlur}
+      />
+    </div>
+  );
+};
+
 export const ProjectDescription = () => {
   const { project } = useProjectDetail();
   const [descriptionValue, setDescriptionValue] = useState(
     project?.description,
   );
+  const { updateProjectGeneralInfo } = useUpdateProjectGeneralInfo();
 
   useEffect(() => {
     if (project?.description) {
@@ -73,14 +114,19 @@ export const ProjectDescription = () => {
 
   const onBlur = () => {
     if (descriptionValue !== project?.description) {
-      // updateProjectGeneralInfo(id, { description: descriptionValue });
+      updateProjectGeneralInfo(project?._id || '', {
+        description: descriptionValue,
+      });
     }
   };
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-2 h-full flex flex-col">
       <Label>Description</Label>
+
       <Textarea
+        placeholder="Дэлгэрэнгүй мэдээлэл бичнэ үү"
+        className="flex-1"
         value={descriptionValue}
         onChange={(e) => setDescriptionValue(e.target.value)}
         onBlur={onBlur}
@@ -90,36 +136,52 @@ export const ProjectDescription = () => {
 };
 
 export const ProjectTypes = () => {
-  const [projectTypes, setProjectTypes] = useState<string[]>([]);
+  const { project } = useProjectDetail();
+
+  const [projectTypes, setProjectTypes] = useState<string[]>(
+    project?.types || [],
+  );
+
+  const { updateProjectGeneralInfo } = useUpdateProjectGeneralInfo();
+
   return (
     <div className="space-y-2">
       <Label>Types</Label>
       <Popover>
-        <Combobox.TriggerBase className="justify-start h-auto min-h-8 flex-wrap">
-          {projectTypes.map((type) => (
-            <Badge key={type} variant="secondary">
-              {type}
-            </Badge>
-          ))}
+        <Combobox.TriggerBase className="justify-start h-auto min-h-8 flex-wrap text-accent-foreground">
+          {projectTypes?.length ? (
+            projectTypes.map((type) => (
+              <Badge key={type} variant="secondary">
+                {PROJECT_TYPES.find((t) => t.value === type)?.label}
+              </Badge>
+            ))
+          ) : (
+            <span>Төрөл сонгоно уу</span>
+          )}
         </Combobox.TriggerBase>
+
         <Combobox.Content>
           <Command>
-            <Command.Input />
+            <Command.Input placeholder="Төрөл сонгоно уу" />
             <Command.List>
               {PROJECT_TYPES.map((type) => (
                 <Command.Item
-                  value={type}
-                  key={type}
-                  onSelect={() =>
-                    setProjectTypes(
-                      projectTypes.includes(type)
-                        ? projectTypes.filter((t) => t !== type)
-                        : [...projectTypes, type],
-                    )
-                  }
+                  value={type.value}
+                  key={type.value}
+                  onSelect={() => {
+                    const newTypes = projectTypes.includes(type.value)
+                      ? projectTypes.filter((t) => t !== type.value)
+                      : [...projectTypes, type.value];
+
+                    setProjectTypes(newTypes);
+
+                    updateProjectGeneralInfo(project?._id || '', {
+                      types: newTypes,
+                    });
+                  }}
                 >
-                  {type}
-                  <Combobox.Check checked={projectTypes.includes(type)} />
+                  {type.label}
+                  <Combobox.Check checked={projectTypes.includes(type.value)} />
                 </Command.Item>
               ))}
             </Command.List>

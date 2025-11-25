@@ -116,7 +116,7 @@ export const ProjectPrice = () => {
                       </Select.Trigger>
                       <Select.Content>
                         <Select.Item value="priceBySize">per m²</Select.Item>
-                        <Select.Item value="priceByQuantity">
+                        <Select.Item value="priceByUnit">
                           per unit
                         </Select.Item>
                       </Select.Content>
@@ -181,7 +181,7 @@ export const ProjectPriceAddPrice = ({
             </Select.Trigger>
             <Select.Content>
               <Select.Item value="priceBySize">per m²</Select.Item>
-              <Select.Item value="priceByQuantity">per unit</Select.Item>
+              <Select.Item value="priceByUnit">per unit</Select.Item>
             </Select.Content>
           </Select>
         </div>

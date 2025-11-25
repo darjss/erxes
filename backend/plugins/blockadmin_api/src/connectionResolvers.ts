@@ -27,6 +27,11 @@ import {
   IBlockDocumentModel,
   loadBlockDocumentClass,
 } from '@/document/db/models/Document';
+import { ISubmissionDocument } from '@/form/@types';
+import {
+  ISubmissionModel,
+  loadSubmissionClass,
+} from '@/form/db/models/Submission';
 import { IInvoiceDocument } from '@/invoice/@types/invoice';
 import { IInvoiceModel, loadInvoiceClass } from '@/invoice/db/models/Invoice';
 import { IProjectMemberDocument } from '@/project/@types/member';
@@ -47,12 +52,8 @@ import { IUnitModel, loadUnitClass } from '@/unit/db/models/Unit';
 import { IUnitLeadModel, loadUnitLeadClass } from '@/unit/db/models/UnitLead';
 import { IMainContext } from 'erxes-api-shared/core-types';
 import { createGenerateModels } from 'erxes-api-shared/utils';
+
 import mongoose from 'mongoose';
-import {
-  ISubmissionDocument,
-  ISubmissionModel,
-  loadSubmissionClass,
-} from './modules/form/db/models/Submission';
 
 export interface IModels {
   Project: IProjectModel;
