@@ -5,22 +5,22 @@ import { SelectUsageType } from '@/unit/components/SelectUsageType';
 import { useUnitContext } from '@/unit/context/unitContext';
 import { useUnitUpdate } from '@/unit/hooks/useUnitUpdate';
 import { CurrencyField, Input, Label, Separator } from 'erxes-ui';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
 export const UnitDetailOverview = () => {
   const { unit } = useUnitContext();
-  const [mainPrice, setMainPrice] = useState(unit?.mainPrice);
+  // const [mainPrice, setMainPrice] = useState(unit?.mainPrice);
   const { updateUnit } = useUnitUpdate({ id: unit?._id });
   const [size, setSize] = useState(unit?.size);
 
-  useEffect(() => {
-    if (unit?.mainPrice) {
-      setMainPrice(unit?.mainPrice);
-    }
-    if (unit?.size) {
-      setSize(unit?.size);
-    }
-  }, [unit]);
+  // useEffect(() => {
+  //   if (unit?.mainPrice) {
+  //     setMainPrice(unit?.mainPrice);
+  //   }
+  //   if (unit?.size) {
+  //     setSize(unit?.size);
+  //   }
+  // }, [unit]);
 
   return (
     <div>
@@ -61,7 +61,7 @@ export const UnitDetailOverview = () => {
 
       <div className="blk:space-y-5 p-8">
         <PricingDetail
-          mainPrice={mainPrice}
+          mainPrice={unit.mainPrice}
           prices={unit.prices}
           updateUnit={updateUnit}
         />
@@ -76,7 +76,7 @@ export const UnitDetailOverview = () => {
         <div className="space-y-2">
           <Label>total price</Label>
           <CurrencyField.ValueInput
-            value={unit.size * mainPrice}
+            value={unit.size * unit.mainPrice}
             disabled
             className="disabled:opacity-100"
           />

@@ -20,7 +20,7 @@ export const useBuildingZonings = ({
   buildingId,
   skip,
 }: {
-  buildingId: string;
+  buildingId?: string | null;
   skip?: boolean;
 }) => {
   const { data, loading } = useQuery<{ blockGetBuildingZonings: IZoning[] }>(

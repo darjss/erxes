@@ -24,6 +24,7 @@ export const BLOCK_GET_UNIT = gql`
       updatedAt
       zoning
       mainPrice
+      currency
       status
       prices {
         currency

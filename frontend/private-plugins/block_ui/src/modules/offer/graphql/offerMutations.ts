@@ -15,3 +15,9 @@ export const UPDATE_OFFER = gql`
     }
   }
 `;
+
+export const SEND_OFFER_EMAIL = gql`
+  mutation BlockSendOfferEmail($id: String!) {
+    blockSendOfferEmail(_id: $id)
+  }
+`;

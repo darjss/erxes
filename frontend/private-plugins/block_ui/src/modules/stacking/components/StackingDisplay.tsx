@@ -1,4 +1,7 @@
-import { useBuildingZonings } from '@/building/hooks/useBuildings';
+import {
+  useBuildings,
+  useBuildingZonings,
+} from '@/building/hooks/useBuildings';
 import { IZoning } from '@/building/types/buildingTypes';
 import { StackingUnitItem } from '@/stacking/components/StackingUnitItem';
 import { UNIT_SALE_STATUS } from '@/unit/constants/unit';
@@ -9,23 +12,26 @@ import {
   IconClipboardText,
   IconPlus,
 } from '@tabler/icons-react';
-import {
-  Button,
-  ScrollArea,
-  useMultiQueryState,
-  useQueryState,
-} from 'erxes-ui';
+import { Button, ScrollArea, Spinner, useMultiQueryState } from 'erxes-ui';
 import { Link } from 'react-router-dom';
+import { useProjects } from '@/project/hooks/useProjects';
 
 export const StackingDisplay = () => {
   const [{ projectId, buildingId }] = useMultiQueryState<{
     projectId: string;
     buildingId: string;
   }>(['projectId', 'buildingId']);
-
-  const { buildingZonings, loading } = useBuildingZonings({
-    buildingId: buildingId ?? '',
+  const { loading: projectsLoading } = useProjects(true);
+  const { loading: buildingsLoading } = useBuildings({
+    projectId: projectId ?? '',
   });
+  const { buildingZonings, loading } = useBuildingZonings({
+    buildingId,
+  });
+
+  if (projectsLoading || buildingsLoading) {
+    return <Spinner containerClassName="blk:py-32" />;
+  }
 
   if (!projectId) {
     return (
@@ -85,14 +91,9 @@ export const StackingDisplay = () => {
 };
 
 export const StackingZone = ({ zone }: { zone: IZoning }) => {
-  const [unitId] = useQueryState('unitId');
   const { units } = useUnits({
     variables: { zoning: zone._id },
-    skip: !!unitId,
   });
-
-  const notUsedSize =
-    zone.size - (units?.reduce((acc, { size }) => acc + size, 0) || 0);
 
   const notUsedSizeByUnit = units?.reduce(
     (acc, { size, status }) =>
@@ -108,10 +109,7 @@ export const StackingZone = ({ zone }: { zone: IZoning }) => {
         </span>
         <span className="text-xs">{units?.length} units</span>
         <span className="text-xs">{zone.size} m²</span>
-        {/* <span className="text-xs">
-          vacant by unit:
-          {units.length}
-        </span> */}
+
         <span className="text-xs">vacant by size: {notUsedSizeByUnit} m²</span>
       </div>
       {units
@@ -119,15 +117,6 @@ export const StackingZone = ({ zone }: { zone: IZoning }) => {
         .map((unit) => (
           <StackingUnitItem key={unit._id} {...unit} />
         ))}
-      {/* {notUsedSize > 0 && (
-        <div
-          className="h-28 border"
-          style={{
-            width: `${notUsedSize * 4}px`,
-            backgroundImage: `url("data:image/svg+xml,%3Csvg width='6' height='6' viewBox='0 0 6 6' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%239C92AC' fill-opacity='0.4' fill-rule='evenodd'%3E%3Cpath d='M5 0h1L0 6V5zM6 5v1H5z'/%3E%3C/g%3E%3C/svg%3E")`,
-          }}
-        />
-      )} */}
     </div>
   );
 };

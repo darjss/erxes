@@ -4,6 +4,7 @@ import { IconStackFilled } from '@tabler/icons-react';
 import { Button, PageContainer } from 'erxes-ui';
 import { Link } from 'react-router-dom';
 import { SettingsHeader } from 'ui-modules';
+import '../styles.css';
 
 export default function Settings() {
   return (

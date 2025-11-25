@@ -5,14 +5,14 @@ import { useState } from 'react';
 
 export const PricingDetail = ({
   mainPrice,
-  prices,
   updateUnit,
+  prices,
 }: {
   mainPrice: number;
+  updateUnit: (data: { mainPrice?: number }) => void;
   prices: IProjectPrice[];
-  updateUnit: (data: { mainPrice?: number; prices?: IProjectPrice[] }) => void;
 }) => {
-  const [mainPriceState, setMainPriceState] = useState(mainPrice);
+  const [mainPriceState, setMainPriceState] = useState(4500000);
   const [pricesState, setPricesState] = useState(prices);
 
   const handlePriceChange = (index: number, data: Partial<IProjectPrice>) => {
@@ -26,12 +26,12 @@ export const PricingDetail = ({
       <div className="space-y-2">
         <Label>Main Price / m²</Label>
         <CurrencyField.ValueInput
-          value={mainPrice}
+          value={mainPriceState}
           onChange={(value) => setMainPriceState(value)}
-          onBlur={() =>
+          onBlur={() => {
             mainPrice !== mainPriceState &&
-            updateUnit({ mainPrice: mainPriceState })
-          }
+              updateUnit({ mainPrice: mainPriceState });
+          }}
         />
       </div>
       <div className="col-start-1 space-y-2 col-span-3">
