@@ -6,6 +6,7 @@ export const BTK_GET_NEWS = gql`
       _id
       name
       coverImage
+      title
       location {
         address
         city

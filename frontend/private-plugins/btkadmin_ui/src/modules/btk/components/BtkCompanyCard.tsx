@@ -1,6 +1,5 @@
 import { IconMapPinFilled, IconPhotoCirclePlus } from '@tabler/icons-react';
 import { Slider } from 'erxes-ui';
-import { Badge } from 'erxes-ui';
 import { Link } from 'react-router-dom';
 
 export const BtkCompanyCard = ({ name, _id, coverImage, location }: any) => {
@@ -36,9 +35,6 @@ export const BtkCompanyCard = ({ name, _id, coverImage, location }: any) => {
         <div className="flex items-center gap-2">
           <Slider value={[80]} max={100} hideThumb />
           <p className="text-sm ml-1 text-accent-foreground font-medium">85%</p>
-          <Badge variant="secondary" className="bg-foreground/5">
-            In progress
-          </Badge>
         </div>
       </div>
     </Link>
