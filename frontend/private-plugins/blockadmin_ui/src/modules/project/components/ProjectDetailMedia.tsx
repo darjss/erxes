@@ -1,17 +1,8 @@
 import { InfoCard, InfoCardContent } from '@/block/components/card';
-import {
-  Upload,
-  UploadProvider,
-  UploadRemoveButton,
-} from '@/block/components/upload';
-import {
-  RemoveButton,
-  UploadButton,
-  UploadCard,
-} from '@/block/components/UploadCard';
+import { UploadProvider } from '@/block/components/upload';
+import { UploadCard } from '@/block/components/UploadCard';
 import { useProjectDetail } from '@/project/hooks/useProjectDetail';
-import { useUpdateProjectGeneralInfo } from '@/project/hooks/useUpdateProject';
-import { IconPhotoCirclePlus, IconUpload, IconX } from '@tabler/icons-react';
+import { IconPhotoCirclePlus } from '@tabler/icons-react';
 import { Button, Dialog, Input } from 'erxes-ui';
 import { useState } from 'react';
 
@@ -28,28 +19,15 @@ export const ProjectDetailMedia = () => {
 
 export const ProjectImage = ({ field }: { field: 'coverImage' | 'logo' }) => {
   const { project } = useProjectDetail();
-  const [imageValue, setImageValue] = useState<string | undefined>(
-    project?.[field],
-  );
-  const { updateProjectGeneralInfo } = useUpdateProjectGeneralInfo();
-  const onValueChange = (value?: string) => {
-    setImageValue(value as string);
-    updateProjectGeneralInfo(project?._id || '', {
-      [field]: (value as string) || null,
-    });
-  };
-  // office-erxes-io/SNc1to8A4Own6pBaeSmzOScreenshot 2025-09-07 at 20.03.28.png
+
   return (
     <UploadCard
       title={field === 'coverImage' ? 'Project cover' : 'Project logo'}
-      value={imageValue}
-      onValueChange={onValueChange}
+      value={project?.[field]}
+      onValueChange={(value) => {}}
       fit="cover"
     >
-      <div className="grid grid-cols-2 gap-2">
-        <UploadButton value={imageValue} />
-        <RemoveButton value={imageValue} />
-      </div>
+      <div />
     </UploadCard>
   );
 };
@@ -90,15 +68,6 @@ export const ProjectImages = () => {
                       <div className="absolute inset-0 border border-foreground/10 rounded-lg" />
                     </Dialog.Content>
                   </Dialog>
-                  <UploadRemoveButton url={image}>
-                    <Button
-                      variant="secondary"
-                      size="icon"
-                      className="size-6 absolute -top-2 -right-2 opacity-0 group-hover:opacity-100 transition-opacity"
-                    >
-                      <IconX />
-                    </Button>
-                  </UploadRemoveButton>
                 </div>
               ))
             ) : (
@@ -107,15 +76,6 @@ export const ProjectImages = () => {
               </div>
             )}
           </div>
-
-          <Upload>
-            <Button asChild className="w-full" variant="secondary">
-              <div>
-                <IconUpload />
-                Add images
-              </div>
-            </Button>
-          </Upload>
         </UploadProvider>
       </InfoCardContent>
     </InfoCard>

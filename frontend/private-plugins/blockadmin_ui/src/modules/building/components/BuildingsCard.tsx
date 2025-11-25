@@ -1,15 +1,14 @@
-import { Input, Label, Select, Spinner, Textarea } from 'erxes-ui';
 import { InfoCard, InfoCardContent } from '@/block/components/card';
 import { UploadImage } from '@/block/components/upload';
-import { AddBuilding } from '@/building/components/AddBuilding';
 import { useBuildings } from '@/building/hooks/useBuildings';
 import { useBuildingUpdate } from '@/building/hooks/useBuildingUpdate';
 import { IBuilding } from '@/building/types/buildingTypes';
 import { PROJECT_TYPES } from '@/project/constants/project';
-import { IProjectDetail } from '@/project/types/projectTypes';
+import { IProject } from '@/project/types/projectTypes';
+import { Input, Label, Select, Spinner, Textarea } from 'erxes-ui';
 import { useState } from 'react';
 
-export const BuildingsCard = ({ project }: { project: IProjectDetail }) => {
+export const BuildingsCard = ({ project }: { project: IProject }) => {
   const { buildings, loading } = useBuildings({ projectId: project._id });
   return (
     <InfoCard title="Buildings" description="Buildings">
@@ -38,7 +37,6 @@ export const BuildingsCard = ({ project }: { project: IProjectDetail }) => {
             <BuildingsCardItem key={building._id} building={building} />
           ))
         )}
-        <AddBuilding project={project} />
       </InfoCardContent>
     </InfoCard>
   );
@@ -71,9 +69,9 @@ export const BuildingsCardItem = ({ building }: { building: IBuilding }) => {
             <Select.Value />
           </Select.Trigger>
           <Select.Content>
-            {PROJECT_TYPES.map((type: string) => (
-              <Select.Item key={type} value={type}>
-                {type}
+            {PROJECT_TYPES.map((type) => (
+              <Select.Item key={type.value} value={type.value}>
+                {type.label}
               </Select.Item>
             ))}
           </Select.Content>

@@ -1,8 +1,8 @@
 import { gql } from '@apollo/client';
 
 export const BLOCK_GET_BUILDING_LIST = gql`
-  query BlockGetBuildings($project: String!) {
-    blockGetBuildings(project: $project) {
+  query BlockAdminGetBuildings($project: String!) {
+    blockAdminGetBuildings(project: $project) {
       _id
       description
       name
@@ -14,8 +14,8 @@ export const BLOCK_GET_BUILDING_LIST = gql`
 `;
 
 export const BLOCK_GET_BUILDING_ZONINGS = gql`
-  query BlockGetBuildingZonings($building: String!) {
-    blockGetBuildingZonings(building: $building) {
+  query BlockAdminGetBuildingZonings($building: String!) {
+    blockAdminGetBuildingZonings(building: $building) {
       _id
       building
       floor

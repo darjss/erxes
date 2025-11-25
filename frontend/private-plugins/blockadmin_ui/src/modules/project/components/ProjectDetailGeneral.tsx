@@ -18,23 +18,27 @@ import { Link } from 'react-router';
 import { PROJECT_TYPES } from '../constants/project';
 
 export const ProjectDetailGeneral = () => {
-  const { loading, project } = useProjectDetail();
+  const { project, loading } = useProjectDetail();
 
   if (loading) return null;
 
   return (
-    <div className="grid lg:grid-cols-3 flex-auto">
-      <div className="col-span-2 grid grid-cols-1 lg:grid-cols-2 gap-6 p-8">
-        <InfoCard title="Project Information" description="Project information">
-          <InfoCardContent>
-            <ProjectDeveloper developerId={project?.developerId} />
-            <ProjectTypes />
-            <ProjectDescription />
-          </InfoCardContent>
-        </InfoCard>
-        <ProjectAddress />
-      </div>
-      <div className="border-l min-h-full bg-background"></div>
+    <div className="flex flex-col gap-6 p-8">
+      <InfoCard title="Project Information" description="Project information">
+        <InfoCardContent>
+          <div className="grid grid-cols-3 gap-3">
+            <div className="col-span-1 flex flex-col gap-3">
+              <ProjectDeveloper developerId={project?.developerId} />
+              <ProjectTypes />
+              <ProjectShortDescription />
+            </div>
+            <div className="col-span-2 h-full">
+              <ProjectDescription />
+            </div>
+          </div>
+        </InfoCardContent>
+      </InfoCard>
+      <ProjectAddress />
     </div>
   );
 };
@@ -59,6 +63,30 @@ export const ProjectDeveloper = ({ developerId }: { developerId?: string }) => {
   );
 };
 
+export const ProjectShortDescription = () => {
+  const { project } = useProjectDetail();
+  const [descriptionValue, setDescriptionValue] = useState(
+    project?.shortDescription,
+  );
+
+  useEffect(() => {
+    if (project?.shortDescription) {
+      setDescriptionValue(project?.shortDescription);
+    }
+  }, [project?.shortDescription]);
+
+  return (
+    <div className="space-y-2">
+      <Label>Short Description</Label>
+
+      <Textarea
+        placeholder="Товч танилцуулга бичнэ үү"
+        value={descriptionValue}
+      />
+    </div>
+  );
+};
+
 export const ProjectDescription = () => {
   const { project } = useProjectDetail();
   const [descriptionValue, setDescriptionValue] = useState(
@@ -71,55 +99,48 @@ export const ProjectDescription = () => {
     }
   }, [project?.description]);
 
-  const onBlur = () => {
-    if (descriptionValue !== project?.description) {
-      // updateProjectGeneralInfo(id, { description: descriptionValue });
-    }
-  };
-
   return (
-    <div className="space-y-2">
+    <div className="space-y-2 h-full flex flex-col">
       <Label>Description</Label>
+
       <Textarea
+        placeholder="Дэлгэрэнгүй мэдээлэл бичнэ үү"
+        className="flex-1"
         value={descriptionValue}
-        onChange={(e) => setDescriptionValue(e.target.value)}
-        onBlur={onBlur}
       />
     </div>
   );
 };
 
 export const ProjectTypes = () => {
-  const [projectTypes, setProjectTypes] = useState<string[]>([]);
+  const { project } = useProjectDetail();
+
   return (
     <div className="space-y-2">
       <Label>Types</Label>
       <Popover>
-        <Combobox.TriggerBase className="justify-start h-auto min-h-8 flex-wrap">
-          {projectTypes.map((type) => (
-            <Badge key={type} variant="secondary">
-              {type}
-            </Badge>
-          ))}
+        <Combobox.TriggerBase className="justify-start h-auto min-h-8 flex-wrap text-accent-foreground">
+          {project?.types?.length ? (
+            project?.types.map((type) => (
+              <Badge key={type} variant="secondary">
+                {PROJECT_TYPES.find((t) => t.value === type)?.label}
+              </Badge>
+            ))
+          ) : (
+            <span>Төрөл сонгоно уу</span>
+          )}
         </Combobox.TriggerBase>
+
         <Combobox.Content>
           <Command>
-            <Command.Input />
+            <Command.Input placeholder="Төрөл сонгоно уу" />
             <Command.List>
               {PROJECT_TYPES.map((type) => (
-                <Command.Item
-                  value={type}
-                  key={type}
-                  onSelect={() =>
-                    setProjectTypes(
-                      projectTypes.includes(type)
-                        ? projectTypes.filter((t) => t !== type)
-                        : [...projectTypes, type],
-                    )
-                  }
-                >
-                  {type}
-                  <Combobox.Check checked={projectTypes.includes(type)} />
+                <Command.Item value={type.value} key={type.value}>
+                  {type.label}
+                  <Combobox.Check
+                    checked={project?.types?.includes(type.value)}
+                  />
                 </Command.Item>
               ))}
             </Command.List>

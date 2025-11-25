@@ -15,12 +15,12 @@ import { buildingSchema } from '@/building/constants/buildingSchema';
 import { BLOCK_GET_BUILDING_LIST } from '@/building/graphql/buildingQueries';
 import { useBuildingsCreate } from '@/building/hooks/useBuildingsCreate';
 import { PROJECT_TYPES } from '@/project/constants/project';
-import { IProjectDetail } from '@/project/types/projectTypes';
+import { IProject } from '@/project/types/projectTypes';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
-export const AddBuilding = ({ project }: { project: IProjectDetail }) => {
+export const AddBuilding = ({ project }: { project: IProject }) => {
   const [open, setOpen] = useState(false);
   return (
     <Sheet open={open} onOpenChange={setOpen}>
@@ -48,7 +48,7 @@ export const AddBuildingForProject = ({
   project,
   onClose,
 }: {
-  project: IProjectDetail;
+  project: IProject;
   onClose: () => void;
 }) => {
   const form = useForm<z.infer<typeof buildingSchema>>({
@@ -123,8 +123,8 @@ export const AddBuildingForProject = ({
                   </Form.Control>
                   <Select.Content>
                     {PROJECT_TYPES.map((type) => (
-                      <Select.Item key={type} value={type}>
-                        {type}
+                      <Select.Item key={type.value} value={type.value}>
+                        {type.label}
                       </Select.Item>
                     ))}
                   </Select.Content>

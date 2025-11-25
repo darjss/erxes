@@ -4,12 +4,12 @@ import {
   BLOCK_GET_PROJECT_DETAIL,
   BLOCK_GET_PROJECT_MEMBERS,
 } from '../graphql/projectQueries';
-import { IProjectDetail, IProjectMember } from '../types/projectTypes';
+import { IProject, IProjectMember } from '../types/projectTypes';
 
 export const useProjectDetail = () => {
   const { id } = useParams();
 
-  const { data, loading } = useQuery<{ blockAdminGetProject: IProjectDetail }>(
+  const { data, loading } = useQuery<{ blockAdminGetProject: IProject }>(
     BLOCK_GET_PROJECT_DETAIL,
     { variables: { id } },
   );

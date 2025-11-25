@@ -39,6 +39,10 @@ export const projectSchema = schemaWrapper(
       name: { type: String, label: 'Name' },
       isPublished: { type: Boolean, label: 'Is Published', default: false },
       location: { type: locationSchema, label: 'Location' },
+
+      shortDescription: { type: String, label: 'Short Description' },
+      description: { type: String, label: 'Description' },
+
       status: {
         type: String,
         label: 'Status',
@@ -51,7 +55,9 @@ export const projectSchema = schemaWrapper(
         enum: BLOCK_VERIFICATION_STATUS.ALL,
         default: BLOCK_VERIFICATION_STATUS.PENDING,
       },
+      logo: { type: String, label: 'Logo' },
       coverImage: { type: String, label: 'Cover Image' },
+      images: { type: [String], label: 'Images' },
       mainPrice: { type: Number, label: 'Price' },
       prices: { type: [projectPriceSchema], label: 'Prices' },
       bankPartners: { type: [String], label: 'Bank Partners' },
@@ -60,8 +66,17 @@ export const projectSchema = schemaWrapper(
         label: 'Project Amenities',
       },
 
+      types: { type: [String], label: 'Types' },
+
       startDate: { type: Date, label: 'Start Date' },
       endDate: { type: Date, label: 'End Date' },
+
+      counts: { type: Schema.Types.Mixed, label: 'Counts' },
+      metrics: { type: Schema.Types.Mixed, label: 'Metrics' },
+      targets: { type: Schema.Types.Mixed, label: 'Targets' },
+      contacts: { type: Schema.Types.Mixed, label: 'Contacts' },
+      links: { type: Schema.Types.Mixed, label: 'Links' },
+      schedules: { type: Schema.Types.Mixed, label: 'Schedules' },
     },
     {
       timestamps: true,

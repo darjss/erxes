@@ -1,7 +1,7 @@
 import { IContext } from '~/connectionResolvers';
 
 export const zoningQueries = {
-  blockGetBuildingZoning: async (
+  blockAdminGetBuildingZoning: async (
     _parent: undefined,
     { _id }: { _id: string },
     { models }: IContext,
@@ -15,7 +15,7 @@ export const zoningQueries = {
     return zoning;
   },
 
-  blockGetBuildingZonings: async (
+  blockAdminGetBuildingZonings: async (
     _parent: undefined,
     { building }: { building: string },
     { models }: IContext,

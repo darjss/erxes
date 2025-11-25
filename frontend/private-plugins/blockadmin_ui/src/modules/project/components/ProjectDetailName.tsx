@@ -1,17 +1,7 @@
 import { useProjects } from '@/project/hooks/useProjects';
-import {
-  Breadcrumb,
-  Input,
-  Popover,
-  PopoverScoped,
-  RecordTableInlineCell,
-  Select,
-  Skeleton,
-  Tooltip,
-} from 'erxes-ui';
+import { Breadcrumb, Select, Skeleton, Tooltip } from 'erxes-ui';
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useUpdateProjectGeneralInfo } from '../hooks/useUpdateProject';
 
 export const ProjectDetailNameBreadcrumb = () => {
   const { projects, loading: projectsLoading } = useProjects(true);
@@ -56,7 +46,6 @@ export const ProjectDetailName = ({
   id: string;
 }) => {
   const [nameValue, setNameValue] = useState(name);
-  const { updateProjectGeneralInfo } = useUpdateProjectGeneralInfo();
 
   useEffect(() => {
     if (name) {
@@ -65,34 +54,17 @@ export const ProjectDetailName = ({
   }, [name]);
 
   return (
-    <PopoverScoped
-      closeOnEnter
-      onOpenChange={(open) => {
-        if (!open && nameValue !== name) {
-          updateProjectGeneralInfo(id || '', { name: nameValue || '' });
-        }
-      }}
-    >
-      <Tooltip.Provider delayDuration={0}>
-        <Tooltip>
-          <Tooltip.Trigger asChild>
-            <Popover.Trigger asChild>
-              <h1 className="text-xl font-medium leading-none hover:bg-accent">
-                {name}
-              </h1>
-            </Popover.Trigger>
-          </Tooltip.Trigger>
-          <Tooltip.Content>
-            <p>Edit project name</p>
-          </Tooltip.Content>
-        </Tooltip>
-      </Tooltip.Provider>
-      <RecordTableInlineCell.Content sideOffset={-24}>
-        <Input
-          value={nameValue}
-          onChange={(e) => setNameValue(e.target.value)}
-        />
-      </RecordTableInlineCell.Content>
-    </PopoverScoped>
+    <Tooltip.Provider delayDuration={0}>
+      <Tooltip>
+        <Tooltip.Trigger asChild>
+          <h1 className="text-xl font-medium leading-none hover:bg-accent">
+            {name}
+          </h1>
+        </Tooltip.Trigger>
+        <Tooltip.Content>
+          <p>Edit project name</p>
+        </Tooltip.Content>
+      </Tooltip>
+    </Tooltip.Provider>
   );
 };

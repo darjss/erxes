@@ -1,8 +1,7 @@
 import { IContext } from '~/connectionResolvers';
-import { requireLogin } from 'erxes-api-shared/core-modules';
 
 export const unitQueries = {
-  blockGetUnit: async (
+  blockAdminGetUnit: async (
     _root,
     { _id }: { _id: string },
     { models }: IContext,
@@ -10,7 +9,7 @@ export const unitQueries = {
     return models.Unit.findOne({ _id }).populate('building');
   },
 
-  blockGetUnits: async (
+  blockAdminGetUnits: async (
     _root,
     { zoning }: { zoning: string },
     { models }: IContext,
@@ -18,6 +17,3 @@ export const unitQueries = {
     return models.Unit.getUnitsByZoning(zoning);
   },
 };
-
-requireLogin(unitQueries, 'blockGetUnit');
-requireLogin(unitQueries, 'blockGetUnits');

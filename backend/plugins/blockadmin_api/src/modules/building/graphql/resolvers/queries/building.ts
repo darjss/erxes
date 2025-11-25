@@ -1,15 +1,14 @@
 import { IContext } from '~/connectionResolvers';
-import { requireLogin } from 'erxes-api-shared/core-modules';
 
 export const buildingQueries = {
-  blockGetBuildings: async (
+  blockAdminGetBuildings: async (
     _parent: undefined,
     { project },
     { models }: IContext,
   ) => {
     return models.Building.find({ project });
   },
-  blockGetBuilding: async (
+  blockAdminGetBuilding: async (
     _parent: undefined,
     { _id },
     { models }: IContext,
@@ -17,6 +16,3 @@ export const buildingQueries = {
     return models.Building.findOne({ _id });
   },
 };
-
-requireLogin(buildingQueries, 'blockGetBuildings');
-requireLogin(buildingQueries, 'blockGetBuilding');

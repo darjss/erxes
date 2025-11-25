@@ -1,8 +1,8 @@
 import { gql } from '@apollo/client';
 
 export const BLOCK_GET_UNITS = gql`
-  query BlockGetUnits($zoning: String!) {
-    blockGetUnits(zoning: $zoning) {
+  query BlockAdminGetUnits($zoning: String!) {
+    blockAdminGetUnits(zoning: $zoning) {
       _id
       number
       size
@@ -14,8 +14,8 @@ export const BLOCK_GET_UNITS = gql`
 `;
 
 export const BLOCK_GET_UNIT = gql`
-  query BlockGetUnit($id: String!) {
-    blockGetUnit(_id: $id) {
+  query BlockAdminGetUnit($id: String!) {
+    blockAdminGetUnit(_id: $id) {
       _id
       building
       number
@@ -36,8 +36,8 @@ export const BLOCK_GET_UNIT = gql`
 `;
 
 export const BLOCK_UNIT_ATTACHMENTS = gql`
-  query BlockGetAttachments($itemType: String!, $itemId: String!) {
-    blockGetAttachments(itemType: $itemType, itemId: $itemId) {
+  query BlockAdminGetAttachments($itemType: String!, $itemId: String!) {
+    blockAdminGetAttachments(itemType: $itemType, itemId: $itemId) {
       _id
       attachment
     }

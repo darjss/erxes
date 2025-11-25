@@ -6,14 +6,14 @@ import {
 import { IBuilding, IZoning } from '@/building/types/buildingTypes';
 
 export const useBuildings = ({ projectId }: { projectId: string }) => {
-  const { data, loading } = useQuery<{ blockGetBuildings: IBuilding[] }>(
+  const { data, loading } = useQuery<{ blockAdminGetBuildings: IBuilding[] }>(
     BLOCK_GET_BUILDING_LIST,
     {
       variables: { project: projectId },
       skip: !projectId,
     },
   );
-  return { buildings: data?.blockGetBuildings, loading };
+  return { buildings: data?.blockAdminGetBuildings, loading };
 };
 
 export const useBuildingZonings = ({
@@ -23,12 +23,12 @@ export const useBuildingZonings = ({
   buildingId: string;
   skip?: boolean;
 }) => {
-  const { data, loading } = useQuery<{ blockGetBuildingZonings: IZoning[] }>(
+  const { data, loading } = useQuery<{ blockAdminGetBuildingZonings: IZoning[] }>(
     BLOCK_GET_BUILDING_ZONINGS,
     {
       variables: { building: buildingId },
       skip: !buildingId || skip,
     },
   );
-  return { buildingZonings: data?.blockGetBuildingZonings, loading };
+  return { buildingZonings: data?.blockAdminGetBuildingZonings, loading };
 };

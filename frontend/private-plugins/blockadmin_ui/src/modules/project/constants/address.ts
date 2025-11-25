@@ -23,7 +23,7 @@ export const ADDRESS_CITY = [
   'Увс',
 ];
 
-export const ADDRESS_DISTRICT = {
+export const ADDRESS_DISTRICT: Record<string, { label: string; value: string; short?: string }[]> = {
   Улаанбаатар: [
     { label: 'Багануур дүүрэг', value: 'Багануур дүүрэг' },
     { label: 'Багахангай дүүрэг', value: 'Багахангай дүүрэг' },

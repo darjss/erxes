@@ -1,11 +1,3 @@
-export interface IProject {
-  _id: string;
-  name: string;
-  coverImage?: string;
-  location?: IProjectLocation;
-  developer: string;
-}
-
 export interface IProjectLocation {
   address?: string;
   city?: string;
@@ -15,15 +7,16 @@ export interface IProjectLocation {
   parcelId?: string;
 }
 
-export interface IProjectPrice {
-  currency: string;
-  price: number;
-  priceType: 'priceBySize' | 'priceByUnit';
-}
+export interface IProject {
+  _id: string;
+  name: string;
+  coverImage?: string;
+  location?: IProjectLocation;
 
-export interface IProjectDetail extends IProject {
   isPublished: boolean;
-  status: 'verified' | 'unverified' | 'pending';
+  status: 'planned' | 'on_going' | 'on_sale' | 'completed';
+  verificationStatus: 'verified' | 'unverified' | 'pending';
+  shortDescription: string;
   description: string;
   logo: string;
   images: string[];
@@ -32,7 +25,30 @@ export interface IProjectDetail extends IProject {
   prices: IProjectPrice[];
   bankPartners: string[];
   projectAmenities: { category: string; amenities: string[] }[];
-  developerId: string;
+  types: string[];
+
+  startDate: Date;
+  endDate: Date;
+
+  developerId?: string;
+
+  counts?: Record<string, number>;
+  priceRanges?: Record<string, { min: number; max: number }>;
+  progress?: number;
+  metrics?: Record<string, number>;
+  targets?: Record<string, string>;
+  contacts?: Record<string, any>;
+  links?: Record<string, string>;
+  schedules?: Record<
+    string,
+    { open: boolean; startOfDay: string; endOfDay: string }
+  >;
+}
+
+export interface IProjectPrice {
+  currency: string;
+  price: number;
+  priceType: 'priceBySize' | 'priceByUnit';
 }
 
 export interface IProjectGeneralInput {

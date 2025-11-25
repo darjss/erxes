@@ -1,3 +1,11 @@
+import { IZoning } from '@/building/types/buildingTypes';
+import { SelectTenureType } from '@/unit/components/SelectTenureType';
+import { SelectUsageType } from '@/unit/components/SelectUsageType';
+import { BLOCK_GET_UNITS } from '@/unit/graphql/unitQueries';
+import { useUnitRemove } from '@/unit/hooks/useUnitRemove';
+import { useUnits } from '@/unit/hooks/useUnits';
+import { useUnitUpdate } from '@/unit/hooks/useUnitUpdate';
+import { IUnit } from '@/unit/types/unitType';
 import { IconPencil, IconTrash } from '@tabler/icons-react';
 import {
   Button,
@@ -8,17 +16,7 @@ import {
   useConfirm,
   useQueryState,
 } from 'erxes-ui';
-import { IZoning } from '@/building/types/buildingTypes';
-import { AddUnitsMultiple } from '@/unit/components/AddMultipleUnits';
-import { SelectTenureType } from '@/unit/components/SelectTenureType';
-import { SelectUsageType } from '@/unit/components/SelectUsageType';
-import { BLOCK_GET_UNITS } from '@/unit/graphql/unitQueries';
-import { useUnitRemove } from '@/unit/hooks/useUnitRemove';
-import { useUnits } from '@/unit/hooks/useUnits';
-import { useUnitUpdate } from '@/unit/hooks/useUnitUpdate';
-import { IUnit } from '@/unit/types/unitType';
 import { useEffect, useState } from 'react';
-import { AddUnitSheet } from './AddUnit';
 
 export const UnitsList = ({
   zone,
@@ -67,10 +65,6 @@ export const UnitsList = ({
       {sortedUnits?.map((unit) => (
         <UnitsListItem key={unit._id} unit={unit} zone={zone} />
       ))}
-      <div className="grid grid-cols-2 gap-4">
-        <AddUnitSheet zone={zone} />
-        <AddUnitsMultiple zone={zone} />
-      </div>
     </>
   );
 };

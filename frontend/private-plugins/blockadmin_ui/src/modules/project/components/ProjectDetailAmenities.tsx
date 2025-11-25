@@ -1,15 +1,6 @@
-import { IconPlus } from '@tabler/icons-react';
-import {
-  Badge,
-  Button,
-  Combobox,
-  Command,
-  Label,
-  Popover,
-  Separator,
-} from 'erxes-ui';
 import { InfoCard, InfoCardContent } from '@/block/components/card';
 import { PROJECT_AMENITIES } from '@/project/constants/amenities';
+import { Badge, Combobox, Command, Label, Popover, Separator } from 'erxes-ui';
 import { useEffect, useState } from 'react';
 import { useProjectDetail } from '../hooks/useProjectDetail';
 import { useUpdateProjectGeneralInfo } from '../hooks/useUpdateProject';
@@ -103,8 +94,6 @@ export const ProjectDetailAmenities = () => {
       >
         <InfoCardContent>
           <div className="space-y-2">
-            <Label className="block">Amenities</Label>
-
             <Popover
               open={open}
               onOpenChange={(open) => {
@@ -117,12 +106,6 @@ export const ProjectDetailAmenities = () => {
                 }
               }}
             >
-              <Popover.Trigger asChild>
-                <Button variant="outline">
-                  <IconPlus />
-                  Add amenity
-                </Button>
-              </Popover.Trigger>
               <Combobox.Content className="min-w-96">
                 <Command>
                   <Command.Input />
@@ -167,13 +150,7 @@ export const ProjectDetailAmenities = () => {
                   className="flex flex-wrap gap-2 items-center "
                 >
                   {amenityGroup.amenities.map((am) => (
-                    <Badge
-                      key={am}
-                      variant="secondary"
-                      onClose={() =>
-                        handleRemoveAmenity(am, amenityGroup.category)
-                      }
-                    >
+                    <Badge key={am} variant="secondary">
                       {am}
                     </Badge>
                   ))}

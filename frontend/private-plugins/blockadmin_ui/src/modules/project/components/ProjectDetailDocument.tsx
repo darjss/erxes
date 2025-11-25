@@ -1,9 +1,9 @@
-import { zodResolver } from '@hookform/resolvers/zod';
-import { IconTrash } from '@tabler/icons-react';
-import { Button, Form, Input, Label, Select, Sheet } from 'erxes-ui';
 import { InfoCard, InfoCardContent } from '@/block/components/card';
 import { UploadProvider } from '@/block/components/upload';
 import { UploadButton } from '@/block/components/UploadCard';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { IconTrash } from '@tabler/icons-react';
+import { Button, Form, Input, Label, Select, Sheet } from 'erxes-ui';
 import { useState } from 'react';
 import { useForm, UseFormReturn } from 'react-hook-form';
 import { MembersInline } from 'ui-modules';
@@ -78,7 +78,6 @@ export const ProjectDetailDocument = () => {
               </Button>
             </div>
           </div>
-          <ProjectDocumentSheet />
         </InfoCardContent>
       </InfoCard>
     </div>
