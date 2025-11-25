@@ -35,6 +35,9 @@ export interface IProject {
   progress?: number;
   metrics?: Record<string, number>;
   targets?: Record<string, string>;
+  contacts?: Record<string, any>;
+  links?: Record<string, string>;
+  schedules?: Record<string, { open: boolean; startOfDay: string; endOfDay: string }>;
 }
 
 export interface IProjectPrice {
@@ -50,6 +53,9 @@ export interface IProjectGeneralInput {
   location: IProjectLocation | null;
   status: string | null;
   coverImage: string | null;
+  logo: string | null;
+  images: string[] | null;
+  videos: string[] | null;
   mainPrice: number | null;
   prices: IProjectPrice[] | null;
   bankPartners: string[] | null;
@@ -62,6 +68,9 @@ export interface IProjectGeneralInput {
   counts?: Record<string, number>;
   metrics?: Record<string, number>;
   targets?: Record<string, string>;
+  contacts?: Record<string, any>;
+  links?: Record<string, string>;
+  schedules?: Record<string, { open: boolean; startOfDay: string; endOfDay: string }>;
 }
 
 export interface IProjectMember {

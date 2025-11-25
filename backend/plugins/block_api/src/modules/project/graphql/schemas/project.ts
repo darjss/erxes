@@ -66,7 +66,9 @@ export const types = `
     location: BlockProjectLocation
     verificationStatus: BlockVerificationStatus
     status: BlockAdminProjectStatus
+    logo: String
     coverImage: String
+    images: [String]
     mainPrice: Int
     prices: [BlockProjectPrice]
     projectAmenities: [BlockProjectAmenity]
@@ -78,13 +80,19 @@ export const types = `
 
     counts: JSON
     priceRanges: JSON
+    metrics: JSON
+    targets: JSON
+    contacts: JSON
+    links: JSON
     progress: Float
+    schedules: JSON
   }
 
   input BlockProjectGeneralInput {
     name: String
     logo: String
     coverImage: String
+    images: [String]
     shortDescription: String
     description: String
     location: BlockProjectLocationInput
@@ -98,6 +106,14 @@ export const types = `
 
     startDate: Date
     endDate: Date
+
+    counts: JSON
+    priceRanges: JSON
+    metrics: JSON
+    targets: JSON
+    contacts: JSON
+    links: JSON
+    schedules: JSON
   }
 `;
 

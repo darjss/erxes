@@ -8,7 +8,7 @@ export const ProjectDetailSidebar = () => {
   const properties = [
     PROJECT_TABS.GENERAL,
     // PROJECT_TABS.PRICING,
-    // PROJECT_TABS.AMENITIES,
+    PROJECT_TABS.AMENITIES,
     // PROJECT_TABS.SEO,
     // PROJECT_TABS.POLICIES,
     PROJECT_TABS.SPECIFICATIONS,

@@ -1,16 +1,19 @@
 import { InfoCard, InfoCardContent } from '@/block/components/card';
-import { Upload, UploadProvider } from '@/block/components/upload';
-import { useProjectDetail } from '@/project/hooks/useProjectDetail';
-import { useUpdateProjectGeneralInfo } from '@/project/hooks/useUpdateProject';
-import { IconPhotoCirclePlus, IconUpload, IconX } from '@tabler/icons-react';
-import { Button, readImage, Input, Dialog } from 'erxes-ui';
-import { UploadRemoveButton } from '@/block/components/upload';
-import { useState } from 'react';
+import {
+  Upload,
+  UploadProvider,
+  UploadRemoveButton,
+} from '@/block/components/upload';
 import {
   RemoveButton,
   UploadButton,
   UploadCard,
 } from '@/block/components/UploadCard';
+import { useProjectDetail } from '@/project/hooks/useProjectDetail';
+import { useUpdateProjectGeneralInfo } from '@/project/hooks/useUpdateProject';
+import { IconPhotoCirclePlus, IconUpload, IconX } from '@tabler/icons-react';
+import { Button, Dialog, Input, readImage } from 'erxes-ui';
+import { useState } from 'react';
 
 export const ProjectDetailMedia = () => {
   return (
@@ -54,13 +57,31 @@ export const ProjectImage = ({ field }: { field: 'coverImage' | 'logo' }) => {
 export const ProjectImages = () => {
   const { project } = useProjectDetail();
   const [images, setImages] = useState<string[]>(project?.images || []);
+
+  const { updateProjectGeneralInfo } = useUpdateProjectGeneralInfo();
+
+  const onValueChange = (value?: string[] | string) => {
+    if (Array.isArray(value)) {
+      setImages(value);
+    } else if (typeof value === 'string') {
+      setImages((prev) => [...prev, value]);
+    }
+  };
+
   return (
     <InfoCard title="Project images">
       <InfoCardContent>
         <UploadProvider
           mode="multiple"
           value={images}
-          onValueChange={(value) => setImages(value as string[])}
+          onValueChange={onValueChange}
+          onUploadsFinished={(value) => {
+            if (!value) return;
+
+            updateProjectGeneralInfo(project?._id || '', {
+              images: typeof value === 'string' ? [value] : value,
+            });
+          }}
         >
           <div className="grid gap-3 grid-cols-6">
             {images.length > 0 ? (
@@ -120,7 +141,13 @@ export const ProjectImages = () => {
 };
 
 export const ProjectVideo = () => {
-  const [videoValue, setVideoValue] = useState<string | undefined>(undefined);
+  const { project } = useProjectDetail();
+  const [videoValue, setVideoValue] = useState<string | undefined>(
+    project?.links?.video,
+  );
+
+  const { updateProjectGeneralInfo } = useUpdateProjectGeneralInfo();
+
   return (
     <div>
       <InfoCard title="Project video">
@@ -129,7 +156,14 @@ export const ProjectVideo = () => {
             type="text"
             placeholder="Video URL"
             value={videoValue}
-            onChange={(e) => setVideoValue(e.target.value)}
+            onChange={(e) => {
+              setVideoValue(e.target.value);
+            }}
+            onBlur={() => {
+              updateProjectGeneralInfo(project?._id || '', {
+                links: { ...project?.links, video: videoValue || '' },
+              });
+            }}
           />
           <Dialog>
             <Dialog.Trigger asChild>

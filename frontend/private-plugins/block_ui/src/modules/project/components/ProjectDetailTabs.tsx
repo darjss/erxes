@@ -21,6 +21,12 @@ const ProjectTarget = lazy(() =>
   })),
 );
 
+const ProjectContact = lazy(() =>
+  import('./ProjectContact').then((module) => ({
+    default: module.ProjectContact,
+  })),
+);
+
 const ProjectDetailPrices = lazy(() =>
   import('./ProjectDetailPrices').then((module) => ({
     default: module.ProjectDetailPrices,
@@ -94,6 +100,7 @@ export const ProjectDetailTabs = () => {
       {activeTab === PROJECT_TABS.GENERAL && <ProjectDetailGeneral />}
       {activeTab === PROJECT_TABS.SPECIFICATIONS && <ProjectSpecification />}
       {activeTab === PROJECT_TABS.TARGET && <ProjectTarget />}
+      {activeTab === PROJECT_TABS.CONTACT && <ProjectContact />}
       {activeTab === PROJECT_TABS.PRICING && <ProjectDetailPrices />}
       {activeTab === PROJECT_TABS.BUILDINGS && <ProjectDetailBuildings />}
       {activeTab === PROJECT_TABS.ZONES && <ProjectDetailZoning />}

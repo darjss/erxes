@@ -1,7 +1,7 @@
 import { useMutation } from '@apollo/client';
+import { toast } from 'erxes-ui';
 import { UPDATE_PROJECT_GENERAL_INFO } from '../graphql/projectMutations';
 import { IProjectGeneralInput } from '../types/projectTypes';
-import { toast } from 'erxes-ui';
 
 export const useUpdateProjectGeneralInfo = () => {
   const [updateProjectGeneralInfoMutation] = useMutation(
@@ -25,12 +25,6 @@ export const useUpdateProjectGeneralInfo = () => {
             {},
           ),
           optimistic: true,
-        });
-      },
-      onCompleted: () => {
-        toast({
-          title: 'Success',
-          description: 'Project updated successfully',
         });
       },
       onError: (error) => {

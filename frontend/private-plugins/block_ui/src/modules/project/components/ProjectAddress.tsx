@@ -8,7 +8,7 @@ import { useState } from 'react';
 
 export const ProjectAddress = () => {
   const { project } = useProjectDetail();
-  const { city, district, address, parcelId } = project?.location || {};
+  const { city, district, address, lat, lng } = project?.location || {};
   const { updateProjectGeneralInfo } = useUpdateProjectGeneralInfo();
   const [selectedCity, setSelectedCity] = useState<string>(
     city || 'Улаанбаатар',
@@ -17,7 +17,8 @@ export const ProjectAddress = () => {
     district || '',
   );
   const [addressValue, setAddressValue] = useState<string>(address || '');
-  const [parcelIdValue, setParcelIdValue] = useState<string>(parcelId || '');
+  const [latValue, setLatValue] = useState<number>(lat || 0);
+  const [lngValue, setLngValue] = useState<number>(lng || 0);
 
   const handleUpdateProjectLocation = (location: IProjectLocation) => {
     updateProjectGeneralInfo(project?._id || '', {
@@ -26,7 +27,8 @@ export const ProjectAddress = () => {
         city,
         district,
         address,
-        parcelId,
+        lat,
+        lng,
         ...location,
       },
     });
@@ -91,39 +93,50 @@ export const ProjectAddress = () => {
                 </Select.Content>
               </Select>
             </div>
+
             <div className="space-y-2">
               <Label asChild>
-                <span>Address</span>
+                <span>Coordinates</span>
               </Label>
-              <Textarea
-                placeholder="Хаяг оруулна уу"
-                value={addressValue}
-                onChange={(e) => setAddressValue(e.target.value)}
-                onBlur={() => {
-                  handleUpdateProjectLocation({
-                    address: addressValue,
-                  });
-                }}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label asChild>
-                <span>Parcel Id</span>
-              </Label>
-              <Input
-                placeholder="Кадастр оруулна уу"
-                value={parcelIdValue}
-                onChange={(e) => setParcelIdValue(e.target.value)}
-                onBlur={() => {
-                  handleUpdateProjectLocation({
-                    parcelId: parcelIdValue,
-                  });
-                }}
-              />
+              <div className="flex gap-2">
+                <Input
+                  placeholder="Latitude"
+                  value={latValue}
+                  onChange={(e) => setLatValue(Number(e.target.value))}
+                  onBlur={() => {
+                    handleUpdateProjectLocation({
+                      lat: latValue,
+                    });
+                  }}
+                />
+                <Input
+                  placeholder="Longitude"
+                  value={lngValue}
+                  onChange={(e) => setLngValue(Number(e.target.value))}
+                  onBlur={() => {
+                    handleUpdateProjectLocation({
+                      lng: lngValue,
+                    });
+                  }}
+                />
+              </div>
             </div>
           </div>
-          <div className="col-span-2 h-full w-full bg-gray-200 flex justify-center items-center">
-            Google Map
+          <div className="col-span-2 space-y-2 flex flex-col">
+            <Label asChild>
+              <span>Address</span>
+            </Label>
+            <Textarea
+              className="flex-1"
+              placeholder="Хаяг оруулна уу"
+              value={addressValue}
+              onChange={(e) => setAddressValue(e.target.value)}
+              onBlur={() => {
+                handleUpdateProjectLocation({
+                  address: addressValue,
+                });
+              }}
+            />
           </div>
         </div>
       </InfoCardContent>
