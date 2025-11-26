@@ -1,7 +1,7 @@
 import { InfoCardContent } from '@/block/components/card';
 import { SOCIAL_LINKS, WEEKDAYS } from '@/block/constants/socialLinks';
 import { useProjectDetail } from '@/project/hooks/useProjectDetail';
-import { InfoCard, Input, Label, Switch, Textarea } from 'erxes-ui';
+import { Combobox, InfoCard, Input, Label, PhoneDisplay, PhoneField, PopoverScoped, RecordTableInlineCell, Switch, Textarea } from 'erxes-ui';
 import { useState } from 'react';
 import { ProjectTime } from './ProjectTime';
 
@@ -11,7 +11,7 @@ export const ProjectContact = () => {
   const [contacts, setContacts] = useState(project?.contacts || {});
 
   const {
-    phone = '',
+    phones = [],
     email = '',
     website = '',
     manager = '',
@@ -44,22 +44,22 @@ export const ProjectContact = () => {
                 <Label asChild>
                   <span>Phone</span>
                 </Label>
-                {/* <PopoverScoped>
-                <Combobox.Trigger>
-                  <PhoneDisplay primaryPhone={contacts?.phone || ''} />
-                </Combobox.Trigger>
-                <RecordTableInlineCell.Content className="w-72">
-                  <PhoneField
-                    recordId={''}
-                    primaryPhone={contacts?.phone || ''}
-             
-                    onValueChange={(phones) => {
-                      setContacts({ ...contacts, phones });
-                    }}
-                  />
-                </RecordTableInlineCell.Content>
-              </PopoverScoped> */}
-                <Input placeholder="Утасны дугаар оруулна уу" value={phone} />
+                <PopoverScoped>
+                  <Combobox.Trigger>
+                    <PhoneDisplay
+                      primaryPhone={phones?.[0] || ''}
+                      phones={phones || []}
+                    />
+                  </Combobox.Trigger>
+                  <RecordTableInlineCell.Content className="w-72">
+                    <PhoneField
+                      recordId={''}
+                      primaryPhone={phones?.[0] || ''}
+                      phones={phones || []}
+                      onValueChange={() => {}}
+                    />
+                  </RecordTableInlineCell.Content>
+                </PopoverScoped>
               </div>
               <div className="space-y-2">
                 <Label asChild>
