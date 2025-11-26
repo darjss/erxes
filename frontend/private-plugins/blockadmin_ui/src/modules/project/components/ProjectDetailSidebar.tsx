@@ -16,6 +16,7 @@ export const ProjectDetailSidebar = () => {
     PROJECT_TABS.CONTACT,
     PROJECT_TABS.MEDIA,
     PROJECT_TABS.DOCUMENTS,
+    PROJECT_TABS.UNIT_TYPES,
   ];
 
   const stacking = [
