@@ -1,4 +1,4 @@
-import { SelectUsageType } from '@/unit/components/SelectUsageType';
+import { SelectUnitType } from '@/unit/components/SelectUnitType';
 import { addUnitSchema } from '@/unit/constants/addUnitSchema';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { IconPlus } from '@tabler/icons-react';
@@ -12,12 +12,10 @@ import {
   Spinner,
 } from 'erxes-ui';
 import { useForm } from 'react-hook-form';
-import { CurrencyField } from 'erxes-ui';
 import { useState } from 'react';
 import { useUnitCreate } from '@/unit/hooks/useUnitCreate';
 import { IZoning } from '@/building/types/buildingTypes';
 import { z } from 'zod';
-import { SelectTenureType } from '@/unit/components/SelectTenureType';
 import { PricingForm } from '@/pricing/components/PricingForm';
 import { useProjectDetail } from '@/project/hooks/useProjectDetail';
 
@@ -33,9 +31,7 @@ export const AddUnit = ({
     resolver: zodResolver(addUnitSchema),
     defaultValues: {
       number: (zone.floor < 0 ? `B${zone.floor * -1}` : zone.floor).toString(),
-      type: zone.usageType,
-      tenureType: zone.tenureType,
-      size: 0,
+      type: '',
       useProjectPrice: true,
       mainPrice: project?.mainPrice,
       prices: project?.prices?.map((p) => ({
@@ -87,33 +83,11 @@ export const AddUnit = ({
                 render={({ field }) => (
                   <Form.Item>
                     <Form.Label>Type</Form.Label>
-                    <SelectUsageType
+                    <SelectUnitType
                       value={field.value}
                       onValueChange={field.onChange}
                       inForm
                     />
-                  </Form.Item>
-                )}
-              />
-              <Form.Field
-                name="tenureType"
-                render={({ field }) => (
-                  <Form.Item>
-                    <Form.Label>Tenure type</Form.Label>
-                    <SelectTenureType
-                      value={field.value}
-                      onValueChange={field.onChange}
-                      inForm
-                    />
-                  </Form.Item>
-                )}
-              />
-              <Form.Field
-                name="size"
-                render={({ field }) => (
-                  <Form.Item>
-                    <Form.Label>Size</Form.Label>
-                    <CurrencyField.ValueInput {...field} />
                   </Form.Item>
                 )}
               />

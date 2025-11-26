@@ -1,7 +1,5 @@
 import { IZoning } from '@/building/types/buildingTypes';
 import { AddUnitsMultiple } from '@/unit/components/AddMultipleUnits';
-import { SelectTenureType } from '@/unit/components/SelectTenureType';
-import { SelectUsageType } from '@/unit/components/SelectUsageType';
 import { BLOCK_GET_UNITS } from '@/unit/graphql/unitQueries';
 import { useUnitRemove } from '@/unit/hooks/useUnitRemove';
 import { useUnits } from '@/unit/hooks/useUnits';
@@ -10,7 +8,6 @@ import { IUnit } from '@/unit/types/unitType';
 import { IconPencil, IconTrash } from '@tabler/icons-react';
 import {
   Button,
-  CurrencyField,
   Input,
   Label,
   Spinner,
@@ -19,6 +16,7 @@ import {
 } from 'erxes-ui';
 import { useEffect, useState } from 'react';
 import { AddUnitSheet } from './AddUnit';
+import { SelectUnitType } from './SelectUnitType';
 
 export const UnitsList = ({
   zone,
@@ -49,17 +47,12 @@ export const UnitsList = ({
     <>
       <div className="grid gap-3 grid-cols-5 [&>span]:whitespace-nowrap min-w-[56rem]">
         <Label asChild>
-          <span>Code</span>
+          <span>Дугаар</span>
         </Label>
         <Label asChild>
-          <span>Usage type</span>
+          <span className="col-span-3">Unit type</span>
         </Label>
-        <Label asChild>
-          <span>Tenure type</span>
-        </Label>
-        <Label asChild>
-          <span>Area m²</span>
-        </Label>
+
         <Label asChild>
           <span>Actions</span>
         </Label>
@@ -82,11 +75,10 @@ export const UnitsListItem = ({
   unit: IUnit;
   zone: IZoning;
 }) => {
-  const { number, type: unitType, status } = unit || {};
-  const { size, type, tenureType } = unitType || {};
-  const [unitSize, setUnitSize] = useState(size);
+  const { number, type } = unit || {};
   const [unitNumber, setUnitNumber] = useState(number);
-  const { updateUnit } = useUnitUpdate({ id: unit._id });
+  const { updateUnit } = useUnitUpdate({ id: unit._id, zoning: zone._id });
+
   return (
     <div className="grid gap-3 grid-cols-5">
       <Input
@@ -96,12 +88,13 @@ export const UnitsListItem = ({
           unitNumber !== unit.number && updateUnit({ number: unitNumber })
         }
       />
-      <SelectUsageType value={type} />
-      <SelectTenureType value={tenureType} />
-      <CurrencyField.ValueInput
-        value={unitSize}
-        onChange={(value) => setUnitSize(value)}
-      />
+      <div className="col-span-3">
+        <SelectUnitType
+          value={type?._id || ''}
+          onValueChange={(value) => updateUnit({ type: value })}
+        />
+      </div>
+
       <div className="flex items-center gap-2">
         <UnitListItemRemove unit={unit} zone={zone} />
         <UnitListItemEdit unit={unit} />

@@ -7,7 +7,7 @@ export const unitTypeSchema = z.object({
   type: z.string().min(1, 'Type is required'),
   tenureType: z.string().min(1, 'Tenure type is required'),
   content: z.string().optional(),
-  price: z.number().optional(),
+  price: z.number(),
   prices: z
     .array(
       z.object({
@@ -21,4 +21,3 @@ export const unitTypeSchema = z.object({
   rooms: z.any().optional(),
   roomsCount: z.number().optional(),
 });
-

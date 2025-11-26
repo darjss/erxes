@@ -4,8 +4,6 @@ export const addUnitSchema = z
   .object({
     number: z.string().min(1),
     type: z.string().min(1),
-    tenureType: z.string().min(1),
-    size: z.number(),
     useProjectPrice: z.boolean(),
     mainPrice: z.number().optional(),
     prices: z
@@ -29,7 +27,5 @@ export const addUnitSchema = z
 
 export const addUnitsMultipleSchema = z.object({
   type: z.string().min(1),
-  tenureType: z.string().min(1),
-  size: z.number(),
   count: z.number(),
 });

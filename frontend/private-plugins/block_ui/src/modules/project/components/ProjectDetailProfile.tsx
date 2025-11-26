@@ -18,12 +18,12 @@ export const ProjectDetailProfile = () => {
             name={project?.name || ''}
           />
           <Badge
-            variant={project?.status === 'verified' ? 'default' : 'secondary'}
+            variant={project?.status === 'on_sale' ? 'default' : 'secondary'}
           >
             <IconShieldFilled
               className={cn(
                 'size-3.5',
-                project?.status !== 'verified' && 'text-accent-foreground',
+                project?.status !== 'on_sale' && 'text-accent-foreground',
               )}
             />
             {project?.status}

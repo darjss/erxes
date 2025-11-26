@@ -1,5 +1,5 @@
 import { useBuildings } from '@/building/hooks/useBuildings';
-import { Button, Select, Skeleton } from 'erxes-ui';
+import { Button, Empty, Select, Skeleton } from 'erxes-ui';
 import { useEffect } from 'react';
 
 export const SelectBuilding = ({
@@ -26,9 +26,22 @@ export const SelectBuilding = ({
       </Button>
     );
 
+  if (!buildings?.length) {
+    return (
+      <Empty>
+        <Empty.Header>
+          <Empty.Title>No buildings found</Empty.Title>
+          <Empty.Description>
+            There are no buildings added yet for this project.
+          </Empty.Description>
+        </Empty.Header>
+      </Empty>
+    );
+  }
+
   return (
     <Select value={value} onValueChange={onValueChange}>
-      <Select.Trigger className="bg-background w-auto min-w-40">
+      <Select.Trigger className="bg-background w-auto blk:min-w-40">
         <Select.Value />
       </Select.Trigger>
       <Select.Content>

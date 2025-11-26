@@ -1,29 +1,16 @@
-import { PricingDetail } from '@/pricing/components/PricingDetail';
-import { SelectTenureType } from '@/unit/components/SelectTenureType';
 import { SelectUnitStatus } from '@/unit/components/SelectUnitStatus';
-import { SelectUsageType } from '@/unit/components/SelectUsageType';
 import { useUnitContext } from '@/unit/context/unitContext';
 import { useUnitUpdate } from '@/unit/hooks/useUnitUpdate';
-import { CurrencyField, Input, Label, Separator } from 'erxes-ui';
+import { Input, Label, Separator } from 'erxes-ui';
+import { SelectUnitType } from './SelectUnitType';
+import { UnitTypeSummary } from './UnitTypeSummary';
 
 export const UnitDetailOverview = () => {
   const { unit } = useUnitContext();
 
-  const { number, type: unitType } = unit || {};
+  const { number, type } = unit || {};
 
-  const { size, price, prices, type, tenureType } = unitType || {};
-
-  // const [mainPrice, setMainPrice] = useState(unit?.mainPrice);
-  const { updateUnit } = useUnitUpdate({ id: unit?._id });
-
-  // useEffect(() => {
-  //   if (unit?.mainPrice) {
-  //     setMainPrice(unit?.mainPrice);
-  //   }
-  //   if (unit?.size) {
-  //     setSize(unit?.size);
-  //   }
-  // }, [unit]);
+  const { updateUnit } = useUnitUpdate({ id: unit?._id, zoning: unit?.zoning });
 
   return (
     <div>
@@ -37,51 +24,24 @@ export const UnitDetailOverview = () => {
           />
         </div>
         <div className="space-y-2">
-          <Label>Usage Type</Label>
-          <SelectUsageType value={type} />
-        </div>
-        <div className="space-y-2">
-          <Label>Tenure Type</Label>
-          <SelectTenureType value={tenureType} />
+          <Label>Unit Type</Label>
+          <SelectUnitType
+            value={type?._id || ''}
+            onValueChange={(value) => updateUnit({ type: value })}
+          />
         </div>
         <div className="space-y-2">
           <Label>Status</Label>
           <SelectUnitStatus
-            value={status}
+            value={unit?.status}
             onValueChange={(value) => updateUnit({ status: value })}
-            tenureType={tenureType}
+            tenureType={unit.type.tenureType}
           />
         </div>
       </div>
-
       <Separator />
-
-      <div className="blk:space-y-5 p-8">
-        <PricingDetail
-          mainPrice={price}
-          prices={prices}
-          updateUnit={(data) => updateUnit({ type: { ...unitType, ...data } })}
-        />
-        <div className="space-y-2 col-span-3">
-          <Label>Area</Label>
-          <CurrencyField.ValueInput
-            value={size}
-            onChange={(value) =>
-              updateUnit({ type: { ...unitType, size: value } })
-            }
-            onBlur={() =>
-              size !== size && updateUnit({ type: { ...unitType, size } })
-            }
-          />
-        </div>
-        <div className="space-y-2">
-          <Label>total price</Label>
-          <CurrencyField.ValueInput
-            value={size * price}
-            disabled
-            className="disabled:opacity-100"
-          />
-        </div>
+      <div className="p-5">
+        <UnitTypeSummary unitType={unit?.type} />
       </div>
     </div>
   );
