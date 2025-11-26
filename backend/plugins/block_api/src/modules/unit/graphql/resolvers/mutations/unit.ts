@@ -1,6 +1,5 @@
 import { CONTRACT_STATUS } from '@/contract/constants';
 import { IUnitInput } from '@/unit/@types/unit';
-import { requireLogin } from 'erxes-api-shared/core-modules';
 import { IContext } from '~/connectionResolvers';
 
 export const unitMutations = {
@@ -77,7 +76,3 @@ export const unitMutations = {
     return models.Unit.removeUnit(_id);
   },
 };
-
-requireLogin(unitMutations, 'blockCreateUnit');
-requireLogin(unitMutations, 'blockUpdateUnit');
-requireLogin(unitMutations, 'blockDeleteUnit');
