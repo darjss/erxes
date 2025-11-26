@@ -196,10 +196,7 @@ export const ProjectDetailDocumentForm = ({
               <Form.Item>
                 <Form.Label>Content</Form.Label>
                 <Form.Control>
-                  <UploadProvider
-                    value={field.value}
-                    onValueChange={field.onChange}
-                  >
+                  <UploadProvider value={field.value}>
                     <div className="flex items-center gap-4">
                       <UploadButton />
                       <FileName form={form} />

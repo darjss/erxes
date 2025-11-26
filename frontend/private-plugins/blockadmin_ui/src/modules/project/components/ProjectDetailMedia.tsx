@@ -24,7 +24,6 @@ export const ProjectImage = ({ field }: { field: 'coverImage' | 'logo' }) => {
     <UploadCard
       title={field === 'coverImage' ? 'Project cover' : 'Project logo'}
       value={project?.[field]}
-      onValueChange={(value) => {}}
       fit="cover"
     >
       <div />
@@ -38,11 +37,7 @@ export const ProjectImages = () => {
   return (
     <InfoCard title="Project images">
       <InfoCardContent>
-        <UploadProvider
-          mode="multiple"
-          value={images}
-          onValueChange={(value) => setImages(value as string[])}
-        >
+        <UploadProvider mode="multiple" value={images}>
           <div className="grid gap-3 grid-cols-6">
             {images.length > 0 ? (
               images.map((image) => (

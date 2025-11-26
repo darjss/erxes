@@ -1,11 +1,7 @@
-import { Button, Input, Label, Textarea } from 'erxes-ui';
 import { InfoCard, InfoCardContent } from '@/block/components/card';
-import {
-  RemoveButton,
-  UploadButton,
-  UploadCard,
-} from '@/block/components/UploadCard';
+import { UploadButton, UploadCard } from '@/block/components/UploadCard';
 import { useProjectDetail } from '@/project/hooks/useProjectDetail';
+import { Button, Input, Label, Textarea } from 'erxes-ui';
 import { useState } from 'react';
 
 export const ProjectDetailSeo = () => {
@@ -37,16 +33,10 @@ export const ProjectDetailSeo = () => {
           </div>
         </InfoCardContent>
       </InfoCard>
-      <UploadCard
-        title="SOCIAL SHARE IMAGE"
-        value={seoValue}
-        onValueChange={setSeoValue}
-        fit="cover"
-      >
+      <UploadCard title="SOCIAL SHARE IMAGE" value={seoValue} fit="cover">
         <div className="grid grid-cols-3 gap-2">
           <UploadButton value={seoValue} />
           <CoverImageButton setSeoValue={setSeoValue} />
-          <RemoveButton value={seoValue} />
         </div>
       </UploadCard>
     </div>

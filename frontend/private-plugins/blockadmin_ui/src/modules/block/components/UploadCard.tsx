@@ -1,15 +1,10 @@
 import { InfoCard, InfoCardContent } from '@/block/components/card';
-import {
-  Upload,
-  UploadProvider,
-  UploadRemoveButton,
-} from '@/block/components/upload';
+import { Upload, UploadProvider } from '@/block/components/upload';
 
 import {
   IconFile,
   IconFilePlus,
   IconPhotoCirclePlus,
-  IconTrash,
   IconUpload,
 } from '@tabler/icons-react';
 import { Badge, Button, cn, Dialog } from 'erxes-ui';
@@ -17,14 +12,12 @@ import { Badge, Button, cn, Dialog } from 'erxes-ui';
 export const UploadCard = ({
   title,
   value,
-  onValueChange,
   fit = 'contain',
   children,
   acceptedFileTypes = ['image/*'],
 }: {
   title: string;
   value?: string;
-  onValueChange: (value: string) => void;
   fit?: 'cover' | 'contain';
   children: React.ReactNode;
   acceptedFileTypes?: string[];
@@ -32,11 +25,7 @@ export const UploadCard = ({
   return (
     <InfoCard title={title}>
       <InfoCardContent>
-        <UploadProvider
-          value={value}
-          onValueChange={(value) => onValueChange(value as string)}
-          acceptedFileTypes={acceptedFileTypes}
-        >
+        <UploadProvider value={value} acceptedFileTypes={acceptedFileTypes}>
           {acceptedFileTypes.includes('image/*') ? (
             <ImageDisplay value={value} title={title} fit={fit} />
           ) : (
@@ -59,17 +48,6 @@ export const UploadButton = ({ value }: { value?: string }) => {
         </div>
       </Button>
     </Upload>
-  );
-};
-
-export const RemoveButton = ({ value }: { value?: string }) => {
-  return (
-    <UploadRemoveButton>
-      <Button variant="secondary" disabled={!value}>
-        <IconTrash />
-        Remove
-      </Button>
-    </UploadRemoveButton>
   );
 };
 
