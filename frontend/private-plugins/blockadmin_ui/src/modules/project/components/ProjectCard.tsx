@@ -128,10 +128,10 @@ export const ProjectCard = (project: IProject) => {
   return (
     <Link
       to={`/blockadmin/projects/${_id}`}
-      className="border bg-accent p-2 blk:rounded-[1.25rem]"
+      className="border bg-accent p-2 ba:rounded-[1.25rem]"
     >
       <div className="grid grid-cols-2">
-        <div className="w-full h-full relative blk:aspect-2/1 rounded-xl overflow-hidden flex items-center justify-center">
+        <div className="w-full h-full relative ba:aspect-2/1 ba:rounded-xl overflow-hidden flex items-center justify-center">
           {coverImage ? (
             <img
               src={readImage(coverImage)}
@@ -141,7 +141,7 @@ export const ProjectCard = (project: IProject) => {
           ) : (
             <IconPhotoCirclePlus className="size-8 text-scroll" />
           )}
-          <div className="absolute inset-0 border border-foreground/10 rounded-xl" />
+          <div className="absolute inset-0 border border-foreground/10 ba:rounded-xl" />
         </div>
         <div className="px-4 py-2 flex flex-col gap-3">
           <div className="flex justify-between">
