@@ -48,16 +48,16 @@ export const wrapMutationResolver = (mutations: Record<string, Resolver>) => {
     mutations[path] = async (root, args, context, info) => {
       const entity = await resolver(root, args, context, info);
 
-      if (entity) {
-        sendMessage({
-          subdomain: context.subdomain,
-          path,
-          payload: {
-            data: args,
-            entityId: entity?._id || args?._id,
-          },
-        });
-      }
+      // if (entity) {
+      //   sendMessage({
+      //     subdomain: context.subdomain,
+      //     path,
+      //     payload: {
+      //       data: args,
+      //       entityId: entity?._id || args?._id,
+      //     },
+      //   });
+      // }
 
       return entity;
     };

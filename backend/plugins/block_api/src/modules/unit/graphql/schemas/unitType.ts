@@ -2,24 +2,27 @@ export const types = `
   type UnitType {
     description: String
     size: Float
-    type: String
-    tenureType: String
+    type: BlockBuildingUnitUsageType
+    tenureType: BlockBuildingUnitTenureType
     content: String
     price: Float
-    prices: JSON
+    prices: [BlockProjectPrice]
     status: String
     rooms: JSON
     roomsCount: Int
+
+    createdAt: Date
+    updatedAt: Date
   }
 
   input UnitTypeInput {
     description: String
     size: Float
-    type: String
-    tenureType: String
+    type: BlockBuildingUnitUsageType
+    tenureType: BlockBuildingUnitTenureType
     content: String
     price: Float
-    prices: JSON
+    prices: [BlockProjectPriceInput]
     status: String
     rooms: JSON
     roomsCount: Int

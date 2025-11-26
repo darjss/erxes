@@ -3,9 +3,10 @@ import {
   useBuildingZonings,
 } from '@/building/hooks/useBuildings';
 import { IZoning } from '@/building/types/buildingTypes';
+import { useProjects } from '@/project/hooks/useProjects';
 import { StackingUnitItem } from '@/stacking/components/StackingUnitItem';
-import { UNIT_SALE_STATUS } from '@/unit/constants/unit';
 import { UnitDetailSheet } from '@/unit/components/UnitDetailSheet';
+import { UNIT_SALE_STATUS } from '@/unit/constants/unit';
 import { useUnits } from '@/unit/hooks/useUnits';
 import {
   IconBuildingPlus,
@@ -14,7 +15,6 @@ import {
 } from '@tabler/icons-react';
 import { Button, ScrollArea, Spinner, useMultiQueryState } from 'erxes-ui';
 import { Link } from 'react-router-dom';
-import { useProjects } from '@/project/hooks/useProjects';
 
 export const StackingDisplay = () => {
   const [{ projectId, buildingId }] = useMultiQueryState<{
@@ -96,8 +96,8 @@ export const StackingZone = ({ zone }: { zone: IZoning }) => {
   });
 
   const notUsedSizeByUnit = units?.reduce(
-    (acc, { size, status }) =>
-      !status || status === 'available' ? acc + size : acc,
+    (acc, { type, status }) =>
+      !status || status === 'available' ? acc + type.size : acc,
     0,
   );
 
@@ -113,7 +113,7 @@ export const StackingZone = ({ zone }: { zone: IZoning }) => {
         <span className="text-xs">vacant by size: {notUsedSizeByUnit} m²</span>
       </div>
       {units
-        ?.filter((unit) => unit.size > 0)
+        ?.filter((unit) => unit.type?.size > 0)
         .map((unit) => (
           <StackingUnitItem key={unit._id} {...unit} />
         ))}

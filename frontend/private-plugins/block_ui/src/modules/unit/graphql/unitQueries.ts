@@ -5,9 +5,7 @@ export const BLOCK_GET_UNITS = gql`
     blockGetUnits(zoning: $zoning) {
       _id
       number
-      size
       type
-      tenureType
       status
     }
   }
@@ -19,19 +17,10 @@ export const BLOCK_GET_UNIT = gql`
       _id
       building
       number
-      size
       type
       updatedAt
       zoning
-      mainPrice
-      currency
       status
-      prices {
-        currency
-        price
-        priceType
-      }
-      tenureType
     }
   }
 `;

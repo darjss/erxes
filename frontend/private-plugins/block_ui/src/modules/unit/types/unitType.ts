@@ -3,14 +3,19 @@ import { IProjectPrice } from '@/project/types/projectTypes';
 export interface IUnit {
   _id: string;
   number: string;
+  type: IUnitType;
+  zoning: string;
+  building: string;
+  status: string;
+}
+
+export interface IUnitType {
+  _id: string;
   size: number;
   type: string;
   tenureType: string;
-  zoning: string;
-  mainPrice: number;
+  price: number;
   prices: IProjectPrice[];
-  building: string;
-  status: string;
 }
 
 export interface IUnitAttachment {

@@ -5,26 +5,21 @@ export const types = `
     buildingData: BlockBuilding
     zoning: String
     number: String
-    type: BlockBuildingUnitUsageType
-    tenureType: BlockBuildingUnitTenureType
-    mainPrice: Int
-    prices: [BlockProjectPrice]
-    size: Int
+    status: BlockUnitStatus
+    
+    leads: [String]
+
+    type: String
     createdAt: Date
     updatedAt: Date
-    status: BlockUnitStatus
   } 
 
   input BlockUnitInput {
     building: String
     zoning: String
     number: String
-    type: BlockBuildingUnitUsageType
-    tenureType: BlockBuildingUnitTenureType
-    mainPrice: Int
-    prices: [BlockProjectPriceInput]
+    type: String
     useProjectPrice: Boolean
-    size: Int
     status: BlockUnitStatus
   }
 `;
