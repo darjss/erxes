@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import { IContext } from '~/connectionResolvers';
 import { IRequest, IResponse } from '~/types';
 import { IContract } from '../@types/contract';
 
