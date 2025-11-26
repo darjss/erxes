@@ -18,12 +18,12 @@ export const ProjectDetailProfile = () => {
             name={project?.name || ''}
           />
           <Badge
-            variant={project?.status === 'verified' ? 'default' : 'secondary'}
+            variant={project?.verificationStatus === 'verified' ? 'default' : 'secondary'}
           >
             <IconShieldFilled
               className={cn(
                 'size-3.5',
-                project?.status !== 'verified' && 'text-accent-foreground',
+                project?.verificationStatus !== 'verified' && 'text-accent-foreground',
               )}
             />
             {project?.status}
@@ -33,9 +33,6 @@ export const ProjectDetailProfile = () => {
           <IconClockFilled className="size-4" />
           <p className="text-sm">Last updated by Carl Marx, 2024-12-01 14:30</p>
         </div>
-      </div>
-      <div className="ml-auto p-8">
-        <ProjectDetailActions />
       </div>
     </div>
   );

@@ -31,6 +31,7 @@ export interface IProject extends IBlock {
     buildings: number;
     units: number;
     zones: number;
+    parking: number;
   };
 }
 
