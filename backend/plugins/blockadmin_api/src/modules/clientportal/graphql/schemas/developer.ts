@@ -17,6 +17,8 @@ export const types = `
     phones: [String]
     socialLinks: BlockAdminDeveloperSocialLink
     verificationStatus: String
+
+    projectsCounts: Int
   }
 `;
 
