@@ -1,5 +1,9 @@
+import { IZoning } from '@/building/types/buildingTypes';
+import { PricingForm } from '@/pricing/components/PricingForm';
+import { useProjectDetail } from '@/project/hooks/useProjectDetail';
 import { SelectUnitType } from '@/unit/components/SelectUnitType';
 import { addUnitSchema } from '@/unit/constants/addUnitSchema';
+import { useUnitCreate } from '@/unit/hooks/useUnitCreate';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { IconPlus } from '@tabler/icons-react';
 import {
@@ -11,13 +15,9 @@ import {
   Sheet,
   Spinner,
 } from 'erxes-ui';
-import { useForm } from 'react-hook-form';
 import { useState } from 'react';
-import { useUnitCreate } from '@/unit/hooks/useUnitCreate';
-import { IZoning } from '@/building/types/buildingTypes';
+import { useForm } from 'react-hook-form';
 import { z } from 'zod';
-import { PricingForm } from '@/pricing/components/PricingForm';
-import { useProjectDetail } from '@/project/hooks/useProjectDetail';
 
 export const AddUnit = ({
   onClose,
@@ -27,6 +27,7 @@ export const AddUnit = ({
   zone: IZoning;
 }) => {
   const { project } = useProjectDetail();
+
   const form = useForm<z.infer<typeof addUnitSchema>>({
     resolver: zodResolver(addUnitSchema),
     defaultValues: {

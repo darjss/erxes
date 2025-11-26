@@ -9,7 +9,7 @@ export const types = `
     
     leads: [String]
 
-    type: UnitType
+    type: String
     createdAt: Date
     updatedAt: Date
   } 
