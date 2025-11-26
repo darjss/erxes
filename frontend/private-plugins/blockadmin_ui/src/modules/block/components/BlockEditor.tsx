@@ -1,13 +1,12 @@
-import type React from 'react';
-import { Form, Editor } from 'erxes-ui';
-import { Control, UseFormSetValue } from 'react-hook-form';
 import { Block } from '@blocknote/core';
-import { developerInfoSchema } from '../constants/developerInfoSchema';
+import { Editor, Form } from 'erxes-ui';
+import type React from 'react';
+import { Control } from 'react-hook-form';
 import { z } from 'zod';
+import { developerInfoSchema } from '../constants/developerInfoSchema';
 
 interface BlockEditorFieldProps {
   control: Control<z.infer<typeof developerInfoSchema>>;
-  setValue: UseFormSetValue<z.infer<typeof developerInfoSchema>>;
   name: keyof z.infer<typeof developerInfoSchema>;
   label: string;
   initialContent?: string;
@@ -15,61 +14,10 @@ interface BlockEditorFieldProps {
 
 export const BlockEditorField: React.FC<BlockEditorFieldProps> = ({
   control,
-  setValue,
   name,
   label,
   initialContent,
 }) => {
-  const handleEditorChange = async (value: string, editorInstance?: any) => {
-    try {
-      const blocks: Block[] = JSON.parse(value);
-      if (editorInstance?.blocksToHTMLLossy) {
-        const htmlContent = await editorInstance.blocksToHTMLLossy(blocks);
-        setValue(name, htmlContent);
-      } else {
-        const htmlContent = blocks
-          .map((block: Block) => {
-            if (block.type === 'paragraph' && block.content) {
-              const textContent = block.content
-                .map((item: any) => item.text || '')
-                .join('');
-              return textContent ? `<p>${textContent}</p>` : '';
-            }
-            if (block.type === 'heading' && block.content) {
-              const textContent = block.content
-                .map((item: any) => item.text || '')
-                .join('');
-              const level = (block.props as any)?.level || 1;
-              return textContent ? `<h${level}>${textContent}</h${level}>` : '';
-            }
-            return '';
-          })
-          .filter(Boolean)
-          .join('');
-
-        setValue(name, htmlContent, {
-          shouldDirty: true,
-          shouldTouch: true,
-          shouldValidate: false,
-        });
-      }
-    } catch (error) {
-      console.error(`Error processing editor content for field '${name}':`, {
-        error: error instanceof Error ? error.message : String(error),
-        stack: error instanceof Error ? error.stack : undefined,
-        value: value?.substring(0, 200) + (value?.length > 200 ? '...' : ''),
-        editorInstanceAvailable: !!editorInstance,
-        hasBlocksToHTMLLossy: !!editorInstance?.blocksToHTMLLossy,
-      });
-
-      setValue(name as keyof z.infer<typeof developerInfoSchema>, '', {
-        shouldDirty: true,
-        shouldTouch: true,
-        shouldValidate: false,
-      });
-    }
-  };
-
   const convertHTMLToBlocks = (htmlContent: string): Block[] => {
     if (!htmlContent || htmlContent.trim() === '') {
       return [
@@ -205,8 +153,9 @@ export const BlockEditorField: React.FC<BlockEditorFieldProps> = ({
           <Form.Label>{label}</Form.Label>
           <Form.Control>
             <Editor
+              readonly
               initialContent={formatInitialContent(initialContent)}
-              onChange={handleEditorChange}
+              onChange={() => {}}
             />
           </Form.Control>
           <Form.Description>

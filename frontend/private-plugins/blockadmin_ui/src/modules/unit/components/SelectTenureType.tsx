@@ -1,19 +1,17 @@
-import { Form, Select } from 'erxes-ui';
 import { UNIT_MARKET_TYPE } from '@/unit/constants/unit';
+import { Form, Select } from 'erxes-ui';
 import React from 'react';
 
 export const SelectTenureType = ({
   value,
-  onValueChange,
   inForm = false,
 }: {
   value?: string;
-  onValueChange?: (value: string) => void;
   inForm?: boolean;
 }) => {
   const Control = inForm ? Form.Control : React.Fragment;
   return (
-    <Select value={value} onValueChange={onValueChange}>
+    <Select value={value}>
       <Control>
         <Select.Trigger className="h-8 bg-background">
           <Select.Value />

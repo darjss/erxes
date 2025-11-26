@@ -1,6 +1,5 @@
 import {
   Combobox,
-  type IPhoneFieldProps,
   PhoneDisplay,
   PhoneField,
   PopoverScoped,
@@ -9,8 +8,8 @@ import {
   ValidationStatus,
 } from 'erxes-ui';
 import { UseFormReturn } from 'react-hook-form';
-import { developerInfoSchema } from '../constants/developerInfoSchema';
 import { z } from 'zod';
+import { developerInfoSchema } from '../constants/developerInfoSchema';
 
 interface BlockPhonesProps {
   form: UseFormReturn<z.infer<typeof developerInfoSchema>>;
@@ -23,11 +22,6 @@ export function BlockPhones({ form }: BlockPhonesProps) {
     primaryPhone: primaryPhone || '',
     phones: phones || ([] as string[]),
     phoneValidationStatus: ValidationStatus.Valid,
-  };
-
-  const handleValueChange = (values: IPhoneFieldProps) => {
-    form.setValue('primaryPhone', values.primaryPhone, { shouldDirty: true });
-    form.setValue('phones', values.phones || [], { shouldDirty: true });
   };
 
   const handleValidationStatusChange = () => {
@@ -46,7 +40,7 @@ export function BlockPhones({ form }: BlockPhonesProps) {
         <PhoneField
           recordId={''}
           {...phoneProps}
-          onValueChange={handleValueChange}
+          onValueChange={() => {}}
           onValidationStatusChange={handleValidationStatusChange}
         />
       </RecordTableInlineCell.Content>

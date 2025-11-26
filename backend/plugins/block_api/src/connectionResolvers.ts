@@ -51,6 +51,8 @@ import { loadOfferClass } from '@/contract/db/models/Offer';
 import { IInvoiceModel } from '@/invoice/db/models/Invoice';
 import { IInvoiceDocument } from '@/invoice/@types/invoice';
 import { loadInvoiceClass } from '@/invoice/db/models/Invoice';
+import { IUnitTypeDocument } from '@/unit/@types/unitType';
+import { IUnitTypeModel, loadUnitTypeClass } from '@/unit/db/models/UnitType';
 
 export interface IModels {
   Project: IProjectModel;
@@ -58,6 +60,7 @@ export interface IModels {
   Building: IBuildingModel;
   Zoning: IZoningModel;
   Unit: IUnitModel;
+  UnitType: IUnitTypeModel;
   UnitLead: IUnitLeadModel;
   BlockDocument: IBlockDocumentModel;
   BlockAttachment: IBlockAttachmentModel;
@@ -99,6 +102,11 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
   models.Unit = db.model<IUnitDocument, IUnitModel>(
     'block_units',
     loadUnitClass(models),
+  );
+
+  models.UnitType = db.model<IUnitTypeDocument, IUnitTypeModel>(
+    'block_unit_types',
+    loadUnitTypeClass(models),
   );
 
   models.BlockDocument = db.model<IBlockDocumentDocument, IBlockDocumentModel>(

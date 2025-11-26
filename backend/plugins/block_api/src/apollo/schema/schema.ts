@@ -76,6 +76,12 @@ import {
   types as OfferTypes,
 } from '@/contract/graphql/schemas/offer';
 
+import {
+  mutations as UnitTypeMutations,
+  queries as UnitTypeQueries,
+  types as UnitTypeTypes,
+} from '@/unit/graphql/schemas/unitType';
+
 export const types = `
   type DeveloperAddress {
     countryCode: String
@@ -140,6 +146,7 @@ export const types = `
   ${InvoiceTypes}
   ${ContractTypes}
   ${OfferTypes}
+  ${UnitTypeTypes}
   `;
 
 export const queries = `
@@ -156,6 +163,7 @@ export const queries = `
   ${InvoiceQueries}
   ${ContractQueries}
   ${OfferQueries}
+  ${UnitTypeQueries}
   `;
 
 export const mutations = `
@@ -172,6 +180,7 @@ export const mutations = `
   ${InvoiceMutations}
   ${ContractMutations}
   ${OfferMutations}
+  ${UnitTypeMutations}
   `;
 
 export default { types, queries, mutations };

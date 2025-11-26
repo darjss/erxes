@@ -1,15 +1,7 @@
-import { IconArrowUp, IconDotsVertical, IconTrash } from '@tabler/icons-react';
-import { Button, DropdownMenu, toast, useConfirm } from 'erxes-ui';
-import { BLOCK_GET_PROJECT_LIST } from '@/project/graphql/projectQueries';
-import { useRemoveProject } from '@/project/hooks/useRemoveProject';
-import { useNavigate, useParams } from 'react-router-dom';
+import { IconArrowUp, IconDotsVertical } from '@tabler/icons-react';
+import { Button, DropdownMenu } from 'erxes-ui';
 
 export const ProjectDetailActions = () => {
-  const { id: projectId } = useParams();
-  const { confirm } = useConfirm();
-  const { removeProject } = useRemoveProject();
-  const navigate = useNavigate();
-
   return (
     <DropdownMenu>
       <DropdownMenu.Trigger asChild>
@@ -22,39 +14,6 @@ export const ProjectDetailActions = () => {
         <DropdownMenu.Item>
           <IconArrowUp />
           Publish Project
-        </DropdownMenu.Item>
-        <DropdownMenu.Item
-          className="text-destructive"
-          onClick={() =>
-            confirm({
-              message: 'Are you sure you want to delete this project?',
-              options: {
-                okLabel: 'Delete',
-              },
-            }).then(() => {
-              removeProject({
-                variables: { id: projectId },
-                refetchQueries: [{ query: BLOCK_GET_PROJECT_LIST }],
-                onCompleted: () => {
-                  navigate('/block/projects');
-                  toast({
-                    title: 'Success',
-                    description: 'Project deleted successfully',
-                  });
-                },
-                onError: (error) => {
-                  toast({
-                    title: 'Error',
-                    description: error.message,
-                    variant: 'destructive',
-                  });
-                },
-              });
-            })
-          }
-        >
-          <IconTrash />
-          Delete Project
         </DropdownMenu.Item>
       </DropdownMenu.Content>
     </DropdownMenu>

@@ -1,9 +1,8 @@
 import { developerInfoSchema } from '@/block/constants/developerInfoSchema';
 import { useDeveloperInfo } from '@/block/hooks/useDeveloperInfo';
-import { useUpdateDeveloperInfo } from '@/block/hooks/useUpdateDeveloperInfo';
 import { ADDRESS_CITY, ADDRESS_DISTRICT } from '@/project/constants/address';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Button, Form, Input, Select, Textarea, toast } from 'erxes-ui';
+import { Form, Input, Select, Textarea } from 'erxes-ui';
 import { useCallback, useEffect } from 'react';
 import { Path, useForm, UseFormReturn } from 'react-hook-form';
 import { useParams } from 'react-router';
@@ -84,7 +83,6 @@ export const BlockDeveloperInfoForm = ({
     resolver: zodResolver(developerInfoSchema),
     defaultValues: getDefaultValues(),
   });
-  const { updateDeveloperInfo } = useUpdateDeveloperInfo();
 
   useEffect(() => {
     if (developerInfo) {
@@ -92,46 +90,16 @@ export const BlockDeveloperInfoForm = ({
     }
   }, [developerInfo, form, getDefaultValues]);
 
-  const onSubmit = (data: z.infer<typeof developerInfoSchema>) => {
-    updateDeveloperInfo({
-      variables: {
-        input: data,
-      },
-      onCompleted: () => {
-        toast({
-          title: 'Success',
-          description: 'Developer info updated successfully',
-        });
-      },
-      onError: (error) => {
-        toast({
-          title: 'Error',
-          description: error.message,
-          variant: 'destructive',
-        });
-      },
-    });
-  };
-
   return (
     <Form {...form}>
-      <form
-        className="gap-4 grid grid-cols-2"
-        onSubmit={form.handleSubmit(onSubmit, (error) => {
-          console.log(error);
-        })}
-      >
+      <form className="gap-4 grid grid-cols-2">
         <Form.Field
           name="logo"
           control={form.control}
           render={({ field }) => (
             <Form.Item>
               <Form.Label>Logo</Form.Label>
-              <UploadImage
-                value={field.value}
-                onValueChange={(value) => field.onChange(value)}
-                className="size-16"
-              />
+              <UploadImage value={field.value} className="size-16" />
               <Form.Message />
             </Form.Item>
           )}
@@ -144,7 +112,6 @@ export const BlockDeveloperInfoForm = ({
               <Form.Label>Cover Image</Form.Label>
               <UploadImage
                 value={field.value}
-                onValueChange={(value) => field.onChange(value)}
                 uploaderClassName="w-full"
                 className="w-full aspect-video"
               />
@@ -159,7 +126,7 @@ export const BlockDeveloperInfoForm = ({
             <Form.Item className="col-start-1">
               <Form.Label>Name</Form.Label>
               <Form.Control>
-                <Input {...field} />
+                <Input value={field.value as string} />
               </Form.Control>
               <Form.Message />
             </Form.Item>
@@ -172,7 +139,7 @@ export const BlockDeveloperInfoForm = ({
             <Form.Item>
               <Form.Label>Website</Form.Label>
               <Form.Control>
-                <Input {...field} />
+                <Input value={field.value as string} />
               </Form.Control>
               <Form.Message />
             </Form.Item>
@@ -185,7 +152,7 @@ export const BlockDeveloperInfoForm = ({
             <Form.Item>
               <Form.Label>Email</Form.Label>
               <Form.Control>
-                <Input {...field} />
+                <Input value={field.value as string} />
               </Form.Control>
               <Form.Message />
             </Form.Item>
@@ -210,7 +177,7 @@ export const BlockDeveloperInfoForm = ({
             <Form.Item>
               <Form.Label>Date Founded</Form.Label>
               <Form.Control>
-                <Select value={field.value} onValueChange={field.onChange}>
+                <Select value={field.value}>
                   <Select.Trigger>
                     <Select.Value placeholder="Select date" />
                   </Select.Trigger>
@@ -235,7 +202,7 @@ export const BlockDeveloperInfoForm = ({
             <Form.Item>
               <Form.Label>Registration Number</Form.Label>
               <Form.Control>
-                <Input {...field} />
+                <Input value={field.value as string} />
               </Form.Control>
               <Form.Message />
             </Form.Item>
@@ -249,7 +216,7 @@ export const BlockDeveloperInfoForm = ({
             <Form.Item className="col-span-2">
               <Form.Label>Description</Form.Label>
               <Form.Control>
-                <Textarea {...field} />
+                <Textarea value={field.value as string} />
               </Form.Control>
               <Form.Description>
                 A quick summary meant to grab attention and explain what the
@@ -261,7 +228,6 @@ export const BlockDeveloperInfoForm = ({
         />
         <BlockEditorField
           control={form.control}
-          setValue={form.setValue}
           name="about"
           label="About"
           initialContent={developerInfo.about}
@@ -272,13 +238,7 @@ export const BlockDeveloperInfoForm = ({
           render={({ field }) => (
             <Form.Item>
               <Form.Label>City</Form.Label>
-              <Select
-                value={field.value}
-                onValueChange={(value) => {
-                  field.onChange(value);
-                  form.setValue('address.address.city', value);
-                }}
-              >
+              <Select value={field.value}>
                 <Form.Control>
                   <Select.Trigger>
                     <Select.Value placeholder="Select city" />
@@ -305,7 +265,7 @@ export const BlockDeveloperInfoForm = ({
               <Form.Label>Address</Form.Label>
 
               <Form.Control>
-                <Textarea {...field} />
+                <Textarea value={field.value as string} />
               </Form.Control>
               <Form.Message />
             </Form.Item>
@@ -325,10 +285,7 @@ export const BlockDeveloperInfoForm = ({
                 <Form.Item>
                   <Form.Label>{item.label}</Form.Label>
                   <Form.Control>
-                    <Input
-                      value={field.value as string}
-                      onChange={(e) => field.onChange(e.target.value)}
-                    />
+                    <Input value={field.value as string} />
                   </Form.Control>
                   <Form.Message />
                 </Form.Item>
@@ -336,13 +293,6 @@ export const BlockDeveloperInfoForm = ({
             />
           ))}
         </div>
-        <Button
-          type="submit"
-          className="mt-2"
-          disabled={!form.formState.isDirty}
-        >
-          Save
-        </Button>
       </form>
     </Form>
   );

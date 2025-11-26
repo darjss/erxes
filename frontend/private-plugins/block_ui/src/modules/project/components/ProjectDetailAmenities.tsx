@@ -1,15 +1,15 @@
 import { InfoCard, InfoCardContent } from '@/block/components/card';
 import { PROJECT_AMENITIES } from '@/project/constants/amenities';
+import { IconPlus } from '@tabler/icons-react';
 import {
-  Label,
-  Separator,
   Badge,
   Button,
   Combobox,
-  Popover,
   Command,
+  Label,
+  Popover,
+  Separator,
 } from 'erxes-ui';
-import { IconPlus } from '@tabler/icons-react';
 import { useEffect, useState } from 'react';
 import { useProjectDetail } from '../hooks/useProjectDetail';
 import { useUpdateProjectGeneralInfo } from '../hooks/useUpdateProject';
@@ -25,10 +25,28 @@ export const ProjectDetailAmenities = () => {
   useEffect(() => {
     if (project?.projectAmenities) {
       setProjectAmenities(
-        (project?.projectAmenities || []).map((amenity) => ({
-          category: amenity.category,
-          amenities: amenity.amenities,
-        })),
+        project.projectAmenities.map((amenity) => {
+          const amenityCategories = PROJECT_AMENITIES.filter(
+            (a) => a.category_code === amenity.category,
+          );
+
+          const updatedAmenities = (amenity.amenities || []).map((item) => {
+            const amenityCategory = amenityCategories.find(
+              (a) => a.label_en === item,
+            );
+
+            if (amenityCategory) {
+              return amenityCategory.label_mn || '';
+            }
+
+            return item;
+          });
+
+          return {
+            category: amenity.category,
+            amenities: updatedAmenities,
+          };
+        }),
       );
     }
   }, [project?.projectAmenities]);
@@ -43,19 +61,19 @@ export const ProjectDetailAmenities = () => {
     if (!existingCategory) {
       newAmenityGroups = [
         ...newAmenityGroups,
-        { category: amenity.category_code, amenities: [amenity.label_en] },
+        { category: amenity.category_code, amenities: [amenity.label_mn] },
       ];
     }
 
-    const hasAmenity = existingCategory?.amenities.includes(amenity.label_en);
+    const hasAmenity = existingCategory?.amenities.includes(amenity.label_mn);
 
     newAmenityGroups = newAmenityGroups.map((amenityGroup) =>
       amenityGroup.category === amenity.category_code
         ? {
             ...amenityGroup,
             amenities: hasAmenity
-              ? amenityGroup.amenities.filter((am) => am !== amenity.label_en)
-              : [...amenityGroup.amenities, amenity.label_en],
+              ? amenityGroup.amenities.filter((am) => am !== amenity.label_mn)
+              : [...amenityGroup.amenities, amenity.label_mn],
           }
         : amenityGroup,
     );
@@ -136,14 +154,14 @@ export const ProjectDetailAmenities = () => {
                           {amenities.map((am) => (
                             <Command.Item
                               className="h-auto"
-                              key={am.label_en}
-                              value={am.label_en}
+                              key={am.label_mn}
+                              value={am.label_mn}
                               onSelect={() => handleSelectAmenity(am)}
                             >
-                              {am.label_en}
+                              {am.label_mn}
                               <Combobox.Check
                                 checked={isChecked(
-                                  am.label_en,
+                                  am.label_mn,
                                   am.category_code,
                                 )}
                               />

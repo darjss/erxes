@@ -11,6 +11,7 @@ import { projectMemberMutations } from '@/project/graphql/resolvers/mutations/me
 import { contractMutations } from '@/contract/graphql/resolvers/mutations/contract';
 import { offerMutations } from '@/contract/graphql/resolvers/mutations/offer';
 import { invoiceMutations } from '@/invoice/graphql/resolvers/mutations/invoice';
+import { unitTypesMutations } from '~/modules/unit/graphql/resolvers/mutations/unitType';
 
 export const mutations = {
   ...projectMutations,
@@ -26,4 +27,5 @@ export const mutations = {
   ...contractMutations,
   ...offerMutations,
   ...invoiceMutations,
+  ...unitTypesMutations,
 };

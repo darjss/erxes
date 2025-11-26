@@ -1,17 +1,13 @@
 import { InfoCard, InfoCardContent } from '@/block/components/card';
-import { BLOCK_GET_BUILDING_ZONINGS } from '@/building/graphql/buildingQueries';
 import {
   useBuildings,
   useBuildingZonings,
 } from '@/building/hooks/useBuildings';
-import { useBuildingZoningUpdate } from '@/building/hooks/useBuildingUpdate';
-import { useBuildingZoningRemove } from '@/building/hooks/useBuildingZoningRemove';
 import { IBuilding, IZoning } from '@/building/types/buildingTypes';
 import { IProject } from '@/project/types/projectTypes';
 import { SelectTenureType } from '@/unit/components/SelectTenureType';
 import { SelectUsageType } from '@/unit/components/SelectUsageType';
-import { IconTrash } from '@tabler/icons-react';
-import { Button, CurrencyField, Spinner, toast, useConfirm } from 'erxes-ui';
+import { CurrencyField, Spinner } from 'erxes-ui';
 import { useEffect, useState } from 'react';
 
 export const BuildingZoneList = ({ project }: { project: IProject }) => {
@@ -62,10 +58,7 @@ export const BuildingZoneCard = ({ building }: { building: IBuilding }) => {
 };
 
 export const BuildingZone = ({ zoning }: { zoning: IZoning }) => {
-  const { updateBuildingZoning } = useBuildingZoningUpdate({ id: zoning._id });
   const [zoningSize, setZoningSize] = useState(zoning.size);
-  const { deleteBuildingZoning } = useBuildingZoningRemove();
-  const { confirm } = useConfirm();
 
   useEffect(() => {
     if (zoning.size !== zoningSize) {
@@ -80,62 +73,14 @@ export const BuildingZone = ({ zoning }: { zoning: IZoning }) => {
         <div className="font-medium text-left">
           {zoning.floor < 0 ? `B${zoning.floor * -1}` : zoning.floor}
         </div>
-        <Button
-          variant="secondary"
-          size="icon"
-          className="bg-destructive/10 text-destructive hover:bg-destructive/20"
-          onClick={() =>
-            confirm({
-              message: `Are you sure you want to delete the zoning on floor '${zoning.floor}'?`,
-            }).then(() =>
-              deleteBuildingZoning({
-                variables: { id: zoning._id },
-                onCompleted: () => {
-                  toast({
-                    title: 'Success',
-                    description: `Zoning on floor '${
-                      zoning.floor < 0 ? `B${zoning.floor * -1}` : zoning.floor
-                    }' deleted successfully`,
-                  });
-                },
-                onError: (e) => {
-                  toast({
-                    title: 'Error',
-                    description: e.message,
-                    variant: 'destructive',
-                  });
-                },
-                refetchQueries: [
-                  {
-                    query: BLOCK_GET_BUILDING_ZONINGS,
-                    variables: { building: zoning.building },
-                  },
-                ],
-              }),
-            )
-          }
-        >
-          <IconTrash />
-        </Button>
       </div>
       <div className="grid grid-cols-2 gap-2">
-        <SelectUsageType
-          value={zoning.usageType}
-          onValueChange={(value) => updateBuildingZoning({ usageType: value })}
-        />
-        <SelectTenureType
-          value={zoning.tenureType}
-          onValueChange={(value) => updateBuildingZoning({ tenureType: value })}
-        />
+        <SelectUsageType value={zoning.usageType} />
+        <SelectTenureType value={zoning.tenureType} />
         <CurrencyField.ValueInput
           value={zoningSize}
           className="col-span-2"
           placeholder="Size in m²"
-          onChange={(value) => setZoningSize(value)}
-          onBlur={() =>
-            zoningSize !== zoning.size &&
-            updateBuildingZoning({ size: zoningSize })
-          }
         />
       </div>
     </div>
