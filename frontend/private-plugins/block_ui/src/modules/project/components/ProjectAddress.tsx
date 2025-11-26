@@ -17,8 +17,8 @@ export const ProjectAddress = () => {
     district || '',
   );
   const [addressValue, setAddressValue] = useState<string>(address || '');
-  const [latValue, setLatValue] = useState<number>(lat || 0);
-  const [lngValue, setLngValue] = useState<number>(lng || 0);
+  const [latValue, setLatValue] = useState<number | undefined>(lat);
+  const [lngValue, setLngValue] = useState<number | undefined>(lng);
 
   const handleUpdateProjectLocation = (location: IProjectLocation) => {
     updateProjectGeneralInfo(project?._id || '', {
@@ -101,8 +101,8 @@ export const ProjectAddress = () => {
               <div className="flex gap-2">
                 <Input
                   placeholder="Latitude"
-                  value={latValue}
-                  onChange={(e) => setLatValue(Number(e.target.value))}
+                  value={latValue ? latValue : undefined}
+                  onChange={(e) => setLatValue(e.target.value ? Number(e.target.value) : undefined)}
                   onBlur={() => {
                     handleUpdateProjectLocation({
                       lat: latValue,
@@ -111,8 +111,8 @@ export const ProjectAddress = () => {
                 />
                 <Input
                   placeholder="Longitude"
-                  value={lngValue}
-                  onChange={(e) => setLngValue(Number(e.target.value))}
+                  value={lngValue ? lngValue : undefined}
+                  onChange={(e) => setLngValue(e.target.value ? Number(e.target.value) : undefined)}
                   onBlur={() => {
                     handleUpdateProjectLocation({
                       lng: lngValue,
