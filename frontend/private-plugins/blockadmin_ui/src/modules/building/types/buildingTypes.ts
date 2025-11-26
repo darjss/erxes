@@ -5,6 +5,9 @@ export interface IBuilding {
   description?: string;
   project: string;
   coverImage?: string;
+  status?: string;
+  startDate?: Date;
+  endDate?: Date;
 }
 
 export interface IZoning {

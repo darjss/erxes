@@ -1,7 +1,17 @@
+import { UploadImage } from '@/block/components/upload';
+import { buildingSchema } from '@/building/constants/buildingSchema';
+import { BLOCK_GET_BUILDING_LIST } from '@/building/graphql/buildingQueries';
+import { useBuildingsCreate } from '@/building/hooks/useBuildingsCreate';
+import {
+  PROJECT_STATUS_OPTIONS,
+  PROJECT_TYPES,
+} from '@/project/constants/project';
+import { IProject } from '@/project/types/projectTypes';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { IconPlus } from '@tabler/icons-react';
 import {
   Button,
+  DatePicker,
   Form,
   Input,
   Select,
@@ -10,12 +20,6 @@ import {
   Textarea,
   toast,
 } from 'erxes-ui';
-import { UploadImage } from '@/block/components/upload';
-import { buildingSchema } from '@/building/constants/buildingSchema';
-import { BLOCK_GET_BUILDING_LIST } from '@/building/graphql/buildingQueries';
-import { useBuildingsCreate } from '@/building/hooks/useBuildingsCreate';
-import { PROJECT_TYPES } from '@/project/constants/project';
-import { IProject } from '@/project/types/projectTypes';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -91,11 +95,7 @@ export const AddBuildingForProject = ({
             render={({ field }) => (
               <Form.Item>
                 <Form.Label>Cover Image</Form.Label>
-                <UploadImage
-                  className="size-16"
-                  value={field.value}
-                  onValueChange={(value) => field.onChange(value)}
-                />
+                <UploadImage className="size-16" value={field.value} />
               </Form.Item>
             )}
           />
@@ -132,6 +132,58 @@ export const AddBuildingForProject = ({
               </Form.Item>
             )}
           />
+          <Form.Field
+            name="status"
+            render={({ field }) => (
+              <Form.Item>
+                <Form.Label>Status</Form.Label>
+                <Select value={field.value}>
+                  <Form.Control>
+                    <Select.Trigger className="h-8">
+                      <Select.Value placeholder="Select status" />
+                    </Select.Trigger>
+                  </Form.Control>
+                  <Select.Content>
+                    {PROJECT_STATUS_OPTIONS.map((type) => (
+                      <Select.Item key={type.value} value={type.value}>
+                        {type.label}
+                      </Select.Item>
+                    ))}
+                  </Select.Content>
+                </Select>
+              </Form.Item>
+            )}
+          />
+          <div className="grid grid-cols-2 gap-3 w-full">
+            <Form.Field
+              name="startDate"
+              render={({ field }) => (
+                <Form.Item>
+                  <Form.Label>Start Date</Form.Label>
+                  <DatePicker
+                    mode="single"
+                    placeholder="Select date"
+                    value={field.value ? new Date(field.value) : undefined}
+                    onChange={() => {}}
+                  />
+                </Form.Item>
+              )}
+            />
+            <Form.Field
+              name="endDate"
+              render={({ field }) => (
+                <Form.Item>
+                  <Form.Label>End Date</Form.Label>
+                  <DatePicker
+                    mode="single"
+                    placeholder="Select date"
+                    value={field.value ? new Date(field.value) : undefined}
+                    onChange={() => {}}
+                  />
+                </Form.Item>
+              )}
+            />
+          </div>
           <Form.Field
             name="description"
             render={({ field }) => (

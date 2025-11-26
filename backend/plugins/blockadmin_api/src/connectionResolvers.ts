@@ -54,6 +54,8 @@ import { IMainContext } from 'erxes-api-shared/core-types';
 import { createGenerateModels } from 'erxes-api-shared/utils';
 
 import mongoose from 'mongoose';
+import { IUnitTypeDocument } from './modules/unit/@types/unitType';
+import { IUnitTypeModel, loadUnitTypeClass } from './modules/unit/db/models/UnitType';
 
 export interface IModels {
   Project: IProjectModel;
@@ -61,6 +63,7 @@ export interface IModels {
   Building: IBuildingModel;
   Zoning: IZoningModel;
   Unit: IUnitModel;
+  UnitType: IUnitTypeModel;
   UnitLead: IUnitLeadModel;
   BlockDocument: IBlockDocumentModel;
   BlockAttachment: IBlockAttachmentModel;
@@ -104,6 +107,12 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
     'block_admin_units',
     loadUnitClass(models),
   );
+
+  models.UnitType = db.model<IUnitTypeDocument, IUnitTypeModel>(
+    'block_admin_unit_types',
+    loadUnitTypeClass(models),
+  );
+
 
   models.BlockDocument = db.model<IBlockDocumentDocument, IBlockDocumentModel>(
     'block_admin_documents',

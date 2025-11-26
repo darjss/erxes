@@ -5,14 +5,13 @@ export const types = `
     buildingData: BlockAdminBuilding
     zoning: String
     number: String
-    type: BlockAdminBuildingUnitUsageType
-    tenureType: BlockAdminBuildingUnitTenureType
-    mainPrice: Int
-    prices: [BlockAdminProjectPrice]
-    size: Int
+    status: BlockAdminUnitStatus
+
+    leads: [String]
+
+    type: String
     createdAt: Date
     updatedAt: Date
-    status: BlockAdminUnitStatus
   } 
 `;
 
