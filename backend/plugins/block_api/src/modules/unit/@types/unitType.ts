@@ -30,6 +30,8 @@ export interface IUnitType {
   coverImage: string;
   images: string[];
   planImages: string[];
+
+  project: string;
 }
 
 export interface IUnitTypeDocument extends IUnitType, Document {

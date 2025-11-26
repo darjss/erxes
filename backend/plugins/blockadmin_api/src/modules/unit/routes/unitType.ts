@@ -17,9 +17,9 @@ router.post(
 
       const { input } = data || {};
 
-      const project = await models.Project.getProject(subdomain, entityId);
+      const project = await models.Project.getProject(subdomain, input.project);
 
-      models.UnitType.create({
+      models.UnitType.createUnitType({
         ...input,
         subdomain,
         entityId,

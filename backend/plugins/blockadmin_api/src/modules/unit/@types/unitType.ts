@@ -31,11 +31,13 @@ export interface IUnitType extends IBlock {
   coverImage: string;
   images: string[];
   planImages: string[];
+
+  project: string;
 }
 
 export interface IUnitTypeDocument extends IUnitType, Document {
   _id: string;
-  
+
   createdAt: Date;
   updatedAt: Date;
 }
