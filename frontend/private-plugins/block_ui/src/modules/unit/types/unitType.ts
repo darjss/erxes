@@ -9,6 +9,11 @@ export interface IUnit {
   status: string;
 }
 
+export interface IUnitRoom {
+  type: string;
+  count: number;
+}
+
 export interface IUnitType {
   _id: string;
   name: string;
@@ -20,7 +25,7 @@ export interface IUnitType {
   price: number;
   prices: IProjectPrice[];
   status: string;
-  rooms: any;
+  rooms: IUnitRoom[];
   roomsCount: number;
   project: string;
   createdAt: Date;

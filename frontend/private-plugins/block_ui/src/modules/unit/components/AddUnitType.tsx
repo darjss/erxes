@@ -35,6 +35,7 @@ export const AddUnitType = ({ onClose }: { onClose: () => void }) => {
       price: 0,
       prices: [],
       status: '',
+      rooms: [],
       roomsCount: 0,
     },
   });
@@ -56,6 +57,15 @@ export const AddUnitType = ({ onClose }: { onClose: () => void }) => {
   const { fields, append, remove } = useFieldArray({
     control: form.control,
     name: 'prices',
+  });
+
+  const {
+    fields: roomFields,
+    append: appendRoom,
+    remove: removeRoom,
+  } = useFieldArray({
+    control: form.control,
+    name: 'rooms',
   });
 
   return (
@@ -208,6 +218,64 @@ export const AddUnitType = ({ onClose }: { onClose: () => void }) => {
                   type="button"
                 >
                   <IconPlus className="mr-2 h-4 w-4" /> Add Price
+                </Button>
+              </div>
+
+              <div className="space-y-2">
+                <Label asChild>
+                  <legend>Rooms</legend>
+                </Label>
+                {roomFields.map((field, index) => (
+                  <div key={field.id} className="flex items-center gap-2">
+                    <div className="grid grid-cols-4 gap-2 flex-1">
+                      <Form.Field
+                        name={`rooms.${index}.type`}
+                        render={({ field }) => (
+                          <Form.Item className="col-span-3">
+                            <Input placeholder="Room type" {...field} />
+                          </Form.Item>
+                        )}
+                      />
+                      <Form.Field
+                        name={`rooms.${index}.count`}
+                        render={({ field }) => (
+                          <Form.Item>
+                            <Input
+                              type="number"
+                              placeholder="Count"
+                              {...field}
+                              onChange={(e) =>
+                                field.onChange(parseInt(e.target.value) || 0)
+                              }
+                            />
+                          </Form.Item>
+                        )}
+                      />
+                    </div>
+                    <Button
+                      variant="secondary"
+                      size="icon"
+                      className="size-8 text-destructive bg-destructive/10 hover:bg-destructive/20"
+                      onClick={() => removeRoom(index)}
+                      type="button"
+                    >
+                      <IconTrash className="size-4" />
+                    </Button>
+                  </div>
+                ))}
+
+                <Button
+                  variant="secondary"
+                  className="w-full"
+                  onClick={() =>
+                    appendRoom({
+                      type: '',
+                      count: 1,
+                    })
+                  }
+                  type="button"
+                >
+                  <IconPlus className="mr-2 h-4 w-4" /> Add Room
                 </Button>
               </div>
 
