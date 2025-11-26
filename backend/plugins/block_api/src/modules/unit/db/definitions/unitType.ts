@@ -13,6 +13,7 @@ export const unitTypeSchema = new Schema(
     status: { type: String },
     rooms: { type: Schema.Types.Mixed },
     roomsCount: { type: Number },
+    project: { type: Schema.Types.ObjectId, ref: 'block_projects' },
   },
   {
     timestamps: true,
