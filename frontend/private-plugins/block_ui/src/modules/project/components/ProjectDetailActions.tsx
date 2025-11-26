@@ -3,11 +3,13 @@ import { useRemoveProject } from '@/project/hooks/useRemoveProject';
 import { IconArrowUp, IconDotsVertical, IconTrash } from '@tabler/icons-react';
 import { Button, DropdownMenu, toast, useConfirm } from 'erxes-ui';
 import { useNavigate, useParams } from 'react-router-dom';
+import { usePublishProject } from '../hooks/usePublishProject';
 
 export const ProjectDetailActions = () => {
   const { id: projectId } = useParams();
   const { confirm } = useConfirm();
   const { removeProject } = useRemoveProject();
+  const { publishProject } = usePublishProject();
   const navigate = useNavigate();
 
   return (
@@ -19,7 +21,11 @@ export const ProjectDetailActions = () => {
         </Button>
       </DropdownMenu.Trigger>
       <DropdownMenu.Content className="min-w-48" align="end">
-        <DropdownMenu.Item>
+        <DropdownMenu.Item
+          onClick={() => {
+            publishProject(projectId || '', true);
+          }}
+        >
           <IconArrowUp />
           Publish Project
         </DropdownMenu.Item>

@@ -12,6 +12,7 @@ export const BLOCK_PUBLISH_PROJECT = gql`
   mutation BlockPublishProject($id: String!) {
     blockPublishProject(_id: $id) {
       _id
+      isPublished
     }
   }
 `;
