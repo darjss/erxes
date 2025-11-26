@@ -7,6 +7,8 @@ export interface IProjectLocation {
   parcelId?: string;
 }
 
+export type ProjectStatus = 'planned' | 'on_going' | 'on_sale' | 'completed';
+
 export interface IProject {
   _id: string;
   name: string;
@@ -14,7 +16,7 @@ export interface IProject {
   location?: IProjectLocation;
 
   isPublished: boolean;
-  status: 'planned' | 'on_going' | 'on_sale' | 'completed';
+  status: ProjectStatus;
   verificationStatus: 'verified' | 'unverified' | 'pending';
   shortDescription: string;
   description: string;
@@ -37,7 +39,10 @@ export interface IProject {
   targets?: Record<string, string>;
   contacts?: Record<string, any>;
   links?: Record<string, string>;
-  schedules?: Record<string, { open: boolean; startOfDay: string; endOfDay: string }>;
+  schedules?: Record<
+    string,
+    { open: boolean; startOfDay: string; endOfDay: string }
+  >;
 }
 
 export interface IProjectPrice {
@@ -62,15 +67,18 @@ export interface IProjectGeneralInput {
   projectAmenities: { category: string; amenities: string[] }[];
   types: string[] | null;
 
-  startDate: Date;
-  endDate: Date;
+  startDate?: Date;
+  endDate?: Date;
 
   counts?: Record<string, number>;
   metrics?: Record<string, number>;
   targets?: Record<string, string>;
   contacts?: Record<string, any>;
   links?: Record<string, string>;
-  schedules?: Record<string, { open: boolean; startOfDay: string; endOfDay: string }>;
+  schedules?: Record<
+    string,
+    { open: boolean; startOfDay: string; endOfDay: string }
+  >;
 }
 
 export interface IProjectMember {

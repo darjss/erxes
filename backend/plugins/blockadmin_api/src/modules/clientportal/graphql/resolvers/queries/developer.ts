@@ -5,7 +5,7 @@ import { DeveloperQueryParams } from '~/modules/developer/db/@types/developer';
 import { generateFilter } from '~/modules/developer/utils';
 
 export const cpDeveloperQueries = {
-  cpBlockAdminDeveloper: async (
+  cpBlockAdminDeveloperInfo: async (
     _root: undefined,
     { _id }: { _id: string },
     { models }: IContext,

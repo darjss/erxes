@@ -5,6 +5,9 @@ export const buildingSchema = z.object({
   type: z.string().min(1),
   description: z.string().optional(),
   coverImage: z.string().optional(),
+  startDate: z.date().optional(),
+  endDate: z.date().optional(),
+  status: z.string().optional(),
 });
 
 export const buildingZoneSchema = z.object({

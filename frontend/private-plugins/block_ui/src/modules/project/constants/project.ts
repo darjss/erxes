@@ -71,3 +71,10 @@ export const PUBLISH_STATUS = {
     text: 'Нийтлээгүй',
   },
 };
+
+export const PROJECT_STATUS_OPTIONS = [
+  { value: 'planned', label: 'Planned' },
+  { value: 'on_going', label: 'On going' },
+  { value: 'on_sale', label: 'On sale' },
+  { value: 'completed', label: 'Completed' },
+];
