@@ -2,7 +2,7 @@ import { IContext } from '~/connectionResolvers';
 import { IUnitType } from '~/modules/unit/@types/unitType';
 
 export const unitTypesMutations = {
-  createUnitType: async (
+  blockCreateUnitType: async (
     _parent: undefined,
     _args: { input: IUnitType },
     { models }: IContext,
@@ -10,7 +10,7 @@ export const unitTypesMutations = {
     return models.UnitType.create(_args.input);
   },
 
-  updateUnitType: async (
+  blockUpdateUnitType: async (
     _parent: undefined,
     _args: { _id: string; input: IUnitType },
     { models }: IContext,

@@ -33,10 +33,11 @@ export const types = `
 `;
 
 export const queries = `
-  unitTypes: [UnitType]
+  blockGetUnitTypes: [UnitType]
+  blockGetUnitType(_id: String!): UnitType
 `;
 
 export const mutations = `
-  createUnitType(input: UnitTypeInput!): UnitType
-  updateUnitType(_id: ID!, input: UnitTypeInput!): UnitType
+  blockCreateUnitType(input: UnitTypeInput!): UnitType
+  blockUpdateUnitType(_id: String!, input: UnitTypeInput!): UnitType
 `;
