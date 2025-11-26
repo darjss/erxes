@@ -12,7 +12,7 @@ export const types = `
     status: String
     rooms: JSON
     roomsCount: Int
-
+    project: BlockProject
     createdAt: Date
     updatedAt: Date
   }
@@ -29,11 +29,13 @@ export const types = `
     status: String
     rooms: JSON
     roomsCount: Int
+    
+    project: String
   }
 `;
 
 export const queries = `
-  blockGetUnitTypes: [UnitType]
+  blockGetUnitTypes(project: String): [UnitType]
   blockGetUnitType(_id: String!): UnitType
 `;
 

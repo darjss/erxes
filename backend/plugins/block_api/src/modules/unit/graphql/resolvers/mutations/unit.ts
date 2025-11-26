@@ -1,7 +1,7 @@
-import { IContext } from '~/connectionResolvers';
-import { IUnitInput } from '@/unit/@types/unit';
 import { CONTRACT_STATUS } from '@/contract/constants';
+import { IUnitInput } from '@/unit/@types/unit';
 import { requireLogin } from 'erxes-api-shared/core-modules';
+import { IContext } from '~/connectionResolvers';
 
 export const unitMutations = {
   blockCreateUnit: async (
@@ -10,6 +10,7 @@ export const unitMutations = {
     { models }: IContext,
   ) => {
     const { useProjectPrice, ...rest } = input;
+
     if (useProjectPrice) {
       const zoning = await models.Zoning.findOne({ _id: input.zoning });
       if (!zoning) {
@@ -23,8 +24,6 @@ export const unitMutations = {
       if (!project) {
         throw new Error('Project not found');
       }
-      rest.mainPrice = project.mainPrice || 0;
-      rest.prices = project.prices || [];
     }
 
     return models.Unit.createUnit(rest);
@@ -65,8 +64,6 @@ export const unitMutations = {
       if (!project) {
         throw new Error('Project not found');
       }
-      rest.mainPrice = project.mainPrice || 0;
-      rest.prices = project.prices || [];
     }
 
     return models.Unit.updateUnit(_id, rest);

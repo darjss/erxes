@@ -30,3 +30,7 @@ export interface IUnitTypeDocument extends IUnitType, Document {
   createdAt: Date;
   updatedAt: Date;
 }
+
+export interface IUnitTypeParams {
+  project: string;
+}

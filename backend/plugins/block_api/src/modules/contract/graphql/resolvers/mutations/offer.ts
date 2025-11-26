@@ -1,13 +1,17 @@
-import { IContext } from '~/connectionResolvers';
-import { IOffer, IOfferInput } from '@/contract/@types/offer';
-import { requireLogin } from 'erxes-api-shared/core-modules';
+import {
+  IOffer,
+  IOfferInput,
+  OfferAmountType,
+  OfferStatus,
+} from '@/contract/@types/offer';
 import { CONTRACT_STATUS } from '@/contract/constants';
-import { OfferAmountType, OfferStatus } from '@/contract/@types/offer';
+import { InvoiceItemType, InvoiceStatus } from '@/invoice/@types/invoice';
 import {
   BlockProjectPaymentPlanFrequency,
   BlockProjectPaymentPlanInterestType,
 } from '@/project/@types/payment';
-import { InvoiceItemType, InvoiceStatus } from '@/invoice/@types/invoice';
+import { requireLogin } from 'erxes-api-shared/core-modules';
+import { IContext } from '~/connectionResolvers';
 
 export const offerMutations = {
   blockCreateOffer: async (
@@ -34,8 +38,14 @@ export const offerMutations = {
 
     const unit = await models.Unit.findOne({ _id: input.unit });
 
-    if (!unit || !unit.size) {
+    if (!unit) {
       throw new Error('Unit not found');
+    }
+
+    const unitType = await models.UnitType.findOne({ _id: unit.type });
+
+    if (!unitType) {
+      throw new Error('Unit type not found');
     }
 
     const offer = await models.Offer.createOffer(rest);
@@ -54,7 +64,7 @@ export const offerMutations = {
 
     let totalAmount =
       input.amountType === OfferAmountType.PER_SIZE
-        ? input.amount * unit.size
+        ? input.amount * unitType.size
         : input.amount;
 
     const {
