@@ -18,7 +18,7 @@ export const modifierMiddleware = (
 
     const { data } = payload || {};
 
-    const { input } = data || {};
+    const { input = {} } = data || {};
 
     const BLOCK_DOMAIN = BLOCK_API_URL.replace('<subdomain>', subdomain);
 
@@ -50,8 +50,8 @@ export const modifierMiddleware = (
     }
 
     next();
-  } catch {
-    console.error('Invalid request');
-    return res.status(401).json({ message: 'Invalid request' });
+  } catch (error) {
+    console.error('Invalid request', error);
+    return res.status(401).json({ message: 'Invalid request', error });
   }
 };
