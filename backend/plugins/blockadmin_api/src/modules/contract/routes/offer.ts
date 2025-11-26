@@ -46,8 +46,14 @@ router.post(
 
       const unit = await models.Unit.findOne({ _id: input.unit });
 
-      if (!unit || !unit.size) {
+      if (!unit) {
         throw new Error('Unit not found');
+      }
+
+      const unitType = await models.UnitType.findOne({ _id: unit?.type });
+
+      if (!unitType || !unitType.size) {
+        throw new Error('Unit type not found');
       }
 
       const offer = await models.Offer.createOffer(rest);
@@ -68,7 +74,7 @@ router.post(
 
       let totalAmount =
         input.amountType === OfferAmountType.PER_SIZE
-          ? input.amount * unit.size
+          ? input.amount * unitType.size
           : input.amount;
 
       const {
