@@ -11,11 +11,20 @@ export interface IUnit {
 
 export interface IUnitType {
   _id: string;
+  name: string;
+  description: string;
   size: number;
   type: string;
   tenureType: string;
+  content: string;
   price: number;
   prices: IProjectPrice[];
+  status: string;
+  rooms: any;
+  roomsCount: number;
+  project: string;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface IUnitAttachment {

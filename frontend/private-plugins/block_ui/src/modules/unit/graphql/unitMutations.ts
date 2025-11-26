@@ -47,3 +47,19 @@ export const BLOCK_REMOVE_UNIT_ATTACHMENT = gql`
     }
   }
 `;
+
+export const BLOCK_CREATE_UNIT_TYPE = gql`
+  mutation BlockCreateUnitType($input: UnitTypeInput!) {
+    blockCreateUnitType(input: $input) {
+      _id
+    }
+  }
+`;
+
+export const BLOCK_UPDATE_UNIT_TYPE = gql`
+  mutation BlockUpdateUnitType($id: String!, $input: UnitTypeInput!) {
+    blockUpdateUnitType(_id: $id, input: $input) {
+      _id
+    }
+  }
+`;

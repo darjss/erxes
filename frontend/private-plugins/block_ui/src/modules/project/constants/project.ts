@@ -28,6 +28,7 @@ export const PROJECT_TABS = {
   PRICING: 'pricing',
   BUILDINGS: 'buildings',
   ZONES: 'zones',
+  UNIT_TYPES: 'unit types',
   UNITS: 'units',
   AMENITIES: 'amenities',
   MEMBERS: 'members',

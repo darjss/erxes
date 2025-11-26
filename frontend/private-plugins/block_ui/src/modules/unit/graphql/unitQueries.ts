@@ -65,3 +65,28 @@ export const BLOCK_UNIT_ATTACHMENTS = gql`
     }
   }
 `;
+
+export const BLOCK_GET_UNIT_TYPES = gql`
+  query BlockGetUnitTypes($project: String) {
+    blockGetUnitTypes(project: $project) {
+      _id
+      name
+      description
+      size
+      type
+      tenureType
+      content
+      price
+      prices {
+        currency
+        priceType
+        price
+      }
+      status
+      rooms
+      roomsCount
+      createdAt
+      updatedAt
+    }
+  }
+`;
