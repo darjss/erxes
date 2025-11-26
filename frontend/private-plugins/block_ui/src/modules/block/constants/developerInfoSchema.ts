@@ -1,6 +1,8 @@
 import { z } from 'zod';
 
-const domain = z.string().regex(/^(https?:\/\/)?(?:[a-z0-9-]+\.)+[a-z]{2,}$/i);
+const domain = z
+  .string()
+  .regex(/^(https?:\/\/)?(?:[a-z0-9-]+\.)+[a-z]{2,}(\/[^\s]*)?$/i);
 
 export const developerInfoSchema = z.object({
   name: z.string(),
