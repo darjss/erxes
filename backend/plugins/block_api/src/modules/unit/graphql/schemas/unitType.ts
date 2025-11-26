@@ -1,5 +1,7 @@
 export const types = `
   type UnitType {
+    _id: String
+    name: String
     description: String
     size: Float
     type: BlockBuildingUnitUsageType
@@ -16,6 +18,7 @@ export const types = `
   }
 
   input UnitTypeInput {
+    name: String
     description: String
     size: Float
     type: BlockBuildingUnitUsageType

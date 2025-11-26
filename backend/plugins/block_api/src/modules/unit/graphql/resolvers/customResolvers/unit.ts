@@ -9,4 +9,11 @@ export default {
   ) => {
     return await models.Building.findOne({ _id: unit.building });
   },
+  type: async (
+    { type }: IUnitDocument,
+    _args: undefined,
+    { models }: IContext,
+  ) => {
+    return await models.UnitType.findOne({ _id: type });
+  },
 };

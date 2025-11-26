@@ -97,7 +97,7 @@ export const StackingZone = ({ zone }: { zone: IZoning }) => {
 
   const notUsedSizeByUnit = units?.reduce(
     (acc, { type, status }) =>
-      !status || status === 'available' ? acc + type.size : acc,
+      !status || status === 'available' ? acc + type?.size : acc,
     0,
   );
 
