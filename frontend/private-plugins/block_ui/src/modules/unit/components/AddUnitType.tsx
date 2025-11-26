@@ -27,12 +27,17 @@ import {
   Sheet,
   Spinner,
 } from 'erxes-ui';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useFieldArray, useForm } from 'react-hook-form';
 import { useParams } from 'react-router-dom';
 import { z } from 'zod';
 import { SelectTenureType } from './SelectTenureType';
 import { SelectUsageType } from './SelectUsageType';
+import {
+  SelectUsageFeatureType,
+  SelectUsageSubType,
+  SelectUsageTypeRoom,
+} from './SelectUsageTypeRoom';
 
 export const AddUnitType = ({ onClose }: { onClose: () => void }) => {
   const { id } = useParams();
@@ -43,6 +48,8 @@ export const AddUnitType = ({ onClose }: { onClose: () => void }) => {
       description: '',
       size: 0,
       type: '',
+      subType: '',
+      featureTypes: [],
       tenureType: '',
       content: '',
       price: 0,
@@ -53,6 +60,15 @@ export const AddUnitType = ({ onClose }: { onClose: () => void }) => {
     },
   });
 
+  const usageType = form.watch('type');
+
+  useEffect(() => {
+    form.setValue('subType', '');
+    form.setValue('featureTypes', []);
+  }, [usageType]);
+
+  const [coverImage, setCoverImage] = useState<string>('');
+
   const [images, setImages] = useState<string[]>([]);
   const [planImages, setPlanImages] = useState<string[]>([]);
 
@@ -61,13 +77,21 @@ export const AddUnitType = ({ onClose }: { onClose: () => void }) => {
   const onSubmit = (data: z.infer<typeof unitTypeSchema>) => {
     createUnitType({
       variables: {
-        input: { ...data, images, planImages, project: id || '' },
+        input: { ...data, images, planImages, coverImage, project: id || '' },
       },
       onCompleted: () => {
         onClose();
         form.reset();
       },
     });
+  };
+
+  const onCoverImageChange = (value?: string[] | string) => {
+    if (Array.isArray(value)) {
+      setCoverImage(value[0]);
+    } else if (typeof value === 'string') {
+      setCoverImage(value);
+    }
   };
 
   const onValueChange = (value?: string[] | string) => {
@@ -118,60 +142,81 @@ export const AddUnitType = ({ onClose }: { onClose: () => void }) => {
                   </Form.Item>
                 )}
               />
-              <Form.Field
-                name="description"
-                render={({ field }) => (
-                  <Form.Item>
-                    <Form.Label>Description</Form.Label>
-                    <Input {...field} />
-                  </Form.Item>
-                )}
-              />
-              <Form.Field
-                name="size"
-                render={({ field }) => (
-                  <Form.Item>
-                    <Form.Label>Size</Form.Label>
-                    <CurrencyField.ValueInput {...field} />
-                  </Form.Item>
-                )}
-              />
-              <Form.Field
-                name="type"
-                render={({ field }) => (
-                  <Form.Item>
-                    <Form.Label>Type</Form.Label>
-                    <SelectUsageType
-                      value={field.value}
-                      onValueChange={field.onChange}
-                      inForm
-                    />
-                  </Form.Item>
-                )}
-              />
-              <Form.Field
-                name="tenureType"
-                render={({ field }) => (
-                  <Form.Item>
-                    <Form.Label>Tenure Type</Form.Label>
-                    <SelectTenureType
-                      value={field.value}
-                      onValueChange={field.onChange}
-                      inForm
-                    />
-                  </Form.Item>
-                )}
-              />
+              <div className="grid blk:grid-cols-3 gap-3">
+                <Form.Field
+                  name="type"
+                  render={({ field }) => (
+                    <Form.Item>
+                      <Form.Label>Type</Form.Label>
+                      <SelectUsageType
+                        value={field.value}
+                        onValueChange={field.onChange}
+                        inForm
+                      />
+                    </Form.Item>
+                  )}
+                />
+                <Form.Field
+                  name="subType"
+                  render={({ field }) => (
+                    <Form.Item>
+                      <Form.Label>Sub Type</Form.Label>
+                      <SelectUsageSubType
+                        type={usageType}
+                        value={field.value}
+                        onValueChange={field.onChange}
+                        inForm
+                      />
+                    </Form.Item>
+                  )}
+                />
 
-              <Form.Field
-                name="price"
-                render={({ field }) => (
-                  <Form.Item>
-                    <Form.Label>Price</Form.Label>
-                    <CurrencyField.ValueInput {...field} />
-                  </Form.Item>
-                )}
-              />
+                <Form.Field
+                  name="featureType"
+                  render={({ field }) => (
+                    <Form.Item>
+                      <Form.Label>Feature Type</Form.Label>
+                      <SelectUsageFeatureType
+                        type={usageType}
+                        value={field.value}
+                        onValueChange={field.onChange}
+                        inForm
+                      />
+                    </Form.Item>
+                  )}
+                />
+                <Form.Field
+                  name="tenureType"
+                  render={({ field }) => (
+                    <Form.Item>
+                      <Form.Label>Tenure Type</Form.Label>
+                      <SelectTenureType
+                        value={field.value}
+                        onValueChange={field.onChange}
+                        inForm
+                      />
+                    </Form.Item>
+                  )}
+                />
+                <Form.Field
+                  name="size"
+                  render={({ field }) => (
+                    <Form.Item>
+                      <Form.Label>Size</Form.Label>
+                      <CurrencyField.ValueInput {...field} />
+                    </Form.Item>
+                  )}
+                />
+                <Form.Field
+                  name="price"
+                  render={({ field }) => (
+                    <Form.Item>
+                      <Form.Label>Price</Form.Label>
+                      <CurrencyField.ValueInput {...field} />
+                    </Form.Item>
+                  )}
+                />
+              </div>
 
               <div className="space-y-2">
                 <Label asChild>
@@ -254,9 +299,24 @@ export const AddUnitType = ({ onClose }: { onClose: () => void }) => {
               </div>
 
               <div className="space-y-2">
-                <Label asChild>
-                  <legend>Rooms</legend>
+                <Label asChild variant="peer" className="font-medium">
+                  <legend>Total room count</legend>
                 </Label>
+                <Form.Field
+                  name={'roomsCount'}
+                  render={({ field }) => (
+                    <Form.Item>
+                      <Input
+                        placeholder="Total room count"
+                        value={field?.value}
+                        onChange={(e) => field.onChange(Number(e.target.value))}
+                      />
+                    </Form.Item>
+                  )}
+                />
+              </div>
+
+              <div className="space-y-2">
                 {roomFields.map((field, index) => (
                   <div key={field.id} className="flex items-center gap-2">
                     <div className="grid grid-cols-4 gap-2 flex-1">
@@ -264,7 +324,12 @@ export const AddUnitType = ({ onClose }: { onClose: () => void }) => {
                         name={`rooms.${index}.type`}
                         render={({ field }) => (
                           <Form.Item className="col-span-3">
-                            <Input placeholder="Room type" {...field} />
+                            <SelectUsageTypeRoom
+                              type={usageType}
+                              value={field.value}
+                              onValueChange={field.onChange}
+                              inForm
+                            />
                           </Form.Item>
                         )}
                       />
@@ -311,129 +376,208 @@ export const AddUnitType = ({ onClose }: { onClose: () => void }) => {
                 </Button>
               </div>
 
-              <Form.Field
-                name="content"
-                render={({ field }) => (
-                  <Form.Item>
-                    <Form.Label>Content</Form.Label>
-                    <Editor
-                      isHTML
-                      initialContent={field.value}
-                      onChange={field.onChange}
-                    />
-                  </Form.Item>
-                )}
-              />
+              <div className="grid grid-cols-2 gap-3">
+                <Form.Field
+                  name="description"
+                  render={({ field }) => (
+                    <Form.Item>
+                      <Form.Label>Description</Form.Label>
+                      <Editor
+                        className="blk:h-96"
+                        isHTML
+                        initialContent={field.value}
+                        onChange={field.onChange}
+                      />
+                    </Form.Item>
+                  )}
+                />
 
-              <Label>Images</Label>
-              <UploadProvider
-                mode="multiple"
-                value={images}
-                onValueChange={onValueChange}
-              >
-                <div className="grid gap-3 grid-cols-6">
-                  {images.length > 0 ? (
-                    images.map((image) => (
-                      <div
-                        key={image}
-                        className="relative aspect-square bg-muted rounded-lg flex items-center justify-center group"
-                      >
-                        <img
-                          src={readImage(image)}
-                          className="size-full absolute inset-0 object-cover rounded-lg"
-                          alt="project"
-                        />
-                        <Dialog>
-                          <Dialog.Trigger asChild>
-                            <div className="absolute inset-0 border border-foreground/10 rounded-lg" />
-                          </Dialog.Trigger>
-                          <Dialog.Content className="p-0 max-w-screen-xl w-auto border-0 bg-transparent">
+                <Form.Field
+                  name="content"
+                  render={({ field }) => (
+                    <Form.Item>
+                      <Form.Label>Content</Form.Label>
+                      <Editor
+                        className="blk:h-96"
+                        isHTML
+                        initialContent={field.value}
+                        onChange={field.onChange}
+                      />
+                    </Form.Item>
+                  )}
+                />
+              </div>
+
+              <div className="flex">
+                <div className="flex flex-col gap-3">
+                  <Label>Cover image</Label>
+                  <UploadProvider
+                    mode="single"
+                    value={coverImage}
+                    onValueChange={onCoverImageChange}
+                  >
+                    <div className="grid grid-cols-6 gap-3">
+                      {coverImage ? (
+                        <div
+                          key={coverImage}
+                          className="relative aspect-square bg-muted rounded-lg flex items-center justify-center group"
+                        >
+                          <img
+                            src={readImage(coverImage)}
+                            className="size-full absolute inset-0 object-cover rounded-lg"
+                            alt="project"
+                          />
+                          <Dialog>
+                            <Dialog.Trigger asChild>
+                              <div className="absolute inset-0 border border-foreground/10 rounded-lg" />
+                            </Dialog.Trigger>
+                            <Dialog.Content className="p-0 max-w-screen-xl w-auto border-0 bg-transparent">
+                              <img
+                                src={readImage(coverImage)}
+                                alt="project"
+                                className="rounded-lg max-h-[90vh] max-w-[90vw] object-contain mx-auto"
+                              />
+                              <div className="absolute inset-0 border border-foreground/10 rounded-lg" />
+                            </Dialog.Content>
+                          </Dialog>
+                          <UploadRemoveButton url={coverImage}>
+                            <Button
+                              variant="secondary"
+                              size="icon"
+                              className="size-6 absolute -top-2 -right-2 opacity-0 group-hover:opacity-100 transition-opacity"
+                            >
+                              <IconX />
+                            </Button>
+                          </UploadRemoveButton>
+                        </div>
+                      ) : (
+                        <div className="relative aspect-square bg-muted rounded-lg flex items-center justify-center overflow-hidden">
+                          <IconPhotoCirclePlus className="size-8 text-scroll" />
+                        </div>
+                      )}
+                      <Upload>
+                        <div className="p-2 relative aspect-square bg-muted rounded-lg flex items-center justify-center overflow-hidden">
+                          <IconUpload />
+                        </div>
+                      </Upload>
+                    </div>
+                  </UploadProvider>
+                </div>
+
+                <div className="flex flex-col gap-3">
+                  <Label>Images</Label>
+                  <UploadProvider
+                    mode="multiple"
+                    value={images}
+                    onValueChange={onValueChange}
+                  >
+                    <div className="grid grid-cols-6 gap-3">
+                      {images.length > 0 ? (
+                        images.map((image) => (
+                          <div
+                            key={image}
+                            className="relative aspect-square bg-muted rounded-lg flex items-center justify-center group"
+                          >
                             <img
                               src={readImage(image)}
+                              className="size-full absolute inset-0 object-cover rounded-lg"
                               alt="project"
-                              className="rounded-lg max-h-[90vh] max-w-[90vw] object-contain mx-auto"
                             />
-                            <div className="absolute inset-0 border border-foreground/10 rounded-lg" />
-                          </Dialog.Content>
-                        </Dialog>
-                        <UploadRemoveButton url={image}>
-                          <Button
-                            variant="secondary"
-                            size="icon"
-                            className="size-6 absolute -top-2 -right-2 opacity-0 group-hover:opacity-100 transition-opacity"
-                          >
-                            <IconX />
-                          </Button>
-                        </UploadRemoveButton>
-                      </div>
-                    ))
-                  ) : (
-                    <div className="relative aspect-square bg-muted rounded-lg flex items-center justify-center overflow-hidden">
-                      <IconPhotoCirclePlus className="size-8 text-scroll" />
+                            <Dialog>
+                              <Dialog.Trigger asChild>
+                                <div className="absolute inset-0 border border-foreground/10 rounded-lg" />
+                              </Dialog.Trigger>
+                              <Dialog.Content className="p-0 max-w-screen-xl w-auto border-0 bg-transparent">
+                                <img
+                                  src={readImage(image)}
+                                  alt="project"
+                                  className="rounded-lg max-h-[90vh] max-w-[90vw] object-contain mx-auto"
+                                />
+                                <div className="absolute inset-0 border border-foreground/10 rounded-lg" />
+                              </Dialog.Content>
+                            </Dialog>
+                            <UploadRemoveButton url={image}>
+                              <Button
+                                variant="secondary"
+                                size="icon"
+                                className="size-6 absolute -top-2 -right-2 opacity-0 group-hover:opacity-100 transition-opacity"
+                              >
+                                <IconX />
+                              </Button>
+                            </UploadRemoveButton>
+                          </div>
+                        ))
+                      ) : (
+                        <div className="relative aspect-square bg-muted rounded-lg flex items-center justify-center overflow-hidden">
+                          <IconPhotoCirclePlus className="size-8 text-scroll" />
+                        </div>
+                      )}
+                      <Upload>
+                        <div className="p-2 relative aspect-square bg-muted rounded-lg flex items-center justify-center overflow-hidden">
+                          <IconUpload />
+                        </div>
+                      </Upload>
                     </div>
-                  )}
-                  <Upload>
-                    <div className="relative aspect-square bg-muted rounded-lg flex items-center justify-center overflow-hidden">
-                      <IconUpload />
-                    </div>
-                  </Upload>
+                  </UploadProvider>
                 </div>
-              </UploadProvider>
 
-              <Label>Plan images</Label>
-              <UploadProvider
-                mode="multiple"
-                value={planImages}
-                onValueChange={onValuesChange}
-              >
-                <div className="grid gap-3 grid-cols-6">
-                  {planImages.length > 0 ? (
-                    planImages.map((image) => (
-                      <div
-                        key={image}
-                        className="relative aspect-square bg-muted rounded-lg flex items-center justify-center group"
-                      >
-                        <img
-                          src={readImage(image)}
-                          className="size-full absolute inset-0 object-cover rounded-lg"
-                          alt="project"
-                        />
-                        <Dialog>
-                          <Dialog.Trigger asChild>
-                            <div className="absolute inset-0 border border-foreground/10 rounded-lg" />
-                          </Dialog.Trigger>
-                          <Dialog.Content className="p-0 max-w-screen-xl w-auto border-0 bg-transparent">
+                <div className="flex flex-col gap-3">
+                  <Label>Plan images</Label>
+                  <UploadProvider
+                    mode="multiple"
+                    value={planImages}
+                    onValueChange={onValuesChange}
+                  >
+                    <div className="grid grid-cols-6 gap-3">
+                      {planImages.length > 0 ? (
+                        planImages.map((image) => (
+                          <div
+                            key={image}
+                            className="relative aspect-square bg-muted rounded-lg flex items-center justify-center group"
+                          >
                             <img
                               src={readImage(image)}
+                              className="size-full absolute inset-0 object-cover rounded-lg"
                               alt="project"
-                              className="rounded-lg max-h-[90vh] max-w-[90vw] object-contain mx-auto"
                             />
-                            <div className="absolute inset-0 border border-foreground/10 rounded-lg" />
-                          </Dialog.Content>
-                        </Dialog>
-                        <UploadRemoveButton url={image}>
-                          <Button
-                            variant="secondary"
-                            size="icon"
-                            className="size-6 absolute -top-2 -right-2 opacity-0 group-hover:opacity-100 transition-opacity"
-                          >
-                            <IconX />
-                          </Button>
-                        </UploadRemoveButton>
-                      </div>
-                    ))
-                  ) : (
-                    <div className="relative aspect-square bg-muted rounded-lg flex items-center justify-center overflow-hidden">
-                      <IconPhotoCirclePlus className="size-8 text-scroll" />
+                            <Dialog>
+                              <Dialog.Trigger asChild>
+                                <div className="absolute inset-0 border border-foreground/10 rounded-lg" />
+                              </Dialog.Trigger>
+                              <Dialog.Content className="p-0 max-w-screen-xl w-auto border-0 bg-transparent">
+                                <img
+                                  src={readImage(image)}
+                                  alt="project"
+                                  className="rounded-lg max-h-[90vh] max-w-[90vw] object-contain mx-auto"
+                                />
+                                <div className="absolute inset-0 border border-foreground/10 rounded-lg" />
+                              </Dialog.Content>
+                            </Dialog>
+                            <UploadRemoveButton url={image}>
+                              <Button
+                                variant="secondary"
+                                size="icon"
+                                className="size-6 absolute -top-2 -right-2 opacity-0 group-hover:opacity-100 transition-opacity"
+                              >
+                                <IconX />
+                              </Button>
+                            </UploadRemoveButton>
+                          </div>
+                        ))
+                      ) : (
+                        <div className="relative aspect-square bg-muted rounded-lg flex items-center justify-center overflow-hidden">
+                          <IconPhotoCirclePlus className="size-8 text-scroll" />
+                        </div>
+                      )}
+                      <Upload>
+                        <div className="p-2 relative aspect-square bg-muted rounded-lg flex items-center justify-center overflow-hidden">
+                          <IconUpload />
+                        </div>
+                      </Upload>
                     </div>
-                  )}
-                  <Upload>
-                    <div className="relative aspect-square bg-muted rounded-lg flex items-center justify-center overflow-hidden">
-                      <IconUpload />
-                    </div>
-                  </Upload>
+                  </UploadProvider>
                 </div>
-              </UploadProvider>
+              </div>
             </div>
           </ScrollArea>
         </Sheet.Content>
@@ -461,7 +605,7 @@ export const AddUnitTypeSheet = () => {
           Add unit type
         </Button>
       </Sheet.Trigger>
-      <Sheet.View>
+      <Sheet.View className="blk:sm:max-w-5xl blk:md:w-[calc(100vw-(--spacing(4)))]">
         <Sheet.Header>
           <Sheet.Title>Add unit type</Sheet.Title>
           <Sheet.Close tabIndex={-1} />

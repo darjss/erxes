@@ -26,6 +26,12 @@ export interface IProject extends IBlock {
 
   startDate?: Date;
   endDate?: Date;
+
+  counts?: {
+    buildings: number;
+    units: number;
+    zones: number;
+  };
 }
 
 export interface IProjectLocation {

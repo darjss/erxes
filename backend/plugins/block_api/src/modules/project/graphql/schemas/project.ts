@@ -23,7 +23,7 @@ export const types = `
     pending
   }
 
-  enum BlockAdminProjectStatus {
+  enum BlockProjectStatus {
     planned
     on_going
     on_sale
@@ -65,7 +65,7 @@ export const types = `
     description: String
     location: BlockProjectLocation
     verificationStatus: BlockVerificationStatus
-    status: BlockAdminProjectStatus
+    status: BlockProjectStatus
     logo: String
     coverImage: String
     images: [String]
@@ -97,7 +97,7 @@ export const types = `
     description: String
     location: BlockProjectLocationInput
     verificationStatus: BlockVerificationStatus
-    status: BlockAdminProjectStatus
+    status: BlockProjectStatus
     mainPrice: Int
     prices: [BlockProjectPriceInput]
     bankPartners: [String]

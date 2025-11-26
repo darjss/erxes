@@ -4,18 +4,18 @@ import { IUnitType } from '~/modules/unit/@types/unitType';
 export const unitTypesMutations = {
   blockCreateUnitType: async (
     _parent: undefined,
-    _args: { input: IUnitType },
+    { input }: { input: IUnitType },
     { models }: IContext,
   ) => {
-    return models.UnitType.create(_args.input);
+    return models.UnitType.create(input);
   },
 
   blockUpdateUnitType: async (
     _parent: undefined,
-    _args: { _id: string; input: IUnitType },
+    { _id, input }: { _id: string; input: IUnitType },
     { models }: IContext,
   ) => {
-    return models.UnitType.findOneAndUpdate({ _id: _args._id }, _args.input, {
+    return models.UnitType.findOneAndUpdate({ _id }, input, {
       new: true,
     });
   },

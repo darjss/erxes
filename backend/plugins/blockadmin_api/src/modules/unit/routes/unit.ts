@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import { IContext } from '~/connectionResolvers';
 import { IRequest, IResponse } from '~/types';
 import { IUnit } from '../@types/unit';
 
@@ -7,7 +8,7 @@ const router: Router = Router();
 router.post(
   '/blockCreateUnit',
   async (req: IRequest<IUnit>, res: IResponse) => {
-    const { models } = res.locals;
+    const { models } = res.locals as IContext;
 
     try {
       const { subdomain, payload } = req.body || {};
@@ -21,11 +22,14 @@ router.post(
         input.zoning,
       );
 
+      const unitType = await models.UnitType.getUnitType(subdomain, input.type);
+
       models.Unit.createUnit({
         ...input,
         subdomain,
         entityId,
         zoning: zoning._id,
+        type: unitType._id,
       });
 
       return res.status(200).json({
@@ -42,7 +46,7 @@ router.post(
 router.post(
   '/blockUpdateUnit',
   async (req: IRequest<IUnit>, res: IResponse) => {
-    const { models } = res.locals;
+    const { models } = res.locals as IContext;
 
     try {
       const { subdomain, payload } = req.body || {};
@@ -67,7 +71,7 @@ router.post(
 router.post(
   '/blockDeleteUnit',
   async (req: IRequest<IUnit>, res: IResponse) => {
-    const { models } = res.locals;
+    const { models } = res.locals as IContext;
 
     try {
       const { subdomain, payload } = req.body || {};

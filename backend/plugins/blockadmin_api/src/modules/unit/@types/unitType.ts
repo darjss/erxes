@@ -14,6 +14,8 @@ export interface IUnitType extends IBlock {
   size: number;
 
   type: string;
+  subType: string;
+  featureTypes: string[];
   tenureType: string;
 
   content: string;
@@ -25,9 +27,15 @@ export interface IUnitType extends IBlock {
 
   rooms: IUnitRoom[];
   roomsCount: number;
+
+  coverImage: string;
+  images: string[];
+  planImages: string[];
 }
 
 export interface IUnitTypeDocument extends IUnitType, Document {
+  _id: string;
+  
   createdAt: Date;
   updatedAt: Date;
 }

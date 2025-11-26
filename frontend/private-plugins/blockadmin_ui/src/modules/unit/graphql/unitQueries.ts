@@ -5,9 +5,7 @@ export const BLOCK_GET_UNITS = gql`
     blockAdminGetUnits(zoning: $zoning) {
       _id
       number
-      size
       type
-      tenureType
       status
     }
   }
@@ -16,21 +14,13 @@ export const BLOCK_GET_UNITS = gql`
 export const BLOCK_GET_UNIT = gql`
   query BlockAdminGetUnit($id: String!) {
     blockAdminGetUnit(_id: $id) {
-      _id
+    _id
       building
       number
-      size
       type
       updatedAt
       zoning
-      mainPrice
       status
-      prices {
-        currency
-        price
-        priceType
-      }
-      tenureType
     }
   }
 `;
@@ -52,6 +42,8 @@ export const BLOCK_GET_UNIT_TYPES = gql`
       description
       size
       type
+      subType
+      featureTypes
       tenureType
       content
       price
@@ -63,6 +55,39 @@ export const BLOCK_GET_UNIT_TYPES = gql`
       status
       rooms
       roomsCount
+      coverImage
+      images
+      planImages
+      createdAt
+      updatedAt
+    }
+  }
+`;
+
+export const BLOCK_GET_UNIT_TYPE = gql`
+  query BlockAdminGetUnitType($id: String!) {
+    blockAdminGetUnitType(_id: $id) {
+      _id
+      name
+      description
+      size
+      type
+      subType
+      featureTypes
+      tenureType
+      content
+      price
+      prices {
+        currency
+        priceType
+        price
+      }
+      status
+      rooms
+      roomsCount
+      coverImage
+      images
+      planImages
       createdAt
       updatedAt
     }

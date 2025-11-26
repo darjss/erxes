@@ -1,7 +1,7 @@
 import { IContext } from '~/connectionResolvers';
 
 export const unitTypesQueries = {
-  blockGetUnitTypes: async (
+  blockAdminGetUnitTypes: async (
     _parent: undefined,
     { project }: { project: string },
     { models }: IContext,
@@ -9,7 +9,7 @@ export const unitTypesQueries = {
     return models.UnitType.find({ project }).lean();
   },
 
-  blockGetUnitType: async (
+  blockAdminGetUnitType: async (
     _parent: undefined,
     { _id }: { _id: string },
     { models }: IContext,

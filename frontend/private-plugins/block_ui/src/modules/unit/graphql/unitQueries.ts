@@ -42,6 +42,8 @@ export const BLOCK_GET_UNIT_TYPES = gql`
       description
       size
       type
+      subType
+      featureTypes
       tenureType
       content
       price
@@ -53,6 +55,7 @@ export const BLOCK_GET_UNIT_TYPES = gql`
       status
       rooms
       roomsCount
+      coverImage
       images
       planImages
       createdAt
@@ -69,6 +72,8 @@ export const BLOCK_GET_UNIT_TYPE = gql`
       description
       size
       type
+      subType
+      featureTypes
       tenureType
       content
       price
@@ -80,6 +85,7 @@ export const BLOCK_GET_UNIT_TYPE = gql`
       status
       rooms
       roomsCount
+      coverImage
       images
       planImages
       createdAt

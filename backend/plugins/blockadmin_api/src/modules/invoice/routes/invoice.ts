@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import { IContext } from '~/connectionResolvers';
 import { IRequest, IResponse } from '~/types';
 
 const router: Router = Router();
@@ -6,7 +7,7 @@ const router: Router = Router();
 router.post(
   '/blockPayInvoice',
   async (req: IRequest<{}, { paidDate: Date }>, res: IResponse) => {
-    const { models } = res.locals;
+    const { models } = res.locals as IContext;
 
     try {
       const { subdomain, payload } = req.body || {};

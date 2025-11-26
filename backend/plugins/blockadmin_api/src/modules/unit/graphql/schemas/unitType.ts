@@ -5,6 +5,8 @@ export const types = `
     description: String
     size: Float
     type: BlockAdminBuildingUnitUsageType
+    subType: String
+    featureTypes: [String]
     tenureType: BlockAdminBuildingUnitTenureType
     content: String
     price: Float
@@ -12,7 +14,10 @@ export const types = `
     status: String
     rooms: JSON
     roomsCount: Int
-    project: BlockProject
+    coverImage: String
+    images: [String]
+    planImages: [String]
+    project: BlockAdminProject
     createdAt: Date
     updatedAt: Date
   }

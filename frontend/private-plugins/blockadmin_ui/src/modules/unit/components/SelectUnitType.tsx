@@ -1,30 +1,30 @@
-import { UNIT_MARKET_TYPE } from '@/unit/constants/unit';
+import { useUnitTypes } from '@/unit/hooks/useUnitTypes';
 import { Form, Select } from 'erxes-ui';
 import React from 'react';
+import { useParams } from 'react-router-dom';
 
-export const SelectTenureType = ({
+export const SelectUnitType = ({
   value,
-  onValueChange,
   inForm = false,
-  readOnly = false,
 }: {
   value?: string;
-  onValueChange?: (value: string) => void;
   inForm?: boolean;
-  readOnly?: boolean;
 }) => {
+  const { id } = useParams();
+  const { unitTypes } = useUnitTypes({ project: id });
   const Control = inForm ? Form.Control : React.Fragment;
+
   return (
-    <Select value={value} onValueChange={onValueChange} disabled={readOnly}>
+    <Select value={value}>
       <Control>
         <Select.Trigger className="h-8 bg-background">
-          <Select.Value />
+          <Select.Value placeholder="Select unit type" />
         </Select.Trigger>
       </Control>
       <Select.Content>
-        {Object.entries(UNIT_MARKET_TYPE).map(([key, type]) => (
-          <Select.Item key={key} value={key}>
-            {type.mn}
+        {unitTypes?.map((type) => (
+          <Select.Item key={type._id} value={type._id}>
+            {type.name}
           </Select.Item>
         ))}
       </Select.Content>

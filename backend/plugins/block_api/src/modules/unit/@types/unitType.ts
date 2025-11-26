@@ -13,6 +13,8 @@ export interface IUnitType {
   size: number;
 
   type: string;
+  subType: string;
+  featureTypes: string[];
   tenureType: string;
 
   content: string;
@@ -25,6 +27,7 @@ export interface IUnitType {
   rooms: IUnitRoom[];
   roomsCount: number;
 
+  coverImage: string;
   images: string[];
   planImages: string[];
 }

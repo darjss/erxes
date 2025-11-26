@@ -10,6 +10,7 @@ import { projectMemberQueries } from '@/project/graphql/resolvers/queries/member
 import { paymentQueries } from '@/project/graphql/resolvers/queries/payment';
 import { projectQueries } from '@/project/graphql/resolvers/queries/project';
 import { unitQueries } from '@/unit/graphql/resolvers/queries/unit';
+import { unitTypesQueries } from '@/unit/graphql/resolvers/queries/unitType';
 import { unitLeadQueries } from '@/unit/graphql/resolvers/queries/unitLead';
 import { cpBlockQueries } from '~/modules/clientportal/graphql/resolvers/queries';
 import { formQueries } from '~/modules/form/graphql/queries';
@@ -23,6 +24,7 @@ export const queries = {
   ...documentQueries,
   ...developerQueries,
   ...unitQueries,
+  ...unitTypesQueries,
   ...projectMemberQueries,
   ...unitLeadQueries,
   ...contractQueries,

@@ -24,6 +24,11 @@ import {
 } from '@/unit/graphql/schemas/unit';
 
 import {
+  queries as UnitTypeQueries,
+  types as UnitTypeTypes,
+} from '@/unit/graphql/schemas/unitType';
+
+import {
   queries as ZoningQueries,
   types as ZoningTypes,
 } from '@/building/graphql/schemas/zoning';
@@ -84,6 +89,7 @@ export const types = `
   ${BuildingTypes}
   ${DocumentTypes}
   ${UnitTypes}
+  ${UnitTypeTypes}
   ${ZoningTypes}
   ${AttachmentTypes}
   ${DeveloperTypes}
@@ -103,6 +109,7 @@ export const queries = `
   ${BuildingQueries}
   ${DocumentQueries}
   ${UnitQueries}
+  ${UnitTypeQueries}
   ${ZoningQueries}
   ${AttachmentQueries}
   ${DeveloperQueries}

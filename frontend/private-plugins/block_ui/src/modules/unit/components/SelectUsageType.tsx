@@ -6,15 +6,17 @@ export const SelectUsageType = ({
   value,
   onValueChange,
   inForm = false,
+  readOnly = false,
 }: {
   value?: string;
   onValueChange?: (value: string) => void;
   inForm?: boolean;
+  readOnly?: boolean;
 }) => {
   const Control = inForm ? Form.Control : React.Fragment;
 
   return (
-    <Select value={value} onValueChange={onValueChange}>
+    <Select value={value} onValueChange={onValueChange} disabled={readOnly}>
       <Control>
         <Select.Trigger className="h-8 bg-background">
           <Select.Value />
@@ -30,3 +32,4 @@ export const SelectUsageType = ({
     </Select>
   );
 };
+

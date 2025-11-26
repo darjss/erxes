@@ -20,10 +20,15 @@ export interface IBuildingModel extends Model<IBuildingDocument> {
 export const loadBuildingClass = (models: IModels) => {
   class Building {
     public static async getBuilding(subdomain: string, entityId: string) {
+
+      console.log('entityId', entityId)
+
       const building = await models.Building.findOne({
         subdomain,
         entityId,
       }).lean();
+
+      console.log('building', building)
 
       if (!building) {
         throw new Error('Building not found');
@@ -33,6 +38,7 @@ export const loadBuildingClass = (models: IModels) => {
     }
 
     public static async createBuilding(input: IBuilding) {
+      console.log('input', input)
       return models.Building.create(input);
     }
 
@@ -43,9 +49,18 @@ export const loadBuildingClass = (models: IModels) => {
     ) {
       const { _id } = await models.Building.getBuilding(subdomain, entityId);
 
-      return models.Building.findOneAndUpdate({ _id }, input, {
-        new: true,
-      });
+      console.log('input', input);
+      console.log('_id', _id);
+
+      return models.Building.findOneAndUpdate(
+        { _id },
+        {
+          $set: input,
+        },
+        {
+          new: true,
+        },
+      );
     }
 
     public static async deleteBuilding(subdomain: string, entityId: string) {

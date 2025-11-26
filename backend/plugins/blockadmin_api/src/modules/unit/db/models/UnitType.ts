@@ -16,7 +16,13 @@ export interface IUnitTypeModel extends Model<IUnitTypeDocument> {
 export const loadUnitTypeClass = (models: IModels) => {
   class UnitType {
     public static async getUnitType(subdomain: string, entityId: string) {
-      return models.UnitType.findOne({ subdomain, entityId });
+      const unitType = await models.UnitType.findOne({ subdomain, entityId });
+
+      if (!unitType) {
+        throw new Error('Unit type not found');
+      }
+
+      return unitType;
     }
 
     public static async createUnitType(input: IUnitType) {
@@ -28,7 +34,8 @@ export const loadUnitTypeClass = (models: IModels) => {
       entityId: string,
       input: IUnitType,
     ) {
-      const { _id } = await models.UnitType.getUnitType(subdomain, entityId) || {};
+      const { _id } =
+        (await models.UnitType.getUnitType(subdomain, entityId)) || {};
 
       return models.UnitType.findOneAndUpdate({ _id }, input, {
         new: true,

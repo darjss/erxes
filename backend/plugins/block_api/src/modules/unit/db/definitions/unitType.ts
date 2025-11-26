@@ -6,6 +6,8 @@ export const unitTypeSchema = new Schema(
     description: { type: String },
     size: { type: Number },
     type: { type: String },
+    subType: { type: String },
+    featureTypes: { type: [String] },
     tenureType: { type: String },
     content: { type: String },
     price: { type: Number },
@@ -15,6 +17,7 @@ export const unitTypeSchema = new Schema(
     roomsCount: { type: Number },
     project: { type: Schema.Types.ObjectId, ref: 'block_projects' },
 
+    coverImage: { type: String },
     images: { type: [String] },
     planImages: { type: [String] },
   },

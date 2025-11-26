@@ -180,3 +180,130 @@ export const UNIT_DOCUMENT_TABS_KEYS = Object.keys(UNIT_DOCUMENT_TABS).reduce(
   },
   {} as Record<keyof typeof UNIT_DOCUMENT_TABS, string>,
 );
+
+export const UNIT_USAGE_ROOMS = {
+  apartment: [
+    { value: 'livingRoom', label: { en: 'Living room', mn: 'Зочны өрөө' } },
+    { value: 'bedroom', label: { en: 'Bedroom', mn: 'Унтлагын өрөө' } },
+    { value: 'kitchen', label: { en: 'Kitchen', mn: 'Гал тогоо' } },
+    { value: 'bathroom', label: { en: 'Bathroom', mn: 'Ариун цэврийн өрөө' } },
+    { value: 'diningArea', label: { en: 'Dining area', mn: 'Үдийн өрөө' } },
+    { value: 'balcony', label: { en: 'Balcony', mn: 'Тагт' } },
+    { value: 'laundry', label: { en: 'Laundry room', mn: 'Хувцас угаах өрөө' } },
+    { value: 'storage', label: { en: 'Storage room', mn: 'Агуулах өрөө' } },
+    { value: 'hallway', label: { en: 'Hallway', mn: 'Коридор' } }
+  ],
+
+  office: [
+    { value: 'openWorkspace', label: { en: 'Open workspace', mn: 'Нээлттэй ажлын талбай' } },
+    { value: 'privateOffice', label: { en: 'Private office', mn: 'Хувийн өрөө' } },
+    { value: 'meetingRoom', label: { en: 'Meeting room', mn: 'Хурлын өрөө' } },
+    { value: 'conferenceRoom', label: { en: 'Conference room', mn: 'Конференц өрөө' } },
+    { value: 'breakRoom', label: { en: 'Break room', mn: 'Амрах өрөө' } },
+    { value: 'reception', label: { en: 'Reception area', mn: 'Хүлээн авах хэсэг' } },
+    { value: 'serverRoom', label: { en: 'Server room', mn: 'Серверийн өрөө' } },
+    { value: 'supplyRoom', label: { en: 'Supply room', mn: 'Хангамжийн өрөө' } },
+    { value: 'executiveOffice', label: { en: 'Executive office', mn: 'Удирдлагын өрөө' } }
+  ],
+
+  serviceArea: [
+    { value: 'customerArea', label: { en: 'Customer area', mn: 'Үйлчлүүлэгчийн хэсэг' } },
+    { value: 'staffRoom', label: { en: 'Staff room', mn: 'Ажилчдын өрөө' } },
+    { value: 'utilityRoom', label: { en: 'Utility room', mn: 'Техникийн өрөө' } },
+    { value: 'equipmentArea', label: { en: 'Equipment area', mn: 'Төхөөрөмжийн хэсэг' } },
+    { value: 'cashierCounter', label: { en: 'Cashier counter', mn: 'Касс' } },
+    { value: 'waitingArea', label: { en: 'Waiting area', mn: 'Хүлээлгийн хэсэг' } },
+    { value: 'prepRoom', label: { en: 'Prep room', mn: 'Бэлтгэлийн өрөө' } },
+    { value: 'backOffice', label: { en: 'Back office', mn: 'Дотоод оффис' } }
+  ],
+
+  parking: [
+    { value: 'parkingSpot', label: { en: 'Parking spot', mn: 'Зогсоолын талбай' } },
+    { value: 'evCharging', label: { en: 'EV charging spot', mn: 'Цахилгаан машины цэнэглэх цэг' } },
+    { value: 'motorcycleParking', label: { en: 'Motorcycle parking', mn: 'Мотоциклийн зогсоол' } },
+    { value: 'bicycleStorage', label: { en: 'Bicycle storage', mn: 'Дугуйн зогсоол' } },
+    { value: 'controlBooth', label: { en: 'Control booth', mn: 'Хяналтын будк' } },
+    { value: 'loadingArea', label: { en: 'Loading area', mn: 'Ачилтын талбай' } }
+  ],
+
+  basement: [
+    { value: 'storageRoom', label: { en: 'Storage room', mn: 'Агуулах' } },
+    { value: 'boilerRoom', label: { en: 'Boiler room', mn: 'Зуухны өрөө' } },
+    { value: 'mechanicalRoom', label: { en: 'Mechanical room', mn: 'Механикийн өрөө' } },
+    { value: 'electricalRoom', label: { en: 'Electrical room', mn: 'Цахилгааны өрөө' } },
+    { value: 'utilityCorridor', label: { en: 'Utility corridor', mn: 'Техникийн коридор' } },
+    { value: 'coldRoom', label: { en: 'Cold room', mn: 'Хөргөлтийн өрөө' } },
+    { value: 'workshop', label: { en: 'Workshop', mn: 'Дархны өрөө' } }
+  ],
+
+  retail: [
+    { value: 'salesFloor', label: { en: 'Sales floor', mn: 'Үзүүлэнгийн талбай' } },
+    { value: 'checkout', label: { en: 'Checkout', mn: 'Касс' } },
+    { value: 'displayArea', label: { en: 'Display area', mn: 'Тавиурын хэсэг' } },
+    { value: 'fittingRoom', label: { en: 'Fitting room', mn: 'Туршилтын өрөө' } },
+    { value: 'stockRoom', label: { en: 'Stock room', mn: 'Барааны агуулах' } },
+    { value: 'backOffice', label: { en: 'Back office', mn: 'Дотоод өрөө' } },
+    { value: 'receivingArea', label: { en: 'Receiving area', mn: 'Хүлээн авах хэсэг' } }
+  ]
+};
+
+export const UNIT_USAGE_SUBTYPES = {
+  apartment: [
+    { value: 'economy', label: { en: 'Economy', mn: 'Энгийн' } },
+    { value: 'standard', label: { en: 'Standard', mn: 'Стандарт' } },
+    { value: 'comfort', label: { en: 'Comfort', mn: 'Комфорт' } },
+    { value: 'premium', label: { en: 'Premium', mn: 'Премиум' } },
+    { value: 'luxury', label: { en: 'Luxury', mn: 'Тансаг' } },
+    { value: 'penthouse', label: { en: 'Penthouse', mn: 'Пентхаус' } }
+  ],
+
+  office: [
+    { value: 'openSpace', label: { en: 'Open-space', mn: 'Нээлттэй' } },
+    { value: 'coworking', label: { en: 'Coworking', mn: 'Ковёркинг' } },
+    { value: 'private', label: { en: 'Private office', mn: 'Хувийн оффис' } },
+    { value: 'executive', label: { en: 'Executive', mn: 'Удирдлагын' } },
+    { value: 'premium', label: { en: 'Premium office', mn: 'Дээд зэрэглэлийн оффис' } },
+    { value: 'meetingSuite', label: { en: 'Meeting-suite', mn: 'Хурал, уулзалтын блок' } }
+  ],
+
+  serviceArea: [
+    { value: 'basic', label: { en: 'Basic service area', mn: 'Энгийн үйлчилгээний талбай' } },
+    { value: 'standard', label: { en: 'Standard service area', mn: 'Стандарт үйлчилгээний талбай' } },
+    { value: 'specialized', label: { en: 'Specialized', mn: 'Тусгай зориулалтын' } },
+    { value: 'premium', label: { en: 'Premium service area', mn: 'Дээд зэрэглэлийн үйлчилгээний талбай' } }
+  ],
+
+  parking: [
+    { value: 'standard', label: { en: 'Standard parking', mn: 'Стандарт зогсоол' } },
+    { value: 'indoor', label: { en: 'Indoor parking', mn: 'Дотор зогсоол' } },
+    { value: 'outdoor', label: { en: 'Outdoor parking', mn: 'Гадна зогсоол' } },
+    { value: 'premium', label: { en: 'Premium parking', mn: 'Дээд зэрэглэлийн зогсоол' } },
+    { value: 'ev', label: { en: 'EV charging', mn: 'Цэнэглэх зогсоол' } }
+  ],
+
+  basement: [
+    { value: 'storage', label: { en: 'General storage', mn: 'Энгийн агуулах' } },
+    { value: 'technical', label: { en: 'Technical', mn: 'Техникийн' } },
+    { value: 'utility', label: { en: 'Utility', mn: 'Үйлчилгээний' } },
+    { value: 'premium', label: { en: 'Premium basement', mn: 'Дээд зэрэглэлийн подвал' } }
+  ],
+
+  retail: [
+    { value: 'kiosk', label: { en: 'Kiosk / Small retail', mn: 'Киоск / Жижиг дэлгүүр' } },
+    { value: 'standard', label: { en: 'Standard retail', mn: 'Стандарт худалдаа' } },
+    { value: 'boutique', label: { en: 'Boutique', mn: 'Бутик' } },
+    { value: 'premium', label: { en: 'Premium retail', mn: 'Премиум худалдаа' } },
+    { value: 'flagship', label: { en: 'Flagship store', mn: 'Тэргүүлэх дэлгүүр' } }
+  ]
+};
+
+export const UNIT_EXTRA_OPTIONS = [
+  { value: 'north', label: { en: 'North', mn: 'Хойд' } },
+  { value: 'south', label: { en: 'South', mn: 'Өмнөд' } },
+  { value: 'east', label: { en: 'East', mn: 'Зүүн' } },
+  { value: 'west', label: { en: 'West', mn: 'Баруун' } },
+
+  { value: 'city', label: { en: 'City view', mn: 'Хотын үзэмж' } },
+  { value: 'nature', label: { en: 'Nature view', mn: 'Байгалийн үзэмж' } },
+  { value: 'mixed', label: { en: 'Mixed view', mn: 'Хосолсон харагдах байдал' } }
+];

@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import { IContext } from '~/connectionResolvers';
 import { IRequest, IResponse } from '~/types';
 import { IUnitType } from '../@types/unitType';
 
@@ -7,7 +8,7 @@ const router: Router = Router();
 router.post(
   '/blockCreateUnitType',
   async (req: IRequest<IUnitType>, res: IResponse) => {
-    const { models } = res.locals;
+    const { models } = res.locals as IContext;
 
     try {
       const { subdomain, payload } = req.body || {};
@@ -16,7 +17,14 @@ router.post(
 
       const { input } = data || {};
 
-      models.UnitType.create({ ...input, subdomain, entityId });
+      const project = await models.Project.getProject(subdomain, entityId);
+
+      models.UnitType.create({
+        ...input,
+        subdomain,
+        entityId,
+        project: project._id,
+      });
 
       return res.status(200).json({
         success: true,
@@ -32,7 +40,7 @@ router.post(
 router.post(
   '/blockUpdateUnitType',
   async (req: IRequest<IUnitType>, res: IResponse) => {
-    const { models } = res.locals;
+    const { models } = res.locals as IContext;
 
     try {
       const { subdomain, payload } = req.body || {};

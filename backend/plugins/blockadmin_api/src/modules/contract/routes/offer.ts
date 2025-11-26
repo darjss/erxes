@@ -17,7 +17,7 @@ const router: Router = Router();
 router.post(
   '/blockCreateOffer',
   async (req: IRequest<IOffer & { invoices: IInvoice[] }>, res: IResponse) => {
-    const { models } = res.locals;
+    const { models } = res.locals as IContext;
 
     try {
       const { subdomain, payload } = req.body || {};
@@ -202,7 +202,7 @@ router.post(
 router.post(
   '/blockUpdateOffer',
   async (req: IRequest<IOffer>, res: IResponse) => {
-    const { models } = res.locals;
+    const { models } = res.locals as IContext;
 
     try {
       const { subdomain, payload } = req.body || {};
@@ -227,7 +227,7 @@ router.post(
 router.post(
   '/blockSendOfferEmail',
   async (req: IRequest<IOffer>, res: IResponse) => {
-    const { models } = res.locals;
+    const { models } = res.locals as IContext;
 
     try {
       const { subdomain, payload } = req.body || {};

@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import { IContext } from '~/connectionResolvers';
 import { IRequest, IResponse } from '~/types';
 import { IBuilding } from '../@types/building';
 
@@ -7,7 +8,7 @@ const router: Router = Router();
 router.post(
   '/blockCreateBuilding',
   async (req: IRequest<IBuilding>, res: IResponse) => {
-    const { models } = res.locals;
+    const { models } = res.locals as IContext;
 
     try {
       const { subdomain, payload } = req.body || {};
@@ -39,7 +40,7 @@ router.post(
 router.post(
   '/blockUpdateBuilding',
   async (req: IRequest<IBuilding>, res: IResponse) => {
-    const { models } = res.locals;
+    const { models } = res.locals as IContext;
 
     try {
       const { subdomain, payload } = req.body || {};
@@ -48,11 +49,8 @@ router.post(
 
       const { input } = data || {};
 
-      const project = await models.Project.getProject(subdomain, input.project);
-
       models.Building.updateBuilding(subdomain, entityId, {
         ...input,
-        project: project._id,
       });
 
       return res.status(200).json({
@@ -69,7 +67,7 @@ router.post(
 router.post(
   '/blockDeleteBuilding',
   async (req: IRequest<IBuilding>, res: IResponse) => {
-    const { models } = res.locals;
+    const { models } = res.locals as IContext;
 
     try {
       const { subdomain, payload } = req.body || {};
@@ -92,7 +90,7 @@ router.post(
 router.post(
   '/blockDupplicateBuilding',
   async (req: IRequest<{}, { buildingId: string }>, res: IResponse) => {
-    const { models } = res.locals;
+    const { models } = res.locals as IContext;
 
     try {
       const { subdomain, payload } = req.body || {};

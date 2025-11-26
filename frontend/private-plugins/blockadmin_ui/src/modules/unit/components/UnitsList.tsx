@@ -1,10 +1,9 @@
 import { IZoning } from '@/building/types/buildingTypes';
-import { SelectTenureType } from '@/unit/components/SelectTenureType';
-import { SelectUsageType } from '@/unit/components/SelectUsageType';
 import { useUnits } from '@/unit/hooks/useUnits';
 import { IUnit } from '@/unit/types/unitType';
-import { CurrencyField, Input, Label, Spinner } from 'erxes-ui';
+import { Input, Label, Spinner } from 'erxes-ui';
 import { useEffect } from 'react';
+import { SelectUnitType } from './SelectUnitType';
 
 export const UnitsList = ({
   zone,
@@ -33,18 +32,12 @@ export const UnitsList = ({
 
   return (
     <>
-      <div className="grid gap-3 grid-cols-4 [&>span]:whitespace-nowrap min-w-[56rem]">
+      <div className="grid gap-3 grid-cols-2 [&>span]:whitespace-nowrap min-w-[56rem]">
         <Label asChild>
-          <span>Code</span>
+          <span>Дугаар</span>
         </Label>
         <Label asChild>
-          <span>Usage type</span>
-        </Label>
-        <Label asChild>
-          <span>Tenure type</span>
-        </Label>
-        <Label asChild>
-          <span>Area m²</span>
+          <span>Unit type</span>
         </Label>
       </div>
       {sortedUnits?.map((unit) => (
@@ -56,11 +49,9 @@ export const UnitsList = ({
 
 export const UnitsListItem = ({ unit }: { unit: IUnit }) => {
   return (
-    <div className="grid gap-3 grid-cols-4">
+    <div className="grid gap-3 grid-cols-2">
       <Input value={unit.number} />
-      <SelectUsageType value={unit.type} />
-      <SelectTenureType value={unit.tenureType} />
-      <CurrencyField.ValueInput value={unit.size} />
+      <SelectUnitType value={unit.type || ''} />
     </div>
   );
 };

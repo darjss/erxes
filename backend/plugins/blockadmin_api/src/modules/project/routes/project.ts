@@ -1,5 +1,6 @@
 import { IProject } from '@/project/@types/project';
 import { Router } from 'express';
+import { IContext } from '~/connectionResolvers';
 import { IRequest, IResponse } from '~/types';
 
 const router: Router = Router();
@@ -7,7 +8,7 @@ const router: Router = Router();
 router.post(
   '/blockCreateProject',
   async (req: IRequest<IProject>, res: IResponse) => {
-    const { models } = res.locals;
+    const { models } = res.locals as IContext;
 
     try {
       const { subdomain, payload } = req.body || {};
@@ -30,7 +31,7 @@ router.post(
 router.post(
   '/blockUpdateProjectGeneralInfo',
   async (req: IRequest<IProject>, res: IResponse) => {
-    const { models } = res.locals;
+    const { models } = res.locals as IContext;
 
     try {
       const { subdomain, payload } = req.body || {};
@@ -55,7 +56,7 @@ router.post(
 router.post(
   '/blockPublishProject',
   async (req: IRequest<IProject>, res: IResponse) => {
-    const { models } = res.locals;
+    const { models } = res.locals as IContext;
 
     try {
       const { subdomain, payload } = req.body || {};
@@ -80,7 +81,7 @@ router.post(
 router.post(
   '/blockRemoveProject',
   async (req: IRequest<IProject>, res: IResponse) => {
-    const { models } = res.locals;
+    const { models } = res.locals as IContext;
 
     try {
       const { subdomain, payload } = req.body || {};

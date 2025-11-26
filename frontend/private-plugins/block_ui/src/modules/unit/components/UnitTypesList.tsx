@@ -65,10 +65,10 @@ const UnitTypesListItem = ({ unitType }: { unitType: IUnitType }) => {
     <div className="grid gap-3 grid-cols-6 items-center">
       <div className="col-span-1 text-sm font-medium">{unitType.name}</div>
       <div className="col-span-1">
-        <SelectUsageType value={unitType.type} />
+        <SelectUsageType value={unitType.type} readOnly />
       </div>
       <div className="col-span-1">
-        <SelectTenureType value={unitType.tenureType} />
+        <SelectTenureType value={unitType.tenureType} readOnly />
       </div>
       <div className="col-span-1">
         <CurrencyField.ValueInput value={unitType.size} disabled />
@@ -92,7 +92,7 @@ const UnitTypeListItemEdit = ({ unitType }: { unitType: IUnitType }) => {
           <IconPencil className="size-4" />
         </Button>
       </Sheet.Trigger>
-      <Sheet.View>
+      <Sheet.View className="blk:sm:max-w-5xl blk:md:w-[calc(100vw-(--spacing(4)))]">
         <Sheet.Header>
           <Sheet.Title>Edit unit type</Sheet.Title>
           <Sheet.Close tabIndex={-1} />

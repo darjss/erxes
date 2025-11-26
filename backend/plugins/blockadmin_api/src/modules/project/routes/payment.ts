@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import { IContext } from '~/connectionResolvers';
 import { IRequest, IResponse } from '~/types';
 import { IProjectPaymentPlan } from '../@types/payment';
 
@@ -7,7 +8,7 @@ const router: Router = Router();
 router.post(
   '/blockCreateProjectPaymentPlan',
   async (req: IRequest<IProjectPaymentPlan>, res: IResponse) => {
-    const { models } = res.locals;
+    const { models } = res.locals as IContext;
 
     try {
       const { subdomain, payload } = req.body || {};
@@ -36,7 +37,7 @@ router.post(
 router.post(
   '/blockUpdateProjectPaymentPlan',
   async (req: IRequest<IProjectPaymentPlan>, res: IResponse) => {
-    const { models } = res.locals;
+    const { models } = res.locals as IContext;
 
     try {
       const { subdomain, payload } = req.body || {};

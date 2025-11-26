@@ -20,6 +20,8 @@ export interface IUnitType {
   description: string;
   size: number;
   type: string;
+  subType: string;
+  featureTypes: string[];
   tenureType: string;
   content: string;
   price: number;
@@ -28,6 +30,7 @@ export interface IUnitType {
   rooms: IUnitRoom[];
   roomsCount: number;
   project: string;
+  coverImage: string;
   images: string[];
   planImages: string[];
   createdAt: Date;

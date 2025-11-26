@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import { IContext } from '~/connectionResolvers';
 import { IRequest, IResponse } from '~/types';
 import { IBlockAttachment } from '../@types/attachment';
 
@@ -7,7 +8,7 @@ const router: Router = Router();
 router.post(
   '/blockCreateAttachment',
   async (req: IRequest<IBlockAttachment>, res: IResponse) => {
-    const { models } = res.locals;
+    const { models } = res.locals as IContext;
 
     try {
       const { subdomain, payload } = req.body || {};
@@ -36,7 +37,7 @@ router.post(
 router.post(
   '/blockUpdateAttachment',
   async (req: IRequest<IBlockAttachment>, res: IResponse) => {
-    const { models } = res.locals;
+    const { models } = res.locals as IContext;
 
     try {
       const { subdomain, payload } = req.body || {};
@@ -61,7 +62,7 @@ router.post(
 router.post(
   '/blockDeleteAttachment',
   async (req: IRequest<IBlockAttachment>, res: IResponse) => {
-    const { models } = res.locals;
+    const { models } = res.locals as IContext;
 
     try {
       const { subdomain, payload } = req.body || {};

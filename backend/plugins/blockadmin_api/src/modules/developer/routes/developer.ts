@@ -1,6 +1,7 @@
 import { sendNotification } from 'erxes-api-shared/core-modules';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { Router } from 'express';
+import { IContext } from '~/connectionResolvers';
 import { IRequest, IResponse } from '~/types';
 import { IBlockDeveloper } from '../db/@types/developer';
 
@@ -9,7 +10,7 @@ const router: Router = Router();
 router.post(
   '/updateDeveloperInfo',
   async (req: IRequest<IBlockDeveloper>, res: IResponse) => {
-    const { models } = res.locals;
+    const { models } = res.locals as IContext;
 
     try {
       const { subdomain, payload } = req.body || {};

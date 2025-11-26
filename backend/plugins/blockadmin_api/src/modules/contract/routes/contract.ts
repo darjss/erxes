@@ -7,7 +7,7 @@ const router: Router = Router();
 router.post(
   '/blockCreateContract',
   async (req: IRequest<IContract>, res: IResponse) => {
-    const { models } = res.locals;
+    const { models } = res.locals as IContext;
 
     try {
       const { subdomain, payload } = req.body || {};
@@ -39,7 +39,7 @@ router.post(
 router.post(
   '/blockUpdateContract',
   async (req: IRequest<IContract>, res: IResponse) => {
-    const { models } = res.locals;
+    const { models } = res.locals as IContext;
 
     try {
       const { subdomain, payload } = req.body || {};
