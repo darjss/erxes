@@ -90,7 +90,7 @@ export const UnitsListItem = ({
       />
       <div className="col-span-3">
         <SelectUnitType
-          value={type?._id || ''}
+          value={type || ''}
           onValueChange={(value) => updateUnit({ type: value })}
         />
       </div>

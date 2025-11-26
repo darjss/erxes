@@ -1,23 +1,22 @@
-import { SelectUsageType } from '@/unit/components/SelectUsageType';
+import { IZoning } from '@/building/types/buildingTypes';
 import { addUnitsMultipleSchema } from '@/unit/constants/addUnitSchema';
+import { useUnitCreate } from '@/unit/hooks/useUnitCreate';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { IconAlertCircle, IconPlus } from '@tabler/icons-react';
 import {
   Alert,
   Button,
+  CurrencyField,
   Form,
   Separator,
   Sheet,
   Spinner,
   toast,
 } from 'erxes-ui';
-import { useForm } from 'react-hook-form';
-import { CurrencyField } from 'erxes-ui';
 import { useState } from 'react';
-import { useUnitCreate } from '@/unit/hooks/useUnitCreate';
-import { IZoning } from '@/building/types/buildingTypes';
+import { useForm } from 'react-hook-form';
 import { z } from 'zod';
-import { SelectTenureType } from '@/unit/components/SelectTenureType';
+import { SelectUnitType } from './SelectUnitType';
 
 export const AddUnitsMultiple = ({ zone }: { zone: IZoning }) => {
   const [open, setOpen] = useState(false);
@@ -54,8 +53,6 @@ export const AddUnitsMultipleForm = ({
     resolver: zodResolver(addUnitsMultipleSchema),
     defaultValues: {
       type: zone.usageType,
-      tenureType: zone.tenureType,
-      size: 0,
       count: 0,
     },
   });
@@ -71,8 +68,6 @@ export const AddUnitsMultipleForm = ({
         variables: {
           input: {
             type: data.type,
-            tenureType: data.tenureType,
-            size: data.size,
             number,
             zoning: zone._id,
             useProjectPrice: true,
@@ -110,33 +105,11 @@ export const AddUnitsMultipleForm = ({
             render={({ field }) => (
               <Form.Item>
                 <Form.Label>Type</Form.Label>
-                <SelectUsageType
+                <SelectUnitType
                   value={field.value}
                   onValueChange={field.onChange}
                   inForm
                 />
-              </Form.Item>
-            )}
-          />
-          <Form.Field
-            name="tenureType"
-            render={({ field }) => (
-              <Form.Item>
-                <Form.Label>Tenure type</Form.Label>
-                <SelectTenureType
-                  value={field.value}
-                  onValueChange={field.onChange}
-                  inForm
-                />
-              </Form.Item>
-            )}
-          />
-          <Form.Field
-            name="size"
-            render={({ field }) => (
-              <Form.Item>
-                <Form.Label>Size</Form.Label>
-                <CurrencyField.ValueInput {...field} />
               </Form.Item>
             )}
           />

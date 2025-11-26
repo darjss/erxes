@@ -3,7 +3,7 @@ import { IProjectPrice } from '@/project/types/projectTypes';
 export interface IUnit {
   _id: string;
   number: string;
-  type: IUnitType;
+  type: string;
   zoning: string;
   building: string;
   status: string;
@@ -28,6 +28,8 @@ export interface IUnitType {
   rooms: IUnitRoom[];
   roomsCount: number;
   project: string;
+  images: string[];
+  planImages: string[];
   createdAt: Date;
   updatedAt: Date;
 }

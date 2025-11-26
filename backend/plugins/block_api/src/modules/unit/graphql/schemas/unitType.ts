@@ -13,6 +13,8 @@ export const types = `
     rooms: JSON
     roomsCount: Int
     project: BlockProject
+    images: [String]
+    planImages: [String]
     createdAt: Date
     updatedAt: Date
   }
@@ -31,6 +33,9 @@ export const types = `
     roomsCount: Int
     
     project: String
+
+    images: [String]
+    planImages: [String]
   }
 `;
 

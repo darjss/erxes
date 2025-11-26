@@ -41,6 +41,7 @@ export const AddUnit = ({
         priceType: p.priceType,
       })),
     },
+    shouldFocusError: false,
   });
   const { createUnit, loading } = useUnitCreate({ zoning: zone._id });
 

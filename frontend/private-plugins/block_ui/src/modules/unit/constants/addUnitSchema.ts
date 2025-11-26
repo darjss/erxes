@@ -16,14 +16,17 @@ export const addUnitSchema = z
       )
       .optional(),
   })
-  .refine((data) => !data.useProjectPrice && !data.mainPrice, {
+  .refine((data) => data.useProjectPrice || data.mainPrice !== undefined, {
     message: 'Please provide a main price when the project price is not used',
     path: ['mainPrice'],
   })
-  .refine((data) => !data.useProjectPrice && !data.prices, {
-    message: 'Please provide prices when the project price is not used',
-    path: ['prices'],
-  });
+  .refine(
+    (data) => data.useProjectPrice || (data.prices && data.prices.length > 0),
+    {
+      message: 'Please provide prices when the project price is not used',
+      path: ['prices'],
+    },
+  );
 
 export const addUnitsMultipleSchema = z.object({
   type: z.string().min(1),

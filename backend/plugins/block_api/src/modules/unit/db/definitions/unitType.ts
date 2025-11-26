@@ -14,6 +14,9 @@ export const unitTypeSchema = new Schema(
     rooms: { type: Schema.Types.Mixed },
     roomsCount: { type: Number },
     project: { type: Schema.Types.ObjectId, ref: 'block_projects' },
+
+    images: { type: [String] },
+    planImages: { type: [String] },
   },
   {
     timestamps: true,

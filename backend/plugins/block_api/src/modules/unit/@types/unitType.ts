@@ -24,6 +24,9 @@ export interface IUnitType {
 
   rooms: IUnitRoom[];
   roomsCount: number;
+
+  images: string[];
+  planImages: string[];
 }
 
 export interface IUnitTypeDocument extends IUnitType, Document {

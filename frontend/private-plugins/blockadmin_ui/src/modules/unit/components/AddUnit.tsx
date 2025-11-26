@@ -1,3 +1,10 @@
+import { IZoning } from '@/building/types/buildingTypes';
+import { PricingForm } from '@/pricing/components/PricingForm';
+import { useProjectDetail } from '@/project/hooks/useProjectDetail';
+import { SelectTenureType } from '@/unit/components/SelectTenureType';
+import { SelectUsageType } from '@/unit/components/SelectUsageType';
+import { addUnitSchema } from '@/unit/constants/addUnitSchema';
+import { useUnitCreate } from '@/unit/hooks/useUnitCreate';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { IconPlus } from '@tabler/icons-react';
 import {
@@ -10,13 +17,6 @@ import {
   Sheet,
   Spinner,
 } from 'erxes-ui';
-import { IZoning } from '@/building/types/buildingTypes';
-import { PricingForm } from '@/pricing/components/PricingForm';
-import { useProjectDetail } from '@/project/hooks/useProjectDetail';
-import { SelectTenureType } from '@/unit/components/SelectTenureType';
-import { SelectUsageType } from '@/unit/components/SelectUsageType';
-import { addUnitSchema } from '@/unit/constants/addUnitSchema';
-import { useUnitCreate } from '@/unit/hooks/useUnitCreate';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -100,11 +100,7 @@ export const AddUnit = ({
                 render={({ field }) => (
                   <Form.Item>
                     <Form.Label>Tenure type</Form.Label>
-                    <SelectTenureType
-                      value={field.value}
-                      onValueChange={field.onChange}
-                      inForm
-                    />
+                    <SelectTenureType value={field.value} inForm />
                   </Form.Item>
                 )}
               />

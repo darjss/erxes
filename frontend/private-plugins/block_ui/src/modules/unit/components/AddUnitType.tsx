@@ -1,25 +1,38 @@
+import {
+  Upload,
+  UploadProvider,
+  UploadRemoveButton,
+} from '@/block/components/upload';
 import { unitTypeSchema } from '@/unit/constants/unitTypeSchema';
 import { useUnitTypeCreate } from '@/unit/hooks/useUnitTypeCreate';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { IconPlus, IconTrash } from '@tabler/icons-react';
+import {
+  IconPhotoCirclePlus,
+  IconPlus,
+  IconTrash,
+  IconUpload,
+  IconX,
+} from '@tabler/icons-react';
 import {
   Button,
   CurrencyField,
+  Dialog,
   Editor,
   Form,
   Input,
   Label,
+  readImage,
   ScrollArea,
   Select,
   Sheet,
   Spinner,
 } from 'erxes-ui';
-import { useFieldArray, useForm } from 'react-hook-form';
 import { useState } from 'react';
+import { useFieldArray, useForm } from 'react-hook-form';
+import { useParams } from 'react-router-dom';
 import { z } from 'zod';
 import { SelectTenureType } from './SelectTenureType';
 import { SelectUsageType } from './SelectUsageType';
-import { useParams } from 'react-router-dom';
 
 export const AddUnitType = ({ onClose }: { onClose: () => void }) => {
   const { id } = useParams();
@@ -40,18 +53,37 @@ export const AddUnitType = ({ onClose }: { onClose: () => void }) => {
     },
   });
 
+  const [images, setImages] = useState<string[]>([]);
+  const [planImages, setPlanImages] = useState<string[]>([]);
+
   const { createUnitType, loading } = useUnitTypeCreate();
 
   const onSubmit = (data: z.infer<typeof unitTypeSchema>) => {
     createUnitType({
       variables: {
-        input: { ...data, project: id || '' },
+        input: { ...data, images, planImages, project: id || '' },
       },
       onCompleted: () => {
         onClose();
         form.reset();
       },
     });
+  };
+
+  const onValueChange = (value?: string[] | string) => {
+    if (Array.isArray(value)) {
+      setImages(value);
+    } else if (typeof value === 'string') {
+      setImages((prev) => [...prev, value]);
+    }
+  };
+
+  const onValuesChange = (value?: string[] | string) => {
+    if (Array.isArray(value)) {
+      setPlanImages(value);
+    } else if (typeof value === 'string') {
+      setPlanImages((prev) => [...prev, value]);
+    }
   };
 
   const { fields, append, remove } = useFieldArray({
@@ -292,6 +324,116 @@ export const AddUnitType = ({ onClose }: { onClose: () => void }) => {
                   </Form.Item>
                 )}
               />
+
+              <Label>Images</Label>
+              <UploadProvider
+                mode="multiple"
+                value={images}
+                onValueChange={onValueChange}
+              >
+                <div className="grid gap-3 grid-cols-6">
+                  {images.length > 0 ? (
+                    images.map((image) => (
+                      <div
+                        key={image}
+                        className="relative aspect-square bg-muted rounded-lg flex items-center justify-center group"
+                      >
+                        <img
+                          src={readImage(image)}
+                          className="size-full absolute inset-0 object-cover rounded-lg"
+                          alt="project"
+                        />
+                        <Dialog>
+                          <Dialog.Trigger asChild>
+                            <div className="absolute inset-0 border border-foreground/10 rounded-lg" />
+                          </Dialog.Trigger>
+                          <Dialog.Content className="p-0 max-w-screen-xl w-auto border-0 bg-transparent">
+                            <img
+                              src={readImage(image)}
+                              alt="project"
+                              className="rounded-lg max-h-[90vh] max-w-[90vw] object-contain mx-auto"
+                            />
+                            <div className="absolute inset-0 border border-foreground/10 rounded-lg" />
+                          </Dialog.Content>
+                        </Dialog>
+                        <UploadRemoveButton url={image}>
+                          <Button
+                            variant="secondary"
+                            size="icon"
+                            className="size-6 absolute -top-2 -right-2 opacity-0 group-hover:opacity-100 transition-opacity"
+                          >
+                            <IconX />
+                          </Button>
+                        </UploadRemoveButton>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="relative aspect-square bg-muted rounded-lg flex items-center justify-center overflow-hidden">
+                      <IconPhotoCirclePlus className="size-8 text-scroll" />
+                    </div>
+                  )}
+                  <Upload>
+                    <div className="relative aspect-square bg-muted rounded-lg flex items-center justify-center overflow-hidden">
+                      <IconUpload />
+                    </div>
+                  </Upload>
+                </div>
+              </UploadProvider>
+
+              <Label>Plan images</Label>
+              <UploadProvider
+                mode="multiple"
+                value={planImages}
+                onValueChange={onValuesChange}
+              >
+                <div className="grid gap-3 grid-cols-6">
+                  {planImages.length > 0 ? (
+                    planImages.map((image) => (
+                      <div
+                        key={image}
+                        className="relative aspect-square bg-muted rounded-lg flex items-center justify-center group"
+                      >
+                        <img
+                          src={readImage(image)}
+                          className="size-full absolute inset-0 object-cover rounded-lg"
+                          alt="project"
+                        />
+                        <Dialog>
+                          <Dialog.Trigger asChild>
+                            <div className="absolute inset-0 border border-foreground/10 rounded-lg" />
+                          </Dialog.Trigger>
+                          <Dialog.Content className="p-0 max-w-screen-xl w-auto border-0 bg-transparent">
+                            <img
+                              src={readImage(image)}
+                              alt="project"
+                              className="rounded-lg max-h-[90vh] max-w-[90vw] object-contain mx-auto"
+                            />
+                            <div className="absolute inset-0 border border-foreground/10 rounded-lg" />
+                          </Dialog.Content>
+                        </Dialog>
+                        <UploadRemoveButton url={image}>
+                          <Button
+                            variant="secondary"
+                            size="icon"
+                            className="size-6 absolute -top-2 -right-2 opacity-0 group-hover:opacity-100 transition-opacity"
+                          >
+                            <IconX />
+                          </Button>
+                        </UploadRemoveButton>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="relative aspect-square bg-muted rounded-lg flex items-center justify-center overflow-hidden">
+                      <IconPhotoCirclePlus className="size-8 text-scroll" />
+                    </div>
+                  )}
+                  <Upload>
+                    <div className="relative aspect-square bg-muted rounded-lg flex items-center justify-center overflow-hidden">
+                      <IconUpload />
+                    </div>
+                  </Upload>
+                </div>
+              </UploadProvider>
             </div>
           </ScrollArea>
         </Sheet.Content>

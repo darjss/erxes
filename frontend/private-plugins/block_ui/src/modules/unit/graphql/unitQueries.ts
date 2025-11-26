@@ -53,6 +53,35 @@ export const BLOCK_GET_UNIT_TYPES = gql`
       status
       rooms
       roomsCount
+      images
+      planImages
+      createdAt
+      updatedAt
+    }
+  }
+`;
+
+export const BLOCK_GET_UNIT_TYPE = gql`
+  query BlockGetUnitType($id: String!) {
+    blockGetUnitType(_id: $id) {
+      _id
+      name
+      description
+      size
+      type
+      tenureType
+      content
+      price
+      prices {
+        currency
+        priceType
+        price
+      }
+      status
+      rooms
+      roomsCount
+      images
+      planImages
       createdAt
       updatedAt
     }

@@ -1,5 +1,6 @@
 import { SelectUnitStatus } from '@/unit/components/SelectUnitStatus';
 import { useUnitContext } from '@/unit/context/unitContext';
+import { useUnitType } from '@/unit/hooks/useUnitType';
 import { useUnitUpdate } from '@/unit/hooks/useUnitUpdate';
 import { Input, Label, Separator } from 'erxes-ui';
 import { SelectUnitType } from './SelectUnitType';
@@ -9,6 +10,8 @@ export const UnitDetailOverview = () => {
   const { unit } = useUnitContext();
 
   const { number, type } = unit || {};
+
+  const { unitType } = useUnitType(type);
 
   const { updateUnit } = useUnitUpdate({ id: unit?._id, zoning: unit?.zoning });
 
@@ -26,7 +29,7 @@ export const UnitDetailOverview = () => {
         <div className="space-y-2">
           <Label>Unit Type</Label>
           <SelectUnitType
-            value={type?._id || ''}
+            value={type || ''}
             onValueChange={(value) => updateUnit({ type: value })}
           />
         </div>
@@ -35,13 +38,13 @@ export const UnitDetailOverview = () => {
           <SelectUnitStatus
             value={unit?.status}
             onValueChange={(value) => updateUnit({ status: value })}
-            tenureType={unit.type.tenureType}
+            tenureType={unitType?.tenureType}
           />
         </div>
       </div>
       <Separator />
       <div className="p-5">
-        <UnitTypeSummary unitType={unit?.type} />
+        <UnitTypeSummary unitType={unitType} />
       </div>
     </div>
   );
