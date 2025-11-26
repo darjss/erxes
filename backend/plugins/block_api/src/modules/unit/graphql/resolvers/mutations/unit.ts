@@ -69,7 +69,7 @@ export const unitMutations = {
     return models.Unit.updateUnit(_id, rest);
   },
 
-  blockDeleteUnit: async (
+  blockRemoveUnit: async (
     _parent: undefined,
     { _id }: { _id: string },
     { models }: IContext,
