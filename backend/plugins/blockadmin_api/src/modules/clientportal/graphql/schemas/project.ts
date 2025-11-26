@@ -10,7 +10,9 @@ export const types = `
     location: BlockAdminProjectLocation
     verificationStatus: BlockAdminDeveloperVerificationStatus
     status: BlockAdminProjectStatus
+    logo: String
     coverImage: String
+    images: [String]
     mainPrice: Int
     prices: [BlockAdminProjectPrice]
     projectAmenities: [BlockAdminProjectAmenity]
