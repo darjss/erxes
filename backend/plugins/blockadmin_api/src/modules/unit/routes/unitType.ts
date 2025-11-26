@@ -1,12 +1,12 @@
 import { Router } from 'express';
 import { IRequest, IResponse } from '~/types';
-import { IUnit } from '../@types/unit';
+import { IUnitType } from '../@types/unitType';
 
 const router: Router = Router();
 
 router.post(
   '/blockCreateUnitType',
-  async (req: IRequest<IUnit>, res: IResponse) => {
+  async (req: IRequest<IUnitType>, res: IResponse) => {
     const { models } = res.locals;
 
     try {
@@ -31,7 +31,7 @@ router.post(
 
 router.post(
   '/blockUpdateUnitType',
-  async (req: IRequest<IUnit>, res: IResponse) => {
+  async (req: IRequest<IUnitType>, res: IResponse) => {
     const { models } = res.locals;
 
     try {
