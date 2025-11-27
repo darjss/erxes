@@ -1,7 +1,7 @@
 import { IContext } from '~/connectionResolvers';
 import { ICPUserRegisterParams } from '@/clientportal/types/cpUser';
 import { Resolver } from 'erxes-api-shared/core-types';
-import { getEnv, markResolvers } from 'erxes-api-shared/utils';
+import { markResolvers } from 'erxes-api-shared/utils';
 import { IClientPortalDocument } from '~/modules/clientportal/types/clientPortal';
 import * as jwt from 'jsonwebtoken';
 import { authCookieOptions } from 'erxes-api-shared/utils';
@@ -42,13 +42,6 @@ const createAuthCookie = (
   const { token } = createJwtToken(payload, clientPortal);
   const cookieOptions: any = {};
 
-  const NODE_ENV = getEnv({ name: 'NODE_ENV' });
-
-  if (!['test', 'development'].includes(NODE_ENV)) {
-    cookieOptions.sameSite = 'none';
-    cookieOptions.secure = true;
-  }
-
   return res.cookie(
     'client-auth-token',
     token,
@@ -67,10 +60,21 @@ export const cpUserMutations: Record<string, Resolver> = {
 
   async clientPortalUserVerify(
     _root: unknown,
-    { userId, code }: { userId: string; code: number },
+    {
+      userId,
+      code,
+      email,
+      phone,
+    }: { userId: string; code: number; email: string; phone: string },
     { models, clientPortal, res }: IContext,
   ) {
-    const user = await models.CPUser.verifyUser(userId, code);
+    const user = await models.CPUser.verifyUser(
+      userId,
+      email,
+      phone,
+      code,
+      clientPortal,
+    );
 
     const payload = {
       userId: user._id,
@@ -108,6 +112,13 @@ export const cpUserMutations: Record<string, Resolver> = {
     createAuthCookie(payload, clientPortal, res);
 
     return 'Success';
+  },
+  async clientPortalLogout(_root: unknown, _args: unknown, { res }: IContext) {
+    res.clearCookie(
+      'client-auth-token',
+      authCookieOptions({ sameSite: 'none' }),
+    );
+    return 'loggedout';
   },
 };
 
