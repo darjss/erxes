@@ -1,4 +1,5 @@
 import {
+  mutations as ProjectMutations,
   queries as ProjectQueries,
   types as ProjectTypes,
 } from '@/project/graphql/schemas/project';
@@ -128,6 +129,7 @@ export const mutations = `
   ${SubmissionMutations}
   ${DeveloperMutations}
   ${UnitMutations}
+  ${ProjectMutations}
   `;
 
 export default { types, queries, mutations };

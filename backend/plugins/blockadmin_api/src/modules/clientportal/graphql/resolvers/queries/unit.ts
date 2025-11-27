@@ -18,21 +18,31 @@ export const cpUnitQueries = {
     }: { project?: string; floor?: number; isFeatured?: boolean },
     { models }: IContext,
   ) => {
-    const filter = {};
+    const projects = await models.Project.find({
+      ...(project ? { _id: project } : { isPublished: true }),
+    });
 
-    const buildings = await models.Building.find({ project }).lean();
+    if (!projects.length) return [];
+
+    const buildings = await models.Building.find({
+      project: { $in: projects.map((p) => p._id) },
+    }).lean();
+
+    if (!buildings.length) return [];
 
     const zones = await models.Zoning.find({
-      building: { $in: (buildings || []).map((building) => building._id) },
+      building: { $in: buildings.map((b) => b._id) },
       ...(floor ? { floor } : {}),
     }).lean();
 
-    if (zones?.length) {
-      filter['zoning'] = { $in: zones.map((zone) => zone._id) };
-    }
+    if (!zones.length) return [];
 
-    if (isFeatured) {
-      filter['isFeatured'] = isFeatured;
+    const filter: any = {
+      zoning: { $in: zones.map((z) => z._id) },
+    };
+
+    if (isFeatured !== undefined) {
+      filter.isFeatured = isFeatured;
     }
 
     return models.Unit.find(filter).lean();

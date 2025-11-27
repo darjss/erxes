@@ -33,6 +33,10 @@ export const types = `
 
     developerId: String
   }
+
+  input BlockAdminProjectInput {
+    isPublished: Boolean
+  }
 `;
 
 const queryParams = `
@@ -49,3 +53,8 @@ export const queries = `
   blockAdminGetProject(_id: String!): BlockAdminProject
   blockAdminGetProjects(${queryParams}): [BlockAdminProject]
 `;
+
+export const mutations = `
+  blockAdminUpdateProject(_id: String!, input: BlockAdminProjectInput!): BlockAdminProject
+`;
+

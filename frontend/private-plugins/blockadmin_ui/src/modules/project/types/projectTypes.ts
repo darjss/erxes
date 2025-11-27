@@ -52,14 +52,7 @@ export interface IProjectPrice {
 }
 
 export interface IProjectGeneralInput {
-  name: string | null;
-  location: IProjectLocation | null;
-  status: string | null;
-  coverImage: string | null;
-  mainPrice: number | null;
-  prices: IProjectPrice[] | null;
-  bankPartners: string[] | null;
-  projectAmenities: { category: string; amenities: string[] }[];
+  isPublished: boolean;
 }
 
 export interface IProjectMember {
