@@ -78,11 +78,6 @@ export const UpdateUnitType = ({
 
   const usageType = form.watch('type');
 
-  useEffect(() => {
-    form.setValue('subType', '');
-    form.setValue('featureTypes', []);
-  }, [usageType]);
-
   const [coverImage, setCoverImage] = useState<string>(
     unitType?.coverImage || '',
   );

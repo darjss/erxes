@@ -9,6 +9,9 @@ export const BLOCK_GET_BUILDING_LIST = gql`
       type
       coverImage
       project
+      status
+      startDate
+      endDate
     }
   }
 `;
