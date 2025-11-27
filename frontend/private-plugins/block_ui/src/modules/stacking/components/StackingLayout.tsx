@@ -1,13 +1,13 @@
 import {
-  Button,
+  // Button,
   NavigationMenuGroup,
   PageContainer,
-  PageSubHeader,
+  // PageSubHeader,
   Sidebar,
 } from 'erxes-ui';
 import { StackingHeader } from './StackingHeader';
 import { ProjectList } from '@/project/components/ProjectList';
-import { IconFilter2 } from '@tabler/icons-react';
+// import { IconFilter2 } from '@tabler/icons-react';
 import { BuildingList } from '@/building/components/BuildingList';
 
 export const StackingLayout = ({ children }: { children: React.ReactNode }) => {
@@ -17,12 +17,12 @@ export const StackingLayout = ({ children }: { children: React.ReactNode }) => {
       <div className="flex flex-auto overflow-hidden">
         <StackingSidebar />
         <div className="flex flex-auto overflow-hidden flex-col">
-          <PageSubHeader>
+          {/* <PageSubHeader>
             <Button variant="ghost">
               <IconFilter2 />
               Filter
             </Button>
-          </PageSubHeader>
+          </PageSubHeader> */}
           {children}
         </div>
       </div>

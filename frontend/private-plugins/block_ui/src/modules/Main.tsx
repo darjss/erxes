@@ -26,6 +26,12 @@ const DeveloperInfoPage = lazy(() =>
   })),
 );
 
+const ContractsPage = lazy(() =>
+  import('~/pages/ContractsPage').then((module) => ({
+    default: module.ContractsPage,
+  })),
+);
+
 const Main = () => {
   return (
     <Suspense fallback={<div />}>
@@ -34,6 +40,11 @@ const Main = () => {
         <Route path="/projects/:id" element={<ProjectDetail />} />
         <Route path="/stacking-plan" element={<StackingPlanPage />} />
         <Route path="/developer-info" element={<DeveloperInfoPage />} />
+        <Route path="/bm" element={<ContractsPage />} />
+        <Route path="/contracts" element={<ContractsPage />} />
+        <Route path="/finance-lease" element={<ContractsPage />} />
+        <Route path="/invoices" element={<ContractsPage />} />
+        <Route path="/rfq-eoi" element={<ContractsPage />} />
       </Routes>
     </Suspense>
   );
