@@ -30,6 +30,7 @@ export interface IProject {
     buildings: number;
     units: number;
     zones: number;
+    parking: number;
   };
 }
 

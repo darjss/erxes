@@ -31,7 +31,7 @@ export const cpProjectQueries = {
       sortDirection = 'desc',
     } = params;
 
-    const filter = await generateFilter(params, models);
+    const filter = await generateFilter({ ...params, isPublished: true }, models);
 
     return await paginate(
       models.Project.find(filter)

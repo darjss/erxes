@@ -13,7 +13,7 @@ export default {
     return developer?._id;
   },
   counts: async (
-    { _id }: IProjectDocument,
+    { _id, counts }: IProjectDocument,
     _args: any,
     { models }: IContext,
   ) => {
@@ -30,9 +30,11 @@ export default {
     });
 
     return {
-      buildings: buildings.length,
-      units: units.length,
-      zones: zones.length,
+      ...counts,
+      buildings: counts?.buildings || buildings.length,
+      units: counts?.units || units.length,
+      zones: counts?.zones || zones.length,
+      parking: counts?.parking,
     };
   },
   priceRanges: async ({ prices }: IProjectDocument) => {

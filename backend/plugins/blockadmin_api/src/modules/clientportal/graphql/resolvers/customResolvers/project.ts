@@ -34,6 +34,7 @@ export default {
     });
 
     return {
+      ...counts,
       buildings: counts?.buildings || buildings.length,
       units: counts?.units || units.length,
       zones: counts?.zones || zones.length,
