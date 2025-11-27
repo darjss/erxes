@@ -31,7 +31,10 @@ export const cpProjectQueries = {
       sortDirection = 'desc',
     } = params;
 
-    const filter = await generateFilter({ ...params, isPublished: true }, models);
+    const filter = await generateFilter(
+      { ...params, isPublished: true },
+      models,
+    );
 
     return await paginate(
       models.Project.find(filter)
@@ -39,6 +42,40 @@ export const cpProjectQueries = {
         .lean(),
       { page, perPage },
     );
+  },
+
+  cpBlockAdminProjectsDistrict: async (
+    _parent: undefined,
+    _args: undefined,
+    { models }: IContext,
+  ) => {
+    return await models.Project.aggregate([
+      {
+        $match: {
+          isPublished: true,
+          'location.district': { $exists: true, $nin: ['', null] },
+        },
+      },
+      {
+        $group: {
+          _id: '$location.district',
+          count: { $sum: 1 },
+          price: { $avg: '$mainPrice' },
+        },
+      },
+      {
+        $project: {
+          district: '$_id',
+          count: 1,
+          price: 1,
+        },
+      },
+      {
+        $sort: {
+          district: 1,
+        },
+      },
+    ]);
   },
 };
 

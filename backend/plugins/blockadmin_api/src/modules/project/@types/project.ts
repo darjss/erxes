@@ -53,8 +53,9 @@ export interface IProjectDocument extends IProject, Document {
 export interface IProjectQueryParams {
   searchValue?: string;
   developerId?: string;
-  location?: IProjectLocation;
+  district?: string;
   priceMin?: number;
   priceMax?: number;
   isPublished?: boolean;
+  type?: string;
 }

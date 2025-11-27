@@ -33,14 +33,21 @@ export const types = `
     roomRanges: JSON
     developer: BlockAdminDeveloper
   }
+
+  type CpBlockAdminProjectDistrict {
+    district: String
+    count: Int
+    price: Float
+  }
 `;
 
 const queryParams = `
   searchValue: String
   developerId: String
-  location: BlockAdminProjectLocationInput
+  district: String
   priceMin: Int
   priceMax: Int
+  type: String
 
   ${GQL_OFFSET_PARAM_DEFS}
 `;
@@ -48,4 +55,5 @@ const queryParams = `
 export const queries = `
   cpBlockAdminProject(_id: String!): CpBlockAdminProject
   cpBlockAdminProjects(${queryParams}): [CpBlockAdminProject]
+  cpBlockAdminProjectsDistrict: [CpBlockAdminProjectDistrict]
 `;

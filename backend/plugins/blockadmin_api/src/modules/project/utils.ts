@@ -6,7 +6,7 @@ export const generateFilter = async (
   params: IProjectQueryParams,
   models: IModels,
 ) => {
-  const { isPublished, searchValue, developerId, location, priceMin, priceMax } =
+  const { isPublished, searchValue, developerId, district, priceMin, priceMax, type } =
     params || {};
 
   const filter: FilterQuery<IProjectDocument> = {};
@@ -24,21 +24,27 @@ export const generateFilter = async (
     }
   }
 
-  if (location) {
-    filter.location = location;
+  if (district) {
+    filter['location.district'] = district;
   }
 
   if (priceMin) {
-    filter.priceMin = { $gte: priceMin };
+    filter.mainPrice = { $gte: priceMin };
   }
 
   if (priceMax) {
-    filter.priceMax = { $lte: priceMax };
+    filter.mainPrice = { $lte: priceMax };
+  }
+
+  if (type) {
+    filter.types = type;
   }
 
   if (isPublished) {
     filter.isPublished = isPublished;
   }
+
+  console.log('filter', filter)
 
   return filter;
 };

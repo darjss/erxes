@@ -25,6 +25,8 @@ const BLOCK_GET_SUBMISSIONS = gql`
         answer2
         answer3
         answer4
+        answer5
+        answer6
         submittedAt
       }
       totalCount
