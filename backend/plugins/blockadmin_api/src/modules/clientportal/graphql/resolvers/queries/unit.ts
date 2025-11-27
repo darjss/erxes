@@ -59,7 +59,13 @@ export const cpUnitQueries = {
     { project }: { project: string },
     { models }: IContext,
   ) => {
-    return models.UnitType.find({ project }).lean();
+    const filter = {};
+
+    if (project) {
+      filter['project'] = project;
+    }
+
+    return models.UnitType.find(filter).lean();
   },
 };
 

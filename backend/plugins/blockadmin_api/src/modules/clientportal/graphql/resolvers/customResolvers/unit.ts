@@ -36,4 +36,17 @@ export default {
 
     return building;
   },
+  type: async (
+    { type }: IUnitDocument,
+    _args: any,
+    { models }: IContext,
+  ) => {
+    const unitType = await models.UnitType.findOne({ _id: type });
+
+    if (!unitType) {
+      return null;
+    }
+
+    return unitType;
+  },
 };

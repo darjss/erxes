@@ -6,7 +6,7 @@ export const types = `
     number: String
     isFeatured: Boolean
 
-    type: String
+    type: CpBlockAdminUnitType
     status: BlockAdminUnitStatus
   }
 
