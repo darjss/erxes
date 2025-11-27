@@ -31,6 +31,7 @@ export const types = `
     schedules: JSON
     sizeRanges: JSON
     roomRanges: JSON
+    developer: BlockAdminDeveloper
   }
 `;
 

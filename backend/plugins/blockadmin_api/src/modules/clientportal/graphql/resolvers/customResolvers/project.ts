@@ -3,6 +3,19 @@ import { IProjectDocument } from '~/modules/project/@types/project';
 import { projectSchema } from '~/modules/project/db/definitions/project';
 
 export default {
+  developer: async (
+    { subdomain }: IProjectDocument,
+    _args: any,
+    { models }: IContext,
+  ) => {
+    const developer = await models.Developer.findOne({ subdomain });
+
+    if (!developer) {
+      return null;
+    }
+
+    return developer;
+  },
   counts: async (
     { _id, counts }: IProjectDocument,
     _args: any,
