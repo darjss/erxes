@@ -21,7 +21,7 @@ const AddressSection = ({ location }: { location?: IProjectLocation }) => {
     const districts = ADDRESS_DISTRICT[city] || [];
     const districtInfo = districts.find((d) => d.value === district);
 
-    if (districtInfo?.short) addresses.push(districtInfo.short);
+    addresses.push(districtInfo?.short || district);
     addresses.push(city);
   }
 
@@ -48,9 +48,15 @@ const DateSection = ({
 };
 
 const StaticSection = ({ counts }: { counts?: Record<string, number> }) => {
+  const staticCounts = {
+    buildings: counts?.buildings || 0,
+    units: counts?.units || 0,
+    zones: counts?.zones || 0,
+  };
+
   return (
     <div className="text-sm flex space-x-2">
-      {Object.keys(counts || {}).map((key) => (
+      {Object.keys(staticCounts || {}).map((key) => (
         <span key={key} className="inline-flex items-center">
           <div
             className="h-3 w-3 rounded-sm mr-1"
