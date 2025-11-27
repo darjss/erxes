@@ -9,6 +9,8 @@ export const types = `
         answer2: String
         answer3: String
         answer4: String
+        answer5: String
+        answer6: String
         submittedAt: Date
     }
 
@@ -18,10 +20,8 @@ export const types = `
         answer2: String
         answer3: String
         answer4: String
-
-        name: String
-        phone: String
-        email: String
+        answer5: String
+        answer6: String
     }
 
     type BlockSubmissionList {

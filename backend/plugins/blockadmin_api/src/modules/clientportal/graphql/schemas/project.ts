@@ -29,6 +29,8 @@ export const types = `
     links: JSON
     progress: Float
     schedules: JSON
+    sizeRanges: JSON
+    roomRanges: JSON
   }
 `;
 

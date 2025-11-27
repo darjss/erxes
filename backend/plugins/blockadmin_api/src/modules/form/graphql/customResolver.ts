@@ -2,7 +2,7 @@ import { ISubmission } from '../@types';
 
 export default {
   BlockSubmission: {
-    lead: async ({ userId }: ISubmission) => {
+    cpUser: async ({ userId }: ISubmission) => {
       return (
         userId && {
           __typename: 'Customer',

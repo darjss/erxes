@@ -49,8 +49,11 @@ router.post(
 
       const { input } = data || {};
 
+      const building = await models.Building.getBuilding(subdomain, entityId);
+
       models.Building.updateBuilding(subdomain, entityId, {
         ...input,
+        project: building.project,
       });
 
       return res.status(200).json({
@@ -108,6 +111,7 @@ router.post(
         name: `${rest.name} duplicated`,
         subdomain,
         entityId,
+        project: building.project,
       });
 
       return res.status(200).json({

@@ -6,7 +6,7 @@ export const generateFilter = async (
   params: IProjectQueryParams,
   models: IModels,
 ) => {
-  const { searchValue, developerId, location, priceMin, priceMax } =
+  const { isPublished, searchValue, developerId, location, priceMin, priceMax } =
     params || {};
 
   const filter: FilterQuery<IProjectDocument> = {};
@@ -34,6 +34,10 @@ export const generateFilter = async (
 
   if (priceMax) {
     filter.priceMax = { $lte: priceMax };
+  }
+
+  if (isPublished) {
+    filter.isPublished = isPublished;
   }
 
   return filter;

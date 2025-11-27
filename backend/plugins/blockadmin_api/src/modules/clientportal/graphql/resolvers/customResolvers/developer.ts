@@ -7,6 +7,10 @@ export default {
     _args: any,
     { models }: IContext,
   ) => {
-    return models.Project.countDocuments({ developer: _id });
+    const dev = await models.Developer.findOne({ _id }).lean();
+
+    if (!dev?.subdomain) return 0;
+
+    return models.Project.countDocuments({ subdomain: dev.subdomain });
   },
 };

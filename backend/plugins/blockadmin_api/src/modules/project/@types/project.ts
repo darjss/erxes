@@ -56,4 +56,5 @@ export interface IProjectQueryParams {
   location?: IProjectLocation;
   priceMin?: number;
   priceMax?: number;
+  isPublished?: boolean;
 }

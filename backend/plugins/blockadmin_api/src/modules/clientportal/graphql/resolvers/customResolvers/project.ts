@@ -74,4 +74,46 @@ export default {
 
     return ((completedFields / fields.length) * 100).toFixed(2);
   },
+  sizeRanges: async (
+    { _id }: IProjectDocument,
+    _args: undefined,
+    { models }: IContext,
+  ) => {
+    const unitTypes = await models.UnitType.find({ project: _id }).lean();
+
+    if (!unitTypes || unitTypes.length === 0) {
+      return {};
+    }
+
+    let min = Infinity;
+    let max = -Infinity;
+
+    for (const unitType of unitTypes) {
+      min = Math.min(min, unitType.size);
+      max = Math.max(max, unitType.size);
+    }
+
+    return { min, max };
+  },
+  roomRanges: async (
+    { _id }: IProjectDocument,
+    _args: undefined,
+    { models }: IContext,
+  ) => {
+    const unitTypes = await models.UnitType.find({ project: _id }).lean();
+
+    if (!unitTypes || unitTypes.length === 0) {
+      return {};
+    }
+
+    let min = Infinity;
+    let max = -Infinity;
+
+    for (const unitType of unitTypes) {
+      min = Math.min(min, unitType.roomsCount);
+      max = Math.max(max, unitType.roomsCount);
+    }
+
+    return { min, max };
+  },
 };

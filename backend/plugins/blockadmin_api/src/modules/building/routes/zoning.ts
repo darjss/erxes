@@ -52,14 +52,14 @@ router.post(
 
       const { input } = data || {};
 
-      const building = await models.Building.getBuilding(
+      const zoning = await models.Zoning.getBuildingZoning(
         subdomain,
-        input.building,
+        entityId,
       );
 
       models.Zoning.updateZoning(subdomain, entityId, {
         ...input,
-        building: building._id,
+        building: zoning.building,
       });
 
       return res.status(200).json({
@@ -108,18 +108,19 @@ router.post(
 
       const { zoningId } = data || {};
 
-      const building = await models.Zoning.getBuildingZoning(
+      const zoning = await models.Zoning.getBuildingZoning(
         subdomain,
         zoningId,
       );
 
-      const { _id, ...rest } = building;
+      const { _id, ...rest } = zoning;
 
       models.Zoning.createZoning({
         ...rest,
         floor: rest.floor > 0 ? rest.floor + 1 : rest.floor - 1,
         subdomain,
         entityId,
+        building: zoning.building,
       });
 
       return res.status(200).json({

@@ -5,14 +5,18 @@ import {
   RecordTable,
   RecordTableInlineCell,
   RelativeDateDisplay,
+  Tooltip,
 } from 'erxes-ui';
 import { Link, useParams } from 'react-router-dom';
 import { BLOCK_FORMS } from '../constants/blockForms';
 
 export const SubmissionRecordTable = () => {
+  const { id } = useParams();
   const { submissions, handleFetchMore, loading, pageInfo } = useSubmissions();
 
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
+
+  const questions: { text: string }[] = BLOCK_FORMS[Number(id)]?.questions;
 
   const columns: ColumnDef<any>[] = [
     {
@@ -42,42 +46,23 @@ export const SubmissionRecordTable = () => {
         );
       },
     },
-    {
-      accessorKey: 'form',
-      header: 'Form',
-      cell: ({ cell }) => {
-        const formId = cell.getValue() as number;
 
-        return (
-          <RecordTableInlineCell className="text-xs font-medium text-muted-foreground">
-            {BLOCK_FORMS[formId].title}
-          </RecordTableInlineCell>
-        );
-      },
-    },
-    // ANSWER 1
-    {
-      accessorKey: 'answer1',
-      header: 'Answer 1',
-    },
+    ...(questions?.map((question, index) => ({
+      accessorKey: `answer${index + 1}`,
+      header: () => (
+        <Tooltip.Provider delayDuration={0}>
+          <Tooltip>
+            <Tooltip.Trigger asChild>
+              <RecordTable.InlineHead label={question.text} />
+            </Tooltip.Trigger>
+            <Tooltip.Content>
+              <p>{question.text}</p>
+            </Tooltip.Content>
+          </Tooltip>
+        </Tooltip.Provider>
+      ),
+    })) || []),
 
-    // ANSWER 2
-    {
-      accessorKey: 'answer2',
-      header: 'Answer 2',
-    },
-
-    // ANSWER 3
-    {
-      accessorKey: 'answer3',
-      header: 'Answer 3',
-    },
-
-    // ANSWER 4
-    {
-      accessorKey: 'answer4',
-      header: 'Answer 4',
-    },
     {
       accessorKey: 'submittedAt',
       header: 'Submitted At',
