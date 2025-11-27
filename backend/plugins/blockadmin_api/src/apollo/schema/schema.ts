@@ -21,6 +21,7 @@ import {
 import {
   queries as UnitQueries,
   types as UnitTypes,
+  mutations as UnitMutations,
 } from '@/unit/graphql/schemas/unit';
 
 import {
@@ -126,6 +127,7 @@ export const queries = `
 export const mutations = `
   ${SubmissionMutations}
   ${DeveloperMutations}
+  ${UnitMutations}
   `;
 
 export default { types, queries, mutations };

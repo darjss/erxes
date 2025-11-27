@@ -7,6 +7,7 @@ export const BLOCK_GET_UNITS = gql`
       number
       type
       status
+      isFeatured
     }
   }
 `;
@@ -21,6 +22,7 @@ export const BLOCK_GET_UNIT = gql`
       updatedAt
       zoning
       status
+      isFeatured
     }
   }
 `;

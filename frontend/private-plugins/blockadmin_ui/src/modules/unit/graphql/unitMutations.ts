@@ -9,8 +9,8 @@ export const BLOCK_CREATE_UNIT = gql`
 `;
 
 export const BLOCK_UPDATE_UNIT = gql`
-  mutation BlockUpdateUnit($id: String!, $input: BlockUnitInput!) {
-    blockUpdateUnit(_id: $id, input: $input) {
+  mutation BlockAdminUpdateUnit($id: String!, $input: BlockAdminUnitInput!) {
+    blockAdminUpdateUnit(_id: $id, input: $input) {
       _id
     }
   }

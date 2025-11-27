@@ -7,6 +7,7 @@ export interface IUnit {
   zoning: string;
   building: string;
   status: string;
+  isFeatured: boolean;
 }
 
 export interface IUnitRoom {

@@ -11,10 +11,31 @@ export const cpUnitQueries = {
   },
   cpBlockAdminGetUnits: async (
     _parent: undefined,
-    { zoning }: { zoning: string },
+    {
+      project,
+      floor,
+      isFeatured,
+    }: { project?: string; floor?: number; isFeatured?: boolean },
     { models }: IContext,
   ) => {
-    return models.Unit.getUnitsByZoning(zoning);
+    const filter = {};
+
+    const buildings = await models.Building.find({ project }).lean();
+
+    const zones = await models.Zoning.find({
+      building: { $in: (buildings || []).map((building) => building._id) },
+      ...(floor ? { floor } : {}),
+    }).lean();
+
+    if (zones?.length) {
+      filter['zoning'] = { $in: zones.map((zone) => zone._id) };
+    }
+
+    if (isFeatured) {
+      filter['isFeatured'] = isFeatured;
+    }
+
+    return models.Unit.find(filter).lean();
   },
   cpBlockAdminGetUnitType: async (
     _parent: undefined,

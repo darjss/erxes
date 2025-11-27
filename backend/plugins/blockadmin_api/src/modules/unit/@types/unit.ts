@@ -11,6 +11,7 @@ export interface IUnit extends IBlock {
   leads: IUnitLead[];
 
   type: string;
+  isFeatured: boolean;
 }
 
 export interface IUnitInput extends IUnit {

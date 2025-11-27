@@ -11,7 +11,7 @@ export const ProjectAddress = () => {
   const { city, district, address, lat, lng } = project?.location || {};
   const { updateProjectGeneralInfo } = useUpdateProjectGeneralInfo();
   const [selectedCity, setSelectedCity] = useState<string>(
-    city || 'Улаанбаатар',
+    city || '',
   );
   const [selectedDistrict, setSelectedDistrict] = useState<string>(
     district || '',

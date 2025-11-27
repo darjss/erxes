@@ -1,8 +1,10 @@
 import { IZoning } from '@/building/types/buildingTypes';
 import { useUnits } from '@/unit/hooks/useUnits';
 import { IUnit } from '@/unit/types/unitType';
-import { Input, Label, Spinner } from 'erxes-ui';
+import { IconStar, IconStarFilled } from '@tabler/icons-react';
+import { Button, Input, Label, Spinner } from 'erxes-ui';
 import { useEffect } from 'react';
+import { useUnitUpdate } from '../hooks/useUnitUpdate';
 import { SelectUnitType } from './SelectUnitType';
 
 export const UnitsList = ({
@@ -32,26 +34,62 @@ export const UnitsList = ({
 
   return (
     <>
-      <div className="grid gap-3 grid-cols-2 [&>span]:whitespace-nowrap min-w-[56rem]">
+      <div className="grid gap-3 grid-cols-5 [&>span]:whitespace-nowrap min-w-[56rem]">
         <Label asChild>
-          <span>Дугаар</span>
+          <span className="col-span-2">Дугаар</span>
         </Label>
         <Label asChild>
-          <span>Unit type</span>
+          <span className="col-span-2">Unit type</span>
+        </Label>
+        <Label asChild>
+          <span>Actions</span>
         </Label>
       </div>
       {sortedUnits?.map((unit) => (
-        <UnitsListItem key={unit._id} unit={unit} />
+        <UnitsListItem key={unit._id} unit={unit} zone={zone} />
       ))}
     </>
   );
 };
 
-export const UnitsListItem = ({ unit }: { unit: IUnit }) => {
+export const UnitsListItem = ({
+  unit,
+  zone,
+}: {
+  unit: IUnit;
+  zone: IZoning;
+}) => {
   return (
-    <div className="grid gap-3 grid-cols-2">
-      <Input value={unit.number} />
-      <SelectUnitType value={unit.type || ''} />
+    <div className="grid gap-3 grid-cols-5">
+      <div className="col-span-2">
+        <Input value={unit.number} />
+      </div>
+      <div className="col-span-2">
+        <SelectUnitType value={unit.type || ''} />
+      </div>
+      <div>
+        <UnitListItemEdit unit={unit} zone={zone} />
+      </div>
     </div>
+  );
+};
+
+export const UnitListItemEdit = ({
+  unit,
+  zone,
+}: {
+  unit: IUnit;
+  zone: IZoning;
+}) => {
+  const { updateUnit } = useUnitUpdate({ id: unit._id, zoning: zone._id });
+
+  return (
+    <Button
+      variant="secondary"
+      size="icon"
+      onClick={() => updateUnit({ isFeatured: !unit.isFeatured })}
+    >
+      {unit.isFeatured ? <IconStarFilled /> : <IconStar />}
+    </Button>
   );
 };

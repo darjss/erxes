@@ -4,6 +4,7 @@ export const types = `
     building: String
     zoning: String
     number: String
+    isFeatured: Boolean
 
     type: String
     status: BlockAdminUnitStatus
@@ -34,7 +35,9 @@ export const types = `
 `;
 
 const queryParams = `
-  zoning: String
+  project: String
+  floor: Int
+  isFeatured: Boolean
 `;
 
 export const queries = `

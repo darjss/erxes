@@ -2,24 +2,23 @@ import { useMutation } from '@apollo/client';
 import { toast } from 'erxes-ui';
 import { BLOCK_UPDATE_UNIT } from '@/unit/graphql/unitMutations';
 import { IUnit } from '@/unit/types/unitType';
+import { Except } from 'type-fest';
+import { BLOCK_GET_UNITS } from '../graphql/unitQueries';
 
-export const useUnitUpdate = ({ id }: { id: string }) => {
+export const useUnitUpdate = ({
+  id,
+  zoning,
+}: {
+  id: string;
+  zoning: string;
+}) => {
   const [mutate] = useMutation(BLOCK_UPDATE_UNIT);
-  const updateUnit = (input: Partial<IUnit>) => {
+  const updateUnit = (
+    input: Except<Partial<IUnit>, '_id' | 'type'> & { type?: string },
+  ) => {
     mutate({
       variables: { id, input },
-      update: (cache, { data: { blockUpdateUnit } }) => {
-        cache.modify({
-          id: cache.identify(blockUpdateUnit),
-          fields: Object.keys(input).reduce(
-            (fields: Record<string, () => any>, field) => {
-              fields[field] = () => input[field as keyof IUnit];
-              return fields;
-            },
-            {},
-          ),
-        });
-      },
+      refetchQueries: [{ query: BLOCK_GET_UNITS, variables: { zoning } }],
       onCompleted: () => {
         toast({
           title: 'Success',
