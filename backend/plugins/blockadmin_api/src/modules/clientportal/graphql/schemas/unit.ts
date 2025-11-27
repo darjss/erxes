@@ -1,3 +1,5 @@
+import { GQL_OFFSET_PARAM_DEFS } from "erxes-api-shared/utils";
+
 export const types = `
   type CpBlockAdminUnit {
     _id: String
@@ -40,6 +42,13 @@ const queryParams = `
   floor: Int
   isFeatured: Boolean
   type: String
+
+  district: String
+  tenureType: String
+  priceMin: Int
+  priceMax: Int
+
+  ${GQL_OFFSET_PARAM_DEFS}
 `;
 
 export const queries = `

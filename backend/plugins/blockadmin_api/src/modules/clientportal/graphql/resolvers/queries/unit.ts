@@ -1,4 +1,5 @@
-import { markResolvers } from 'erxes-api-shared/utils';
+import { IOffsetPaginateParams } from 'erxes-api-shared/core-types';
+import { markResolvers, paginate } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 
 export const cpUnitQueries = {
@@ -16,12 +17,32 @@ export const cpUnitQueries = {
       floor,
       isFeatured,
       type,
-    }: { project?: string; floor?: number; isFeatured?: boolean; type?: string },
+
+      district,
+      tenureType,
+      priceMin,
+      priceMax,
+
+      page,
+      perPage,
+      sortField = 'createdAt',
+      sortDirection = 'desc',
+    }: {
+      project?: string;
+      floor?: number;
+      isFeatured?: boolean;
+      type?: string;
+      district?: string;
+      tenureType?: string;
+      priceMin?: number;
+      priceMax?: number;
+    } & IOffsetPaginateParams,
     { models }: IContext,
   ) => {
     const projects = await models.Project.find({
       ...(project ? { _id: project } : { isPublished: true }),
-    });
+      ...(district ? { 'location.district': district } : {}),
+    }).lean();
 
     if (!projects.length) return [];
 
@@ -46,11 +67,34 @@ export const cpUnitQueries = {
       filter.isFeatured = isFeatured;
     }
 
-    if (type) {
-      filter.type = type;
+    const unitTypeFilter: any = {};
+
+    if (tenureType) {
+      unitTypeFilter.tenureType = tenureType;
     }
 
-    return models.Unit.find(filter).lean();
+    if (type) {
+      unitTypeFilter._id = type;
+    }
+
+    if (priceMin) {
+      unitTypeFilter.price = { $gte: priceMin };
+    }
+
+    if (priceMax) {
+      unitTypeFilter.price = { $lte: priceMax };
+    }
+
+    const unitTypes = await models.UnitType.find(unitTypeFilter).lean();
+
+    if (unitTypes.length) {
+      filter.type = { $in: unitTypes.map((ut) => ut._id) };
+    }
+
+    return paginate(
+      models.Unit.find(filter).sort({ [sortField]: sortDirection }),
+      { page, perPage },
+    );
   },
   cpBlockAdminGetUnitType: async (
     _parent: undefined,
