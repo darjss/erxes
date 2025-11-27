@@ -53,6 +53,7 @@ export const cpProjectQueries = {
       {
         $match: {
           isPublished: true,
+          'location.city': 'Улаанбаатар',
           'location.district': { $exists: true, $nin: ['', null] },
         },
       },
