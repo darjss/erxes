@@ -43,6 +43,7 @@ const queryParams = `
   isFeatured: Boolean
   type: String
 
+  searchValue: String
   district: String
   tenureType: String
   priceMin: Int

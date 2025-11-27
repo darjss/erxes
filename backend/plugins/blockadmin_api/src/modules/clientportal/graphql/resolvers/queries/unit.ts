@@ -22,6 +22,7 @@ export const cpUnitQueries = {
       tenureType,
       priceMin,
       priceMax,
+      searchValue,
 
       page,
       perPage,
@@ -36,6 +37,7 @@ export const cpUnitQueries = {
       tenureType?: string;
       priceMin?: number;
       priceMax?: number;
+      searchValue?: string;
     } & IOffsetPaginateParams,
     { models }: IContext,
   ) => {
@@ -77,12 +79,14 @@ export const cpUnitQueries = {
       unitTypeFilter._id = type;
     }
 
-    if (priceMin) {
-      unitTypeFilter.price = { $gte: priceMin };
+    if (priceMin !== undefined || priceMax !== undefined) {
+      unitTypeFilter.price = {};
+      if (priceMin !== undefined) unitTypeFilter.price.$gte = priceMin;
+      if (priceMax !== undefined) unitTypeFilter.price.$lte = priceMax;
     }
 
-    if (priceMax) {
-      unitTypeFilter.price = { $lte: priceMax };
+    if (searchValue) {
+      unitTypeFilter.name = { $regex: searchValue, $options: 'i' };
     }
 
     const unitTypes = await models.UnitType.find(unitTypeFilter).lean();
@@ -92,7 +96,9 @@ export const cpUnitQueries = {
     }
 
     return paginate(
-      models.Unit.find(filter).sort({ [sortField]: sortDirection }),
+      models.Unit.find(filter)
+        .sort({ [sortField]: sortDirection })
+        .lean(),
       { page, perPage },
     );
   },
