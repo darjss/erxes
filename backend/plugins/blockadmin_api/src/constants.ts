@@ -5,4 +5,4 @@ export const BLOCK_VERIFICATION_STATUS = {
   ALL: ['verified', 'unverified', 'pending'],
 };
 
-export const IMAGE_FIELDS = ['logo', 'coverImage', 'images'];
+export const IMAGE_FIELDS = ['logo', 'coverImage', 'images', 'planImages'];
