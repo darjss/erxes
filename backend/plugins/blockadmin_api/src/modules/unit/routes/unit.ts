@@ -55,7 +55,12 @@ router.post(
 
       const { input } = data || {};
 
-      models.Unit.updateUnit(subdomain, entityId, input);
+      const unitType = await models.UnitType.getUnitType(subdomain, input.type);
+
+      models.Unit.updateUnit(subdomain, entityId, {
+        ...input,
+        type: unitType._id,
+      });
 
       return res.status(200).json({
         success: true,
