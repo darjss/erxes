@@ -45,5 +45,5 @@ export interface IBlockDeveloperDocument extends IBlockDeveloper, Document {
 export interface DeveloperQueryParams {
   searchValue?: string;
   verificationStatus?: string;
-  location?: IAddress;
+  city?: string;
 }

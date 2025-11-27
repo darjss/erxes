@@ -25,7 +25,7 @@ export const types = `
 const queryParams = `
   verificationStatus: String
   searchValue: String
-  location: JSON
+  city: String
   
   ${GQL_OFFSET_PARAM_DEFS}
 `;

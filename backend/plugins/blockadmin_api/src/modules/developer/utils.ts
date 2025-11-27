@@ -5,7 +5,7 @@ import {
 } from './db/@types/developer';
 
 export const generateFilter = async (params: DeveloperQueryParams) => {
-  const { searchValue, verificationStatus, location } = params;
+  const { searchValue, verificationStatus, city } = params;
 
   const filter: FilterQuery<IBlockDeveloperDocument> = {};
 
@@ -17,8 +17,8 @@ export const generateFilter = async (params: DeveloperQueryParams) => {
     filter.name = { $regex: searchValue, $options: 'i' };
   }
 
-  if (location) {
-    filter.address = location;
+  if (city) {
+    filter['address.address.city'] = city;
   }
 
   return filter;
