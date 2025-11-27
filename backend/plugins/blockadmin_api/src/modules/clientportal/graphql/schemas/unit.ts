@@ -1,8 +1,8 @@
 export const types = `
   type CpBlockAdminUnit {
     _id: String
-    building: String
-    zoning: String
+    building: BlockAdminBuilding
+    zoning: BlockAdminBuildingZoning
     number: String
     isFeatured: Boolean
 

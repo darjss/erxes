@@ -39,11 +39,7 @@ export const types = `
     _id: String
     building: String
     floor: Int
-    usageType: BlockAdminBuildingUnitUsageType
-    tenureType: BlockAdminBuildingUnitTenureType
-    unitsCount: Int
     size: Int
-    priceList: [BlockAdminBuildingPriceList]
   }
 `;
 
