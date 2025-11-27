@@ -31,6 +31,7 @@ export const types = `
     project: BlockAdminProject
     createdAt: Date
     updatedAt: Date
+    unitsCount: Int
   }
 `;
 
