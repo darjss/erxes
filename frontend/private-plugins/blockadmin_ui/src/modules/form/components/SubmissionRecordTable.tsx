@@ -49,18 +49,25 @@ export const SubmissionRecordTable = () => {
 
     ...(questions?.map((question, index) => ({
       accessorKey: `answer${index + 1}`,
-      header: () => (
-        <Tooltip.Provider delayDuration={0}>
+      header: () => <RecordTable.InlineHead label={question.text} />,
+      cell: ({ cell }: any) => {
+        const value = cell.getValue() as string;
+
+        return (
+          <Tooltip.Provider delayDuration={0}>
           <Tooltip>
             <Tooltip.Trigger asChild>
-              <RecordTable.InlineHead label={question.text} />
+              <RecordTableInlineCell className="text-xs font-medium text-muted-foreground">
+                {value}
+              </RecordTableInlineCell>
             </Tooltip.Trigger>
             <Tooltip.Content>
-              <p>{question.text}</p>
+              <p>{value}</p>
             </Tooltip.Content>
           </Tooltip>
         </Tooltip.Provider>
-      ),
+        );
+      },
     })) || []),
 
     {
