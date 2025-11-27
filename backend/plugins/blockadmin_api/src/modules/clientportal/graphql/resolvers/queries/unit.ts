@@ -15,7 +15,8 @@ export const cpUnitQueries = {
       project,
       floor,
       isFeatured,
-    }: { project?: string; floor?: number; isFeatured?: boolean },
+      type,
+    }: { project?: string; floor?: number; isFeatured?: boolean; type?: string },
     { models }: IContext,
   ) => {
     const projects = await models.Project.find({
@@ -43,6 +44,10 @@ export const cpUnitQueries = {
 
     if (isFeatured !== undefined) {
       filter.isFeatured = isFeatured;
+    }
+
+    if (type) {
+      filter.type = type;
     }
 
     return models.Unit.find(filter).lean();

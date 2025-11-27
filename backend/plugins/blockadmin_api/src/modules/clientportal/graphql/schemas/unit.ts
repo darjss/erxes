@@ -38,6 +38,7 @@ const queryParams = `
   project: String
   floor: Int
   isFeatured: Boolean
+  type: String
 `;
 
 export const queries = `
