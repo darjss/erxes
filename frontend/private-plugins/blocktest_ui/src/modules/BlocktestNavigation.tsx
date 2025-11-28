@@ -4,6 +4,11 @@ import { NavigationMenuLinkItem } from 'erxes-ui';
 export const BlocktestNavigation = () => {
   return (
     <>
+      <div className="relative">
+        <span className="absolute bt:-top-6.5 bt:left-8 bg-sidebar font-semibold text-xs text-accent-foreground">
+          Coverhill insurance modules
+        </span>
+      </div>
       <NavigationMenuLinkItem
         name="Contracts"
         icon={IconContract}
