@@ -16,16 +16,16 @@ export const BlocktestNavigation = () => {
         path="contracts"
       />
       <NavigationMenuLinkItem
-        name="Payments"
-        icon={IconInvoice}
-        pathPrefix="blocktest"
-        path="payments"
-      />
-      <NavigationMenuLinkItem
         name="Claims"
         icon={IconCoins}
         pathPrefix="blocktest"
         path="claims"
+      />
+      <NavigationMenuLinkItem
+        name="Payments"
+        icon={IconInvoice}
+        pathPrefix="blocktest"
+        path="payments"
       />
     </>
   );
