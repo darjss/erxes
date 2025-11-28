@@ -1,6 +1,5 @@
 import { Suspense, lazy } from 'react';
 import { Route, Routes } from 'react-router';
-import '../styles.css';
 
 const ProjectsPage = lazy(() =>
   import('~/pages/ProjectsPage').then((module) => ({

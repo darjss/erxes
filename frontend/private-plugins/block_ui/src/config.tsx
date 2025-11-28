@@ -16,6 +16,7 @@ export const CONFIG: IUIConfig = {
       icon: IconBlocks,
       path: 'block',
       hasSettings: false,
+      hasFloatingWidget: true,
     },
   ],
   navigationGroup: {
