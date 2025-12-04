@@ -59,28 +59,19 @@ export const CONFIG: IUIConfig = {
       name: 'ticket',
       path: 'frontline/ticket',
       settingsOnly: true,
-    }
-  ],
-
-  relationWidgets: [
-    {
-      name: 'conversation',
-      icon: IconMail,
-    },
-    {
-      name: 'ticket',
-      icon: IconTicket,
     },
   ],
 
-  relationWidgets: [
-    {
-      name: 'conversation',
-      icon: IconMail,
-    },
-    {
-      name: 'ticket',
-      icon: IconTicket,
-    },
-  ],
+  widgets: {
+    relationWidgets: [
+      {
+        name: 'conversation',
+        icon: IconMail,
+      },
+      {
+        name: 'ticket',
+        icon: IconTicket,
+      },
+    ],
+  },
 };
