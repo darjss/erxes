@@ -34,4 +34,5 @@ export const mutations = `
   blockCreateUnit(input: BlockUnitInput!): BlockUnit
   blockUpdateUnit(_id: String!, input: BlockUnitInput!): BlockUnit
   blockRemoveUnit(_id: String!): BlockUnit
+  blockRemoveUnits(_ids: [String]): JSON
 `;

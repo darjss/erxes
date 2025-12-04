@@ -39,10 +39,7 @@ export const UnitsList = ({
           <span className="col-span-2">Дугаар</span>
         </Label>
         <Label asChild>
-          <span className="col-span-2">Unit type</span>
-        </Label>
-        <Label asChild>
-          <span>Actions</span>
+          <span className="col-span-3">Unit type</span>
         </Label>
       </div>
       {sortedUnits?.map((unit) => (
@@ -64,10 +61,8 @@ export const UnitsListItem = ({
       <div className="col-span-2">
         <Input value={unit.number} />
       </div>
-      <div className="col-span-2">
+      <div className="flex items-center gap-3 col-span-3">
         <SelectUnitType value={unit.type || ''} />
-      </div>
-      <div>
         <UnitListItemEdit unit={unit} zone={zone} />
       </div>
     </div>

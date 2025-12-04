@@ -28,7 +28,7 @@ export const UnitTypesList = () => {
 
   return (
     <>
-      <div className="grid gap-3 grid-cols-6 [&>span]:whitespace-nowrap min-w-[56rem]">
+      <div className="grid gap-3 grid-cols-5 [&>span]:whitespace-nowrap min-w-[56rem]">
         <Label asChild className="col-span-1">
           <span>Name</span>
         </Label>
@@ -56,7 +56,7 @@ export const UnitTypesList = () => {
 
 const UnitTypesListItem = ({ unitType }: { unitType: IUnitType }) => {
   return (
-    <div className="grid gap-3 grid-cols-6 items-center">
+    <div className="grid gap-3 grid-cols-5 items-center">
       <div className="col-span-1 text-sm font-medium">{unitType.name}</div>
       <div className="col-span-1">
         <SelectUsageType value={unitType.type} />

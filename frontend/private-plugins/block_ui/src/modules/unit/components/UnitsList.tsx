@@ -8,13 +8,18 @@ import { IUnit } from '@/unit/types/unitType';
 import { IconPencil, IconTrash } from '@tabler/icons-react';
 import {
   Button,
+  Checkbox,
+  CommandBar,
   Input,
   Label,
+  Separator,
   Spinner,
   useConfirm,
   useQueryState,
+  useToast,
 } from 'erxes-ui';
 import { useEffect, useState } from 'react';
+import { UnitsProvider, useUnitsContext } from '../context/unitsContext';
 import { AddUnitSheet } from './AddUnit';
 import { SelectUnitType } from './SelectUnitType';
 
@@ -39,22 +44,46 @@ export const UnitsList = ({
     return <Spinner containerClassName="py-32" />;
   }
 
-  const sortedUnits = units
-    ? [...units].sort((a, b) => a.number.localeCompare(b.number))
-    : undefined;
+  return (
+    <UnitsProvider>
+      <UnitsContent zone={zone} units={units} />
+      <UnitsCommandBar zone={zone} />
+    </UnitsProvider>
+  );
+};
+
+const UnitsContent = ({
+  zone,
+  units = [],
+}: {
+  zone: IZoning;
+  units?: IUnit[];
+}) => {
+  const { selected, toggleAll } = useUnitsContext();
+
+  const sortedUnits = [...units].sort((a, b) =>
+    a.number.localeCompare(b.number),
+  );
+
+  const unitIds = units.map((u) => u._id);
+  const allSelected = !!unitIds.length && unitIds.every((id) => selected[id]);
+  const someSelected = !!unitIds.length && unitIds.some((id) => selected[id]);
 
   return (
     <>
       <div className="grid gap-3 grid-cols-5 [&>span]:whitespace-nowrap min-w-[56rem]">
-        <Label asChild>
-          <span>Дугаар</span>
-        </Label>
+        <div className="flex gap-3 col-span-2">
+          <Checkbox
+            checked={allSelected || (someSelected && 'indeterminate')}
+            onCheckedChange={(checked) => toggleAll(unitIds, Boolean(checked))}
+            aria-label="Select all rows"
+          />
+          <Label asChild>
+            <span>Дугаар</span>
+          </Label>
+        </div>
         <Label asChild>
           <span className="col-span-3">Unit type</span>
-        </Label>
-
-        <Label asChild>
-          <span>Actions</span>
         </Label>
       </div>
       {sortedUnits?.map((unit) => (
@@ -79,24 +108,29 @@ export const UnitsListItem = ({
   const [unitNumber, setUnitNumber] = useState(number);
   const { updateUnit } = useUnitUpdate({ id: unit._id, zoning: zone._id });
 
+  const { selected, toggleOne } = useUnitsContext();
+
   return (
     <div className="grid gap-3 grid-cols-5">
-      <Input
-        value={unitNumber}
-        onChange={(e) => setUnitNumber(e.target.value)}
-        onBlur={() =>
-          unitNumber !== unit.number && updateUnit({ number: unitNumber })
-        }
-      />
-      <div className="col-span-3">
+      <div className="flex items-center gap-3 col-span-2">
+        <Checkbox
+          checked={!!selected[unit._id]}
+          onCheckedChange={(value) => toggleOne(unit._id, Boolean(value))}
+          aria-label="Select rows"
+        />
+        <Input
+          value={unitNumber}
+          onChange={(e) => setUnitNumber(e.target.value)}
+          onBlur={() =>
+            unitNumber !== unit.number && updateUnit({ number: unitNumber })
+          }
+        />
+      </div>
+      <div className="flex items-center gap-3 col-span-3">
         <SelectUnitType
           value={type || ''}
           onValueChange={(value) => updateUnit({ type: value })}
         />
-      </div>
-
-      <div className="flex items-center gap-2">
-        <UnitListItemRemove unit={unit} zone={zone} />
         <UnitListItemEdit unit={unit} />
       </div>
     </div>
@@ -142,5 +176,51 @@ export const UnitListItemEdit = ({ unit }: { unit: IUnit }) => {
     <Button variant="secondary" size="icon" onClick={() => setUnitId(unit._id)}>
       <IconPencil />
     </Button>
+  );
+};
+
+export const UnitsCommandBar = ({ zone }: { zone: IZoning }) => {
+  const { selected, setSelected } = useUnitsContext();
+
+  const { removeUnits } = useUnitRemove();
+  const { confirm } = useConfirm();
+  const { toast } = useToast();
+
+  const unitIds = Object.keys(selected).filter((id) => selected[id]);
+
+  return (
+    <CommandBar open={unitIds.length > 0}>
+      <CommandBar.Bar>
+        <CommandBar.Value>{unitIds.length} selected</CommandBar.Value>
+        <Separator.Inline />
+        <Button
+          variant="secondary"
+          className="text-destructive"
+          onClick={() =>
+            confirm({
+              message: `Are you sure you want to remove ${unitIds.length} units`,
+            }).then(() =>
+              removeUnits({
+                variables: { _ids: unitIds },
+                refetchQueries: [
+                  { query: BLOCK_GET_UNITS, variables: { zoning: zone._id } },
+                ],
+                onCompleted: () => {
+                  toast({
+                    title: 'Units removed successfully',
+                    variant: 'success',
+                  });
+
+                  setSelected({});
+                },
+              }),
+            )
+          }
+        >
+          <IconTrash />
+          Delete
+        </Button>
+      </CommandBar.Bar>
+    </CommandBar>
   );
 };

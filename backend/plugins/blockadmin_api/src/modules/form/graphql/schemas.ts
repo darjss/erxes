@@ -42,4 +42,5 @@ export const queries = `
 
 export const mutations = `
     blockAdminSubmitForm(input: BlockSubmissionInput!): BlockSubmission
+    blockAdminRemoveSubmissions(_ids: [String]): JSON
 `;

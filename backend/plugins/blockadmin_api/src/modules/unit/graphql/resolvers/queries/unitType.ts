@@ -6,7 +6,7 @@ export const unitTypesQueries = {
     { project }: { project: string },
     { models }: IContext,
   ) => {
-    return models.UnitType.find({ project }).lean();
+    return models.UnitType.find({ project }).sort({ name: 'asc' }).lean();
   },
 
   blockAdminGetUnitType: async (

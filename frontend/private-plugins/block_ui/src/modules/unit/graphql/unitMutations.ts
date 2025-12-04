@@ -24,6 +24,12 @@ export const BLOCK_REMOVE_UNIT = gql`
   }
 `;
 
+export const BLOCK_REMOVE_UNITS = gql`
+  mutation BlockRemoveUnits($_ids: [String]) {
+    blockRemoveUnits(_ids: $_ids)
+  }
+`;
+
 export const BLOCK_CREATE_UNIT_ATTACHMENT = gql`
   mutation BlockCreateAttachment($input: BlockAttachmentInput!) {
     blockCreateAttachment(input: $input) {

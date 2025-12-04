@@ -92,7 +92,7 @@ export const ProjectPrice = () => {
           {prices && prices.length > 0 && (
             <div className="space-y-2 pb-2">
               {(prices || []).map((price, index) => (
-                <div className="grid grid-cols-2 gap-2 md:grid-cols-3">
+                <div key={index} className="flex gap-2 items-center">
                   <CurrencyField.SelectCurrency
                     value={price.currency as CurrencyCode}
                     display="code"
@@ -103,32 +103,30 @@ export const ProjectPrice = () => {
                       handlePriceChange(index, { price: value })
                     }
                   />
-                  <div className="flex gap-2">
-                    <Select
-                      value={price.priceType}
-                      onValueChange={(value) =>
-                        handlePriceChange(index, {
-                          priceType: value as IProjectPrice['priceType'],
-                        })
-                      }
-                    >
-                      <Select.Trigger className="min-w-1 h-8">
-                        <Select.Value placeholder="per" />
-                      </Select.Trigger>
-                      <Select.Content>
-                        <Select.Item value="priceBySize">per m²</Select.Item>
-                        <Select.Item value="priceByUnit">per unit</Select.Item>
-                      </Select.Content>
-                    </Select>
-                    <Button
-                      variant="secondary"
-                      size="icon"
-                      className="size-8 text-destructive bg-destructive/10 hover:bg-destructive/20"
-                      onClick={() => handlePriceDelete(index)}
-                    >
-                      <IconTrash />
-                    </Button>
-                  </div>
+                  <Select
+                    value={price.priceType}
+                    onValueChange={(value) =>
+                      handlePriceChange(index, {
+                        priceType: value as IProjectPrice['priceType'],
+                      })
+                    }
+                  >
+                    <Select.Trigger className="h-8">
+                      <Select.Value placeholder="per" />
+                    </Select.Trigger>
+                    <Select.Content>
+                      <Select.Item value="priceBySize">per m²</Select.Item>
+                      <Select.Item value="priceByUnit">per unit</Select.Item>
+                    </Select.Content>
+                  </Select>
+                  <Button
+                    variant="secondary"
+                    size="icon"
+                    className="size-8 text-destructive bg-destructive/10 hover:bg-destructive/20"
+                    onClick={() => handlePriceDelete(index)}
+                  >
+                    <IconTrash />
+                  </Button>
                 </div>
               ))}
             </div>

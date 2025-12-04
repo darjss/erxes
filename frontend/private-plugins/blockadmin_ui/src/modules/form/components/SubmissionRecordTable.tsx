@@ -1,14 +1,19 @@
 import { SUBMISSIONS_CURSOR_SESSION_KEY } from '@/form/constants/submissionCursorSessionKey';
 import { useSubmissions } from '@/form/hooks/useSubmissions';
+import { IconTrash } from '@tabler/icons-react';
 import { ColumnDef } from '@tanstack/table-core';
 import {
+  Button,
+  CommandBar,
   RecordTable,
   RecordTableInlineCell,
   RelativeDateDisplay,
+  Separator,
   Tooltip,
 } from 'erxes-ui';
 import { Link, useParams } from 'react-router-dom';
 import { BLOCK_FORMS } from '../constants/blockForms';
+import { useRemoveSubmissions } from '../hooks/useRemoveSubmissions';
 
 export const SubmissionRecordTable = () => {
   const { id } = useParams();
@@ -19,6 +24,7 @@ export const SubmissionRecordTable = () => {
   const questions: { text: string }[] = BLOCK_FORMS[Number(id)]?.questions;
 
   const columns: ColumnDef<any>[] = [
+    RecordTable.checkboxColumn as ColumnDef<any>,
     {
       accessorKey: 'lead',
       header: 'Lead',
@@ -55,17 +61,17 @@ export const SubmissionRecordTable = () => {
 
         return (
           <Tooltip.Provider delayDuration={0}>
-          <Tooltip>
-            <Tooltip.Trigger asChild>
-              <RecordTableInlineCell className="text-xs font-medium text-muted-foreground">
-                {value}
-              </RecordTableInlineCell>
-            </Tooltip.Trigger>
-            <Tooltip.Content>
-              <p>{value}</p>
-            </Tooltip.Content>
-          </Tooltip>
-        </Tooltip.Provider>
+            <Tooltip>
+              <Tooltip.Trigger asChild>
+                <RecordTableInlineCell className="text-xs font-medium text-muted-foreground">
+                  {value}
+                </RecordTableInlineCell>
+              </Tooltip.Trigger>
+              <Tooltip.Content>
+                <p>{value}</p>
+              </Tooltip.Content>
+            </Tooltip>
+          </Tooltip.Provider>
         );
       },
     })) || []),
@@ -111,6 +117,36 @@ export const SubmissionRecordTable = () => {
           </RecordTable.Body>
         </RecordTable>
       </RecordTable.CursorProvider>
+      <SubmissionCommandBar />
     </RecordTable.Provider>
+  );
+};
+
+export const SubmissionCommandBar = () => {
+  const { table } = RecordTable.useRecordTable();
+
+  const submissionIds = table
+    .getFilteredSelectedRowModel()
+    .rows.map((row) => row.original._id);
+
+  const { removeSubmissions } = useRemoveSubmissions(submissionIds);
+
+  return (
+    <CommandBar open={table.getFilteredSelectedRowModel().rows.length > 0}>
+      <CommandBar.Bar>
+        <CommandBar.Value>
+          {table.getFilteredSelectedRowModel().rows.length} selected
+        </CommandBar.Value>
+        <Separator.Inline />
+        <Button
+          variant="secondary"
+          className="text-destructive"
+          onClick={() => removeSubmissions()}
+        >
+          <IconTrash />
+          Delete
+        </Button>
+      </CommandBar.Bar>
+    </CommandBar>
   );
 };

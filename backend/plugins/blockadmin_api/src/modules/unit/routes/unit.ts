@@ -74,7 +74,7 @@ router.post(
 );
 
 router.post(
-  '/blockDeleteUnit',
+  '/blockRemoveUnit',
   async (req: IRequest<IUnit>, res: IResponse) => {
     const { models } = res.locals as IContext;
 
@@ -84,6 +84,40 @@ router.post(
       const { entityId } = payload || {};
 
       models.Unit.removeUnit(subdomain, entityId);
+
+      return res.status(200).json({
+        success: true,
+      });
+    } catch (error) {
+      return res.status(400).json({
+        error: error.message,
+      });
+    }
+  },
+);
+
+router.post(
+  '/blockRemoveUnits',
+  async (req: IRequest<IUnit, { _ids: string[] }>, res: IResponse) => {
+    const { models } = res.locals as IContext;
+
+    try {
+      const { subdomain, payload } = req.body || {};
+
+      const { data } = payload || {};
+
+      const { _ids } = data || {};
+
+      const unitIds = await models.Unit.find({
+        subdomain,
+        entityId: { $in: _ids },
+      }).distinct('_id');
+
+      models.Unit.deleteMany({
+        _id: { $in: unitIds },
+      })
+        .then(() => console.log('yey'))
+        .catch((error) => console.log(error));
 
       return res.status(200).json({
         success: true,
