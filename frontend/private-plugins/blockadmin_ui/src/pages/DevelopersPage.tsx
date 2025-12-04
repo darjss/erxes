@@ -1,6 +1,7 @@
 import { DevelopersBreadcrumb } from '@/developer/components/DeveloperBreadcrumb';
 import { Developers } from '@/developer/components/Developers';
-import { PageContainer, ScrollArea, Separator } from 'erxes-ui';
+import { DevelopersFilter } from '@/developer/components/DevelopersFilter';
+import { PageContainer, PageSubHeader, ScrollArea, Separator } from 'erxes-ui';
 import { PageHeader } from 'ui-modules';
 
 export const DevelopersPage = () => {
@@ -13,6 +14,9 @@ export const DevelopersPage = () => {
           <PageHeader.FavoriteToggleButton />
         </PageHeader.Start>
       </PageHeader>
+      <PageSubHeader>
+        <DevelopersFilter />
+      </PageSubHeader>
       <ScrollArea className="flex-auto">
         <Developers />
       </ScrollArea>

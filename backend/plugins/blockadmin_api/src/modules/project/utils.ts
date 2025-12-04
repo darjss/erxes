@@ -1,3 +1,4 @@
+import isNil from 'lodash/isNil';
 import { FilterQuery } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
 import { IProjectDocument, IProjectQueryParams } from './@types/project';
@@ -6,8 +7,19 @@ export const generateFilter = async (
   params: IProjectQueryParams,
   models: IModels,
 ) => {
-  const { isPublished, searchValue, developerId, district, priceMin, priceMax, type } =
-    params || {};
+  const {
+    isPublished,
+    searchValue,
+    developerId,
+    district,
+    priceMin,
+    priceMax,
+    type,
+    types,
+    status,
+    dateFilters,
+    locations,
+  } = params || {};
 
   const filter: FilterQuery<IProjectDocument> = {};
 
@@ -40,11 +52,53 @@ export const generateFilter = async (
     filter.types = type;
   }
 
-  if (isPublished) {
+  if (dateFilters) {
+    const dateFilter = JSON.parse(dateFilters);
+
+    for (const key in dateFilter) {
+      if (dateFilter.hasOwnProperty(key)) {
+        const { gte, lte } = dateFilter[key];
+
+        if (!filter[key]) {
+          filter[key] = {};
+        }
+
+        if (gte) {
+          filter[key]['$gte'] = gte;
+        }
+
+        if (lte) {
+          filter[key]['$lte'] = lte;
+        }
+      }
+    }
+  }
+
+  if (types?.length) {
+    filter.types = { $in: types };
+  }
+
+  if (status) {
+    filter.status = status;
+  }
+
+  if (!isNil(isPublished)) {
     filter.isPublished = isPublished;
   }
 
-  console.log('filter', filter)
+  if (locations) {
+    const location = JSON.parse(locations);
+
+    if (location.city) {
+      filter['location.city'] = location.city;
+    }
+
+    if (location.district) {
+      filter['location.district'] = location.district;
+    }
+  }
+
+  console.log('filter', filter);
 
   return filter;
 };

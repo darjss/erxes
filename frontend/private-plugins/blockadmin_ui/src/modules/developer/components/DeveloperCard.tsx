@@ -24,7 +24,7 @@ export const DeveloperCard = ({
   name,
   coverImage,
   address,
-  projectCount,
+  projectsCount,
 }: IDeveloper) => {
   return (
     <Link
@@ -47,7 +47,7 @@ export const DeveloperCard = ({
         <div className="flex ba:justify-between">
           <h3 className="font-medium text-lg leading-6">{name}</h3>
           <h3 className="font-medium text-lg leading-6 flex items-center gap-2">
-            <IconBuildingCommunity className="size-4" /> {projectCount ?? 0}
+            <IconBuildingCommunity className="size-4" /> {projectsCount ?? 0}
           </h3>
         </div>
         <DeveloperAddress address={address} />

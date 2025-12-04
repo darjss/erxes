@@ -48,5 +48,7 @@ export const developerSchema = schemaWrapper(
     },
 
     socialLinks: { type: blockDeveloperSocialLinkSchema },
+  }, {
+    timestamps: true,
   }),
 );

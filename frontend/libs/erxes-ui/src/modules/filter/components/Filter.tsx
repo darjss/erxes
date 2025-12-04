@@ -1,6 +1,9 @@
-import React, { useEffect, useState } from 'react';
-import { FilterContext } from '../context/FilterContext';
-import { useFilterContext } from '../hooks/useFilterContext';
+import {
+  IconChevronRight,
+  IconFilter2,
+  IconSearch,
+  IconX,
+} from '@tabler/icons-react';
 import {
   Button,
   Combobox,
@@ -11,27 +14,25 @@ import {
   Popover,
   Tooltip,
 } from 'erxes-ui/components';
-import {
-  IconFilter2,
-  IconChevronRight,
-  IconSearch,
-  IconX,
-} from '@tabler/icons-react';
 import { useRemoveQueryStateByKey } from 'erxes-ui/hooks';
-import { Except } from 'type-fest';
 import { cn } from 'erxes-ui/lib';
+import { usePreviousHotkeyScope } from 'erxes-ui/modules/hotkey/hooks/usePreviousHotkeyScope';
+import { isUndefinedOrNull } from 'erxes-ui/utils';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
+import React, { useEffect, useState } from 'react';
+import { Except } from 'type-fest';
+import { FilterContext } from '../context/FilterContext';
+import { DateFilterCommand } from '../date-filter/components/DateFilterCommand';
+import { FilterDialogDateView } from '../date-filter/components/DialogDateView';
+import { getDisplayValue } from '../date-filter/utils/getDisplayValue';
+import { useFilterContext } from '../hooks/useFilterContext';
+import { useFilterQueryState } from '../hooks/useFilterQueryState';
 import {
   filterDialogViewState,
   filterPopoverViewState,
   openDialogState,
   openPopoverState,
 } from '../states/filterStates';
-import { getDisplayValue } from '../date-filter/utils/getDisplayValue';
-import { DateFilterCommand } from '../date-filter/components/DateFilterCommand';
-import { usePreviousHotkeyScope } from 'erxes-ui/modules/hotkey/hooks/usePreviousHotkeyScope';
-import { useFilterQueryState } from '../hooks/useFilterQueryState';
-import { FilterDialogDateView } from '../date-filter/components/DialogDateView';
 
 const FilterProvider = ({
   children,
@@ -253,7 +254,7 @@ const FilterBarItem = React.forwardRef<
 >(({ className, queryKey, children, ...props }, ref) => {
   const [query] = useFilterQueryState<string>(queryKey || 'root');
 
-  if (queryKey && !query) {
+  if (queryKey && isUndefinedOrNull(query)) {
     return null;
   }
 

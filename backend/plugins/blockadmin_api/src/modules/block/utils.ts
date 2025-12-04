@@ -1,4 +1,5 @@
 import crypto from 'crypto';
+import { isDev } from 'erxes-api-shared/utils';
 
 const { BLOCK_API_URL, BLOCK_ADMIN_SECRET } = process.env;
 
@@ -20,7 +21,9 @@ export const sendBlockMessage = async ({
     throw new Error('BLOCK_API_URL or BLOCK_ADMIN_SECRET is not set');
   }
 
-  const BLOCK_DOMAIN = BLOCK_API_URL.replace('<subdomain>', subdomain);
+  const BLOCK_DOMAIN = isDev
+    ? BLOCK_API_URL
+    : BLOCK_API_URL.replace('<subdomain>', subdomain);
 
   const API_ENDPOINT = `${BLOCK_DOMAIN}/pl:block/webhook/${path}`;
 

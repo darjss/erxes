@@ -15,11 +15,14 @@ export const developerQueries = {
   ) => {
     const filter = await generateFilter(params);
 
-    return await cursorPaginate<IBlockDeveloperDocument>({
-      model: models.Developer,
-      params,
-      query: filter,
-    });
+    const { list, pageInfo, totalCount } =
+      await cursorPaginate<IBlockDeveloperDocument>({
+        model: models.Developer,
+        params,
+        query: filter,
+      });
+
+    return { list, pageInfo, totalCount };
   },
   getBlockAdminDeveloperInfo: async (
     _root: undefined,

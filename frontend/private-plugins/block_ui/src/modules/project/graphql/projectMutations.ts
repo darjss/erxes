@@ -9,8 +9,8 @@ export const CREATE_PROJECT = gql`
 `;
 
 export const BLOCK_PUBLISH_PROJECT = gql`
-  mutation BlockPublishProject($id: String!) {
-    blockPublishProject(_id: $id) {
+  mutation BlockPublishProject($id: String!, $isPublished: Boolean!) {
+    blockPublishProject(_id: $id, isPublished: $isPublished) {
       _id
       isPublished
     }

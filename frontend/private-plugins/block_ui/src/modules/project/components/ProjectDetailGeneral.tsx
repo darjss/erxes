@@ -55,7 +55,7 @@ export const ProjectDeveloper = () => {
         className="flex w-full justify-start h-8 shadow-xs"
         asChild
       >
-        <Link to="/settings/block">
+        <Link to="/block/developer-info">
           {developerInfo?.name}
           <IconArrowUpRight className="ml-auto" />
         </Link>

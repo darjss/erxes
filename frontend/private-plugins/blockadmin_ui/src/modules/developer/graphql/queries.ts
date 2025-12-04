@@ -1,23 +1,24 @@
 import { gql } from '@apollo/client';
+import { GQL_CURSOR_PARAM_DEFS, GQL_CURSOR_PARAMS } from 'erxes-ui';
 
 const BLOCK_ADMIN_GET_DEVELOPERS = gql`
   query GetBlockAdminDevelopers(
     $verificationStatus: String
     $searchValue: String
-    $limit: Int
-    $cursor: String
-    $cursorMode: CURSOR_MODE
-    $orderBy: JSON
-    $direction: CURSOR_DIRECTION
+    $city: String
+    $district: String
+    $dateFilters: String    
+
+    ${GQL_CURSOR_PARAM_DEFS}
   ) {
     getBlockAdminDevelopers(
       verificationStatus: $verificationStatus
       searchValue: $searchValue
-      limit: $limit
-      cursor: $cursor
-      cursorMode: $cursorMode
-      orderBy: $orderBy
-      direction: $direction
+      city: $city
+      district: $district
+      dateFilters: $dateFilters
+
+      ${GQL_CURSOR_PARAMS}
     ) {
       list {
         _id
@@ -61,6 +62,7 @@ const BLOCK_ADMIN_GET_DEVELOPERS = gql`
           website
         }
         verificationStatus
+        projectsCount
       }
       pageInfo {
         hasNextPage
@@ -73,4 +75,29 @@ const BLOCK_ADMIN_GET_DEVELOPERS = gql`
   }
 `;
 
-export { BLOCK_ADMIN_GET_DEVELOPERS };
+const BLOCK_ADMIN_GET_DEVELOPERS_INLINE = gql`
+  query GetBlockAdminDevelopers(
+    $searchValue: String
+    ${GQL_CURSOR_PARAM_DEFS}
+  ) {
+    getBlockAdminDevelopers(
+      searchValue: $searchValue
+      ${GQL_CURSOR_PARAMS}
+    ) {
+      list {
+        _id
+        name
+        verificationStatus
+      }
+      pageInfo {
+        hasNextPage
+        hasPreviousPage
+        startCursor
+        endCursor
+      }
+      totalCount
+    }
+  }
+`;
+
+export { BLOCK_ADMIN_GET_DEVELOPERS, BLOCK_ADMIN_GET_DEVELOPERS_INLINE };

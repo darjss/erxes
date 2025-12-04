@@ -96,8 +96,8 @@ export const StackingZone = ({ zone }: { zone: IZoning }) => {
   });
 
   const notUsedSizeByUnit = units?.reduce(
-    (acc, { type, status }) =>
-      !status || status === 'available' ? acc + type?.size : acc,
+    (acc, { unitType, status }) =>
+      !status || status === 'available' ? acc + unitType?.size : acc,
     0,
   );
 
@@ -113,7 +113,7 @@ export const StackingZone = ({ zone }: { zone: IZoning }) => {
         <span className="text-xs">vacant by size: {notUsedSizeByUnit} m²</span>
       </div>
       {units
-        ?.filter((unit) => unit.type?.size > 0)
+        ?.filter((unit) => unit.unitType?.size > 0)
         .map((unit) => (
           <StackingUnitItem key={unit._id} {...unit} />
         ))}

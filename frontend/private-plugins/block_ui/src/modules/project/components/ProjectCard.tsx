@@ -174,7 +174,7 @@ export const ProjectCard = (project: IProject) => {
         </div>
         <div className="px-4 py-2 flex flex-col gap-3">
           <div className="flex justify-between">
-            <h3 className="font-medium text-lg">{name}</h3>
+            <h3 className="font-medium text-lg truncate">{name || 'No name'}</h3>
             <Tooltip.Provider delayDuration={0}>
               <Tooltip>
                 <Tooltip.Trigger asChild>

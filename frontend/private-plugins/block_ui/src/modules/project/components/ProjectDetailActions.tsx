@@ -4,9 +4,10 @@ import { IconArrowUp, IconDotsVertical, IconTrash } from '@tabler/icons-react';
 import { Button, DropdownMenu, toast, useConfirm } from 'erxes-ui';
 import { useNavigate, useParams } from 'react-router-dom';
 import { usePublishProject } from '../hooks/usePublishProject';
+import { useProjectDetail } from '../hooks/useProjectDetail';
 
 export const ProjectDetailActions = () => {
-  const { id: projectId } = useParams();
+  const { project } = useProjectDetail();
   const { confirm } = useConfirm();
   const { removeProject } = useRemoveProject();
   const { publishProject } = usePublishProject();
@@ -23,11 +24,11 @@ export const ProjectDetailActions = () => {
       <DropdownMenu.Content className="min-w-48" align="end">
         <DropdownMenu.Item
           onClick={() => {
-            publishProject(projectId || '', true);
+            publishProject(project?._id || '', !project?.isPublished);
           }}
         >
           <IconArrowUp />
-          Publish Project
+          {project?.isPublished ? 'Unpublish Project' : 'Publish Project'}
         </DropdownMenu.Item>
         <DropdownMenu.Item
           className="text-destructive"
@@ -39,7 +40,7 @@ export const ProjectDetailActions = () => {
               },
             }).then(() => {
               removeProject({
-                variables: { id: projectId },
+                variables: { id: project?._id || '' },
                 refetchQueries: [{ query: BLOCK_GET_PROJECT_LIST }],
                 onCompleted: () => {
                   navigate('/block/projects');

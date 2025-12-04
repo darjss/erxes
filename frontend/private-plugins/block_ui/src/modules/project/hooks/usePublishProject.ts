@@ -3,9 +3,7 @@ import { toast } from 'erxes-ui';
 import { BLOCK_PUBLISH_PROJECT } from '../graphql/projectMutations';
 
 export const usePublishProject = () => {
-  const [updateProjectGeneralInfoMutation] = useMutation(
-    BLOCK_PUBLISH_PROJECT,
-  );
+  const [updateProjectGeneralInfoMutation] = useMutation(BLOCK_PUBLISH_PROJECT);
 
   const publishProject = (id: string, isPublished: boolean) => {
     updateProjectGeneralInfoMutation({
@@ -17,6 +15,15 @@ export const usePublishProject = () => {
             isPublished: () => isPublished,
           },
           optimistic: true,
+        });
+      },
+      onCompleted: () => {
+        toast({
+          title: 'Success',
+          description:
+            'Project ' +
+            (isPublished ? 'published' : 'unpublished') +
+            ' successfully',
         });
       },
       onError: (error) => {

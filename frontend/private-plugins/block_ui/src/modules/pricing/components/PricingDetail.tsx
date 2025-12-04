@@ -39,7 +39,7 @@ export const PricingDetail = ({
         {pricesState?.map((price, index) => (
           <div className="grid grid-cols-3 gap-2">
             <CurrencyField.SelectCurrency
-              value={price.currency as CurrencyCode}
+              value={(price.currency as CurrencyCode)}
               onChange={(value) =>
                 handlePriceChange(index, { currency: value })
               }

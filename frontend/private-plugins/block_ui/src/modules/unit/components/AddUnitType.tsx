@@ -172,7 +172,7 @@ export const AddUnitType = ({ onClose }: { onClose: () => void }) => {
                 />
 
                 <Form.Field
-                  name="featureType"
+                  name="featureTypes"
                   render={({ field }) => (
                     <Form.Item>
                       <Form.Label>Feature Type</Form.Label>

@@ -43,7 +43,7 @@ export interface IDeveloper {
     youtube: string;
   };
   verificationStatus: string;
-  projectCount: number;
+  projectsCount: number;
 }
 
 export interface IDeveloperList {

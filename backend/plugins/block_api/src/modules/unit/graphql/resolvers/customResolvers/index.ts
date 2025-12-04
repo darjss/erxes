@@ -1,5 +1,7 @@
-import Unit from './unit';
+import BlockUnit from './unit';
+import UnitType from './unitType';
 
 export default {
-  Unit,
+  BlockUnit,
+  UnitType,
 };

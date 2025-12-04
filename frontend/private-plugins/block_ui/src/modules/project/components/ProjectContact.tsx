@@ -42,15 +42,13 @@ export const ProjectContact = () => {
     },
   );
 
-  console.log('phones', phones);
-
   const { updateProjectGeneralInfo } = useUpdateProjectGeneralInfo();
 
   return (
     <div className="p-8 h-full flex flex-col gap-3">
       <InfoCard
-        title="Project Target"
-        description="Project target"
+        title="Project Contact"
+        description="Project Contact"
         className="h-full"
       >
         <InfoCardContent>

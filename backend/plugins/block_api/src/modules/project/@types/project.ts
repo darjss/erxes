@@ -48,3 +48,12 @@ export interface IProjectDocument extends IProject, Document {
   createdAt: Date;
   updatedAt: Date;
 }
+
+export interface IProjectFilterParams {
+  searchValue?: string;
+  dateFilters?: string;
+  types?: string[];
+  status?: string;
+  isPublished?: boolean;
+  locations?: string;
+}

@@ -5,7 +5,6 @@ import { IProject, IProjectDocument } from '@/project/@types/project';
 
 export interface IProjectModel extends Model<IProjectDocument> {
   getProject(_id: string): Promise<IProjectDocument>;
-  getProjects(): Promise<IProjectDocument[]>;
   createProject(name: string): Promise<IProjectDocument>;
   updateProject({
     _id,
@@ -27,10 +26,6 @@ export const loadProjectClass = (models: IModels) => {
       }
 
       return Project;
-    }
-
-    public static async getProjects(): Promise<IProjectDocument[]> {
-      return models.Project.find().lean();
     }
 
     public static async createProject(name: string): Promise<IProjectDocument> {

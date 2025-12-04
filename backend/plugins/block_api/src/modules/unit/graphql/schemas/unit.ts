@@ -10,6 +10,7 @@ export const types = `
     leads: [String]
 
     type: String
+    unitType: UnitType
     createdAt: Date
     updatedAt: Date
   } 

@@ -1,8 +1,8 @@
 import { gql } from '@apollo/client';
 
 export const BLOCK_GET_PROJECTS = gql`
-  query BlockGetProjects {
-    blockGetProjects {
+  query BlockGetProjects($filters: BlockProjectFilterInput) {
+    blockGetProjects(filters: $filters) {
       _id
       name
       isPublished

@@ -1,8 +1,35 @@
 import { gql } from '@apollo/client';
+import { GQL_CURSOR_PARAM_DEFS, GQL_CURSOR_PARAMS } from 'erxes-ui';
 
 export const BLOCK_GET_PROJECTS = gql`
-  query BlockAdminGetProjects {
-    blockAdminGetProjects {
+  query BlockAdminGetProjects(
+    $searchValue: String
+    $developerId: String
+    $location: BlockAdminProjectLocationInput
+    $priceMin: Int
+    $priceMax: Int
+
+    $dateFilters: String
+    $types: [String]
+    $status: BlockAdminProjectStatus
+    $isPublished: Boolean
+    $locations: String
+    ${GQL_CURSOR_PARAM_DEFS}
+  ) {
+    blockAdminGetProjects(
+      searchValue: $searchValue
+      developerId: $developerId
+      location: $location
+      priceMin: $priceMin
+      priceMax: $priceMax
+      
+      dateFilters: $dateFilters
+      types: $types
+      status: $status
+      isPublished: $isPublished
+      locations: $locations
+      ${GQL_CURSOR_PARAMS}
+    ) {
       _id
       name
       isPublished

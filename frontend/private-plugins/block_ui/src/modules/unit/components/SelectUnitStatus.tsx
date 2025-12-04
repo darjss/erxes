@@ -18,8 +18,6 @@ export const SelectUnitStatus = ({
   const statuses =
     tenureType === 'forSale' ? UNIT_SALE_STATUS : UNIT_LEASE_STATUS;
 
-  console.log(value);
-
   return (
     <Select value={value || 'available'} onValueChange={onValueChange}>
       <Control>

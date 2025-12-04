@@ -2,10 +2,10 @@ import { UNIT_SALE_STATUS } from '@/unit/constants/unit';
 import { IUnit } from '@/unit/types/unitType';
 import { cn, useQueryState } from 'erxes-ui';
 
-export const StackingUnitItem = ({ number, type, _id, status }: IUnit) => {
+export const StackingUnitItem = ({ number, unitType, _id, status }: IUnit) => {
   const [, setUnitId] = useQueryState<string>('unitId');
 
-  const { size } = type || {};
+  const { size } = unitType || {};
 
   return (
     <div

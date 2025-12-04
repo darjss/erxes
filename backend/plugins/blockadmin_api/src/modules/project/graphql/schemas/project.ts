@@ -46,6 +46,12 @@ const queryParams = `
   priceMin: Int
   priceMax: Int
 
+  dateFilters: String
+  types: [String]
+  status: BlockAdminProjectStatus
+  isPublished: Boolean
+  locations: String
+
   ${GQL_CURSOR_PARAM_DEFS}
 `;
 

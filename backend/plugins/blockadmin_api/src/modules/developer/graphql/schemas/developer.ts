@@ -17,6 +17,7 @@ export const types = `
     phones: [String]
     socialLinks: BlockAdminDeveloperSocialLink
     verificationStatus: String
+    projectsCount: Int
   }
 
   type BlockAdminDeveloperListResponse {
@@ -29,6 +30,9 @@ export const types = `
 const queryParams = `
   verificationStatus: String
   searchValue: String
+  district: String
+  city: String
+  dateFilters: String
   
   ${GQL_CURSOR_PARAM_DEFS}
 `;

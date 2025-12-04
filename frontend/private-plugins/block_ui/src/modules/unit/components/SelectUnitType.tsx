@@ -1,5 +1,5 @@
 import { useUnitTypes } from '@/unit/hooks/useUnitTypes';
-import { Form, Select } from 'erxes-ui';
+import { Form, Select, useQueryState } from 'erxes-ui';
 import React from 'react';
 import { useParams } from 'react-router-dom';
 
@@ -13,7 +13,9 @@ export const SelectUnitType = ({
   inForm?: boolean;
 }) => {
   const { id } = useParams();
-  const { unitTypes } = useUnitTypes({ project: id });
+  const [projectId] = useQueryState<string>('projectId');
+
+  const { unitTypes } = useUnitTypes({ project: id || (projectId as string) });
   const Control = inForm ? Form.Control : React.Fragment;
 
   const handleValueChange = (val: string) => {

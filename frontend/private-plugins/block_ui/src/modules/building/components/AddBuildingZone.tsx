@@ -69,13 +69,15 @@ export const AddBuildingZoneForm = ({
         },
       ],
     });
+
+    onClose?.();
   };
 
   return (
     <Form {...form}>
       <form
         className="flex flex-col flex-auto"
-        onSubmit={form.handleSubmit(onSubmit)}
+        onSubmit={form.handleSubmit(onSubmit, (error) => console.log(error))}
       >
         <Sheet.Content className="p-6 blk:space-y-5">
           <Form.Field
@@ -121,6 +123,24 @@ export const AddBuildingZoneForm = ({
                   onValueChange={field.onChange}
                   inForm
                 />
+              </Form.Item>
+            )}
+          />
+          <Form.Field
+            name="size"
+            render={({ field }) => (
+              <Form.Item className="col-span-2">
+                <Form.Label>Size</Form.Label>
+                <Form.Control>
+                  <Input
+                    value={field.value}
+                    onChange={(e) =>
+                      field.onChange(Number(e.target.value || '0'))
+                    }
+                    type="number"
+                  />
+                </Form.Control>
+                <Form.Message />
               </Form.Item>
             )}
           />

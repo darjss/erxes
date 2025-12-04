@@ -1,14 +1,16 @@
 import { InfoCard, InfoCardContent } from '@/block/components/card';
-import { Button, CurrencyCode, CurrencyField, Label, Select } from 'erxes-ui';
-import { IconPlus, IconTrash } from '@tabler/icons-react';
-import { useProjectDetail } from '../hooks/useProjectDetail';
-import { useEffect, useState } from 'react';
 import { useUpdateProjectGeneralInfo } from '@/project/hooks/useUpdateProject';
 import { IProjectPrice } from '@/project/types/projectTypes';
+import { IconPlus, IconTrash } from '@tabler/icons-react';
+import { Button, CurrencyCode, CurrencyField, Label, Select } from 'erxes-ui';
+import { useEffect, useState } from 'react';
+import { useCurrency } from '../hooks/useCurrency';
+import { useProjectDetail } from '../hooks/useProjectDetail';
 
 export const ProjectPrice = () => {
   const { project } = useProjectDetail();
   const { updateProjectGeneralInfo } = useUpdateProjectGeneralInfo();
+
   const [mainPrice, setMainPrice] = useState(project?.mainPrice);
   const [prices, setPrices] = useState<IProjectPrice[]>(
     project?.prices?.map((p) => ({
@@ -90,7 +92,7 @@ export const ProjectPrice = () => {
           {prices && prices.length > 0 && (
             <div className="space-y-2 pb-2">
               {(prices || []).map((price, index) => (
-                <div className="grid grid-cols-4 gap-2">
+                <div className="grid grid-cols-2 gap-2 md:grid-cols-3">
                   <CurrencyField.SelectCurrency
                     value={price.currency as CurrencyCode}
                     display="code"
@@ -100,7 +102,6 @@ export const ProjectPrice = () => {
                     onChange={(value) =>
                       handlePriceChange(index, { price: value })
                     }
-                    className="col-span-2"
                   />
                   <div className="flex gap-2">
                     <Select
@@ -116,9 +117,7 @@ export const ProjectPrice = () => {
                       </Select.Trigger>
                       <Select.Content>
                         <Select.Item value="priceBySize">per m²</Select.Item>
-                        <Select.Item value="priceByUnit">
-                          per unit
-                        </Select.Item>
+                        <Select.Item value="priceByUnit">per unit</Select.Item>
                       </Select.Content>
                     </Select>
                     <Button
@@ -150,26 +149,31 @@ export const ProjectPriceAddPrice = ({
     priceType: IProjectPrice['priceType'],
   ) => void;
 }) => {
+  const { mainCurrency } = useCurrency();
+
   const [currency, setCurrency] = useState<CurrencyCode | ''>('');
   const [price, setPrice] = useState<number | undefined>(undefined);
   const [priceType, setPriceType] = useState<IProjectPrice['priceType']>(
     'priceBySize' as IProjectPrice['priceType'],
   );
+
+  useEffect(() => {
+    if (mainCurrency) {
+      setCurrency(mainCurrency);
+    }
+  }, [mainCurrency]);
+
   return (
     <>
       <div className="space-y-2">
         <Label>Add Price</Label>
-        <div className="grid grid-cols-4 gap-2">
+        <div className="grid grid-cols-3 gap-2">
           <CurrencyField.SelectCurrency
             value={currency as CurrencyCode}
             display="code"
             onChange={setCurrency}
           />
-          <CurrencyField.ValueInput
-            className="col-span-2"
-            value={price}
-            onChange={setPrice}
-          />
+          <CurrencyField.ValueInput value={price} onChange={setPrice} />
           <Select
             value={priceType}
             onValueChange={(value) =>

@@ -1,8 +1,9 @@
-import { PageContainer, Separator, ScrollArea } from 'erxes-ui';
-import { PageHeader } from 'ui-modules';
 import { CreateProject } from '@/project/components/CreateProject';
-import { Projects } from '@/project/components/Projects';
 import { ProjectBreadcrumb } from '@/project/components/ProjectBreadcrumb';
+import { Projects } from '@/project/components/Projects';
+import { ProjectsFilter } from '@/project/components/ProjectsFilter';
+import { PageContainer, PageSubHeader, ScrollArea, Separator } from 'erxes-ui';
+import { PageHeader } from 'ui-modules';
 
 export const ProjectsPage = () => {
   return (
@@ -17,6 +18,9 @@ export const ProjectsPage = () => {
           <CreateProject />
         </PageHeader.End>
       </PageHeader>
+      <PageSubHeader>
+        <ProjectsFilter />
+      </PageSubHeader>
       <ScrollArea className="flex-auto">
         <Projects />
       </ScrollArea>

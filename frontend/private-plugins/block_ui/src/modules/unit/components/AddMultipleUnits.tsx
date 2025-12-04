@@ -52,7 +52,7 @@ export const AddUnitsMultipleForm = ({
   const form = useForm({
     resolver: zodResolver(addUnitsMultipleSchema),
     defaultValues: {
-      type: zone.usageType,
+      type: '',
       count: 0,
     },
   });

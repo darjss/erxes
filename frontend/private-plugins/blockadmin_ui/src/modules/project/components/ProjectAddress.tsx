@@ -1,5 +1,5 @@
 import { InfoCard, InfoCardContent } from '@/block/components/card';
-import { ADDRESS_CITY, ADDRESS_DISTRICT } from '@/project/constants/address';
+import { ADDRESS_CITY, ADDRESS_DISTRICT } from '@/block/constants/address';
 import { useProjectDetail } from '@/project/hooks/useProjectDetail';
 import { Input, Label, Select, Textarea } from 'erxes-ui';
 

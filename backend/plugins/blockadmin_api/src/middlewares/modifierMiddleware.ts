@@ -1,3 +1,4 @@
+import { isDev } from 'erxes-api-shared/utils';
 import { NextFunction } from 'express';
 import { IMAGE_FIELDS } from '~/constants';
 import { IImageFields, IRequest, IResponse } from '~/types';
@@ -20,7 +21,9 @@ export const modifierMiddleware = (
 
     const { input = {} } = data || {};
 
-    const BLOCK_DOMAIN = BLOCK_API_URL.replace('<subdomain>', subdomain);
+    const BLOCK_DOMAIN = isDev
+      ? 'http://localhost:4000'
+      : BLOCK_API_URL.replace('<subdomain>', subdomain);
 
     if (IMAGE_FIELDS.some((image_field) => input.hasOwnProperty(image_field))) {
       for (const field of IMAGE_FIELDS) {
@@ -41,6 +44,7 @@ export const modifierMiddleware = (
 
           input[field] = newValues;
         } else if (
+          value &&
           typeof value === 'string' &&
           !value.startsWith(BLOCK_DOMAIN)
         ) {

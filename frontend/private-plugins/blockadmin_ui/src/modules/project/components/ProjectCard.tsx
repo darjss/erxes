@@ -1,9 +1,13 @@
-import { IconPhotoCirclePlus } from '@tabler/icons-react';
+import {
+  IconBuilding,
+  IconDoor,
+  IconPhotoCirclePlus,
+  IconStairs,
+} from '@tabler/icons-react';
 import { format } from 'date-fns';
 import { Badge, readImage, Slider, Tooltip } from 'erxes-ui';
 import { Link } from 'react-router-dom';
-import { ADDRESS_DISTRICT } from '../constants/address';
-import { COLOR_PALLATE } from '../constants/colors';
+import { ADDRESS_DISTRICT } from '../../block/constants/address';
 import { BLOCK_PROJECT_STATUS, PUBLISH_STATUS } from '../constants/project';
 import { IProject, IProjectLocation } from '../types/projectTypes';
 import { formatCompactNumber, formatCurrencyNumber } from '../utils';
@@ -48,25 +52,43 @@ const DateSection = ({
 };
 
 const StaticSection = ({ counts }: { counts?: Record<string, number> }) => {
-  const staticCounts = {
-    buildings: counts?.buildings || 0,
-    units: counts?.units || 0,
-    zones: counts?.zones || 0,
-  };
-
   return (
-    <div className="text-sm flex space-x-2">
-      {Object.keys(staticCounts || {}).map((key) => (
-        <span key={key} className="inline-flex items-center">
-          <div
-            className="h-3 w-3 rounded-sm mr-1"
-            style={{
-              backgroundColor: COLOR_PALLATE[key as keyof typeof COLOR_PALLATE],
-            }}
-          />
-          {counts?.[key]}
-        </span>
-      ))}
+    <div className="text-sm flex space-x-2 blk:[&_svg]:size-4">
+      <Tooltip.Provider>
+        <Tooltip>
+          <Tooltip.Trigger asChild>
+            <div className="inline-flex items-center gap-2">
+              <IconBuilding />
+              <span className="text-foreground font-medium">
+                {counts?.buildings ?? 0}
+              </span>
+            </div>
+          </Tooltip.Trigger>
+          <Tooltip.Content>Buildings: {counts?.buildings ?? 0}</Tooltip.Content>
+        </Tooltip>
+        <Tooltip>
+          <Tooltip.Trigger asChild>
+            <div className="inline-flex items-center gap-2">
+              <IconStairs />
+              <span className="text-foreground font-medium">
+                {counts?.zones ?? 0}
+              </span>
+            </div>
+          </Tooltip.Trigger>
+          <Tooltip.Content>Zones: {counts?.zones ?? 0}</Tooltip.Content>
+        </Tooltip>
+        <Tooltip>
+          <Tooltip.Trigger asChild>
+            <div className="inline-flex items-center gap-2">
+              <IconDoor />
+              <span className="text-foreground font-medium">
+                {counts?.units ?? 0}
+              </span>
+            </div>
+          </Tooltip.Trigger>
+          <Tooltip.Content>Units: {counts?.units ?? 0}</Tooltip.Content>
+        </Tooltip>
+      </Tooltip.Provider>
     </div>
   );
 };
@@ -134,10 +156,10 @@ export const ProjectCard = (project: IProject) => {
   return (
     <Link
       to={`/blockadmin/projects/${_id}`}
-      className="border bg-accent p-2 ba:rounded-[1.25rem]"
+      className="border p-2 blk:rounded-[1.25rem]"
     >
       <div className="grid grid-cols-2">
-        <div className="w-full h-full relative ba:aspect-2/1 ba:rounded-xl overflow-hidden flex items-center justify-center">
+        <div className="w-full h-full relative blk:aspect-2/1 rounded-xl overflow-hidden flex items-center justify-center">
           {coverImage ? (
             <img
               src={readImage(coverImage)}
@@ -147,19 +169,19 @@ export const ProjectCard = (project: IProject) => {
           ) : (
             <IconPhotoCirclePlus className="size-8 text-scroll" />
           )}
-          <div className="absolute inset-0 border border-foreground/10 ba:rounded-xl" />
+          <div className="absolute inset-0 border border-foreground/10 rounded-xl" />
         </div>
         <div className="px-4 py-2 flex flex-col gap-3">
           <div className="flex justify-between">
-            <h3 className="font-medium text-lg">{name}</h3>
+            <h3 className="font-medium text-lg truncate">
+              {name || 'No name'}
+            </h3>
             <Tooltip.Provider delayDuration={0}>
               <Tooltip>
                 <Tooltip.Trigger asChild>
-                  <div
-                    className={`h-4 w-4 rounded-full ${
-                      PUBLISH_STATUS[`${isPublished}`]?.color
-                    }`}
-                  />
+                  <Badge variant="secondary" className="-mt-1">
+                    {PUBLISH_STATUS[`${isPublished}`]?.text || 'Нийтлээгүй'}
+                  </Badge>
                 </Tooltip.Trigger>
                 <Tooltip.Content>
                   <p>
@@ -186,17 +208,26 @@ export const ProjectCard = (project: IProject) => {
             />
           </div>
           <div className="flex items-center gap-2 text-accent-foreground">
-            <StaticSection counts={counts} />
-          </div>
-          <div className="flex items-center gap-2 text-accent-foreground">
             <PriceSection ranges={priceRanges} />
           </div>
-          <div className="flex items-center gap-2">
-            <Slider value={[project.progress || 0]} max={100} hideThumb />
-            <p className="text-sm ml-1 text-accent-foreground font-medium">
-              {project.progress || 0}%
-            </p>
+          <div className="flex items-center gap-2 text-accent-foreground">
+            <StaticSection counts={counts} />
           </div>
+          <Tooltip.Provider>
+            <Tooltip>
+              <Tooltip.Trigger asChild>
+                <div className="flex items-center gap-2">
+                  <Slider value={[project.progress || 0]} max={100} hideThumb />
+                  <p className="text-sm ml-1 text-accent-foreground font-medium">
+                    {project.progress || 0}%
+                  </p>
+                </div>
+              </Tooltip.Trigger>
+              <Tooltip.Content>
+                <p>Project progress: {project.progress || 0}%</p>
+              </Tooltip.Content>
+            </Tooltip>
+          </Tooltip.Provider>
         </div>
       </div>
     </Link>

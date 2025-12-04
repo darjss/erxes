@@ -53,7 +53,7 @@ export const BLOCK_PROJECT_STATUS = {
   },
   on_sale: {
     variant: 'success',
-    text: 'Худалдан авах боломжтой',
+    text: 'Худалдах боломжтой',
   },
   completed: {
     variant: 'secondary',

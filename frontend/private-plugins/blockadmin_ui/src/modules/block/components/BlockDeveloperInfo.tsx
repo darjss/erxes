@@ -1,6 +1,6 @@
+import { ADDRESS_CITY, ADDRESS_DISTRICT } from '@/block/constants/address';
 import { developerInfoSchema } from '@/block/constants/developerInfoSchema';
 import { useDeveloperInfo } from '@/block/hooks/useDeveloperInfo';
-import { ADDRESS_CITY, ADDRESS_DISTRICT } from '@/project/constants/address';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Form, Input, Select, Textarea } from 'erxes-ui';
 import { useCallback, useEffect } from 'react';

@@ -6,6 +6,11 @@ export const BLOCK_GET_UNITS = gql`
       _id
       number
       type
+      unitType {
+        _id
+        name
+        size
+      }
       status
     }
   }
@@ -18,6 +23,11 @@ export const BLOCK_GET_UNIT = gql`
       building
       number
       type
+      unitType {
+        _id
+        name
+        size
+      }
       updatedAt
       zoning
       status

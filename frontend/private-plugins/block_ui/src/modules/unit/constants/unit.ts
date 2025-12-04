@@ -187,11 +187,12 @@ export const UNIT_USAGE_ROOMS = {
     { value: 'bedroom', label: { en: 'Bedroom', mn: 'Унтлагын өрөө' } },
     { value: 'kitchen', label: { en: 'Kitchen', mn: 'Гал тогоо' } },
     { value: 'bathroom', label: { en: 'Bathroom', mn: 'Ариун цэврийн өрөө' } },
-    { value: 'diningArea', label: { en: 'Dining area', mn: 'Үдийн өрөө' } },
+    { value: 'diningArea', label: { en: 'Dining area', mn: 'Хоолний өрөө' } },
     { value: 'balcony', label: { en: 'Balcony', mn: 'Тагт' } },
     { value: 'laundry', label: { en: 'Laundry room', mn: 'Хувцас угаах өрөө' } },
     { value: 'storage', label: { en: 'Storage room', mn: 'Агуулах өрөө' } },
-    { value: 'hallway', label: { en: 'Hallway', mn: 'Коридор' } }
+    { value: 'hallway', label: { en: 'Hallway', mn: 'Коридор' } },
+    { value: 'workRoom', label: { en: 'Work room', mn: 'Ажлын өрөө' } }
   ],
 
   office: [
@@ -222,7 +223,7 @@ export const UNIT_USAGE_ROOMS = {
     { value: 'evCharging', label: { en: 'EV charging spot', mn: 'Цахилгаан машины цэнэглэх цэг' } },
     { value: 'motorcycleParking', label: { en: 'Motorcycle parking', mn: 'Мотоциклийн зогсоол' } },
     { value: 'bicycleStorage', label: { en: 'Bicycle storage', mn: 'Дугуйн зогсоол' } },
-    { value: 'controlBooth', label: { en: 'Control booth', mn: 'Хяналтын будк' } },
+    { value: 'controlBooth', label: { en: 'Control booth', mn: 'Хяналтын бүхээг' } },
     { value: 'loadingArea', label: { en: 'Loading area', mn: 'Ачилтын талбай' } }
   ],
 
@@ -233,14 +234,14 @@ export const UNIT_USAGE_ROOMS = {
     { value: 'electricalRoom', label: { en: 'Electrical room', mn: 'Цахилгааны өрөө' } },
     { value: 'utilityCorridor', label: { en: 'Utility corridor', mn: 'Техникийн коридор' } },
     { value: 'coldRoom', label: { en: 'Cold room', mn: 'Хөргөлтийн өрөө' } },
-    { value: 'workshop', label: { en: 'Workshop', mn: 'Дархны өрөө' } }
+    { value: 'workshop', label: { en: 'Workshop', mn: 'Цех' } }
   ],
 
   retail: [
     { value: 'salesFloor', label: { en: 'Sales floor', mn: 'Үзүүлэнгийн талбай' } },
     { value: 'checkout', label: { en: 'Checkout', mn: 'Касс' } },
-    { value: 'displayArea', label: { en: 'Display area', mn: 'Тавиурын хэсэг' } },
-    { value: 'fittingRoom', label: { en: 'Fitting room', mn: 'Туршилтын өрөө' } },
+{ value: 'displayArea', label: { en: 'Display area', mn: 'Үзүүлэнгийн хэсэг' } },
+{ value: 'fittingRoom', label: { en: 'Fitting room', mn: 'Хувцас солих өрөө' } },
     { value: 'stockRoom', label: { en: 'Stock room', mn: 'Барааны агуулах' } },
     { value: 'backOffice', label: { en: 'Back office', mn: 'Дотоод өрөө' } },
     { value: 'receivingArea', label: { en: 'Receiving area', mn: 'Хүлээн авах хэсэг' } }
@@ -299,7 +300,7 @@ export const UNIT_USAGE_SUBTYPES = {
 
 export const UNIT_EXTRA_OPTIONS = [
   { value: 'north', label: { en: 'North', mn: 'Хойд' } },
-  { value: 'south', label: { en: 'South', mn: 'Өмнөд' } },
+  { value: 'south', label: { en: 'South', mn: 'Урд' } },
   { value: 'east', label: { en: 'East', mn: 'Зүүн' } },
   { value: 'west', label: { en: 'West', mn: 'Баруун' } },
 

@@ -29,3 +29,9 @@ export const GET_PAYMENT_PLAN = gql`
     }
   }
 `;
+
+export const MAIN_CURRENCY = gql`
+  query BlockGetConfig($code: String!) {
+    configsGetValue(code: $code)
+  }
+`;

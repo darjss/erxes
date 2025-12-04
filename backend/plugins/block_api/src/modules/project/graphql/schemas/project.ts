@@ -115,16 +115,25 @@ export const types = `
     links: JSON
     schedules: JSON
   }
+
+  input BlockProjectFilterInput {
+    searchValue: String
+    dateFilters: String
+    types: [String]
+    status: BlockProjectStatus
+    isPublished: Boolean
+    locations: String
+  }
 `;
 
 export const queries = `
   blockGetProject(_id: String!): BlockProject
-  blockGetProjects: [BlockProject]
+  blockGetProjects(filters: BlockProjectFilterInput): [BlockProject]
 `;
 
 export const mutations = `
   blockCreateProject(name: String!): BlockProject
   blockUpdateProjectGeneralInfo(_id: String!, input: BlockProjectGeneralInput!): BlockProject
-  blockPublishProject(_id: String!): BlockProject
+  blockPublishProject(_id: String!, isPublished: Boolean!): BlockProject
   blockRemoveProject(_id: String!): BlockProject
 `;

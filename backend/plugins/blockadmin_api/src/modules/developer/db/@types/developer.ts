@@ -46,4 +46,6 @@ export interface DeveloperQueryParams {
   searchValue?: string;
   verificationStatus?: string;
   city?: string;
+  district?: string;
+  dateFilters?: string;
 }

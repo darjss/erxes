@@ -1,14 +1,5 @@
 import { IProjectPrice } from '@/project/types/projectTypes';
 
-export interface IUnit {
-  _id: string;
-  number: string;
-  type: string;
-  zoning: string;
-  building: string;
-  status: string;
-}
-
 export interface IUnitRoom {
   type: string;
   count: number;
@@ -35,6 +26,16 @@ export interface IUnitType {
   planImages: string[];
   createdAt: Date;
   updatedAt: Date;
+}
+
+export interface IUnit {
+  _id: string;
+  number: string;
+  type: string;
+  unitType: IUnitType;
+  zoning: string;
+  building: string;
+  status: string;
 }
 
 export interface IUnitAttachment {

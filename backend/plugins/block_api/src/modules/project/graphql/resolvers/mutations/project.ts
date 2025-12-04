@@ -5,7 +5,7 @@ import { requireLogin } from 'erxes-api-shared/core-modules';
 export const projectMutations = {
   blockCreateProject: async (
     _parent: undefined,
-    { name },
+    { name }: { name: string },
     { models }: IContext,
   ) => {
     return models.Project.createProject(name);
@@ -21,15 +21,15 @@ export const projectMutations = {
 
   blockPublishProject: async (
     _parent: undefined,
-    { _id },
+    { _id, isPublished }: { _id: string; isPublished: boolean },
     { models }: IContext,
   ) => {
-    return models.Project.updateProject({ _id, input: { isPublished: true } });
+    return models.Project.updateProject({ _id, input: { isPublished } });
   },
 
   blockRemoveProject: async (
     _parent: undefined,
-    { _id },
+    { _id }: { _id: string },
     { models }: IContext,
   ) => {
     return models.Project.removeProject(_id);

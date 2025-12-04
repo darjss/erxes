@@ -29,6 +29,7 @@ export const ProjectTarget = () => {
               <Textarea
                 placeholder="Концепцын мессеж бичнэ үү"
                 value={concept}
+                maxLength={160}
                 onChange={(e) =>
                   setTargets({ ...targets, concept: e.target.value })
                 }
@@ -47,6 +48,7 @@ export const ProjectTarget = () => {
               <Textarea
                 placeholder="Зорилтот бүлгийг бичнэ үү"
                 value={target}
+                maxLength={160}
                 onChange={(e) =>
                   setTargets({ ...targets, target: e.target.value })
                 }
@@ -65,6 +67,7 @@ export const ProjectTarget = () => {
               <Textarea
                 placeholder="Давуу талуудыг бичнэ үү"
                 value={advantages}
+                maxLength={160}
                 onChange={(e) =>
                   setTargets({ ...targets, advantages: e.target.value })
                 }

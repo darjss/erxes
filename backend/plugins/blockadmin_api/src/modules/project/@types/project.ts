@@ -56,6 +56,11 @@ export interface IProjectQueryParams {
   district?: string;
   priceMin?: number;
   priceMax?: number;
-  isPublished?: boolean;
   type?: string;
+
+  dateFilters?: string;
+  types?: string[];
+  status?: string;
+  isPublished?: boolean;
+  locations?: string;
 }
