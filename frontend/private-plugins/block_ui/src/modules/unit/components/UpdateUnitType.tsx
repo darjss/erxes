@@ -312,7 +312,7 @@ export const UpdateUnitType = ({
               </div>
 
               <div className="space-y-2">
-                <Label asChild variant="peer" className="font-medium">
+                <Label asChild>
                   <legend>Total room count</legend>
                 </Label>
                 <Form.Field
@@ -330,7 +330,7 @@ export const UpdateUnitType = ({
               </div>
 
               <div className="space-y-2">
-                <Label asChild variant="peer" className="font-medium">
+                <Label asChild>
                   <legend>Rooms</legend>
                 </Label>
 

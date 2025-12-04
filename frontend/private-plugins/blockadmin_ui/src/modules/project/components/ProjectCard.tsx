@@ -53,7 +53,7 @@ const DateSection = ({
 
 const StaticSection = ({ counts }: { counts?: Record<string, number> }) => {
   return (
-    <div className="text-sm flex space-x-2 blk:[&_svg]:size-4">
+    <div className="text-sm flex space-x-2 ba:[&_svg]:size-4">
       <Tooltip.Provider>
         <Tooltip>
           <Tooltip.Trigger asChild>
@@ -156,15 +156,15 @@ export const ProjectCard = (project: IProject) => {
   return (
     <Link
       to={`/blockadmin/projects/${_id}`}
-      className="border p-2 blk:rounded-[1.25rem]"
+      className="border p-2 ba:rounded-[1.25rem]"
     >
       <div className="grid grid-cols-2">
-        <div className="w-full h-full relative blk:aspect-2/1 rounded-xl overflow-hidden flex items-center justify-center">
+        <div className="w-full h-full relative ba:aspect-2/1 rounded-xl overflow-hidden flex items-center justify-center">
           {coverImage ? (
             <img
               src={readImage(coverImage)}
               alt={name}
-              className="w-full h-full object-cover object-center"
+              className="w-full h-full object-cover object-center max-h-[220px]"
             />
           ) : (
             <IconPhotoCirclePlus className="size-8 text-scroll" />

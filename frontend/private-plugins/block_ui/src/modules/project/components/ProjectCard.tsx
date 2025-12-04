@@ -165,7 +165,7 @@ export const ProjectCard = (project: IProject) => {
             <img
               src={readImage(coverImage)}
               alt={name}
-              className="w-full h-full object-cover object-center"
+              className="w-full h-full object-cover object-center max-h-[220px]"
             />
           ) : (
             <IconPhotoCirclePlus className="size-8 text-scroll" />

@@ -22,8 +22,8 @@ export const UnitTypeSummary = ({ unitType }: { unitType?: IUnitType }) => {
             <div className="font-medium">{unitType?.name}</div>
           </div>
           <div className="space-y-2">
-            <Label>Description</Label>
-            <div className="font-medium">{unitType?.description}</div>
+            <Label>Total room</Label>
+            <div className="font-medium">{unitType?.roomsCount}</div>
           </div>
           <div className="space-y-2">
             <Label>Size</Label>
@@ -41,13 +41,6 @@ export const UnitTypeSummary = ({ unitType }: { unitType?: IUnitType }) => {
             <Label>Usage Type</Label>
             <SelectUsageType value={unitType?.type} />
           </div>
-          <Button
-            variant="secondary"
-            className="col-span-3"
-            onClick={() => setActiveTab(PROJECT_TABS.UNIT_TYPES)}
-          >
-            Edit unit type
-          </Button>
         </div>
       </InfoCard.Content>
     </InfoCard>
