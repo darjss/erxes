@@ -1,10 +1,10 @@
 import { Document } from 'mongoose';
 
-export interface IBlocktest {
+export interface ICVCLient {
   name?: string;
 }
 
-export interface IBlocktestDocument extends IBlocktest, Document {
+export interface ICVClientDocument extends ICVCLient, Document {
   _id: string;
   createdAt: Date;
   updatedAt: Date;

@@ -1,5 +1,5 @@
-import { blocktestQueries } from '@/blocktest/graphql/resolvers/queries/blocktest';
+import { cvClientQueries } from '~/modules/client/graphql/resolvers/queries/client';
 
 export const queries = {
-  ...blocktestQueries,
+  ...cvClientQueries,
 };

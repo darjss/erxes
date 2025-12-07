@@ -2,7 +2,7 @@ import {
   mutations as BlocktestMutations,
   queries as BlocktestQueries,
   types as BlocktestTypes,
-} from '@/blocktest/graphql/schemas/blocktest';
+} from '~/modules/client/graphql/schemas/client';
 
 export const types = `
   ${BlocktestTypes}

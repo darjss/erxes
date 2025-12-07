@@ -1,5 +1,5 @@
-import { blocktestMutations } from '@/blocktest/graphql/resolvers/mutations/blocktest';
+import { cvClientMutations } from '~/modules/client/graphql/resolvers/mutations/client';
 
 export const mutations = {
-  ...blocktestMutations,
+  ...cvClientMutations,
 };

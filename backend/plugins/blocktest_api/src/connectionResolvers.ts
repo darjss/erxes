@@ -1,13 +1,15 @@
 import { createGenerateModels } from 'erxes-api-shared/utils';
 import { IMainContext } from 'erxes-api-shared/core-types';
-import { IBlocktestDocument } from '@/blocktest/@types/blocktest';
+import { ICVClientDocument } from '~/modules/client/@types/client';
+import { ICVMarketDocument } from '~/modules/market/@types/market';
+import { ICVClientModel, loadCVClientClass } from '@/client/db/models/CVClient';
+import { ICVMarketModel, loadCVMarketClass } from '@/market/db/models/CVMarket';
 
 import mongoose from 'mongoose';
 
-import { loadBlocktestClass, IBlocktestModel } from '@/blocktest/db/models/blocktest';
-
 export interface IModels {
-  Blocktest: IBlocktestModel;
+  CVClient: ICVClientModel;
+  CVMarket: ICVMarketModel;
 }
 
 export interface IContext extends IMainContext {
@@ -17,9 +19,14 @@ export interface IContext extends IMainContext {
 export const loadClasses = (db: mongoose.Connection): IModels => {
   const models = {} as IModels;
 
-  models.Blocktest = db.model<IBlocktestDocument, IBlocktestModel>(
-    'blocktest',
-    loadBlocktestClass(models),
+  models.CVClient = db.model<ICVClientDocument, ICVClientModel>(
+    'cv_client',
+    loadCVClientClass(models),
+  );
+
+  models.CVMarket = db.model<ICVMarketDocument, ICVMarketModel>(
+    'cv_market',
+    loadCVMarketClass(models),
   );
 
   return models;
