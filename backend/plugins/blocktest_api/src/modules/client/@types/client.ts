@@ -68,7 +68,7 @@ export interface ICVClient {
   cvh_broker?: string;
   existing_insurance_policies?: string;
   claim_history_file?: string;
-  note?: string;
+  description?: string;
   registered_date?: Date;
   isActive: boolean;
   bor_file?: string;

@@ -34,7 +34,7 @@ export const cvClientSchema = new Schema<ICVClientDocument>(
     cvh_broker: { type: String },
     existing_insurance_policies: { type: String },
     claim_history_file: { type: String },
-    note: { type: String },
+    description: { type: String },
     registered_date: { type: Date },
     isActive: { type: Boolean, default: true },
     bor_file: { type: String },

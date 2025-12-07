@@ -1,3 +1,5 @@
+import { GQL_CURSOR_PARAM_DEFS } from 'erxes-api-shared/utils';
+
 export const types = `
   type CVClientContact {
     name: String
@@ -76,7 +78,7 @@ export const types = `
     cvh_broker: String
     existing_insurance_policies: String
     claim_history_file: String
-    note: String
+    description: String
     registered_date: Date
     isActive: Boolean
     bor_file: String
@@ -106,7 +108,7 @@ export const types = `
     cvh_broker: String
     existing_insurance_policies: String
     claim_history_file: String
-    note: String
+    description: String
     registered_date: Date
     isActive: Boolean
     bor_file: String
@@ -114,11 +116,34 @@ export const types = `
     insurance_types: [String]
     contacts: [CVClientContactInput]
   }
+
+  input CVClientFilterInput {
+    name: String
+    client_type: CVClientType
+    lead_source: CVClientLeadSource
+    registration_number: String
+    operational_address: String
+    business_type: CVClientBusinessMainCategory
+    business_category: String
+    status: CVClientStatus
+    cvh_broker: String
+    existing_insurance_policies: String
+    claim_history_file: String
+    registered_date: Date
+    isActive: Boolean
+    ${GQL_CURSOR_PARAM_DEFS}
+  }
+
+  type CVClientListResponse {
+    list: [CVClient]
+    pageInfo: PageInfo
+    totalCount: Int
+  }
 `;
 
 export const queries = `
   getCVClient(_id: String!): CVClient
-  getCVClients: [CVClient]
+  getCVClients(filter: CVClientFilterInput): CVClientListResponse
 `;
 
 export const mutations = `
