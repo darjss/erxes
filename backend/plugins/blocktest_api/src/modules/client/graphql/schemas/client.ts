@@ -98,13 +98,13 @@ export const types = `
 
   input CVClientInput {
     name: String!
-    client_type: ClientType
-    lead_source: LeadSource
+    client_type: CVClientType
+    lead_source: CVClientLeadSource
     registration_number: String
     operational_address: String
-    business_type: BusinessMainCategory
+    business_type: CVClientBusinessMainCategory
     business_category: String
-    status: ClientStatus
+    status: CVClientStatus
     cvh_broker: String
     existing_insurance_policies: String
     claim_history_file: String

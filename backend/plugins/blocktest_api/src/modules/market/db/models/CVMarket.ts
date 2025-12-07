@@ -1,13 +1,13 @@
 import { IModels } from '~/connectionResolvers';
 import { cvMarketSchema } from '~/modules/market/db/definitions/market';
-import { ICVCLient, ICVMarketDocument } from '@/market/@types/market';
+import { ICVMarket, ICVMarketDocument } from '@/market/@types/market';
 import { Model } from 'mongoose';
 
 export interface ICVMarketModel extends Model<ICVMarketDocument> {
   getCVMarket(_id: string): Promise<ICVMarketDocument>;
   getCVMarkets(): Promise<ICVMarketDocument[]>;
-  createCVMarket(doc: ICVCLient): Promise<ICVMarketDocument>;
-  updateCVMarket(_id: string, doc: ICVCLient): Promise<ICVMarketDocument>;
+  createCVMarket(doc: ICVMarket): Promise<ICVMarketDocument>;
+  updateCVMarket(_id: string, doc: ICVMarket): Promise<ICVMarketDocument>;
   removeCVMarket(CVMarketId: string): Promise<{ ok: number }>;
 }
 
@@ -37,7 +37,7 @@ export const loadCVMarketClass = (models: IModels) => {
      * Create a CVMarket
      */
     public static async createCVMarket(
-      doc: ICVCLient,
+      doc: ICVMarket,
     ): Promise<ICVMarketDocument> {
       return models.CVMarket.create(doc);
     }
@@ -45,7 +45,7 @@ export const loadCVMarketClass = (models: IModels) => {
     /*
      * Update a CVMarket
      */
-    public static async updateCVMarket(_id: string, doc: ICVCLient) {
+    public static async updateCVMarket(_id: string, doc: ICVMarket) {
       return await models.CVMarket.findOneAndUpdate(
         { _id },
         { $set: { ...doc } },

@@ -1,4 +1,7 @@
 import { IContext } from '~/connectionResolvers';
+import { cursorPaginate } from 'erxes-api-shared/utils';
+import { ICVClient, ICVClientDocument } from '~/modules/client/@types/client';
+import { ICursorPaginateParams } from 'erxes-api-shared/core-types';
 
 export const cvClientQueries = {
   getCVClient: async (
@@ -11,9 +14,16 @@ export const cvClientQueries = {
 
   getCVClients: async (
     _parent: undefined,
-    _args: unknown,
+    params: ICursorPaginateParams & ICVClient,
     { models }: IContext,
   ) => {
-    return models.CVClient.getCVClients();
+    return cursorPaginate<ICVClientDocument>({
+      model: models.CVClient,
+      params: {
+        ...params,
+        orderBy: { createdAt: -1 },
+      },
+      query: {},
+    });
   },
 };
