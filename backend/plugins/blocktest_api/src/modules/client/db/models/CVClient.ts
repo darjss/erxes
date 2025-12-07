@@ -1,13 +1,13 @@
 import { IModels } from '~/connectionResolvers';
 import { cvClientSchema } from '~/modules/client/db/definitions/client';
-import { ICVCLient, ICVClientDocument } from '@/client/@types/client';
+import { ICVClient, ICVClientDocument } from '@/client/@types/client';
 import { Model } from 'mongoose';
 
 export interface ICVClientModel extends Model<ICVClientDocument> {
   getCVClient(_id: string): Promise<ICVClientDocument>;
   getCVClients(): Promise<ICVClientDocument[]>;
-  createCVClient(doc: ICVCLient): Promise<ICVClientDocument>;
-  updateCVClient(_id: string, doc: ICVCLient): Promise<ICVClientDocument>;
+  createCVClient(doc: ICVClient): Promise<ICVClientDocument>;
+  updateCVClient(_id: string, doc: ICVClient): Promise<ICVClientDocument>;
   removeCVClient(CVClientId: string): Promise<{ ok: number }>;
 }
 
@@ -37,7 +37,7 @@ export const loadCVClientClass = (models: IModels) => {
      * Create a CVClient
      */
     public static async createCVClient(
-      doc: ICVCLient,
+      doc: ICVClient,
     ): Promise<ICVClientDocument> {
       return models.CVClient.create(doc);
     }
@@ -45,7 +45,7 @@ export const loadCVClientClass = (models: IModels) => {
     /*
      * Update a CVClient
      */
-    public static async updateCVClient(_id: string, doc: ICVCLient) {
+    public static async updateCVClient(_id: string, doc: ICVClient) {
       return await models.CVClient.findOneAndUpdate(
         { _id },
         { $set: { ...doc } },
