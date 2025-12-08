@@ -1,4 +1,6 @@
 import { atom } from 'jotai';
+import { IContractWithDescription } from './allContractsMapState';
 
-export const contractDetailSheetState = atom<string | null>(null);
-
+export const contractDetailSheetState = atom<IContractWithDescription | null>(
+  null,
+);

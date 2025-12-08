@@ -14,4 +14,10 @@
   ::file-selector-button {
     border-color: var(--border, currentcolor);
   }
+  .root {
+    isolation: isolate;
+  }
+  body {
+    position: relative;
+  }
 }

@@ -19,6 +19,7 @@ const config: ModuleFederationConfig = {
     './blocktest': './src/modules/Main.tsx',
     './blocktestSettings': './src/modules/Settings.tsx',
     './widgets': './src/widgets/Widgets.tsx',
+    './floatingWidget': './src/widgets/FloatingWidget.tsx',
   },
 
   shared: (libraryName, defaultConfig) => {

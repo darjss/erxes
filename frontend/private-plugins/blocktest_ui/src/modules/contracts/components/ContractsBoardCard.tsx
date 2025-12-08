@@ -99,7 +99,7 @@ export const ContractsBoardCard = ({ id, column }: BoardCardProps) => {
       : '0';
 
   return (
-    <div onClick={() => setActiveContract(id)} className="bt:w-76">
+    <div onClick={() => setActiveContract(contract)} className="bt:w-76">
       <div className="flex items-center justify-between h-9 px-3">
         <div className="text-sm font-semibold">{contractId}</div>
       </div>

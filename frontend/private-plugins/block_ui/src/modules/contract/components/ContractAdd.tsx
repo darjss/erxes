@@ -13,8 +13,6 @@ import {
   DatePicker,
   toast,
   Checkbox,
-  Card,
-  InfoCard,
 } from 'erxes-ui';
 import { IconPlus } from '@tabler/icons-react';
 import { useState } from 'react';

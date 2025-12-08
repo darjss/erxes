@@ -8,19 +8,37 @@ import {
   PopoverScoped,
   SelectTriggerOperation,
   SelectTriggerVariant,
+  Button,
 } from 'erxes-ui';
 import { useState } from 'react';
 import { PriorityBadge, PriorityIcon, PriorityTitle } from './PriorityInline';
 import { CONTRACT_PRIORITIES_OPTIONS } from '../constants/priorityLabels';
 import React from 'react';
+import { IconSelector } from '@tabler/icons-react';
 
 export const SelectContractType = () => {
   const [value, setValue] = useState<string>('main');
   const [open, setOpen] = useState(false);
   return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <Popover.Trigger asChild>
-        <Badge variant="secondary">{value}</Badge>
+    <Popover open={open} onOpenChange={setOpen} modal>
+      <Popover.Trigger
+        asChild
+        onClick={(e) => {
+          e.stopPropagation();
+          setOpen(true);
+        }}
+      >
+        <Button
+          className="h-6 border pl-2 pr-1"
+          size="sm"
+          variant="secondary"
+          onKeyDown={(e) => {
+            e.stopPropagation();
+          }}
+        >
+          {value}
+          <IconSelector className="size-4 ml-2 text-muted-foreground" />
+        </Button>
       </Popover.Trigger>
       <Combobox.Content>
         <Command>

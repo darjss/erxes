@@ -3,6 +3,7 @@ import { Breadcrumb, Button, Separator } from 'erxes-ui';
 import { PageHeader } from 'ui-modules';
 import { Link } from 'react-router-dom';
 import { ContractsBoard } from '@/contracts/components/ContractsBoard';
+import { ContractDetail } from '@/contracts/components/ContractDetail';
 
 export const ContractsPage = () => {
   return (
@@ -35,6 +36,7 @@ export const ContractsPage = () => {
         </PageHeader.Start>
       </PageHeader>
       <ContractsBoard />
+      <ContractDetail />
     </div>
   );
 };

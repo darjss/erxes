@@ -1,4 +1,4 @@
-import { IconSandbox, IconShield } from '@tabler/icons-react';
+import { IconShield } from '@tabler/icons-react';
 
 import { IUIConfig } from 'erxes-ui';
 import { lazy, Suspense } from 'react';
@@ -10,7 +10,7 @@ const BlocktestNavigation = lazy(() =>
 );
 export const CONFIG: IUIConfig = {
   name: 'blocktest',
-  icon: IconSandbox,
+  icon: IconShield,
   modules: [
     {
       name: 'blocktest',
@@ -18,7 +18,7 @@ export const CONFIG: IUIConfig = {
       path: 'blocktest',
       hasSettings: false,
       hasRelationWidget: false,
-      hasFloatingWidget: false,
+      hasFloatingWidget: true,
     },
   ],
   navigationGroup: {
