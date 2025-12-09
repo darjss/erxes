@@ -54,6 +54,7 @@ import { loadInvoiceClass } from '@/invoice/db/models/Invoice';
 import { IUnitTypeDocument } from '@/unit/@types/unitType';
 import { IUnitTypeModel, loadUnitTypeClass } from '@/unit/db/models/UnitType';
 import { IOpptyModel, loadOpptyClass } from '@/oppty/db/models/Oppty';
+import { IOpptyDocument } from './modules/oppty/@types/oppty';
 
 export interface IModels {
   Project: IProjectModel;
