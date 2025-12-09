@@ -63,32 +63,36 @@ function ProjectItem({ project }: ProjectItemProps) {
               <NavigationMenuLinkItem
                 name="Stacking View"
                 className="pl-6 font-medium"
+                pathPrefix="block/project"
                 icon={IconStackFilled}
-                path={`/block/stacking-plan/${project._id}`}
+                path={`${project._id}/stacking-plan`}
               />
             </Sidebar.Menu>
             <Sidebar.Menu>
               <NavigationMenuLinkItem
                 name="Opportunities"
                 className="pl-6 font-medium"
+                pathPrefix="block/project"
                 icon={IconListCheck}
-                path={`/block/opportunities/${project._id}`}
+                path={`${project._id}/opportunities`}
               />
             </Sidebar.Menu>
             <Sidebar.Menu>
               <NavigationMenuLinkItem
                 name="Contracts"
                 className="pl-6 font-medium"
+                pathPrefix="block/project"
                 icon={IconContract}
-                path={`/block/contracts/${project._id}`}
+                path={`${project._id}/contracts`}
               />
             </Sidebar.Menu>
             <Sidebar.Menu>
               <NavigationMenuLinkItem
                 name="Finance & Leases"
                 className="pl-6 font-medium"
+                pathPrefix="block/project"
                 icon={IconFileInvoice}
-                path={`/block/finance-lease/${project._id}`}
+                path={`${project._id}/finance-lease`}
               />
             </Sidebar.Menu>
           </Sidebar.GroupContent>
