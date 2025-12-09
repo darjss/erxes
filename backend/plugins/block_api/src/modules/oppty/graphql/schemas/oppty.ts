@@ -1,15 +1,21 @@
-import { OPPTY_CUSTOMER_SOURCES, OPPTY_STATUSES } from '../../constants';
 import { GQL_CURSOR_PARAM_DEFS } from 'erxes-api-shared/utils';
 
 export const types = `
-
   enum OpptyStatus {
-    ${Object.values(OPPTY_STATUSES).join(' | ')}
+    new_lead_unassigned
+    assigned_in_contact
+    qualified_lead
+    unit_shortlist_created
+    property_viewing
+    unit_selected
+    negotiation
+    reservation
+    contract_drafting_signing
+    closed_successful
+    closed_unsuccessful
+    cancelled
   }
 
-  enum OpptyCustomerSource {
-    ${Object.values(OPPTY_CUSTOMER_SOURCES).join(' | ')}
-  }
 
   type Oppty {
     _id: String
@@ -25,7 +31,7 @@ export const types = `
     projectId: String
     startDate: Date
     targetDate: Date
-    customerSource: OpptyCustomerSource
+    customerSource: String
   }
 
   input OpptyInput {
@@ -41,7 +47,7 @@ export const types = `
     projectId: String
     startDate: Date
     targetDate: Date
-    customerSource: OpptyCustomerSource
+    customerSource: String
   }
 
   input OpptyFilter {
@@ -54,7 +60,7 @@ export const types = `
     status: OpptyStatus
     startDate: Date
     targetDate: Date
-    customerSource: OpptyCustomerSource
+    customerSource: String
     labelId: String
     tagId: String
     ${GQL_CURSOR_PARAM_DEFS}

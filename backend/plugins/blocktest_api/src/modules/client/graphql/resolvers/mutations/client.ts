@@ -4,18 +4,18 @@ import { ICVClient } from '@/client/@types/client';
 export const cvClientMutations = {
   createCVClient: async (
     _parent: undefined,
-    params: ICVClient,
+    { input }: { input: ICVClient },
     { models }: IContext,
   ) => {
-    return models.CVClient.createCVClient(params);
+    return models.CVClient.createCVClient(input);
   },
 
   updateCVClient: async (
     _parent: undefined,
-    { _id, params }: { _id: string; params: ICVClient },
+    { _id, input }: { _id: string; input: ICVClient },
     { models }: IContext,
   ) => {
-    return models.CVClient.updateCVClient(_id, params);
+    return models.CVClient.updateCVClient(_id, input);
   },
 
   removeCVClient: async (_parent: undefined, { _id }, { models }: IContext) => {

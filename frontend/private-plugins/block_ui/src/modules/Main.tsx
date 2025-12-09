@@ -37,7 +37,10 @@ const Main = () => {
       <Routes>
         <Route path="/projects" element={<ProjectsPage />} />
         <Route path="/projects/:id" element={<ProjectDetail />} />
-        <Route path="/stacking-plan" element={<StackingPlanPage />} />
+        <Route
+          path="/stacking-plan/:projectId"
+          element={<StackingPlanPage />}
+        />
         <Route path="/developer-info" element={<DeveloperInfoPage />} />
         <Route path="/bm" element={<ContractsPage />} />
         <Route path="/contracts" element={<ContractsPage />} />
