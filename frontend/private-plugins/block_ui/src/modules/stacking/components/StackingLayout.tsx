@@ -6,7 +6,7 @@ import {
   Sidebar,
 } from 'erxes-ui';
 import { StackingHeader } from './StackingHeader';
-import { ProjectList } from '@/project/components/ProjectList';
+
 // import { IconFilter2 } from '@tabler/icons-react';
 import { BuildingList } from '@/building/components/BuildingList';
 
