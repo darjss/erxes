@@ -1,33 +1,49 @@
-import { Badge, Combobox, Command, Form, Popover, Select } from 'erxes-ui';
 import { UNIT_USAGE_TYPE } from '@/unit/constants/unit';
+import { Badge, Combobox, Command, Form, Popover } from 'erxes-ui';
 import React from 'react';
 
 export const SelectUsageType = ({
   value,
   onValueChange,
   inForm = false,
+  readOnly = false,
 }: {
   value?: string;
   onValueChange?: (value: string) => void;
   inForm?: boolean;
+  readOnly?: boolean;
 }) => {
   const Control = inForm ? Form.Control : React.Fragment;
 
   return (
-    <Select>
+    <Popover>
       <Control>
-        <Select.Trigger className="h-8 bg-background">
-          <Select.Value />
-        </Select.Trigger>
+        <Combobox.TriggerBase
+          className="flex-wrap justify-start h-auto min-h-8"
+          disabled={readOnly}
+        >
+          {value ? (
+            UNIT_USAGE_TYPE[value].mn
+          ) : (
+            <span className="text-accent-foreground">Төрөл сонгоно уу</span>
+          )}
+        </Combobox.TriggerBase>
       </Control>
-      <Select.Content>
-        {Object.entries(UNIT_USAGE_TYPE).map(([key, type]) => (
-          <Select.Item key={key} value={key}>
-            {type.mn}
-          </Select.Item>
-        ))}
-      </Select.Content>
-    </Select>
+
+      <Combobox.Content>
+        <Command>
+          <Command.Input />
+          <Command.List>
+            {Object.entries(UNIT_USAGE_TYPE).map(([key, label]) => (
+              <Command.Item value={key} key={key}>
+                {label.mn}
+                <Combobox.Check checked={value === key} />
+              </Command.Item>
+            ))}
+          </Command.List>
+        </Command>
+      </Combobox.Content>
+    </Popover>
   );
 };
 
@@ -68,10 +84,7 @@ export const SelectUsageTypes = ({
           <Command.Input />
           <Command.List>
             {Object.entries(UNIT_USAGE_TYPE).map(([key, label]) => (
-              <Command.Item
-                value={key}
-                key={key}
-              >
+              <Command.Item value={key} key={key}>
                 {label.mn}
                 <Combobox.Check checked={value?.includes(key)} />
               </Command.Item>

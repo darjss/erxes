@@ -59,7 +59,7 @@ const UnitTypesListItem = ({ unitType }: { unitType: IUnitType }) => {
     <div className="grid gap-3 grid-cols-5 items-center">
       <div className="col-span-1 text-sm font-medium">{unitType.name}</div>
       <div className="col-span-1">
-        <SelectUsageType value={unitType.type} />
+        <SelectUsageType value={unitType.type} readOnly />
       </div>
       <div className="col-span-1">
         <SelectTenureTypes value={{areaType: unitType.areaType, tenureTypes: unitType.tenureTypes}} />
