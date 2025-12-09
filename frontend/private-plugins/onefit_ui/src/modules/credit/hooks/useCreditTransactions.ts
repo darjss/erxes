@@ -1,0 +1,79 @@
+import { useQuery } from '@apollo/client';
+import {
+  EnumCursorDirection,
+  mergeCursorData,
+  useRecordTableCursor,
+  validateFetchMore,
+} from 'erxes-ui';
+import { CREDIT_TRANSACTIONS_CURSOR_SESSION_KEY } from '../constants/creditTransactionCursorSessionKey';
+import { ONE_FIT_CREDIT_TRANSACTIONS } from '../graphql/creditQueries';
+import { CreditTransactionFilters } from '../types/credit';
+
+const CREDIT_TRANSACTIONS_PER_PAGE = 20;
+
+export const useCreditTransactions = (
+  filters?: CreditTransactionFilters,
+) => {
+  const { cursor } = useRecordTableCursor({
+    sessionKey: CREDIT_TRANSACTIONS_CURSOR_SESSION_KEY,
+  });
+
+  const { data, loading, fetchMore } = useQuery(ONE_FIT_CREDIT_TRANSACTIONS, {
+    variables: {
+      ...filters,
+      cursor,
+    },
+  });
+
+  const {
+    list: creditTransactions,
+    totalCount,
+    pageInfo,
+  } = data?.oneFitCreditTransactions || {};
+
+  const handleFetchMore = ({
+    direction,
+  }: {
+    direction: EnumCursorDirection;
+  }) => {
+    if (
+      !validateFetchMore({
+        direction,
+        pageInfo,
+      })
+    ) {
+      return;
+    }
+
+    fetchMore({
+      variables: {
+        ...filters,
+        cursor:
+          direction === EnumCursorDirection.FORWARD
+            ? pageInfo?.endCursor
+            : pageInfo?.startCursor,
+        limit: CREDIT_TRANSACTIONS_PER_PAGE,
+        direction,
+      },
+      updateQuery: (prev, { fetchMoreResult }) => {
+        if (!fetchMoreResult) return prev;
+        return Object.assign({}, prev, {
+          oneFitCreditTransactions: mergeCursorData({
+            direction,
+            fetchMoreResult: fetchMoreResult.oneFitCreditTransactions,
+            prevResult: prev.oneFitCreditTransactions,
+          }),
+        });
+      },
+    });
+  };
+
+  return {
+    creditTransactions,
+    loading,
+    totalCount,
+    pageInfo,
+    handleFetchMore,
+  };
+};
+
