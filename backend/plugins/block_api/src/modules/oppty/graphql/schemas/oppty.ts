@@ -75,4 +75,5 @@ export const mutations = `
   createOppty(input: OpptyInput!): Oppty
   updateOppty(_id: String!, input: OpptyInput!): Oppty
   deleteOppty(_id: String!): Oppty
+  convertToContract(_id: String!, unit: String!, paymentPlan: BlockProjectPaymentPlanInput!): String
 `;

@@ -1,5 +1,6 @@
 import { IContext } from '~/connectionResolvers';
 import { IOppty } from '@/oppty/@types/oppty';
+import { IContractPaymentPlan } from '@/contract/@types/contract';
 
 export const opptyMutations = {
   createOppty: async (
@@ -24,5 +25,17 @@ export const opptyMutations = {
     { models }: IContext,
   ) => {
     return models.Oppty.deleteOppty(_id);
+  },
+
+  convertToContract: async (
+    _parent: undefined,
+    {
+      _id,
+      unit,
+      paymentPlan,
+    }: { _id: string; unit: string; paymentPlan: IContractPaymentPlan },
+    { models }: IContext,
+  ) => {
+    return 'success';
   },
 };
