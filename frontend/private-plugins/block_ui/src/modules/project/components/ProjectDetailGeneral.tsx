@@ -152,7 +152,7 @@ export const ProjectTypes = () => {
           {projectTypes?.length ? (
             projectTypes.map((type) => (
               <Badge key={type} variant="secondary">
-                {PROJECT_TYPES.find((t) => t.value === type)?.label}
+                {PROJECT_TYPES.find((t) => t.value === type)?.label?.mn}
               </Badge>
             ))
           ) : (
@@ -180,7 +180,7 @@ export const ProjectTypes = () => {
                     });
                   }}
                 >
-                  {type.label}
+                  {type.label.mn}
                   <Combobox.Check checked={projectTypes.includes(type.value)} />
                 </Command.Item>
               ))}

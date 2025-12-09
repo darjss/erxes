@@ -52,8 +52,8 @@ export const AddBuildingZoneForm = ({
     resolver: zodResolver(buildingZoneSchema),
     defaultValues: {
       floor: 0,
-      tenureType: '',
-      usageType: '',
+      tenureTypes: [],
+      usageTypes: [],
     },
   });
 
@@ -104,7 +104,6 @@ export const AddBuildingZoneForm = ({
                 <Form.Control>
                   <SelectTenureType
                     value={field.value}
-                    onValueChange={field.onChange}
                     inForm
                   />
                 </Form.Control>
@@ -182,8 +181,8 @@ export const GenerateByFloorRangeForm = ({
       minFloor: 0,
       maxFloor: 0,
       size: 0,
-      tenureType: 'forSale',
-      usageType: building.type?.toLowerCase(),
+      tenureTypes: [],
+      usageTypes: building.types?.map((type) => type.toLowerCase()),
     },
   });
   const { createBuildingZone, loading } = useBuildingsCreateZone();
@@ -199,8 +198,8 @@ export const GenerateByFloorRangeForm = ({
           input: {
             building: building._id,
             floor,
-            usageType: data.usageType,
-            tenureType: data.tenureType,
+            usageTypes: data.usageTypes,
+            tenureTypes: data.tenureTypes,
             size: data.size,
           },
         },
@@ -271,7 +270,6 @@ export const GenerateByFloorRangeForm = ({
                   <Form.Control>
                     <SelectTenureType
                       value={field.value}
-                      onValueChange={field.onChange}
                       inForm
                     />
                   </Form.Control>

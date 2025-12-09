@@ -52,7 +52,7 @@ export const AddUnitsMultipleForm = ({
   const form = useForm({
     resolver: zodResolver(addUnitsMultipleSchema),
     defaultValues: {
-      type: '',
+      type: undefined,
       count: 0,
     },
   });
@@ -104,7 +104,7 @@ export const AddUnitsMultipleForm = ({
             name="type"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>Type</Form.Label>
+                <Form.Label>Type (Optional)</Form.Label>
                 <SelectUnitType
                   value={field.value}
                   onValueChange={field.onChange}

@@ -68,7 +68,7 @@ const UnitTypesListItem = ({ unitType }: { unitType: IUnitType }) => {
         <SelectUsageType value={unitType.type} readOnly />
       </div>
       <div className="col-span-1">
-        <SelectTenureType value={unitType.tenureType} readOnly />
+        <SelectTenureType value={{areaType: unitType.areaType, tenureTypes: unitType.tenureTypes}} readOnly />
       </div>
       <div className="col-span-1">
         <CurrencyField.ValueInput value={unitType.size} disabled />

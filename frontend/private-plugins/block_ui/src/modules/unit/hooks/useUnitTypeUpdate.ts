@@ -8,7 +8,21 @@ export const useUnitTypeUpdate = ({ id }: { id: string }) => {
   const updateUnitType = (input: Partial<IUnitType>) => {
     mutate({
       variables: { id, input },
-      refetchQueries: ['BlockGetUnitTypes'],
+      update: (cache, { data }) => {
+        if (!data) return;
+
+        cache.modify({
+          id: cache.identify(data.blockUpdateUnitType),
+          fields: Object.keys(input).reduce(
+            (fields: Record<string, () => any>, field) => {
+              fields[field] = () => input[field as keyof IUnitType];
+              return fields;
+            },
+            {},
+          ),
+          optimistic: true,
+        });
+      },
       onCompleted: () => {
         toast({
           title: 'Success',

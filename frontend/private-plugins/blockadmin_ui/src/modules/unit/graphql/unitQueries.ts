@@ -44,9 +44,10 @@ export const BLOCK_GET_UNIT_TYPES = gql`
       description
       size
       type
-      subType
+      subTypes
       featureTypes
-      tenureType
+      areaType
+      tenureTypes
       content
       price
       prices {
@@ -74,9 +75,10 @@ export const BLOCK_GET_UNIT_TYPE = gql`
       description
       size
       type
-      subType
+      subTypes
       featureTypes
-      tenureType
+      areaType
+      tenureTypes
       content
       price
       prices {

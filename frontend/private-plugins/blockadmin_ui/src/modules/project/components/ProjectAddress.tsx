@@ -1,4 +1,5 @@
 import { InfoCard, InfoCardContent } from '@/block/components/card';
+import { GoogleMap } from '@/block/components/GoogleMap';
 import { ADDRESS_CITY, ADDRESS_DISTRICT } from '@/block/constants/address';
 import { useProjectDetail } from '@/project/hooks/useProjectDetail';
 import { Input, Label, Select, Textarea } from 'erxes-ui';
@@ -16,7 +17,7 @@ export const ProjectAddress = () => {
   return (
     <InfoCard title="Address" description="Project address">
       <InfoCardContent>
-        <div className="grid grid-cols-3 gap-3">
+        <div className="gap-3 grid grid-cols-3">
           <div className="flex flex-col gap-3">
             <div className="space-y-2">
               <Label asChild>
@@ -64,16 +65,20 @@ export const ProjectAddress = () => {
                 <Input placeholder="Longitude" value={lng} />
               </div>
             </div>
+
+            <div className="space-y-2">
+              <Label asChild>
+                <span>Address</span>
+              </Label>
+              <Textarea
+                rows={10}
+                placeholder="Хаяг оруулна уу"
+                value={address}
+              />
+            </div>
           </div>
-          <div className="col-span-2 space-y-2 flex flex-col">
-            <Label asChild>
-              <span>Address</span>
-            </Label>
-            <Textarea
-              className="flex-1"
-              placeholder="Хаяг оруулна уу"
-              value={address}
-            />
+          <div className="flex flex-col space-y-2 col-span-2 rounded-sm overflow-hidden">
+            <GoogleMap coordinate={{ lat, lng }} />
           </div>
         </div>
       </InfoCardContent>

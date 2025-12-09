@@ -18,9 +18,10 @@ export const types = `
     description: String
     size: Float
     type: BlockAdminBuildingUnitUsageType
-    subType: String
+    subTypes: [String]
     featureTypes: [String]
-    tenureType: BlockAdminBuildingUnitTenureType
+    areaType: String
+    tenureTypes: [BlockAdminBuildingUnitTenureType]
     content: String
     price: Float
     prices: [BlockAdminProjectPrice]

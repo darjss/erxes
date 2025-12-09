@@ -21,7 +21,7 @@ export const SelectUsageTypeRoom = ({
   if (!type) {
     return (
       <Select value={value} onValueChange={onValueChange}>
-        <Select.Trigger className="h-8 bg-background">
+        <Select.Trigger className="bg-background h-8">
           No usage type
         </Select.Trigger>
       </Select>
@@ -35,7 +35,7 @@ export const SelectUsageTypeRoom = ({
   return (
     <Select value={value} onValueChange={onValueChange}>
       <Control>
-        <Select.Trigger className="h-8 bg-background">
+        <Select.Trigger className="bg-background h-8">
           <Select.Value />
         </Select.Trigger>
       </Control>
@@ -57,14 +57,14 @@ export const SelectUsageSubType = ({
   inForm = false,
 }: {
   type?: string;
-  value?: string;
-  onValueChange?: (value: string) => void;
+  value?: string[];
+  onValueChange?: (value: string[]) => void;
   inForm?: boolean;
 }) => {
   if (!type) {
     return (
-      <Select value={value} onValueChange={onValueChange}>
-        <Select.Trigger className="h-8 bg-background">
+      <Select>
+        <Select.Trigger className="bg-background h-8">
           No usage type
         </Select.Trigger>
       </Select>
@@ -73,24 +73,48 @@ export const SelectUsageSubType = ({
 
   const Control = inForm ? Form.Control : React.Fragment;
 
-  const subTypes =
-    UNIT_USAGE_SUBTYPES[type as keyof typeof UNIT_USAGE_SUBTYPES] || [];
+  const subTypes = UNIT_USAGE_SUBTYPES[type] || [];
 
   return (
-    <Select value={value} onValueChange={onValueChange}>
+    <Popover>
       <Control>
-        <Select.Trigger className="h-8 bg-background">
-          <Select.Value />
-        </Select.Trigger>
+        <Combobox.TriggerBase className="flex-wrap justify-start h-auto min-h-8 text-accent-foreground">
+          {value?.length ? (
+            value.map((type) => (
+              <Badge key={type} variant="secondary">
+                {subTypes.find((t) => t.value === type)?.label?.mn}
+              </Badge>
+            ))
+          ) : (
+            <span>Төрөл сонгоно уу</span>
+          )}
+        </Combobox.TriggerBase>
       </Control>
-      <Select.Content>
-        {subTypes.map((room) => (
-          <Select.Item key={room.value} value={room.value}>
-            {room.label.mn}
-          </Select.Item>
-        ))}
-      </Select.Content>
-    </Select>
+
+      <Combobox.Content>
+        <Command>
+          <Command.Input />
+          <Command.List>
+            {subTypes.map((type) => (
+              <Command.Item
+                value={type.value}
+                key={type.value}
+                onSelect={() => {
+                  const newTypes = value?.includes(type.value)
+                    ? value?.filter((t) => t !== type.value)
+                    : [...(value || []), type.value];
+
+                  onValueChange?.(newTypes);
+                }}
+              >
+                {type.label?.mn}
+                <Combobox.Check checked={value?.includes(type.value)} />
+              </Command.Item>
+            ))}
+          </Command.List>
+        </Command>
+      </Combobox.Content>
+    </Popover>
   );
 };
 
@@ -108,7 +132,7 @@ export const SelectUsageFeatureType = ({
   if (!type) {
     return (
       <Select>
-        <Select.Trigger className="h-8 bg-background">
+        <Select.Trigger className="bg-background h-8">
           No usage type
         </Select.Trigger>
       </Select>
@@ -120,7 +144,7 @@ export const SelectUsageFeatureType = ({
 
     return (
       <Select>
-        <Select.Trigger className="h-8 bg-background">
+        <Select.Trigger className="bg-background h-8">
           No feature type for {typeLabel?.mn}
         </Select.Trigger>
       </Select>
@@ -132,7 +156,7 @@ export const SelectUsageFeatureType = ({
   return (
     <Popover>
       <Control>
-        <Combobox.TriggerBase className="justify-start h-auto min-h-8 flex-wrap text-accent-foreground">
+        <Combobox.TriggerBase className="flex-wrap justify-start h-auto min-h-8 text-accent-foreground">
           {value?.length ? (
             value.map((type) => (
               <Badge key={type} variant="secondary">
@@ -147,7 +171,7 @@ export const SelectUsageFeatureType = ({
 
       <Combobox.Content>
         <Command>
-          <Command.Input/>
+          <Command.Input />
           <Command.List>
             {UNIT_EXTRA_OPTIONS.map((type) => (
               <Command.Item

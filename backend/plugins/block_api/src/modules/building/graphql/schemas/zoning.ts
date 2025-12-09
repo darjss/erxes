@@ -7,6 +7,11 @@ export const types = `
     basement
     residential
     retail
+    school
+    kindergarten
+    factory
+    hospital
+    station
   }
 
   enum BlockPriceType {
@@ -44,8 +49,9 @@ export const types = `
   input BlockBuildingZoningInput {
     building: String
     floor: Int
-    usageType: BlockBuildingUnitUsageType
-    tenureType: BlockBuildingUnitTenureType
+    usageTypes: [BlockBuildingUnitUsageType]
+    areaType: String
+    tenureTypes: [BlockBuildingUnitTenureType]
     priceList: [BlockBuildingPriceListInput]
     size: Int
 
@@ -56,8 +62,9 @@ export const types = `
     _id: String
     building: String
     floor: Int
-    usageType: BlockBuildingUnitUsageType
-    tenureType: BlockBuildingUnitTenureType
+    usageTypes: [BlockBuildingUnitUsageType]
+    areaType: String
+    tenureTypes: [BlockBuildingUnitTenureType]
     unitsCount: Int
     size: Int
     priceList: [BlockBuildingPriceList]

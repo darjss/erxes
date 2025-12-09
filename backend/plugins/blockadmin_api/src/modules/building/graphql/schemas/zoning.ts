@@ -7,6 +7,11 @@ export const types = `
     basement
     residential
     retail
+    school
+    kindergarten
+    factory
+    hospital
+    station
   }
 
   enum BlockAdminBuildingPriceType {
@@ -39,8 +44,9 @@ export const types = `
     _id: String
     building: String
     floor: Int
-    usageType: BlockAdminBuildingUnitUsageType
-    tenureType: BlockAdminBuildingUnitTenureType
+    usageTypes: [BlockAdminBuildingUnitUsageType]
+    areaType: String
+    tenureTypes: [BlockAdminBuildingUnitTenureType]
     unitsCount: Int
     size: Int
     priceList: [BlockAdminBuildingPriceList]

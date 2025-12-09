@@ -5,8 +5,8 @@ import {
 } from '@/building/hooks/useBuildings';
 import { IBuilding, IZoning } from '@/building/types/buildingTypes';
 import { IProject } from '@/project/types/projectTypes';
-import { SelectTenureType } from '@/unit/components/SelectTenureType';
-import { SelectUsageType } from '@/unit/components/SelectUsageType';
+import { SelectTenureType, SelectTenureTypes } from '@/unit/components/SelectTenureType';
+import { SelectUsageType, SelectUsageTypes } from '@/unit/components/SelectUsageType';
 import { CurrencyField, Spinner } from 'erxes-ui';
 import { useEffect, useState } from 'react';
 
@@ -40,7 +40,9 @@ export const BuildingZoneCard = ({ building }: { building: IBuilding }) => {
   });
   return (
     <InfoCard
-      title={`${building.name} • ${building.type} • ${buildingZonings?.length} floors`}
+      title={`${building.name} • ${building.types?.join(' | ')} • ${
+        buildingZonings?.length
+      } floors`}
     >
       <InfoCardContent>
         {loading ? (
@@ -75,8 +77,8 @@ export const BuildingZone = ({ zoning }: { zoning: IZoning }) => {
         </div>
       </div>
       <div className="grid grid-cols-2 gap-2">
-        <SelectUsageType value={zoning.usageType} />
-        <SelectTenureType value={zoning.tenureType} />
+        <SelectUsageTypes value={zoning.usageTypes} />
+        <SelectTenureTypes value={{areaType: zoning.areaType, tenureTypes: zoning.tenureTypes}} />
         <CurrencyField.ValueInput
           value={zoningSize}
           className="col-span-2"

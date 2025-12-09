@@ -9,7 +9,7 @@ export const types = `
   type BlockBuilding {
     _id: String
     name: String
-    type: String
+    types: [String]
     description: String 
     project: String 
     coverImage: String
@@ -21,7 +21,7 @@ export const types = `
 
   input BlockBuildingInput {
     name: String
-    type: String
+    types: [String]
     description: String
     project: String
     coverImage: String

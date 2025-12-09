@@ -90,7 +90,7 @@ const UnitsContent = ({
         <UnitsListItem key={unit._id} unit={unit} zone={zone} />
       ))}
       <div className="grid grid-cols-2 gap-4">
-        <AddUnitSheet zone={zone} />
+        <AddUnitSheet zone={zone} units={sortedUnits}/>
         <AddUnitsMultiple zone={zone} />
       </div>
     </>

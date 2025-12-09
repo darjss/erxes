@@ -29,6 +29,6 @@ export const addUnitSchema = z
   );
 
 export const addUnitsMultipleSchema = z.object({
-  type: z.string().min(1),
+  type: z.string().optional(),
   count: z.number(),
 });

@@ -92,7 +92,7 @@ export const ProjectPrice = () => {
           {prices && prices.length > 0 && (
             <div className="space-y-2 pb-2">
               {(prices || []).map((price, index) => (
-                <div key={index} className="flex gap-2 items-center">
+                <div key={index} className="flex items-center gap-2">
                   <CurrencyField.SelectCurrency
                     value={price.currency as CurrencyCode}
                     display="code"
@@ -122,7 +122,7 @@ export const ProjectPrice = () => {
                   <Button
                     variant="secondary"
                     size="icon"
-                    className="size-8 text-destructive bg-destructive/10 hover:bg-destructive/20"
+                    className="bg-destructive/10 hover:bg-destructive/20 size-8 text-destructive"
                     onClick={() => handlePriceDelete(index)}
                   >
                     <IconTrash />
@@ -150,7 +150,7 @@ export const ProjectPriceAddPrice = ({
   const { mainCurrency } = useCurrency();
 
   const [currency, setCurrency] = useState<CurrencyCode | ''>('');
-  const [price, setPrice] = useState<number | undefined>(undefined);
+  const [price, setPrice] = useState<number | undefined>();
   const [priceType, setPriceType] = useState<IProjectPrice['priceType']>(
     'priceBySize' as IProjectPrice['priceType'],
   );
@@ -165,13 +165,17 @@ export const ProjectPriceAddPrice = ({
     <>
       <div className="space-y-2">
         <Label>Add Price</Label>
-        <div className="grid grid-cols-3 gap-2">
+        <div className="gap-2 grid grid-cols-3">
           <CurrencyField.SelectCurrency
             value={currency as CurrencyCode}
             display="code"
             onChange={setCurrency}
           />
-          <CurrencyField.ValueInput value={price} onChange={setPrice} />
+          <CurrencyField.ValueInput
+            placeholder="0"
+            value={price}
+            onChange={setPrice}
+          />
           <Select
             value={priceType}
             onValueChange={(value) =>
@@ -190,7 +194,7 @@ export const ProjectPriceAddPrice = ({
       </div>
       <Button
         variant="secondary"
-        className="w-full mt-4"
+        className="mt-4 w-full"
         disabled={!currency || !price}
         onClick={() => {
           onAddPrice(currency as CurrencyCode, price || 0, priceType);

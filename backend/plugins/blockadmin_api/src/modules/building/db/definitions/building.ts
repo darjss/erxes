@@ -6,7 +6,7 @@ export const buildingSchema = schemaWrapper(
   new Schema(
     {
       name: { type: String, required: true },
-      type: { type: String, required: true },
+      types: { type: [String], required: true },
       description: { type: String, label: 'Description' },
       project: {
         type: Types.ObjectId,

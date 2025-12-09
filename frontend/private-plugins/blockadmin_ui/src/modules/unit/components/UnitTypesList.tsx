@@ -2,7 +2,7 @@ import { useUnitTypes } from '@/unit/hooks/useUnitTypes';
 import { IUnitType } from '@/unit/types/unitType';
 import { CurrencyField, Empty, Label, Spinner } from 'erxes-ui';
 import { useParams } from 'react-router-dom';
-import { SelectTenureType } from './SelectTenureType';
+import { SelectTenureType, SelectTenureTypes } from './SelectTenureType';
 import { SelectUsageType } from './SelectUsageType';
 
 export const UnitTypesList = () => {
@@ -62,7 +62,7 @@ const UnitTypesListItem = ({ unitType }: { unitType: IUnitType }) => {
         <SelectUsageType value={unitType.type} />
       </div>
       <div className="col-span-1">
-        <SelectTenureType value={unitType.tenureType} />
+        <SelectTenureTypes value={{areaType: unitType.areaType, tenureTypes: unitType.tenureTypes}} />
       </div>
       <div className="col-span-1">
         <CurrencyField.ValueInput value={unitType.size} disabled />

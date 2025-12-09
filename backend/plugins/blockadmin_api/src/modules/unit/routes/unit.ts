@@ -21,16 +21,23 @@ router.post(
         subdomain,
         input.zoning,
       );
+      
+      console.log('zoning', zoning)
+      
+      if (input?.type) {
+        const unitType = await models.UnitType.getUnitType(subdomain, input.type);
 
-      const unitType = await models.UnitType.getUnitType(subdomain, input.type);
-
+        input['type'] = unitType._id;
+      }
+      
       models.Unit.createUnit({
         ...input,
         subdomain,
         entityId,
         zoning: zoning._id,
-        type: unitType._id,
       });
+
+      console.log('created')
 
       return res.status(200).json({
         success: true,
@@ -55,11 +62,14 @@ router.post(
 
       const { input } = data || {};
 
-      const unitType = await models.UnitType.getUnitType(subdomain, input.type);
+      if (input?.type) {
+        const unitType = await models.UnitType.getUnitType(subdomain, input.type);
+
+        input['type'] = unitType._id;
+      }
 
       models.Unit.updateUnit(subdomain, entityId, {
         ...input,
-        type: unitType._id,
       });
 
       return res.status(200).json({

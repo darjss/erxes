@@ -3,6 +3,8 @@ import {
   UploadProvider,
   UploadRemoveButton,
 } from '@/block/components/upload';
+import { useCurrency } from '@/project/hooks/useCurrency';
+import { useProjectDetail } from '@/project/hooks/useProjectDetail';
 import { unitTypeSchema } from '@/unit/constants/unitTypeSchema';
 import { useUnitTypeCreate } from '@/unit/hooks/useUnitTypeCreate';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -41,31 +43,40 @@ import {
 
 export const AddUnitType = ({ onClose }: { onClose: () => void }) => {
   const { id } = useParams();
+
+  const { mainCurrency } = useCurrency();
+  const { project } = useProjectDetail();
+
   const form = useForm<z.infer<typeof unitTypeSchema>>({
     resolver: zodResolver(unitTypeSchema),
     defaultValues: {
       name: '',
       description: '',
-      size: 0,
+      size: undefined,
       type: '',
-      subType: '',
+      subTypes: [],
       featureTypes: [],
-      tenureType: '',
+      areaType: '',
+      tenureTypes: [],
       content: '',
-      price: 0,
-      prices: [],
+      price: undefined,
+      prices: [
+        {
+          price: 0,
+          priceType: 'priceBySize',
+          currency: mainCurrency || 'MNT',
+        },
+      ],
       status: '',
       rooms: [],
-      roomsCount: 0,
+      roomsCount: undefined,
     },
   });
 
   const usageType = form.watch('type');
-
-  useEffect(() => {
-    form.setValue('subType', '');
-    form.setValue('featureTypes', []);
-  }, [usageType]);
+  const size = form.watch('size');
+  const areaType = form.watch('areaType');
+  const tenureTypes = form.watch('tenureTypes');
 
   const [coverImage, setCoverImage] = useState<string>('');
 
@@ -74,10 +85,32 @@ export const AddUnitType = ({ onClose }: { onClose: () => void }) => {
 
   const { createUnitType, loading } = useUnitTypeCreate();
 
+  useEffect(() => {
+    const price = size * (project?.mainPrice || 0);
+
+    form.setValue('price', price);
+  }, [size]);
+
+  useEffect(() => {
+    form.setValue('subTypes', []);
+    form.setValue('featureTypes', []);
+    form.setValue('rooms', []);
+  }, [usageType]);
+
   const onSubmit = (data: z.infer<typeof unitTypeSchema>) => {
+    if (areaType === 'private' && tenureTypes?.length) {
+      data['tenureTypes'] = [];
+    }
+
     createUnitType({
       variables: {
-        input: { ...data, images, planImages, coverImage, project: id || '' },
+        input: {
+          ...data,
+          images,
+          planImages,
+          coverImage,
+          project: project?._id || id || '',
+        },
       },
       onCompleted: () => {
         onClose();
@@ -132,7 +165,7 @@ export const AddUnitType = ({ onClose }: { onClose: () => void }) => {
       >
         <Sheet.Content className="flex-auto overflow-hidden">
           <ScrollArea className="h-full">
-            <div className="p-6 blk:space-y-5">
+            <div className="blk:space-y-5 p-6">
               <Form.Field
                 name="name"
                 render={({ field }) => (
@@ -142,7 +175,20 @@ export const AddUnitType = ({ onClose }: { onClose: () => void }) => {
                   </Form.Item>
                 )}
               />
-              <div className="grid blk:grid-cols-3 gap-3">
+              <Form.Field
+                name="description"
+                render={({ field }) => (
+                  <Form.Item>
+                    <Form.Label>Description</Form.Label>
+                    <Editor
+                      isHTML
+                      initialContent={field.value}
+                      onChange={field.onChange}
+                    />
+                  </Form.Item>
+                )}
+              />
+              <div className="gap-3 grid blk:grid-cols-3">
                 <Form.Field
                   name="type"
                   render={({ field }) => (
@@ -157,7 +203,7 @@ export const AddUnitType = ({ onClose }: { onClose: () => void }) => {
                   )}
                 />
                 <Form.Field
-                  name="subType"
+                  name="subTypes"
                   render={({ field }) => (
                     <Form.Item>
                       <Form.Label>Sub Type</Form.Label>
@@ -186,13 +232,19 @@ export const AddUnitType = ({ onClose }: { onClose: () => void }) => {
                   )}
                 />
                 <Form.Field
-                  name="tenureType"
-                  render={({ field }) => (
+                  name="tenureTypes"
+                  render={() => (
                     <Form.Item>
                       <Form.Label>Tenure Type</Form.Label>
                       <SelectTenureType
-                        value={field.value}
-                        onValueChange={field.onChange}
+                        value={{
+                          areaType,
+                          tenureTypes,
+                        }}
+                        onValueChange={(areaType, tenureTypes) => {
+                          form.setValue('areaType', areaType);
+                          form.setValue('tenureTypes', tenureTypes);
+                        }}
                         inForm
                       />
                     </Form.Item>
@@ -203,7 +255,7 @@ export const AddUnitType = ({ onClose }: { onClose: () => void }) => {
                   render={({ field }) => (
                     <Form.Item>
                       <Form.Label>Size</Form.Label>
-                      <CurrencyField.ValueInput {...field} />
+                      <CurrencyField.ValueInput placeholder="0" {...field} />
                     </Form.Item>
                   )}
                 />
@@ -212,200 +264,174 @@ export const AddUnitType = ({ onClose }: { onClose: () => void }) => {
                   render={({ field }) => (
                     <Form.Item>
                       <Form.Label>Price</Form.Label>
-                      <CurrencyField.ValueInput {...field} />
+                      <CurrencyField.ValueInput placeholder="0" {...field} />
                     </Form.Item>
                   )}
                 />
               </div>
 
-              <div className="space-y-2">
-                <Label asChild>
-                  <legend>Prices</legend>
-                </Label>
-                {fields.map((field, index) => (
-                  <div key={field.id} className="flex items-center gap-2">
-                    <div className="grid grid-cols-4 gap-2 flex-1">
-                      <Form.Field
-                        name={`prices.${index}.currency`}
-                        render={({ field }) => (
-                          <Form.Item>
-                            <CurrencyField.SelectCurrency
-                              {...field}
-                              display="code"
-                            />
-                          </Form.Item>
-                        )}
-                      />
-                      <Form.Field
-                        name={`prices.${index}.price`}
-                        render={({ field }) => (
-                          <Form.Item className="col-span-2">
-                            <CurrencyField.ValueInput {...field} />
-                          </Form.Item>
-                        )}
-                      />
-                      <Form.Field
-                        name={`prices.${index}.priceType`}
-                        render={({ field }) => (
-                          <Form.Item>
-                            <Select
-                              value={field.value}
-                              onValueChange={field.onChange}
-                            >
-                              <Form.Control>
-                                <Select.Trigger className="h-8">
-                                  <Select.Value placeholder="Price type" />
-                                </Select.Trigger>
-                              </Form.Control>
-                              <Select.Content>
-                                <Select.Item value="priceBySize">
-                                  per m²
-                                </Select.Item>
-                                <Select.Item value="priceByUnit">
-                                  per unit
-                                </Select.Item>
-                              </Select.Content>
-                            </Select>
-                          </Form.Item>
-                        )}
-                      />
+              <div className="gap-3 grid grid-cols-2">
+                <div className="space-y-2">
+                  <Label asChild>
+                    <legend>Prices</legend>
+                  </Label>
+                  {fields.map((field, index) => (
+                    <div key={field.id} className="flex gap-2 m-0">
+                      <div className="flex-1 gap-2 grid grid-cols-4">
+                        <Form.Field
+                          name={`prices.${index}.currency`}
+                          render={({ field }) => (
+                            <Form.Item>
+                              <CurrencyField.SelectCurrency
+                                {...field}
+                                value={mainCurrency || 'MNT'}
+                                display="code"
+                              />
+                            </Form.Item>
+                          )}
+                        />
+                        <Form.Field
+                          name={`prices.${index}.price`}
+                          render={({ field }) => (
+                            <Form.Item className="col-span-2">
+                              <CurrencyField.ValueInput
+                                placeholder="0"
+                                {...field}
+                              />
+                            </Form.Item>
+                          )}
+                        />
+                        <Form.Field
+                          name={`prices.${index}.priceType`}
+                          render={({ field }) => (
+                            <Form.Item>
+                              <Select
+                                value={field.value}
+                                onValueChange={field.onChange}
+                                defaultValue="priceBySize"
+                              >
+                                <Form.Control>
+                                  <Select.Trigger className="h-8">
+                                    <Select.Value placeholder="Price type" />
+                                  </Select.Trigger>
+                                </Form.Control>
+                                <Select.Content>
+                                  <Select.Item value="priceBySize">
+                                    per m²
+                                  </Select.Item>
+                                  <Select.Item value="priceByUnit">
+                                    per unit
+                                  </Select.Item>
+                                </Select.Content>
+                              </Select>
+                            </Form.Item>
+                          )}
+                        />
+                      </div>
+                      <Button
+                        variant="secondary"
+                        size="icon"
+                        className="bg-destructive/10 hover:bg-destructive/20 size-8 text-destructive"
+                        onClick={() => remove(index)}
+                        type="button"
+                      >
+                        <IconTrash className="size-4" />
+                      </Button>
                     </div>
-                    <Button
-                      variant="secondary"
-                      size="icon"
-                      className="size-8 text-destructive bg-destructive/10 hover:bg-destructive/20"
-                      onClick={() => remove(index)}
-                      type="button"
-                    >
-                      <IconTrash className="size-4" />
-                    </Button>
-                  </div>
-                ))}
+                  ))}
 
-                <Button
-                  variant="secondary"
-                  className="w-full"
-                  onClick={() =>
-                    append({
-                      currency: '',
-                      price: 0,
-                      priceType: 'priceBySize',
-                    })
-                  }
-                  type="button"
-                >
-                  <IconPlus className="mr-2 h-4 w-4" /> Add Price
-                </Button>
-              </div>
+                  <Button
+                    variant="secondary"
+                    className="w-full"
+                    onClick={() =>
+                      append({
+                        currency: '',
+                        price: 0,
+                        priceType: 'priceBySize',
+                      })
+                    }
+                    type="button"
+                  >
+                    <IconPlus className="mr-2 w-4 h-4" /> Add Price
+                  </Button>
+                </div>
 
-              <div className="space-y-2">
-                <Label asChild>
-                  <legend>Total room count</legend>
-                </Label>
-                <Form.Field
-                  name={'roomsCount'}
-                  render={({ field }) => (
-                    <Form.Item>
-                      <Input
-                        placeholder="Total room count"
-                        value={field?.value}
-                        onChange={(e) => field.onChange(Number(e.target.value))}
-                      />
-                    </Form.Item>
-                  )}
-                />
-              </div>
-
-              <div className="space-y-2">
-                {roomFields.map((field, index) => (
-                  <div key={field.id} className="flex items-center gap-2">
-                    <div className="grid grid-cols-4 gap-2 flex-1">
-                      <Form.Field
-                        name={`rooms.${index}.type`}
-                        render={({ field }) => (
-                          <Form.Item className="col-span-3">
-                            <SelectUsageTypeRoom
-                              type={usageType}
-                              value={field.value}
-                              onValueChange={field.onChange}
-                              inForm
-                            />
-                          </Form.Item>
-                        )}
-                      />
-                      <Form.Field
-                        name={`rooms.${index}.count`}
-                        render={({ field }) => (
-                          <Form.Item>
-                            <Input
-                              type="number"
-                              placeholder="Count"
-                              {...field}
-                              onChange={(e) =>
-                                field.onChange(parseInt(e.target.value) || 0)
-                              }
-                            />
-                          </Form.Item>
-                        )}
-                      />
+                <div className="space-y-2">
+                  <Label asChild>
+                    <legend>Rooms</legend>
+                  </Label>
+                  <Form.Field
+                    name={'roomsCount'}
+                    render={({ field }) => (
+                      <Form.Item>
+                        <Input
+                          placeholder="Total room count"
+                          value={field?.value}
+                          onChange={(e) =>
+                            field.onChange(Number(e.target.value))
+                          }
+                        />
+                      </Form.Item>
+                    )}
+                  />
+                  {roomFields.map((field, index) => (
+                    <div key={field.id} className="flex gap-2 m-0">
+                      <div className="flex-1 gap-2 grid grid-cols-4">
+                        <Form.Field
+                          name={`rooms.${index}.type`}
+                          render={({ field }) => (
+                            <Form.Item className="col-span-3">
+                              <SelectUsageTypeRoom
+                                type={usageType}
+                                value={field.value}
+                                onValueChange={field.onChange}
+                                inForm
+                              />
+                            </Form.Item>
+                          )}
+                        />
+                        <Form.Field
+                          name={`rooms.${index}.count`}
+                          render={({ field }) => (
+                            <Form.Item>
+                              <Input
+                                type="number"
+                                placeholder="Count"
+                                {...field}
+                                onChange={(e) =>
+                                  field.onChange(parseInt(e.target.value) || 0)
+                                }
+                              />
+                            </Form.Item>
+                          )}
+                        />
+                      </div>
+                      <Button
+                        variant="secondary"
+                        size="icon"
+                        className="bg-destructive/10 hover:bg-destructive/20 size-8 text-destructive"
+                        onClick={() => removeRoom(index)}
+                        type="button"
+                      >
+                        <IconTrash className="size-4" />
+                      </Button>
                     </div>
-                    <Button
-                      variant="secondary"
-                      size="icon"
-                      className="size-8 text-destructive bg-destructive/10 hover:bg-destructive/20"
-                      onClick={() => removeRoom(index)}
-                      type="button"
-                    >
-                      <IconTrash className="size-4" />
-                    </Button>
-                  </div>
-                ))}
+                  ))}
 
-                <Button
-                  variant="secondary"
-                  className="w-full"
-                  onClick={() =>
-                    appendRoom({
-                      type: '',
-                      count: 1,
-                    })
-                  }
-                  type="button"
-                >
-                  <IconPlus className="mr-2 h-4 w-4" /> Add Room
-                </Button>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <Form.Field
-                  name="description"
-                  render={({ field }) => (
-                    <Form.Item>
-                      <Form.Label>Description</Form.Label>
-                      <Editor
-                        className="blk:h-96"
-                        isHTML
-                        initialContent={field.value}
-                        onChange={field.onChange}
-                      />
-                    </Form.Item>
-                  )}
-                />
-
-                <Form.Field
-                  name="content"
-                  render={({ field }) => (
-                    <Form.Item>
-                      <Form.Label>Content</Form.Label>
-                      <Editor
-                        className="blk:h-96"
-                        isHTML
-                        initialContent={field.value}
-                        onChange={field.onChange}
-                      />
-                    </Form.Item>
-                  )}
-                />
+                  <Button
+                    variant="secondary"
+                    className="w-full"
+                    onClick={() =>
+                      appendRoom({
+                        type: '',
+                        count: 1,
+                      })
+                    }
+                    type="button"
+                  >
+                    <IconPlus className="mr-2 w-4 h-4" /> Add Room
+                  </Button>
+                </div>
               </div>
 
               <div className="flex">
@@ -416,26 +442,26 @@ export const AddUnitType = ({ onClose }: { onClose: () => void }) => {
                     value={coverImage}
                     onValueChange={onCoverImageChange}
                   >
-                    <div className="grid grid-cols-6 gap-3">
+                    <div className="gap-3 grid grid-cols-6">
                       {coverImage ? (
                         <div
                           key={coverImage}
-                          className="relative aspect-square bg-muted rounded-lg flex items-center justify-center group"
+                          className="group relative flex justify-center items-center bg-muted rounded-lg aspect-square"
                         >
                           <img
                             src={readImage(coverImage)}
-                            className="size-full absolute inset-0 object-cover rounded-lg"
+                            className="absolute inset-0 rounded-lg size-full object-cover"
                             alt="project"
                           />
                           <Dialog>
                             <Dialog.Trigger asChild>
                               <div className="absolute inset-0 border border-foreground/10 rounded-lg" />
                             </Dialog.Trigger>
-                            <Dialog.Content className="p-0 max-w-screen-xl w-auto border-0 bg-transparent">
+                            <Dialog.Content className="bg-transparent p-0 border-0 w-auto max-w-screen-xl">
                               <img
                                 src={readImage(coverImage)}
                                 alt="project"
-                                className="rounded-lg max-h-[90vh] max-w-[90vw] object-contain mx-auto"
+                                className="mx-auto rounded-lg max-w-[90vw] max-h-[90vh] object-contain"
                               />
                               <div className="absolute inset-0 border border-foreground/10 rounded-lg" />
                             </Dialog.Content>
@@ -444,19 +470,19 @@ export const AddUnitType = ({ onClose }: { onClose: () => void }) => {
                             <Button
                               variant="secondary"
                               size="icon"
-                              className="size-6 absolute -top-2 -right-2 opacity-0 group-hover:opacity-100 transition-opacity"
+                              className="-top-2 -right-2 absolute opacity-0 group-hover:opacity-100 size-6 transition-opacity"
                             >
                               <IconX />
                             </Button>
                           </UploadRemoveButton>
                         </div>
                       ) : (
-                        <div className="relative aspect-square bg-muted rounded-lg flex items-center justify-center overflow-hidden">
+                        <div className="relative flex justify-center items-center bg-muted rounded-lg aspect-square overflow-hidden">
                           <IconPhotoCirclePlus className="size-8 text-scroll" />
                         </div>
                       )}
                       <Upload>
-                        <div className="p-2 relative aspect-square bg-muted rounded-lg flex items-center justify-center overflow-hidden">
+                        <div className="relative flex justify-center items-center bg-muted p-2 rounded-lg aspect-square overflow-hidden">
                           <IconUpload />
                         </div>
                       </Upload>
@@ -471,27 +497,27 @@ export const AddUnitType = ({ onClose }: { onClose: () => void }) => {
                     value={images}
                     onValueChange={onValueChange}
                   >
-                    <div className="grid grid-cols-6 gap-3">
+                    <div className="gap-3 grid grid-cols-6">
                       {images.length > 0 ? (
                         images.map((image) => (
                           <div
                             key={image}
-                            className="relative aspect-square bg-muted rounded-lg flex items-center justify-center group"
+                            className="group relative flex justify-center items-center bg-muted rounded-lg aspect-square"
                           >
                             <img
                               src={readImage(image)}
-                              className="size-full absolute inset-0 object-cover rounded-lg"
+                              className="absolute inset-0 rounded-lg size-full object-cover"
                               alt="project"
                             />
                             <Dialog>
                               <Dialog.Trigger asChild>
                                 <div className="absolute inset-0 border border-foreground/10 rounded-lg" />
                               </Dialog.Trigger>
-                              <Dialog.Content className="p-0 max-w-screen-xl w-auto border-0 bg-transparent">
+                              <Dialog.Content className="bg-transparent p-0 border-0 w-auto max-w-screen-xl">
                                 <img
                                   src={readImage(image)}
                                   alt="project"
-                                  className="rounded-lg max-h-[90vh] max-w-[90vw] object-contain mx-auto"
+                                  className="mx-auto rounded-lg max-w-[90vw] max-h-[90vh] object-contain"
                                 />
                                 <div className="absolute inset-0 border border-foreground/10 rounded-lg" />
                               </Dialog.Content>
@@ -500,7 +526,7 @@ export const AddUnitType = ({ onClose }: { onClose: () => void }) => {
                               <Button
                                 variant="secondary"
                                 size="icon"
-                                className="size-6 absolute -top-2 -right-2 opacity-0 group-hover:opacity-100 transition-opacity"
+                                className="-top-2 -right-2 absolute opacity-0 group-hover:opacity-100 size-6 transition-opacity"
                               >
                                 <IconX />
                               </Button>
@@ -508,12 +534,12 @@ export const AddUnitType = ({ onClose }: { onClose: () => void }) => {
                           </div>
                         ))
                       ) : (
-                        <div className="relative aspect-square bg-muted rounded-lg flex items-center justify-center overflow-hidden">
+                        <div className="relative flex justify-center items-center bg-muted rounded-lg aspect-square overflow-hidden">
                           <IconPhotoCirclePlus className="size-8 text-scroll" />
                         </div>
                       )}
                       <Upload>
-                        <div className="p-2 relative aspect-square bg-muted rounded-lg flex items-center justify-center overflow-hidden">
+                        <div className="relative flex justify-center items-center bg-muted p-2 rounded-lg aspect-square overflow-hidden">
                           <IconUpload />
                         </div>
                       </Upload>
@@ -528,27 +554,27 @@ export const AddUnitType = ({ onClose }: { onClose: () => void }) => {
                     value={planImages}
                     onValueChange={onValuesChange}
                   >
-                    <div className="grid grid-cols-6 gap-3">
+                    <div className="gap-3 grid grid-cols-6">
                       {planImages.length > 0 ? (
                         planImages.map((image) => (
                           <div
                             key={image}
-                            className="relative aspect-square bg-muted rounded-lg flex items-center justify-center group"
+                            className="group relative flex justify-center items-center bg-muted rounded-lg aspect-square"
                           >
                             <img
                               src={readImage(image)}
-                              className="size-full absolute inset-0 object-cover rounded-lg"
+                              className="absolute inset-0 rounded-lg size-full object-cover"
                               alt="project"
                             />
                             <Dialog>
                               <Dialog.Trigger asChild>
                                 <div className="absolute inset-0 border border-foreground/10 rounded-lg" />
                               </Dialog.Trigger>
-                              <Dialog.Content className="p-0 max-w-screen-xl w-auto border-0 bg-transparent">
+                              <Dialog.Content className="bg-transparent p-0 border-0 w-auto max-w-screen-xl">
                                 <img
                                   src={readImage(image)}
                                   alt="project"
-                                  className="rounded-lg max-h-[90vh] max-w-[90vw] object-contain mx-auto"
+                                  className="mx-auto rounded-lg max-w-[90vw] max-h-[90vh] object-contain"
                                 />
                                 <div className="absolute inset-0 border border-foreground/10 rounded-lg" />
                               </Dialog.Content>
@@ -557,7 +583,7 @@ export const AddUnitType = ({ onClose }: { onClose: () => void }) => {
                               <Button
                                 variant="secondary"
                                 size="icon"
-                                className="size-6 absolute -top-2 -right-2 opacity-0 group-hover:opacity-100 transition-opacity"
+                                className="-top-2 -right-2 absolute opacity-0 group-hover:opacity-100 size-6 transition-opacity"
                               >
                                 <IconX />
                               </Button>
@@ -565,12 +591,12 @@ export const AddUnitType = ({ onClose }: { onClose: () => void }) => {
                           </div>
                         ))
                       ) : (
-                        <div className="relative aspect-square bg-muted rounded-lg flex items-center justify-center overflow-hidden">
+                        <div className="relative flex justify-center items-center bg-muted rounded-lg aspect-square overflow-hidden">
                           <IconPhotoCirclePlus className="size-8 text-scroll" />
                         </div>
                       )}
                       <Upload>
-                        <div className="p-2 relative aspect-square bg-muted rounded-lg flex items-center justify-center overflow-hidden">
+                        <div className="relative flex justify-center items-center bg-muted p-2 rounded-lg aspect-square overflow-hidden">
                           <IconUpload />
                         </div>
                       </Upload>
@@ -601,11 +627,11 @@ export const AddUnitTypeSheet = () => {
     <Sheet open={open} onOpenChange={setOpen}>
       <Sheet.Trigger asChild>
         <Button variant="secondary">
-          <IconPlus className="mr-2 h-4 w-4" />
+          <IconPlus className="mr-2 w-4 h-4" />
           Add unit type
         </Button>
       </Sheet.Trigger>
-      <Sheet.View className="blk:sm:max-w-5xl blk:md:w-[calc(100vw-(--spacing(4)))]">
+      <Sheet.View className="blk:md:w-[calc(100vw-(--spacing(4)))] blk:sm:max-w-5xl">
         <Sheet.Header>
           <Sheet.Title>Add unit type</Sheet.Title>
           <Sheet.Close tabIndex={-1} />

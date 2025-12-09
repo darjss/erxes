@@ -10,10 +10,14 @@ import { IProject } from '@/project/types/projectTypes';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { IconPlus } from '@tabler/icons-react';
 import {
+  Badge,
   Button,
+  Combobox,
+  Command,
   DatePicker,
   Form,
   Input,
+  Popover,
   Select,
   Sheet,
   Spinner,
@@ -58,7 +62,7 @@ export const AddBuildingForProject = ({
   const form = useForm<z.infer<typeof buildingSchema>>({
     resolver: zodResolver(buildingSchema),
     defaultValues: {
-      type: project.type?.[0] || '',
+      types: project.types || [],
     },
   });
   const { createBuilding, loading } = useBuildingsCreate();
@@ -89,7 +93,7 @@ export const AddBuildingForProject = ({
         className="flex flex-col flex-auto"
         onSubmit={form.handleSubmit(onSubmit)}
       >
-        <Sheet.Content className="p-5 blk:space-y-5">
+        <Sheet.Content className="blk:space-y-5 p-5">
           <Form.Field
             name="coverImage"
             render={({ field }) => (
@@ -115,24 +119,53 @@ export const AddBuildingForProject = ({
             )}
           />
           <Form.Field
-            name="type"
+            name="types"
             render={({ field }) => (
               <Form.Item>
                 <Form.Label>Type</Form.Label>
-                <Select value={field.value} onValueChange={field.onChange}>
+                <Popover>
                   <Form.Control>
-                    <Select.Trigger className="h-8">
-                      <Select.Value placeholder="Select type" />
-                    </Select.Trigger>
+                    <Combobox.TriggerBase className="flex-wrap justify-start h-auto min-h-8 text-accent-foreground">
+                      {field.value?.length ? (
+                        field.value.map((type: string) => (
+                          <Badge key={type} variant="secondary">
+                            {PROJECT_TYPES.find((t) => t.value === type)?.label?.mn}
+                          </Badge>
+                        ))
+                      ) : (
+                        <span>Төрөл сонгоно уу</span>
+                      )}
+                    </Combobox.TriggerBase>
                   </Form.Control>
-                  <Select.Content>
-                    {PROJECT_TYPES.map((type) => (
-                      <Select.Item key={type.value} value={type.value}>
-                        {type.label}
-                      </Select.Item>
-                    ))}
-                  </Select.Content>
-                </Select>
+
+                  <Combobox.Content>
+                    <Command>
+                      <Command.Input />
+                      <Command.List>
+                        {PROJECT_TYPES.map((type) => (
+                          <Command.Item
+                            value={type.value}
+                            key={type.value}
+                            onSelect={() => {
+                              const newTypes = field.value?.includes(type.value)
+                                ? field.value?.filter(
+                                    (t: string) => t !== type.value,
+                                  )
+                                : [...(field.value || []), type.value];
+
+                              field.onChange(newTypes);
+                            }}
+                          >
+                            {type.label?.mn}
+                            <Combobox.Check
+                              checked={field.value?.includes(type.value)}
+                            />
+                          </Command.Item>
+                        ))}
+                      </Command.List>
+                    </Command>
+                  </Combobox.Content>
+                </Popover>
               </Form.Item>
             )}
           />
@@ -158,7 +191,7 @@ export const AddBuildingForProject = ({
               </Form.Item>
             )}
           />
-          <div className="grid grid-cols-2 gap-3 w-full">
+          <div className="gap-3 grid grid-cols-2 w-full">
             <Form.Field
               name="startDate"
               render={({ field }) => (
