@@ -1,0 +1,87 @@
+import { gql } from '@apollo/client';
+import { GQL_CURSOR_PARAM_DEFS, GQL_CURSOR_PARAMS } from 'erxes-ui';
+
+export const ONE_FIT_MEMBERSHIP_PLANS = gql`
+  query OneFitMembershipPlans(
+    $searchValue: String
+    $isActive: Boolean
+    ${GQL_CURSOR_PARAM_DEFS}
+  ) {
+    oneFitMembershipPlans(
+      searchValue: $searchValue
+      isActive: $isActive
+      ${GQL_CURSOR_PARAMS}
+    ) {
+      list {
+        _id
+        createdAt
+        modifiedAt
+        name
+        description
+        creditAmount
+        duration
+        price
+        isActive
+      }
+      totalCount
+      pageInfo {
+        hasNextPage
+        hasPreviousPage
+        startCursor
+        endCursor
+      }
+    }
+  }
+`;
+
+export const ONE_FIT_MEMBERSHIP_PLANS_COUNT = gql`
+  query OneFitMembershipPlansCount(
+    $searchValue: String
+    $isActive: Boolean
+  ) {
+    oneFitMembershipPlansCount(
+      searchValue: $searchValue
+      isActive: $isActive
+    )
+  }
+`;
+
+export const ONE_FIT_MEMBERSHIP_PLAN = gql`
+  query OneFitMembershipPlan($_id: String!) {
+    oneFitMembershipPlan(_id: $_id) {
+      _id
+      createdAt
+      modifiedAt
+      name
+      description
+      creditAmount
+      duration
+      price
+      isActive
+    }
+  }
+`;
+
+export const ONE_FIT_ACTIVE_MEMBERSHIP_PLANS = gql`
+  query OneFitActiveMembershipPlans {
+    oneFitActiveMembershipPlans {
+      _id
+      createdAt
+      modifiedAt
+      name
+      description
+      creditAmount
+      duration
+      price
+      isActive
+    }
+  }
+`;
+
+
+
+
+
+
+
+

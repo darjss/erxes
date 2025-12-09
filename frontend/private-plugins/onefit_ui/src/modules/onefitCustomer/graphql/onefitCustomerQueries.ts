@@ -1,0 +1,100 @@
+import { gql } from '@apollo/client';
+import { GQL_CURSOR_PARAM_DEFS, GQL_CURSOR_PARAMS } from 'erxes-ui';
+
+export const ONE_FIT_CUSTOMERS = gql`
+  query OneFitCustomers(
+    $membershipPlanId: String
+    $membershipStatus: OneFitMembershipStatus
+    $minCreditBalance: Float
+    $maxCreditBalance: Float
+    $preferredActivityTypeId: String
+    ${GQL_CURSOR_PARAM_DEFS}
+  ) {
+    oneFitCustomers(
+      membershipPlanId: $membershipPlanId
+      membershipStatus: $membershipStatus
+      minCreditBalance: $minCreditBalance
+      maxCreditBalance: $maxCreditBalance
+      preferredActivityTypeId: $preferredActivityTypeId
+      ${GQL_CURSOR_PARAMS}
+    ) {
+      list {
+        _id
+        createdAt
+        updatedAt
+        firstName
+        lastName
+        primaryEmail
+        primaryPhone
+        oneFitMembershipPlanId
+        oneFitMembershipExpiresAt
+        oneFitMembershipStatus
+        oneFitCurrentCreditBalance
+        oneFitTotalCreditsEarned
+        oneFitTotalCreditsUsed
+        oneFitPreferredActivityTypes
+        oneFitBookingPreferences {
+          preferredTimeSlots
+          preferredDays
+          notificationEnabled
+        }
+        oneFitLastBookingDate
+        oneFitTotalBookings
+      }
+      totalCount
+      pageInfo {
+        hasNextPage
+        hasPreviousPage
+        startCursor
+        endCursor
+      }
+    }
+  }
+`;
+
+export const ONE_FIT_CUSTOMER = gql`
+  query OneFitCustomer($_id: String!) {
+    oneFitCustomer(_id: $_id) {
+      _id
+      createdAt
+      updatedAt
+      firstName
+      lastName
+      primaryEmail
+      primaryPhone
+      oneFitMembershipPlanId
+      oneFitMembershipExpiresAt
+      oneFitMembershipStatus
+      oneFitCurrentCreditBalance
+      oneFitTotalCreditsEarned
+      oneFitTotalCreditsUsed
+      oneFitPreferredActivityTypes
+      oneFitBookingPreferences {
+        preferredTimeSlots
+        preferredDays
+        notificationEnabled
+      }
+      oneFitLastBookingDate
+      oneFitTotalBookings
+    }
+  }
+`;
+
+export const ONE_FIT_CUSTOMERS_COUNT = gql`
+  query OneFitCustomersCount(
+    $membershipPlanId: String
+    $membershipStatus: OneFitMembershipStatus
+    $minCreditBalance: Float
+    $maxCreditBalance: Float
+    $preferredActivityTypeId: String
+  ) {
+    oneFitCustomersCount(
+      membershipPlanId: $membershipPlanId
+      membershipStatus: $membershipStatus
+      minCreditBalance: $minCreditBalance
+      maxCreditBalance: $maxCreditBalance
+      preferredActivityTypeId: $preferredActivityTypeId
+    )
+  }
+`;
+
