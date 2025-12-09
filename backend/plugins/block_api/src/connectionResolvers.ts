@@ -53,6 +53,7 @@ import { IInvoiceDocument } from '@/invoice/@types/invoice';
 import { loadInvoiceClass } from '@/invoice/db/models/Invoice';
 import { IUnitTypeDocument } from '@/unit/@types/unitType';
 import { IUnitTypeModel, loadUnitTypeClass } from '@/unit/db/models/UnitType';
+import { IOpptyModel, loadOpptyClass } from '@/oppty/db/models/Oppty';
 
 export interface IModels {
   Project: IProjectModel;
@@ -70,6 +71,7 @@ export interface IModels {
   BlockActivity: IBlockActivityModel;
   Offer: IOfferModel;
   Invoice: IInvoiceModel;
+  Oppty: IOpptyModel;
 }
 
 export interface IContext extends IMainContext {
@@ -152,6 +154,11 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
   models.Invoice = db.model<IInvoiceDocument, IInvoiceModel>(
     'block_invoices',
     loadInvoiceClass(models),
+  );
+
+  models.Oppty = db.model<IOpptyDocument, IOpptyModel>(
+    'block_opptys',
+    loadOpptyClass(models),
   );
 
   return models;

@@ -12,6 +12,7 @@ import { contractMutations } from '@/contract/graphql/resolvers/mutations/contra
 import { offerMutations } from '@/contract/graphql/resolvers/mutations/offer';
 import { invoiceMutations } from '@/invoice/graphql/resolvers/mutations/invoice';
 import { unitTypesMutations } from '~/modules/unit/graphql/resolvers/mutations/unitType';
+import { opptyMutations } from '@/oppty/graphql/mutations/oppty';
 
 export const mutations = {
   ...projectMutations,
@@ -28,4 +29,5 @@ export const mutations = {
   ...offerMutations,
   ...invoiceMutations,
   ...unitTypesMutations,
+  ...opptyMutations,
 };

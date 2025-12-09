@@ -82,6 +82,12 @@ import {
   types as UnitTypeTypes,
 } from '@/unit/graphql/schemas/unitType';
 
+import {
+  mutations as OpptyMutations,
+  queries as OpptyQueries,
+  types as OpptyTypes,
+} from '@/oppty/graphql/schemas/oppty';
+
 export const types = `
   type DeveloperAddress {
     countryCode: String
@@ -147,6 +153,7 @@ export const types = `
   ${ContractTypes}
   ${OfferTypes}
   ${UnitTypeTypes}
+  ${OpptyTypes}
   `;
 
 export const queries = `
@@ -164,6 +171,7 @@ export const queries = `
   ${ContractQueries}
   ${OfferQueries}
   ${UnitTypeQueries}
+  ${OpptyQueries}
   `;
 
 export const mutations = `
@@ -181,6 +189,7 @@ export const mutations = `
   ${ContractMutations}
   ${OfferMutations}
   ${UnitTypeMutations}
+  ${OpptyMutations}
   `;
 
 export default { types, queries, mutations };

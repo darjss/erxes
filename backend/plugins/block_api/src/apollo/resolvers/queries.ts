@@ -12,6 +12,7 @@ import { projectQueries } from '@/project/graphql/resolvers/queries/project';
 import { unitQueries } from '@/unit/graphql/resolvers/queries/unit';
 import { unitLeadQueries } from '@/unit/graphql/resolvers/queries/unitLead';
 import { unitTypesQueries } from '@/unit/graphql/resolvers/queries/unitType';
+import { opptyQueries } from '@/oppty/graphql/queries/oppty';
 
 export const queries = {
   ...projectQueries,
@@ -28,4 +29,5 @@ export const queries = {
   ...offerQueries,
   ...invoiceQueries,
   ...unitTypesQueries,
+  ...opptyQueries,
 };
