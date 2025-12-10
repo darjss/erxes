@@ -6,3 +6,10 @@ export const BLOCK_VERIFICATION_STATUS = {
 };
 
 export const IMAGE_FIELDS = ['logo', 'coverImage', 'images', 'planImages'];
+
+export const TIER_LEVELS: Record<number, string> = {
+  1: 'Bronze',
+  2: 'Silver',
+  3: 'Gold',
+  4: 'Platinum',
+};

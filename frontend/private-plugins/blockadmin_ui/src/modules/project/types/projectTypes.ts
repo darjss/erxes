@@ -43,6 +43,7 @@ export interface IProject {
     string,
     { open: boolean; startOfDay: string; endOfDay: string }
   >;
+  isFeatured?: boolean
 }
 
 export interface IProjectPrice {
@@ -52,7 +53,8 @@ export interface IProjectPrice {
 }
 
 export interface IProjectGeneralInput {
-  isPublished: boolean;
+  isPublished?: boolean;
+  isFeatured?: boolean;
 }
 
 export interface IProjectMember {

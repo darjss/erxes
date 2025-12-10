@@ -77,6 +77,8 @@ export const projectSchema = schemaWrapper(
       contacts: { type: Schema.Types.Mixed, label: 'Contacts' },
       links: { type: Schema.Types.Mixed, label: 'Links' },
       schedules: { type: Schema.Types.Mixed, label: 'Schedules' },
+
+      tierLevel: { type: Number, label: 'Tier Level', default: 0 },
     },
     {
       timestamps: true,

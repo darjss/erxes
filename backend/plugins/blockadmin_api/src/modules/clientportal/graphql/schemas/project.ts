@@ -32,6 +32,9 @@ export const types = `
     sizeRanges: JSON
     roomRanges: JSON
     developer: BlockAdminDeveloper
+
+    tier: String
+    isFeatured: Boolean
   }
 
   type CpBlockAdminProjectDistrict {
@@ -48,6 +51,7 @@ const queryParams = `
   priceMin: Int
   priceMax: Int
   type: String
+  isFeatured: Boolean
 
   ${GQL_OFFSET_PARAM_DEFS}
 `;

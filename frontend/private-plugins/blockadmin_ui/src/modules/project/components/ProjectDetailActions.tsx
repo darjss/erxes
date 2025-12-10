@@ -27,6 +27,16 @@ export const ProjectDetailActions = () => {
           <IconArrowUp />
           Unpublish Project
         </DropdownMenu.Item>
+        <DropdownMenu.Item
+          onClick={() => {
+            updateProjectGeneralInfo(project?._id || '', {
+              isFeatured: !project?.isFeatured,
+            });
+          }}
+        >
+          <IconArrowUp />
+          {project?.isFeatured ? 'Unfeature Project' : 'Feature Project'}
+        </DropdownMenu.Item>
       </DropdownMenu.Content>
     </DropdownMenu>
   );

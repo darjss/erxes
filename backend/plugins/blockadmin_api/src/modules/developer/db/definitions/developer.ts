@@ -48,6 +48,8 @@ export const developerSchema = schemaWrapper(
     },
 
     socialLinks: { type: blockDeveloperSocialLinkSchema },
+
+    tierLevel: { type: Number, default: 0 }
   }, {
     timestamps: true,
   }),

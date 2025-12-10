@@ -121,6 +121,8 @@ export const BLOCK_GET_PROJECT_DETAIL = gql`
       links
       schedules
       developerId
+
+      isFeatured
     }
   }
 `;

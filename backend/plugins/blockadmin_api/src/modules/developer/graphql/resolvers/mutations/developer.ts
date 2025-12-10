@@ -3,6 +3,39 @@ import { BLOCK_VERIFICATION_STATUS } from '~/constants';
 import { sendBlockMessage } from '~/modules/block/utils';
 
 export const developerMutations = {
+  blockAdminUpdateDeveloper: async (
+    _parent: undefined,
+    { _id, input }: { _id: string; input: any },
+    { models }: IContext,
+  ) => {
+    const developer = await models.Developer.findOne({ _id });
+
+    if (!developer) {
+      throw new Error('Developer not found');
+    }
+
+    try {
+      const { subdomain, entityId } = developer;
+
+      const doc = { ...input }
+
+      if ('isFeatured' in input) {
+        const isFeatured = input.isFeatured;
+        
+        doc['tierLevel'] = isFeatured ? 1 : 0;
+      }
+
+      const updatedDeveloper = await models.Developer.findOneAndUpdate(
+        { _id, subdomain, entityId },
+        { ...doc },
+        { new: true },
+      );
+
+      return updatedDeveloper;
+    } catch (error) {
+      throw new Error(`Failed to update project general info: ${error}`);
+    }
+  },
   updateBlockAdminDeveloperVerificationStatus: async (
     _root: undefined,
     {

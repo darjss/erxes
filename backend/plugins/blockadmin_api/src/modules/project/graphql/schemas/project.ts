@@ -32,10 +32,12 @@ export const types = `
     schedules: JSON
 
     developerId: String
+    isFeatured: Boolean
   }
 
   input BlockAdminProjectInput {
     isPublished: Boolean
+    isFeatured: Boolean
   }
 `;
 

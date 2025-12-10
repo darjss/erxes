@@ -33,6 +33,8 @@ export interface IProject extends IBlock {
     zones: number;
     parking: number;
   };
+
+  tierLevel?: number
 }
 
 export interface IProjectLocation {
@@ -63,4 +65,6 @@ export interface IProjectQueryParams {
   status?: string;
   isPublished?: boolean;
   locations?: string;
+
+  isFeatured?: boolean
 }
