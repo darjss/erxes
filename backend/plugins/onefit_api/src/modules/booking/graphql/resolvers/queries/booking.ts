@@ -1,5 +1,9 @@
-import { ICursorPaginateParams } from 'erxes-api-shared/core-types';
-import { cursorPaginate, getPureDate } from 'erxes-api-shared/utils';
+import { ICursorPaginateParams, Resolver } from 'erxes-api-shared/core-types';
+import {
+  cursorPaginate,
+  getPureDate,
+  markResolvers,
+} from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 import { BookingStatus, AttendanceStatus } from '@/booking/@types/booking';
 
@@ -12,10 +16,17 @@ export interface IBookingQueryParams extends ICursorPaginateParams {
   attendanceStatus?: AttendanceStatus;
 }
 
-const generateFilter = async (params: IBookingQueryParams) => {
+const generateFilter = async (
+  params: IBookingQueryParams,
+  clientPortal?: any,
+  cpUser?: any,
+) => {
   const filter: any = {};
 
-  if (params.userId) {
+  // If clientPortal exists, filter by cpUser
+  if (clientPortal && cpUser) {
+    filter.userId = cpUser.erxesCustomerId || cpUser._id;
+  } else if (params.userId) {
     filter.userId = params.userId;
   }
 
@@ -45,13 +56,13 @@ const generateFilter = async (params: IBookingQueryParams) => {
   return filter;
 };
 
-export const bookingQueries = {
+export const bookingQueries: Record<string, Resolver> = {
   async oneFitBookings(
     _root: undefined,
     params: IBookingQueryParams,
-    { models }: IContext,
+    { models, clientPortal, cpUser }: IContext,
   ) {
-    const filter = await generateFilter(params);
+    const filter = await generateFilter(params, clientPortal, cpUser);
 
     // Order by createdAt only (newest first)
     return await cursorPaginate({
@@ -67,25 +78,141 @@ export const bookingQueries = {
   async oneFitBookingsCount(
     _root: undefined,
     params: IBookingQueryParams,
-    { models }: IContext,
+    { models, clientPortal, cpUser }: IContext,
   ) {
-    const filter = await generateFilter(params);
+    const filter = await generateFilter(params, clientPortal, cpUser);
     return models.Booking.find(filter).countDocuments();
   },
 
   async oneFitBooking(
     _root: undefined,
     { _id }: { _id: string },
-    { models }: IContext,
+    { models, clientPortal, cpUser }: IContext,
   ) {
-    return models.Booking.findOne({ _id });
+    const query: any = { _id };
+
+    // If clientPortal exists, filter by cpUser
+    if (clientPortal && cpUser) {
+      query.userId = cpUser.erxesCustomerId || cpUser._id;
+    }
+
+    return models.Booking.findOne(query);
   },
 
   async oneFitBookingByBookingId(
     _root: undefined,
     { bookingId }: { bookingId: string },
-    { models }: IContext,
+    { models, clientPortal, cpUser }: IContext,
   ) {
-    return models.Booking.findOne({ bookingId });
+    const query: any = { bookingId };
+
+    // If clientPortal exists, filter by cpUser
+    if (clientPortal && cpUser) {
+      query.userId = cpUser.erxesCustomerId || cpUser._id;
+    }
+
+    return models.Booking.findOne(query);
   },
+
+  async cpOneFitBookings(
+    _root: undefined,
+    params: Omit<IBookingQueryParams, 'userId'>,
+    { models, cpUser }: IContext,
+  ) {
+    if (!cpUser) {
+      throw new Error('Client portal user required');
+    }
+
+    const userId = cpUser.erxesCustomerId || cpUser._id;
+    const filter = await generateFilter({ ...params, userId }, true, cpUser);
+
+    return await cursorPaginate({
+      model: models.Booking,
+      params: {
+        ...params,
+        orderBy: { createdAt: -1 },
+      },
+      query: filter,
+    });
+  },
+
+  async cpOneFitBookingsCount(
+    _root: undefined,
+    params: Omit<IBookingQueryParams, 'userId'>,
+    { models, cpUser }: IContext,
+  ) {
+    if (!cpUser) {
+      throw new Error('Client portal user required');
+    }
+
+    const userId = cpUser.erxesCustomerId || cpUser._id;
+    const filter = await generateFilter({ ...params, userId }, true, cpUser);
+    return models.Booking.find(filter).countDocuments();
+  },
+
+  async cpOneFitBooking(
+    _root: undefined,
+    { _id }: { _id: string },
+    { models, cpUser }: IContext,
+  ) {
+    if (!cpUser) {
+      throw new Error('Client portal user required');
+    }
+
+    const userId = cpUser.erxesCustomerId || cpUser._id;
+    const booking = await models.Booking.findOne({ _id });
+
+    if (!booking) {
+      throw new Error('Booking not found');
+    }
+
+    if (booking.userId !== userId) {
+      throw new Error('You do not have permission to access this booking');
+    }
+
+    return booking;
+  },
+
+  async cpOneFitBookingByBookingId(
+    _root: undefined,
+    { bookingId }: { bookingId: string },
+    { models, cpUser }: IContext,
+  ) {
+    if (!cpUser) {
+      throw new Error('Client portal user required');
+    }
+
+    const userId = cpUser.erxesCustomerId || cpUser._id;
+    const booking = await models.Booking.findOne({ bookingId });
+
+    if (!booking) {
+      throw new Error('Booking not found');
+    }
+
+    if (booking.userId !== userId) {
+      throw new Error('You do not have permission to access this booking');
+    }
+
+    return booking;
+  },
+};
+
+bookingQueries.cpOneFitBookings.wrapperConfig = {
+  forClientPortal: true,
+  cpUserRequired: true,
+};
+
+bookingQueries.cpOneFitBookingsCount.wrapperConfig = {
+  forClientPortal: true,
+  cpUserRequired: true,
+};
+
+bookingQueries.cpOneFitBooking.wrapperConfig = {
+  forClientPortal: true,
+  cpUserRequired: true,
+};
+
+bookingQueries.cpOneFitBookingByBookingId.wrapperConfig = {
+  forClientPortal: true,
+  cpUserRequired: true,
 };

@@ -1,6 +1,8 @@
 import { ICursorPaginateParams } from 'erxes-api-shared/core-types';
 import { cursorPaginate, escapeRegExp } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
+import { markResolvers } from 'erxes-api-shared/utils';
+import { Resolver } from 'erxes-api-shared/core-types';
 
 export interface ICategoryQueryParams extends ICursorPaginateParams {
   searchValue?: string;
@@ -52,14 +54,13 @@ const generateFilter = async (params: ICategoryQueryParams) => {
   return filter;
 };
 
-export const categoryQueries = {
+export const categoryQueries: Record<string, Resolver> = {
   async oneFitActivityCategories(
     _root: undefined,
     params: ICategoryQueryParams,
     { models }: IContext,
   ) {
     const filter = await generateFilter(params);
-
     return await cursorPaginate({
       model: models.ActivityCategory,
       params,
@@ -84,3 +85,9 @@ export const categoryQueries = {
     return models.ActivityCategory.findOne({ _id });
   },
 };
+
+markResolvers(categoryQueries, {
+  wrapperConfig: {
+    skipPermission: true,
+  },
+});

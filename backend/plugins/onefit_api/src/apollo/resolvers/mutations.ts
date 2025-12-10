@@ -10,16 +10,16 @@ import { configMutations } from '@/config/graphql/resolvers/mutations/config';
 import { oneFitCustomerMutations } from '@/onefitCustomer/graphql/resolvers/mutations/onefitCustomer';
 import { activityTypeMutations } from '@/activity-type/graphql/resolvers/mutations/activityType';
 
-export const mutations = {
-  ...categoryMutations,
-  ...providerMutations,
-  ...scheduleMutations,
-  ...membershipMutations,
-  ...creditTransactionMutations,
-  ...bookingMutations,
-
-  ...notificationMutations,
-  ...configMutations,
-  ...oneFitCustomerMutations,
-  ...activityTypeMutations,
-};
+export const mutations = Object.assign(
+  {},
+  categoryMutations,
+  providerMutations,
+  scheduleMutations,
+  membershipMutations,
+  creditTransactionMutations,
+  bookingMutations,
+  notificationMutations,
+  configMutations,
+  oneFitCustomerMutations,
+  activityTypeMutations,
+);

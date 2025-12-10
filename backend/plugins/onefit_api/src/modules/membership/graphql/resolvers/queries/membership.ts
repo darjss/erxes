@@ -1,5 +1,9 @@
-import { ICursorPaginateParams } from 'erxes-api-shared/core-types';
-import { cursorPaginate, escapeRegExp } from 'erxes-api-shared/utils';
+import { ICursorPaginateParams, Resolver } from 'erxes-api-shared/core-types';
+import {
+  cursorPaginate,
+  escapeRegExp,
+  markResolvers,
+} from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 
 export interface IPlanQueryParams extends ICursorPaginateParams {
@@ -58,7 +62,7 @@ const generatePurchaseFilter = async (params: IPurchaseQueryParams) => {
   return filter;
 };
 
-export const membershipQueries = {
+export const membershipQueries: Record<string, Resolver> = {
   async oneFitMembershipPlans(
     _root: undefined,
     params: IPlanQueryParams,
@@ -98,3 +102,8 @@ export const membershipQueries = {
     return models.MembershipPlan.findActivePlans();
   },
 };
+markResolvers(membershipQueries, {
+  wrapperConfig: {
+    skipPermission: true,
+  },
+});

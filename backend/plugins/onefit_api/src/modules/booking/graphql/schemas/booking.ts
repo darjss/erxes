@@ -52,6 +52,14 @@ const bookingQueryParams = `
   attendanceStatus: OneFitAttendanceStatus,
 `;
 
+const cpBookingQueryParams = `
+  providerId: String,
+  activityTypeId: String,
+  bookingDate: Date,
+  status: OneFitBookingStatus,
+  attendanceStatus: OneFitAttendanceStatus,
+`;
+
 import { GQL_CURSOR_PARAM_DEFS } from 'erxes-api-shared/utils';
 
 export const queries = `
@@ -59,10 +67,21 @@ export const queries = `
   oneFitBookingsCount(${bookingQueryParams}): Int
   oneFitBooking(_id: String): OneFitBooking
   oneFitBookingByBookingId(bookingId: String!): OneFitBooking
+  cpOneFitBookings(${cpBookingQueryParams}, ${GQL_CURSOR_PARAM_DEFS}): OneFitBookingListResponse
+  cpOneFitBookingsCount(${cpBookingQueryParams}): Int
+  cpOneFitBooking(_id: String!): OneFitBooking
+  cpOneFitBookingByBookingId(bookingId: String!): OneFitBooking
 `;
 
 const bookingInput = `
   userId: String!
+  activityTypeId: String!
+  bookingDate: Date!
+  startTime: String!
+  endTime: String!
+`;
+
+const cpBookingInput = `
   activityTypeId: String!
   bookingDate: Date!
   startTime: String!
@@ -84,4 +103,6 @@ export const mutations = `
   oneFitBookingCancel(${cancelBookingInput}): OneFitBooking
   oneFitBookingMarkAttendance(${markAttendanceInput}): OneFitBooking
   oneFitBookingsRemove(ids: [String]!): JSON
+  cpOneFitBookingCreate(${cpBookingInput}): OneFitBooking
+  cpOneFitBookingCancel(${cancelBookingInput}): OneFitBooking
 `;
