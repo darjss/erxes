@@ -4,6 +4,7 @@ import { ClientsRecordTable } from '@/clients/components/ClientsRecordTable';
 import { Link } from 'react-router-dom';
 import { PageHeader } from 'ui-modules';
 import { ClientCreateSheet } from '@/clients/components/ClientCreate';
+import { ClientDetailSheet } from '@/clients/components/ClientDetailSheet';
 
 export const ClientsPage = () => {
   return (
@@ -35,6 +36,7 @@ export const ClientsPage = () => {
         </PageHeader.End>
       </PageHeader>
       <ClientsRecordTable />
+      <ClientDetailSheet />
     </>
   );
 };

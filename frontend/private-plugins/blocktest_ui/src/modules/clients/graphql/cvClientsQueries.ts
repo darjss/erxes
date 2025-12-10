@@ -48,20 +48,12 @@ export const GET_CV_CLIENTS = gql`
       business_category
       status
       cvh_broker
-      existing_insurance_policies
       claim_history_file
-      description
       registered_date
       isActive
       bor_file
       service_agreement_file
       insurance_types
-      contacts {
-        name
-        position
-        phone_number
-        email
-      }
       createdAt
       updatedAt
     }

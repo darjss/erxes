@@ -19,7 +19,7 @@ export const useClientDetail = ({ id }: { id: string }) => {
     variables: { id },
   });
   return {
-    clientDetail: data?.getCVClientDetail,
+    clientDetail: data?.getCVClient,
     loading,
     error,
   };
