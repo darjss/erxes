@@ -1,5 +1,9 @@
 import { ICursorPaginateParams } from 'erxes-api-shared/core-types';
-import { cursorPaginate, escapeRegExp } from 'erxes-api-shared/utils';
+import {
+  cursorPaginate,
+  escapeRegExp,
+  markResolvers,
+} from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 import { GenderRestriction } from '@/activity-type/@types/activityType';
 
@@ -82,3 +86,9 @@ export const activityTypeQueries = {
     return models.ActivityType.findOne({ _id });
   },
 };
+
+markResolvers(activityTypeQueries, {
+  wrapperConfig: {
+    skipPermission: true,
+  },
+});

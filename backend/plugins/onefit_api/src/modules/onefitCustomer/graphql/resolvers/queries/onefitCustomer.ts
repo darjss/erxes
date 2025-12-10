@@ -1,5 +1,5 @@
-import { ICursorPaginateParams } from 'erxes-api-shared/core-types';
-import { cursorPaginate } from 'erxes-api-shared/utils';
+import { ICursorPaginateParams, Resolver } from 'erxes-api-shared/core-types';
+import { cursorPaginate, markResolvers } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 
 export interface IOneFitCustomerQueryParams extends ICursorPaginateParams {
@@ -43,7 +43,7 @@ const generateFilter = async (params: IOneFitCustomerQueryParams) => {
   return filter;
 };
 
-export const oneFitCustomerQueries = {
+export const oneFitCustomerQueries: Record<string, Resolver> = {
   async oneFitCustomers(
     _root: undefined,
     params: IOneFitCustomerQueryParams,
@@ -75,3 +75,8 @@ export const oneFitCustomerQueries = {
     return models.OneFitCustomer.find(filter).countDocuments();
   },
 };
+markResolvers(oneFitCustomerQueries, {
+  wrapperConfig: {
+    skipPermission: true,
+  },
+});

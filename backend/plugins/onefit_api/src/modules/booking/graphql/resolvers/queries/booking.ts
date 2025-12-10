@@ -1,4 +1,4 @@
-import { ICursorPaginateParams } from 'erxes-api-shared/core-types';
+import { ICursorPaginateParams, Resolver } from 'erxes-api-shared/core-types';
 import {
   cursorPaginate,
   getPureDate,
@@ -56,7 +56,7 @@ const generateFilter = async (
   return filter;
 };
 
-export const bookingQueries = {
+export const bookingQueries: Record<string, Resolver> = {
   async oneFitBookings(
     _root: undefined,
     params: IBookingQueryParams,
@@ -113,11 +113,106 @@ export const bookingQueries = {
 
     return models.Booking.findOne(query);
   },
+
+  async cpOneFitBookings(
+    _root: undefined,
+    params: Omit<IBookingQueryParams, 'userId'>,
+    { models, cpUser }: IContext,
+  ) {
+    if (!cpUser) {
+      throw new Error('Client portal user required');
+    }
+
+    const userId = cpUser.erxesCustomerId || cpUser._id;
+    const filter = await generateFilter({ ...params, userId }, true, cpUser);
+
+    return await cursorPaginate({
+      model: models.Booking,
+      params: {
+        ...params,
+        orderBy: { createdAt: -1 },
+      },
+      query: filter,
+    });
+  },
+
+  async cpOneFitBookingsCount(
+    _root: undefined,
+    params: Omit<IBookingQueryParams, 'userId'>,
+    { models, cpUser }: IContext,
+  ) {
+    if (!cpUser) {
+      throw new Error('Client portal user required');
+    }
+
+    const userId = cpUser.erxesCustomerId || cpUser._id;
+    const filter = await generateFilter({ ...params, userId }, true, cpUser);
+    return models.Booking.find(filter).countDocuments();
+  },
+
+  async cpOneFitBooking(
+    _root: undefined,
+    { _id }: { _id: string },
+    { models, cpUser }: IContext,
+  ) {
+    if (!cpUser) {
+      throw new Error('Client portal user required');
+    }
+
+    const userId = cpUser.erxesCustomerId || cpUser._id;
+    const booking = await models.Booking.findOne({ _id });
+
+    if (!booking) {
+      throw new Error('Booking not found');
+    }
+
+    if (booking.userId !== userId) {
+      throw new Error('You do not have permission to access this booking');
+    }
+
+    return booking;
+  },
+
+  async cpOneFitBookingByBookingId(
+    _root: undefined,
+    { bookingId }: { bookingId: string },
+    { models, cpUser }: IContext,
+  ) {
+    if (!cpUser) {
+      throw new Error('Client portal user required');
+    }
+
+    const userId = cpUser.erxesCustomerId || cpUser._id;
+    const booking = await models.Booking.findOne({ bookingId });
+
+    if (!booking) {
+      throw new Error('Booking not found');
+    }
+
+    if (booking.userId !== userId) {
+      throw new Error('You do not have permission to access this booking');
+    }
+
+    return booking;
+  },
 };
 
-markResolvers(bookingQueries, {
-  wrapperConfig: {
-    forClientPortal: true,
-    cpUserRequired: false,
-  },
-});
+bookingQueries.cpOneFitBookings.wrapperConfig = {
+  forClientPortal: true,
+  cpUserRequired: true,
+};
+
+bookingQueries.cpOneFitBookingsCount.wrapperConfig = {
+  forClientPortal: true,
+  cpUserRequired: true,
+};
+
+bookingQueries.cpOneFitBooking.wrapperConfig = {
+  forClientPortal: true,
+  cpUserRequired: true,
+};
+
+bookingQueries.cpOneFitBookingByBookingId.wrapperConfig = {
+  forClientPortal: true,
+  cpUserRequired: true,
+};

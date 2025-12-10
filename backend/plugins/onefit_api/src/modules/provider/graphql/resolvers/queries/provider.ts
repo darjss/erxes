@@ -1,5 +1,9 @@
-import { ICursorPaginateParams } from 'erxes-api-shared/core-types';
-import { cursorPaginate, escapeRegExp } from 'erxes-api-shared/utils';
+import { ICursorPaginateParams, Resolver } from 'erxes-api-shared/core-types';
+import {
+  cursorPaginate,
+  escapeRegExp,
+  markResolvers,
+} from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 import { ProviderStatus } from '@/provider/@types/provider';
 
@@ -57,7 +61,7 @@ const generateFilter = async (params: IProviderQueryParams) => {
   return filter;
 };
 
-export const providerQueries = {
+export const providerQueries: Record<string, Resolver> = {
   async oneFitProviders(
     _root: undefined,
     params: IProviderQueryParams,
@@ -89,4 +93,8 @@ export const providerQueries = {
     return models.Provider.findOne({ _id });
   },
 };
-
+markResolvers(providerQueries, {
+  wrapperConfig: {
+    skipPermission: true,
+  },
+});
