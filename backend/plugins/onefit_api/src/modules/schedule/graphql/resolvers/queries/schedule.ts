@@ -1,5 +1,9 @@
 import { ICursorPaginateParams } from 'erxes-api-shared/core-types';
-import { cursorPaginate, getPureDate } from 'erxes-api-shared/utils';
+import {
+  cursorPaginate,
+  getPureDate,
+  markResolvers,
+} from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 
 export interface IScheduleTemplateQueryParams extends ICursorPaginateParams {
@@ -105,8 +109,6 @@ export const scheduleQueries = {
     params: IScheduleExceptionQueryParams,
     { models }: IContext,
   ) {
-    console.log('pisdaaa', '');
-
     const filter = await generateExceptionFilter(params);
     return await cursorPaginate({
       model: models.ScheduleException,
@@ -132,3 +134,8 @@ export const scheduleQueries = {
     return models.ScheduleException.findOne({ _id });
   },
 };
+markResolvers(scheduleQueries, {
+  wrapperConfig: {
+    skipPermission: true,
+  },
+});
