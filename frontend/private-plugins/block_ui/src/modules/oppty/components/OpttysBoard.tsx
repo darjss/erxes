@@ -17,6 +17,7 @@ import { OpptysBoardCard } from '@/oppty/components/OpptysBoardCard';
 import { useOpptys } from '@/oppty/hooks/useGetOpptys';
 import { clsx } from 'clsx';
 import { useInView } from 'react-intersection-observer';
+import { useUpdateOppty } from '@/oppty/hooks/useUpdateOppty';
 
 const columns = [
   {
@@ -85,7 +86,7 @@ const columns = [
 
 export const OpptysBoard = ({ projectId }: { projectId: string }) => {
   const allOpptysMap = useAtomValue(allOpptysMapState);
-  // const { updateOppty } = useUpdateOppty();
+  const { updateOppty } = useUpdateOppty();
 
   const [opptys, setOpptys] = useAtom(fetchedOpptysState);
   const setOpptyCountByProject = useSetAtom(opptyCountByProjectAtom);
@@ -105,12 +106,14 @@ export const OpptysBoard = ({ projectId }: { projectId: string }) => {
     if (activeItem?.status === overColumn) {
       return;
     }
-    // updateOppty({
-    //   variables: {
-    //     _id: activeItem?._id,
-    //     status: overColumn,
-    //   },
-    // });
+
+    updateOppty({
+      variables: {
+        _id: activeItem?._id,
+        status: overColumn,
+      },
+    });
+
     setOpptys((prev) =>
       prev.map((oppty) => {
         if (oppty.id === activeItem?._id) {
