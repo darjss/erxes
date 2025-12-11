@@ -36,15 +36,6 @@ export const types = `
     forLease
     any
   }
-    
-  enum BlockUnitStatus {
-    available
-    reserved
-    sold
-    underFinance
-    cancelled
-    onHold
-  }
 
   input BlockBuildingZoningInput {
     building: String

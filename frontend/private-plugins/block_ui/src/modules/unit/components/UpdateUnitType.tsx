@@ -67,11 +67,11 @@ export const UpdateUnitType = ({
       tenureTypes: unitType.tenureTypes || '',
       content: unitType.content || '',
       price: unitType.price || undefined,
-      prices: unitType.prices?.map((p) => ({
+      prices: unitType.prices?.length ? unitType.prices?.map((p) => ({
         currency: p.currency,
         price: p.price,
         priceType: p.priceType as 'priceBySize' | 'priceByUnit',
-      })) || [
+      })) : [
         {
           price: 0,
           priceType: 'priceBySize',
@@ -114,12 +114,6 @@ export const UpdateUnitType = ({
       form.setValue('price', unitType.price);
     }
   }, [unitType.price]);
-
-  useEffect(() => {
-    form.setValue('subTypes', []);
-    form.setValue('featureTypes', []);
-    form.setValue('rooms', []);
-  }, [usageType]);
 
   const onSubmit = (data: z.infer<typeof unitTypeSchema>) => {
     if (areaType === 'private' && tenureTypes?.length) {
@@ -214,7 +208,13 @@ export const UpdateUnitType = ({
                       <Form.Label>Type</Form.Label>
                       <SelectUsageType
                         value={field.value}
-                        onValueChange={field.onChange}
+                        onValueChange={(value) => {
+                          field.onChange(value);
+
+                          form.setValue('subTypes', []);
+                          form.setValue('featureTypes', []);
+                          form.setValue('rooms', []);
+                        }}
                         inForm
                       />
                     </Form.Item>

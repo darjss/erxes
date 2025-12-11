@@ -5,7 +5,7 @@ export const types = `
     buildingData: BlockBuilding
     zoning: String
     number: String
-    status: BlockUnitStatus
+    status: String
     
     leads: [String]
 
@@ -21,7 +21,7 @@ export const types = `
     number: String
     type: String
     useProjectPrice: Boolean
-    status: BlockUnitStatus
+    status: String
   }
 `;
 
