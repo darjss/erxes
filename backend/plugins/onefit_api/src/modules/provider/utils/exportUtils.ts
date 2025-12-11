@@ -1,6 +1,7 @@
 import { getPureDate } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
 import { BookingStatus } from '@/booking/@types/booking';
+import { getLocalizedString } from '@/activity-type/utils/localization';
 
 export async function generateCSVExport(
   models: IModels,
@@ -33,7 +34,10 @@ export async function generateCSVExport(
   }).lean();
 
   const activityTypeMap = new Map(
-    activityTypes.map((at) => [at._id, at.name]),
+    activityTypes.map((at) => [
+      at._id,
+      getLocalizedString(at.name as any, 'en'),
+    ]),
   );
 
   // CSV headers
@@ -69,9 +73,10 @@ export async function generateCSVExport(
   });
 
   // Combine headers and rows
-  const csvContent = [headers.join(','), ...rows.map((row) => row.join(','))].join(
-    '\n',
-  );
+  const csvContent = [
+    headers.join(','),
+    ...rows.map((row) => row.join(',')),
+  ].join('\n');
 
   return csvContent;
 }
@@ -84,10 +89,14 @@ export async function generatePDFExport(
 ): Promise<string> {
   // This would use the document system to generate PDF
   // For now, return a placeholder
-  const csvData = await generateCSVExport(models, providerId, startDate, endDate);
-  
+  const csvData = await generateCSVExport(
+    models,
+    providerId,
+    startDate,
+    endDate,
+  );
+
   // In a real implementation, this would convert CSV to PDF using a library
   // or use the existing document system
   return `PDF export for provider ${providerId} - ${csvData.length} bytes of data`;
 }
-

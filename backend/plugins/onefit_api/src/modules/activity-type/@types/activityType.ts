@@ -6,10 +6,20 @@ export enum GenderRestriction {
   MIXED = 'mixed',
 }
 
+export interface IMultilingualString {
+  en: string;
+  mn: string;
+}
+
+export interface IMultilingualStringOptional {
+  en?: string;
+  mn?: string;
+}
+
 export interface IActivityType {
   providerId: string;
-  name: string;
-  description?: string;
+  name: IMultilingualString;
+  description?: IMultilingualStringOptional;
   creditCost: number; // Credit points required
   duration: number; // Duration in minutes
   genderRestriction: GenderRestriction;
@@ -25,4 +35,3 @@ export interface IActivityTypeDocument extends Document, IActivityType {
   createdAt: Date;
   modifiedAt: Date;
 }
-

@@ -31,7 +31,10 @@ export interface OneFitBooking {
   };
   activityType?: {
     _id: string;
-    name: string;
+    name: {
+      en: string;
+      mn: string;
+    };
   };
   bookingDate: string;
   startTime: string;
@@ -66,4 +69,3 @@ export interface BookingFilters {
   status?: BookingStatus;
   attendanceStatus?: AttendanceStatus;
 }
-

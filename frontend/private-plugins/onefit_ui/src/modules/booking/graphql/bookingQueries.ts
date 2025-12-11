@@ -40,7 +40,10 @@ export const ONE_FIT_BOOKINGS = gql`
         }
         activityType {
           _id
-          name
+          name {
+            en
+            mn
+          }
         }
         bookingDate
         startTime
@@ -110,4 +113,3 @@ export const ONE_FIT_BOOKING = gql`
     }
   }
 `;
-

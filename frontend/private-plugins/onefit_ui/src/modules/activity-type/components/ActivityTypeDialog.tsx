@@ -7,6 +7,8 @@ import {
   Spinner,
   Select,
   Textarea,
+  Switch,
+  Label,
 } from 'erxes-ui';
 import { IconPlus } from '@tabler/icons-react';
 import { useForm } from 'react-hook-form';
@@ -25,8 +27,16 @@ import { SelectCategories } from '~/modules/provider/components/SelectCategories
 import { SelectProviderSearchable } from '~/modules/provider/components/SelectProviderSearchable';
 
 const baseActivityTypeSchema = z.object({
-  name: z.string().min(1, { message: 'Name is required' }),
-  description: z.string().optional(),
+  name: z.object({
+    en: z.string().min(1, { message: 'Name (English) is required' }),
+    mn: z.string().min(1, { message: 'Name (Mongolian) is required' }),
+  }),
+  description: z
+    .object({
+      en: z.string().optional(),
+      mn: z.string().optional(),
+    })
+    .optional(),
   creditCost: z
     .number()
     .min(0, { message: 'Credit cost must be 0 or greater' }),
@@ -131,6 +141,7 @@ const ActivityTypeForm = ({
   onClose,
 }: ActivityTypeFormProps) => {
   const isCreate = mode === 'create';
+  const [selectedLanguage, setSelectedLanguage] = useState<'en' | 'mn'>('en');
 
   const { data: activityTypeData, loading: queryLoading } = useQuery(
     ONE_FIT_ACTIVITY_TYPE,
@@ -147,8 +158,14 @@ const ActivityTypeForm = ({
       isCreate ? createActivityTypeSchema : editActivityTypeSchema,
     ),
     defaultValues: {
-      name: '',
-      description: '',
+      name: {
+        en: '',
+        mn: '',
+      },
+      description: {
+        en: '',
+        mn: '',
+      },
       creditCost: 0,
       duration: 60,
       genderRestriction: GenderRestriction.MIXED,
@@ -163,7 +180,7 @@ const ActivityTypeForm = ({
     if (!isCreate && activityType) {
       form.reset({
         name: activityType.name,
-        description: activityType.description || '',
+        description: activityType.description || { en: '', mn: '' },
         creditCost: activityType.creditCost,
         duration: activityType.duration,
         genderRestriction: activityType.genderRestriction,
@@ -190,7 +207,11 @@ const ActivityTypeForm = ({
         variables: {
           providerId: createData.providerId,
           name: createData.name,
-          description: createData.description || undefined,
+          description:
+            createData.description &&
+            (createData.description.en || createData.description.mn)
+              ? createData.description
+              : undefined,
           creditCost: createData.creditCost,
           duration: createData.duration,
           genderRestriction: createData.genderRestriction,
@@ -210,7 +231,11 @@ const ActivityTypeForm = ({
         variables: {
           _id: activityTypeId!,
           name: editData.name,
-          description: editData.description || undefined,
+          description:
+            editData.description &&
+            (editData.description.en || editData.description.mn)
+              ? editData.description
+              : undefined,
           creditCost: editData.creditCost,
           duration: editData.duration,
           genderRestriction: editData.genderRestriction,
@@ -256,14 +281,52 @@ const ActivityTypeForm = ({
             )}
           />
         )}
+        <div className="flex items-center justify-between gap-4 pb-2">
+          <Label className="text-sm font-medium">Language</Label>
+          <div className="flex items-center gap-3">
+            <Label
+              htmlFor="language-switch"
+              className={`text-sm ${
+                selectedLanguage === 'en'
+                  ? 'font-semibold'
+                  : 'text-muted-foreground'
+              }`}
+            >
+              English
+            </Label>
+            <Switch
+              id="language-switch"
+              checked={selectedLanguage === 'mn'}
+              onCheckedChange={(checked) =>
+                setSelectedLanguage(checked ? 'mn' : 'en')
+              }
+            />
+            <Label
+              htmlFor="language-switch"
+              className={`text-sm ${
+                selectedLanguage === 'mn'
+                  ? 'font-semibold'
+                  : 'text-muted-foreground'
+              }`}
+            >
+              Mongolian
+            </Label>
+          </div>
+        </div>
         <Form.Field
           control={form.control}
-          name="name"
+          name="name.en"
           render={({ field }) => (
-            <Form.Item>
-              <Form.Label>Name *</Form.Label>
+            <Form.Item className={selectedLanguage !== 'en' ? 'hidden' : ''}>
+              <Form.Label>Name (English) *</Form.Label>
               <Form.Control>
-                <Input {...field} placeholder="Enter activity name" />
+                <Input
+                  value={field.value || ''}
+                  onChange={field.onChange}
+                  onBlur={field.onBlur}
+                  ref={field.ref}
+                  placeholder="Enter activity name in English"
+                />
               </Form.Control>
               <Form.Message />
             </Form.Item>
@@ -271,12 +334,58 @@ const ActivityTypeForm = ({
         />
         <Form.Field
           control={form.control}
-          name="description"
+          name="name.mn"
           render={({ field }) => (
-            <Form.Item>
-              <Form.Label>Description</Form.Label>
+            <Form.Item className={selectedLanguage !== 'mn' ? 'hidden' : ''}>
+              <Form.Label>Name (Mongolian) *</Form.Label>
               <Form.Control>
-                <Textarea {...field} placeholder="Enter description" rows={3} />
+                <Input
+                  value={field.value || ''}
+                  onChange={field.onChange}
+                  onBlur={field.onBlur}
+                  ref={field.ref}
+                  placeholder="Enter activity name in Mongolian"
+                />
+              </Form.Control>
+              <Form.Message />
+            </Form.Item>
+          )}
+        />
+        <Form.Field
+          control={form.control}
+          name="description.en"
+          render={({ field }) => (
+            <Form.Item className={selectedLanguage !== 'en' ? 'hidden' : ''}>
+              <Form.Label>Description (English)</Form.Label>
+              <Form.Control>
+                <Textarea
+                  value={field.value || ''}
+                  onChange={field.onChange}
+                  onBlur={field.onBlur}
+                  ref={field.ref}
+                  placeholder="Enter description in English"
+                  rows={3}
+                />
+              </Form.Control>
+              <Form.Message />
+            </Form.Item>
+          )}
+        />
+        <Form.Field
+          control={form.control}
+          name="description.mn"
+          render={({ field }) => (
+            <Form.Item className={selectedLanguage !== 'mn' ? 'hidden' : ''}>
+              <Form.Label>Description (Mongolian)</Form.Label>
+              <Form.Control>
+                <Textarea
+                  value={field.value || ''}
+                  onChange={field.onChange}
+                  onBlur={field.onBlur}
+                  ref={field.ref}
+                  placeholder="Enter description in Mongolian"
+                  rows={3}
+                />
               </Form.Control>
               <Form.Message />
             </Form.Item>

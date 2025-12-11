@@ -17,6 +17,7 @@ import { CancelBookingDialog } from './CancelBookingDialog';
 import { MarkAttendanceDialog } from './MarkAttendanceDialog';
 import { useState } from 'react';
 import { CustomersInline } from 'ui-modules';
+import { getLocalizedString } from '~/modules/activity-type/utils/localization';
 
 interface BookingsListProps {
   filters?: BookingFilters;
@@ -109,9 +110,12 @@ export const BookingsList = ({ filters }: BookingsListProps) => {
       cell: ({ row }) => {
         const booking = row.original;
         const activityType = booking.activityType;
+        const name = activityType?.name
+          ? getLocalizedString(activityType.name, 'en')
+          : '-';
         return (
           <RecordTableInlineCell className="text-xs font-medium">
-            {activityType?.name || '-'}
+            {name}
           </RecordTableInlineCell>
         );
       },

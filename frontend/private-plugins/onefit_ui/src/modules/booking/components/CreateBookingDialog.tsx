@@ -11,6 +11,7 @@ import { useCreateBooking } from '../hooks/useBookingMutations';
 import { ONE_FIT_ACTIVITY_TYPES } from '~/modules/activity-type/graphql/activityTypeQueries';
 import { SelectCustomer } from 'ui-modules';
 import { SelectProviderSearchable } from '~/modules/provider/components/SelectProviderSearchable';
+import { getLocalizedString } from '~/modules/activity-type/utils/localization';
 
 const createBookingSchema = z.object({
   userId: z.string().min(1, { message: 'User is required' }),
@@ -158,7 +159,8 @@ const CreateBookingForm = ({ onClose }: { onClose: () => void }) => {
                         key={activityType._id}
                         value={activityType._id}
                       >
-                        {activityType.name} ({activityType.creditCost} credits)
+                        {getLocalizedString(activityType.name, 'en')} (
+                        {activityType.creditCost} credits)
                       </Select.Item>
                     ))}
                   </Select.Content>

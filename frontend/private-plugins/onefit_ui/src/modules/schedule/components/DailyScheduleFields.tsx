@@ -6,6 +6,8 @@ import { DAYS_OF_WEEK, GENDER_RESTRICTIONS } from '../utils/scheduleUtils';
 import { useQuery } from '@apollo/client';
 import { ONE_FIT_ACTIVITY_TYPES } from '~/modules/activity-type/graphql/activityTypeQueries';
 import { EnumCursorDirection, EnumCursorMode } from 'erxes-ui';
+import { getLocalizedString } from '~/modules/activity-type/utils/localization';
+import { OneFitActivityType } from '~/modules/activity-type/types/activityType';
 
 interface DailyScheduleFieldsProps {
   index: number;
@@ -102,16 +104,14 @@ export function DailyScheduleFields({
                         No activities available for this provider
                       </Select.Item>
                     ) : (
-                      activityTypes.map(
-                        (activityType: { _id: string; name: string }) => (
-                          <Select.Item
-                            key={activityType._id}
-                            value={activityType._id}
-                          >
-                            {activityType.name}
-                          </Select.Item>
-                        ),
-                      )
+                      activityTypes.map((activityType: OneFitActivityType) => (
+                        <Select.Item
+                          key={activityType._id}
+                          value={activityType._id}
+                        >
+                          {getLocalizedString(activityType.name, 'en')}
+                        </Select.Item>
+                      ))
                     )}
                   </Select.Content>
                 </Select>

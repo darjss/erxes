@@ -3,8 +3,8 @@ import { gql } from '@apollo/client';
 export const ONE_FIT_ACTIVITY_TYPE_CREATE = gql`
   mutation OneFitActivityTypeCreate(
     $providerId: String!
-    $name: String!
-    $description: String
+    $name: OneFitMultilingualStringInput!
+    $description: OneFitMultilingualStringOptionalInput
     $creditCost: Float!
     $duration: Int!
     $genderRestriction: OneFitGenderRestriction!
@@ -27,8 +27,14 @@ export const ONE_FIT_ACTIVITY_TYPE_CREATE = gql`
       createdAt
       modifiedAt
       providerId
-      name
-      description
+      name {
+        en
+        mn
+      }
+      description {
+        en
+        mn
+      }
       creditCost
       duration
       genderRestriction
@@ -42,8 +48,8 @@ export const ONE_FIT_ACTIVITY_TYPE_CREATE = gql`
 export const ONE_FIT_ACTIVITY_TYPE_UPDATE = gql`
   mutation OneFitActivityTypeUpdate(
     $_id: String!
-    $name: String
-    $description: String
+    $name: OneFitMultilingualStringInput
+    $description: OneFitMultilingualStringOptionalInput
     $creditCost: Float
     $duration: Int
     $genderRestriction: OneFitGenderRestriction
@@ -64,8 +70,14 @@ export const ONE_FIT_ACTIVITY_TYPE_UPDATE = gql`
     ) {
       _id
       modifiedAt
-      name
-      description
+      name {
+        en
+        mn
+      }
+      description {
+        en
+        mn
+      }
       creditCost
       duration
       genderRestriction
@@ -81,10 +93,3 @@ export const ONE_FIT_ACTIVITY_TYPES_REMOVE = gql`
     oneFitActivityTypesRemove(ids: $ids)
   }
 `;
-
-
-
-
-
-
-

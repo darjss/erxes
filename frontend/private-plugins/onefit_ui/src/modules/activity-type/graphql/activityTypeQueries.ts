@@ -27,8 +27,14 @@ export const ONE_FIT_ACTIVITY_TYPES = gql`
           _id
           businessName
         }
-        name
-        description
+        name {
+          en
+          mn
+        }
+        description {
+          en
+          mn
+        }
         creditCost
         duration
         genderRestriction
@@ -80,8 +86,14 @@ export const ONE_FIT_ACTIVITY_TYPE = gql`
         _id
         businessName
       }
-      name
-      description
+      name {
+        en
+        mn
+      }
+      description {
+        en
+        mn
+      }
       creditCost
       duration
       genderRestriction

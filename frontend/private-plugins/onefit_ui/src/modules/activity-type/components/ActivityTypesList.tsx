@@ -12,6 +12,7 @@ import { ACTIVITY_TYPES_CURSOR_SESSION_KEY } from '../constants/activityTypeCurs
 import { EditActivityTypeDialog } from './ActivityTypeDialog';
 import { RemoveActivityTypeDialog } from './RemoveActivityTypeDialog';
 import { useState } from 'react';
+import { getLocalizedString } from '../utils/localization';
 
 interface ActivityTypesListProps {
   filters?: ActivityTypeFilters;
@@ -54,10 +55,12 @@ export const ActivityTypesList = ({ filters }: ActivityTypesListProps) => {
     {
       accessorKey: 'name',
       header: 'Name',
-      cell: ({ cell }) => {
+      cell: ({ row }) => {
+        const activityType = row.original;
+        const name = getLocalizedString(activityType.name, 'en');
         return (
           <RecordTableInlineCell className="text-xs font-medium">
-            {cell.getValue() as string}
+            {name}
           </RecordTableInlineCell>
         );
       },
@@ -79,8 +82,9 @@ export const ActivityTypesList = ({ filters }: ActivityTypesListProps) => {
     {
       accessorKey: 'description',
       header: 'Description',
-      cell: ({ cell }) => {
-        const description = cell.getValue() as string | undefined;
+      cell: ({ row }) => {
+        const activityType = row.original;
+        const description = getLocalizedString(activityType.description, 'en');
         return (
           <RecordTableInlineCell className="text-xs font-medium text-muted-foreground">
             {description || '-'}

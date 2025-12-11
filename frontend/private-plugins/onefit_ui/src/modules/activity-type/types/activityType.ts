@@ -4,6 +4,16 @@ export enum GenderRestriction {
   MIXED = 'mixed',
 }
 
+export interface MultilingualString {
+  en: string;
+  mn: string;
+}
+
+export interface MultilingualStringOptional {
+  en?: string;
+  mn?: string;
+}
+
 export interface OneFitActivityType {
   _id: string;
   createdAt: string;
@@ -13,8 +23,8 @@ export interface OneFitActivityType {
     _id: string;
     businessName: string;
   };
-  name: string;
-  description?: string;
+  name: MultilingualString;
+  description?: MultilingualStringOptional;
   creditCost: number;
   duration: number;
   genderRestriction: GenderRestriction;
@@ -45,10 +55,3 @@ export interface ActivityTypeFilters {
   genderRestriction?: GenderRestriction;
   isActive?: boolean;
 }
-
-
-
-
-
-
-
