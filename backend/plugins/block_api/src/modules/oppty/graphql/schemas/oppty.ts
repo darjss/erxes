@@ -46,13 +46,12 @@ export const types = `
     status: OpptyStatus
     labelIds: [String]
     tagIds: [String]
-    projectId: String
     startDate: Date
     targetDate: Date
     customerSource: String
   }
 
-  input OpptyFilter {
+  input IOpptyFilter {
     number: String
     description: String
     customerId: String
@@ -76,7 +75,7 @@ export const types = `
 `;
 
 export const queries = `
-  getOpptys(projectId: String!, filter: OpptyFilter): OpptyListResponse
+  getOpptys(projectId: String!, filter: IOpptyFilter): OpptyListResponse
 `;
 
 export const mutations = `

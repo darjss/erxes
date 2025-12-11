@@ -1,174 +1,88 @@
-import { Board, BoardColumnProps, BoardItemProps } from 'erxes-ui';
+import { Board, BoardColumnProps } from 'erxes-ui';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { IOppty } from '@/oppty/types/opptyTypes';
 import type { DragEndEvent } from '@dnd-kit/core';
 import { allOpptysMapState } from '@/oppty/states/allOpptysMapState';
 import { fetchedOpptysState } from '@/oppty/states/fetchedOpptysState';
-import { opptyCountByBoardAtom } from '@/oppty/states/opptyCountByBoardAtom';
+import { opptyCountByProjectAtom } from '@/oppty/states/opptyCountByProjectAtom';
 // import { useUpdateOppty } from '../hooks/useManageOppty'; // TODO: Enable when backend is ready
 import { useEffect } from 'react';
 import { OpptysBoardCard } from '@/oppty/components/OpptysBoardCard';
-import { OPPTY_CUSTOMER_SOURCES, OPPTY_STATUSES } from '../constants/oppty';
+
+import { useOpptys } from '@/oppty/hooks/useGetOpptys';
+import { clsx } from 'clsx';
 
 const columns = [
   {
-    id: 'lead',
+    id: 'new_lead_unassigned',
     name: 'Шинэ – Байр сонгоогүй',
     type: 'new',
     color: 'blue',
   },
   {
-    id: 'picked',
+    id: 'assigned_in_contact',
     name: 'Шинэ – Байр сонгосон',
     type: 'in-progress',
     color: 'green',
   },
+
   {
-    id: 'connected',
+    id: 'qualified_lead',
     name: 'Холбогдсон',
     type: 'in-progress',
     color: 'yellow',
   },
   {
-    id: 'schedule',
+    id: 'unit_shortlist_created',
     name: 'Уулзалт товлосон',
     type: 'in-progress',
     color: 'yellow',
   },
   {
-    id: 'negotiation',
+    id: 'property_viewing',
     name: 'Хэлэлцээр',
     type: 'in-progress',
     color: 'yellow',
   },
   {
-    id: 'ordered',
+    id: 'unit_selected',
     name: 'Захиалсан',
     type: 'done',
     color: 'green',
   },
-  { id: 'closed', name: 'Дууссан', type: 'completed', color: 'green' },
+  { id: 'negotiation', name: 'Хэлэлцээр', type: 'completed', color: 'green' },
   {
-    id: 'lost',
-    name: 'Алдагдсан',
+    id: 'reservation',
+    name: 'Захиалсан',
     type: 'cancelled',
     color: 'red',
   },
-];
-
-function mapOpptyStatusToColumn(
-  status?: (typeof OPPTY_STATUSES)[keyof typeof OPPTY_STATUSES],
-): string {
-  switch (status) {
-    case OPPTY_STATUSES.NEW_LEAD_UNASSIGNED:
-      return 'lead';
-    case OPPTY_STATUSES.ASSIGNED_IN_CONTACT:
-      return 'picked';
-    case OPPTY_STATUSES.QUALIFIED_LEAD:
-      return 'connected';
-    case OPPTY_STATUSES.UNIT_SHORTLIST_CREATED:
-      return 'schedule';
-    case OPPTY_STATUSES.PROPERTY_VIEWING:
-      return 'negotiation';
-    case OPPTY_STATUSES.UNIT_SELECTED:
-      return 'ordered';
-    case OPPTY_STATUSES.NEGOTIATION:
-      return 'negotiation';
-    case OPPTY_STATUSES.RESERVATION:
-      return 'ordered';
-    case OPPTY_STATUSES.CONTRACT_DRAFTING_SIGNING:
-      return 'ordered';
-    case OPPTY_STATUSES.CLOSED_SUCCESSFUL:
-      return 'closed';
-    case OPPTY_STATUSES.CLOSED_UNSUCCESSFUL:
-      return 'closed';
-    case OPPTY_STATUSES.CANCELLED:
-      return 'lost';
-    default:
-      return 'lead';
-  }
-}
-
-function mapColumnToOpptyStatus(
-  columnId: string,
-): (typeof OPPTY_STATUSES)[keyof typeof OPPTY_STATUSES] {
-  switch (columnId) {
-    case 'lead':
-      return OPPTY_STATUSES.NEW_LEAD_UNASSIGNED;
-    case 'ordered':
-      return OPPTY_STATUSES.CONTRACT_DRAFTING_SIGNING;
-    case 'closed':
-      return OPPTY_STATUSES.CLOSED_SUCCESSFUL;
-    case 'lost':
-      return OPPTY_STATUSES.CANCELLED;
-    default:
-      return OPPTY_STATUSES.NEW_LEAD_UNASSIGNED;
-  }
-}
-
-function transformOpptysToBoardItems(opptys: IOppty[]): BoardItemProps[] {
-  return opptys.map((oppty) => ({
-    id: oppty._id,
-    column: mapOpptyStatusToColumn(oppty.status),
-    sort: oppty.updatedAt || new Date().toISOString(),
-  }));
-}
-
-const mockOpptys: IOppty[] = [
   {
-    _id: '1',
-    description: 'Test oppty',
-    customerId: '1',
-    unitTypes: ['1'],
-    customerSource: OPPTY_CUSTOMER_SOURCES.WEBSITE,
-    status: OPPTY_STATUSES.NEW_LEAD_UNASSIGNED,
-    createdAt: new Date(),
-    updatedAt: new Date(),
+    id: 'contract_drafting_signing',
+    name: 'Дууссан',
+    type: 'completed',
+    color: 'green',
   },
   {
-    _id: '2',
-    description: 'Test oppty',
-    customerId: '2',
-    unitTypes: ['2'],
-    customerSource: OPPTY_CUSTOMER_SOURCES.WEBSITE,
-    status: OPPTY_STATUSES.ASSIGNED_IN_CONTACT,
-    createdAt: new Date(),
-    updatedAt: new Date(),
+    id: 'closed_successful',
+    name: 'Дууссан',
+    type: 'completed',
+    color: 'green',
   },
   {
-    _id: '3',
-    description: 'Test oppty',
-    customerId: '3',
-    unitTypes: ['3'],
-    customerSource: OPPTY_CUSTOMER_SOURCES.WEBSITE,
-    status: OPPTY_STATUSES.QUALIFIED_LEAD,
-    createdAt: new Date(),
-    updatedAt: new Date(),
+    id: 'closed_unsuccessful',
+    name: 'Дууссан',
+    type: 'completed',
+    color: 'green',
   },
 ];
 
-export const OpptysBoard = () => {
+export const OpptysBoard = ({ projectId }: { projectId: string }) => {
   const allOpptysMap = useAtomValue(allOpptysMapState);
+  // const { updateOppty } = useUpdateOppty();
+
   const [opptys, setOpptys] = useAtom(fetchedOpptysState);
-  const setOpptyCountByBoard = useSetAtom(opptyCountByBoardAtom);
-  const setAllOpptysMap = useSetAtom(allOpptysMapState);
-
-  useEffect(() => {
-    const boardItems = transformOpptysToBoardItems(mockOpptys);
-    setOpptys(boardItems);
-
-    const opptysMap: Record<string, IOppty> = {};
-    mockOpptys.forEach((oppty) => {
-      opptysMap[oppty._id] = oppty;
-    });
-    setAllOpptysMap(opptysMap);
-
-    const countByBoard: Record<string, number> = {};
-    boardItems.forEach((item) => {
-      countByBoard[item.column] = (countByBoard[item.column] || 0) + 1;
-    });
-    setOpptyCountByBoard(countByBoard);
-  }, [setOpptys, setAllOpptysMap, setOpptyCountByBoard]);
+  const setOpptyCountByProject = useSetAtom(opptyCountByProjectAtom);
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
@@ -177,48 +91,23 @@ export const OpptysBoard = () => {
     }
     const activeItem = allOpptysMap[active.id as string];
     const overItem = allOpptysMap[over.id as string];
-    const overColumn = overItem?.status
-      ? mapOpptyStatusToColumn(overItem.status)
-      : columns.find((col) => col.id === over.id)?.id || columns[0]?.id;
+    const overColumn =
+      overItem?.status ||
+      columns?.find((col) => col.id === over.id)?.id ||
+      columns?.[0]?.id;
 
-    if (
-      !activeItem ||
-      mapOpptyStatusToColumn(activeItem.status) === overColumn
-    ) {
+    if (activeItem?.status === overColumn) {
       return;
     }
-
-    const newStatus = mapColumnToOpptyStatus(overColumn);
-
-    // TODO: Connect to backend when ready
-    // updateOppty(activeItem._id, {
-    //   unit: activeItem.unit,
-    //   number: activeItem.number,
-    //   currency: activeItem.currency,
-    //   date: activeItem.date,
-    //   amount: activeItem.amount,
-    //   amountType: activeItem.amountType,
-    //   status: newStatus,
-    //   startDate: activeItem.startDate,
-    //   endDate: activeItem.endDate,
-    //   isLifeTime: activeItem.isLifeTime,
-    //   party: activeItem.party,
-    //   paymentPlan: activeItem.paymentPlan,
-    //   user: activeItem.user,
+    // updateOppty({
+    //   variables: {
+    //     _id: activeItem?._id,
+    //     status: overColumn,
+    //   },
     // });
-
-    // Update oppty in map with new status
-    setAllOpptysMap((prev) => ({
-      ...prev,
-      [activeItem._id]: {
-        ...prev[activeItem._id],
-        status: newStatus,
-      },
-    }));
-
     setOpptys((prev) =>
       prev.map((oppty) => {
-        if (oppty.id === activeItem._id) {
+        if (oppty.id === activeItem?._id) {
           return {
             ...oppty,
             column: overColumn,
@@ -228,11 +117,9 @@ export const OpptysBoard = () => {
         return oppty;
       }),
     );
-
-    const previousColumn = mapOpptyStatusToColumn(activeItem.status);
-    setOpptyCountByBoard((prev) => ({
+    setOpptyCountByProject((prev) => ({
       ...prev,
-      [previousColumn]: (prev[previousColumn] || 1) - 1,
+      [activeItem?.status]: prev[activeItem?.status] - 1 || 0,
       [overColumn]: (prev[overColumn] || 0) + 1,
     }));
   };
@@ -242,20 +129,29 @@ export const OpptysBoard = () => {
       columns={columns}
       data={opptys}
       onDragEnd={handleDragEnd}
-      boardId="opptys"
+      boardId={clsx('opptys-board', projectId)}
     >
       {(column) => (
-        <Board id={column.id} key={column.id} sortBy="updated">
-          <OpptysBoardCards column={column} />
+        <Board id={column.id} key={column.id} sortBy="updated" className="w-80">
+          <OpptysBoardCards column={column} projectId={projectId} />
         </Board>
       )}
     </Board.Provider>
   );
 };
 
-export const OpptysBoardCards = ({ column }: { column: BoardColumnProps }) => {
-  const [opptyCards] = useAtom(fetchedOpptysState);
-  const [opptyCountByBoard] = useAtom(opptyCountByBoardAtom);
+export const OpptysBoardCards = ({
+  column,
+  projectId,
+}: {
+  column: BoardColumnProps;
+  projectId: string;
+}) => {
+  console.log(projectId, '123');
+  const [opptyCards, setOpptyCards] = useAtom(fetchedOpptysState);
+  const [opptyCountByProject, setOpptyCountByProject] = useAtom(
+    opptyCountByProjectAtom,
+  );
 
   const boardCards = opptyCards
     .filter((oppty) => oppty.column === column.id)
@@ -266,13 +162,49 @@ export const OpptysBoardCards = ({ column }: { column: BoardColumnProps }) => {
       return 0;
     });
 
+  const { opptys, totalCount, loading, handleFetchMore } = useOpptys(
+    projectId,
+    {
+      variables: {
+        status: column.id,
+      },
+    },
+  );
+
+  const setAllOpptysMap = useSetAtom(allOpptysMapState);
+
+  useEffect(() => {
+    if (opptys) {
+      setOpptyCards((prev) => {
+        const previousopptys = prev.filter(
+          (optty) => !opptys.some((t) => t._id === optty.id),
+        );
+        return [
+          ...previousopptys,
+          ...opptys.map((oppty) => ({
+            id: oppty._id,
+            column: oppty.status,
+            sort: oppty.updatedAt,
+          })),
+        ];
+      });
+      setAllOpptysMap((prev) => {
+        const newOpptys = opptys.reduce((acc, oppty) => {
+          acc[oppty._id] = oppty;
+          return acc;
+        }, {} as Record<string, IOppty>);
+        return { ...prev, ...newOpptys };
+      });
+    }
+  }, [opptys, setOpptyCards, setAllOpptysMap, column.id]);
+
   return (
     <>
       <Board.Header>
         <h4 className="capitalize flex items-center gap-1 pl-1">
           {column.name}
           <span className="text-accent-foreground font-medium pl-1">
-            {opptyCountByBoard[column.id] || 0}
+            {opptyCountByProject[column.id] || 0}
           </span>
         </h4>
       </Board.Header>
