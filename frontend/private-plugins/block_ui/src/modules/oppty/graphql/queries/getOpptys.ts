@@ -2,8 +2,8 @@ import { gql } from '@apollo/client';
 import { GQL_PAGE_INFO } from 'erxes-ui';
 
 export const GET_OPPTYS = gql`
-  query GetOpptys($projectId: String!, $filter: IOpptyFilter) {
-    getOpptys(projectId: $projectId, filter: $filter) {
+  query BlockGetOpptys($projectId: String!, $filter: IOpptyFilter) {
+    blockGetOpptys(projectId: $projectId, filter: $filter) {
       list {
         _id
         number

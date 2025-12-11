@@ -110,7 +110,10 @@ export const OpptysBoard = ({ projectId }: { projectId: string }) => {
     updateOppty({
       variables: {
         _id: activeItem?._id,
-        status: overColumn,
+        input: {
+          projectId: projectId,
+          status: overColumn,
+        },
       },
     });
 

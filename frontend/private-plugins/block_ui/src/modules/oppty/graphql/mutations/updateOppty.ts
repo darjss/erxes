@@ -1,8 +1,8 @@
 import { gql } from '@apollo/client';
 
 export const UPDATE_OPPTY_MUTATION = gql`
-  mutation UpdateOppty($_id: String!, $input: IOpptyInput!) {
-    updateOppty(_id: $_id, input: $input) {
+  mutation BlockUpdateOppty($_id: String!, $input: IOpptyInput!) {
+    blockUpdateOppty(_id: $_id, input: $input) {
       _id
       number
       description

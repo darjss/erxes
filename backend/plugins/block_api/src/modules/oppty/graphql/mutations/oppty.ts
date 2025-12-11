@@ -3,7 +3,7 @@ import { IOppty } from '@/oppty/@types/oppty';
 import { IContractPaymentPlan } from '@/contract/@types/contract';
 
 export const opptyMutations = {
-  createOppty: async (
+  blockCreateOppty: async (
     _parent: undefined,
     { input }: { input: IOppty },
     { models }: IContext,
@@ -11,7 +11,7 @@ export const opptyMutations = {
     return models.Oppty.createOppty(input);
   },
 
-  updateOppty: async (
+  blockUpdateOppty: async (
     _parent: undefined,
     { _id, input }: { _id: string; input: IOppty },
     { models }: IContext,
@@ -19,7 +19,7 @@ export const opptyMutations = {
     return models.Oppty.updateOppty(_id, input);
   },
 
-  deleteOppty: async (
+  blockDeleteOppty: async (
     _parent: undefined,
     { _id }: { _id: string },
     { models }: IContext,
@@ -27,7 +27,7 @@ export const opptyMutations = {
     return models.Oppty.deleteOppty(_id);
   },
 
-  convertToContract: async (
+  blockOpptyConvertToContract: async (
     _parent: undefined,
     {
       _id,

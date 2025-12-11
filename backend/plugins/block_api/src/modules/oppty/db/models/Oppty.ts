@@ -15,8 +15,8 @@ export interface IOpptyModel extends Model<IOpptyDocument> {
 export const loadOpptyClass = (models: IModels) => {
   class Oppty {
     public static async createOppty(input: IOppty) {
-      graphqlPubsub.publish('opptyListChanged', {
-        opptyListChanged: { type: 'create', oppty: input },
+      graphqlPubsub.publish('blockOpptyListChanged', {
+        blockOpptyListChanged: { type: 'create', oppty: input },
       });
 
       return models.Oppty.create(input);
@@ -29,11 +29,11 @@ export const loadOpptyClass = (models: IModels) => {
         { new: true },
       );
 
-      graphqlPubsub.publish(`opptyChanged:${_id}`, {
-        opptyChanged: { type: 'update', oppty: updatedOppty },
+      graphqlPubsub.publish(`blockOpptyChanged:${_id}`, {
+        blockOpptyChanged: { type: 'update', oppty: updatedOppty },
       });
-      graphqlPubsub.publish('opptyListChanged', {
-        opptyListChanged: { type: 'update', oppty: updatedOppty },
+      graphqlPubsub.publish('blockOpptyListChanged', {
+        blockOpptyListChanged: { type: 'update', oppty: updatedOppty },
       });
       return updatedOppty;
     }

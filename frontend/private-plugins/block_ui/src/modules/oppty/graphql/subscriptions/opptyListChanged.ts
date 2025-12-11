@@ -1,8 +1,11 @@
 import { gql } from '@apollo/client';
 
 export const OPPTY_LIST_CHANGED = gql`
-  subscription opptyListChanged($projectId: String!, $filter: IOpptyFilter) {
-    opptyListChanged(projectId: $projectId, filter: $filter) {
+  subscription blockOpptyListChanged(
+    $projectId: String!
+    $filter: IOpptyFilter
+  ) {
+    blockOpptyListChanged(projectId: $projectId, filter: $filter) {
       type
       oppty {
         _id

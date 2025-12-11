@@ -36,7 +36,7 @@ export const types = `
     updatedAt: Date
   }
 
-  input OpptyInput {
+  input IOpptyInput {
     number: String
     description: String
     customerId: String
@@ -49,6 +49,7 @@ export const types = `
     startDate: Date
     targetDate: Date
     customerSource: String
+    projectId: String
   }
 
   input IOpptyFilter {
@@ -75,12 +76,12 @@ export const types = `
 `;
 
 export const queries = `
-  getOpptys(projectId: String!, filter: IOpptyFilter): OpptyListResponse
+  blockGetOpptys(projectId: String!, filter: IOpptyFilter): OpptyListResponse
 `;
 
 export const mutations = `
-  createOppty(input: OpptyInput!): Oppty
-  updateOppty(_id: String!, input: OpptyInput!): Oppty
-  deleteOppty(_id: String!): Oppty
-  convertToContract(_id: String!, unit: String!, paymentPlan: BlockProjectPaymentPlanInput!): String
+  blockCreateOppty(input: IOpptyInput!): Oppty
+  blockUpdateOppty(_id: String!, input: IOpptyInput!): Oppty
+  blockDeleteOppty(_id: String!): Oppty
+  blockOpptyConvertToContract(_id: String!, unit: String!, paymentPlan: BlockProjectPaymentPlanInput!): String
 `;

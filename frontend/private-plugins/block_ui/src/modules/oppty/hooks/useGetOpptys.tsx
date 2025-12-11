@@ -16,7 +16,7 @@ import { useEffect } from 'react';
 const OPPTYS_PER_PAGE = 30;
 
 interface IOpptyChanged {
-  opptyListChanged: {
+  blockOpptyListChanged: {
     type: string;
     oppty: IOppty;
   };
@@ -70,7 +70,7 @@ export const useOpptys = (
     },
   });
 
-  const { list: opptys, pageInfo, totalCount } = data?.getOpptys || {};
+  const { list: opptys, pageInfo, totalCount } = data?.blockGetOpptys || {};
 
   useEffect(() => {
     const unsubscribe = subscribeToMore<IOpptyChanged>({
@@ -79,8 +79,8 @@ export const useOpptys = (
       updateQuery: (prev, { subscriptionData }) => {
         if (!prev || !subscriptionData.data) return prev;
 
-        const { type, oppty } = subscriptionData.data.opptyListChanged;
-        const currentList = prev.getOpptys.list;
+        const { type, oppty } = subscriptionData.data.blockOpptyListChanged;
+        const currentList = prev.blockGetOpptys.list;
 
         let updatedList = currentList;
 
@@ -107,7 +107,7 @@ export const useOpptys = (
 
         return {
           ...prev,
-          getOpptys: {
+          blockGetOpptys: {
             ...prev.getOpptys,
             list: updatedList,
             pageInfo: prev.getOpptys.pageInfo,

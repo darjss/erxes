@@ -3,8 +3,8 @@ import { withFilter } from 'graphql-subscriptions';
 export default {
   name: 'block',
   typeDefs: `
-      opptyChanged(_id: String!): TicketSubscription
-      opptyListChanged(filter: ITicketFilter): TicketSubscription
+      blockOpptyChanged(_id: String!): TicketSubscription
+      blockOpptyListChanged(filter: ITicketFilter): TicketSubscription
       opptyActivityChanged(contentId: String!): TicketActivitySubscription
 
 		`,
@@ -18,18 +18,18 @@ export default {
       },
 
       // --- Ticket ---
-      opptyChanged: {
-        resolve: (payload) => payload.opptyChanged,
+      blockOpptyChanged: {
+        resolve: (payload) => payload.blockOpptyChanged,
         subscribe: (_, { _id }) =>
-          graphqlPubsub.asyncIterator(`opptyChanged:${_id}`),
+          graphqlPubsub.asyncIterator(`blockOpptyChanged:${_id}`),
       },
 
-      opptyListChanged: {
-        resolve: (payload) => payload.opptyListChanged,
+      blockOpptyListChanged: {
+        resolve: (payload) => payload.blockOpptyListChanged,
         subscribe: withFilter(
-          () => graphqlPubsub.asyncIterator('opptyListChanged'),
+          () => graphqlPubsub.asyncIterator('blockOpptyListChanged'),
           async (payload, variables) => {
-            const oppty = payload.opptyListChanged.oppty;
+            const oppty = payload.blockOpptyListChanged.oppty;
             const projectId = variables.projectId || '';
             const filter = variables.filter || {};
 
