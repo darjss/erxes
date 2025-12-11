@@ -1,16 +1,22 @@
-import { Board, BoardColumnProps } from 'erxes-ui';
+import {
+  Board,
+  BoardColumnProps,
+  EnumCursorDirection,
+  Skeleton,
+} from 'erxes-ui';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { IOppty } from '@/oppty/types/opptyTypes';
 import type { DragEndEvent } from '@dnd-kit/core';
 import { allOpptysMapState } from '@/oppty/states/allOpptysMapState';
 import { fetchedOpptysState } from '@/oppty/states/fetchedOpptysState';
 import { opptyCountByProjectAtom } from '@/oppty/states/opptyCountByProjectAtom';
-// import { useUpdateOppty } from '../hooks/useManageOppty'; // TODO: Enable when backend is ready
+
 import { useEffect } from 'react';
 import { OpptysBoardCard } from '@/oppty/components/OpptysBoardCard';
 
 import { useOpptys } from '@/oppty/hooks/useGetOpptys';
 import { clsx } from 'clsx';
+import { useInView } from 'react-intersection-observer';
 
 const columns = [
   {
@@ -147,7 +153,6 @@ export const OpptysBoardCards = ({
   column: BoardColumnProps;
   projectId: string;
 }) => {
-  console.log(projectId, '123');
   const [opptyCards, setOpptyCards] = useAtom(fetchedOpptysState);
   const [opptyCountByProject, setOpptyCountByProject] = useAtom(
     opptyCountByProjectAtom,
@@ -198,13 +203,26 @@ export const OpptysBoardCards = ({
     }
   }, [opptys, setOpptyCards, setAllOpptysMap, column.id]);
 
+  useEffect(() => {
+    if (totalCount) {
+      setOpptyCountByProject((prev) => ({
+        ...prev,
+        [column.id]: totalCount || 0,
+      }));
+    }
+  }, [totalCount, setOpptyCountByProject, column.id]);
+
   return (
     <>
       <Board.Header>
         <h4 className="capitalize flex items-center gap-1 pl-1">
           {column.name}
           <span className="text-accent-foreground font-medium pl-1">
-            {opptyCountByProject[column.id] || 0}
+            {loading ? (
+              <Skeleton className="size-4 rounded" />
+            ) : (
+              opptyCountByProject[column.id] || 0
+            )}
           </span>
         </h4>
       </Board.Header>
@@ -219,7 +237,38 @@ export const OpptysBoardCards = ({
             <OpptysBoardCard id={oppty.id} column={column.id} />
           </Board.Card>
         ))}
+        <OpptysCardsFetchMore
+          totalCount={opptyCountByProject[column.id] || 0}
+          currentLength={boardCards.length}
+          handleFetchMore={() =>
+            handleFetchMore({ direction: EnumCursorDirection.FORWARD })
+          }
+        />
       </Board.Cards>
     </>
+  );
+};
+
+export const OpptysCardsFetchMore = ({
+  totalCount,
+  handleFetchMore,
+  currentLength,
+}: {
+  totalCount: number;
+  handleFetchMore: () => void;
+  currentLength: number;
+}) => {
+  const { ref: bottomRef } = useInView({
+    onChange: (inView) => inView && handleFetchMore(),
+  });
+
+  if (!totalCount || currentLength >= totalCount || currentLength === 0) {
+    return null;
+  }
+
+  return (
+    <div ref={bottomRef}>
+      <Skeleton className="p-12 w-full rounded shadow-xs opacity-80" />
+    </div>
   );
 };
