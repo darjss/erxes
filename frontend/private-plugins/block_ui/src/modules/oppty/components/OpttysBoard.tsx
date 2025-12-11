@@ -22,38 +22,38 @@ import { useUpdateOppty } from '@/oppty/hooks/useUpdateOppty';
 const columns = [
   {
     id: 'new_lead_unassigned',
-    name: 'Шинэ – Байр сонгоогүй',
+    name: 'Шинэ',
     type: 'new',
     color: 'blue',
   },
   {
     id: 'assigned_in_contact',
-    name: 'Шинэ – Байр сонгосон',
+    name: 'Холбогдсон',
     type: 'in-progress',
     color: 'green',
   },
 
   {
     id: 'qualified_lead',
-    name: 'Холбогдсон',
+    name: 'Баталгаажсан',
     type: 'in-progress',
     color: 'yellow',
   },
   {
     id: 'unit_shortlist_created',
-    name: 'Байраа ',
+    name: 'Үл хөдлөх сонгох',
     type: 'in-progress',
     color: 'yellow',
   },
   {
     id: 'property_viewing',
-    name: 'Байр үзүүлэх',
+    name: 'Үл хөдлөх үзсэн',
     type: 'in-progress',
     color: 'yellow',
   },
   {
     id: 'unit_selected',
-    name: 'Байраа сонгосон',
+    name: 'Үл хөдлөх сонгосон',
     type: 'done',
     color: 'green',
   },

@@ -1,6 +1,6 @@
 import { IconContract } from '@tabler/icons-react';
 import { Breadcrumb, Button, PageContainer } from 'erxes-ui';
-import { Link } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import { PageHeader } from 'ui-modules';
 
 export const OpptysLayout = ({ children }: { children: React.ReactNode }) => {
@@ -30,6 +30,10 @@ export const OpptysLayout = ({ children }: { children: React.ReactNode }) => {
 };
 
 export const OpptysHeader = () => {
+  const { projectId } = useParams();
+
+  if (!projectId) return null;
+
   return (
     <PageHeader>
       <PageHeader.Start>
@@ -37,7 +41,7 @@ export const OpptysHeader = () => {
           <Breadcrumb.List className="gap-1">
             <Breadcrumb.Item>
               <Button variant="ghost" asChild>
-                <Link to="/block/opportunities">
+                <Link to={`/block/project/${projectId}/opportunities`}>
                   <IconContract />
                   Opportunities
                 </Link>
