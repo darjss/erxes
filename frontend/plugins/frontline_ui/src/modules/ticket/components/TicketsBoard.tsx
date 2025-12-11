@@ -127,6 +127,7 @@ export const TicketsBoardCards = ({ column }: { column: BoardColumnProps }) => {
       statusId: column.id,
     },
   });
+
   const setAllticketsMap = useSetAtom(allTicketsMapState);
   useEffect(() => {
     if (tickets) {
