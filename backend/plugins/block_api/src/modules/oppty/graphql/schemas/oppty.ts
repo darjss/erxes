@@ -32,6 +32,8 @@ export const types = `
     startDate: Date
     targetDate: Date
     customerSource: String
+    createdAt: Date
+    updatedAt: Date
   }
 
   input OpptyInput {
