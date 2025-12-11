@@ -1,9 +1,12 @@
+import { OPPTY_STATUSES } from '../constants/oppty';
+
 export interface IOpptyFilter {
   number?: string;
   description?: string;
   customerId?: string;
   unitType?: string;
   unit?: string;
+  block?: string;
   assignedUserId?: string;
   status?: string;
   labelIds?: string[];
@@ -12,18 +15,19 @@ export interface IOpptyFilter {
 }
 
 export interface IOpptyInput {
-  number: string;
+  number?: string;
   description: string;
   customerId: string;
-  unitTypes: string[];
-  units: string[];
-  assignedUserId: string;
-  status: string;
-  labelIds: string[];
-  tagIds: string[];
-  projectId: string;
-  startDate: Date;
-  targetDate: Date;
+  unitTypes?: string[];
+  units?: string[];
+  blocks?: string[];
+  assignedUserId?: string;
+  status: (typeof OPPTY_STATUSES)[keyof typeof OPPTY_STATUSES];
+  labelIds?: string[];
+  tagIds?: string[];
+  projectId?: string;
+  startDate?: Date;
+  targetDate?: Date;
   customerSource: string;
 }
 
