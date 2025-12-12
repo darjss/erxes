@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { CategoriesList } from '~/modules/category/components/CategoriesList';
-import { CreateCategoryDialog } from '~/modules/category/components/CreateCategoryDialog';
+import { CategoryDialog } from '~/modules/category/components/CategoryDialog';
+import { IconPlus } from '@tabler/icons-react';
+import { Button } from 'erxes-ui';
 import { CategoryFiltersComponent } from '~/modules/category/components/CategoryFilters';
 import { CategoryFilters } from '~/modules/category/types/category';
 import { OneFitListPageLayout } from '~/components/OneFitListPageLayout';
@@ -14,7 +16,16 @@ export function CategoriesPage() {
       filters={filters}
       onFiltersChange={setFilters}
       filtersComponent={CategoryFiltersComponent}
-      createDialog={<CreateCategoryDialog />}
+      createDialog={
+        <CategoryDialog
+          trigger={
+            <Button>
+              <IconPlus />
+              Create Category
+            </Button>
+          }
+        />
+      }
       listComponent={CategoriesList}
     />
   );

@@ -13,11 +13,16 @@ import { IconPlus } from '@tabler/icons-react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { useState } from 'react';
-import { useCreateCategory } from '../hooks/useCategoryMutations';
+import { useEffect, useState } from 'react';
+import { useQuery } from '@apollo/client';
+import {
+  useCreateCategory,
+  useUpdateCategory,
+} from '../hooks/useCategoryMutations';
+import { ONE_FIT_ACTIVITY_CATEGORY } from '../graphql/categoryQueries';
 import { SelectCategory } from './SelectCategory';
 
-const createCategorySchema = z.object({
+const categorySchema = z.object({
   name: z.object({
     en: z.string().min(1, { message: 'Name (English) is required' }),
     mn: z.string().min(1, { message: 'Name (Mongolian) is required' }),
@@ -32,32 +37,75 @@ const createCategorySchema = z.object({
   isActive: z.boolean().optional(),
 });
 
-type CreateCategoryFormData = z.infer<typeof createCategorySchema>;
+type CategoryFormData = z.infer<typeof categorySchema>;
 
-export const CreateCategoryDialog = () => {
-  const [open, setOpen] = useState(false);
+interface CategoryDialogProps {
+  categoryId?: string;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  onClose?: () => void;
+  trigger?: React.ReactNode;
+}
+
+export function CategoryDialog({
+  categoryId,
+  open: controlledOpen,
+  onOpenChange: controlledOnOpenChange,
+  onClose,
+  trigger,
+}: CategoryDialogProps) {
+  const [internalOpen, setInternalOpen] = useState(false);
+  const isEditMode = !!categoryId;
+  const isControlled = controlledOpen !== undefined;
+
+  const open = isControlled ? controlledOpen : internalOpen;
+  const setOpen = isControlled
+    ? controlledOnOpenChange || (() => {})
+    : setInternalOpen;
+
+  const handleClose = () => {
+    setOpen(false);
+    onClose?.();
+  };
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <Dialog.Trigger asChild>
-        <Button>
-          <IconPlus />
-          Create Category
-        </Button>
-      </Dialog.Trigger>
+      {!isControlled && trigger && (
+        <Dialog.Trigger asChild>{trigger}</Dialog.Trigger>
+      )}
       <Dialog.Content>
         <Dialog.Header>
-          <Dialog.Title>Create Category</Dialog.Title>
+          <Dialog.Title>
+            {isEditMode ? 'Edit Category' : 'Create Category'}
+          </Dialog.Title>
         </Dialog.Header>
-        <CreateCategoryForm onClose={() => setOpen(false)} />
+        <CategoryForm
+          categoryId={categoryId}
+          onClose={handleClose}
+          isEditMode={isEditMode}
+        />
       </Dialog.Content>
     </Dialog>
   );
-};
+}
 
-const CreateCategoryForm = ({ onClose }: { onClose: () => void }) => {
+interface CategoryFormProps {
+  categoryId?: string;
+  onClose: () => void;
+  isEditMode: boolean;
+}
+
+function CategoryForm({ categoryId, onClose, isEditMode }: CategoryFormProps) {
   const [selectedLanguage, setSelectedLanguage] = useState<'en' | 'mn'>('en');
-  const form = useForm<CreateCategoryFormData>({
-    resolver: zodResolver(createCategorySchema),
+  const { data, loading: queryLoading } = useQuery(ONE_FIT_ACTIVITY_CATEGORY, {
+    variables: { _id: categoryId },
+    skip: !isEditMode || !categoryId,
+  });
+
+  const category = data?.oneFitActivityCategory;
+
+  const form = useForm<CategoryFormData>({
+    resolver: zodResolver(categorySchema),
     defaultValues: {
       name: {
         en: '',
@@ -71,25 +119,72 @@ const CreateCategoryForm = ({ onClose }: { onClose: () => void }) => {
       isActive: true,
     },
   });
-  const { createCategory, loading } = useCreateCategory();
 
-  const onSubmit = (data: CreateCategoryFormData) => {
-    createCategory({
-      variables: {
-        name: data.name,
-        description:
-          data.description && (data.description.en || data.description.mn)
-            ? data.description
-            : undefined,
-        parentId: data.parentId || undefined,
-        isActive: data.isActive !== undefined ? data.isActive : true,
-      },
-      onCompleted: () => {
-        onClose();
-        form.reset();
-      },
-    });
+  useEffect(() => {
+    if (category && isEditMode) {
+      form.reset({
+        name: category.name || { en: '', mn: '' },
+        description: category.description || { en: '', mn: '' },
+        parentId: category.parentId || '',
+        isActive: category.isActive,
+      });
+      setSelectedLanguage('en');
+    } else if (!isEditMode) {
+      form.reset({
+        name: {
+          en: '',
+          mn: '',
+        },
+        description: {
+          en: '',
+          mn: '',
+        },
+        parentId: '',
+        isActive: true,
+      });
+      setSelectedLanguage('en');
+    }
+  }, [category, isEditMode, form]);
+
+  const { createCategory, loading: createLoading } = useCreateCategory();
+  const { updateCategory, loading: updateLoading } = useUpdateCategory();
+  const loading = createLoading || updateLoading;
+
+  const onSubmit = (data: CategoryFormData) => {
+    const variables = {
+      name: data.name,
+      description:
+        data.description && (data.description.en || data.description.mn)
+          ? data.description
+          : undefined,
+      parentId: data.parentId || undefined,
+      isActive: data.isActive !== undefined ? data.isActive : true,
+    };
+
+    if (isEditMode && categoryId) {
+      updateCategory({
+        variables: {
+          _id: categoryId,
+          ...variables,
+        },
+        onCompleted: () => {
+          onClose();
+        },
+      });
+    } else {
+      createCategory({
+        variables,
+        onCompleted: () => {
+          onClose();
+          form.reset();
+        },
+      });
+    }
   };
+
+  if (isEditMode && queryLoading) {
+    return <div className="py-8 text-center">Loading...</div>;
+  }
 
   return (
     <Form {...form}>
@@ -177,6 +272,7 @@ const CreateCategoryForm = ({ onClose }: { onClose: () => void }) => {
                 <SelectCategory
                   selected={field.value}
                   onSelect={(value) => field.onChange(value || '')}
+                  excludeId={isEditMode ? categoryId : undefined}
                 />
               </Form.Control>
               <Form.Message />
@@ -240,12 +336,22 @@ const CreateCategoryForm = ({ onClose }: { onClose: () => void }) => {
           )}
         />
         <Dialog.Footer>
+          {isEditMode && (
+            <Button
+              type="button"
+              variant="outline"
+              onClick={onClose}
+              disabled={loading}
+            >
+              Cancel
+            </Button>
+          )}
           <Button type="submit" size="lg" disabled={loading}>
             <Spinner show={loading} />
-            Create Category
+            {isEditMode ? 'Update Category' : 'Create Category'}
           </Button>
         </Dialog.Footer>
       </form>
     </Form>
   );
-};
+}

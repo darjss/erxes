@@ -10,7 +10,7 @@ import {
 import { useCategories } from '../hooks/useCategories';
 import { CategoryFilters } from '../types/category';
 import { CATEGORIES_CURSOR_SESSION_KEY } from '../constants/categoryCursorSessionKey';
-import { EditCategoryDialog } from './EditCategoryDialog';
+import { CategoryDialog } from './CategoryDialog';
 import { RemoveCategoryDialog } from './RemoveCategoryDialog';
 import { useState, useMemo } from 'react';
 import { generateOrderPath } from '../utils/generateOrderPath';
@@ -171,7 +171,7 @@ export const CategoriesList = ({ filters }: CategoriesListProps) => {
 
       {selectedCategory && (
         <>
-          <EditCategoryDialog
+          <CategoryDialog
             categoryId={selectedCategory}
             open={editDialogOpen}
             onOpenChange={setEditDialogOpen}
