@@ -40,14 +40,14 @@ export const SelectTenureType = ({
 
           {areaType && (
             <Badge key={areaType} variant="secondary">
-              {UNIT_AREA_TYPE[areaType as keyof typeof UNIT_AREA_TYPE].mn}
+              {UNIT_AREA_TYPE[areaType as keyof typeof UNIT_AREA_TYPE]?.mn}
             </Badge>
           )}
 
           {areaType === 'common' &&
             (tenureTypes || []).map((type) => (
               <Badge key={type} variant="secondary">
-                {UNIT_MARKET_TYPE[type as keyof typeof UNIT_MARKET_TYPE].mn}
+                {UNIT_MARKET_TYPE[type as keyof typeof UNIT_MARKET_TYPE]?.mn}
               </Badge>
             ))}
         </Combobox.TriggerBase>
@@ -63,7 +63,7 @@ export const SelectTenureType = ({
                 value={key}
                 onSelect={() => handleAreaType(key)}
               >
-                {type.mn}
+                {type?.mn}
                 <Combobox.Check checked={areaType === key} />
               </Command.Item>
             ))}
@@ -77,7 +77,7 @@ export const SelectTenureType = ({
                 onSelect={() => handleOnValueChange(key)}
                 disabled={areaType !== 'common'}
               >
-                {type.mn}
+                {type?.mn}
                 <Combobox.Check
                   checked={areaType === 'common' && tenureTypes?.includes(key)}
                 />

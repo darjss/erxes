@@ -180,7 +180,7 @@ export const ProjectTypes = () => {
                     });
                   }}
                 >
-                  {type.label.mn}
+                  {type.label?.mn}
                   <Combobox.Check checked={projectTypes.includes(type.value)} />
                 </Command.Item>
               ))}

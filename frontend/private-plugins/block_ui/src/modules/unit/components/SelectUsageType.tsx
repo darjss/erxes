@@ -23,7 +23,7 @@ export const SelectUsageType = ({
           disabled={readOnly}
         >
           {value ? (
-            UNIT_USAGE_TYPE[value].mn
+            UNIT_USAGE_TYPE[value]?.mn
           ) : (
             <span className="text-accent-foreground">Төрөл сонгоно уу</span>
           )}
@@ -42,7 +42,7 @@ export const SelectUsageType = ({
                   onValueChange?.(key);
                 }}
               >
-                {label.mn}
+                {label?.mn}
                 <Combobox.Check checked={value === key} />
               </Command.Item>
             ))}
@@ -76,7 +76,7 @@ export const SelectUsageTypes = ({
           {value?.length ? (
             value.map((type: string) => (
               <Badge key={type} variant="secondary">
-                {UNIT_USAGE_TYPE[type].mn}
+                {UNIT_USAGE_TYPE[type]?.mn}
               </Badge>
             ))
           ) : (
@@ -101,7 +101,7 @@ export const SelectUsageTypes = ({
                   onValueChange?.(newTypes);
                 }}
               >
-                {label.mn}
+                {label?.mn}
                 <Combobox.Check checked={value?.includes(key)} />
               </Command.Item>
             ))}
