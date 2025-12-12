@@ -12,6 +12,8 @@ import { ACTIVITY_TYPES_CURSOR_SESSION_KEY } from '../constants/activityTypeCurs
 import { EditActivityTypeDialog } from './ActivityTypeDialog';
 import { RemoveActivityTypeDialog } from './RemoveActivityTypeDialog';
 import { useState } from 'react';
+import { getLocalizedString } from '../utils/localization';
+import { getLocalizedString as getCategoryLocalizedString } from '~/modules/category/utils/localization';
 
 interface ActivityTypesListProps {
   filters?: ActivityTypeFilters;
@@ -54,10 +56,12 @@ export const ActivityTypesList = ({ filters }: ActivityTypesListProps) => {
     {
       accessorKey: 'name',
       header: 'Name',
-      cell: ({ cell }) => {
+      cell: ({ row }) => {
+        const activityType = row.original;
+        const name = getLocalizedString(activityType.name, 'en');
         return (
           <RecordTableInlineCell className="text-xs font-medium">
-            {cell.getValue() as string}
+            {name}
           </RecordTableInlineCell>
         );
       },
@@ -67,8 +71,9 @@ export const ActivityTypesList = ({ filters }: ActivityTypesListProps) => {
       header: 'Provider',
       cell: ({ row }) => {
         const activityType = row.original;
-        const providerName =
-          activityType.provider?.businessName || activityType.providerId;
+        const providerName = activityType.provider?.businessName
+          ? getLocalizedString(activityType.provider.businessName, 'en')
+          : activityType.providerId;
         return (
           <RecordTableInlineCell className="text-xs font-medium text-muted-foreground">
             {providerName}
@@ -79,8 +84,9 @@ export const ActivityTypesList = ({ filters }: ActivityTypesListProps) => {
     {
       accessorKey: 'description',
       header: 'Description',
-      cell: ({ cell }) => {
-        const description = cell.getValue() as string | undefined;
+      cell: ({ row }) => {
+        const activityType = row.original;
+        const description = getLocalizedString(activityType.description, 'en');
         return (
           <RecordTableInlineCell className="text-xs font-medium text-muted-foreground">
             {description || '-'}
@@ -141,7 +147,9 @@ export const ActivityTypesList = ({ filters }: ActivityTypesListProps) => {
           );
         }
         const categoryNames = activityType.categories
-          .map((cat: { _id: string; name: string }) => cat.name)
+          .map((cat: { _id: string; name: { en: string; mn: string } }) =>
+            getCategoryLocalizedString(cat.name, 'en'),
+          )
           .join(', ');
         return (
           <RecordTableInlineCell className="text-xs font-medium text-muted-foreground">

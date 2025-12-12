@@ -1,8 +1,12 @@
 import { Document } from 'mongoose';
+import {
+  IMultilingualString,
+  IMultilingualStringOptional,
+} from '@/activity-type/@types/activityType';
 
 export interface IActivityCategory {
-  name: string; // 'Kids' or 'Adults'
-  description?: string;
+  name: IMultilingualString;
+  description?: IMultilingualStringOptional;
   parentId?: string;
   isActive?: boolean;
   createdAt?: Date;

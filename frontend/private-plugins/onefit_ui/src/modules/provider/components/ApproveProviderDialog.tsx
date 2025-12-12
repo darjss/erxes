@@ -2,7 +2,10 @@ import { Button, Dialog, Input, Spinner } from 'erxes-ui';
 import { useQuery } from '@apollo/client';
 import { useApproveProvider } from '../hooks/useProviderMutations';
 import { ONE_FIT_PROVIDER } from '../graphql/providerQueries';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { getLocalizedString } from '~/modules/activity-type/utils/localization';
+import { useAtomValue } from 'jotai';
+import { currentUserState } from 'ui-modules';
 
 interface ApproveProviderDialogProps {
   providerId: string;
@@ -23,7 +26,14 @@ export const ApproveProviderDialog = ({
   });
 
   const provider = data?.oneFitProvider;
+  const currentUser = useAtomValue(currentUserState);
   const [approvedBy, setApprovedBy] = useState('');
+
+  useEffect(() => {
+    if (currentUser?._id && !approvedBy) {
+      setApprovedBy(currentUser._id);
+    }
+  }, [currentUser?._id, approvedBy]);
 
   const { approveProvider, loading } = useApproveProvider();
 
@@ -51,8 +61,12 @@ export const ApproveProviderDialog = ({
           <Dialog.Title>Approve Provider</Dialog.Title>
           <Dialog.Description>
             Are you sure you want to approve{' '}
-            <strong>{provider?.businessName}</strong>? This action will change
-            the provider status to approved.
+            <strong>
+              {provider?.businessName
+                ? getLocalizedString(provider.businessName, 'en')
+                : 'this provider'}
+            </strong>
+            ? This action will change the provider status to approved.
           </Dialog.Description>
         </Dialog.Header>
         <div className="space-y-4 py-4">
@@ -89,4 +103,3 @@ export const ApproveProviderDialog = ({
     </Dialog>
   );
 };
-

@@ -1,8 +1,13 @@
 import { ICursorPaginateParams, Resolver } from 'erxes-api-shared/core-types';
-import { cursorPaginate, markResolvers } from 'erxes-api-shared/utils';
+import {
+  cursorPaginate,
+  escapeRegExp,
+  markResolvers,
+} from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 
 export interface IOneFitCustomerQueryParams extends ICursorPaginateParams {
+  searchValue?: string;
   membershipPlanId?: string;
   membershipStatus?: 'active' | 'expired' | 'none';
   minCreditBalance?: number;
@@ -14,6 +19,35 @@ const generateFilter = async (params: IOneFitCustomerQueryParams) => {
   const filter: any = {
     __t: 'OneFitCustomer',
   };
+
+  if (params.searchValue) {
+    filter.$or = [
+      {
+        firstName: {
+          $regex: `.*${escapeRegExp(params.searchValue)}.*`,
+          $options: 'i',
+        },
+      },
+      {
+        lastName: {
+          $regex: `.*${escapeRegExp(params.searchValue)}.*`,
+          $options: 'i',
+        },
+      },
+      {
+        primaryEmail: {
+          $regex: `.*${escapeRegExp(params.searchValue)}.*`,
+          $options: 'i',
+        },
+      },
+      {
+        primaryPhone: {
+          $regex: `.*${escapeRegExp(params.searchValue)}.*`,
+          $options: 'i',
+        },
+      },
+    ];
+  }
 
   if (params.membershipPlanId) {
     filter.membershipPlanId = params.membershipPlanId;

@@ -9,7 +9,7 @@ import {
 import { useMembershipPlans } from '../hooks/useMembershipPlans';
 import { MembershipPlanFilters } from '../types/membership';
 import { MEMBERSHIP_PLANS_CURSOR_SESSION_KEY } from '../constants/membershipPlanCursorSessionKey';
-import { EditMembershipPlanDialog } from './EditMembershipPlanDialog';
+import { MembershipPlanDialog } from './MembershipPlanDialog';
 import { RemoveMembershipPlanDialog } from './RemoveMembershipPlanDialog';
 import { useState } from 'react';
 
@@ -17,9 +17,7 @@ interface MembershipPlansListProps {
   filters?: MembershipPlanFilters;
 }
 
-export const MembershipPlansList = ({
-  filters,
-}: MembershipPlansListProps) => {
+export const MembershipPlansList = ({ filters }: MembershipPlansListProps) => {
   const { membershipPlans, handleFetchMore, loading, pageInfo } =
     useMembershipPlans(filters);
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
@@ -179,7 +177,7 @@ export const MembershipPlansList = ({
 
       {selectedPlan && (
         <>
-          <EditMembershipPlanDialog
+          <MembershipPlanDialog
             planId={selectedPlan}
             open={editDialogOpen}
             onOpenChange={setEditDialogOpen}
@@ -202,11 +200,3 @@ export const MembershipPlansList = ({
     </>
   );
 };
-
-
-
-
-
-
-
-

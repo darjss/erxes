@@ -1,5 +1,5 @@
 import { useQuery } from '@apollo/client';
-import { useEffect, useMemo } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 import {
   EnumCursorDirection,
   mergeCursorData,
@@ -23,13 +23,16 @@ export const useActivityTypes = (filters?: ActivityTypeFilters) => {
     setCursor('');
   }, [filtersKey, setCursor]);
 
-  const { data, loading, fetchMore } = useQuery(ONE_FIT_ACTIVITY_TYPES, {
-    variables: {
-      ...filters,
-      cursor: cursor || undefined,
+  const { data, loading, error, fetchMore, refetch } = useQuery(
+    ONE_FIT_ACTIVITY_TYPES,
+    {
+      variables: {
+        ...filters,
+        cursor: cursor || undefined,
+      },
+      fetchPolicy: 'cache-and-network',
     },
-    fetchPolicy: 'cache-and-network',
-  });
+  );
 
   const {
     list: activityTypes,
@@ -74,18 +77,20 @@ export const useActivityTypes = (filters?: ActivityTypeFilters) => {
     });
   };
 
+  const handleRefetch = useCallback(() => {
+    return refetch({
+      ...filters,
+      cursor: cursor || undefined,
+    });
+  }, [refetch, filters, cursor]);
+
   return {
     activityTypes,
     loading,
+    error,
     totalCount,
     pageInfo,
     handleFetchMore,
+    refetch: handleRefetch,
   };
 };
-
-
-
-
-
-
-

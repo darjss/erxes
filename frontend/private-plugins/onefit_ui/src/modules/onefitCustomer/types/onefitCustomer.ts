@@ -19,17 +19,17 @@ export interface OneFitCustomer {
   lastName?: string;
   primaryEmail?: string;
   primaryPhone?: string;
-  // OneFit-specific fields
-  membershipPlanId?: string;
-  membershipExpiresAt?: string;
-  membershipStatus?: OneFitMembershipStatus;
-  currentCreditBalance?: number;
-  totalCreditsEarned?: number;
-  totalCreditsUsed?: number;
-  preferredActivityTypes?: string[];
-  bookingPreferences?: OneFitBookingPreferences;
-  lastBookingDate?: string;
-  totalBookings?: number;
+  // OneFit-specific fields (matching GraphQL response with oneFit prefix)
+  oneFitMembershipPlanId?: string;
+  oneFitMembershipExpiresAt?: string;
+  oneFitMembershipStatus?: OneFitMembershipStatus;
+  oneFitCurrentCreditBalance?: number;
+  oneFitTotalCreditsEarned?: number;
+  oneFitTotalCreditsUsed?: number;
+  oneFitPreferredActivityTypes?: string[];
+  oneFitBookingPreferences?: OneFitBookingPreferences;
+  oneFitLastBookingDate?: string;
+  oneFitTotalBookings?: number;
 }
 
 export interface OneFitCustomerListResponse {
@@ -44,10 +44,10 @@ export interface OneFitCustomerListResponse {
 }
 
 export interface OneFitCustomerFilters {
+  searchValue?: string;
   membershipPlanId?: string;
   membershipStatus?: OneFitMembershipStatus;
   minCreditBalance?: number;
   maxCreditBalance?: number;
   preferredActivityTypeId?: string;
 }
-

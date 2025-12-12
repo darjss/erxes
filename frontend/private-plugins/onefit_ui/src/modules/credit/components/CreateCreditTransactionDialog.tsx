@@ -13,7 +13,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useState, useEffect } from 'react';
 import { useQuery } from '@apollo/client';
-import { SelectCustomer } from 'ui-modules';
+import { SelectOneFitCustomer } from '~/modules/onefitCustomer/components/SelectOneFitCustomer';
 import { useCreateCreditTransaction } from '../hooks/useCreditMutations';
 import {
   OneFitCreditTransactionType,
@@ -333,8 +333,7 @@ const CreateCreditTransactionForm = ({ onClose }: { onClose: () => void }) => {
             <Form.Item>
               <Form.Label>Customer *</Form.Label>
               <Form.Control>
-                <SelectCustomer.FormItem
-                  type="customer"
+                <SelectOneFitCustomer.FormItem
                   value={field.value ?? ''}
                   onValueChange={field.onChange}
                   mode="single"

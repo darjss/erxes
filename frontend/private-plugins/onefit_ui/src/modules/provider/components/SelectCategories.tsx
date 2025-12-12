@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { IconChevronDown, IconChevronRight } from '@tabler/icons-react';
 import { ONE_FIT_ACTIVITY_CATEGORIES } from '~/modules/category/graphql/categoryQueries';
 import { generateOrderPath } from '~/modules/category/utils/generateOrderPath';
+import { getLocalizedString } from '~/modules/category/utils/localization';
 
 interface SelectCategoriesProps {
   selected?: string[];
@@ -51,7 +52,11 @@ export const SelectCategories = ({
     level: number = 0,
   ): string => {
     const indent = '  '.repeat(level);
-    return `${indent}${category.name}`;
+    const name =
+      typeof category.name === 'object'
+        ? getLocalizedString(category.name)
+        : category.name || '';
+    return `${indent}${name}`;
   };
 
   const renderCategoryOptions = (
@@ -107,7 +112,9 @@ export const SelectCategories = ({
               htmlFor={category._id}
               className="text-sm font-medium leading-none cursor-pointer select-none flex-1"
             >
-              {category.name}
+              {typeof category.name === 'object'
+                ? getLocalizedString(category.name)
+                : category.name || ''}
             </label>
           </div>
           {hasChildren && isExpanded && (

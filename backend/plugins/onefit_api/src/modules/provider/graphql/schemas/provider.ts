@@ -2,9 +2,9 @@ import { GQL_CURSOR_PARAM_DEFS } from 'erxes-api-shared/utils';
 
 export const types = `
   type OneFitLocation {
-    address: String
-    city: String
-    district: String
+    address: OneFitMultilingualString
+    city: OneFitMultilingualString
+    district: OneFitMultilingualStringOptional
     coordinates: OneFitCoordinates
   }
 
@@ -23,8 +23,8 @@ export const types = `
     _id: String
     createdAt: Date
     modifiedAt: Date
-    businessName: String
-    description: String
+    businessName: OneFitMultilingualString
+    description: OneFitMultilingualStringOptional
     location: OneFitLocation
     contactInfo: OneFitContactInfo
     facilities: [String]
@@ -49,9 +49,9 @@ export const types = `
   }
 
   input OneFitLocationInput {
-    address: String!
-    city: String!
-    district: String
+    address: OneFitMultilingualStringInput!
+    city: OneFitMultilingualStringInput!
+    district: OneFitMultilingualStringOptionalInput
     coordinates: OneFitCoordinatesInput
   }
 
@@ -76,10 +76,10 @@ export const queries = `
 `;
 
 const mutationParams = `
-  businessName: String!
-  description: String
-  location: OneFitLocationInput!
-  contactInfo: OneFitContactInfoInput!
+  businessName: OneFitMultilingualStringInput
+  description: OneFitMultilingualStringOptionalInput
+  location: OneFitLocationInput
+  contactInfo: OneFitContactInfoInput
   facilities: [String]
   categoryIds: [String]!
   isActive: Boolean
@@ -92,4 +92,3 @@ export const mutations = `
   oneFitProviderReject(_id: String!, rejectionReason: String!, rejectedBy: String!): OneFitProvider
   oneFitProvidersRemove(ids: [String]!): JSON
 `;
-

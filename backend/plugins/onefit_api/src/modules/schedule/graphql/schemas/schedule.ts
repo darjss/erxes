@@ -1,3 +1,5 @@
+import { GQL_CURSOR_PARAM_DEFS } from 'erxes-api-shared/utils';
+
 export const types = `
   enum OneFitDayOfWeek {
     monday
@@ -71,8 +73,6 @@ const exceptionQueryParams = `
   endDate: Date,
 `;
 
-import { GQL_CURSOR_PARAM_DEFS } from 'erxes-api-shared/utils';
-
 export const queries = `
   oneFitScheduleTemplates(${scheduleQueryParams}, ${GQL_CURSOR_PARAM_DEFS}): OneFitScheduleTemplateListResponse
   oneFitScheduleTemplatesCount(${scheduleQueryParams}): Int
@@ -81,15 +81,6 @@ export const queries = `
   oneFitScheduleExceptions(${exceptionQueryParams}, ${GQL_CURSOR_PARAM_DEFS}): OneFitScheduleExceptionListResponse
   oneFitScheduleExceptionsCount(${exceptionQueryParams}): Int
   oneFitScheduleException(_id: String): OneFitScheduleException
-`;
-
-const dailyScheduleInput = `
-  dayOfWeek: OneFitDayOfWeek!
-  activityTypeId: String!
-  genderRestriction: String!
-  startTime: String!
-  endTime: String!
-  dailyLimit: Int!
 `;
 
 const scheduleTemplateInput = `

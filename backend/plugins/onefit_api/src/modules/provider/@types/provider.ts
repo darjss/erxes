@@ -6,10 +6,20 @@ export enum ProviderStatus {
   REJECTED = 'rejected',
 }
 
+export interface IMultilingualString {
+  en: string;
+  mn: string;
+}
+
+export interface IMultilingualStringOptional {
+  en?: string;
+  mn?: string;
+}
+
 export interface ILocation {
-  address: string;
-  city: string;
-  district?: string;
+  address: IMultilingualString;
+  city: IMultilingualString;
+  district?: IMultilingualStringOptional;
   coordinates?: {
     lat: number;
     lng: number;
@@ -23,8 +33,8 @@ export interface IContactInfo {
 }
 
 export interface IProvider {
-  businessName: string;
-  description?: string;
+  businessName: IMultilingualString;
+  description?: IMultilingualStringOptional;
   location: ILocation;
   contactInfo: IContactInfo;
   facilities?: string[];
@@ -44,4 +54,3 @@ export interface IProviderDocument extends Document, IProvider {
   createdAt: Date;
   modifiedAt: Date;
 }
-

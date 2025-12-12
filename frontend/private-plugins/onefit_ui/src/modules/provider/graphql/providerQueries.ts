@@ -20,12 +20,27 @@ export const ONE_FIT_PROVIDERS = gql`
         _id
         createdAt
         modifiedAt
-        businessName
-        description
+        businessName {
+          en
+          mn
+        }
+        description {
+          en
+          mn
+        }
         location {
-          address
-          city
-          district
+          address {
+            en
+            mn
+          }
+          city {
+            en
+            mn
+          }
+          district {
+            en
+            mn
+          }
           coordinates {
             lat
             lng
@@ -78,12 +93,27 @@ export const ONE_FIT_PROVIDER = gql`
       _id
       createdAt
       modifiedAt
-      businessName
-      description
+      businessName {
+        en
+        mn
+      }
+      description {
+        en
+        mn
+      }
       location {
-        address
-        city
-        district
+        address {
+          en
+          mn
+        }
+        city {
+          en
+          mn
+        }
+        district {
+          en
+          mn
+        }
         coordinates {
           lat
           lng

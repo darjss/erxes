@@ -25,17 +25,29 @@ export const ONE_FIT_ACTIVITY_TYPES = gql`
         providerId
         provider {
           _id
-          businessName
+          businessName {
+            en
+            mn
+          }
         }
-        name
-        description
+        name {
+          en
+          mn
+        }
+        description {
+          en
+          mn
+        }
         creditCost
         duration
         genderRestriction
         categoryIds
         categories {
           _id
-          name
+          name {
+            en
+            mn
+          }
         }
         isActive
         cancellationDeadline
@@ -78,10 +90,19 @@ export const ONE_FIT_ACTIVITY_TYPE = gql`
       providerId
       provider {
         _id
-        businessName
+        businessName {
+          en
+          mn
+        }
       }
-      name
-      description
+      name {
+        en
+        mn
+      }
+      description {
+        en
+        mn
+      }
       creditCost
       duration
       genderRestriction

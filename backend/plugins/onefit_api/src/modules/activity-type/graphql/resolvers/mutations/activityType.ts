@@ -7,6 +7,10 @@ export const activityTypeMutations = {
     doc: IActivityType,
     { models }: IContext,
   ) {
+    if (!doc.name || !doc.name.en || !doc.name.mn) {
+      throw new Error('Name must have both en and mn properties');
+    }
+
     if (doc.categoryIds && doc.categoryIds.length > 0) {
       const categories = await models.ActivityCategory.find({
         _id: { $in: doc.categoryIds },
@@ -39,6 +43,12 @@ export const activityTypeMutations = {
 
     if (!activityType) {
       throw new Error('Activity type not found');
+    }
+
+    if (doc.name) {
+      if (!doc.name.en || !doc.name.mn) {
+        throw new Error('Name must have both en and mn properties');
+      }
     }
 
     if (doc.categoryIds && doc.categoryIds.length > 0) {

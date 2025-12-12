@@ -12,6 +12,7 @@ import { SCHEDULE_TEMPLATES_CURSOR_SESSION_KEY } from '../constants/scheduleCurs
 import { EditScheduleTemplateDialog } from './ScheduleTemplateDialog';
 import { RemoveScheduleTemplateDialog } from './RemoveDialog';
 import { useState } from 'react';
+import { getLocalizedString } from '~/modules/activity-type/utils/localization';
 
 interface ScheduleTemplatesListProps {
   filters?: ScheduleTemplateFilters;
@@ -26,7 +27,7 @@ const getMonthName = (month: number) => {
 export const ScheduleTemplatesList = ({
   filters,
 }: ScheduleTemplatesListProps) => {
-  const { scheduleTemplates, handleFetchMore, loading, pageInfo } =
+  const { scheduleTemplates, handleFetchMore, loading, error, pageInfo } =
     useSchedules(filters);
   const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
@@ -40,8 +41,9 @@ export const ScheduleTemplatesList = ({
       header: 'Provider',
       cell: ({ row }) => {
         const template = row.original;
-        const providerName =
-          template.provider?.businessName || template.providerId;
+        const providerName = template.provider?.businessName
+          ? getLocalizedString(template.provider.businessName, 'en')
+          : template.providerId;
         return (
           <RecordTableInlineCell className="text-xs font-medium text-muted-foreground">
             {providerName}
@@ -143,6 +145,12 @@ export const ScheduleTemplatesList = ({
 
   return (
     <>
+      {error && (
+        <div className="m-3 p-4 bg-destructive/10 text-destructive rounded-md">
+          <p className="font-medium">Error loading schedule templates</p>
+          <p className="text-sm mt-1">{error.message}</p>
+        </div>
+      )}
       <RecordTable.Provider
         columns={columns}
         data={scheduleTemplates || []}

@@ -1,4 +1,5 @@
 import { useQuery } from '@apollo/client';
+import { useCallback } from 'react';
 import {
   EnumCursorDirection,
   mergeCursorData,
@@ -16,12 +17,15 @@ export const useMembershipPlans = (filters?: MembershipPlanFilters) => {
     sessionKey: MEMBERSHIP_PLANS_CURSOR_SESSION_KEY,
   });
 
-  const { data, loading, fetchMore } = useQuery(ONE_FIT_MEMBERSHIP_PLANS, {
-    variables: {
-      ...filters,
-      cursor,
+  const { data, loading, error, fetchMore, refetch } = useQuery(
+    ONE_FIT_MEMBERSHIP_PLANS,
+    {
+      variables: {
+        ...filters,
+        cursor,
+      },
     },
-  });
+  );
 
   const {
     list: membershipPlans,
@@ -66,19 +70,20 @@ export const useMembershipPlans = (filters?: MembershipPlanFilters) => {
     });
   };
 
+  const handleRefetch = useCallback(() => {
+    return refetch({
+      ...filters,
+      cursor,
+    });
+  }, [refetch, filters, cursor]);
+
   return {
     membershipPlans,
     loading,
+    error,
     totalCount,
     pageInfo,
     handleFetchMore,
+    refetch: handleRefetch,
   };
 };
-
-
-
-
-
-
-
-

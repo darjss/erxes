@@ -7,14 +7,24 @@ export const types = `
     mixed
   }
 
+  type OneFitMultilingualString {
+    en: String!
+    mn: String!
+  }
+
+  type OneFitMultilingualStringOptional {
+    en: String
+    mn: String
+  }
+
   type OneFitActivityType {
     _id: String
     createdAt: Date
     modifiedAt: Date
     providerId: String
     provider: OneFitProvider
-    name: String
-    description: String
+    name: OneFitMultilingualString
+    description: OneFitMultilingualStringOptional
     creditCost: Float
     duration: Int
     genderRestriction: OneFitGenderRestriction
@@ -28,6 +38,15 @@ export const types = `
     list: [OneFitActivityType]
     pageInfo: PageInfo
     totalCount: Int
+  }
+  input OneFitMultilingualStringInput {
+    en: String!
+    mn: String!
+  }
+
+  input OneFitMultilingualStringOptionalInput {
+    en: String
+    mn: String
   }
 `;
 
@@ -47,8 +66,8 @@ export const queries = `
 
 const mutationParams = `
   providerId: String!
-  name: String!
-  description: String
+  name: OneFitMultilingualStringInput!
+  description: OneFitMultilingualStringOptionalInput
   creditCost: Float!
   duration: Int!
   genderRestriction: OneFitGenderRestriction!
@@ -58,8 +77,8 @@ const mutationParams = `
 `;
 
 const updateParams = `
-  name: String
-  description: String
+  name: OneFitMultilingualStringInput
+  description: OneFitMultilingualStringOptionalInput
   creditCost: Float
   duration: Int
   genderRestriction: OneFitGenderRestriction

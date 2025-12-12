@@ -36,11 +36,17 @@ export const ONE_FIT_BOOKINGS = gql`
         }
         provider {
           _id
-          businessName
+          businessName {
+            en
+            mn
+          }
         }
         activityType {
           _id
-          name
+          name {
+            en
+            mn
+          }
         }
         bookingDate
         startTime
@@ -110,4 +116,3 @@ export const ONE_FIT_BOOKING = gql`
     }
   }
 `;
-

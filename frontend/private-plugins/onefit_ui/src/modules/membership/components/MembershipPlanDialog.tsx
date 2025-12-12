@@ -11,47 +11,97 @@ import { IconPlus } from '@tabler/icons-react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { useState } from 'react';
-import { useCreateMembershipPlan } from '../hooks/useMembershipPlanMutations';
+import { useEffect, useState } from 'react';
+import { useQuery } from '@apollo/client';
+import {
+  useCreateMembershipPlan,
+  useUpdateMembershipPlan,
+} from '../hooks/useMembershipPlanMutations';
+import { ONE_FIT_MEMBERSHIP_PLAN } from '../graphql/membershipPlanQueries';
 
-const createMembershipPlanSchema = z.object({
+const membershipPlanSchema = z.object({
   name: z.string().min(1, { message: 'Name is required' }),
   description: z.string().optional(),
-  creditAmount: z.number().min(0, { message: 'Credit amount must be 0 or greater' }),
+  creditAmount: z
+    .number()
+    .min(0, { message: 'Credit amount must be 0 or greater' }),
   duration: z.number().min(1, { message: 'Duration must be at least 1 day' }),
   price: z.number().min(0, { message: 'Price must be 0 or greater' }),
   isActive: z.boolean().optional(),
 });
 
-type CreateMembershipPlanFormData = z.infer<typeof createMembershipPlanSchema>;
+type MembershipPlanFormData = z.infer<typeof membershipPlanSchema>;
 
-export const CreateMembershipPlanDialog = () => {
-  const [open, setOpen] = useState(false);
+interface MembershipPlanDialogProps {
+  planId?: string;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  onClose?: () => void;
+  trigger?: React.ReactNode;
+}
+
+export function MembershipPlanDialog({
+  planId,
+  open: controlledOpen,
+  onOpenChange: controlledOnOpenChange,
+  onClose,
+  trigger,
+}: MembershipPlanDialogProps) {
+  const [internalOpen, setInternalOpen] = useState(false);
+  const isEditMode = !!planId;
+  const isControlled = controlledOpen !== undefined;
+
+  const open = isControlled ? controlledOpen : internalOpen;
+  const setOpen = isControlled
+    ? controlledOnOpenChange || (() => {})
+    : setInternalOpen;
+
+  const handleClose = () => {
+    setOpen(false);
+    onClose?.();
+  };
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <Dialog.Trigger asChild>
-        <Button>
-          <IconPlus />
-          Create Membership Plan
-        </Button>
-      </Dialog.Trigger>
+      {!isControlled && trigger && (
+        <Dialog.Trigger asChild>{trigger}</Dialog.Trigger>
+      )}
       <Dialog.Content>
         <Dialog.Header>
-          <Dialog.Title>Create Membership Plan</Dialog.Title>
+          <Dialog.Title>
+            {isEditMode ? 'Edit Membership Plan' : 'Create Membership Plan'}
+          </Dialog.Title>
         </Dialog.Header>
-        <CreateMembershipPlanForm onClose={() => setOpen(false)} />
+        <MembershipPlanForm
+          planId={planId}
+          onClose={handleClose}
+          isEditMode={isEditMode}
+        />
       </Dialog.Content>
     </Dialog>
   );
-};
+}
 
-const CreateMembershipPlanForm = ({
-  onClose,
-}: {
+interface MembershipPlanFormProps {
+  planId?: string;
   onClose: () => void;
-}) => {
-  const form = useForm<CreateMembershipPlanFormData>({
-    resolver: zodResolver(createMembershipPlanSchema),
+  isEditMode: boolean;
+}
+
+function MembershipPlanForm({
+  planId,
+  onClose,
+  isEditMode,
+}: MembershipPlanFormProps) {
+  const { data, loading: queryLoading } = useQuery(ONE_FIT_MEMBERSHIP_PLAN, {
+    variables: { _id: planId },
+    skip: !isEditMode || !planId,
+  });
+
+  const plan = data?.oneFitMembershipPlan;
+
+  const form = useForm<MembershipPlanFormData>({
+    resolver: zodResolver(membershipPlanSchema),
     defaultValues: {
       name: '',
       description: '',
@@ -61,24 +111,69 @@ const CreateMembershipPlanForm = ({
       isActive: true,
     },
   });
-  const { createMembershipPlan, loading } = useCreateMembershipPlan();
 
-  const onSubmit = (data: CreateMembershipPlanFormData) => {
-    createMembershipPlan({
-      variables: {
-        name: data.name,
-        description: data.description || undefined,
-        creditAmount: data.creditAmount,
-        duration: data.duration,
-        price: data.price,
-        isActive: data.isActive !== undefined ? data.isActive : true,
-      },
-      onCompleted: () => {
-        onClose();
-        form.reset();
-      },
-    });
+  useEffect(() => {
+    if (plan && isEditMode) {
+      form.reset({
+        name: plan.name,
+        description: plan.description || '',
+        creditAmount: plan.creditAmount,
+        duration: plan.duration,
+        price: plan.price,
+        isActive: plan.isActive,
+      });
+    } else if (!isEditMode) {
+      form.reset({
+        name: '',
+        description: '',
+        creditAmount: 0,
+        duration: 30,
+        price: 0,
+        isActive: true,
+      });
+    }
+  }, [plan, isEditMode, form]);
+
+  const { createMembershipPlan, loading: createLoading } =
+    useCreateMembershipPlan();
+  const { updateMembershipPlan, loading: updateLoading } =
+    useUpdateMembershipPlan();
+  const loading = createLoading || updateLoading;
+
+  const onSubmit = (data: MembershipPlanFormData) => {
+    const variables = {
+      name: data.name,
+      description: data.description || undefined,
+      creditAmount: data.creditAmount,
+      duration: data.duration,
+      price: data.price,
+      isActive: data.isActive !== undefined ? data.isActive : true,
+    };
+
+    if (isEditMode && planId) {
+      updateMembershipPlan({
+        variables: {
+          _id: planId,
+          ...variables,
+        },
+        onCompleted: () => {
+          onClose();
+        },
+      });
+    } else {
+      createMembershipPlan({
+        variables,
+        onCompleted: () => {
+          onClose();
+          form.reset();
+        },
+      });
+    }
   };
+
+  if (isEditMode && queryLoading) {
+    return <div className="py-8 text-center">Loading...</div>;
+  }
 
   return (
     <Form {...form}>
@@ -91,7 +186,7 @@ const CreateMembershipPlanForm = ({
           name="name"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Name *</Form.Label>
+              <Form.Label>Name{!isEditMode && ' *'}</Form.Label>
               <Form.Control>
                 <Input {...field} placeholder="Enter plan name" />
               </Form.Control>
@@ -118,7 +213,7 @@ const CreateMembershipPlanForm = ({
             name="creditAmount"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>Credit Amount *</Form.Label>
+                <Form.Label>Credit Amount{!isEditMode && ' *'}</Form.Label>
                 <Form.Control>
                   <Input
                     {...field}
@@ -143,7 +238,7 @@ const CreateMembershipPlanForm = ({
             name="duration"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>Duration (days) *</Form.Label>
+                <Form.Label>Duration (days){!isEditMode && ' *'}</Form.Label>
                 <Form.Control>
                   <Input
                     {...field}
@@ -168,7 +263,7 @@ const CreateMembershipPlanForm = ({
           name="price"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Price *</Form.Label>
+              <Form.Label>Price{!isEditMode && ' *'}</Form.Label>
               <Form.Control>
                 <Input
                   {...field}
@@ -205,20 +300,22 @@ const CreateMembershipPlanForm = ({
           )}
         />
         <Dialog.Footer>
+          {isEditMode && (
+            <Button
+              type="button"
+              variant="outline"
+              onClick={onClose}
+              disabled={loading}
+            >
+              Cancel
+            </Button>
+          )}
           <Button type="submit" size="lg" disabled={loading}>
             <Spinner show={loading} />
-            Create Membership Plan
+            {isEditMode ? 'Update Membership Plan' : 'Create Membership Plan'}
           </Button>
         </Dialog.Footer>
       </form>
     </Form>
   );
-};
-
-
-
-
-
-
-
-
+}

@@ -1,4 +1,5 @@
 import { useQuery } from '@apollo/client';
+import { useCallback } from 'react';
 import {
   EnumCursorDirection,
   mergeCursorData,
@@ -16,12 +17,15 @@ export const useCategories = (filters?: CategoryFilters) => {
     sessionKey: CATEGORIES_CURSOR_SESSION_KEY,
   });
 
-  const { data, loading, fetchMore } = useQuery(ONE_FIT_ACTIVITY_CATEGORIES, {
-    variables: {
-      ...filters,
-      cursor,
+  const { data, loading, error, fetchMore, refetch } = useQuery(
+    ONE_FIT_ACTIVITY_CATEGORIES,
+    {
+      variables: {
+        ...filters,
+        cursor,
+      },
     },
-  });
+  );
 
   const {
     list: categories,
@@ -66,12 +70,20 @@ export const useCategories = (filters?: CategoryFilters) => {
     });
   };
 
+  const handleRefetch = useCallback(() => {
+    return refetch({
+      ...filters,
+      cursor,
+    });
+  }, [refetch, filters, cursor]);
+
   return {
     categories,
     loading,
+    error,
     totalCount,
     pageInfo,
     handleFetchMore,
+    refetch: handleRefetch,
   };
 };
-

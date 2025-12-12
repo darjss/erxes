@@ -6,10 +6,12 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Form } from 'erxes-ui';
-import { SelectCustomer } from 'ui-modules';
+import { SelectOneFitCustomer } from '~/modules/onefitCustomer/components/SelectOneFitCustomer';
 
 const rejectProviderSchema = z.object({
-  rejectionReason: z.string().min(1, { message: 'Rejection reason is required' }),
+  rejectionReason: z
+    .string()
+    .min(1, { message: 'Rejection reason is required' }),
   rejectedBy: z.string().min(1, { message: 'Rejected by is required' }),
 });
 
@@ -99,10 +101,9 @@ export const RejectProviderDialog = ({
                 <Form.Item>
                   <Form.Label>Rejected By *</Form.Label>
                   <Form.Control>
-                    <SelectCustomer.FormItem
+                    <SelectOneFitCustomer.FormItem
                       value={field.value}
                       onValueChange={field.onChange}
-                      type="customer"
                     />
                   </Form.Control>
                   <Form.Message />
@@ -129,4 +130,3 @@ export const RejectProviderDialog = ({
     </Dialog>
   );
 };
-

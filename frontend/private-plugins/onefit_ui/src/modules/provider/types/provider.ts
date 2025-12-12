@@ -4,10 +4,20 @@ export enum ProviderStatus {
   REJECTED = 'rejected',
 }
 
+export interface MultilingualString {
+  en: string;
+  mn: string;
+}
+
+export interface MultilingualStringOptional {
+  en?: string;
+  mn?: string;
+}
+
 export interface OneFitLocation {
-  address: string;
-  city: string;
-  district?: string;
+  address: MultilingualString;
+  city: MultilingualString;
+  district?: MultilingualStringOptional;
   coordinates?: {
     lat: number;
     lng: number;
@@ -24,8 +34,8 @@ export interface OneFitProvider {
   _id: string;
   createdAt: string;
   modifiedAt: string;
-  businessName: string;
-  description?: string;
+  businessName: MultilingualString;
+  description?: MultilingualStringOptional;
   location: OneFitLocation;
   contactInfo: OneFitContactInfo;
   facilities?: string[];

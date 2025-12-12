@@ -15,7 +15,7 @@ import {
   OneFitCreditTransactionType,
   OneFitCreditSource,
 } from '../types/credit';
-import { CustomersInline } from 'ui-modules';
+import { OneFitCustomersInline } from '~/modules/onefitCustomer/components/OneFitCustomersInline';
 
 interface CreditTransactionsListProps {
   filters?: CreditTransactionFilters;
@@ -86,7 +86,7 @@ export const CreditTransactionsList = ({
         }
         return (
           <RecordTableInlineCell>
-            <CustomersInline
+            <OneFitCustomersInline
               customers={[
                 {
                   _id: user._id,

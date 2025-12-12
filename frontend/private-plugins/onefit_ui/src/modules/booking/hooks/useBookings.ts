@@ -1,4 +1,5 @@
 import { useQuery } from '@apollo/client';
+import { useCallback } from 'react';
 import {
   EnumCursorDirection,
   mergeCursorData,
@@ -16,18 +17,17 @@ export const useBookings = (filters?: BookingFilters) => {
     sessionKey: BOOKINGS_CURSOR_SESSION_KEY,
   });
 
-  const { data, loading, fetchMore } = useQuery(ONE_FIT_BOOKINGS, {
-    variables: {
-      ...filters,
-      cursor,
+  const { data, loading, error, fetchMore, refetch } = useQuery(
+    ONE_FIT_BOOKINGS,
+    {
+      variables: {
+        ...filters,
+        cursor,
+      },
     },
-  });
+  );
 
-  const {
-    list: bookings,
-    totalCount,
-    pageInfo,
-  } = data?.oneFitBookings || {};
+  const { list: bookings, totalCount, pageInfo } = data?.oneFitBookings || {};
 
   const handleFetchMore = ({
     direction,
@@ -66,12 +66,20 @@ export const useBookings = (filters?: BookingFilters) => {
     });
   };
 
+  const handleRefetch = useCallback(() => {
+    return refetch({
+      ...filters,
+      cursor,
+    });
+  }, [refetch, filters, cursor]);
+
   return {
     bookings,
     loading,
+    error,
     totalCount,
     pageInfo,
     handleFetchMore,
+    refetch: handleRefetch,
   };
 };
-

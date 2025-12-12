@@ -11,6 +11,7 @@ import {
 } from '@/membership/@types/credittransaction';
 import { DayOfWeek } from '@/schedule/@types/schedule';
 import { Resolver } from 'erxes-api-shared/core-types';
+import { getLocalizedString } from '@/activity-type/utils/localization';
 
 function getDayOfWeek(date: Date): DayOfWeek {
   const days = [
@@ -159,7 +160,7 @@ async function createBookingLogic(
     source: creditSource,
     bookingId: createdBooking._id,
     corporateCreditId,
-    description: `Booking for ${activityType.name}`,
+    description: `Booking for ${getLocalizedString(activityType.name, 'en')}`,
     balanceAfter,
   });
 

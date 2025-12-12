@@ -19,19 +19,15 @@ const generateFilter = async (params: IActivityTypeQueryParams) => {
   const filter: any = {};
 
   if (params.searchValue) {
+    const searchRegex = {
+      $regex: `.*${escapeRegExp(params.searchValue)}.*`,
+      $options: 'i',
+    };
     filter.$or = [
-      {
-        name: {
-          $regex: `.*${escapeRegExp(params.searchValue)}.*`,
-          $options: 'i',
-        },
-      },
-      {
-        description: {
-          $regex: `.*${escapeRegExp(params.searchValue)}.*`,
-          $options: 'i',
-        },
-      },
+      { 'name.en': searchRegex },
+      { 'name.mn': searchRegex },
+      { 'description.en': searchRegex },
+      { 'description.mn': searchRegex },
     ];
   }
 

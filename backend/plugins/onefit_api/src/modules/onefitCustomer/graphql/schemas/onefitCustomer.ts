@@ -39,6 +39,7 @@ export const types = `
 `;
 
 const oneFitCustomerQueryParams = `
+  searchValue: String
   membershipPlanId: String
   membershipStatus: OneFitMembershipStatus
   minCreditBalance: Float
@@ -69,4 +70,3 @@ export const mutations = `
     preferences: JSON
   ): Customer
 `;
-

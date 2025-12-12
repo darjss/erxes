@@ -2,8 +2,8 @@ import { gql } from '@apollo/client';
 
 export const ONE_FIT_ACTIVITY_CATEGORY_CREATE = gql`
   mutation OneFitActivityCategoryCreate(
-    $name: String!
-    $description: String
+    $name: OneFitMultilingualStringInput!
+    $description: OneFitMultilingualStringOptionalInput
     $parentId: String
     $isActive: Boolean
   ) {
@@ -16,8 +16,14 @@ export const ONE_FIT_ACTIVITY_CATEGORY_CREATE = gql`
       _id
       createdAt
       modifiedAt
-      name
-      description
+      name {
+        en
+        mn
+      }
+      description {
+        en
+        mn
+      }
       parentId
       isActive
     }
@@ -27,8 +33,8 @@ export const ONE_FIT_ACTIVITY_CATEGORY_CREATE = gql`
 export const ONE_FIT_ACTIVITY_CATEGORY_UPDATE = gql`
   mutation OneFitActivityCategoryUpdate(
     $_id: String!
-    $name: String!
-    $description: String
+    $name: OneFitMultilingualStringInput
+    $description: OneFitMultilingualStringOptionalInput
     $parentId: String
     $isActive: Boolean
   ) {
@@ -41,8 +47,14 @@ export const ONE_FIT_ACTIVITY_CATEGORY_UPDATE = gql`
     ) {
       _id
       modifiedAt
-      name
-      description
+      name {
+        en
+        mn
+      }
+      description {
+        en
+        mn
+      }
       parentId
       isActive
     }
