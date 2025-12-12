@@ -16,12 +16,17 @@ export const useSchedules = (filters?: ScheduleTemplateFilters) => {
     sessionKey: SCHEDULE_TEMPLATES_CURSOR_SESSION_KEY,
   });
 
-  const { data, loading, fetchMore } = useQuery(ONE_FIT_SCHEDULE_TEMPLATES, {
-    variables: {
-      ...filters,
-      cursor,
+  const { data, loading, error, fetchMore } = useQuery(
+    ONE_FIT_SCHEDULE_TEMPLATES,
+    {
+      variables: {
+        ...filters,
+        cursor,
+        limit: SCHEDULE_TEMPLATES_PER_PAGE,
+      },
+      errorPolicy: 'all',
     },
-  });
+  );
 
   const {
     list: scheduleTemplates,
@@ -69,13 +74,9 @@ export const useSchedules = (filters?: ScheduleTemplateFilters) => {
   return {
     scheduleTemplates,
     loading,
+    error,
     totalCount,
     pageInfo,
     handleFetchMore,
   };
 };
-
-
-
-
-

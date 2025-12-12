@@ -20,8 +20,14 @@ export const ONE_FIT_ACTIVITY_CATEGORIES = gql`
         _id
         createdAt
         modifiedAt
-        name
-        description
+        name {
+          en
+          mn
+        }
+        description {
+          en
+          mn
+        }
         parentId
         isActive
       }
@@ -58,11 +64,16 @@ export const ONE_FIT_ACTIVITY_CATEGORY = gql`
       _id
       createdAt
       modifiedAt
-      name
-      description
+      name {
+        en
+        mn
+      }
+      description {
+        en
+        mn
+      }
       parentId
       isActive
     }
   }
 `;
-

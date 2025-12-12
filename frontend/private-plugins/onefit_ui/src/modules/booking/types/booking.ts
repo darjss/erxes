@@ -27,7 +27,10 @@ export interface OneFitBooking {
   };
   provider?: {
     _id: string;
-    businessName: string;
+    businessName: {
+      en: string;
+      mn: string;
+    };
   };
   activityType?: {
     _id: string;

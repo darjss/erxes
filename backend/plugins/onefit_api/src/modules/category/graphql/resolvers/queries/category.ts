@@ -13,35 +13,42 @@ export interface ICategoryQueryParams extends ICursorPaginateParams {
 
 const generateFilter = async (params: ICategoryQueryParams) => {
   const filter: any = {};
+  const orConditions: any[] = [];
 
   if (params.searchValue) {
-    filter.$or = [
-      {
-        name: {
-          $regex: `.*${escapeRegExp(params.searchValue)}.*`,
-          $options: 'i',
-        },
-      },
-      {
-        description: {
-          $regex: `.*${escapeRegExp(params.searchValue)}.*`,
-          $options: 'i',
-        },
-      },
-    ];
+    const searchRegex = {
+      $regex: `.*${escapeRegExp(params.searchValue)}.*`,
+      $options: 'i',
+    };
+    orConditions.push(
+      { 'name.en': searchRegex },
+      { 'name.mn': searchRegex },
+      { 'description.en': searchRegex },
+      { 'description.mn': searchRegex },
+    );
   }
 
   if (params.name) {
-    filter.name = params.name;
+    orConditions.push({ 'name.en': params.name }, { 'name.mn': params.name });
+  }
+
+  if (orConditions.length > 0) {
+    filter.$or = orConditions;
   }
 
   if (params.parentId !== undefined) {
     if (params.parentId === null || params.parentId === '') {
-      filter.$or = [
+      const parentIdOr = [
         { parentId: { $exists: false } },
         { parentId: null },
         { parentId: '' },
       ];
+      if (filter.$or) {
+        filter.$and = [{ $or: filter.$or }, { $or: parentIdOr }];
+        delete filter.$or;
+      } else {
+        filter.$or = parentIdOr;
+      }
     } else {
       filter.parentId = params.parentId;
     }

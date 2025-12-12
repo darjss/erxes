@@ -124,5 +124,3 @@ export const ONE_FIT_SCHEDULE_EXCEPTIONS_REMOVE = gql`
     oneFitScheduleExceptionsRemove(ids: $ids)
   }
 `;
-
-

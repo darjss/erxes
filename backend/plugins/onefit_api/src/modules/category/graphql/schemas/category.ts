@@ -5,8 +5,8 @@ export const types = `
     _id: String
     createdAt: Date
     modifiedAt: Date
-    name: String
-    description: String
+    name: OneFitMultilingualString
+    description: OneFitMultilingualStringOptional
     parentId: String
     isActive: Boolean
   }
@@ -32,8 +32,8 @@ export const queries = `
 `;
 
 const mutationParams = `
-  name: String!
-  description: String
+  name: OneFitMultilingualStringInput!
+  description: OneFitMultilingualStringOptionalInput
   parentId: String
   isActive: Boolean
 `;

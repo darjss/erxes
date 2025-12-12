@@ -21,7 +21,10 @@ export const ONE_FIT_SCHEDULE_TEMPLATES = gql`
         providerId
         provider {
           _id
-          businessName
+          businessName {
+            en
+            mn
+          }
         }
         month
         year
@@ -68,7 +71,10 @@ export const ONE_FIT_SCHEDULE_TEMPLATE = gql`
       providerId
       provider {
         _id
-        businessName
+        businessName {
+          en
+          mn
+        }
       }
       month
       year
@@ -101,7 +107,10 @@ export const ONE_FIT_SCHEDULE_TEMPLATE_BY_PROVIDER_AND_MONTH = gql`
       providerId
       provider {
         _id
-        businessName
+        businessName {
+          en
+          mn
+        }
       }
       month
       year

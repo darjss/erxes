@@ -14,6 +14,7 @@ import { EditCategoryDialog } from './EditCategoryDialog';
 import { RemoveCategoryDialog } from './RemoveCategoryDialog';
 import { useState, useMemo } from 'react';
 import { generateOrderPath } from '../utils/generateOrderPath';
+import { getLocalizedString } from '../utils/localization';
 
 interface CategoriesListProps {
   filters?: CategoryFilters;
@@ -22,9 +23,7 @@ interface CategoriesListProps {
 export const CategoriesList = ({ filters }: CategoriesListProps) => {
   const { categories, handleFetchMore, loading, pageInfo } =
     useCategories(filters);
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(
-    null,
-  );
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [removeDialogOpen, setRemoveDialogOpen] = useState(false);
 
@@ -36,30 +35,33 @@ export const CategoriesList = ({ filters }: CategoriesListProps) => {
   }, [categories]);
 
   const categoryObject = useMemo(() => {
-    return categoriesWithOrder.reduce(
-      (acc, category) => {
-        acc[category._id] = category;
-        return acc;
-      },
-      {} as Record<string, typeof categoriesWithOrder[0]>,
-    );
+    return categoriesWithOrder.reduce((acc, category) => {
+      acc[category._id] = category;
+      return acc;
+    }, {} as Record<string, (typeof categoriesWithOrder)[0]>);
   }, [categoriesWithOrder]);
 
   const columns: ColumnDef<
-    typeof categoriesWithOrder[0] & { hasChildren: boolean }
+    (typeof categoriesWithOrder)[0] & { hasChildren: boolean }
   >[] = [
     {
       accessorKey: 'name',
       header: 'Name',
       cell: ({ cell, row }) => {
+        const name = cell.getValue() as
+          | { en: string; mn: string }
+          | string
+          | undefined;
+        const displayName =
+          typeof name === 'object' ? getLocalizedString(name) : name || '';
         return (
           <RecordTableInlineCell className="text-xs font-medium">
             <RecordTableTree.Trigger
               order={row.original.order}
-              name={cell.getValue() as string}
+              name={displayName}
               hasChildren={row.original.hasChildren}
             >
-              {cell.getValue() as string}
+              {displayName}
             </RecordTableTree.Trigger>
           </RecordTableInlineCell>
         );
@@ -69,10 +71,17 @@ export const CategoriesList = ({ filters }: CategoriesListProps) => {
       accessorKey: 'description',
       header: 'Description',
       cell: ({ cell }) => {
-        const description = cell.getValue() as string | undefined;
+        const description = cell.getValue() as
+          | { en?: string; mn?: string }
+          | string
+          | undefined;
+        const displayDescription =
+          typeof description === 'object'
+            ? getLocalizedString(description) || '-'
+            : description || '-';
         return (
           <RecordTableInlineCell className="text-xs font-medium text-muted-foreground">
-            {description || '-'}
+            {displayDescription}
           </RecordTableInlineCell>
         );
       },
@@ -185,4 +194,3 @@ export const CategoriesList = ({ filters }: CategoriesListProps) => {
     </>
   );
 };
-

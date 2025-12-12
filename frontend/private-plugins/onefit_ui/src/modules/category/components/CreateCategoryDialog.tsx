@@ -4,7 +4,9 @@ import {
   Dialog,
   Form,
   Input,
+  Label,
   Spinner,
+  Switch,
   Textarea,
 } from 'erxes-ui';
 import { IconPlus } from '@tabler/icons-react';
@@ -16,8 +18,16 @@ import { useCreateCategory } from '../hooks/useCategoryMutations';
 import { SelectCategory } from './SelectCategory';
 
 const createCategorySchema = z.object({
-  name: z.string().min(1, { message: 'Name is required' }),
-  description: z.string().optional(),
+  name: z.object({
+    en: z.string().min(1, { message: 'Name (English) is required' }),
+    mn: z.string().min(1, { message: 'Name (Mongolian) is required' }),
+  }),
+  description: z
+    .object({
+      en: z.string().optional(),
+      mn: z.string().optional(),
+    })
+    .optional(),
   parentId: z.string().optional(),
   isActive: z.boolean().optional(),
 });
@@ -45,11 +55,18 @@ export const CreateCategoryDialog = () => {
 };
 
 const CreateCategoryForm = ({ onClose }: { onClose: () => void }) => {
+  const [selectedLanguage, setSelectedLanguage] = useState<'en' | 'mn'>('en');
   const form = useForm<CreateCategoryFormData>({
     resolver: zodResolver(createCategorySchema),
     defaultValues: {
-      name: '',
-      description: '',
+      name: {
+        en: '',
+        mn: '',
+      },
+      description: {
+        en: '',
+        mn: '',
+      },
       parentId: '',
       isActive: true,
     },
@@ -60,7 +77,10 @@ const CreateCategoryForm = ({ onClose }: { onClose: () => void }) => {
     createCategory({
       variables: {
         name: data.name,
-        description: data.description || undefined,
+        description:
+          data.description && (data.description.en || data.description.mn)
+            ? data.description
+            : undefined,
         parentId: data.parentId || undefined,
         isActive: data.isActive !== undefined ? data.isActive : true,
       },
@@ -77,14 +97,71 @@ const CreateCategoryForm = ({ onClose }: { onClose: () => void }) => {
         onSubmit={form.handleSubmit(onSubmit)}
         className="flex flex-col gap-6"
       >
+        <div className="flex items-center justify-between gap-4 pb-2">
+          <Label className="text-sm font-medium">Language</Label>
+          <div className="flex items-center gap-3">
+            <Label
+              htmlFor="language-switch"
+              className={`text-sm ${
+                selectedLanguage === 'en'
+                  ? 'font-semibold'
+                  : 'text-muted-foreground'
+              }`}
+            >
+              English
+            </Label>
+            <Switch
+              id="language-switch"
+              checked={selectedLanguage === 'mn'}
+              onCheckedChange={(checked) =>
+                setSelectedLanguage(checked ? 'mn' : 'en')
+              }
+            />
+            <Label
+              htmlFor="language-switch"
+              className={`text-sm ${
+                selectedLanguage === 'mn'
+                  ? 'font-semibold'
+                  : 'text-muted-foreground'
+              }`}
+            >
+              Mongolian
+            </Label>
+          </div>
+        </div>
         <Form.Field
           control={form.control}
-          name="name"
+          name="name.en"
           render={({ field }) => (
-            <Form.Item>
-              <Form.Label>Name *</Form.Label>
+            <Form.Item className={selectedLanguage !== 'en' ? 'hidden' : ''}>
+              <Form.Label>Name (English) *</Form.Label>
               <Form.Control>
-                <Input {...field} placeholder="Enter category name" />
+                <Input
+                  value={field.value || ''}
+                  onChange={field.onChange}
+                  onBlur={field.onBlur}
+                  ref={field.ref}
+                  placeholder="Enter category name in English"
+                />
+              </Form.Control>
+              <Form.Message />
+            </Form.Item>
+          )}
+        />
+        <Form.Field
+          control={form.control}
+          name="name.mn"
+          render={({ field }) => (
+            <Form.Item className={selectedLanguage !== 'mn' ? 'hidden' : ''}>
+              <Form.Label>Name (Mongolian) *</Form.Label>
+              <Form.Control>
+                <Input
+                  value={field.value || ''}
+                  onChange={field.onChange}
+                  onBlur={field.onBlur}
+                  ref={field.ref}
+                  placeholder="Enter category name in Mongolian"
+                />
               </Form.Control>
               <Form.Message />
             </Form.Item>
@@ -108,12 +185,39 @@ const CreateCategoryForm = ({ onClose }: { onClose: () => void }) => {
         />
         <Form.Field
           control={form.control}
-          name="description"
+          name="description.en"
           render={({ field }) => (
-            <Form.Item>
-              <Form.Label>Description</Form.Label>
+            <Form.Item className={selectedLanguage !== 'en' ? 'hidden' : ''}>
+              <Form.Label>Description (English)</Form.Label>
               <Form.Control>
-                <Textarea {...field} placeholder="Enter description" rows={3} />
+                <Textarea
+                  value={field.value || ''}
+                  onChange={field.onChange}
+                  onBlur={field.onBlur}
+                  ref={field.ref}
+                  placeholder="Enter description in English"
+                  rows={3}
+                />
+              </Form.Control>
+              <Form.Message />
+            </Form.Item>
+          )}
+        />
+        <Form.Field
+          control={form.control}
+          name="description.mn"
+          render={({ field }) => (
+            <Form.Item className={selectedLanguage !== 'mn' ? 'hidden' : ''}>
+              <Form.Label>Description (Mongolian)</Form.Label>
+              <Form.Control>
+                <Textarea
+                  value={field.value || ''}
+                  onChange={field.onChange}
+                  onBlur={field.onBlur}
+                  ref={field.ref}
+                  placeholder="Enter description in Mongolian"
+                  rows={3}
+                />
               </Form.Control>
               <Form.Message />
             </Form.Item>

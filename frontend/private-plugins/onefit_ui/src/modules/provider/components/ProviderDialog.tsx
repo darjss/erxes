@@ -333,7 +333,7 @@ const ProviderForm = ({ mode, providerId, onClose }: ProviderFormProps) => {
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="flex flex-col h-full"
+        className="flex flex-col h-full overflow-hidden"
       >
         <Sheet.Content className="flex-auto overflow-y-auto">
           <div className="flex flex-col gap-6 p-5">

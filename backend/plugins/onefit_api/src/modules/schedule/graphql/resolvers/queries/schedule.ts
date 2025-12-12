@@ -18,7 +18,7 @@ export interface IScheduleExceptionQueryParams extends ICursorPaginateParams {
   endDate?: Date;
 }
 
-const generateTemplateFilter = async (params: IScheduleTemplateQueryParams) => {
+const generateTemplateFilter = (params: IScheduleTemplateQueryParams) => {
   const filter: any = {};
 
   if (params.providerId) {
@@ -36,9 +36,7 @@ const generateTemplateFilter = async (params: IScheduleTemplateQueryParams) => {
   return filter;
 };
 
-const generateExceptionFilter = async (
-  params: IScheduleExceptionQueryParams,
-) => {
+const generateExceptionFilter = (params: IScheduleExceptionQueryParams) => {
   const filter: any = {
     providerId: params.providerId,
   };
@@ -62,7 +60,7 @@ export const scheduleQueries = {
     params: IScheduleTemplateQueryParams,
     { models }: IContext,
   ) {
-    const filter = await generateTemplateFilter(params);
+    const filter = generateTemplateFilter(params);
 
     return await cursorPaginate({
       model: models.ScheduleTemplate,
@@ -76,7 +74,7 @@ export const scheduleQueries = {
     params: IScheduleTemplateQueryParams,
     { models }: IContext,
   ) {
-    const filter = await generateTemplateFilter(params);
+    const filter = generateTemplateFilter(params);
     return models.ScheduleTemplate.find(filter).countDocuments();
   },
 
@@ -109,7 +107,7 @@ export const scheduleQueries = {
     params: IScheduleExceptionQueryParams,
     { models }: IContext,
   ) {
-    const filter = await generateExceptionFilter(params);
+    const filter = generateExceptionFilter(params);
     return await cursorPaginate({
       model: models.ScheduleException,
       params,
@@ -122,7 +120,7 @@ export const scheduleQueries = {
     params: IScheduleExceptionQueryParams,
     { models }: IContext,
   ) {
-    const filter = await generateExceptionFilter(params);
+    const filter = generateExceptionFilter(params);
     return models.ScheduleException.find(filter).countDocuments();
   },
 

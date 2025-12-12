@@ -1,9 +1,19 @@
+export interface OneFitMultilingualString {
+  en: string;
+  mn: string;
+}
+
+export interface OneFitMultilingualStringOptional {
+  en?: string;
+  mn?: string;
+}
+
 export interface OneFitActivityCategory {
   _id: string;
   createdAt: string;
   modifiedAt: string;
-  name: string;
-  description?: string;
+  name: OneFitMultilingualString;
+  description?: OneFitMultilingualStringOptional;
   parentId?: string;
   isActive: boolean;
 }
@@ -25,4 +35,3 @@ export interface CategoryFilters {
   parentId?: string;
   isActive?: boolean;
 }
-

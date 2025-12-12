@@ -97,9 +97,12 @@ export const BookingsList = ({ filters }: BookingsListProps) => {
       cell: ({ row }) => {
         const booking = row.original;
         const provider = booking.provider;
+        const providerName = provider?.businessName
+          ? getLocalizedString(provider.businessName, 'en')
+          : '-';
         return (
           <RecordTableInlineCell className="text-xs font-medium">
-            {provider?.businessName || '-'}
+            {providerName}
           </RecordTableInlineCell>
         );
       },
