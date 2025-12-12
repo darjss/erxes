@@ -1,51 +1,18 @@
 import {
-  IconCaretDownFilled,
-  IconActivity,
-  IconSettings,
   IconCalendar,
   IconUsers,
   IconBuildingStore,
   IconBike,
   IconTags,
   IconCreditCard,
-  IconShoppingCart,
 } from '@tabler/icons-react';
-import { Breadcrumb, Button, Separator } from 'erxes-ui';
-import { PageHeader } from 'ui-modules';
+import { Button } from 'erxes-ui';
 import { Link } from 'react-router-dom';
+import { OneFitPageLayout } from '~/components/OneFitPageLayout';
 
-export const IndexPage = () => {
+export function IndexPage() {
   return (
-    <div className="flex flex-col h-full">
-      <PageHeader>
-        <PageHeader.Start>
-          <Breadcrumb>
-            <Breadcrumb.List className="gap-1">
-              <Breadcrumb.Item>
-                <Button variant="ghost" asChild>
-                  <Link to="/settings/onefit">
-                    <IconActivity />
-                    OneFit
-                  </Link>
-                </Button>
-              </Breadcrumb.Item>
-            </Breadcrumb.List>
-          </Breadcrumb>
-          <Separator.Inline />
-          <PageHeader.FavoriteToggleButton />
-        </PageHeader.Start>
-        <PageHeader.End>
-          <Button variant="outline" asChild>
-            <Link to="/settings/onefit">
-              <IconSettings />
-              Go to settings
-            </Link>
-          </Button>
-          <Button>
-            More <IconCaretDownFilled />
-          </Button>
-        </PageHeader.End>
-      </PageHeader>
+    <OneFitPageLayout pageName="">
       <div className="flex h-full overflow-hidden">
         <div className="flex flex-col h-full overflow-hidden flex-auto p-6">
           <div className="flex flex-col gap-4">
@@ -58,9 +25,9 @@ export const IndexPage = () => {
                 </Link>
               </Button>
               <Button asChild>
-                <Link to="/onefit/users">
+                <Link to="/onefit/customers">
                   <IconUsers />
-                  View Users
+                  View Customers
                 </Link>
               </Button>
               <Button asChild>
@@ -91,6 +58,6 @@ export const IndexPage = () => {
           </div>
         </div>
       </div>
-    </div>
+    </OneFitPageLayout>
   );
-};
+}

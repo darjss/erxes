@@ -1,20 +1,5 @@
-import {
-  IconActivity,
-  IconSettings,
-  IconCaretDownFilled,
-  IconCalendar,
-} from '@tabler/icons-react';
-import {
-  Breadcrumb,
-  Button,
-  PageContainer,
-  PageSubHeader,
-  Separator,
-  ScrollArea,
-  Tabs,
-} from 'erxes-ui';
-import { PageHeader } from 'ui-modules';
-import { Link } from 'react-router-dom';
+import { IconCalendar } from '@tabler/icons-react';
+import { PageSubHeader, ScrollArea, Tabs, Button } from 'erxes-ui';
 import { useState } from 'react';
 import { ScheduleTemplatesList } from '~/modules/schedule/components/ScheduleTemplatesList';
 import { ScheduleTemplateFiltersComponent } from '~/modules/schedule/components/ScheduleTemplateFilters';
@@ -25,8 +10,9 @@ import { ScheduleExceptionsList } from '~/modules/schedule/components/ScheduleEx
 import { ScheduleExceptionFiltersComponent } from '~/modules/schedule/components/ScheduleExceptionFilters';
 import { CreateScheduleExceptionDialog } from '~/modules/schedule/components/CreateScheduleExceptionDialog';
 import { ScheduleExceptionFilters } from '~/modules/schedule/types/schedule';
+import { OneFitPageLayout } from '~/components/OneFitPageLayout';
 
-export const SchedulesPage = () => {
+export function SchedulesPage() {
   const [templateFilters, setTemplateFilters] =
     useState<ScheduleTemplateFilters>({});
   const [exceptionFilters, setExceptionFilters] =
@@ -36,43 +22,7 @@ export const SchedulesPage = () => {
   const [copyDialogOpen, setCopyDialogOpen] = useState(false);
 
   return (
-    <PageContainer>
-      <PageHeader>
-        <PageHeader.Start>
-          <Breadcrumb>
-            <Breadcrumb.List className="gap-1">
-              <Breadcrumb.Item>
-                <Button variant="ghost" asChild>
-                  <Link to="/settings/onefit">
-                    <IconActivity />
-                    OneFit
-                  </Link>
-                </Button>
-              </Breadcrumb.Item>
-              <Breadcrumb.Separator />
-              <Breadcrumb.Item>
-                <Button variant="ghost" disabled>
-                  <IconCalendar />
-                  Schedules
-                </Button>
-              </Breadcrumb.Item>
-            </Breadcrumb.List>
-          </Breadcrumb>
-          <Separator.Inline />
-          <PageHeader.FavoriteToggleButton />
-        </PageHeader.Start>
-        <PageHeader.End>
-          <Button variant="outline" asChild>
-            <Link to="/settings/onefit">
-              <IconSettings />
-              Go to settings
-            </Link>
-          </Button>
-          <Button>
-            More <IconCaretDownFilled />
-          </Button>
-        </PageHeader.End>
-      </PageHeader>
+    <OneFitPageLayout pageName="Schedules" pageIcon={<IconCalendar />}>
       <div className="flex flex-auto overflow-hidden flex-col">
         <Tabs
           defaultValue="templates"
@@ -136,6 +86,6 @@ export const SchedulesPage = () => {
         onOpenChange={setCopyDialogOpen}
         onClose={() => setCopyDialogOpen(false)}
       />
-    </PageContainer>
+    </OneFitPageLayout>
   );
-};
+}
