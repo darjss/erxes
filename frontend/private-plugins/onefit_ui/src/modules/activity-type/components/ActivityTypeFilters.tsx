@@ -7,6 +7,7 @@ import { ActivityTypeFilters, GenderRestriction } from '../types/activityType';
 import { ONE_FIT_PROVIDERS } from '~/modules/provider/graphql/providerQueries';
 import { ONE_FIT_ACTIVITY_CATEGORIES } from '~/modules/category/graphql/categoryQueries';
 import { getLocalizedString } from '../utils/localization';
+import { getLocalizedString as getCategoryLocalizedString } from '~/modules/category/utils/localization';
 
 interface ActivityTypeFiltersProps {
   filters: ActivityTypeFilters;
@@ -134,11 +135,16 @@ export const ActivityTypeFiltersComponent = ({
                 </Select.Trigger>
                 <Select.Content>
                   <Select.Item value="__all__">All categories</Select.Item>
-                  {categories.map((category: { _id: string; name: string }) => (
-                    <Select.Item key={category._id} value={category._id}>
-                      {category.name}
-                    </Select.Item>
-                  ))}
+                  {categories.map(
+                    (category: {
+                      _id: string;
+                      name: { en: string; mn: string };
+                    }) => (
+                      <Select.Item key={category._id} value={category._id}>
+                        {getCategoryLocalizedString(category.name, 'en')}
+                      </Select.Item>
+                    ),
+                  )}
                 </Select.Content>
               </Select>
             </div>

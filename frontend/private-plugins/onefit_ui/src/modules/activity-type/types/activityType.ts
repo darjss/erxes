@@ -31,7 +31,10 @@ export interface OneFitActivityType {
   categoryIds: string[];
   categories?: Array<{
     _id: string;
-    name: string;
+    name: {
+      en: string;
+      mn: string;
+    };
   }>;
   isActive: boolean;
   cancellationDeadline?: number;

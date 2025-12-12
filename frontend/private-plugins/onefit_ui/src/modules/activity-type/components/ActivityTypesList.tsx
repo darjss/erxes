@@ -13,6 +13,7 @@ import { EditActivityTypeDialog } from './ActivityTypeDialog';
 import { RemoveActivityTypeDialog } from './RemoveActivityTypeDialog';
 import { useState } from 'react';
 import { getLocalizedString } from '../utils/localization';
+import { getLocalizedString as getCategoryLocalizedString } from '~/modules/category/utils/localization';
 
 interface ActivityTypesListProps {
   filters?: ActivityTypeFilters;
@@ -146,7 +147,9 @@ export const ActivityTypesList = ({ filters }: ActivityTypesListProps) => {
           );
         }
         const categoryNames = activityType.categories
-          .map((cat: { _id: string; name: string }) => cat.name)
+          .map((cat: { _id: string; name: { en: string; mn: string } }) =>
+            getCategoryLocalizedString(cat.name, 'en'),
+          )
           .join(', ');
         return (
           <RecordTableInlineCell className="text-xs font-medium text-muted-foreground">
