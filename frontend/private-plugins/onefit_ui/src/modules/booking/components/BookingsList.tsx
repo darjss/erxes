@@ -16,8 +16,9 @@ import { BOOKINGS_CURSOR_SESSION_KEY } from '../constants/bookingCursorSessionKe
 import { CancelBookingDialog } from './CancelBookingDialog';
 import { MarkAttendanceDialog } from './MarkAttendanceDialog';
 import { useState } from 'react';
-import { CustomersInline } from 'ui-modules';
+import { OneFitCustomersInline } from '~/modules/onefitCustomer/components/OneFitCustomersInline';
 import { getLocalizedString } from '~/modules/activity-type/utils/localization';
+import { OneFitCustomer } from '@/credit/types/credit';
 
 interface BookingsListProps {
   filters?: BookingFilters;
@@ -65,7 +66,7 @@ export const BookingsList = ({ filters }: BookingsListProps) => {
       header: 'User',
       cell: ({ row }) => {
         const booking = row.original;
-        const user = booking.user;
+        const user: OneFitCustomer | undefined = booking.user;
         if (!user) {
           return (
             <RecordTableInlineCell className="text-xs font-medium text-muted-foreground">
@@ -75,16 +76,8 @@ export const BookingsList = ({ filters }: BookingsListProps) => {
         }
         return (
           <RecordTableInlineCell>
-            <CustomersInline
-              customers={[
-                {
-                  _id: user._id,
-                  firstName: user.firstName,
-                  lastName: user.lastName,
-                  primaryEmail: user.primaryEmail,
-                  primaryPhone: user.primaryPhone,
-                },
-              ]}
+            <OneFitCustomersInline
+              customers={user ? [user] : []}
               placeholder="Unnamed user"
             />
           </RecordTableInlineCell>

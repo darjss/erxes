@@ -12,6 +12,8 @@ export enum OneFitCreditSource {
 
 export interface OneFitCustomer {
   _id: string;
+  createdAt: string;
+  updatedAt: string;
   firstName?: string;
   lastName?: string;
   primaryEmail?: string;

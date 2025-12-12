@@ -36,11 +36,16 @@ const OneFitCustomersInlineProvider = ({
 
   const getCustomerTitle = (customer?: OneFitCustomer) => {
     const { firstName, lastName, primaryEmail, primaryPhone } = customer || {};
-    const fullName =
-      firstName || lastName
-        ? `${firstName || ''} ${lastName || ''}`.trim()
-        : primaryEmail || primaryPhone || placeholder || 'Unnamed customer';
-    return fullName;
+    if (primaryPhone) {
+      return primaryPhone;
+    }
+    if (primaryEmail) {
+      return primaryEmail;
+    }
+    if (firstName || lastName) {
+      return `${firstName || ''} ${lastName || ''}`.trim();
+    }
+    return placeholder || 'Unnamed customer';
   };
 
   return (
