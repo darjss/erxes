@@ -79,7 +79,7 @@ export const UNIT_USAGE_TYPE: Record<string, { en: string; mn: string }> = {
     mn: 'Оффис',
     en: 'Office',
   },
-  serviceArea: {
+  servicearea: {
     mn: 'Үйлчилгээний талбай',
     en: 'Service area',
   },
@@ -243,7 +243,7 @@ export const UNIT_USAGE_ROOMS = {
     { value: 'executiveOffice', label: { en: 'Executive office', mn: 'Удирдлагын өрөө' } }
   ],
 
-  serviceArea: [
+  servicearea: [
     { value: 'customerArea', label: { en: 'Customer area', mn: 'Үйлчлүүлэгчийн хэсэг' } },
     { value: 'staffRoom', label: { en: 'Staff room', mn: 'Ажилчдын өрөө' } },
     { value: 'utilityRoom', label: { en: 'Utility room', mn: 'Техникийн өрөө' } },
@@ -360,7 +360,7 @@ export const UNIT_USAGE_SUBTYPES: Record<string, { value: string; label: { en: s
     { value: 'meetingSuite', label: { en: 'Meeting-suite', mn: 'Хурал, уулзалтын блок' } }
   ],
 
-  serviceArea: [
+  servicearea: [
     { value: 'basic', label: { en: 'Basic service area', mn: 'Энгийн үйлчилгээний талбай' } },
     { value: 'standard', label: { en: 'Standard service area', mn: 'Стандарт үйлчилгээний талбай' } },
     { value: 'specialized', label: { en: 'Specialized', mn: 'Тусгай зориулалтын' } },
