@@ -1,10 +1,7 @@
 import { ICursorPaginateParams, Resolver } from 'erxes-api-shared/core-types';
-import {
-  cursorPaginate,
-  escapeRegExp,
-  markResolvers,
-} from 'erxes-api-shared/utils';
+import { cursorPaginate, markResolvers } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
+import { generatePlanFilter, generatePurchaseFilter } from '../utils/filters';
 
 export interface IPlanQueryParams extends ICursorPaginateParams {
   searchValue?: string;
@@ -17,58 +14,13 @@ export interface IPurchaseQueryParams extends ICursorPaginateParams {
   isInGracePeriod?: boolean;
 }
 
-const generatePlanFilter = async (params: IPlanQueryParams) => {
-  const filter: any = {};
-
-  if (params.searchValue) {
-    filter.$or = [
-      {
-        name: {
-          $regex: `.*${escapeRegExp(params.searchValue)}.*`,
-          $options: 'i',
-        },
-      },
-      {
-        description: {
-          $regex: `.*${escapeRegExp(params.searchValue)}.*`,
-          $options: 'i',
-        },
-      },
-    ];
-  }
-
-  if (params.isActive !== undefined) {
-    filter.isActive = params.isActive;
-  }
-
-  return filter;
-};
-
-const generatePurchaseFilter = async (params: IPurchaseQueryParams) => {
-  const filter: any = {};
-
-  if (params.userId) {
-    filter.userId = params.userId;
-  }
-
-  if (params.isExpired !== undefined) {
-    filter.isExpired = params.isExpired;
-  }
-
-  if (params.isInGracePeriod !== undefined) {
-    filter.isInGracePeriod = params.isInGracePeriod;
-  }
-
-  return filter;
-};
-
 export const membershipQueries: Record<string, Resolver> = {
   async oneFitMembershipPlans(
     _root: undefined,
     params: IPlanQueryParams,
     { models }: IContext,
   ) {
-    const filter = await generatePlanFilter(params);
+    const filter = generatePlanFilter(params);
 
     return await cursorPaginate({
       model: models.MembershipPlan,
@@ -82,7 +34,7 @@ export const membershipQueries: Record<string, Resolver> = {
     params: IPlanQueryParams,
     { models }: IContext,
   ) {
-    const filter = await generatePlanFilter(params);
+    const filter = generatePlanFilter(params);
     return models.MembershipPlan.find(filter).countDocuments();
   },
 

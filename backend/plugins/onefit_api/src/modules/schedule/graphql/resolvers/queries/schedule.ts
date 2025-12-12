@@ -1,10 +1,10 @@
 import { ICursorPaginateParams } from 'erxes-api-shared/core-types';
-import {
-  cursorPaginate,
-  getPureDate,
-  markResolvers,
-} from 'erxes-api-shared/utils';
+import { cursorPaginate, markResolvers } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
+import {
+  generateTemplateFilter,
+  generateExceptionFilter,
+} from '../utils/filters';
 
 export interface IScheduleTemplateQueryParams extends ICursorPaginateParams {
   providerId?: string;
@@ -17,42 +17,6 @@ export interface IScheduleExceptionQueryParams extends ICursorPaginateParams {
   startDate?: Date;
   endDate?: Date;
 }
-
-const generateTemplateFilter = (params: IScheduleTemplateQueryParams) => {
-  const filter: any = {};
-
-  if (params.providerId) {
-    filter.providerId = params.providerId;
-  }
-
-  if (params.year) {
-    filter.year = params.year;
-  }
-
-  if (params.month) {
-    filter.month = params.month;
-  }
-
-  return filter;
-};
-
-const generateExceptionFilter = (params: IScheduleExceptionQueryParams) => {
-  const filter: any = {
-    providerId: params.providerId,
-  };
-
-  if (params.startDate || params.endDate) {
-    filter.date = {};
-    if (params.startDate) {
-      filter.date.$gte = getPureDate(params.startDate);
-    }
-    if (params.endDate) {
-      filter.date.$lte = getPureDate(params.endDate);
-    }
-  }
-
-  return filter;
-};
 
 export const scheduleQueries = {
   async oneFitScheduleTemplates(
