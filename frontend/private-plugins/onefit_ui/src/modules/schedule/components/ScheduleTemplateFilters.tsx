@@ -3,6 +3,7 @@ import { ScheduleTemplateFilters } from '../types/schedule';
 import { MONTHS } from '../utils/scheduleUtils';
 import { SelectProviderSearchable } from '~/modules/provider/components/SelectProviderSearchable';
 import { OneFitFilterBase } from '~/components/OneFitFilterBase';
+import { FilterField } from '~/components/shared/FilterField';
 
 interface ScheduleTemplateFiltersProps {
   filters: ScheduleTemplateFilters;
@@ -30,17 +31,15 @@ export const ScheduleTemplateFiltersComponent = ({
 
   return (
     <OneFitFilterBase filters={filters} onFiltersChange={onFiltersChange}>
-      <div>
-        <label className="mb-2 block text-sm font-medium">Provider</label>
+      <FilterField label="Provider">
         <SelectProviderSearchable
           value={filters.providerId || ''}
           onValueChange={(value) =>
             handleFilterChange('providerId', value || undefined)
           }
         />
-      </div>
-      <div>
-        <label className="mb-2 block text-sm font-medium">Year</label>
+      </FilterField>
+      <FilterField label="Year">
         <Input
           type="number"
           value={filters.year || ''}
@@ -52,9 +51,8 @@ export const ScheduleTemplateFiltersComponent = ({
           }
           placeholder="Enter year"
         />
-      </div>
-      <div>
-        <label className="mb-2 block text-sm font-medium">Month</label>
+      </FilterField>
+      <FilterField label="Month">
         <Select
           value={
             filters.month === undefined ? '__all__' : filters.month.toString()
@@ -78,7 +76,7 @@ export const ScheduleTemplateFiltersComponent = ({
             ))}
           </Select.Content>
         </Select>
-      </div>
+      </FilterField>
     </OneFitFilterBase>
   );
 };

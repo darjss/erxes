@@ -1,4 +1,5 @@
 import { useQuery } from '@apollo/client';
+import { useCallback } from 'react';
 import {
   EnumCursorDirection,
   mergeCursorData,
@@ -16,12 +17,15 @@ export const useProviders = (filters?: ProviderFilters) => {
     sessionKey: PROVIDERS_CURSOR_SESSION_KEY,
   });
 
-  const { data, loading, fetchMore } = useQuery(ONE_FIT_PROVIDERS, {
-    variables: {
-      ...filters,
-      cursor,
+  const { data, loading, error, fetchMore, refetch } = useQuery(
+    ONE_FIT_PROVIDERS,
+    {
+      variables: {
+        ...filters,
+        cursor,
+      },
     },
-  });
+  );
 
   const { list: providers, totalCount, pageInfo } = data?.oneFitProviders || {};
 
@@ -62,11 +66,20 @@ export const useProviders = (filters?: ProviderFilters) => {
     });
   };
 
+  const handleRefetch = useCallback(() => {
+    return refetch({
+      ...filters,
+      cursor,
+    });
+  }, [refetch, filters, cursor]);
+
   return {
     providers,
     loading,
+    error,
     totalCount,
     pageInfo,
     handleFetchMore,
+    refetch: handleRefetch,
   };
 };

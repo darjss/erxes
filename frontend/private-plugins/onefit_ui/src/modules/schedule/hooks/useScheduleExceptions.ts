@@ -1,4 +1,5 @@
 import { useQuery } from '@apollo/client';
+import { useCallback } from 'react';
 import {
   EnumCursorDirection,
   mergeCursorData,
@@ -16,12 +17,15 @@ export const useScheduleExceptions = (filters: ScheduleExceptionFilters) => {
     sessionKey: SCHEDULE_EXCEPTIONS_CURSOR_SESSION_KEY,
   });
 
-  const { data, loading, fetchMore } = useQuery(ONE_FIT_SCHEDULE_EXCEPTIONS, {
-    variables: {
-      ...filters,
-      cursor,
+  const { data, loading, error, fetchMore, refetch } = useQuery(
+    ONE_FIT_SCHEDULE_EXCEPTIONS,
+    {
+      variables: {
+        ...filters,
+        cursor,
+      },
     },
-  });
+  );
 
   const {
     list: scheduleExceptions,
@@ -66,16 +70,20 @@ export const useScheduleExceptions = (filters: ScheduleExceptionFilters) => {
     });
   };
 
+  const handleRefetch = useCallback(() => {
+    return refetch({
+      ...filters,
+      cursor,
+    });
+  }, [refetch, filters, cursor]);
+
   return {
     scheduleExceptions,
     loading,
+    error,
     totalCount,
     pageInfo,
     handleFetchMore,
+    refetch: handleRefetch,
   };
 };
-
-
-
-
-

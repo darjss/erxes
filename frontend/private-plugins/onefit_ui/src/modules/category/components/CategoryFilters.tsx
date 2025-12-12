@@ -1,6 +1,7 @@
 import { Input, Select } from 'erxes-ui';
 import { CategoryFilters } from '../types/category';
 import { OneFitFilterBase } from '~/components/OneFitFilterBase';
+import { FilterField } from '~/components/shared/FilterField';
 
 interface CategoryFiltersProps {
   filters: CategoryFilters;
@@ -20,24 +21,21 @@ export const CategoryFiltersComponent = ({
 
   return (
     <OneFitFilterBase filters={filters} onFiltersChange={onFiltersChange}>
-      <div>
-        <label className="mb-2 block text-sm font-medium">Search</label>
+      <FilterField label="Search">
         <Input
           value={filters.searchValue || ''}
           onChange={(e) => handleFilterChange('searchValue', e.target.value)}
           placeholder="Search by name or description"
         />
-      </div>
-      <div>
-        <label className="mb-2 block text-sm font-medium">Name</label>
+      </FilterField>
+      <FilterField label="Name">
         <Input
           value={filters.name || ''}
           onChange={(e) => handleFilterChange('name', e.target.value)}
           placeholder="Filter by exact name"
         />
-      </div>
-      <div>
-        <label className="mb-2 block text-sm font-medium">Status</label>
+      </FilterField>
+      <FilterField label="Status">
         <Select
           value={
             filters.isActive === undefined
@@ -62,7 +60,7 @@ export const CategoryFiltersComponent = ({
             <Select.Item value="false">Inactive</Select.Item>
           </Select.Content>
         </Select>
-      </div>
+      </FilterField>
     </OneFitFilterBase>
   );
 };

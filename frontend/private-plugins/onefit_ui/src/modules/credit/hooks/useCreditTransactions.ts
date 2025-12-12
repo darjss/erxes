@@ -1,4 +1,5 @@
 import { useQuery } from '@apollo/client';
+import { useCallback } from 'react';
 import {
   EnumCursorDirection,
   mergeCursorData,
@@ -11,19 +12,20 @@ import { CreditTransactionFilters } from '../types/credit';
 
 const CREDIT_TRANSACTIONS_PER_PAGE = 20;
 
-export const useCreditTransactions = (
-  filters?: CreditTransactionFilters,
-) => {
+export const useCreditTransactions = (filters?: CreditTransactionFilters) => {
   const { cursor } = useRecordTableCursor({
     sessionKey: CREDIT_TRANSACTIONS_CURSOR_SESSION_KEY,
   });
 
-  const { data, loading, fetchMore } = useQuery(ONE_FIT_CREDIT_TRANSACTIONS, {
-    variables: {
-      ...filters,
-      cursor,
+  const { data, loading, error, fetchMore, refetch } = useQuery(
+    ONE_FIT_CREDIT_TRANSACTIONS,
+    {
+      variables: {
+        ...filters,
+        cursor,
+      },
     },
-  });
+  );
 
   const {
     list: creditTransactions,
@@ -68,12 +70,20 @@ export const useCreditTransactions = (
     });
   };
 
+  const handleRefetch = useCallback(() => {
+    return refetch({
+      ...filters,
+      cursor,
+    });
+  }, [refetch, filters, cursor]);
+
   return {
     creditTransactions,
     loading,
+    error,
     totalCount,
     pageInfo,
     handleFetchMore,
+    refetch: handleRefetch,
   };
 };
-

@@ -2,6 +2,7 @@ import { Input } from 'erxes-ui';
 import { ScheduleExceptionFilters } from '../types/schedule';
 import { SelectProviderSearchable } from '~/modules/provider/components/SelectProviderSearchable';
 import { OneFitFilterBase } from '~/components/OneFitFilterBase';
+import { FilterField } from '~/components/shared/FilterField';
 
 interface ScheduleExceptionFiltersProps {
   filters: ScheduleExceptionFilters;
@@ -35,17 +36,15 @@ export const ScheduleExceptionFiltersComponent = ({
       excludeKeysFromCount={['providerId']}
       onClear={clearFilters}
     >
-      <div>
-        <label className="mb-2 block text-sm font-medium">Provider *</label>
+      <FilterField label="Provider *">
         <SelectProviderSearchable
           value={filters.providerId || ''}
           onValueChange={(value) =>
             handleFilterChange('providerId', value || undefined)
           }
         />
-      </div>
-      <div>
-        <label className="mb-2 block text-sm font-medium">Start Date</label>
+      </FilterField>
+      <FilterField label="Start Date">
         <Input
           type="date"
           value={filters.startDate || ''}
@@ -53,9 +52,8 @@ export const ScheduleExceptionFiltersComponent = ({
             handleFilterChange('startDate', e.target.value || undefined)
           }
         />
-      </div>
-      <div>
-        <label className="mb-2 block text-sm font-medium">End Date</label>
+      </FilterField>
+      <FilterField label="End Date">
         <Input
           type="date"
           value={filters.endDate || ''}
@@ -63,7 +61,7 @@ export const ScheduleExceptionFiltersComponent = ({
             handleFilterChange('endDate', e.target.value || undefined)
           }
         />
-      </div>
+      </FilterField>
     </OneFitFilterBase>
   );
 };
