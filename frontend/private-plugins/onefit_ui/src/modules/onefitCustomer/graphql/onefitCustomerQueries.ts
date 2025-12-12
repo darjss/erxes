@@ -3,6 +3,7 @@ import { GQL_CURSOR_PARAM_DEFS, GQL_CURSOR_PARAMS } from 'erxes-ui';
 
 export const ONE_FIT_CUSTOMERS = gql`
   query OneFitCustomers(
+    $searchValue: String
     $membershipPlanId: String
     $membershipStatus: OneFitMembershipStatus
     $minCreditBalance: Float
@@ -11,6 +12,7 @@ export const ONE_FIT_CUSTOMERS = gql`
     ${GQL_CURSOR_PARAM_DEFS}
   ) {
     oneFitCustomers(
+      searchValue: $searchValue
       membershipPlanId: $membershipPlanId
       membershipStatus: $membershipStatus
       minCreditBalance: $minCreditBalance
@@ -97,4 +99,3 @@ export const ONE_FIT_CUSTOMERS_COUNT = gql`
     )
   }
 `;
-
