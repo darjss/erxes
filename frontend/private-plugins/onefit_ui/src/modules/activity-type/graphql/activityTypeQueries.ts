@@ -25,7 +25,10 @@ export const ONE_FIT_ACTIVITY_TYPES = gql`
         providerId
         provider {
           _id
-          businessName
+          businessName {
+            en
+            mn
+          }
         }
         name {
           en
@@ -84,7 +87,10 @@ export const ONE_FIT_ACTIVITY_TYPE = gql`
       providerId
       provider {
         _id
-        businessName
+        businessName {
+          en
+          mn
+        }
       }
       name {
         en

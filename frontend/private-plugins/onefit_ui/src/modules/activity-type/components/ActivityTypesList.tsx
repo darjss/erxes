@@ -70,8 +70,9 @@ export const ActivityTypesList = ({ filters }: ActivityTypesListProps) => {
       header: 'Provider',
       cell: ({ row }) => {
         const activityType = row.original;
-        const providerName =
-          activityType.provider?.businessName || activityType.providerId;
+        const providerName = activityType.provider?.businessName
+          ? getLocalizedString(activityType.provider.businessName, 'en')
+          : activityType.providerId;
         return (
           <RecordTableInlineCell className="text-xs font-medium text-muted-foreground">
             {providerName}

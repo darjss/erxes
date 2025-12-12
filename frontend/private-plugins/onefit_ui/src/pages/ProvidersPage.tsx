@@ -15,7 +15,7 @@ import { PageHeader } from 'ui-modules';
 import { Link } from 'react-router-dom';
 import { useState } from 'react';
 import { ProvidersList } from '~/modules/provider/components/ProvidersList';
-import { CreateProviderDialog } from '~/modules/provider/components/CreateProviderDialog';
+import { CreateProviderDialog } from '~/modules/provider/components/ProviderDialog';
 import { ProviderFilters } from '~/modules/provider/components/ProviderFilters';
 import { ProviderFilters as ProviderFiltersType } from '~/modules/provider/types/provider';
 
@@ -73,4 +73,3 @@ export const ProvidersPage = () => {
     </PageContainer>
   );
 };
-

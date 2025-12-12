@@ -6,11 +6,13 @@ import {
   Command,
   Form,
   Popover,
+  EnumCursorDirection,
 } from 'erxes-ui';
 import { useQuery } from '@apollo/client';
 import { useProviders } from '../hooks/useProviders';
 import { OneFitProvider } from '../types/provider';
 import { ONE_FIT_PROVIDER } from '../graphql/providerQueries';
+import { getLocalizedString } from '~/modules/activity-type/utils/localization';
 
 interface SelectProviderProviderProps {
   children: React.ReactNode;
@@ -91,7 +93,6 @@ const SelectProviderContent = () => {
     loading,
     handleFetchMore,
     totalCount,
-    error,
   } = useProviders({
     searchValue: debouncedSearch,
     isActive: true,
@@ -114,11 +115,11 @@ const SelectProviderContent = () => {
             <Command.Separator className="my-1" />
           </>
         )}
-        <Combobox.Empty loading={loading} error={error} />
+        <Combobox.Empty loading={loading} />
         {!loading &&
           providersData
-            ?.filter((p) => p._id !== providerId)
-            .map((provider) => (
+            ?.filter((p: OneFitProvider) => p._id !== providerId)
+            .map((provider: OneFitProvider) => (
               <SelectProviderCommandItem
                 key={provider._id}
                 provider={provider}
@@ -127,7 +128,9 @@ const SelectProviderContent = () => {
 
         {!loading && (
           <Combobox.FetchMore
-            fetchMore={handleFetchMore}
+            fetchMore={() =>
+              handleFetchMore({ direction: EnumCursorDirection.FORWARD })
+            }
             currentLength={providersData?.length || 0}
             totalCount={totalCount || 0}
           />
@@ -151,10 +154,12 @@ const SelectProviderCommandItem = ({
       }}
     >
       <div className="flex flex-col">
-        <span className="font-medium">{provider.businessName}</span>
+        <span className="font-medium">
+          {getLocalizedString(provider.businessName, 'en')}
+        </span>
         {provider.location?.city && (
           <span className="text-xs text-muted-foreground">
-            {provider.location.city}
+            {getLocalizedString(provider.location.city, 'en')}
           </span>
         )}
       </div>
@@ -167,17 +172,15 @@ const SelectProviderValue = () => {
   const { provider } = useSelectProviderContext();
 
   if (!provider) {
-    return (
-      <span className="text-muted-foreground">Select provider</span>
-    );
+    return <span className="text-muted-foreground">Select provider</span>;
   }
 
   return (
     <div className="flex flex-col">
-      <span>{provider.businessName}</span>
+      <span>{getLocalizedString(provider.businessName, 'en')}</span>
       {provider.location?.city && (
         <span className="text-xs text-muted-foreground">
-          {provider.location.city}
+          {getLocalizedString(provider.location.city, 'en')}
         </span>
       )}
     </div>
@@ -259,4 +262,3 @@ export const SelectProviderSearchable = Object.assign(SelectProviderRoot, {
   Value: SelectProviderValue,
   FormItem: SelectProviderFormItem,
 });
-

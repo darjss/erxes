@@ -19,7 +19,10 @@ export const ProviderFilters = ({
   const handleFilterChange = (key: keyof ProviderFiltersType, value: any) => {
     onFiltersChange({
       ...filters,
-      [key]: value || undefined,
+      [key]:
+        value === null || value === undefined || value === ''
+          ? undefined
+          : value,
     });
   };
 

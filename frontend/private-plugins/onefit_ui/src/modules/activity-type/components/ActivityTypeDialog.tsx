@@ -113,7 +113,7 @@ export const ActivityTypeDialog = ({
 
   return (
     <Sheet open={effectiveOpen} onOpenChange={effectiveOnOpenChange}>
-      <Sheet.View className="sm:max-w-2xl">
+      <Sheet.View className="sm:max-w-2xl h-full">
         <Sheet.Header>
           <Sheet.Title>Edit Activity Type</Sheet.Title>
           <Sheet.Close />
@@ -263,7 +263,7 @@ const ActivityTypeForm = ({
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="flex flex-col h-full"
+        className="flex flex-col h-full overflow-hidden"
       >
         <Sheet.Content className="flex-auto overflow-y-auto">
           <div className="flex flex-col gap-6 p-5">
@@ -541,7 +541,7 @@ const ActivityTypeForm = ({
             />
           </div>
         </Sheet.Content>
-        <Sheet.Footer>
+        <Sheet.Footer className="flex justify-end shrink-0 p-2.5 gap-1 bg-muted">
           {!isCreate && (
             <Button
               type="button"

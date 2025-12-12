@@ -6,6 +6,7 @@ import { EnumCursorDirection, EnumCursorMode } from 'erxes-ui';
 import { ActivityTypeFilters, GenderRestriction } from '../types/activityType';
 import { ONE_FIT_PROVIDERS } from '~/modules/provider/graphql/providerQueries';
 import { ONE_FIT_ACTIVITY_CATEGORIES } from '~/modules/category/graphql/categoryQueries';
+import { getLocalizedString } from '../utils/localization';
 
 interface ActivityTypeFiltersProps {
   filters: ActivityTypeFilters;
@@ -104,9 +105,12 @@ export const ActivityTypeFiltersComponent = ({
                 <Select.Content>
                   <Select.Item value="__all__">All providers</Select.Item>
                   {providers.map(
-                    (provider: { _id: string; businessName: string }) => (
+                    (provider: {
+                      _id: string;
+                      businessName: { en: string; mn: string };
+                    }) => (
                       <Select.Item key={provider._id} value={provider._id}>
-                        {provider.businessName}
+                        {getLocalizedString(provider.businessName, 'en')}
                       </Select.Item>
                     ),
                   )}

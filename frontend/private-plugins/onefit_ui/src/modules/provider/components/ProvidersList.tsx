@@ -9,11 +9,12 @@ import {
 import { useProviders } from '../hooks/useProviders';
 import { ProviderFilters, ProviderStatus } from '../types/provider';
 import { PROVIDERS_CURSOR_SESSION_KEY } from '../constants/providerCursorSessionKey';
-import { EditProviderDialog } from './EditProviderDialog';
+import { EditProviderDialog } from './ProviderDialog';
 import { ApproveProviderDialog } from './ApproveProviderDialog';
 import { RejectProviderDialog } from './RejectProviderDialog';
 import { RemoveProviderDialog } from './RemoveProviderDialog';
 import { useState } from 'react';
+import { getLocalizedString } from '~/modules/activity-type/utils/localization';
 
 interface ProvidersListProps {
   filters?: ProviderFilters;
@@ -48,9 +49,13 @@ export const ProvidersList = ({ filters }: ProvidersListProps) => {
       accessorKey: 'businessName',
       header: 'Business Name',
       cell: ({ cell }) => {
+        const businessName = cell.getValue() as
+          | { en: string; mn: string }
+          | undefined;
+        const name = getLocalizedString(businessName, 'en');
         return (
           <RecordTableInlineCell className="text-xs font-medium">
-            {cell.getValue() as string}
+            {name}
           </RecordTableInlineCell>
         );
       },
@@ -59,10 +64,13 @@ export const ProvidersList = ({ filters }: ProvidersListProps) => {
       accessorKey: 'description',
       header: 'Description',
       cell: ({ cell }) => {
-        const description = cell.getValue() as string | undefined;
+        const description = cell.getValue() as
+          | { en?: string; mn?: string }
+          | undefined;
+        const desc = getLocalizedString(description, 'en');
         return (
           <RecordTableInlineCell className="text-xs font-medium text-muted-foreground max-w-xs truncate">
-            {description || '-'}
+            {desc || '-'}
           </RecordTableInlineCell>
         );
       },
@@ -72,12 +80,14 @@ export const ProvidersList = ({ filters }: ProvidersListProps) => {
       header: 'Location',
       cell: ({ cell }) => {
         const location = cell.getValue() as {
-          city: string;
-          address: string;
-        };
+          city: { en: string; mn: string };
+          address: { en: string; mn: string };
+        } | null;
+        const city = getLocalizedString(location?.city, 'en');
+        const address = getLocalizedString(location?.address, 'en');
         return (
           <RecordTableInlineCell className="text-xs font-medium text-muted-foreground">
-            {location?.city}, {location?.address}
+            {city && address ? `${city}, ${address}` : '-'}
           </RecordTableInlineCell>
         );
       },

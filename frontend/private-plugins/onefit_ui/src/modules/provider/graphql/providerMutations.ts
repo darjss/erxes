@@ -2,8 +2,8 @@ import { gql } from '@apollo/client';
 
 export const ONE_FIT_PROVIDER_CREATE = gql`
   mutation OneFitProviderCreate(
-    $businessName: String!
-    $description: String
+    $businessName: OneFitMultilingualStringInput!
+    $description: OneFitMultilingualStringOptionalInput
     $location: OneFitLocationInput!
     $contactInfo: OneFitContactInfoInput!
     $facilities: [String]
@@ -22,12 +22,27 @@ export const ONE_FIT_PROVIDER_CREATE = gql`
       _id
       createdAt
       modifiedAt
-      businessName
-      description
+      businessName {
+        en
+        mn
+      }
+      description {
+        en
+        mn
+      }
       location {
-        address
-        city
-        district
+        address {
+          en
+          mn
+        }
+        city {
+          en
+          mn
+        }
+        district {
+          en
+          mn
+        }
         coordinates {
           lat
           lng
@@ -49,9 +64,9 @@ export const ONE_FIT_PROVIDER_CREATE = gql`
 export const ONE_FIT_PROVIDER_UPDATE = gql`
   mutation OneFitProviderUpdate(
     $_id: String!
-    $businessName: String!
-    $description: String
-    $location: OneFitLocationInput!
+    $businessName: OneFitMultilingualStringInput
+    $description: OneFitMultilingualStringOptionalInput
+    $location: OneFitLocationInput
     $contactInfo: OneFitContactInfoInput!
     $facilities: [String]
     $categoryIds: [String]!
@@ -69,12 +84,27 @@ export const ONE_FIT_PROVIDER_UPDATE = gql`
     ) {
       _id
       modifiedAt
-      businessName
-      description
+      businessName {
+        en
+        mn
+      }
+      description {
+        en
+        mn
+      }
       location {
-        address
-        city
-        district
+        address {
+          en
+          mn
+        }
+        city {
+          en
+          mn
+        }
+        district {
+          en
+          mn
+        }
         coordinates {
           lat
           lng
