@@ -4,7 +4,7 @@ import {
   OneFitCreditTransactionType,
   OneFitCreditSource,
 } from '../types/credit';
-import { SelectCustomer } from 'ui-modules';
+import { SelectOneFitCustomer } from '~/modules/onefitCustomer/components/SelectOneFitCustomer';
 import { OneFitFilterBase } from '~/components/OneFitFilterBase';
 import { FilterField } from '~/components/shared/FilterField';
 
@@ -30,12 +30,11 @@ export const CreditTransactionFiltersComponent = ({
   return (
     <OneFitFilterBase filters={filters} onFiltersChange={onFiltersChange}>
       <FilterField label="User">
-        <SelectCustomer
+        <SelectOneFitCustomer
           value={filters.userId || ''}
           onValueChange={(value) =>
             handleFilterChange('userId', value as string)
           }
-          type="customer"
         />
       </FilterField>
       <FilterField label="Transaction Type">

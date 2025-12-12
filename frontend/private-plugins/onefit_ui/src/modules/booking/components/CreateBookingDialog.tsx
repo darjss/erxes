@@ -9,7 +9,7 @@ import { currentUserState } from 'ui-modules';
 import { useQuery } from '@apollo/client';
 import { useCreateBooking } from '../hooks/useBookingMutations';
 import { ONE_FIT_ACTIVITY_TYPES } from '~/modules/activity-type/graphql/activityTypeQueries';
-import { SelectCustomer } from 'ui-modules';
+import { SelectOneFitCustomer } from '~/modules/onefitCustomer/components/SelectOneFitCustomer';
 import { SelectProviderSearchable } from '~/modules/provider/components/SelectProviderSearchable';
 import { getLocalizedString } from '~/modules/activity-type/utils/localization';
 
@@ -106,10 +106,9 @@ const CreateBookingForm = ({ onClose }: { onClose: () => void }) => {
             <Form.Item>
               <Form.Label>User</Form.Label>
               <Form.Control>
-                <SelectCustomer.FormItem
+                <SelectOneFitCustomer.FormItem
                   value={field.value}
                   onValueChange={field.onChange}
-                  type="customer"
                 />
               </Form.Control>
               <Form.Message />

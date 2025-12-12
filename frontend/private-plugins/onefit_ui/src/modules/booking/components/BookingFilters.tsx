@@ -4,7 +4,7 @@ import {
   BookingStatus,
   AttendanceStatus,
 } from '../types/booking';
-import { SelectCustomer } from 'ui-modules';
+import { SelectOneFitCustomer } from '~/modules/onefitCustomer/components/SelectOneFitCustomer';
 import { SelectProviderSearchable } from '~/modules/provider/components/SelectProviderSearchable';
 import { OneFitFilterBase } from '~/components/OneFitFilterBase';
 import { FilterField } from '~/components/shared/FilterField';
@@ -28,12 +28,11 @@ export const BookingFiltersComponent = ({
   return (
     <OneFitFilterBase filters={filters} onFiltersChange={onFiltersChange}>
       <FilterField label="User">
-        <SelectCustomer
+        <SelectOneFitCustomer
           value={filters.userId || ''}
           onValueChange={(value) =>
             handleFilterChange('userId', value as string)
           }
-          type="customer"
         />
       </FilterField>
       <FilterField label="Provider">
