@@ -14,12 +14,19 @@ const ClientsPage = lazy(() =>
   })),
 );
 
+const MarketsPage = lazy(() =>
+  import('~/pages/MarketsPage').then((module) => ({
+    default: module.MarketsPage,
+  })),
+);
+
 const blocktestMain = () => {
   return (
     <Suspense fallback={<div />}>
       <Routes>
         <Route path="/contracts" element={<ContractsPage />} />
         <Route path="/clients" element={<ClientsPage />} />
+        <Route path="/markets" element={<MarketsPage />} />
       </Routes>
     </Suspense>
   );

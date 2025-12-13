@@ -1,4 +1,5 @@
 import {
+  IconBuilding,
   IconCoins,
   IconContract,
   IconInvoice,
@@ -25,6 +26,12 @@ export const BlocktestNavigation = () => {
         icon={IconUser}
         pathPrefix="blocktest"
         path="clients"
+      />
+      <NavigationMenuLinkItem
+        name="Markets"
+        icon={IconBuilding}
+        pathPrefix="blocktest"
+        path="markets"
       />
       <NavigationMenuLinkItem
         name="Claims"

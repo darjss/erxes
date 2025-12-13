@@ -294,7 +294,10 @@ export const ClientForm = ({
                 render={({ field }) => (
                   <Form.Item className="col-span-2">
                     <Form.Label>Description</Form.Label>
-                    <Editor {...field} />
+                    <Editor
+                      initialContent={field.value}
+                      onChange={field.onChange}
+                    />
                     <Form.Message />
                   </Form.Item>
                 )}
@@ -305,7 +308,10 @@ export const ClientForm = ({
                 render={({ field }) => (
                   <Form.Item className="col-span-2">
                     <Form.Label>Existing Insurance Policies</Form.Label>
-                    <Editor {...field} />
+                    <Editor
+                      initialContent={field.value}
+                      onChange={field.onChange}
+                    />
                     <Form.Message />
                   </Form.Item>
                 )}

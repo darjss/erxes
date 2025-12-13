@@ -7,13 +7,13 @@ import {
   useQueryState,
 } from 'erxes-ui';
 import { IconPencil } from '@tabler/icons-react';
-import { useClientDetail } from '../hooks/useClients';
-import { ClientForm } from './ClientForms';
-import { useClientsUpdate } from '../hooks/useClientsUpdate';
+import { useMarketDetail } from '../hooks/useMarkets';
+import { MarketForm } from './MarketForms';
+import { useMarketsUpdate } from '../hooks/useMarketsUpdate';
 
-export const ClientEditSheet = () => {
+export const MarketEditSheet = () => {
   const [open, setOpen] = useState(false);
-  const [activeClientId] = useQueryState<string | null>('activeClientId');
+  const [activeMarketId] = useQueryState<string | null>('activeMarketId');
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
@@ -25,37 +25,37 @@ export const ClientEditSheet = () => {
       </Sheet.Trigger>
       <Sheet.View className="p-0 sm:max-w-5xl">
         <Sheet.Header>
-          <Sheet.Title>Edit client</Sheet.Title>
+          <Sheet.Title>Edit market</Sheet.Title>
           <Sheet.Close />
         </Sheet.Header>
-        {activeClientId && <ClientEdit id={activeClientId} setOpen={setOpen} />}
+        {activeMarketId && <MarketEdit id={activeMarketId} setOpen={setOpen} />}
       </Sheet.View>
     </Sheet>
   );
 };
 
-export const ClientEdit = ({
+export const MarketEdit = ({
   id,
   setOpen,
 }: {
   id: string;
   setOpen: (open: boolean) => void;
 }) => {
-  const { clientDetail, loading } = useClientDetail({ id });
-  const { updateClient, loading: updateLoading } = useClientsUpdate({ id });
+  const { marketDetail, loading } = useMarketDetail({ id });
+  const { updateMarket, loading: updateLoading } = useMarketsUpdate({ id });
 
   if (loading) return <Spinner />;
 
   return (
-    <ClientForm
+    <MarketForm
       defaultValues={Object.fromEntries(
-        Object.entries(clientDetail || {}).map(([key, value]) => [
+        Object.entries(marketDetail || {}).map(([key, value]) => [
           key,
           isUndefinedOrNull(value) ? undefined : value,
         ]),
       )}
       onSubmit={(data) => {
-        updateClient({
+        updateMarket({
           variables: {
             id,
             input: data,
