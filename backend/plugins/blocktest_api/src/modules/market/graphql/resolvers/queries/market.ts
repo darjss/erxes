@@ -4,10 +4,10 @@ import { ICVMarket, ICVMarketDocument } from '@/market/@types/market';
 import { ICursorPaginateParams } from 'erxes-api-shared/core-types';
 
 export const cvMarketQueries = {
-  getCVMarket: async (_parent: undefined, { _id }, { models }: IContext) => {
-    return models.CVMarket.getCVMarket(_id);
+  cvGetMarket: async (_parent: undefined, { _id }, { models }: IContext) => {
+    return models.CVMarket.cvGetMarket(_id);
   },
-  getCVMarkets: async (
+  cvGetMarkets: async (
     _parent: undefined,
     params: ICursorPaginateParams & ICVMarket,
     { models }: IContext,

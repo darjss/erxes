@@ -106,7 +106,7 @@ export const ClientDetail = () => {
 
 // {
 //     "data": {
-//       "getCVClient": {
+//       "cvGetClient": {
 //         "_id": "69381d7518a7f26df97fd928",
 //         "name": "safd",
 //         "client_type": "state_owned",

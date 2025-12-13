@@ -3,7 +3,7 @@ import { GQL_PAGE_INFO } from 'erxes-ui';
 
 export const GET_CV_CLIENT_DETAIL = gql`
   query GetCVClient($id: String!) {
-    getCVClient(_id: $id) {
+    cvGetClient(_id: $id) {
       _id
       name
       client_type
@@ -36,7 +36,7 @@ export const GET_CV_CLIENT_DETAIL = gql`
 
 export const GET_CV_CLIENTS = gql`
   query GetCVClients($filter: CVClientFilterInput) {
-  getCVClients(filter: $filter) {
+  cvGetClients(filter: $filter) {
     list {
       _id
       name

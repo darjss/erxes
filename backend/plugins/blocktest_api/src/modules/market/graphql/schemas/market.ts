@@ -154,12 +154,12 @@ export const types = `
 `;
 
 export const queries = `
-  getCVMarket(_id: String!): CVMarket
-  getCVMarkets(filter: CVMarketFilterInput, ${GQL_CURSOR_PARAM_DEFS}): CVMarketListResponse
+  cvGetMarket(_id: String!): CVMarket
+  cvGetMarkets(filter: CVMarketFilterInput, ${GQL_CURSOR_PARAM_DEFS}): CVMarketListResponse
 `;
 
 export const mutations = `
-  createCVMarket(input: CVMarketInput!): CVMarket
-  updateCVMarket(_id: String!, input: CVMarketInput!): CVMarket
-  removeCVMarket(_id: String!): JSON
+  cvCreateMarket(input: CVMarketInput!): CVMarket
+  cvUpdateMarket(_id: String!, input: CVMarketInput!): CVMarket
+  cvRemoveMarket(_id: String!): JSON
 `;

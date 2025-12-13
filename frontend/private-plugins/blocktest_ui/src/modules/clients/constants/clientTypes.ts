@@ -79,7 +79,7 @@ export const CLIENT_BUSINESS_MAIN_TYPE_OPTIONS: ClientTypeOption[] = [
 ];
 
 export const CLIENT_TYPE_OPTIONS: ClientTypeOption[] = [
-  { label: 'Individual', value: 'individual' },
+  { label: 'Хувь хүн', value: 'individual' },
   { label: 'Төрийн өмчит', value: 'state_owned' },
   { label: 'ХК', value: 'limited_liability_co' },
   { label: 'ХХК', value: 'joint_stock_company' },

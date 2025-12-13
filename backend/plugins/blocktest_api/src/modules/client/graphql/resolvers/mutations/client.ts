@@ -2,23 +2,23 @@ import { IContext } from '~/connectionResolvers';
 import { ICVClient } from '@/client/@types/client';
 
 export const cvClientMutations = {
-  createCVClient: async (
+  cvCreateClient: async (
     _parent: undefined,
     { input }: { input: ICVClient },
     { models }: IContext,
   ) => {
-    return models.CVClient.createCVClient(input);
+    return models.CVClient.cvCreateClient(input);
   },
 
-  updateCVClient: async (
+  cvUpdateClient: async (
     _parent: undefined,
     { _id, input }: { _id: string; input: ICVClient },
     { models }: IContext,
   ) => {
-    return models.CVClient.updateCVClient(_id, input);
+    return models.CVClient.cvUpdateClient(_id, input);
   },
 
-  removeCVClient: async (_parent: undefined, { _id }, { models }: IContext) => {
-    return models.CVClient.removeCVClient(_id);
+  cvRemoveClient: async (_parent: undefined, { _id }, { models }: IContext) => {
+    return models.CVClient.cvRemoveClient(_id);
   },
 };

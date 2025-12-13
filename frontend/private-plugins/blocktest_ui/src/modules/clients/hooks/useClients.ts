@@ -19,7 +19,7 @@ export const useClientDetail = ({ id }: { id: string }) => {
     variables: { id },
   });
   return {
-    clientDetail: data?.getCVClient,
+    clientDetail: data?.cvGetClient,
     loading,
     error,
   };
@@ -37,7 +37,7 @@ export const useClients = (
       ...options?.variables,
     },
   });
-  const { list: clients, pageInfo, totalCount } = data?.getCVClients || {};
+  const { list: clients, pageInfo, totalCount } = data?.cvGetClients || {};
 
   useEffect(() => {
     if (!totalCount) return;
@@ -66,10 +66,10 @@ export const useClients = (
       updateQuery: (prev, { fetchMoreResult }) => {
         if (!fetchMoreResult) return prev;
         return Object.assign({}, prev, {
-          getCVClients: mergeCursorData({
+          cvGetClients: mergeCursorData({
             direction,
-            fetchMoreResult: fetchMoreResult.getCVClients,
-            prevResult: prev.getCVClients,
+            fetchMoreResult: fetchMoreResult.cvGetClients,
+            prevResult: prev.cvGetClients,
           }),
         });
       },

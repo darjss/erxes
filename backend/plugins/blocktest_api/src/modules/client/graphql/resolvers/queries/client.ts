@@ -4,15 +4,15 @@ import { ICVClient, ICVClientDocument } from '~/modules/client/@types/client';
 import { ICursorPaginateParams } from 'erxes-api-shared/core-types';
 
 export const cvClientQueries = {
-  getCVClient: async (
+  cvGetClient: async (
     _parent: undefined,
     { _id }: { _id: string },
     { models }: IContext,
   ) => {
-    return models.CVClient.getCVClient(_id);
+    return models.CVClient.cvGetClient(_id);
   },
 
-  getCVClients: async (
+  cvGetClients: async (
     _parent: undefined,
     params: ICursorPaginateParams & ICVClient,
     { models }: IContext,

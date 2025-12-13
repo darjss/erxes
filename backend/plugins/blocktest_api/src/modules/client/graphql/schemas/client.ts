@@ -142,19 +142,19 @@ export const types = `
 `;
 
 export const queries = `
-  getCVClient(_id: String!): CVClient
-  getCVClients(filter: CVClientFilterInput): CVClientListResponse
+  cvGetClient(_id: String!): CVClient
+  cvGetClients(filter: CVClientFilterInput): CVClientListResponse
 `;
 
 export const mutations = `
-  createCVClient(
+  cvCreateClient(
     input: CVClientInput!
   ): CVClient
 
-  updateCVClient(
+  cvUpdateClient(
     _id: String!,
     input: CVClientInput!
   ): CVClient
 
-  removeCVClient(_id: String!): JSON
+  cvRemoveClient(_id: String!): JSON
 `;
