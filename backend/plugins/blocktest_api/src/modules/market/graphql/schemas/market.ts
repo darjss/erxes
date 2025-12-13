@@ -26,7 +26,7 @@ export const types = `
     eastern_europe
     northern_europe
     middle_east
-    sub-saharan_africa
+    sub_saharan_africa
     north_america
     south_america
     australia
