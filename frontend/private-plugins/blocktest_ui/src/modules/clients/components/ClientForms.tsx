@@ -18,6 +18,7 @@ import {
 } from 'erxes-ui';
 import {
   CLIENT_BUSINESS_MAIN_TYPE_OPTIONS,
+  CLIENT_LEAD_SOURCE_OPTIONS,
   CLIENT_STATUS_OPTIONS,
   CLIENT_TYPE_OPTIONS,
 } from '../constants/clientTypes';
@@ -172,6 +173,30 @@ export const ClientForm = ({
                         );
                       }}
                     />
+                    <Form.Message />
+                  </Form.Item>
+                )}
+              />
+              <Form.Field
+                control={form.control}
+                name="lead_source"
+                render={({ field }) => (
+                  <Form.Item>
+                    <Form.Label>Lead Source</Form.Label>
+                    <Select value={field.value} onValueChange={field.onChange}>
+                      <Form.Control>
+                        <Select.Trigger>
+                          <Select.Value placeholder="Select Lead Source" />
+                        </Select.Trigger>
+                      </Form.Control>
+                      <Select.Content>
+                        {CLIENT_LEAD_SOURCE_OPTIONS.map((option) => (
+                          <Select.Item key={option.value} value={option.value}>
+                            {option.label}
+                          </Select.Item>
+                        ))}
+                      </Select.Content>
+                    </Select>
                     <Form.Message />
                   </Form.Item>
                 )}

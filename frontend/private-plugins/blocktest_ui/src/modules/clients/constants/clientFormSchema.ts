@@ -1,5 +1,8 @@
 import { z } from 'zod';
-import { CLIENT_STATUS_OPTIONS } from './clientTypes';
+import {
+  CLIENT_LEAD_SOURCE_OPTIONS,
+  CLIENT_STATUS_OPTIONS,
+} from './clientTypes';
 
 export const clientFormSchema = z.object({
   bor_file: z.string().optional(),
@@ -24,7 +27,13 @@ export const clientFormSchema = z.object({
     .array(z.string())
     .min(1, { message: 'Insurance types are required' }),
   isActive: z.boolean().optional(),
-  lead_source: z.string().optional(),
+  lead_source: z.enum(
+    CLIENT_LEAD_SOURCE_OPTIONS.map((option) => option.value) as [
+      string,
+      ...string[],
+    ],
+    { message: 'Lead source is required' },
+  ),
   name: z.string().min(1, { message: 'Name is required' }),
   operational_address: z.string().optional(),
   registered_date: z.string().optional(),

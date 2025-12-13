@@ -25,7 +25,6 @@ import {
 } from '../constants/clientTypes';
 import { ClientStatus } from './ClientStatus';
 import { MembersInline } from 'ui-modules';
-import { Link } from 'react-router-dom';
 
 export const clientsColumns: ColumnDef<ICVClient>[] = [
   {

@@ -92,3 +92,12 @@ export const CLIENT_STATUS_OPTIONS: ClientTypeOption[] = [
   { label: 'Won', value: 'won' },
   { label: 'Lost', value: 'lost' },
 ];
+
+export const CLIENT_LEAD_SOURCE_OPTIONS: ClientTypeOption[] = [
+  { label: 'Website', value: 'website' },
+  { label: 'Referral', value: 'referral' },
+  { label: 'Cold call', value: 'cold_call' },
+  { label: 'Network', value: 'network' },
+  { label: 'Meeting', value: 'meeting' },
+  { label: 'Tender', value: 'tender' },
+];

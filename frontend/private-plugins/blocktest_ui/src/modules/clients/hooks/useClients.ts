@@ -9,15 +9,18 @@ import {
   GET_CV_CLIENTS,
 } from '../graphql/cvClientsQueries';
 import { QueryHookOptions, useQuery } from '@apollo/client';
-import { ICVClient } from '../clientsTypes';
+import { ICVClient, ICVClientDetail } from '../clientsTypes';
 import { useEffect } from 'react';
 import { clientsTotalCountAtom } from '../states/clientsTotalCountAtom';
 import { useSetAtom } from 'jotai';
 
 export const useClientDetail = ({ id }: { id: string }) => {
-  const { data, loading, error } = useQuery(GET_CV_CLIENT_DETAIL, {
-    variables: { id },
-  });
+  const { data, loading, error } = useQuery<{ cvGetClient: ICVClientDetail }>(
+    GET_CV_CLIENT_DETAIL,
+    {
+      variables: { id },
+    },
+  );
   return {
     clientDetail: data?.cvGetClient,
     loading,
