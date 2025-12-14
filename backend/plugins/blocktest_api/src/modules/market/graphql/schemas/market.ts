@@ -143,7 +143,6 @@ export const types = `
     compliance_policies_received: Boolean
     tob_sent: Boolean
     tob_received: Boolean
-    ${GQL_CURSOR_PARAM_DEFS}
   }
 
   type CVMarketListResponse {

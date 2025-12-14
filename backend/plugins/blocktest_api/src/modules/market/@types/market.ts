@@ -66,6 +66,33 @@ export interface ICVMarket {
   claim_handling_contact: CVMarketContact;
 }
 
+export interface ICVMarketFilter {
+  name: string;
+  description: string;
+  registration_number: string;
+  operational_address: string;
+  type: CVMarketType;
+  specialization: CVMarketSpecialization;
+  region: CVMarketRegion;
+  country: string;
+  onboarded: boolean;
+  onboarding_status: 'pending' | 'approved' | 'rejected';
+  business_partner_questionnaire_sent: boolean;
+  business_partner_questionnaire_received: boolean;
+  certificate_of_incorporation_sent: boolean;
+  certificate_of_incorporation_received: boolean;
+  business_license_sent: boolean;
+  business_license_received: boolean;
+  audited_financial_reports_sent: boolean;
+  audited_financial_reports_received: boolean;
+  ownership_chart_sent: boolean;
+  ownership_chart_received: boolean;
+  compliance_policies_sent: boolean;
+  compliance_policies_received: boolean;
+  tob_sent: boolean;
+  tob_received: boolean;
+}
+
 export interface ICVMarketDocument extends ICVMarket, Document {
   _id: string;
   createdAt: Date;
