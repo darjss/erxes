@@ -5,7 +5,7 @@ import {
   ICVClientDocument,
 } from '~/modules/client/@types/client';
 import { ICursorPaginateParams } from 'erxes-api-shared/core-types';
-import { IQueryOptions } from 'erxes-api-shared/mongoose';
+import { FilterQuery } from 'mongoose';
 
 export const cvClientQueries = {
   cvGetClient: async (
@@ -21,7 +21,8 @@ export const cvClientQueries = {
     { filter, ...params }: { filter: ICursorPaginateParams & ICVClientFilter },
     { models }: IContext,
   ) => {
-    const query = {} as IQueryOptions<ICVClientDocument>;
+    const query = {} as FilterQuery<ICVClientDocument>;
+
     if (filter.name) {
       query.name = { $regex: filter.name, $options: 'i' };
     }
