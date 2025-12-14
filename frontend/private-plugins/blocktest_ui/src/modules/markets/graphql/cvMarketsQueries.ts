@@ -49,8 +49,26 @@ export const GET_CV_MARKET_DETAIL = gql`
 `;
 
 export const GET_CV_MARKETS = gql`
-  query GetCVMarkets($filter: CVMarketFilterInput, $limit: Int, $cursor: String, $cursorMode: CURSOR_MODE, $direction: CURSOR_DIRECTION) {
-    cvGetMarkets(filter: $filter, limit: $limit, cursor: $cursor, cursorMode: $cursorMode, direction: $direction) {
+  query CvGetMarkets(
+    $filter: CVMarketFilterInput
+    $limit: Int
+    $cursor: String
+    $cursorMode: CURSOR_MODE
+    $direction: CURSOR_DIRECTION
+    $orderBy: JSON
+    $sortMode: String
+    $aggregationPipeline: [JSON]
+  ) {
+    cvGetMarkets(
+      filter: $filter
+      limit: $limit
+      cursor: $cursor
+      cursorMode: $cursorMode
+      direction: $direction
+      orderBy: $orderBy
+      sortMode: $sortMode
+      aggregationPipeline: $aggregationPipeline
+    ) {
       list {
         _id
         name
@@ -68,4 +86,3 @@ export const GET_CV_MARKETS = gql`
     }
   }
 `;
-

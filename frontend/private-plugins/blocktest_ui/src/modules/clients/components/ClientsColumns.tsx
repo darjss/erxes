@@ -159,6 +159,6 @@ export const clientsColumns: ColumnDef<ICVClient>[] = [
         </RecordTableInlineCell>
       );
     },
-    size: 200,
+    size: 300,
   },
 ];

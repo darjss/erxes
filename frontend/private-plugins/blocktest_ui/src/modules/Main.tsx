@@ -1,6 +1,7 @@
 import { lazy, Suspense } from 'react';
 import { Route, Routes } from 'react-router';
 import '../styles.css';
+import { BlocktestPageEffect } from './BlocktestPageEffect';
 
 const ContractsPage = lazy(() =>
   import('~/pages/ContractsPage').then((module) => ({
@@ -28,6 +29,7 @@ const blocktestMain = () => {
         <Route path="/clients" element={<ClientsPage />} />
         <Route path="/markets" element={<MarketsPage />} />
       </Routes>
+      <BlocktestPageEffect />
     </Suspense>
   );
 };
