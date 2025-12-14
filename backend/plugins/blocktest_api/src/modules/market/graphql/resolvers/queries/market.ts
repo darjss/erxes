@@ -13,7 +13,7 @@ export const cvMarketQueries = {
     {
       filter = {},
       ...params
-    }: { filter: ICursorPaginateParams & ICVMarketFilter },
+    }: { filter?: Partial<ICVMarketFilter> & ICursorPaginateParams },
     { models }: IContext,
   ) => {
     const query = {} as FilterQuery<ICVMarketDocument>;

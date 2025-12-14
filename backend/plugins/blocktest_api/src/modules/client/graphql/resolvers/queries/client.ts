@@ -21,7 +21,7 @@ export const cvClientQueries = {
     {
       filter = {},
       ...params
-    }: { filter: ICursorPaginateParams & ICVClientFilter },
+    }: { filter?: Partial<ICVClientFilter> & ICursorPaginateParams },
     { models }: IContext,
   ) => {
     const query = {} as FilterQuery<ICVClientDocument>;
