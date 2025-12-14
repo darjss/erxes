@@ -21,6 +21,12 @@ const MarketsPage = lazy(() =>
   })),
 );
 
+const RiskGroupsPage = lazy(() =>
+  import('~/pages/RiskGroupsPage').then((module) => ({
+    default: module.RiskGroupsPage,
+  })),
+);
+
 const blocktestMain = () => {
   return (
     <Suspense fallback={<div />}>
@@ -28,6 +34,7 @@ const blocktestMain = () => {
         <Route path="/contracts" element={<ContractsPage />} />
         <Route path="/clients" element={<ClientsPage />} />
         <Route path="/markets" element={<MarketsPage />} />
+        <Route path="/risk-groups" element={<RiskGroupsPage />} />
       </Routes>
       <BlocktestPageEffect />
     </Suspense>

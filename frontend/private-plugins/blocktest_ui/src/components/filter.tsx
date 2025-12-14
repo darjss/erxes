@@ -89,6 +89,7 @@ export const SelectFilterBar = ({
             selectOptions={selectOptions}
             onSelect={(value) => {
               setValue(value);
+              setOpen(false);
               resetFilterState();
             }}
             selected={value || ''}

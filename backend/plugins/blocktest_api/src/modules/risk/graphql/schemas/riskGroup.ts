@@ -33,11 +33,12 @@ export const types = `
 `;
 
 export const queries = `
+    cvGetRiskGroup(_id: String!): CVRiskGroup
     cvGetRiskGroups(filter: CVRiskGroupFilterInput, ${GQL_CURSOR_PARAM_DEFS}): CVRiskGroupListResponse
 `;
 
 export const mutations = `
     cvCreateRiskGroup(input: CVRiskGroupInput!): CVRiskGroup
-    cvUpdateRiskGroup(input: CVRiskGroupInput!): CVRiskGroup
+    cvUpdateRiskGroup(_id: String!, input: CVRiskGroupInput!): CVRiskGroup
     cvDeleteRiskGroup(_id: String!): CVRiskGroup
 `;
