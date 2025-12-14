@@ -1,9 +1,6 @@
 import { IContext } from '~/connectionResolvers';
 import { cursorPaginate } from 'erxes-api-shared/utils';
-import {
-  ICVClientFilter,
-  ICVClientDocument,
-} from '~/modules/client/@types/client';
+import { ICVClientFilter, ICVClientDocument } from '@/client/@types/client';
 import { ICursorPaginateParams } from 'erxes-api-shared/core-types';
 import { FilterQuery } from 'mongoose';
 

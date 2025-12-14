@@ -1,5 +1,5 @@
 import { IModels } from '~/connectionResolvers';
-import { cvMarketSchema } from '~/modules/market/db/definitions/market';
+import { cvMarketSchema } from '@/market/db/definitions/market';
 import { ICVMarket, ICVMarketDocument } from '@/market/@types/market';
 import { Model } from 'mongoose';
 

@@ -1,5 +1,5 @@
 import { IModels } from '~/connectionResolvers';
-import { cvClientSchema } from '~/modules/client/db/definitions/client';
+import { cvClientSchema } from '@/client/db/definitions/client';
 import { ICVClient, ICVClientDocument } from '@/client/@types/client';
 import { Model } from 'mongoose';
 
