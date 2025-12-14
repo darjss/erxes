@@ -1,10 +1,11 @@
 import { IconBuilding, IconShield } from '@tabler/icons-react';
-import { Breadcrumb, Button } from 'erxes-ui';
+import { Breadcrumb, Button, PageSubHeader } from 'erxes-ui';
 import { MarketsRecordTable } from '@/markets/components/MarketsRecordTable';
 import { Link } from 'react-router-dom';
 import { PageHeader } from 'ui-modules';
 import { MarketCreateSheet } from '@/markets/components/MarketCreate';
 import { MarketDetailSheet } from '@/markets/components/MarketDetailSheet';
+import { MarketsFilter } from '@/markets/components/MarketsFilter';
 
 export const MarketsPage = () => {
   return (
@@ -35,6 +36,9 @@ export const MarketsPage = () => {
           <MarketCreateSheet />
         </PageHeader.End>
       </PageHeader>
+      <PageSubHeader>
+        <MarketsFilter />
+      </PageSubHeader>
       <MarketsRecordTable />
       <MarketDetailSheet />
     </>

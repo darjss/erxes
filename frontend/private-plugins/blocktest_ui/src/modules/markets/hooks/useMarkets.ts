@@ -13,6 +13,8 @@ import { ICVMarket, ICVMarketDetail } from '../marketsTypes';
 import { useEffect } from 'react';
 import { marketsTotalCountAtom } from '../states/marketsTotalCountAtom';
 import { useSetAtom } from 'jotai';
+import { useFilters } from '~/hooks/useFilters';
+import { MARKETS_FILTERS } from '../components/MarketsFilter';
 
 export const useMarketDetail = ({ id }: { id: string }) => {
   const { data, loading, error } = useQuery<{ cvGetMarket: ICVMarketDetail }>(
@@ -32,12 +34,17 @@ export const useMarkets = (
   options?: QueryHookOptions<ICursorListResponse<ICVMarket>>,
 ) => {
   const setMarketsTotalCount = useSetAtom(marketsTotalCountAtom);
+  const { queries } = useFilters(MARKETS_FILTERS);
 
   const { data, loading, error, fetchMore } = useQuery<
     ICursorListResponse<ICVMarket>
   >(GET_CV_MARKETS, {
     variables: {
       ...options?.variables,
+      filter: {
+        ...queries,
+        ...options?.variables?.filters,
+      },
     },
   });
   const { list: markets, pageInfo, totalCount } = data?.cvGetMarkets || {};
@@ -88,4 +95,3 @@ export const useMarkets = (
     handleFetchMore,
   };
 };
-
