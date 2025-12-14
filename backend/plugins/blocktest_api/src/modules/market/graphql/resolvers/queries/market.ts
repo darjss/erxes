@@ -10,7 +10,10 @@ export const cvMarketQueries = {
   },
   cvGetMarkets: async (
     _parent: undefined,
-    { filter, ...params }: { filter: ICursorPaginateParams & ICVMarketFilter },
+    {
+      filter = {},
+      ...params
+    }: { filter: ICursorPaginateParams & ICVMarketFilter },
     { models }: IContext,
   ) => {
     const query = {} as FilterQuery<ICVMarketDocument>;

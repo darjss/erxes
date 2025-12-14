@@ -18,7 +18,10 @@ export const cvClientQueries = {
 
   cvGetClients: async (
     _parent: undefined,
-    { filter, ...params }: { filter: ICursorPaginateParams & ICVClientFilter },
+    {
+      filter = {},
+      ...params
+    }: { filter: ICursorPaginateParams & ICVClientFilter },
     { models }: IContext,
   ) => {
     const query = {} as FilterQuery<ICVClientDocument>;
