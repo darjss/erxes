@@ -30,5 +30,6 @@ export const addUnitSchema = z
 
 export const addUnitsMultipleSchema = z.object({
   type: z.string().optional(),
-  count: z.number(),
+  count: z.number().min(1),
+  zoningIds: z.array(z.string()).min(1),
 });

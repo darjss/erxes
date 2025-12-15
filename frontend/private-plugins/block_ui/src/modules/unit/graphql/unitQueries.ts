@@ -1,8 +1,8 @@
 import { gql } from '@apollo/client';
 
 export const BLOCK_GET_UNITS = gql`
-  query BlockGetUnits($zoning: String!) {
-    blockGetUnits(zoning: $zoning) {
+  query BlockGetUnits($zoning: String, $zonings: [String]) {
+    blockGetUnits(zoning: $zoning, zonings: $zonings) {
       _id
       number
       type

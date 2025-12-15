@@ -18,20 +18,28 @@ export const types = `
   input BlockUnitInput {
     building: String
     zoning: String
+    zonings: [String]
     number: String
     type: String
     useProjectPrice: Boolean
     status: String
   }
+
+  input BlockUnitsInput {
+    zonings: [String]
+    type: String
+    perZone: Int
+  }
 `;
 
 export const queries = `
   blockGetUnit(_id: String!): BlockUnit
-  blockGetUnits(zoning: String!): [BlockUnit]
+  blockGetUnits(zoning: String, zonings: [String]): [BlockUnit]
 `;
 
 export const mutations = `
   blockCreateUnit(input: BlockUnitInput!): BlockUnit
+  blockCreateUnits(input: BlockUnitsInput!): [String]
   blockUpdateUnit(_id: String!, input: BlockUnitInput!): BlockUnit
   blockRemoveUnit(_id: String!): BlockUnit
   blockRemoveUnits(_ids: [String]): JSON

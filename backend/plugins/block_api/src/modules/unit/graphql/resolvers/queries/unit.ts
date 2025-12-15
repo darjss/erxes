@@ -12,9 +12,13 @@ export const unitQueries = {
 
   blockGetUnits: async (
     _root,
-    { zoning }: { zoning: string },
+    { zoning, zonings }: { zoning: string; zonings: string[] },
     { models }: IContext,
   ) => {
+    if (zonings?.length) {
+      return models.Unit.find({ zoning: { $in: zonings } }).lean();
+    }
+
     return models.Unit.getUnitsByZoning(zoning);
   },
 };

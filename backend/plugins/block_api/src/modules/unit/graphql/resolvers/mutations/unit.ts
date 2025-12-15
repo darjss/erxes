@@ -1,15 +1,15 @@
 import { CONTRACT_STATUS } from '@/contract/constants';
-import { IUnitInput } from '@/unit/@types/unit';
+import { IUnit, IUnitInput } from '@/unit/@types/unit';
 import { DeleteResult } from 'mongoose';
 import { IContext } from '~/connectionResolvers';
 
 export const unitMutations = {
   blockCreateUnit: async (
     _parent: undefined,
-    { input }: { input: IUnitInput },
+    { input }: { input: IUnitInput & { zonings: string[] } },
     { models }: IContext,
   ) => {
-    const { useProjectPrice, ...rest } = input;
+    const { useProjectPrice, zonings, ...rest } = input;
 
     if (useProjectPrice) {
       const zoning = await models.Zoning.findOne({ _id: input.zoning });
@@ -24,6 +24,50 @@ export const unitMutations = {
       if (!project) {
         throw new Error('Project not found');
       }
+    }
+
+    if (zonings?.length) {
+      if (!zonings.includes(input.zoning)) {
+        zonings.push(input.zoning);
+      }
+
+      for (const zoning of zonings) {
+        await models.Unit.createUnit({ ...rest, zoning });
+      }
+
+      return zonings;
+    }
+
+    return models.Unit.createUnit(rest);
+  },
+
+  blockCreateUnits: async (
+    _parent: undefined,
+    { input }: { input: IUnitInput & { zonings: string[]; perZone: number } },
+    { models }: IContext,
+  ) => {
+    const { useProjectPrice, zonings, perZone, ...rest } = input;
+
+    if (zonings?.length) {
+      for (const zoning of zonings) {
+        const zone = await models.Zoning.getBuildingZoning(zoning);
+
+        const documents: IUnit[] = [];
+
+        for (let i = 0; i < perZone; i++) {
+          const document: IUnit = { ...rest, zoning };
+
+          document['number'] = `${
+            zone.floor < 0 ? `B${zone.floor * -1}` : zone.floor
+          }${i + 1 < 10 ? `0${i + 1}` : i + 1}`;
+
+          documents.push(document);
+        }
+
+        await models.Unit.insertMany(documents);
+      }
+
+      return zonings;
     }
 
     return models.Unit.createUnit(rest);
