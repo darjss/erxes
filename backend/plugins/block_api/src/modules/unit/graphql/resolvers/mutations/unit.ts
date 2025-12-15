@@ -6,10 +6,10 @@ import { IContext } from '~/connectionResolvers';
 export const unitMutations = {
   blockCreateUnit: async (
     _parent: undefined,
-    { input }: { input: IUnitInput & { zonings: string[] } },
+    { input }: { input: IUnitInput },
     { models }: IContext,
   ) => {
-    const { useProjectPrice, zonings, ...rest } = input;
+    const { useProjectPrice, ...rest } = input;
 
     if (useProjectPrice) {
       const zoning = await models.Zoning.findOne({ _id: input.zoning });
@@ -26,18 +26,6 @@ export const unitMutations = {
       }
     }
 
-    if (zonings?.length) {
-      if (!zonings.includes(input.zoning)) {
-        zonings.push(input.zoning);
-      }
-
-      for (const zoning of zonings) {
-        await models.Unit.createUnit({ ...rest, zoning });
-      }
-
-      return zonings;
-    }
-
     return models.Unit.createUnit(rest);
   },
 
@@ -48,11 +36,11 @@ export const unitMutations = {
   ) => {
     const { useProjectPrice, zonings, perZone, ...rest } = input;
 
+    const documents: IUnit[] = [];
+
     if (zonings?.length) {
       for (const zoning of zonings) {
         const zone = await models.Zoning.getBuildingZoning(zoning);
-
-        const documents: IUnit[] = [];
 
         for (let i = 0; i < perZone; i++) {
           const document: IUnit = { ...rest, zoning };
@@ -63,14 +51,15 @@ export const unitMutations = {
 
           documents.push(document);
         }
-
-        await models.Unit.insertMany(documents);
       }
-
-      return zonings;
     }
 
-    return models.Unit.createUnit(rest);
+    return {
+      response: await models.Unit.insertMany(documents),
+      options: {
+        fields: ['zoning', 'number'],
+      },
+    };
   },
 
   blockUpdateUnit: async (

@@ -1,4 +1,4 @@
-import { Router } from 'express';
+import { Router, Request } from 'express';
 import { IContext } from '~/connectionResolvers';
 import { IRequest, IResponse } from '~/types';
 import { IUnit } from '../@types/unit';
@@ -21,23 +21,22 @@ router.post(
         subdomain,
         input.zoning,
       );
-      
-      console.log('zoning', zoning)
-      
+
       if (input?.type) {
-        const unitType = await models.UnitType.getUnitType(subdomain, input.type);
+        const unitType = await models.UnitType.getUnitType(
+          subdomain,
+          input.type,
+        );
 
         input['type'] = unitType._id;
       }
-      
+
       models.Unit.createUnit({
         ...input,
         subdomain,
         entityId,
         zoning: zoning._id,
       });
-
-      console.log('created')
 
       return res.status(200).json({
         success: true,
@@ -49,6 +48,51 @@ router.post(
     }
   },
 );
+
+router.post('/blockCreateUnits', async (req: Request, res: IResponse) => {
+  const { models } = res.locals as IContext;
+
+  try {
+    const { subdomain, payload } = req.body || {};
+
+    const { entities, data } = payload || {};
+
+    const { input } = data || {};
+
+    if (input?.type) {
+      const unitType = await models.UnitType.getUnitType(subdomain, input.type);
+
+      input['type'] = unitType._id;
+    }
+
+    const documents: IUnit[] = [];
+
+    for (const entityKey in entities) {
+      const { zoning, number } = entities[entityKey];
+
+      const zone = await models.Zoning.getBuildingZoning(subdomain, zoning);
+
+      const document: IUnit = {
+        ...input,
+        number,
+        zoning: zone._id,
+        subdomain,
+        entityId: entityKey,
+      };
+      documents.push(document);
+    }
+
+    models.Unit.insertMany(documents);
+
+    return res.status(200).json({
+      success: true,
+    });
+  } catch (error) {
+    return res.status(400).json({
+      error: error.message,
+    });
+  }
+});
 
 router.post(
   '/blockUpdateUnit',
@@ -63,7 +107,10 @@ router.post(
       const { input } = data || {};
 
       if (input?.type) {
-        const unitType = await models.UnitType.getUnitType(subdomain, input.type);
+        const unitType = await models.UnitType.getUnitType(
+          subdomain,
+          input.type,
+        );
 
         input['type'] = unitType._id;
       }

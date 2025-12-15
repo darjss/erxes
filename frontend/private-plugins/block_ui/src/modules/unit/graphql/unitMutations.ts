@@ -10,7 +10,9 @@ export const BLOCK_CREATE_UNIT = gql`
 
 export const BLOCK_CREATE_UNITS = gql`
   mutation BlockCreateUnits($input: BlockUnitsInput!) {
-    blockCreateUnits(input: $input)
+    blockCreateUnits(input: $input) {
+      _id
+    }
   }
 `;
 

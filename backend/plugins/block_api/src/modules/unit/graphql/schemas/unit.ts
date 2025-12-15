@@ -39,7 +39,7 @@ export const queries = `
 
 export const mutations = `
   blockCreateUnit(input: BlockUnitInput!): BlockUnit
-  blockCreateUnits(input: BlockUnitsInput!): [String]
+  blockCreateUnits(input: BlockUnitsInput!): [BlockUnit]
   blockUpdateUnit(_id: String!, input: BlockUnitInput!): BlockUnit
   blockRemoveUnit(_id: String!): BlockUnit
   blockRemoveUnits(_ids: [String]): JSON

@@ -4,14 +4,55 @@ import fetch from 'node-fetch';
 
 const { BLOCK_ADMIN_API_URL, BLOCK_ADMIN_SECRET } = process.env;
 
+interface IData {
+  [key: string]: any;
+}
+
+interface IPayload {
+  data: IData;
+  entityId?: string;
+  entities?: IData;
+}
+
 interface SendMessagePayload {
   subdomain: string;
   path: string;
-  payload: {
-    data: Record<string, any>;
-    entityId: string;
-  };
+  payload: IPayload;
 }
+
+const buildPayload = (
+  entity: any,
+  args: any,
+  options: { fields?: string[] },
+) => {
+  const payload: IPayload = {
+    data: args,
+  };
+
+  if (Array.isArray(entity)) {
+    payload.entities = entity;
+
+    if (options.fields) {
+      const entities = {};
+
+      for (const item of entity) {
+        entities[item._id] = {};
+
+        for (const field of options.fields) {
+          entities[item._id][field] = item[field];
+        }
+      }
+
+      payload.entities = entities;
+    }
+  }
+
+  if (typeof entity === 'object') {
+    payload.entityId = entity._id;
+  }
+
+  return payload;
+};
 
 const sendMessage = ({ subdomain, path, payload }: SendMessagePayload) => {
   const API_ENDPOINT = `${BLOCK_ADMIN_API_URL}/webhook/${path}`;
@@ -52,14 +93,15 @@ export const wrapMutationResolver = (mutations: Record<string, Resolver>) => {
         sendMessage({
           subdomain: context.subdomain,
           path,
-          payload: {
-            data: args,
-            entityId: entity?._id || args?._id,
-          },
+          payload: buildPayload(
+            entity?.response || entity,
+            args,
+            entity.options,
+          ),
         });
       }
 
-      return entity;
+      return entity?.response || entity;
     };
   }
 
