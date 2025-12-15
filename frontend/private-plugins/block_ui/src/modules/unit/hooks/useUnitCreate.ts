@@ -41,12 +41,7 @@ export const useUnitCreate = ({ zoning }: { zoning: string }) => {
   const createUnits = (options: MutationFunctionOptions) => {
     mutateUnits({
       ...options,
-      refetchQueries: options.variables?.input.zonings?.map(
-        (zoneId: string) => ({
-          query: BLOCK_GET_UNITS,
-          variables: { zoning: zoneId },
-        }),
-      ),
+      refetchQueries: [BLOCK_GET_UNITS],
       onCompleted: (data) => {
         options.onCompleted?.(data);
         toast({
