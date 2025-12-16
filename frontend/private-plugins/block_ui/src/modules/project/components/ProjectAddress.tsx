@@ -1,5 +1,6 @@
 import { InfoCard, InfoCardContent } from '@/block/components/card';
-import { ADDRESS_CITY, ADDRESS_DISTRICT } from '@/project/constants/address';
+import { GoogleMap } from '@/block/components/GoogleMap';
+import { ADDRESS_CITY, ADDRESS_DISTRICT, ADDRESS_DISTRICT_SIMPLIFIED } from '@/project/constants/address';
 import { useProjectDetail } from '@/project/hooks/useProjectDetail';
 import { useUpdateProjectGeneralInfo } from '@/project/hooks/useUpdateProject';
 import { IProjectLocation } from '@/project/types/projectTypes';
@@ -10,15 +11,16 @@ export const ProjectAddress = () => {
   const { project } = useProjectDetail();
   const { city, district, address, lat, lng } = project?.location || {};
   const { updateProjectGeneralInfo } = useUpdateProjectGeneralInfo();
-  const [selectedCity, setSelectedCity] = useState<string>(
-    city || '',
-  );
+  const [selectedCity, setSelectedCity] = useState<string>(city || '');
   const [selectedDistrict, setSelectedDistrict] = useState<string>(
     district || '',
   );
   const [addressValue, setAddressValue] = useState<string>(address || '');
-  const [latValue, setLatValue] = useState<number | undefined>(lat);
-  const [lngValue, setLngValue] = useState<number | undefined>(lng);
+
+  const [latValue, setLatValue] = useState<number | undefined>(lat || 47.92123);
+  const [lngValue, setLngValue] = useState<number | undefined>(
+    lng || 106.918556,
+  );
 
   const handleUpdateProjectLocation = (location: IProjectLocation) => {
     updateProjectGeneralInfo(project?._id || '', {
@@ -34,10 +36,45 @@ export const ProjectAddress = () => {
     });
   };
 
+  const handleMapSelect = (value: {
+    lat: number;
+    lng: number;
+    city?: string;
+    district?: string;
+    address?: string;
+  }) => {
+    const { lat, lng, city, district, address } = value || {};
+
+    setLatValue(lat);
+    setLngValue(lng);
+    setSelectedCity(city || '');
+    setSelectedDistrict(district ? ADDRESS_DISTRICT_SIMPLIFIED[district] || district : '');
+    setAddressValue(address || '');
+
+    const location: Record<string, string | number> = {
+      lat,
+      lng,
+    };
+
+    if (city) {
+      location.city = city;
+    }
+
+    if (district) {
+      location.district = ADDRESS_DISTRICT_SIMPLIFIED[district] || district;
+    }
+
+    if (address) {
+      location.address = address;
+    }
+
+    handleUpdateProjectLocation(location);
+  };
+
   return (
     <InfoCard title="Address" description="Project address">
       <InfoCardContent>
-        <div className="grid grid-cols-3 gap-3">
+        <div className="gap-3 grid grid-cols-3">
           <div className="flex flex-col gap-3">
             <div className="space-y-2">
               <Label asChild>
@@ -102,7 +139,11 @@ export const ProjectAddress = () => {
                 <Input
                   placeholder="Latitude"
                   value={latValue ? latValue : undefined}
-                  onChange={(e) => setLatValue(e.target.value ? Number(e.target.value) : undefined)}
+                  onChange={(e) =>
+                    setLatValue(
+                      e.target.value ? Number(e.target.value) : undefined,
+                    )
+                  }
                   onBlur={() => {
                     handleUpdateProjectLocation({
                       lat: latValue,
@@ -112,7 +153,11 @@ export const ProjectAddress = () => {
                 <Input
                   placeholder="Longitude"
                   value={lngValue ? lngValue : undefined}
-                  onChange={(e) => setLngValue(e.target.value ? Number(e.target.value) : undefined)}
+                  onChange={(e) =>
+                    setLngValue(
+                      e.target.value ? Number(e.target.value) : undefined,
+                    )
+                  }
                   onBlur={() => {
                     handleUpdateProjectLocation({
                       lng: lngValue,
@@ -121,21 +166,28 @@ export const ProjectAddress = () => {
                 />
               </div>
             </div>
+
+            <div className="space-y-2">
+              <Label asChild>
+                <span>Address</span>
+              </Label>
+              <Textarea
+                placeholder="Хаяг оруулна уу"
+                rows={10}
+                value={addressValue}
+                onChange={(e) => setAddressValue(e.target.value)}
+                onBlur={() => {
+                  handleUpdateProjectLocation({
+                    address: addressValue,
+                  });
+                }}
+              />
+            </div>
           </div>
-          <div className="col-span-2 space-y-2 flex flex-col">
-            <Label asChild>
-              <span>Address</span>
-            </Label>
-            <Textarea
-              className="flex-1"
-              placeholder="Хаяг оруулна уу"
-              value={addressValue}
-              onChange={(e) => setAddressValue(e.target.value)}
-              onBlur={() => {
-                handleUpdateProjectLocation({
-                  address: addressValue,
-                });
-              }}
+          <div className="flex flex-col space-y-2 col-span-2 rounded-sm overflow-hidden">
+            <GoogleMap
+              coordinate={{ lat: latValue, lng: lngValue }}
+              onSelect={handleMapSelect}
             />
           </div>
         </div>

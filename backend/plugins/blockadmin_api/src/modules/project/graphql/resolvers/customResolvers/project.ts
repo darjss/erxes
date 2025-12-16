@@ -1,4 +1,5 @@
 import { IContext } from '~/connectionResolvers';
+import { TIER_LEVELS } from '~/constants';
 import { IProjectDocument } from '~/modules/project/@types/project';
 import { projectSchema } from '~/modules/project/db/definitions/project';
 
@@ -83,5 +84,15 @@ export default {
     }
 
     return ((completedFields / fields.length) * 100).toFixed(2);
+  },
+  tier: async ({ tierLevel }: IProjectDocument) => {
+    if (!tierLevel) {
+      return null;
+    }
+
+    return TIER_LEVELS[tierLevel] || 'Unknown';
+  },
+  isFeatured: async ({ tierLevel }: IProjectDocument) => {
+    return Boolean(tierLevel);
   },
 };

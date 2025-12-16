@@ -22,7 +22,7 @@ export const UnitSidebar = () => {
                   onClick={() => setActiveUnitTab(tab)}
                   className="capitalize"
                 >
-                  {value.mn}
+                  {value?.mn}
                 </Sidebar.MenuButton>
               </Sidebar.MenuItem>
             ))}

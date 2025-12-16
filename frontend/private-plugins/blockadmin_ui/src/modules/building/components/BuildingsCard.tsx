@@ -9,10 +9,14 @@ import {
 } from '@/project/constants/project';
 import { IProject } from '@/project/types/projectTypes';
 import {
+  Badge,
+  Combobox,
+  Command,
   DatePicker,
   Empty,
   Input,
   Label,
+  Popover,
   Select,
   Spinner,
   Textarea,
@@ -24,7 +28,7 @@ export const BuildingsCard = ({ project }: { project: IProject }) => {
   return (
     <InfoCard title="Buildings" description="Buildings">
       <InfoCardContent>
-        <div className="grid grid-cols-12 gap-3">
+        <div className="gap-3 grid grid-cols-12">
           <Label asChild>
             <div className="col-span-2">Image</div>
           </Label>
@@ -61,24 +65,53 @@ export const BuildingsCardItem = ({ building }: { building: IBuilding }) => {
   const [name, setName] = useState(building.name);
   const [description, setDescription] = useState(building.description);
   return (
-    <div className="grid grid-cols-12 gap-3">
+    <div className="gap-3 grid grid-cols-12">
       <div className="col-span-2">
         <UploadImage value={building.coverImage} />
       </div>
-      <div className="col-span-4 flex flex-col gap-3">
+      <div className="flex flex-col gap-3 col-span-4">
         <Input value={name} className="font-medium" />
-        <Select value={building.type}>
-          <Select.Trigger className="h-8">
-            <Select.Value />
-          </Select.Trigger>
-          <Select.Content>
-            {PROJECT_TYPES.map((type) => (
-              <Select.Item key={type.value} value={type.value}>
-                {type.label}
-              </Select.Item>
-            ))}
-          </Select.Content>
-        </Select>
+        <Popover>
+          <Combobox.TriggerBase className="flex-wrap justify-start h-auto min-h-8 text-accent-foreground">
+            {building.types?.length ? (
+              building.types.map((type: string) => (
+                <Badge key={type} variant="secondary">
+                  {PROJECT_TYPES.find((t) => t.value === type)?.label?.mn}
+                </Badge>
+              ))
+            ) : (
+              <span>Төрөл сонгоно уу</span>
+            )}
+          </Combobox.TriggerBase>
+
+          <Combobox.Content>
+            <Command>
+              <Command.Input />
+              <Command.List>
+                {PROJECT_TYPES.map((type) => (
+                  <Command.Item
+                    value={type.value}
+                    key={type.value}
+                    onSelect={() => {
+                      const newTypes = building.types?.includes(type.value)
+                        ? building.types?.filter(
+                            (t: string) => t !== type.value,
+                          )
+                        : [...(building.types || []), type.value];
+
+                      updateBuilding({ types: newTypes });
+                    }}
+                  >
+                    {type.label?.mn}
+                    <Combobox.Check
+                      checked={building.types?.includes(type.value)}
+                    />
+                  </Command.Item>
+                ))}
+              </Command.List>
+            </Command>
+          </Combobox.Content>
+        </Popover>
         <Select value={building.status}>
           <Select.Trigger className="h-8">
             <Select.Value placeholder="Select status" />
@@ -108,7 +141,7 @@ export const BuildingsCardItem = ({ building }: { building: IBuilding }) => {
           />
         </div>
       </div>
-      <div className="col-span-6 flex">
+      <div className="flex col-span-6">
         <Textarea
           className="flex-1"
           value={description}

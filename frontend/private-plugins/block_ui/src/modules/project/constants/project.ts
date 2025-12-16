@@ -1,11 +1,16 @@
 export const PROJECT_TYPES = [
-  { value: 'apartment', label: 'Apartment' },
-  { value: 'office', label: 'Office' },
-  { value: 'serviceArea', label: 'Service Area' },
-  { value: 'parking', label: 'Parking' },
-  { value: 'basement', label: 'Basement' },
-  { value: 'residential', label: 'Residential' },
-  { value: 'retail', label: 'Retail' },
+  { value: 'apartment', label: {en: 'Apartment', mn: 'Орон сууц'} },
+  { value: 'residential', label: {en: 'Residential', mn: 'Амьны орон сууц'} },
+  { value: 'office', label: {en: 'Office', mn: 'Оффис'} },
+  { value: 'serviceArea', label: {en: 'Service Area', mn: 'Үйлчилгээний талбай'} },
+  { value: 'parking', label: {en: 'Parking', mn: 'Авто зогсоол'} },
+  { value: 'basement', label: {en: 'Basement', mn: 'Зоорь'} },
+  { value: 'retail', label: {en: 'Retail', mn: 'Худалдан авах'} },
+  { value: 'school', label: {en: 'School', mn: 'Сургууль'} },
+  { value: 'kindergarten', label: {en: 'Kindergarten', mn: 'Цэцэрлэг'} },
+  { value: 'factory', label: {en: 'Factory', mn: 'Үйлдвэр'} },
+  { value: 'hospital', label: {en: 'Hospital', mn: 'Эмнэлэг'} },
+  { value: 'station', label: {en: 'Station', mn: 'Буудал'} },
 ];
 
 export const PROJECT_AMENITIES = [

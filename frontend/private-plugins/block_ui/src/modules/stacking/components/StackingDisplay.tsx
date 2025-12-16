@@ -13,14 +13,12 @@ import {
   IconClipboardText,
   IconPlus,
 } from '@tabler/icons-react';
-import { Button, ScrollArea, Spinner, useMultiQueryState } from 'erxes-ui';
-import { Link } from 'react-router-dom';
+import { Button, ScrollArea, Spinner, useQueryState } from 'erxes-ui';
+import { Link, useParams } from 'react-router-dom';
 
 export const StackingDisplay = () => {
-  const [{ projectId, buildingId }] = useMultiQueryState<{
-    projectId: string;
-    buildingId: string;
-  }>(['projectId', 'buildingId']);
+  const { projectId } = useParams();
+  const [buildingId] = useQueryState<string>('buildingId');
   const { loading: projectsLoading } = useProjects(true);
   const { loading: buildingsLoading } = useBuildings({
     projectId: projectId ?? '',

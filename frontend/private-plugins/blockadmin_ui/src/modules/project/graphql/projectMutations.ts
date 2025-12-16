@@ -26,10 +26,10 @@ export const BLOCK_REMOVE_PROJECT = gql`
 
 export const UPDATE_PROJECT_GENERAL_INFO = gql`
   mutation BlockAdminUpdateProject(
-    $id: String!
+    $_id: String!
     $input: BlockAdminProjectInput!
   ) {
-    blockAdminUpdateProject(_id: $id, input: $input) {
+    blockAdminUpdateProject(_id: $_id, input: $input) {
       _id
     }
   }

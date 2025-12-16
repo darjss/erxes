@@ -8,6 +8,7 @@ export interface IOppty {
   unitTypes?: string[];
   units?: string[];
   assignedUserId?: string;
+  blocks?: string[];
   status: (typeof OPPTY_STATUSES)[keyof typeof OPPTY_STATUSES];
   labelIds?: string[];
   tagIds?: string[];

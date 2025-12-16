@@ -4,7 +4,7 @@ import { FilterQuery } from 'mongoose';
 import { cursorPaginate } from 'erxes-api-shared/utils';
 
 export const opptyQueries = {
-  getOpptys: async (
+  blockGetOpptys: async (
     _parent: undefined,
     { projectId, filter }: { projectId: string; filter: IOpptyFilter },
     { models }: IContext,

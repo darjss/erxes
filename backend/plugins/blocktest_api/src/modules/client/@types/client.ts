@@ -77,6 +77,20 @@ export interface ICVClient {
   contacts: ICVClientContact[];
 }
 
+export interface ICVClientFilter {
+  name?: string;
+  client_type?: ClientType;
+  lead_source?: LeadSource;
+  registration_number?: string;
+  operational_address?: string;
+  business_type?: BusinessMainCategory;
+  business_category?: string;
+  status?: ClientStatus;
+  cvh_broker?: string;
+  registered_date?: Date;
+  isActive?: boolean;
+}
+
 // Mongoose document
 export interface ICVClientDocument extends ICVClient, Document {
   _id: string;

@@ -1,9 +1,11 @@
 import { IconShield, IconUser } from '@tabler/icons-react';
-import { Breadcrumb, Button } from 'erxes-ui';
+import { Breadcrumb, Button, PageSubHeader } from 'erxes-ui';
 import { ClientsRecordTable } from '@/clients/components/ClientsRecordTable';
 import { Link } from 'react-router-dom';
 import { PageHeader } from 'ui-modules';
 import { ClientCreateSheet } from '@/clients/components/ClientCreate';
+import { ClientDetailSheet } from '@/clients/components/ClientDetailSheet';
+import { ClientsFilter } from '@/clients/components/ClientsFilter';
 
 export const ClientsPage = () => {
   return (
@@ -34,7 +36,11 @@ export const ClientsPage = () => {
           <ClientCreateSheet />
         </PageHeader.End>
       </PageHeader>
+      <PageSubHeader>
+        <ClientsFilter />
+      </PageSubHeader>
       <ClientsRecordTable />
+      <ClientDetailSheet />
     </>
   );
 };

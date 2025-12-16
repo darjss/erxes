@@ -5,10 +5,14 @@ import {
 } from './db/@types/developer';
 
 export const generateFilter = async (params: DeveloperQueryParams) => {
-  const { searchValue, verificationStatus, city, district, dateFilters } =
+  const { searchValue, verificationStatus, city, district, dateFilters, isFeatured } =
     params;
 
   const filter: FilterQuery<IBlockDeveloperDocument> = {};
+
+  if (isFeatured) {
+    filter.tierLevel = { $exists: true, $gte: 1 };
+  }
 
   if (verificationStatus) {
     filter.verificationStatus = verificationStatus;

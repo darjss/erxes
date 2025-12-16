@@ -10,7 +10,7 @@ export const types = `
   type BlockAdminBuilding {
     _id: String
     name: String
-    type: String
+    types: [String]
     description: String 
     project: String 
     coverImage: String

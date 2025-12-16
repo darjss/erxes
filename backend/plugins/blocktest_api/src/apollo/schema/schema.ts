@@ -1,19 +1,36 @@
 import {
-  mutations as BlocktestMutations,
-  queries as BlocktestQueries,
-  types as BlocktestTypes,
-} from '~/modules/client/graphql/schemas/client';
+  mutations as CVClientMutations,
+  queries as CVClientQueries,
+  types as CVClientTypes,
+} from '@/client/graphql/schemas/client';
+import {
+  mutations as CVMarketMutations,
+  queries as CVMarketQueries,
+  types as CVMarketTypes,
+} from '@/market/graphql/schemas/market';
+
+import {
+  mutations as CVRiskGroupMutations,
+  queries as CVRiskGroupQueries,
+  types as CVRiskGroupTypes,
+} from '@/risk/graphql/schemas/riskGroup';
 
 export const types = `
-  ${BlocktestTypes}
-`;
+  ${CVClientTypes}
+  ${CVMarketTypes}
+  ${CVRiskGroupTypes}
+    `;
 
 export const queries = `
-  ${BlocktestQueries}
+  ${CVClientQueries}
+  ${CVMarketQueries}
+  ${CVRiskGroupQueries}
 `;
 
 export const mutations = `
-  ${BlocktestMutations}
+  ${CVClientMutations}
+  ${CVMarketMutations}
+  ${CVRiskGroupMutations}
 `;
 
 export default { types, queries, mutations };

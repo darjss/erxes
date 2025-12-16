@@ -6,7 +6,7 @@ import { BLOCK_GET_BUILDING_ZONINGS } from '@/building/graphql/buildingQueries';
 import { useBuildingsCreateZone } from '@/building/hooks/useBuildingsCreate';
 import { IBuilding } from '@/building/types/buildingTypes';
 import { SelectTenureType } from '@/unit/components/SelectTenureType';
-import { SelectUsageType } from '@/unit/components/SelectUsageType';
+import { SelectUsageTypes } from '@/unit/components/SelectUsageType';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { IconPlus } from '@tabler/icons-react';
 import { Button, Form, Input, Separator, Sheet, Spinner } from 'erxes-ui';
@@ -26,7 +26,7 @@ export const AddBuildingZone = ({ building }: { building: IBuilding }) => {
       </Sheet.Trigger>
       <Sheet.View>
         <Sheet.Header>
-          <Sheet.Title className="text-base flex items-center gap-2">
+          <Sheet.Title className="flex items-center gap-2 text-base">
             {building?.name} <Separator.Inline /> Add Building Zone
           </Sheet.Title>
           <Sheet.Close />
@@ -52,14 +52,22 @@ export const AddBuildingZoneForm = ({
     resolver: zodResolver(buildingZoneSchema),
     defaultValues: {
       floor: 0,
-      tenureType: '',
-      usageType: '',
+      areaType: '',
+      tenureTypes: [],
+      usageTypes: [],
     },
   });
+
+  const areaType = form.watch('areaType');
+  const tenureTypes = form.watch('tenureTypes');
 
   const { createBuildingZone, loading } = useBuildingsCreateZone();
 
   const onSubmit = (data: z.infer<typeof buildingZoneSchema>) => {
+    if (areaType === 'private' && tenureTypes?.length) {
+      data['tenureTypes'] = [];
+    }
+
     createBuildingZone({
       variables: { input: { ...data, building: building._id } },
       refetchQueries: [
@@ -79,7 +87,7 @@ export const AddBuildingZoneForm = ({
         className="flex flex-col flex-auto"
         onSubmit={form.handleSubmit(onSubmit, (error) => console.log(error))}
       >
-        <Sheet.Content className="p-6 blk:space-y-5">
+        <Sheet.Content className="blk:space-y-5 p-6">
           <Form.Field
             name="floor"
             render={({ field }) => (
@@ -105,8 +113,11 @@ export const AddBuildingZoneForm = ({
                 <Form.Label>Tenure type</Form.Label>
                 <Form.Control>
                   <SelectTenureType
-                    value={field.value}
-                    onValueChange={field.onChange}
+                    value={{ areaType, tenureTypes }}
+                    onValueChange={(areaType, tenureTypes) => {
+                      form.setValue('areaType', areaType);
+                      form.setValue('tenureTypes', tenureTypes);
+                    }}
                     inForm
                   />
                 </Form.Control>
@@ -114,11 +125,11 @@ export const AddBuildingZoneForm = ({
             )}
           />
           <Form.Field
-            name="usageType"
+            name="usageTypes"
             render={({ field }) => (
               <Form.Item>
                 <Form.Label>Usage type</Form.Label>
-                <SelectUsageType
+                <SelectUsageTypes
                   value={field.value}
                   onValueChange={field.onChange}
                   inForm
@@ -202,16 +213,26 @@ export const GenerateByFloorRangeForm = ({
       minFloor: 0,
       maxFloor: 0,
       size: 0,
-      tenureType: 'forSale',
-      usageType: building.type?.toLowerCase(),
+      areaType: '',
+      tenureTypes: [],
+      usageTypes: building.types?.map((type) => type.toLowerCase()),
     },
   });
+
+  const areaType = form.watch('areaType');
+  const tenureTypes = form.watch('tenureTypes');
+
   const { createBuildingZone, loading } = useBuildingsCreateZone();
 
   const handleSubmit = async (
     data: z.infer<typeof generateByFloorRangeSchema>,
   ) => {
     const { minFloor, maxFloor } = data;
+
+    if (areaType === 'private' && tenureTypes?.length) {
+      data['tenureTypes'] = [];
+    }
+
     for (let floor = minFloor; floor <= maxFloor; floor++) {
       if (floor === 0) continue;
       await createBuildingZone({
@@ -219,8 +240,9 @@ export const GenerateByFloorRangeForm = ({
           input: {
             building: building._id,
             floor,
-            usageType: data.usageType,
-            tenureType: data.tenureType,
+            areaType: data.areaType,
+            usageTypes: data.usageTypes,
+            tenureTypes: data.tenureTypes,
             size: data.size,
           },
         },
@@ -239,11 +261,11 @@ export const GenerateByFloorRangeForm = ({
   return (
     <Form {...form}>
       <form
-        className="flex flex-auto flex-col"
+        className="flex flex-col flex-auto"
         onSubmit={form.handleSubmit(handleSubmit)}
       >
         <Sheet.Content className="p-6">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="gap-4 grid grid-cols-2">
             <Form.Field
               name="minFloor"
               render={({ field }) => (
@@ -285,13 +307,16 @@ export const GenerateByFloorRangeForm = ({
             />
             <Form.Field
               name="tenureType"
-              render={({ field }) => (
+              render={() => (
                 <Form.Item>
                   <Form.Label>Tenure type</Form.Label>
                   <Form.Control>
                     <SelectTenureType
-                      value={field.value}
-                      onValueChange={field.onChange}
+                      value={{ areaType, tenureTypes }}
+                      onValueChange={(areaType, tenureTypes) => {
+                        form.setValue('areaType', areaType);
+                        form.setValue('tenureTypes', tenureTypes);
+                      }}
                       inForm
                     />
                   </Form.Control>
@@ -299,12 +324,12 @@ export const GenerateByFloorRangeForm = ({
               )}
             />
             <Form.Field
-              name="usageType"
+              name="usageTypes"
               render={({ field }) => (
                 <Form.Item>
                   <Form.Label>Usage type</Form.Label>
                   <Form.Control>
-                    <SelectUsageType
+                    <SelectUsageTypes
                       value={field.value}
                       onValueChange={field.onChange}
                       inForm

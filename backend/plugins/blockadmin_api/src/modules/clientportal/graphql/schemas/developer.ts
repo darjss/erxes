@@ -19,6 +19,9 @@ export const types = `
     verificationStatus: String
 
     projectsCounts: Int
+
+    tier: String
+    isFeatured: Boolean
   }
 `;
 
@@ -26,6 +29,7 @@ const queryParams = `
   verificationStatus: String
   searchValue: String
   city: String
+  isFeatured: Boolean
   
   ${GQL_OFFSET_PARAM_DEFS}
 `;

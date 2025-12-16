@@ -1,15 +1,21 @@
-import { OPPTY_CUSTOMER_SOURCES, OPPTY_STATUSES } from '../../constants';
 import { GQL_CURSOR_PARAM_DEFS } from 'erxes-api-shared/utils';
 
 export const types = `
-
   enum OpptyStatus {
-    ${Object.values(OPPTY_STATUSES).join(' | ')}
+    new_lead_unassigned
+    assigned_in_contact
+    qualified_lead
+    unit_shortlist_created
+    property_viewing
+    unit_selected
+    negotiation
+    reservation
+    contract_drafting_signing
+    closed_successful
+    closed_unsuccessful
+    cancelled
   }
 
-  enum OpptyCustomerSource {
-    ${Object.values(OPPTY_CUSTOMER_SOURCES).join(' | ')}
-  }
 
   type Oppty {
     _id: String
@@ -25,10 +31,12 @@ export const types = `
     projectId: String
     startDate: Date
     targetDate: Date
-    customerSource: OpptyCustomerSource
+    customerSource: String
+    createdAt: Date
+    updatedAt: Date
   }
 
-  input OpptyInput {
+  input IOpptyInput {
     number: String
     description: String
     customerId: String
@@ -38,13 +46,13 @@ export const types = `
     status: OpptyStatus
     labelIds: [String]
     tagIds: [String]
-    projectId: String
     startDate: Date
     targetDate: Date
-    customerSource: OpptyCustomerSource
+    customerSource: String
+    projectId: String
   }
 
-  input OpptyFilter {
+  input IOpptyFilter {
     number: String
     description: String
     customerId: String
@@ -54,7 +62,7 @@ export const types = `
     status: OpptyStatus
     startDate: Date
     targetDate: Date
-    customerSource: OpptyCustomerSource
+    customerSource: String
     labelId: String
     tagId: String
     ${GQL_CURSOR_PARAM_DEFS}
@@ -68,12 +76,12 @@ export const types = `
 `;
 
 export const queries = `
-  getOpptys(projectId: String!, filter: OpptyFilter): OpptyListResponse
+  blockGetOpptys(projectId: String!, filter: IOpptyFilter): OpptyListResponse
 `;
 
 export const mutations = `
-  createOppty(input: OpptyInput!): Oppty
-  updateOppty(_id: String!, input: OpptyInput!): Oppty
-  deleteOppty(_id: String!): Oppty
-  convertToContract(_id: String!, unit: String!, paymentPlan: BlockProjectPaymentPlanInput!): String
+  blockCreateOppty(input: IOpptyInput!): Oppty
+  blockUpdateOppty(_id: String!, input: IOpptyInput!): Oppty
+  blockDeleteOppty(_id: String!): Oppty
+  blockOpptyConvertToContract(_id: String!, unit: String!, paymentPlan: BlockProjectPaymentPlanInput!): String
 `;

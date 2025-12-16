@@ -20,7 +20,7 @@ export const CLIENT_BUSINESS_MAIN_TYPE_OPTIONS: ClientTypeOption[] = [
   },
   {
     label: 'Information Technology (IT) & Software',
-    value: 'information_technology_software',
+    value: 'information_technology_it_software',
   },
   { label: 'Telecommunications', value: 'telecommunications' },
   {
@@ -34,7 +34,7 @@ export const CLIENT_BUSINESS_MAIN_TYPE_OPTIONS: ClientTypeOption[] = [
   },
   {
     label: 'Professional Services (Consulting, Legal, Accounting)',
-    value: 'professional_services',
+    value: 'professional_services_consulting_legal_accounting',
   },
   {
     label: 'Healthcare & Medical Services',
@@ -68,15 +68,36 @@ export const CLIENT_BUSINESS_MAIN_TYPE_OPTIONS: ClientTypeOption[] = [
   { label: 'Chemicals & Petrochemicals', value: 'chemicals_petrochemicals' },
   {
     label: 'Environmental Services (Waste, Recycling)',
-    value: 'environmental_services',
+    value: 'environmental_services_waste_recycling',
   },
   { label: 'Security Services', value: 'security_services' },
+  {
+    label: 'agriculture technology agritech',
+    value: 'agriculture_technology_agritech',
+  },
+  { label: 'ecommerce online services', value: 'ecommerce_online_services' },
 ];
 
 export const CLIENT_TYPE_OPTIONS: ClientTypeOption[] = [
-  { label: 'Individual', value: 'individual' },
-  { label: 'Төрийн өмчит', value: 'business' },
-  { label: 'ХК', value: 'company' },
+  { label: 'Хувь хүн', value: 'individual' },
+  { label: 'Төрийн өмчит', value: 'state_owned' },
+  { label: 'ХК', value: 'limited_liability_co' },
   { label: 'ХХК', value: 'joint_stock_company' },
   { label: 'ГХОХХК', value: 'foreign_llc' },
+];
+
+export const CLIENT_STATUS_OPTIONS: ClientTypeOption[] = [
+  { label: 'New', value: 'new' },
+  { label: 'Negotiation', value: 'negotiation' },
+  { label: 'Won', value: 'won' },
+  { label: 'Lost', value: 'lost' },
+];
+
+export const CLIENT_LEAD_SOURCE_OPTIONS: ClientTypeOption[] = [
+  { label: 'Website', value: 'website' },
+  { label: 'Referral', value: 'referral' },
+  { label: 'Cold call', value: 'cold_call' },
+  { label: 'Network', value: 'network' },
+  { label: 'Meeting', value: 'meeting' },
+  { label: 'Tender', value: 'tender' },
 ];

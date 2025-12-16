@@ -1,22 +1,14 @@
-import {
-  Button,
-  CurrencyField,
-  InfoCard,
-  Label,
-  useQueryState,
-} from 'erxes-ui';
+import { CurrencyField, InfoCard, Label, useQueryState } from 'erxes-ui';
 import { IUnitType } from '../types/unitType';
 import { SelectTenureType } from './SelectTenureType';
 import { SelectUsageType } from './SelectUsageType';
-import { Link } from 'react-router-dom';
-import { PROJECT_TABS } from '@/project/constants/project';
 
 export const UnitTypeSummary = ({ unitType }: { unitType?: IUnitType }) => {
   const [, setActiveTab] = useQueryState('activeTab');
   return (
     <InfoCard title="Unit Type">
       <InfoCard.Content>
-        <div className="grid grid-cols-3 gap-4">
+        <div className="gap-4 grid grid-cols-3">
           <div className="space-y-2">
             <Label>Name</Label>
             <div className="font-medium">{unitType?.name}</div>
@@ -35,7 +27,12 @@ export const UnitTypeSummary = ({ unitType }: { unitType?: IUnitType }) => {
           </div>
           <div className="space-y-2">
             <Label>Tenure Type</Label>
-            <SelectTenureType value={unitType?.tenureType} />
+            <SelectTenureType
+              value={{
+                areaType: unitType?.areaType || '',
+                tenureTypes: unitType?.tenureTypes || [],
+              }}
+            />
           </div>
           <div className="space-y-2">
             <Label>Usage Type</Label>

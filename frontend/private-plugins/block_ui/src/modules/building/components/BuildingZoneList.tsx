@@ -13,7 +13,7 @@ import { useBuildingZoningRemove } from '@/building/hooks/useBuildingZoningRemov
 import { IBuilding, IZoning } from '@/building/types/buildingTypes';
 import { IProject } from '@/project/types/projectTypes';
 import { SelectTenureType } from '@/unit/components/SelectTenureType';
-import { SelectUsageType } from '@/unit/components/SelectUsageType';
+import { SelectUsageTypes } from '@/unit/components/SelectUsageType';
 import { IconTrash } from '@tabler/icons-react';
 import { Button, CurrencyField, Spinner, toast, useConfirm } from 'erxes-ui';
 import { useEffect, useState } from 'react';
@@ -40,19 +40,21 @@ export const BuildingZoneCard = ({ building }: { building: IBuilding }) => {
   });
   return (
     <InfoCard
-      title={`${building.name} • ${building.type} • ${buildingZonings?.length} floors`}
+      title={`${building.name} • ${building.types?.join(' | ')} • ${
+        buildingZonings?.length
+      } floors`}
     >
       <InfoCardContent>
         {loading ? (
           <Spinner containerClassName="py-32" />
         ) : (
-          <div className="grid lg:grid-cols-3 md:grid-cols-2  2xl:grid-cols-4 gap-3">
+          <div className="gap-3 grid md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
             {buildingZonings?.map((zoning) => (
               <BuildingZone key={zoning._id} zoning={zoning} />
             ))}
           </div>
         )}
-        <div className="grid grid-cols-2 gap-4">
+        <div className="gap-4 grid grid-cols-2">
           <AddBuildingZone building={building} />
           <GenerateByFloorRange building={building} />
         </div>
@@ -75,15 +77,15 @@ export const BuildingZone = ({ zoning }: { zoning: IZoning }) => {
   }, [zoning.size]);
 
   return (
-    <div className="p-4 rounded-lg bg-primary/10 border-primary/20 border">
-      <div className="flex justify-between mb-4 items-center">
+    <div className="bg-primary/10 p-4 border border-primary/20 rounded-lg">
+      <div className="flex justify-between items-center mb-4">
         <div className="font-medium text-left">
           {zoning.floor < 0 ? `B${zoning.floor * -1}` : zoning.floor}
         </div>
         <Button
           variant="secondary"
           size="icon"
-          className="bg-destructive/10 text-destructive hover:bg-destructive/20"
+          className="bg-destructive/10 hover:bg-destructive/20 text-destructive"
           onClick={() =>
             confirm({
               message: `Are you sure you want to delete the zoning on floor '${zoning.floor}'?`,
@@ -118,14 +120,19 @@ export const BuildingZone = ({ zoning }: { zoning: IZoning }) => {
           <IconTrash />
         </Button>
       </div>
-      <div className="grid grid-cols-2 gap-2">
-        <SelectUsageType
-          value={zoning.usageType}
-          onValueChange={(value) => updateBuildingZoning({ usageType: value })}
+      <div className="gap-2 grid grid-cols-2">
+        <SelectUsageTypes
+          value={zoning.usageTypes}
+          onValueChange={(value) => updateBuildingZoning({ usageTypes: value })}
         />
         <SelectTenureType
-          value={zoning.tenureType}
-          onValueChange={(value) => updateBuildingZoning({ tenureType: value })}
+          value={{ areaType: zoning.areaType, tenureTypes: zoning.tenureTypes }}
+          onValueChange={(areaType, tenureTypes) => {
+            if (areaType === 'private' && tenureTypes?.length) {
+              tenureTypes = [];
+            }
+            updateBuildingZoning({ areaType, tenureTypes });
+          }}
         />
         <CurrencyField.ValueInput
           value={zoningSize}

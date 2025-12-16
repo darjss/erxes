@@ -1,6 +1,7 @@
 import { ADDRESS_CITY, ADDRESS_DISTRICT } from '@/block/constants/address';
 import { developerInfoSchema } from '@/block/constants/developerInfoSchema';
 import { useDeveloperInfo } from '@/block/hooks/useDeveloperInfo';
+import { DeveloperDetailActions } from '@/developer/components/DeveloperDetailActions';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Form, Input, Select, Textarea } from 'erxes-ui';
 import { useCallback, useEffect } from 'react';
@@ -18,8 +19,8 @@ export const BlockDeveloperInfo = () => {
   const { developerInfo, loading } = useDeveloperInfo(id);
 
   return (
-    <div className="p-6 mx-auto w-full max-w-lg flex flex-col gap-6">
-      <h1 className="text-lg font-bold mb-4">Developer Info</h1>
+    <div className="flex flex-col gap-6 mx-auto p-6 w-full max-w-lg">
+      <h1 className="mb-4 font-bold text-lg">Developer Info</h1>
       {!loading && developerInfo && (
         <BlockDeveloperInfoForm developerInfo={developerInfo} />
       )}
@@ -93,17 +94,21 @@ export const BlockDeveloperInfoForm = ({
   return (
     <Form {...form}>
       <form className="gap-4 grid grid-cols-2">
-        <Form.Field
-          name="logo"
-          control={form.control}
-          render={({ field }) => (
-            <Form.Item>
-              <Form.Label>Logo</Form.Label>
-              <UploadImage value={field.value} className="size-16" />
-              <Form.Message />
-            </Form.Item>
-          )}
-        />
+        <div className="flex justify-between items-center col-span-2">
+          <Form.Field
+            name="logo"
+            control={form.control}
+            render={({ field }) => (
+              <Form.Item>
+                <Form.Label>Logo</Form.Label>
+                <UploadImage value={field.value} className="size-16" />
+                <Form.Message />
+              </Form.Item>
+            )}
+          />
+          <DeveloperDetailActions />
+        </div>
+
         <Form.Field
           name="coverImage"
           control={form.control}
@@ -271,7 +276,7 @@ export const BlockDeveloperInfoForm = ({
             </Form.Item>
           )}
         />
-        <div className="col-span-2 flex flex-col gap-2">
+        <div className="flex flex-col gap-2 col-span-2">
           {SOCIAL_LINKS.map((item: { label: string; value: string }) => (
             <Form.Field
               key={item.value}

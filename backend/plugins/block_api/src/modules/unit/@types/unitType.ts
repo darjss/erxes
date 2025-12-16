@@ -13,9 +13,10 @@ export interface IUnitType {
   size: number;
 
   type: string;
-  subType: string;
+  subTypes: string[];
   featureTypes: string[];
-  tenureType: string;
+  areaType: string;
+  tenureTypes: string[];
 
   content: string;
 

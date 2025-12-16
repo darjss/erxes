@@ -1,7 +1,7 @@
 import { useMutation } from '@apollo/client';
+import { toast } from 'erxes-ui';
 import { UPDATE_PROJECT_GENERAL_INFO } from '../graphql/projectMutations';
 import { IProjectGeneralInput } from '../types/projectTypes';
-import { toast } from 'erxes-ui';
 
 export const useUpdateProjectGeneralInfo = () => {
   const [updateProjectGeneralInfoMutation] = useMutation(
@@ -9,21 +9,20 @@ export const useUpdateProjectGeneralInfo = () => {
   );
 
   const updateProjectGeneralInfo = (
-    id: string,
+    _id: string,
     input: Partial<IProjectGeneralInput>,
   ) => {
     updateProjectGeneralInfoMutation({
-      variables: { id, input },
-      update: (cache, { data: { blockUpdateProjectGeneralInfo } }) => {
+      variables: { _id, input },
+      update: (cache, { data: { blockAdminUpdateProject } }) => {
+        if (!blockAdminUpdateProject) return;
+
         cache.modify({
-          id: cache.identify(blockUpdateProjectGeneralInfo),
-          fields: Object.keys(input).reduce(
-            (fields: Record<string, () => any>, field) => {
-              fields[field] = () => input[field as keyof IProjectGeneralInput];
-              return fields;
-            },
-            {},
-          ),
+          id: cache.identify(blockAdminUpdateProject),
+          fields: Object.keys(input).reduce((fields, field) => {
+            fields[field] = () => input[field as keyof IProjectGeneralInput];
+            return fields;
+          }, {} as Record<string, () => any>),
           optimistic: true,
         });
       },

@@ -1,14 +1,14 @@
 import { IModels } from '~/connectionResolvers';
-import { cvClientSchema } from '~/modules/client/db/definitions/client';
+import { cvClientSchema } from '@/client/db/definitions/client';
 import { ICVClient, ICVClientDocument } from '@/client/@types/client';
 import { Model } from 'mongoose';
 
 export interface ICVClientModel extends Model<ICVClientDocument> {
-  getCVClient(_id: string): Promise<ICVClientDocument>;
-  getCVClients(): Promise<ICVClientDocument[]>;
-  createCVClient(doc: ICVClient): Promise<ICVClientDocument>;
-  updateCVClient(_id: string, doc: ICVClient): Promise<ICVClientDocument>;
-  removeCVClient(CVClientId: string): Promise<{ ok: number }>;
+  cvGetClient(_id: string): Promise<ICVClientDocument>;
+  cvGetClients(): Promise<ICVClientDocument[]>;
+  cvCreateClient(doc: ICVClient): Promise<ICVClientDocument>;
+  cvUpdateClient(_id: string, doc: ICVClient): Promise<ICVClientDocument>;
+  cvRemoveClient(CVClientId: string): Promise<{ ok: number }>;
 }
 
 export const loadCVClientClass = (models: IModels) => {
@@ -16,7 +16,7 @@ export const loadCVClientClass = (models: IModels) => {
     /**
      * Retrieves CVClient
      */
-    public static async getCVClient(_id: string) {
+    public static async cvGetClient(_id: string) {
       const CVClient = await models.CVClient.findOne({ _id }).lean();
 
       if (!CVClient) {
@@ -29,14 +29,14 @@ export const loadCVClientClass = (models: IModels) => {
     /**
      * Retrieves all CVClients
      */
-    public static async getCVClients(): Promise<ICVClientDocument[]> {
+    public static async cvGetClients(): Promise<ICVClientDocument[]> {
       return models.CVClient.find().lean();
     }
 
     /**
      * Create a CVClient
      */
-    public static async createCVClient(
+    public static async cvCreateClient(
       doc: ICVClient,
     ): Promise<ICVClientDocument> {
       return models.CVClient.create(doc);
@@ -45,7 +45,7 @@ export const loadCVClientClass = (models: IModels) => {
     /*
      * Update a CVClient
      */
-    public static async updateCVClient(_id: string, doc: ICVClient) {
+    public static async cvUpdateClient(_id: string, doc: ICVClient) {
       return await models.CVClient.findOneAndUpdate(
         { _id },
         { $set: { ...doc } },
@@ -55,7 +55,7 @@ export const loadCVClientClass = (models: IModels) => {
     /**
      * Remove CVClient
      */
-    public static async removeCVClient(CVClientId: string[]) {
+    public static async cvRemoveClient(CVClientId: string[]) {
       return models.CVClient.deleteOne({ _id: { $in: CVClientId } });
     }
   }

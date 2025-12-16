@@ -2,23 +2,23 @@ import { IContext } from '~/connectionResolvers';
 import { ICVMarket } from '@/market/@types/market';
 
 export const cvMarketMutations = {
-  createCVMarket: async (
+  cvCreateMarket: async (
     _parent: undefined,
     { input }: { input: ICVMarket },
     { models }: IContext,
   ) => {
-    return models.CVMarket.createCVMarket(input);
+    return models.CVMarket.cvCreateMarket(input);
   },
 
-  updateCVMarket: async (
+  cvUpdateMarket: async (
     _parent: undefined,
     { _id, input }: { _id: string; input: ICVMarket },
     { models }: IContext,
   ) => {
-    return models.CVMarket.updateCVMarket(_id, input);
+    return models.CVMarket.cvUpdateMarket(_id, input);
   },
 
-  removeCVMarket: async (_parent: undefined, { _id }, { models }: IContext) => {
-    return models.CVMarket.removeCVMarket(_id);
+  cvRemoveMarket: async (_parent: undefined, { _id }, { models }: IContext) => {
+    return models.CVMarket.cvRemoveMarket(_id);
   },
 };

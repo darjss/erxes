@@ -19,9 +19,14 @@ export const generateFilter = async (
     status,
     dateFilters,
     locations,
+    isFeatured,
   } = params || {};
 
   const filter: FilterQuery<IProjectDocument> = {};
+
+  if (isFeatured) {
+    filter.tierLevel = { $exists: true, $gte: 1 };
+  }
 
   if (searchValue) {
     filter.name = { $regex: searchValue, $options: 'i' };

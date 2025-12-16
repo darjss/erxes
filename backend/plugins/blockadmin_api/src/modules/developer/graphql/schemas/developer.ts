@@ -18,12 +18,18 @@ export const types = `
     socialLinks: BlockAdminDeveloperSocialLink
     verificationStatus: String
     projectsCount: Int
+
+    isFeatured: Boolean
   }
 
   type BlockAdminDeveloperListResponse {
     list: [BlockAdminDeveloper]
     pageInfo: PageInfo
     totalCount: Int
+  }
+
+  input BlockAdminDeveloperInput {
+    isFeatured: Boolean
   }
 `;
 
@@ -43,5 +49,6 @@ export const queries = `
 `;
 
 export const mutations = `
+  blockAdminUpdateDeveloper(_id: String!, input: BlockAdminDeveloperInput!): BlockAdminDeveloper
   updateBlockAdminDeveloperVerificationStatus(developerId: String, status: BlockAdminDeveloperVerificationStatusEnum): BlockAdminDeveloper
 `;

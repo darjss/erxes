@@ -17,6 +17,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { SelectUnitType } from './SelectUnitType';
+import { SelectBuildingZone } from '@/building/components/SelectBuildingZone';
 
 export const AddUnitsMultiple = ({ zone }: { zone: IZoning }) => {
   const [open, setOpen] = useState(false);
@@ -52,30 +53,27 @@ export const AddUnitsMultipleForm = ({
   const form = useForm({
     resolver: zodResolver(addUnitsMultipleSchema),
     defaultValues: {
-      type: '',
+      type: undefined,
       count: 0,
+      zoningIds: [zone._id],
     },
+    shouldFocusError: false,
   });
-  const { createUnit, loading } = useUnitCreate({ zoning: zone._id });
+  const { createUnits, loading } = useUnitCreate({ zoning: zone._id });
 
   const onSubmit = (data: z.infer<typeof addUnitsMultipleSchema>) => {
-    const units = Array.from({ length: data.count }).map((_, index) => {
-      const number = `${zone.floor < 0 ? `B${zone.floor * -1}` : zone.floor}${
-        index + 1 < 10 ? `0${index + 1}` : index + 1
-      }`;
+    const zoningIds = new Set([...data.zoningIds]);
 
-      return createUnit({
-        variables: {
-          input: {
-            type: data.type,
-            number,
-            zoning: zone._id,
-            useProjectPrice: true,
-          },
+    createUnits({
+      variables: {
+        input: {
+          type: data.type,
+          zonings: Array.from(zoningIds),
+          perZone: data.count,
         },
-      });
+      },
     });
-    Promise.all(units);
+
     onClose();
     form.reset();
     toast({
@@ -104,7 +102,7 @@ export const AddUnitsMultipleForm = ({
             name="type"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>Type</Form.Label>
+                <Form.Label>Type (Optional)</Form.Label>
                 <SelectUnitType
                   value={field.value}
                   onValueChange={field.onChange}
@@ -117,8 +115,21 @@ export const AddUnitsMultipleForm = ({
             name="count"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>Count</Form.Label>
-                <CurrencyField.ValueInput {...field} />
+                <Form.Label>Units per zone</Form.Label>
+                <CurrencyField.ValueInput placeholder="0" {...field} />
+              </Form.Item>
+            )}
+          />
+          <Form.Field
+            name="zoningIds"
+            render={({ field }) => (
+              <Form.Item>
+                <Form.Label>Zonings</Form.Label>
+                <SelectBuildingZone
+                  value={field.value}
+                  onValueChange={field.onChange}
+                  inForm
+                />
               </Form.Item>
             )}
           />

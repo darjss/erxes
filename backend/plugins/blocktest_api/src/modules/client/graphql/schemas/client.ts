@@ -121,17 +121,15 @@ export const types = `
     name: String
     client_type: CVClientType
     lead_source: CVClientLeadSource
+
     registration_number: String
     operational_address: String
     business_type: CVClientBusinessMainCategory
     business_category: String
     status: CVClientStatus
     cvh_broker: String
-    existing_insurance_policies: String
-    claim_history_file: String
     registered_date: Date
     isActive: Boolean
-    ${GQL_CURSOR_PARAM_DEFS}
   }
 
   type CVClientListResponse {
@@ -142,19 +140,19 @@ export const types = `
 `;
 
 export const queries = `
-  getCVClient(_id: String!): CVClient
-  getCVClients(filter: CVClientFilterInput): CVClientListResponse
+  cvGetClient(_id: String!): CVClient
+  cvGetClients(filter: CVClientFilterInput, ${GQL_CURSOR_PARAM_DEFS}): CVClientListResponse
 `;
 
 export const mutations = `
-  createCVClient(
+  cvCreateClient(
     input: CVClientInput!
   ): CVClient
 
-  updateCVClient(
+  cvUpdateClient(
     _id: String!,
     input: CVClientInput!
   ): CVClient
 
-  removeCVClient(_id: String!): JSON
+  cvRemoveClient(_id: String!): JSON
 `;

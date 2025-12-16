@@ -1,8 +1,9 @@
 export interface IZoning {
   building: string;
   floor: number;
-  usageType: string;
-  tenureType: string;
+  usageTypes: string[];
+  areaType: string;
+  tenureTypes: string[];
   size: number;
 }
 

@@ -1,4 +1,4 @@
-import { Router } from 'express';
+import { Router, Request } from 'express';
 import { IContext } from '~/connectionResolvers';
 import { IRequest, IResponse } from '~/types';
 import { IUnit } from '../@types/unit';
@@ -22,14 +22,20 @@ router.post(
         input.zoning,
       );
 
-      const unitType = await models.UnitType.getUnitType(subdomain, input.type);
+      if (input?.type) {
+        const unitType = await models.UnitType.getUnitType(
+          subdomain,
+          input.type,
+        );
+
+        input['type'] = unitType._id;
+      }
 
       models.Unit.createUnit({
         ...input,
         subdomain,
         entityId,
         zoning: zoning._id,
-        type: unitType._id,
       });
 
       return res.status(200).json({
@@ -43,6 +49,51 @@ router.post(
   },
 );
 
+router.post('/blockCreateUnits', async (req: Request, res: IResponse) => {
+  const { models } = res.locals as IContext;
+
+  try {
+    const { subdomain, payload } = req.body || {};
+
+    const { entities, data } = payload || {};
+
+    const { input } = data || {};
+
+    if (input?.type) {
+      const unitType = await models.UnitType.getUnitType(subdomain, input.type);
+
+      input['type'] = unitType._id;
+    }
+
+    const documents: IUnit[] = [];
+
+    for (const entityKey in entities) {
+      const { zoning, number } = entities[entityKey];
+
+      const zone = await models.Zoning.getBuildingZoning(subdomain, zoning);
+
+      const document: IUnit = {
+        ...input,
+        number,
+        zoning: zone._id,
+        subdomain,
+        entityId: entityKey,
+      };
+      documents.push(document);
+    }
+
+    models.Unit.insertMany(documents);
+
+    return res.status(200).json({
+      success: true,
+    });
+  } catch (error) {
+    return res.status(400).json({
+      error: error.message,
+    });
+  }
+});
+
 router.post(
   '/blockUpdateUnit',
   async (req: IRequest<IUnit>, res: IResponse) => {
@@ -55,11 +106,17 @@ router.post(
 
       const { input } = data || {};
 
-      const unitType = await models.UnitType.getUnitType(subdomain, input.type);
+      if (input?.type) {
+        const unitType = await models.UnitType.getUnitType(
+          subdomain,
+          input.type,
+        );
+
+        input['type'] = unitType._id;
+      }
 
       models.Unit.updateUnit(subdomain, entityId, {
         ...input,
-        type: unitType._id,
       });
 
       return res.status(200).json({

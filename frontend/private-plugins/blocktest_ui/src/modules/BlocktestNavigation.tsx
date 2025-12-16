@@ -1,8 +1,10 @@
 import {
+  IconBuilding,
   IconCoins,
   IconContract,
   IconInvoice,
   IconUser,
+  IconUsersGroup,
 } from '@tabler/icons-react';
 import { NavigationMenuLinkItem } from 'erxes-ui';
 
@@ -25,6 +27,18 @@ export const BlocktestNavigation = () => {
         icon={IconUser}
         pathPrefix="blocktest"
         path="clients"
+      />
+      <NavigationMenuLinkItem
+        name="Markets"
+        icon={IconBuilding}
+        pathPrefix="blocktest"
+        path="markets"
+      />
+      <NavigationMenuLinkItem
+        name="Risk Groups"
+        icon={IconUsersGroup}
+        pathPrefix="blocktest"
+        path="risk-groups"
       />
       <NavigationMenuLinkItem
         name="Claims"

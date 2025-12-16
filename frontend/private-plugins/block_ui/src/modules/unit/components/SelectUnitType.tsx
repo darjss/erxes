@@ -12,8 +12,7 @@ export const SelectUnitType = ({
   onValueChange?: (value: string) => void;
   inForm?: boolean;
 }) => {
-  const { id } = useParams();
-  const [projectId] = useQueryState<string>('projectId');
+  const { id, projectId } = useParams();
 
   const { unitTypes } = useUnitTypes({ project: id || (projectId as string) });
   const Control = inForm ? Form.Control : React.Fragment;

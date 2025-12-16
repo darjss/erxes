@@ -3,9 +3,10 @@ import { IBuilding } from '@/building/types/buildingTypes';
 import { IconCheck } from '@tabler/icons-react';
 import { cn, Button, useQueryState, SkeletonArray } from 'erxes-ui';
 import { useEffect } from 'react';
+import { useParams } from 'react-router-dom';
 
 export const BuildingList = () => {
-  const [projectId] = useQueryState<string>('projectId');
+  const { projectId } = useParams();
   const [buildingId, setBuildingId] = useQueryState<string>('buildingId');
   const { buildings, loading } = useBuildings({ projectId: projectId ?? '' });
 

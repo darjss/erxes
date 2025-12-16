@@ -1,6 +1,6 @@
 export interface IBuilding {
   name: string;
-  type: string;
+  types: string[];
   description: string;
   project: string;
   usageType: string;

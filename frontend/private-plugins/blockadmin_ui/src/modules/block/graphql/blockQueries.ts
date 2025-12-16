@@ -44,6 +44,8 @@ export const BLOCK_ADMIN_GET_DEVELOPER_INFO = gql`
         website
       }
       verificationStatus
+
+      isFeatured
     }
   }
 `;

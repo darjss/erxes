@@ -34,6 +34,7 @@ export interface IBlockDeveloper extends IBlock {
   verificationStatus: string;
 
   socialLinks: IBlockDeveloperSocialLink;
+  tierLevel?: number;
 }
 
 export interface IBlockDeveloperDocument extends IBlockDeveloper, Document {
@@ -48,4 +49,5 @@ export interface DeveloperQueryParams {
   city?: string;
   district?: string;
   dateFilters?: string;
+  isFeatured?: boolean
 }

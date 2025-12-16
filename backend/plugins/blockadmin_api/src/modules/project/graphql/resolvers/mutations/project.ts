@@ -16,6 +16,22 @@ export const projectMutations = {
     try {
       const { subdomain, entityId } = project;
 
+      const doc = { ...input }
+
+      if ('isFeatured' in input) {
+        const isFeatured = input.isFeatured;
+        
+        doc['tierLevel'] = isFeatured ? 1 : 0;
+
+        const updatedProject = await models.Project.findOneAndUpdate(
+          { _id },
+          { ...doc },
+          { new: true },
+        );
+
+        return updatedProject
+      }
+
       const response = await sendBlockMessage({
         subdomain,
         path: 'updateProjectPublishInfo',

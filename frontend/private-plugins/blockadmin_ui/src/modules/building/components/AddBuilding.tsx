@@ -124,7 +124,7 @@ export const AddBuildingForProject = ({
                   <Select.Content>
                     {PROJECT_TYPES.map((type) => (
                       <Select.Item key={type.value} value={type.value}>
-                        {type.label}
+                        {type.label.mn}
                       </Select.Item>
                     ))}
                   </Select.Content>

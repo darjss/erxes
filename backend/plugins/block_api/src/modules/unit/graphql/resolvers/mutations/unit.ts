@@ -1,5 +1,5 @@
 import { CONTRACT_STATUS } from '@/contract/constants';
-import { IUnitInput } from '@/unit/@types/unit';
+import { IUnit, IUnitInput } from '@/unit/@types/unit';
 import { DeleteResult } from 'mongoose';
 import { IContext } from '~/connectionResolvers';
 
@@ -27,6 +27,39 @@ export const unitMutations = {
     }
 
     return models.Unit.createUnit(rest);
+  },
+
+  blockCreateUnits: async (
+    _parent: undefined,
+    { input }: { input: IUnitInput & { zonings: string[]; perZone: number } },
+    { models }: IContext,
+  ) => {
+    const { useProjectPrice, zonings, perZone, ...rest } = input;
+
+    const documents: IUnit[] = [];
+
+    if (zonings?.length) {
+      for (const zoning of zonings) {
+        const zone = await models.Zoning.getBuildingZoning(zoning);
+
+        for (let i = 0; i < perZone; i++) {
+          const document: IUnit = { ...rest, zoning };
+
+          document['number'] = `${
+            zone.floor < 0 ? `B${zone.floor * -1}` : zone.floor
+          }${i + 1 < 10 ? `0${i + 1}` : i + 1}`;
+
+          documents.push(document);
+        }
+      }
+    }
+
+    return {
+      response: await models.Unit.insertMany(documents),
+      options: {
+        fields: ['zoning', 'number'],
+      },
+    };
   },
 
   blockUpdateUnit: async (

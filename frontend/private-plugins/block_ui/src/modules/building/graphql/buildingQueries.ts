@@ -6,7 +6,7 @@ export const BLOCK_GET_BUILDING_LIST = gql`
       _id
       description
       name
-      type
+      types
       coverImage
       project
       status
@@ -22,9 +22,10 @@ export const BLOCK_GET_BUILDING_ZONINGS = gql`
       _id
       building
       floor
-      tenureType
+      areaType
+      tenureTypes
       unitsCount
-      usageType
+      usageTypes
       size
     }
   }

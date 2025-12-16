@@ -16,6 +16,7 @@ export interface IRequest<T, E = {}> extends Request {
   body: {
     subdomain: string;
     payload: {
+      entities?: Record<string, T>;
       entityId: string;
       data: {
         input: T;

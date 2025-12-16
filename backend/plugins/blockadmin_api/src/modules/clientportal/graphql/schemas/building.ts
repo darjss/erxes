@@ -3,7 +3,7 @@ export const types = `
     _id: String
     name: String
     description: String
-    type: String
+    types: [String]
     project: String
     usageType: String
     coverImage: String
