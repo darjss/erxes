@@ -1,5 +1,4 @@
 import { gql } from '@apollo/client';
-import { GQL_CURSOR_PARAM_DEFS, GQL_CURSOR_PARAMS } from 'erxes-ui';
 
 export const ONE_FIT_ACTIVITY_CATEGORIES = gql`
   query OneFitActivityCategories(
@@ -7,37 +6,28 @@ export const ONE_FIT_ACTIVITY_CATEGORIES = gql`
     $name: String
     $parentId: String
     $isActive: Boolean
-    ${GQL_CURSOR_PARAM_DEFS}
   ) {
     oneFitActivityCategories(
       searchValue: $searchValue
       name: $name
       parentId: $parentId
       isActive: $isActive
-      ${GQL_CURSOR_PARAMS}
     ) {
-      list {
-        _id
-        createdAt
-        modifiedAt
-        name {
-          en
-          mn
-        }
-        description {
-          en
-          mn
-        }
-        parentId
-        isActive
+      _id
+      createdAt
+      modifiedAt
+      name {
+        en
+        mn
       }
-      totalCount
-      pageInfo {
-        hasNextPage
-        hasPreviousPage
-        startCursor
-        endCursor
+      description {
+        en
+        mn
       }
+      parentId
+      isActive
+      image
+      icon
     }
   }
 `;
@@ -74,6 +64,8 @@ export const ONE_FIT_ACTIVITY_CATEGORY = gql`
       }
       parentId
       isActive
+      image
+      icon
     }
   }
 `;

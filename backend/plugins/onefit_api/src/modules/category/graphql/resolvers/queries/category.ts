@@ -1,11 +1,9 @@
-import { ICursorPaginateParams } from 'erxes-api-shared/core-types';
-import { cursorPaginate } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 import { markResolvers } from 'erxes-api-shared/utils';
 import { Resolver } from 'erxes-api-shared/core-types';
 import { generateFilter } from '../utils/filters';
 
-export interface ICategoryQueryParams extends ICursorPaginateParams {
+export interface ICategoryQueryParams {
   searchValue?: string;
   name?: string;
   parentId?: string;
@@ -19,11 +17,7 @@ export const categoryQueries: Record<string, Resolver> = {
     { models }: IContext,
   ) {
     const filter = generateFilter(params);
-    return await cursorPaginate({
-      model: models.ActivityCategory,
-      params,
-      query: filter,
-    });
+    return await models.ActivityCategory.find(filter).lean();
   },
 
   async oneFitActivityCategoriesCount(

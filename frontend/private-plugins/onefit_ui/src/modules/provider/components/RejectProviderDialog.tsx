@@ -68,8 +68,8 @@ export const RejectProviderDialog = ({
           <Dialog.Title>Reject Provider</Dialog.Title>
           <Dialog.Description>
             Are you sure you want to reject{' '}
-            <strong>{provider?.businessName}</strong>? Please provide a reason
-            for rejection.
+            <strong>{provider?.businessName.mn}</strong>? Please provide a
+            reason for rejection.
           </Dialog.Description>
         </Dialog.Header>
         <Form {...form}>

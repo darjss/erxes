@@ -1,5 +1,3 @@
-import { GQL_CURSOR_PARAM_DEFS } from 'erxes-api-shared/utils';
-
 export const types = `
   type OneFitActivityCategory {
     _id: String
@@ -9,12 +7,8 @@ export const types = `
     description: OneFitMultilingualStringOptional
     parentId: String
     isActive: Boolean
-  }
-
-  type OneFitActivityCategoryListResponse {
-    list: [OneFitActivityCategory]
-    pageInfo: PageInfo
-    totalCount: Int
+    image: String
+    icon: String
   }
 `;
 
@@ -26,7 +20,7 @@ const queryParams = `
 `;
 
 export const queries = `
-  oneFitActivityCategories(${queryParams}, ${GQL_CURSOR_PARAM_DEFS}): OneFitActivityCategoryListResponse
+  oneFitActivityCategories(${queryParams}): [OneFitActivityCategory]
   oneFitActivityCategoriesCount(${queryParams}): Int
   oneFitActivityCategory(_id: String): OneFitActivityCategory
 `;
@@ -36,6 +30,8 @@ const mutationParams = `
   description: OneFitMultilingualStringOptionalInput
   parentId: String
   isActive: Boolean
+  image: String
+  icon: String
 `;
 
 export const mutations = `

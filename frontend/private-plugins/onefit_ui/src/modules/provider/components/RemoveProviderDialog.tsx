@@ -36,7 +36,7 @@ export const RemoveProviderDialog = ({
           <Dialog.Title>Remove Provider</Dialog.Title>
           <Dialog.Description>
             Are you sure you want to remove{' '}
-            <strong>{provider?.businessName}</strong>? This action cannot be
+            <strong>{provider?.businessName.mn}</strong>? This action cannot be
             undone.
           </Dialog.Description>
         </Dialog.Header>
@@ -63,4 +63,3 @@ export const RemoveProviderDialog = ({
     </Dialog>
   );
 };
-

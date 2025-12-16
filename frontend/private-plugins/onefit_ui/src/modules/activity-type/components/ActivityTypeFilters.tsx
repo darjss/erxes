@@ -8,6 +8,7 @@ import { getLocalizedString } from '../utils/localization';
 import { getLocalizedString as getCategoryLocalizedString } from '~/modules/category/utils/localization';
 import { OneFitFilterBase } from '~/components/OneFitFilterBase';
 import { FilterField } from '~/components/shared/FilterField';
+import { SelectProviderSearchable } from '@/provider/components/SelectProviderSearchable';
 
 interface ActivityTypeFiltersProps {
   filters: ActivityTypeFilters;
@@ -34,17 +35,12 @@ export const ActivityTypeFiltersComponent = ({
   const { data: categoriesData, loading: categoriesLoading } = useQuery(
     ONE_FIT_ACTIVITY_CATEGORIES,
     {
-      variables: {
-        limit: 100,
-        cursor: undefined,
-        cursorMode: EnumCursorMode.INCLUSIVE,
-        direction: EnumCursorDirection.FORWARD,
-      },
+      variables: {},
     },
   );
 
   const providers = providersData?.oneFitProviders?.list || [];
-  const categories = categoriesData?.oneFitActivityCategories?.list || [];
+  const categories = categoriesData?.oneFitActivityCategories || [];
 
   const handleFilterChange = (key: keyof ActivityTypeFilters, value: any) => {
     onFiltersChange({
@@ -63,33 +59,14 @@ export const ActivityTypeFiltersComponent = ({
         />
       </FilterField>
       <FilterField label="Provider">
-        <Select
-          value={filters.providerId || '__all__'}
-          onValueChange={(value) =>
-            handleFilterChange(
-              'providerId',
-              value === '__all__' ? undefined : value,
-            )
-          }
-          disabled={providersLoading}
-        >
-          <Select.Trigger>
-            <Select.Value placeholder="All providers" />
-          </Select.Trigger>
-          <Select.Content>
-            <Select.Item value="__all__">All providers</Select.Item>
-            {providers.map(
-              (provider: {
-                _id: string;
-                businessName: { en: string; mn: string };
-              }) => (
-                <Select.Item key={provider._id} value={provider._id}>
-                  {getLocalizedString(provider.businessName, 'en')}
-                </Select.Item>
-              ),
-            )}
-          </Select.Content>
-        </Select>
+        <FilterField label="Provider">
+          <SelectProviderSearchable
+            value={filters.providerId || ''}
+            onValueChange={(value) =>
+              handleFilterChange('providerId', value || undefined)
+            }
+          />
+        </FilterField>
       </FilterField>
       <FilterField label="Category">
         <Select

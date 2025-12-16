@@ -109,7 +109,10 @@ export const ONE_FIT_ACTIVITY_TYPE = gql`
       categoryIds
       categories {
         _id
-        name
+        name {
+          en
+          mn
+        }
       }
       isActive
       cancellationDeadline

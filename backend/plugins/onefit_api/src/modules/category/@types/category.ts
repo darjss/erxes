@@ -9,6 +9,8 @@ export interface IActivityCategory {
   description?: IMultilingualStringOptional;
   parentId?: string;
   isActive?: boolean;
+  image?: string;
+  icon?: string;
   createdAt?: Date;
   modifiedAt?: Date;
 }

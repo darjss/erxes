@@ -2,6 +2,7 @@ import { Select } from 'erxes-ui';
 import { useQuery } from '@apollo/client';
 import { ONE_FIT_ACTIVITY_CATEGORIES } from '../graphql/categoryQueries';
 import { generateOrderPath } from '../utils/generateOrderPath';
+import { getLocalizedString } from '../utils/localization';
 
 interface SelectCategoryProps {
   selected?: string;
@@ -18,15 +19,19 @@ export const SelectCategory = ({
     variables: {},
   });
 
-  const categories = data?.oneFitActivityCategories?.list || [];
+  const categories = data?.oneFitActivityCategories || [];
   const categoriesWithOrder = generateOrderPath(categories);
 
   const getCategoryDisplayName = (
-    category: typeof categoriesWithOrder[0],
+    category: (typeof categoriesWithOrder)[0],
     level: number = 0,
   ): string => {
     const indent = '  '.repeat(level);
-    return `${indent}${category.name}`;
+    const name =
+      typeof category.name === 'object'
+        ? getLocalizedString(category.name)
+        : category.name || '';
+    return `${indent}${name}`;
   };
 
   const getDescendantIds = (categoryId: string): string[] => {
@@ -86,10 +91,7 @@ export const SelectCategory = ({
   };
 
   return (
-    <Select
-      value={selected || ROOT_VALUE}
-      onValueChange={handleValueChange}
-    >
+    <Select value={selected || ROOT_VALUE} onValueChange={handleValueChange}>
       <Select.Trigger>
         <Select.Value placeholder="Select parent category (optional)" />
       </Select.Trigger>
@@ -100,4 +102,3 @@ export const SelectCategory = ({
     </Select>
   );
 };
-
