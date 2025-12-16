@@ -18,28 +18,54 @@ const generateFilter = async (params: IProviderQueryParams) => {
   const filter: any = {};
 
   if (params.searchValue) {
+    const escaped = escapeRegExp(params.searchValue);
+
     filter.$or = [
       {
-        businessName: {
-          $regex: `.*${escapeRegExp(params.searchValue)}.*`,
+        'businessName.en': {
+          $regex: `.*${escaped}.*`,
           $options: 'i',
         },
       },
       {
-        description: {
-          $regex: `.*${escapeRegExp(params.searchValue)}.*`,
+        'businessName.mn': {
+          $regex: `.*${escaped}.*`,
           $options: 'i',
         },
       },
       {
-        'location.address': {
-          $regex: `.*${escapeRegExp(params.searchValue)}.*`,
+        'description.en': {
+          $regex: `.*${escaped}.*`,
           $options: 'i',
         },
       },
       {
-        'location.city': {
-          $regex: `.*${escapeRegExp(params.searchValue)}.*`,
+        'description.mn': {
+          $regex: `.*${escaped}.*`,
+          $options: 'i',
+        },
+      },
+      {
+        'location.address.en': {
+          $regex: `.*${escaped}.*`,
+          $options: 'i',
+        },
+      },
+      {
+        'location.address.mn': {
+          $regex: `.*${escaped}.*`,
+          $options: 'i',
+        },
+      },
+      {
+        'location.city.en': {
+          $regex: `.*${escaped}.*`,
+          $options: 'i',
+        },
+      },
+      {
+        'location.city.mn': {
+          $regex: `.*${escaped}.*`,
           $options: 'i',
         },
       },

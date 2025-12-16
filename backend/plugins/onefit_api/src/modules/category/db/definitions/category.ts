@@ -41,11 +41,13 @@ export const activityCategorySchema = new Schema(
     },
     parentId: { type: String, label: 'Parent Category ID' },
     isActive: { type: Boolean, default: true, label: 'Is Active' },
+    image: { type: String, label: 'Image URL', optional: true },
+    icon: { type: String, label: 'Icon URL', optional: true },
   },
   {
     timestamps: true,
   },
 );
 
-activityCategorySchema.index({ 'name.en': 1, 'name.mn': 1 }, { unique: true });
+activityCategorySchema.index({ 'name.en': 1, 'name.mn': 1 });
 activityCategorySchema.index({ parentId: 1 });

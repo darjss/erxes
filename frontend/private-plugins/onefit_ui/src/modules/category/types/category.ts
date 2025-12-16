@@ -16,17 +16,8 @@ export interface OneFitActivityCategory {
   description?: OneFitMultilingualStringOptional;
   parentId?: string;
   isActive: boolean;
-}
-
-export interface OneFitActivityCategoryListResponse {
-  list: OneFitActivityCategory[];
-  pageInfo: {
-    hasNextPage: boolean;
-    hasPreviousPage: boolean;
-    startCursor?: string;
-    endCursor?: string;
-  };
-  totalCount: number;
+  image?: string;
+  icon?: string;
 }
 
 export interface CategoryFilters {

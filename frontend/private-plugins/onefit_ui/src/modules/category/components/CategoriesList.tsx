@@ -9,7 +9,6 @@ import {
 } from 'erxes-ui';
 import { useCategories } from '../hooks/useCategories';
 import { CategoryFilters } from '../types/category';
-import { CATEGORIES_CURSOR_SESSION_KEY } from '../constants/categoryCursorSessionKey';
 import { CategoryDialog } from './CategoryDialog';
 import { RemoveCategoryDialog } from './RemoveCategoryDialog';
 import { useState, useMemo } from 'react';
@@ -21,13 +20,10 @@ interface CategoriesListProps {
 }
 
 export const CategoriesList = ({ filters }: CategoriesListProps) => {
-  const { categories, handleFetchMore, loading, pageInfo } =
-    useCategories(filters);
+  const { categories, loading } = useCategories(filters);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [removeDialogOpen, setRemoveDialogOpen] = useState(false);
-
-  const { hasPreviousPage, hasNextPage } = pageInfo || {};
 
   const categoriesWithOrder = useMemo(() => {
     if (!categories) return [];
@@ -63,6 +59,52 @@ export const CategoriesList = ({ filters }: CategoriesListProps) => {
             >
               {displayName}
             </RecordTableTree.Trigger>
+          </RecordTableInlineCell>
+        );
+      },
+    },
+    {
+      accessorKey: 'icon',
+      header: 'Icon',
+      cell: ({ row }) => {
+        const icon = row.original.icon;
+        return (
+          <RecordTableInlineCell>
+            {icon ? (
+              <img
+                src={icon}
+                alt="Icon"
+                className="w-8 h-8 object-cover rounded"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).style.display = 'none';
+                }}
+              />
+            ) : (
+              <span className="text-muted-foreground text-xs">-</span>
+            )}
+          </RecordTableInlineCell>
+        );
+      },
+    },
+    {
+      accessorKey: 'image',
+      header: 'Image',
+      cell: ({ row }) => {
+        const image = row.original.image;
+        return (
+          <RecordTableInlineCell>
+            {image ? (
+              <img
+                src={image}
+                alt="Category"
+                className="w-12 h-12 object-cover rounded"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).style.display = 'none';
+                }}
+              />
+            ) : (
+              <span className="text-muted-foreground text-xs">-</span>
+            )}
           </RecordTableInlineCell>
         );
       },

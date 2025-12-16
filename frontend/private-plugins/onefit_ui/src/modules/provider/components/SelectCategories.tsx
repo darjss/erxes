@@ -23,7 +23,7 @@ export const SelectCategories = ({
     variables: {},
   });
 
-  const categories = data?.oneFitActivityCategories?.list || [];
+  const categories = data?.oneFitActivityCategories || [];
   const categoriesWithOrder = generateOrderPath(categories);
 
   const toggleExpand = (categoryId: string) => {
