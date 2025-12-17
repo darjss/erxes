@@ -29,6 +29,6 @@ export const addUnitSchema = z
   );
 
 export const addUnitsMultipleSchema = z.object({
-  units: z.array(z.string().min(1)).min(1),
+  units: z.array(z.object({ unitType: z.string() })).min(1),
   zoneRange: z.array(z.number()).min(2).max(2),
 });
