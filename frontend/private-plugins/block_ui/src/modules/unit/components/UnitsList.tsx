@@ -9,17 +9,14 @@ import { IconPencil, IconTrash } from '@tabler/icons-react';
 import {
   Button,
   Checkbox,
-  CommandBar,
   Input,
   Label,
-  Separator,
   Spinner,
   useConfirm,
   useQueryState,
-  useToast,
 } from 'erxes-ui';
 import { useEffect, useState } from 'react';
-import { UnitsProvider, useUnitsContext } from '../context/unitsContext';
+import { useUnitsContext } from '../context/unitsContext';
 import { AddUnitSheet } from './AddUnit';
 import { SelectUnitType } from './SelectUnitType';
 
@@ -44,12 +41,7 @@ export const UnitsList = ({
     return <Spinner containerClassName="py-32" />;
   }
 
-  return (
-    <UnitsProvider>
-      <UnitsContent zone={zone} units={units} />
-      <UnitsCommandBar zone={zone} />
-    </UnitsProvider>
-  );
+  return <UnitsContent zone={zone} units={units} />;
 };
 
 const UnitsContent = ({
@@ -176,51 +168,5 @@ export const UnitListItemEdit = ({ unit }: { unit: IUnit }) => {
     <Button variant="secondary" size="icon" onClick={() => setUnitId(unit._id)}>
       <IconPencil />
     </Button>
-  );
-};
-
-export const UnitsCommandBar = ({ zone }: { zone: IZoning }) => {
-  const { selected, setSelected } = useUnitsContext();
-
-  const { removeUnits } = useUnitRemove();
-  const { confirm } = useConfirm();
-  const { toast } = useToast();
-
-  const unitIds = Object.keys(selected).filter((id) => selected[id]);
-
-  return (
-    <CommandBar open={unitIds.length > 0}>
-      <CommandBar.Bar>
-        <CommandBar.Value>{unitIds.length} selected</CommandBar.Value>
-        <Separator.Inline />
-        <Button
-          variant="secondary"
-          className="text-destructive"
-          onClick={() =>
-            confirm({
-              message: `Are you sure you want to remove ${unitIds.length} units`,
-            }).then(() =>
-              removeUnits({
-                variables: { _ids: unitIds },
-                refetchQueries: [
-                  { query: BLOCK_GET_UNITS, variables: { zoning: zone._id } },
-                ],
-                onCompleted: () => {
-                  toast({
-                    title: 'Units removed successfully',
-                    variant: 'success',
-                  });
-
-                  setSelected({});
-                },
-              }),
-            )
-          }
-        >
-          <IconTrash />
-          Delete
-        </Button>
-      </CommandBar.Bar>
-    </CommandBar>
   );
 };
