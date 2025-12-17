@@ -1,10 +1,7 @@
 export interface IUnit {
-  building: string;
   zoning: string;
   number: string;
-  status: string;
-
-  leads: string[];
+  status?: string;
 
   type: string;
 }

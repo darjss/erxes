@@ -31,19 +31,38 @@ export const unitMutations = {
 
   blockCreateUnits: async (
     _parent: undefined,
-    { input }: { input: IUnitInput & { zonings: string[]; perZone: number } },
+    {
+      input,
+    }: { input: { units: string[]; zoneRange: number[]; buildingId: string } },
     { models }: IContext,
   ) => {
-    const { useProjectPrice, zonings, perZone, ...rest } = input;
+    const { units, zoneRange, buildingId } = input;
 
     const documents: IUnit[] = [];
 
-    if (zonings?.length) {
-      for (const zoning of zonings) {
-        const zone = await models.Zoning.getBuildingZoning(zoning);
+    const [start, end] = zoneRange;
 
-        for (let i = 0; i < perZone; i++) {
-          const document: IUnit = { ...rest, zoning };
+    if (start > end) {
+      throw new Error('Invalid zone range');
+    }
+
+    if (units?.length) {
+      for (let i = 0; i < units.length; i++) {
+        const unitType = units[i];
+
+        for (let f = start; f <= end; f++) {
+          const zone = await models.Zoning.findOne({
+            floor: f,
+            building: buildingId,
+          }).lean();
+
+          if (!zone) continue;
+
+          const document: IUnit = {
+            zoning: zone._id,
+            type: unitType,
+            number: '',
+          };
 
           document['number'] = `${
             zone.floor < 0 ? `B${zone.floor * -1}` : zone.floor
@@ -57,7 +76,7 @@ export const unitMutations = {
     return {
       response: await models.Unit.insertMany(documents),
       options: {
-        fields: ['zoning', 'number'],
+        fields: ['zoning', 'number', 'type'],
       },
     };
   },

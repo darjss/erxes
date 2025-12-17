@@ -59,23 +59,19 @@ router.post('/blockCreateUnits', async (req: Request, res: IResponse) => {
 
     const { input } = data || {};
 
-    if (input?.type) {
-      const unitType = await models.UnitType.getUnitType(subdomain, input.type);
-
-      input['type'] = unitType._id;
-    }
-
     const documents: IUnit[] = [];
 
     for (const entityKey in entities) {
-      const { zoning, number } = entities[entityKey];
+      const { zoning, number, type } = entities[entityKey];
 
       const zone = await models.Zoning.getBuildingZoning(subdomain, zoning);
+      const unitType = await models.UnitType.getUnitType(subdomain, type);
 
       const document: IUnit = {
         ...input,
         number,
         zoning: zone._id,
+        type: unitType._id,
         subdomain,
         entityId: entityKey,
       };

@@ -1,9 +1,9 @@
-import { IContext } from '~/connectionResolvers';
 import { requireLogin } from 'erxes-api-shared/core-modules';
+import { IContext } from '~/connectionResolvers';
 
 export const unitQueries = {
   blockGetUnit: async (
-    _root,
+    _root: undefined,
     { _id }: { _id: string },
     { models }: IContext,
   ) => {
@@ -11,12 +11,12 @@ export const unitQueries = {
   },
 
   blockGetUnits: async (
-    _root,
+    _root: undefined,
     { zoning, zonings }: { zoning: string; zonings: string[] },
     { models }: IContext,
   ) => {
     if (zonings?.length) {
-      return models.Unit.find({ zoning: { $in: zonings } }).lean();
+      return models.Unit.find({ zoning: { $in: zonings } });
     }
 
     return models.Unit.getUnitsByZoning(zoning);
