@@ -23,6 +23,7 @@ interface SelectOneFitCustomerProviderProps {
   value?: string[] | string;
   onValueChange?: (value: string[] | string) => void;
   mode?: 'single' | 'multiple';
+  type?: 'onefit' | 'erxes';
 }
 
 const SelectOneFitCustomerProvider = ({
@@ -30,6 +31,7 @@ const SelectOneFitCustomerProvider = ({
   value,
   onValueChange,
   mode = 'single',
+  type = 'onefit',
 }: SelectOneFitCustomerProviderProps) => {
   const [customers, setCustomers] = useState<OneFitCustomer[]>([]);
   const customerIds = !value ? [] : Array.isArray(value) ? value : [value];
@@ -66,6 +68,7 @@ const SelectOneFitCustomerProvider = ({
         setCustomers,
         loading: false,
         error: null,
+        type,
       }}
     >
       {children}
@@ -76,7 +79,7 @@ const SelectOneFitCustomerProvider = ({
 const SelectOneFitCustomerContent = () => {
   const [search, setSearch] = useState('');
   const [debouncedSearch] = useDebounce(search, 500);
-  const { customerIds, customers } = useSelectOneFitCustomerContext();
+  const { customerIds, customers, type } = useSelectOneFitCustomerContext();
   const {
     customers: customersData,
     loading,
@@ -85,6 +88,7 @@ const SelectOneFitCustomerContent = () => {
     error,
   } = useOneFitCustomers({
     searchValue: debouncedSearch,
+    type,
   });
 
   return (
@@ -112,11 +116,12 @@ const SelectOneFitCustomerContent = () => {
         <Combobox.Empty loading={loading} error={error} />
         {!loading &&
           customersData
-            ?.filter(
-              (customer) =>
-                !customerIds.find((customerId) => customerId === customer._id),
-            )
-            .map((customer) => (
+            ?.filter((customer: OneFitCustomer) => {
+              return !customerIds.find(
+                (customerId) => customerId === customer._id,
+              );
+            })
+            .map((customer: OneFitCustomer) => (
               <SelectOneFitCustomerCommandItem
                 key={customer._id}
                 customer={customer}

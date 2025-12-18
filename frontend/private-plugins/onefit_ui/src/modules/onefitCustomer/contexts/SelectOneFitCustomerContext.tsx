@@ -8,6 +8,7 @@ export type ISelectOneFitCustomerContext = {
   setCustomers: (customers: OneFitCustomer[]) => void;
   loading: boolean;
   error: string | null;
+  type?: 'onefit' | 'erxes';
 };
 
 export const SelectOneFitCustomerContext =

@@ -13,12 +13,15 @@ export interface IOneFitCustomerQueryParams extends ICursorPaginateParams {
   minCreditBalance?: number;
   maxCreditBalance?: number;
   preferredActivityTypeId?: string;
+  type?: 'onefit' | 'erxes';
 }
 
 const generateFilter = async (params: IOneFitCustomerQueryParams) => {
-  const filter: any = {
-    __t: 'OneFitCustomer',
-  };
+  const filter: any = {};
+
+  if (!params.type || params.type === 'onefit') {
+    filter.__t = 'OneFitCustomer';
+  }
 
   if (params.searchValue) {
     filter.$or = [
