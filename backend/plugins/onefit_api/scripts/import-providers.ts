@@ -137,8 +137,8 @@ function mapExternalProviderToProvider(external: ExternalProvider): IProvider {
     categoryIds: [],
     status: mapStatus(external.status),
     isActive: true,
-    createdAt,
-    modifiedAt,
+    // createdAt,
+    // modifiedAt,
   };
 
   return provider;

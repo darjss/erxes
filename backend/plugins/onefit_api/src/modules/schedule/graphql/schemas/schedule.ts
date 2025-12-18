@@ -68,7 +68,7 @@ const scheduleQueryParams = `
 `;
 
 const exceptionQueryParams = `
-  providerId: String!,
+  providerId: String,
   startDate: Date,
   endDate: Date,
 `;

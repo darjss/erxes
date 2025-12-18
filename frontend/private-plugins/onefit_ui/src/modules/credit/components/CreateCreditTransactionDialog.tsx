@@ -337,6 +337,7 @@ const CreateCreditTransactionForm = ({ onClose }: { onClose: () => void }) => {
                   value={field.value ?? ''}
                   onValueChange={field.onChange}
                   mode="single"
+                  type="erxes"
                 />
               </Form.Control>
               <Form.Message />

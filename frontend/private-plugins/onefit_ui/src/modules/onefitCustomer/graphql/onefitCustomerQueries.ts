@@ -9,6 +9,7 @@ export const ONE_FIT_CUSTOMERS = gql`
     $minCreditBalance: Float
     $maxCreditBalance: Float
     $preferredActivityTypeId: String
+    $type: String
     ${GQL_CURSOR_PARAM_DEFS}
   ) {
     oneFitCustomers(
@@ -18,6 +19,7 @@ export const ONE_FIT_CUSTOMERS = gql`
       minCreditBalance: $minCreditBalance
       maxCreditBalance: $maxCreditBalance
       preferredActivityTypeId: $preferredActivityTypeId
+      type: $type
       ${GQL_CURSOR_PARAMS}
     ) {
       list {
@@ -89,6 +91,7 @@ export const ONE_FIT_CUSTOMERS_COUNT = gql`
     $minCreditBalance: Float
     $maxCreditBalance: Float
     $preferredActivityTypeId: String
+    $type: String
   ) {
     oneFitCustomersCount(
       membershipPlanId: $membershipPlanId
@@ -96,6 +99,7 @@ export const ONE_FIT_CUSTOMERS_COUNT = gql`
       minCreditBalance: $minCreditBalance
       maxCreditBalance: $maxCreditBalance
       preferredActivityTypeId: $preferredActivityTypeId
+      type: $type
     )
   }
 `;

@@ -44,11 +44,11 @@ export function SchedulesPage() {
       filtersComponent: ScheduleExceptionFiltersComponent,
       listComponent: ScheduleExceptionsList,
       createDialog: <CreateScheduleExceptionDialog />,
-      emptyState: !exceptionFilters.providerId ? (
-        <div className="m-4 p-4 text-center text-muted-foreground">
-          Please enter a Provider ID in the filters to view schedule exceptions.
-        </div>
-      ) : undefined,
+      // emptyState: !exceptionFilters.providerId ? (
+      //   <div className="m-4 p-4 text-center text-muted-foreground">
+      //     Please enter a Provider ID in the filters to view schedule exceptions.
+      //   </div>
+      // ) : undefined,
     },
   ] as const;
 

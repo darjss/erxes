@@ -128,7 +128,7 @@ export const ONE_FIT_SCHEDULE_TEMPLATE_BY_PROVIDER_AND_MONTH = gql`
 
 export const ONE_FIT_SCHEDULE_EXCEPTIONS = gql`
   query OneFitScheduleExceptions(
-    $providerId: String!
+    $providerId: String
     $startDate: Date
     $endDate: Date
     ${GQL_CURSOR_PARAM_DEFS}

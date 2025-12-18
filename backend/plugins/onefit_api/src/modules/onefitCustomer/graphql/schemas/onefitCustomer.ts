@@ -45,6 +45,7 @@ const oneFitCustomerQueryParams = `
   minCreditBalance: Float
   maxCreditBalance: Float
   preferredActivityTypeId: String
+  type: String
 `;
 
 export const queries = `

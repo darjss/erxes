@@ -50,4 +50,5 @@ export interface OneFitCustomerFilters {
   minCreditBalance?: number;
   maxCreditBalance?: number;
   preferredActivityTypeId?: string;
+  type?: 'onefit' | 'erxes';
 }
