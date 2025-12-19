@@ -41,6 +41,7 @@ export const types = `
     _id: String
     createdAt: Date
     providerId: String
+    provider: OneFitProvider
     date: Date
     reason: String
     activityTypeId: String

@@ -143,8 +143,16 @@ export const ONE_FIT_SCHEDULE_EXCEPTIONS = gql`
         _id
         createdAt
         providerId
+        provider {
+          _id
+          businessName {
+            en
+            mn
+          }
+        }
         date
         reason
+        activityTypeId
       }
       totalCount
       pageInfo {
@@ -177,8 +185,16 @@ export const ONE_FIT_SCHEDULE_EXCEPTION = gql`
       _id
       createdAt
       providerId
+      provider {
+        _id
+        businessName {
+          en
+          mn
+        }
+      }
       date
       reason
+      activityTypeId
     }
   }
 `;
