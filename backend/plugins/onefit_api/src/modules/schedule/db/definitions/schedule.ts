@@ -49,6 +49,7 @@ export const scheduleExceptionSchema = new Schema(
     providerId: { type: String, required: true, label: 'Provider ID' },
     date: { type: Date, required: true, label: 'Blocked Date' },
     reason: { type: String, label: 'Reason' },
+    activityTypeId: { type: String, label: 'Activity Type ID' },
   },
   {
     timestamps: true,

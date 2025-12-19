@@ -43,6 +43,7 @@ export const types = `
     providerId: String
     date: Date
     reason: String
+    activityTypeId: String
   }
 
   type OneFitScheduleExceptionListResponse {
@@ -65,12 +66,14 @@ const scheduleQueryParams = `
   providerId: String,
   year: Int,
   month: Int,
+  activityTypeId: String,
 `;
 
 const exceptionQueryParams = `
   providerId: String,
   startDate: Date,
   endDate: Date,
+  activityTypeId: String,
 `;
 
 export const queries = `
@@ -98,6 +101,7 @@ const exceptionInput = `
   providerId: String!
   date: Date!
   reason: String
+  activityTypeId: String
 `;
 
 export const mutations = `
