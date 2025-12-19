@@ -173,27 +173,24 @@ export const scheduleQueries = {
       bookingDate: { $gte: startDate, $lte: endDate },
       status: { $ne: BookingStatus.CANCELLED },
     });
-    console.log('startDate', startDate);
-    console.log('endDate', endDate);
-    console.log('bookings', bookings);
+
     // Group bookings by date
     const bookingsByDate = new Map<number, number>();
     for (const booking of bookings) {
-      const bookingDate = getPureDate(booking.bookingDate);
+      const bookingDate = new Date(booking.bookingDate);
       const dateKey = bookingDate.getTime();
       bookingsByDate.set(dateKey, (bookingsByDate.get(dateKey) || 0) + 1);
     }
-    console.log('bookingsByDate', bookingsByDate);
     // Process each day in the month
     for (let day = 1; day <= daysInMonth; day++) {
       const currentDate = new Date(year, month - 1, day);
-      const datePure = getPureDate(currentDate);
-      const dateKey = datePure.getTime();
-      console.log('dateKey', datePure, ' ', dateKey);
+      console.log('currentDate', currentDate);
+      const dateKey = currentDate.getTime();
+
       // Check if there's an exception for this date
       if (exceptionDates.has(dateKey)) {
         // Find the daily schedule to get totalSeats
-        const dayOfWeek = getDayOfWeek(datePure);
+        const dayOfWeek = getDayOfWeek(currentDate);
         const dailySchedule = scheduleTemplate?.dailySchedules.find(
           (schedule) =>
             schedule.dayOfWeek === dayOfWeek &&
@@ -201,7 +198,7 @@ export const scheduleQueries = {
         );
 
         days.push({
-          date: datePure,
+          date: currentDate,
           isFull: true,
           seatsLeft: 0,
           totalSeats: dailySchedule?.dailyLimit || 0,
@@ -214,7 +211,7 @@ export const scheduleQueries = {
       // Check if schedule template exists
       if (!scheduleTemplate) {
         days.push({
-          date: datePure,
+          date: currentDate,
           isFull: true,
           seatsLeft: 0,
           totalSeats: 0,
@@ -225,7 +222,7 @@ export const scheduleQueries = {
       }
 
       // Get day of week for the current date
-      const dayOfWeek = getDayOfWeek(datePure);
+      const dayOfWeek = getDayOfWeek(currentDate);
 
       // Find matching daily schedule
       const dailySchedule = scheduleTemplate.dailySchedules.find(
@@ -236,7 +233,7 @@ export const scheduleQueries = {
 
       if (!dailySchedule) {
         days.push({
-          date: datePure,
+          date: currentDate,
           isFull: true,
           seatsLeft: 0,
           totalSeats: 0,
@@ -253,7 +250,7 @@ export const scheduleQueries = {
       const isFull = seatsLeft <= 0;
 
       days.push({
-        date: datePure,
+        date: currentDate,
         isFull,
         seatsLeft,
         totalSeats,
