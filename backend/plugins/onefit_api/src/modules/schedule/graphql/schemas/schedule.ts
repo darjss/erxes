@@ -52,6 +52,21 @@ export const types = `
     totalCount: Int
   }
 
+  type OneFitDayAvailability {
+    date: Date!
+    isFull: Boolean!
+    seatsLeft: Int!
+    totalSeats: Int!
+    bookedSeats: Int!
+    hasSchedule: Boolean!
+  }
+
+  type OneFitMonthAvailability {
+    year: Int!
+    month: Int!
+    days: [OneFitDayAvailability]!
+  }
+
   input OneFitDailyScheduleInput {
     dayOfWeek: OneFitDayOfWeek!
     activityTypeId: String!
@@ -84,6 +99,7 @@ export const queries = `
   oneFitScheduleExceptions(${exceptionQueryParams}, ${GQL_CURSOR_PARAM_DEFS}): OneFitScheduleExceptionListResponse
   oneFitScheduleExceptionsCount(${exceptionQueryParams}): Int
   oneFitScheduleException(_id: String): OneFitScheduleException
+  oneFitMonthAvailability(providerId: String!, activityTypeId: String!, year: Int!, month: Int!): OneFitMonthAvailability
 `;
 
 const scheduleTemplateInput = `
