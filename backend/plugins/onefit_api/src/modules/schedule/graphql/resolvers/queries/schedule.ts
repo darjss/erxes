@@ -10,12 +10,14 @@ export interface IScheduleTemplateQueryParams extends ICursorPaginateParams {
   providerId?: string;
   year?: number;
   month?: number;
+  activityTypeId?: string;
 }
 
 export interface IScheduleExceptionQueryParams extends ICursorPaginateParams {
   providerId: string;
   startDate?: Date;
   endDate?: Date;
+  activityTypeId?: string;
 }
 
 export const scheduleQueries = {

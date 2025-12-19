@@ -40,6 +40,7 @@ export interface IScheduleException {
   providerId: string;
   date: Date; // Specific date to block
   reason?: string;
+  activityTypeId?: string;
   createdAt?: Date;
 }
 

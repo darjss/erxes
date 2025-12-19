@@ -19,6 +19,10 @@ export function generateTemplateFilter(params: IScheduleTemplateQueryParams) {
     filter.month = params.month;
   }
 
+  if (params.activityTypeId) {
+    filter['dailySchedules.activityTypeId'] = params.activityTypeId;
+  }
+
   return filter;
 }
 
@@ -35,6 +39,10 @@ export function generateExceptionFilter(params: IScheduleExceptionQueryParams) {
     if (params.endDate) {
       filter.date.$lte = getPureDate(params.endDate);
     }
+  }
+
+  if (params.activityTypeId) {
+    filter.activityTypeId = params.activityTypeId;
   }
 
   return filter;
