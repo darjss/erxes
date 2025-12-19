@@ -29,12 +29,18 @@ export const ScheduleExceptionsList = ({
 
   const columns: ColumnDef<any>[] = [
     {
-      accessorKey: 'providerId',
-      header: 'Provider ID',
-      cell: ({ cell }) => {
+      accessorKey: 'provider',
+      header: 'Provider',
+      cell: ({ row }) => {
+        const provider = row.original.provider;
+        const providerName =
+          provider?.businessName?.en ||
+          provider?.businessName?.mn ||
+          row.original.providerId ||
+          '-';
         return (
           <RecordTableInlineCell className="text-xs font-medium">
-            {cell.getValue() as string}
+            {providerName}
           </RecordTableInlineCell>
         );
       },

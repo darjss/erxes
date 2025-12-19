@@ -41,6 +41,7 @@ export const types = `
     _id: String
     createdAt: Date
     providerId: String
+    provider: OneFitProvider
     date: Date
     reason: String
     activityTypeId: String
@@ -50,6 +51,21 @@ export const types = `
     list: [OneFitScheduleException]
     pageInfo: PageInfo
     totalCount: Int
+  }
+
+  type OneFitDayAvailability {
+    date: Date!
+    isFull: Boolean!
+    seatsLeft: Int!
+    totalSeats: Int!
+    bookedSeats: Int!
+    hasSchedule: Boolean!
+  }
+
+  type OneFitMonthAvailability {
+    year: Int!
+    month: Int!
+    days: [OneFitDayAvailability]!
   }
 
   input OneFitDailyScheduleInput {
@@ -84,6 +100,7 @@ export const queries = `
   oneFitScheduleExceptions(${exceptionQueryParams}, ${GQL_CURSOR_PARAM_DEFS}): OneFitScheduleExceptionListResponse
   oneFitScheduleExceptionsCount(${exceptionQueryParams}): Int
   oneFitScheduleException(_id: String): OneFitScheduleException
+  oneFitMonthAvailability(providerId: String!, activityTypeId: String!, year: Int!, month: Int!): OneFitMonthAvailability
 `;
 
 const scheduleTemplateInput = `

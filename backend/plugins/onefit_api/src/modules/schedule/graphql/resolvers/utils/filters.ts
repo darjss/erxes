@@ -28,7 +28,7 @@ export function generateTemplateFilter(params: IScheduleTemplateQueryParams) {
 
 export function generateExceptionFilter(params: IScheduleExceptionQueryParams) {
   const filter: any = {
-    providerId: params.providerId,
+    // providerId: params.providerId,
   };
 
   if (params.startDate || params.endDate) {

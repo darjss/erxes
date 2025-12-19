@@ -42,8 +42,16 @@ export interface OneFitScheduleException {
   _id: string;
   createdAt: string;
   providerId: string;
+  provider?: {
+    _id: string;
+    businessName: {
+      en: string;
+      mn: string;
+    };
+  };
   date: string;
   reason?: string;
+  activityTypeId?: string;
 }
 
 export interface OneFitScheduleExceptionListResponse {
@@ -68,8 +76,3 @@ export interface ScheduleExceptionFilters {
   startDate?: string;
   endDate?: string;
 }
-
-
-
-
-

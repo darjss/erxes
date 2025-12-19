@@ -45,7 +45,6 @@ async function createBookingLogic(
 
   const providerId = activityType.providerId;
   const bookingDatePure = getPureDate(bookingDate);
-
   // Validate booking date is in the future
   const now = new Date();
   const bookingDateTime = new Date(bookingDatePure);
