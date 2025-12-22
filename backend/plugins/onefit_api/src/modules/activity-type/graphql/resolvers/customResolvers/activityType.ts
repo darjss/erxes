@@ -27,7 +27,31 @@ const activityTypeCustomResolvers = {
       });
     },
   },
+  OneFitActivityTypeWithAvailability: {
+    provider: async (
+      activityType: any,
+      _params: undefined,
+      { models }: IContext,
+    ) => {
+      if (!activityType.providerId) {
+        return null;
+      }
+      return await models.Provider.findOne({ _id: activityType.providerId });
+    },
+
+    categories: async (
+      activityType: any,
+      _params: undefined,
+      { models }: IContext,
+    ) => {
+      if (!activityType.categoryIds || activityType.categoryIds.length === 0) {
+        return [];
+      }
+      return await models.ActivityCategory.find({
+        _id: { $in: activityType.categoryIds },
+      });
+    },
+  },
 };
 
 export default activityTypeCustomResolvers;
-
