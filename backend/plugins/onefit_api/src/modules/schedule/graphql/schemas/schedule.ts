@@ -100,7 +100,7 @@ export const queries = `
   oneFitScheduleExceptions(${exceptionQueryParams}, ${GQL_CURSOR_PARAM_DEFS}): OneFitScheduleExceptionListResponse
   oneFitScheduleExceptionsCount(${exceptionQueryParams}): Int
   oneFitScheduleException(_id: String): OneFitScheduleException
-  oneFitMonthAvailability(providerId: String!, activityTypeId: String!, year: Int!, month: Int!): OneFitMonthAvailability
+  oneFitMonthAvailability(providerId: String!, activityTypeId: String!, year: Int!, month: Int!, lastDays: Int): OneFitMonthAvailability
 `;
 
 const scheduleTemplateInput = `

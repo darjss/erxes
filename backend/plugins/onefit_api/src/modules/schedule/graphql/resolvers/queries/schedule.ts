@@ -124,11 +124,13 @@ export const scheduleQueries = {
       activityTypeId,
       year,
       month,
+      lastDays,
     }: {
       providerId: string;
       activityTypeId: string;
       year: number;
       month: number;
+      lastDays?: number;
     },
     { models }: IContext,
   ) {
@@ -259,10 +261,32 @@ export const scheduleQueries = {
       });
     }
 
+    // If lastDays is provided, return only days between currentDate and currentDate + lastDays
+    let resultDays = days;
+
+    if (lastDays && lastDays > 0) {
+      const now = new Date();
+      const startDate = new Date(
+        now.getFullYear(),
+        now.getMonth(),
+        now.getDate(),
+        0,
+        0,
+        0,
+        0,
+      );
+      const endDate = new Date(startDate);
+      endDate.setDate(endDate.getDate() + lastDays);
+
+      resultDays = days.filter(
+        (dayInfo) => dayInfo.date >= startDate && dayInfo.date <= endDate,
+      );
+    }
+
     return {
       year,
       month,
-      days,
+      days: resultDays,
     };
   },
 };
