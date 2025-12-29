@@ -129,6 +129,7 @@ export const providerSchema = new Schema(
     approvedBy: { type: String, label: 'Approved By' },
     rejectedBy: { type: String, label: 'Rejected By' },
     isActive: { type: Boolean, default: true, label: 'Is Active' },
+    instanceId: { type: String, label: 'Instance ID', index: true },
   },
   {
     timestamps: true,
@@ -138,3 +139,4 @@ export const providerSchema = new Schema(
 providerSchema.index({ status: 1 });
 providerSchema.index({ categoryIds: 1 });
 providerSchema.index({ status: 1, isActive: 1 });
+providerSchema.index({ instanceId: 1 });

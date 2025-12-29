@@ -6,6 +6,7 @@ import {
 } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 import { BookingStatus, AttendanceStatus } from '@/booking/@types/booking';
+import { addInstanceIdFilter } from '~/utils/providerFilter';
 
 export interface IBookingQueryParams extends ICursorPaginateParams {
   userId?: string;
@@ -18,6 +19,7 @@ export interface IBookingQueryParams extends ICursorPaginateParams {
 
 const generateFilter = async (
   params: IBookingQueryParams,
+  context: IContext,
   clientPortal?: any,
   cpUser?: any,
 ) => {
@@ -53,16 +55,18 @@ const generateFilter = async (
     filter.attendanceStatus = params.attendanceStatus;
   }
 
-  return filter;
+  // Add instanceId filtering
+  return await addInstanceIdFilter(context, filter);
 };
 
 export const bookingQueries: Record<string, Resolver> = {
   async oneFitBookings(
     _root: undefined,
     params: IBookingQueryParams,
-    { models, clientPortal, cpUser }: IContext,
+    context: IContext,
   ) {
-    const filter = await generateFilter(params, clientPortal, cpUser);
+    const { models, clientPortal, cpUser } = context;
+    const filter = await generateFilter(params, context, clientPortal, cpUser);
 
     // Order by createdAt only (newest first)
     return await cursorPaginate({
@@ -78,17 +82,19 @@ export const bookingQueries: Record<string, Resolver> = {
   async oneFitBookingsCount(
     _root: undefined,
     params: IBookingQueryParams,
-    { models, clientPortal, cpUser }: IContext,
+    context: IContext,
   ) {
-    const filter = await generateFilter(params, clientPortal, cpUser);
+    const { models, clientPortal, cpUser } = context;
+    const filter = await generateFilter(params, context, clientPortal, cpUser);
     return models.Booking.find(filter).countDocuments();
   },
 
   async oneFitBooking(
     _root: undefined,
     { _id }: { _id: string },
-    { models, clientPortal, cpUser }: IContext,
+    context: IContext,
   ) {
+    const { models, clientPortal, cpUser } = context;
     const query: any = { _id };
 
     // If clientPortal exists, filter by cpUser
@@ -96,14 +102,27 @@ export const bookingQueries: Record<string, Resolver> = {
       query.userId = cpUser.erxesCustomerId || cpUser._id;
     }
 
-    return models.Booking.findOne(query);
+    const booking = await models.Booking.findOne(query);
+    
+    // Verify instanceId ownership if instanceId is set
+    if (booking && context.instanceId) {
+      const provider = await models.Provider.findOne({
+        _id: booking.providerId,
+      });
+      if (provider && provider.instanceId !== context.instanceId) {
+        return null;
+      }
+    }
+    
+    return booking;
   },
 
   async oneFitBookingByBookingId(
     _root: undefined,
     { bookingId }: { bookingId: string },
-    { models, clientPortal, cpUser }: IContext,
+    context: IContext,
   ) {
+    const { models, clientPortal, cpUser } = context;
     const query: any = { bookingId };
 
     // If clientPortal exists, filter by cpUser
@@ -111,20 +130,38 @@ export const bookingQueries: Record<string, Resolver> = {
       query.userId = cpUser.erxesCustomerId || cpUser._id;
     }
 
-    return models.Booking.findOne(query);
+    const booking = await models.Booking.findOne(query);
+    
+    // Verify instanceId ownership if instanceId is set
+    if (booking && context.instanceId) {
+      const provider = await models.Provider.findOne({
+        _id: booking.providerId,
+      });
+      if (provider && provider.instanceId !== context.instanceId) {
+        return null;
+      }
+    }
+    
+    return booking;
   },
 
   async cpOneFitBookings(
     _root: undefined,
     params: Omit<IBookingQueryParams, 'userId'>,
-    { models, cpUser }: IContext,
+    context: IContext,
   ) {
+    const { models, cpUser } = context;
     if (!cpUser) {
       throw new Error('Client portal user required');
     }
 
     const userId = cpUser.erxesCustomerId || cpUser._id;
-    const filter = await generateFilter({ ...params, userId }, true, cpUser);
+    const filter = await generateFilter(
+      { ...params, userId },
+      context,
+      true,
+      cpUser,
+    );
 
     return await cursorPaginate({
       model: models.Booking,
@@ -139,14 +176,20 @@ export const bookingQueries: Record<string, Resolver> = {
   async cpOneFitBookingsCount(
     _root: undefined,
     params: Omit<IBookingQueryParams, 'userId'>,
-    { models, cpUser }: IContext,
+    context: IContext,
   ) {
+    const { models, cpUser } = context;
     if (!cpUser) {
       throw new Error('Client portal user required');
     }
 
     const userId = cpUser.erxesCustomerId || cpUser._id;
-    const filter = await generateFilter({ ...params, userId }, true, cpUser);
+    const filter = await generateFilter(
+      { ...params, userId },
+      context,
+      true,
+      cpUser,
+    );
     return models.Booking.find(filter).countDocuments();
   },
 

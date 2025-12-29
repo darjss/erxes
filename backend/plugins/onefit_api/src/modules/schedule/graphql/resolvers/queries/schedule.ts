@@ -43,9 +43,10 @@ export const scheduleQueries = {
   async oneFitScheduleTemplates(
     _root: undefined,
     params: IScheduleTemplateQueryParams,
-    { models }: IContext,
+    context: IContext,
   ) {
-    const filter = generateTemplateFilter(params);
+    const { models } = context;
+    const filter = await generateTemplateFilter(params, context);
 
     return await cursorPaginate({
       model: models.ScheduleTemplate,
@@ -57,18 +58,32 @@ export const scheduleQueries = {
   async oneFitScheduleTemplatesCount(
     _root: undefined,
     params: IScheduleTemplateQueryParams,
-    { models }: IContext,
+    context: IContext,
   ) {
-    const filter = generateTemplateFilter(params);
+    const { models } = context;
+    const filter = await generateTemplateFilter(params, context);
     return models.ScheduleTemplate.find(filter).countDocuments();
   },
 
   async oneFitScheduleTemplate(
     _root: undefined,
     { _id }: { _id: string },
-    { models }: IContext,
+    context: IContext,
   ) {
-    return models.ScheduleTemplate.findOne({ _id });
+    const { models } = context;
+    const scheduleTemplate = await models.ScheduleTemplate.findOne({ _id });
+
+    // Verify instanceId ownership if instanceId is set
+    if (scheduleTemplate && context.instanceId) {
+      const provider = await models.Provider.findOne({
+        _id: scheduleTemplate.providerId,
+      });
+      if (provider && provider.instanceId !== context.instanceId) {
+        return null;
+      }
+    }
+
+    return scheduleTemplate;
   },
 
   async oneFitScheduleTemplateByProviderAndMonth(
@@ -78,8 +93,18 @@ export const scheduleQueries = {
       year,
       month,
     }: { providerId: string; year: number; month: number },
-    { models }: IContext,
+    context: IContext,
   ) {
+    const { models } = context;
+
+    // Verify instanceId ownership if instanceId is set
+    if (context.instanceId) {
+      const provider = await models.Provider.findOne({ _id: providerId });
+      if (!provider || provider.instanceId !== context.instanceId) {
+        return null;
+      }
+    }
+
     return models.ScheduleTemplate.findByProviderAndMonth(
       providerId,
       year,
@@ -90,9 +115,10 @@ export const scheduleQueries = {
   async oneFitScheduleExceptions(
     _root: undefined,
     params: IScheduleExceptionQueryParams,
-    { models }: IContext,
+    context: IContext,
   ) {
-    const filter = generateExceptionFilter(params);
+    const { models } = context;
+    const filter = await generateExceptionFilter(params, context);
     return await cursorPaginate({
       model: models.ScheduleException,
       params,
@@ -103,18 +129,32 @@ export const scheduleQueries = {
   async oneFitScheduleExceptionsCount(
     _root: undefined,
     params: IScheduleExceptionQueryParams,
-    { models }: IContext,
+    context: IContext,
   ) {
-    const filter = generateExceptionFilter(params);
+    const { models } = context;
+    const filter = await generateExceptionFilter(params, context);
     return models.ScheduleException.find(filter).countDocuments();
   },
 
   async oneFitScheduleException(
     _root: undefined,
     { _id }: { _id: string },
-    { models }: IContext,
+    context: IContext,
   ) {
-    return models.ScheduleException.findOne({ _id });
+    const { models } = context;
+    const scheduleException = await models.ScheduleException.findOne({ _id });
+
+    // Verify instanceId ownership if instanceId is set
+    if (scheduleException && context.instanceId) {
+      const provider = await models.Provider.findOne({
+        _id: scheduleException.providerId,
+      });
+      if (provider && provider.instanceId !== context.instanceId) {
+        return null;
+      }
+    }
+
+    return scheduleException;
   },
 
   async oneFitMonthAvailability(
@@ -132,8 +172,21 @@ export const scheduleQueries = {
       month: number;
       lastDays?: number;
     },
-    { models }: IContext,
+    context: IContext,
   ) {
+    const { models } = context;
+
+    // Verify instanceId ownership if instanceId is set
+    if (context.instanceId) {
+      const provider = await models.Provider.findOne({ _id: providerId });
+      if (!provider || provider.instanceId !== context.instanceId) {
+        return {
+          year,
+          month,
+          days: [],
+        };
+      }
+    }
     // Get schedule template for the month/year
     const scheduleTemplate =
       await models.ScheduleTemplate.findByProviderAndMonth(
