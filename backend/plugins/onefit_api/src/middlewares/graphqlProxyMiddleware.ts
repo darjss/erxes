@@ -1,5 +1,9 @@
 import { Request, Response, NextFunction } from 'express';
-import { isSlaveMode, getOneFitInstanceId } from '~/constants/mode';
+import {
+  isSlaveMode,
+  getOneFitInstanceId,
+  getOneFitSecret,
+} from '~/constants/mode';
 import { getMasterClient } from '~/utils/masterClient';
 import { getSubdomain } from 'erxes-api-shared/utils';
 
@@ -12,7 +16,6 @@ export const graphqlProxyMiddleware = async (
   res: Response,
   next: NextFunction,
 ) => {
-  console.log('this works');
   // Only intercept GraphQL requests
   if (req.path !== '/graphql' || req.method !== 'POST') {
     return next();
@@ -47,10 +50,21 @@ export const graphqlProxyMiddleware = async (
     } else if (subdomain) {
       headers['x-subdomain'] = subdomain;
     }
-    if (req.headers.cookie) {
-      headers.cookie = req.headers.cookie as string;
+
+    // Build cookie string
+    const cookies: string[] = [];
+
+    // Add onefitSecret as auth-token cookie
+    const onefitSecret = getOneFitSecret();
+    if (onefitSecret) {
+      cookies.push(`auth-token=${onefitSecret}`);
     }
 
+    // Set combined cookie header
+    if (cookies.length > 0) {
+      headers.cookie = cookies.join('; ');
+    }
+    console.log('headers', headers);
     // Add instanceId header so master knows which slave is making the request
     if (instanceId) {
       headers['x-onefit-instance-id'] = instanceId;
@@ -70,22 +84,20 @@ export const graphqlProxyMiddleware = async (
       },
       headers,
     );
-    console.log('masterClient', masterClient);
-    console.log('result', result);
+
     // Return the master's response (including errors if any)
+    const { data, errors } = result;
+    if (errors?.some((error: any) => error.message === 'Login required')) {
+      return res.json({
+        ...data,
+        errors: [
+          {
+            message: 'INVALID ONEFIT AUTHENTICATION',
+          },
+        ],
+      });
+    }
     return res.json(result);
-  } catch (error: any) {
-    // If proxy fails, return error in GraphQL format
-    // return res.status(500).json({
-    //   errors: [
-    //     {
-    //       message: `Failed to proxy request to master: ${error.message}`,
-    //       extensions: {
-    //         code: 'MASTER_PROXY_ERROR',
-    //       },
-    //     },
-    //   ],
-    // });
-  }
+  } catch (error: any) {}
   return next();
 };

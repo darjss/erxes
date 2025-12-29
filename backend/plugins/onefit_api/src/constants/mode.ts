@@ -25,6 +25,9 @@ export const isSlaveMode = (): boolean => {
 export const isMasterMode = (): boolean => {
   return getOneFitMode() === 'master';
 };
+export const getOneFitSecret = (): string | undefined => {
+  return getEnv({ name: 'ONEFIT_AUTH_TOKEN' });
+};
 
 export const validateSlaveConfig = (): void => {
   if (isSlaveMode()) {
@@ -44,4 +47,3 @@ export const validateSlaveConfig = (): void => {
     }
   }
 };
-
