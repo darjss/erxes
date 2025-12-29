@@ -9,6 +9,7 @@ import { IContext } from '~/connectionResolvers';
 import { GenderRestriction } from '@/activity-type/@types/activityType';
 import { DayOfWeek } from '@/schedule/@types/schedule';
 import { BookingStatus } from '@/booking/@types/booking';
+import { addInstanceIdFilter } from '~/utils/providerFilter';
 
 function getDayOfWeek(date: Date): DayOfWeek {
   const days = [
@@ -123,7 +124,10 @@ export interface IActivityTypeQueryParams extends ICursorPaginateParams {
   isActive?: boolean;
 }
 
-const generateFilter = async (params: IActivityTypeQueryParams) => {
+const generateFilter = async (
+  params: IActivityTypeQueryParams,
+  context?: IContext,
+) => {
   const filter: any = {};
 
   if (params.searchValue) {
@@ -155,6 +159,11 @@ const generateFilter = async (params: IActivityTypeQueryParams) => {
     filter.isActive = params.isActive;
   }
 
+  // Add instanceId filtering if context is provided
+  if (context) {
+    return await addInstanceIdFilter(context, filter);
+  }
+
   return filter;
 };
 
@@ -162,9 +171,10 @@ export const activityTypeQueries = {
   async oneFitActivityTypes(
     _root: undefined,
     params: IActivityTypeQueryParams,
-    { models }: IContext,
+    context: IContext,
   ) {
-    const filter = await generateFilter(params);
+    const { models } = context;
+    const filter = await generateFilter(params, context);
 
     return await cursorPaginate({
       model: models.ActivityType,
@@ -176,18 +186,32 @@ export const activityTypeQueries = {
   async oneFitActivityTypesCount(
     _root: undefined,
     params: IActivityTypeQueryParams,
-    { models }: IContext,
+    context: IContext,
   ) {
-    const filter = await generateFilter(params);
+    const { models } = context;
+    const filter = await generateFilter(params, context);
     return models.ActivityType.find(filter).countDocuments();
   },
 
   async oneFitActivityType(
     _root: undefined,
     { _id }: { _id: string },
-    { models }: IContext,
+    context: IContext,
   ) {
-    return models.ActivityType.findOne({ _id });
+    const { models } = context;
+    const activityType = await models.ActivityType.findOne({ _id });
+
+    // Verify instanceId ownership if instanceId is set
+    if (activityType && context.instanceId) {
+      const provider = await models.Provider.findOne({
+        _id: activityType.providerId,
+      });
+      if (provider && provider.instanceId !== context.instanceId) {
+        return null;
+      }
+    }
+
+    return activityType;
   },
 
   async oneFitActivityTypesWithAvailability(
@@ -200,7 +224,7 @@ export const activityTypeQueries = {
     },
     context: IContext,
   ) {
-    const baseFilter: any = {};
+    let baseFilter: any = {};
 
     // Filter by categories
     if (params.categoryIds && params.categoryIds.length > 0) {
@@ -218,6 +242,9 @@ export const activityTypeQueries = {
     if (params.isActive !== undefined) {
       baseFilter.isActive = params.isActive;
     }
+
+    // Add instanceId filtering
+    baseFilter = await addInstanceIdFilter(context, baseFilter);
 
     // Get all activity types matching base filters (only _id and providerId for efficiency)
     const allActivityTypes = await context.models.ActivityType.find(

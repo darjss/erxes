@@ -6,6 +6,7 @@ import {
 } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 import { ProviderStatus } from '@/provider/@types/provider';
+import { isSlaveMode } from '~/constants/mode';
 
 export interface IProviderQueryParams extends ICursorPaginateParams {
   searchValue?: string;
@@ -14,8 +15,15 @@ export interface IProviderQueryParams extends ICursorPaginateParams {
   isActive?: boolean;
 }
 
-const generateFilter = async (params: IProviderQueryParams) => {
+const generateFilter = async (
+  params: IProviderQueryParams,
+  instanceId?: string,
+) => {
   const filter: any = {};
+
+  if (instanceId) {
+    filter.instanceId = instanceId;
+  }
 
   if (params.searchValue) {
     const escaped = escapeRegExp(params.searchValue);
@@ -91,10 +99,11 @@ export const providerQueries: Record<string, Resolver> = {
   async oneFitProviders(
     _root: undefined,
     params: IProviderQueryParams,
-    { models }: IContext,
+    context: IContext,
   ) {
-    const filter = await generateFilter(params);
+    const { models, mode, instanceId, masterClient } = context;
 
+    const filter = await generateFilter(params, instanceId);
     return await cursorPaginate({
       model: models.Provider,
       params,
@@ -105,18 +114,26 @@ export const providerQueries: Record<string, Resolver> = {
   async oneFitProvidersCount(
     _root: undefined,
     params: IProviderQueryParams,
-    { models }: IContext,
+    context: IContext,
   ) {
-    const filter = await generateFilter(params);
+    const { models, mode, instanceId, masterClient } = context;
+
+    const filter = await generateFilter(params, instanceId);
     return models.Provider.find(filter).countDocuments();
   },
 
   async oneFitProvider(
     _root: undefined,
     { _id }: { _id: string },
-    { models }: IContext,
+    context: IContext,
   ) {
-    return models.Provider.findOne({ _id });
+    const { models, mode, instanceId, masterClient } = context;
+
+    const provider = await models.Provider.findOne({ _id });
+    if (provider && instanceId && provider.instanceId !== instanceId) {
+      return null;
+    }
+    return provider;
   },
 };
 markResolvers(providerQueries, {

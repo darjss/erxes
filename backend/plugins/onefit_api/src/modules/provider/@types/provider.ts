@@ -45,6 +45,7 @@ export interface IProvider {
   approvedBy?: string;
   rejectedBy?: string;
   isActive?: boolean;
+  instanceId?: string;
   createdAt?: Date;
   modifiedAt?: Date;
 }

@@ -1,6 +1,8 @@
 import { IMainContext } from 'erxes-api-shared/core-types';
 import { createGenerateModels } from 'erxes-api-shared/utils';
 import mongoose from 'mongoose';
+import { MasterClient } from '~/utils/masterClient';
+import { OneFitMode } from '~/constants/mode';
 
 // Category
 import { IActivityCategoryDocument } from '@/category/@types/category';
@@ -100,6 +102,9 @@ export interface IModels {
 export interface IContext extends IMainContext {
   models: IModels;
   subdomain: string;
+  mode: OneFitMode;
+  instanceId?: string;
+  masterClient?: MasterClient;
 }
 
 export const loadClasses = (db: mongoose.Connection): IModels => {
