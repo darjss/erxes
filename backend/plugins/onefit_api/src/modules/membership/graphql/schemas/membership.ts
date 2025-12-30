@@ -39,9 +39,6 @@ export const types = `
     pageInfo: PageInfo
     totalCount: Int
   }
-  extend type Invoice @key(fields: "_id") {
-    _id: String! @external
-  }
 `;
 
 const planQueryParams = `
