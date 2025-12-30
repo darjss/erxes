@@ -15,7 +15,7 @@ export const CONFIG: IUIConfig = {
       name: 'onefit',
       icon: IconActivity,
       path: 'onefit',
-      hasSettings: false,
+      hasSettings: true,
     },
   ],
   navigationGroup: {

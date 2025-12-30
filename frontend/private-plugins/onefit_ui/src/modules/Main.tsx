@@ -1,5 +1,6 @@
 import { lazy, Suspense } from 'react';
 import { Route, Routes } from 'react-router';
+import { useOneFitMode } from './config/hooks/useOneFitMode';
 
 const IndexPage = lazy(() =>
   import('~/pages/IndexPage').then((module) => ({
@@ -56,6 +57,8 @@ const ProvidersPage = lazy(() =>
 );
 
 const OneFitMain = () => {
+  const { isSlaveMode } = useOneFitMode();
+
   return (
     <Suspense fallback={<div />}>
       <Routes>
@@ -63,13 +66,21 @@ const OneFitMain = () => {
         <Route path="/bookings" element={<BookingsPage />} />
         <Route path="/schedules" element={<SchedulesPage />} />
         <Route path="/activity-types" element={<ActivityTypesPage />} />
-        <Route path="/categories" element={<CategoriesPage />} />
-        <Route path="/membership-plans" element={<MembershipPlansPage />} />
-        <Route
-          path="/credit-transactions"
-          element={<CreditTransactionsPage />}
-        />
-        <Route path="/customers" element={<OneFitCustomersPage />} />
+        {!isSlaveMode && (
+          <Route path="/categories" element={<CategoriesPage />} />
+        )}
+        {!isSlaveMode && (
+          <Route path="/membership-plans" element={<MembershipPlansPage />} />
+        )}
+        {!isSlaveMode && (
+          <Route
+            path="/credit-transactions"
+            element={<CreditTransactionsPage />}
+          />
+        )}
+        {!isSlaveMode && (
+          <Route path="/customers" element={<OneFitCustomersPage />} />
+        )}
         <Route path="/providers" element={<ProvidersPage />} />
       </Routes>
     </Suspense>

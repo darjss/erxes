@@ -11,8 +11,11 @@ import {
   IconBuildingStore,
   IconBuilding,
 } from '@tabler/icons-react';
+import { useOneFitMode } from './config/hooks/useOneFitMode';
 
 export const OneFitNavigation = () => {
+  const { isSlaveMode } = useOneFitMode();
+
   return (
     <>
       <NavigationMenuLinkItem
@@ -21,12 +24,14 @@ export const OneFitNavigation = () => {
         pathPrefix="onefit"
         path=""
       />
-      <NavigationMenuLinkItem
-        name="Customers"
-        icon={IconUsers}
-        pathPrefix="onefit"
-        path="customers"
-      />
+      {!isSlaveMode && (
+        <NavigationMenuLinkItem
+          name="Customers"
+          icon={IconUsers}
+          pathPrefix="onefit"
+          path="customers"
+        />
+      )}
 
       <NavigationMenuLinkItem
         name="Bookings"
@@ -46,24 +51,30 @@ export const OneFitNavigation = () => {
         pathPrefix="onefit"
         path="activity-types"
       />
-      <NavigationMenuLinkItem
-        name="Categories"
-        icon={IconTags}
-        pathPrefix="onefit"
-        path="categories"
-      />
-      <NavigationMenuLinkItem
-        name="Membership Plans"
-        icon={IconCreditCard}
-        pathPrefix="onefit"
-        path="membership-plans"
-      />
-      <NavigationMenuLinkItem
-        name="Credit Transactions"
-        icon={IconCoins}
-        pathPrefix="onefit"
-        path="credit-transactions"
-      />
+      {!isSlaveMode && (
+        <NavigationMenuLinkItem
+          name="Categories"
+          icon={IconTags}
+          pathPrefix="onefit"
+          path="categories"
+        />
+      )}
+      {!isSlaveMode && (
+        <NavigationMenuLinkItem
+          name="Membership Plans"
+          icon={IconCreditCard}
+          pathPrefix="onefit"
+          path="membership-plans"
+        />
+      )}
+      {!isSlaveMode && (
+        <NavigationMenuLinkItem
+          name="Credit Transactions"
+          icon={IconCoins}
+          pathPrefix="onefit"
+          path="credit-transactions"
+        />
+      )}
       <NavigationMenuLinkItem
         name="Providers"
         icon={IconBuildingStore}

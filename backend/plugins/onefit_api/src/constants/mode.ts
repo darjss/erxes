@@ -30,6 +30,13 @@ export const getOneFitSecret = (): string | undefined => {
 };
 
 export const validateSlaveConfig = (): void => {
+  const VERSION = getEnv({ name: 'VERSION', defaultValue: 'os' });
+
+  // Skip validation in SaaS mode as instanceId will be organization ID
+  if (VERSION === 'saas') {
+    return;
+  }
+
   if (isSlaveMode()) {
     const masterUrl = getOneFitMasterUrl();
     const instanceId = getOneFitInstanceId();

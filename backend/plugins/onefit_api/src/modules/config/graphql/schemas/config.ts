@@ -28,6 +28,7 @@ export const queries = `
   oneFitSystemConfig(_id: String): OneFitSystemConfig
   oneFitSystemConfigByKey(key: String!): OneFitSystemConfig
   oneFitAllSystemConfigs: [OneFitSystemConfig]
+  oneFitMode: String
 `;
 
 const configInput = `
@@ -40,4 +41,5 @@ export const mutations = `
   oneFitSystemConfigCreate(${configInput}): OneFitSystemConfig
   oneFitSystemConfigUpdate(key: String!, value: JSON!): OneFitSystemConfig
   oneFitSystemConfigsRemove(keys: [String]!): JSON
+  oneFitSystemConfigUpdateSelectedPayments(paymentIds: [String]!): OneFitSystemConfig
 `;

@@ -25,5 +25,13 @@ export const configMutations = {
   ) {
     return await models.SystemConfig.removeConfigs(keys);
   },
+
+  async oneFitSystemConfigUpdateSelectedPayments(
+    _root: undefined,
+    { paymentIds }: { paymentIds: string[] },
+    { models }: IContext,
+  ) {
+    return await models.SystemConfig.updateConfig('selectedPayments', paymentIds);
+  },
 };
 
