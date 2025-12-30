@@ -162,7 +162,54 @@ export async function createMembershipPurchaseInvoice(
     purchasedAt: new Date(),
     amount: plan.price,
   });
-  return membershipPurchase;
+
+  // Create invoice using tRPC
+  const invoiceInput: any = {
+    amount: plan.price,
+    currency: 'MNT',
+    description: `Membership purchase: ${plan.name}`,
+    status: 'pending',
+    customerType: 'customer',
+    customerId: userId,
+    contentType: 'onefit:membershipPurchase',
+    contentTypeId: membershipPurchase._id,
+    paymentIds: [paymentId],
+  };
+
+  const customerPhone = customer.primaryPhone || customer.phones?.[0];
+  const customerEmail = customer.primaryEmail || customer.emails?.[0];
+
+  if (customerPhone) {
+    invoiceInput.phone = customerPhone;
+  }
+
+  if (customerEmail) {
+    invoiceInput.email = customerEmail;
+  }
+
+  const invoice = await sendTRPCMessage({
+    subdomain,
+    pluginName: 'payment',
+    method: 'mutation',
+    module: 'payment',
+    action: 'addInvoice',
+    input: invoiceInput,
+    defaultValue: null,
+  });
+
+  if (!invoice || !invoice._id) {
+    throw new Error('Failed to create invoice');
+  }
+
+  // Update membership purchase with invoiceId
+  const updatedPurchase = await models.MembershipPurchase.updatePurchase(
+    membershipPurchase._id,
+    {
+      invoiceId: invoice._id,
+    },
+  );
+
+  return updatedPurchase;
 }
 
 export async function calculateMembershipExpiry(

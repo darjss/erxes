@@ -51,6 +51,11 @@ export const membershipPurchaseSchema = new Schema(
       required: true,
       label: 'Purchase Amount',
     },
+    invoiceId: {
+      type: String,
+      label: 'Invoice ID',
+      index: true,
+    },
   },
   {
     timestamps: true,

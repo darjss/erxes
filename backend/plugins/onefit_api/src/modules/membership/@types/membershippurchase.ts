@@ -16,6 +16,7 @@ export interface IMembershipPurchase {
   activatedAt?: Date;
   expiresAt?: Date;
   amount: number;
+  invoiceId?: string;
   createdAt?: Date;
   modifiedAt?: Date;
 }
