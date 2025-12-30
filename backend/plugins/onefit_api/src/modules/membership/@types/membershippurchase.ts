@@ -1,0 +1,29 @@
+import { Document } from 'mongoose';
+
+export enum MembershipPurchaseStatus {
+  PENDING = 'pending',
+  PAID = 'paid',
+  CANCELLED = 'cancelled',
+  FAILED = 'failed',
+}
+
+export interface IMembershipPurchase {
+  userId: string;
+  planId: string;
+  status: MembershipPurchaseStatus;
+  purchasedAt: Date;
+  paidAt?: Date;
+  activatedAt?: Date;
+  expiresAt?: Date;
+  amount: number;
+  createdAt?: Date;
+  modifiedAt?: Date;
+}
+
+export interface IMembershipPurchaseDocument
+  extends Document,
+    IMembershipPurchase {
+  _id: string;
+  createdAt: Date;
+  modifiedAt: Date;
+}

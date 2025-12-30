@@ -14,6 +14,12 @@ export interface IPurchaseQueryParams extends ICursorPaginateParams {
   isInGracePeriod?: boolean;
 }
 
+export interface IMembershipPurchaseQueryParams extends ICursorPaginateParams {
+  userId?: string;
+  status?: string;
+  planId?: string;
+}
+
 export const membershipQueries: Record<string, Resolver> = {
   async oneFitMembershipPlans(
     _root: undefined,
@@ -52,6 +58,39 @@ export const membershipQueries: Record<string, Resolver> = {
     { models }: IContext,
   ) {
     return models.MembershipPlan.findActivePlans();
+  },
+
+  async oneFitMembershipPurchases(
+    _root: undefined,
+    params: IMembershipPurchaseQueryParams,
+    { models }: IContext,
+  ) {
+    const { userId, status, planId, ...paginationParams } = params;
+    
+    const filter: any = {};
+    if (userId) {
+      filter.userId = userId;
+    }
+    if (status) {
+      filter.status = status;
+    }
+    if (planId) {
+      filter.planId = planId;
+    }
+
+    return await cursorPaginate({
+      model: models.MembershipPurchase,
+      params: paginationParams,
+      query: filter,
+    });
+  },
+
+  async oneFitMembershipPurchase(
+    _root: undefined,
+    { _id }: { _id: string },
+    { models }: IContext,
+  ) {
+    return models.MembershipPurchase.getPurchase(_id);
   },
 };
 markResolvers(membershipQueries, {

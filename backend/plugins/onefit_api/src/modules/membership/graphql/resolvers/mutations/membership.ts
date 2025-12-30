@@ -1,6 +1,9 @@
 import { IContext } from '~/connectionResolvers';
 import { IMembershipPlan } from '@/membership/@types/membership';
-import { processMembershipPurchase } from '../utils/membershipPurchase';
+import {
+  createMembershipPurchaseInvoice,
+  activateMembershipPurchase,
+} from '../utils/membershipPurchase';
 
 export const membershipMutations = {
   async oneFitMembershipPlanCreate(
@@ -29,9 +32,21 @@ export const membershipMutations = {
 
   async oneFitMembershipPurchaseCreate(
     _root: undefined,
-    { userId, planId }: { userId: string; planId: string },
+    {
+      userId,
+      planId,
+      paymentId,
+    }: { userId: string; planId: string; paymentId: string },
     context: IContext,
   ) {
-    return await processMembershipPurchase(userId, planId, context);
+    return await createMembershipPurchaseInvoice(userId, planId, paymentId, context);
+  },
+
+  async oneFitMembershipPurchaseActivate(
+    _root: undefined,
+    { _id }: { _id: string },
+    context: IContext,
+  ) {
+    return await activateMembershipPurchase(_id, context);
   },
 };

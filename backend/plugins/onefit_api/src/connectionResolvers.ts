@@ -51,6 +51,13 @@ import {
   loadCreditTransactionClass,
 } from '@/membership/db/models/CreditTransaction';
 
+// MembershipPurchase
+import { IMembershipPurchaseDocument } from '@/membership/@types/membershippurchase';
+import {
+  IMembershipPurchaseModel,
+  loadMembershipPurchaseClass,
+} from '@/membership/db/models/MembershipPurchase';
+
 // Booking
 import { IBookingDocument } from '@/booking/@types/booking';
 import { IBookingModel, loadBookingClass } from '@/booking/db/models/Booking';
@@ -93,6 +100,7 @@ export interface IModels {
   ScheduleException: IScheduleExceptionModel;
   MembershipPlan: IMembershipPlanModel;
   CreditTransaction: ICreditTransactionModel;
+  MembershipPurchase: IMembershipPurchaseModel;
   Booking: IBookingModel;
   Notification: INotificationModel;
   SystemConfig: ISystemConfigModel;
@@ -144,6 +152,11 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
     ICreditTransactionDocument,
     ICreditTransactionModel
   >('onefit_credit_transactions', loadCreditTransactionClass(models));
+
+  models.MembershipPurchase = db.model<
+    IMembershipPurchaseDocument,
+    IMembershipPurchaseModel
+  >('onefit_membership_purchases', loadMembershipPurchaseClass(models));
 
   models.Booking = db.model<IBookingDocument, IBookingModel>(
     'onefit_bookings',

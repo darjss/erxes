@@ -16,6 +16,7 @@ import {
   CreditSource,
   CreditTransactionType,
 } from './modules/membership/@types/credittransaction';
+import { MembershipPurchaseStatus } from './modules/membership/@types/membershippurchase';
 
 validateSlaveConfig();
 
@@ -67,27 +68,31 @@ startPlugin({
         console.log('transactionCallback', subdomain, data);
       },
       callback: async (subdomain, data) => {
-        console.log('callback', subdomain, data);
         const { contentTypeId, contentType, status, customerId } = data;
-        // if (contentType !== 'credittransaction' || status !== 'paid') {
-        //   return;
-        // }
-        const models = await generateModels(subdomain);
-        const membershipPlan = await models.MembershipPlan.findOne({
-          _id: contentTypeId,
-        });
-        if (!membershipPlan) {
+
+        // Only process membership purchase callbacks
+        if (contentType !== 'onefit:membership:membershippurchase') {
           return;
         }
-        const abc = await models.CreditTransaction.createTransaction({
-          // _id: contentTypeId,
-          userId: customerId,
-          amount: membershipPlan.creditAmount,
-          transactionType: CreditTransactionType.PURCHASE,
-          source: CreditSource.INDIVIDUAL,
-          balanceAfter: membershipPlan.creditAmount,
+
+        // Only process paid status
+        if (status !== 'paid') {
+          return;
+        }
+
+        const models = await generateModels(subdomain);
+
+        // Find the membership purchase
+        const membershipPurchase = await models.MembershipPurchase.findOne({
+          _id: contentTypeId,
         });
-        console.log('abc', abc);
+
+        if (!membershipPurchase) {
+          return;
+        }
+
+        // Update purchase status to paid
+        await models.MembershipPurchase.markAsPaid(membershipPurchase._id);
       },
     },
   },
