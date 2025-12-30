@@ -66,8 +66,6 @@ export const SelectUsageTypes = ({
 }) => {
   const Control = inForm ? Form.Control : React.Fragment;
 
-  console.log('value', value)
-
   return (
     <Popover>
       <Control>

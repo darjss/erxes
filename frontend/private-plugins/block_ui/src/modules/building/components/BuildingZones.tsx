@@ -3,7 +3,19 @@ import { SelectBuilding } from '@/building/components/SelectBuilding';
 import { useBuildingZonings } from '@/building/hooks/useBuildings';
 import { IZoning } from '@/building/types/buildingTypes';
 import { UnitsList } from '@/unit/components/UnitsList';
-import { Spinner, useMultiQueryState } from 'erxes-ui';
+import { UnitsProvider, useUnitsContext } from '@/unit/context/unitsContext';
+import { BLOCK_GET_UNITS } from '@/unit/graphql/unitQueries';
+import { useUnitRemove } from '@/unit/hooks/useUnitRemove';
+import { IconTrash } from '@tabler/icons-react';
+import {
+  Button,
+  CommandBar,
+  Separator,
+  Spinner,
+  useConfirm,
+  useMultiQueryState,
+  useToast,
+} from 'erxes-ui';
 import { useState } from 'react';
 
 export const BuildingUnitsByZones = ({ projectId }: { projectId?: string }) => {
@@ -27,13 +39,17 @@ export const BuildingUnitsByZones = ({ projectId }: { projectId?: string }) => {
           projectId={projectId ?? ''}
         />
       </div>
-      {loading ? (
-        <Spinner containerClassName="py-32" />
-      ) : (
-        buildingZonings?.map((zone) => (
-          <BuildingZone key={zone._id} zone={zone} />
-        ))
-      )}
+
+      <UnitsProvider>
+        {loading ? (
+          <Spinner containerClassName="py-32" />
+        ) : (
+          buildingZonings?.map((zone) => (
+            <BuildingZone key={zone._id} zone={zone} />
+          ))
+        )}
+        <UnitsCommandBar />
+      </UnitsProvider>
     </div>
   );
 };
@@ -44,13 +60,57 @@ export const BuildingZone = ({ zone }: { zone: IZoning }) => {
     <InfoCard
       title={`${zone.floor < 0 ? `B${zone.floor * -1}` : zone.floor} Floor • ${
         unitsCount || 0
-      } units ${zone.usageType ? `• ${zone.usageType}` : ''} ${
-        zone.tenureType ? `• ${zone.tenureType}` : ''
-      }`}
+      } units ${
+        zone.usageTypes?.length ? `• ${zone.usageTypes.join(', ')}` : ''
+      } ${zone.tenureTypes?.length ? `• ${zone.tenureTypes.join(', ')}` : ''}`}
     >
       <InfoCardContent>
         <UnitsList zone={zone} setUnitsCount={setUnitsCount} />
       </InfoCardContent>
     </InfoCard>
+  );
+};
+
+export const UnitsCommandBar = () => {
+  const { selected, setSelected } = useUnitsContext();
+
+  const { removeUnits } = useUnitRemove();
+  const { confirm } = useConfirm();
+  const { toast } = useToast();
+
+  const unitIds = Object.keys(selected).filter((id) => selected[id]);
+
+  return (
+    <CommandBar open={unitIds.length > 0}>
+      <CommandBar.Bar>
+        <CommandBar.Value>{unitIds.length} selected</CommandBar.Value>
+        <Separator.Inline />
+        <Button
+          variant="secondary"
+          className="text-destructive"
+          onClick={() =>
+            confirm({
+              message: `Are you sure you want to remove ${unitIds.length} units`,
+            }).then(() =>
+              removeUnits({
+                variables: { _ids: unitIds },
+                refetchQueries: [BLOCK_GET_UNITS],
+                onCompleted: () => {
+                  toast({
+                    title: 'Units removed successfully',
+                    variant: 'success',
+                  });
+
+                  setSelected({});
+                },
+              }),
+            )
+          }
+        >
+          <IconTrash />
+          Delete
+        </Button>
+      </CommandBar.Bar>
+    </CommandBar>
   );
 };

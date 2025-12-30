@@ -26,9 +26,9 @@ export const types = `
   }
 
   input BlockUnitsInput {
-    zonings: [String]
-    type: String
-    perZone: Int
+    buildingId: String
+    units: [String]
+    zoneRange: [Int]
   }
 `;
 

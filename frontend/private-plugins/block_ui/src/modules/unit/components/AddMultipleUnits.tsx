@@ -2,22 +2,29 @@ import { IZoning } from '@/building/types/buildingTypes';
 import { addUnitsMultipleSchema } from '@/unit/constants/addUnitSchema';
 import { useUnitCreate } from '@/unit/hooks/useUnitCreate';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { IconAlertCircle, IconPlus } from '@tabler/icons-react';
+import {
+  IconAlertCircle,
+  IconArrowsMoveHorizontal,
+  IconPlus,
+  IconTrash,
+} from '@tabler/icons-react';
 import {
   Alert,
   Button,
-  CurrencyField,
   Form,
+  Input,
+  Label,
+  ScrollArea,
   Separator,
   Sheet,
   Spinner,
   toast,
+  useQueryState,
 } from 'erxes-ui';
 import { useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useFieldArray, useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { SelectUnitType } from './SelectUnitType';
-import { SelectBuildingZone } from '@/building/components/SelectBuildingZone';
 
 export const AddUnitsMultiple = ({ zone }: { zone: IZoning }) => {
   const [open, setOpen] = useState(false);
@@ -50,32 +57,36 @@ export const AddUnitsMultipleForm = ({
   zone: IZoning;
   onClose: () => void;
 }) => {
+  const [buildingId] = useQueryState('buildingId');
+
   const form = useForm({
+    mode: 'onChange',
     resolver: zodResolver(addUnitsMultipleSchema),
     defaultValues: {
-      type: undefined,
-      count: 0,
-      zoningIds: [zone._id],
+      units: [{ unitType: '' }],
+      zoneRange: [zone.floor],
     },
     shouldFocusError: false,
   });
+
   const { createUnits, loading } = useUnitCreate({ zoning: zone._id });
 
   const onSubmit = (data: z.infer<typeof addUnitsMultipleSchema>) => {
-    const zoningIds = new Set([...data.zoningIds]);
+    const { units, zoneRange } = data;
 
     createUnits({
       variables: {
         input: {
-          type: data.type,
-          zonings: Array.from(zoningIds),
-          perZone: data.count,
+          units: units.map((unit) => unit.unitType),
+          zoneRange,
+          buildingId,
         },
       },
     });
 
     onClose();
     form.reset();
+
     toast({
       title: 'Success',
       description: 'Units created successfully',
@@ -83,56 +94,111 @@ export const AddUnitsMultipleForm = ({
     });
   };
 
+  const { fields, append, remove } = useFieldArray({
+    control: form.control,
+    name: 'units',
+  });
+
   return (
     <Form {...form}>
       <form
-        className="flex flex-col flex-auto"
-        onSubmit={form.handleSubmit(onSubmit)}
+        className="flex flex-col h-full overflow-hidden"
+        onSubmit={form.handleSubmit(onSubmit, (error) => console.log(error))}
       >
-        <Sheet.Content className="p-6 blk:space-y-5">
-          <Alert>
-            <IconAlertCircle />
-            <Alert.Title>Warning</Alert.Title>
-            <Alert.Description>
-              This will create multiple units with the same size and price based
-              on the project's pricing.
-            </Alert.Description>
-          </Alert>
-          <Form.Field
-            name="type"
-            render={({ field }) => (
-              <Form.Item>
-                <Form.Label>Type (Optional)</Form.Label>
-                <SelectUnitType
-                  value={field.value}
-                  onValueChange={field.onChange}
-                  inForm
-                />
-              </Form.Item>
-            )}
-          />
-          <Form.Field
-            name="count"
-            render={({ field }) => (
-              <Form.Item>
-                <Form.Label>Units per zone</Form.Label>
-                <CurrencyField.ValueInput placeholder="0" {...field} />
-              </Form.Item>
-            )}
-          />
-          <Form.Field
-            name="zoningIds"
-            render={({ field }) => (
-              <Form.Item>
-                <Form.Label>Zonings</Form.Label>
-                <SelectBuildingZone
-                  value={field.value}
-                  onValueChange={field.onChange}
-                  inForm
-                />
-              </Form.Item>
-            )}
-          />
+        <Sheet.Content className="flex-auto overflow-hidden">
+          <ScrollArea className="h-full">
+            <div className="p-5 flex flex-col gap-4">
+              <Alert>
+                <IconAlertCircle />
+                <Alert.Title>Warning</Alert.Title>
+                <Alert.Description>
+                  This will create multiple units with the same size and price
+                  based on the project's pricing.
+                </Alert.Description>
+              </Alert>
+
+              <Form.Field
+                name="zoneRange"
+                render={({ field }) => (
+                  <Form.Item>
+                    <Form.Label>Zone Range</Form.Label>
+                    <div className="flex gap-2">
+                      <Input
+                        type="number"
+                        placeholder="From"
+                        value={field.value?.[0] ?? ''}
+                        onChange={(e) => {
+                          const newValue = [...(field.value || [])];
+                          newValue[0] = Number(e.target.value) || 0;
+                          field.onChange(newValue);
+                        }}
+                      />
+                      <IconArrowsMoveHorizontal className="text-muted-foreground w-6 self-center shrink-0" />
+                      <Input
+                        type="number"
+                        placeholder="To"
+                        value={field.value?.[1] ?? ''}
+                        onChange={(e) => {
+                          const newValue = [...(field.value || [])];
+                          newValue[1] = Number(e.target.value) || 0;
+                          field.onChange(newValue);
+                        }}
+                      />
+                    </div>
+                  </Form.Item>
+                )}
+              />
+
+              <div className="space-y-2">
+                <Label asChild>
+                  <legend>Units</legend>
+                </Label>
+                {fields.map((field, index) => (
+                  <div key={field.id} className="flex gap-2 m-0">
+                    <div className="flex-1 grid grid-cols-4 gap-2">
+                      <Form.Item className="col-span-1">
+                        <Input
+                          value={
+                            index + 1 < 10 ? `##${index + 1}` : `#${index + 1}`
+                          }
+                          readOnly
+                        />
+                      </Form.Item>
+                      <Form.Field
+                        name={`units.${index}.unitType`}
+                        render={({ field }) => (
+                          <Form.Item className="col-span-3">
+                            <SelectUnitType
+                              value={field.value}
+                              onValueChange={field.onChange}
+                              inForm
+                            />
+                          </Form.Item>
+                        )}
+                      />
+                    </div>
+                    <Button
+                      variant="secondary"
+                      size="icon"
+                      className="bg-destructive/10 hover:bg-destructive/20 size-8 text-destructive"
+                      onClick={() => remove(index)}
+                      type="button"
+                    >
+                      <IconTrash className="size-4" />
+                    </Button>
+                  </div>
+                ))}
+              </div>
+              <Button
+                variant="secondary"
+                className="w-full"
+                onClick={() => append({ unitType: '' })}
+                type="button"
+              >
+                <IconPlus className="mr-2 w-4 h-4" /> Add Unit
+              </Button>
+            </div>
+          </ScrollArea>
         </Sheet.Content>
         <Sheet.Footer>
           <Sheet.Close asChild>

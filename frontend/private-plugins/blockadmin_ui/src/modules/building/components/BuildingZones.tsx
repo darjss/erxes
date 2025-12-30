@@ -42,8 +42,8 @@ export const BuildingZone = ({ zone }: { zone: IZoning }) => {
     <InfoCard
       title={`${zone.floor < 0 ? `B${zone.floor * -1}` : zone.floor} Floor • ${
         unitsCount || 0
-      } units ${zone.usageType ? `• ${zone.usageType}` : ''} ${
-        zone.tenureType ? `• ${zone.tenureType}` : ''
+      } units ${zone.usageTypes?.length ? `• ${zone.usageTypes.join(', ')}` : ''} ${
+        zone.tenureTypes?.length ? `• ${zone.tenureTypes.join(', ')}` : ''
       }`}
     >
       <InfoCardContent>
