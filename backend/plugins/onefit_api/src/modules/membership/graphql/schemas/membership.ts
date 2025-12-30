@@ -31,7 +31,7 @@ export const types = `
     amount: Float
     invoiceId: String
     plan: OneFitMembershipPlan
-    invoice: Invoice
+    invoice: JSON
   }
 
   type OneFitMembershipPurchaseListResponse {

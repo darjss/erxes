@@ -1,5 +1,6 @@
 import { IMembershipPurchaseDocument } from '@/membership/@types/membershippurchase';
 import { IContext } from '~/connectionResolvers';
+import { sendTRPCMessage } from 'erxes-api-shared/utils';
 
 const resolvers = {
   OneFitMembershipPurchase: {
@@ -16,13 +17,35 @@ const resolvers = {
     invoice: async (
       purchase: IMembershipPurchaseDocument,
       _params: undefined,
-      _context: IContext,
+      context: IContext,
     ) => {
       if (!purchase.invoiceId) {
         return null;
       }
-      // Use GraphQL federation to resolve the Invoice
-      return { __typename: 'Invoice', _id: purchase.invoiceId };
+
+      const { subdomain } = context;
+
+      try {
+        const invoice = await sendTRPCMessage({
+          subdomain,
+          pluginName: 'payment',
+          method: 'query',
+          module: 'payment',
+          action: 'getInvoiceWithTransactions',
+          input: {
+            _id: purchase.invoiceId,
+          },
+          defaultValue: null,
+        });
+
+        if (!invoice) {
+          return null;
+        }
+
+        return invoice;
+      } catch (error) {
+        return null;
+      }
     },
   },
 };
