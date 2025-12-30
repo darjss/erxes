@@ -1,4 +1,5 @@
-import { redis, startPlugin } from 'erxes-api-shared/utils';
+import { redis, startPlugin, getEnv } from 'erxes-api-shared/utils';
+import { getSaasOrganizationIdBySubdomain } from 'erxes-api-shared/utils/saas';
 import resolvers from '~/apollo/resolvers';
 import { typeDefs } from '~/apollo/typeDefs';
 import { generateModels } from '~/connectionResolvers';
@@ -12,11 +13,6 @@ import {
 } from '~/constants/mode';
 import { getMasterClient } from '~/utils/masterClient';
 import { graphqlProxyMiddleware } from '~/middlewares/graphqlProxyMiddleware';
-import {
-  CreditSource,
-  CreditTransactionType,
-} from './modules/membership/@types/credittransaction';
-import { MembershipPurchaseStatus } from './modules/membership/@types/membershippurchase';
 
 validateSlaveConfig();
 
@@ -47,11 +43,21 @@ startPlugin({
       | string
       | undefined;
 
-    // In slave mode, use environment variable
-    // In master mode, use instanceId from header if present (from slave request)
-    const instanceId = isSlaveMode()
-      ? getOneFitInstanceId()
-      : instanceIdFromHeader;
+    const VERSION = getEnv({ name: 'VERSION', defaultValue: 'os' });
+    let instanceId: string | undefined;
+
+    // In SaaS version, use organization ID as instanceId
+    if (VERSION === 'saas') {
+      try {
+        instanceId = await getSaasOrganizationIdBySubdomain(subdomain);
+      } catch (error) {
+        console.error('Failed to get organization ID for SaaS:', error);
+      }
+    } else {
+      // In slave mode, use environment variable
+      // In master mode, use instanceId from header if present (from slave request)
+      instanceId = isSlaveMode() ? getOneFitInstanceId() : instanceIdFromHeader;
+    }
 
     const masterClient = isSlaveMode() ? getMasterClient() : undefined;
 
