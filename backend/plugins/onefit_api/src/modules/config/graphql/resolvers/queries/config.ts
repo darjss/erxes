@@ -81,4 +81,12 @@ export const configQueries = {
   ) {
     return models.SystemConfig.getAllConfigs();
   },
+
+  async oneFitMode(
+    _root: undefined,
+    _params: undefined,
+    context: IContext,
+  ) {
+    return context.mode;
+  },
 };

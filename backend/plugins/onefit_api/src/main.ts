@@ -12,12 +12,17 @@ import {
 } from '~/constants/mode';
 import { getMasterClient } from '~/utils/masterClient';
 import { graphqlProxyMiddleware } from '~/middlewares/graphqlProxyMiddleware';
+import {
+  CreditSource,
+  CreditTransactionType,
+} from './modules/membership/@types/credittransaction';
 
 validateSlaveConfig();
 
 startPlugin({
   name: 'onefit',
   port: 33013,
+
   graphql: async () => ({
     typeDefs: await typeDefs(),
     resolvers,
@@ -55,5 +60,35 @@ startPlugin({
     context.masterClient = masterClient;
     console.log('context', context);
     return context;
+  },
+  meta: {
+    payments: {
+      transactionCallback: async (subdomain, data) => {
+        console.log('transactionCallback', subdomain, data);
+      },
+      callback: async (subdomain, data) => {
+        console.log('callback', subdomain, data);
+        const { contentTypeId, contentType, status, customerId } = data;
+        // if (contentType !== 'credittransaction' || status !== 'paid') {
+        //   return;
+        // }
+        const models = await generateModels(subdomain);
+        const membershipPlan = await models.MembershipPlan.findOne({
+          _id: contentTypeId,
+        });
+        if (!membershipPlan) {
+          return;
+        }
+        const abc = await models.CreditTransaction.createTransaction({
+          // _id: contentTypeId,
+          userId: customerId,
+          amount: membershipPlan.creditAmount,
+          transactionType: CreditTransactionType.PURCHASE,
+          source: CreditSource.INDIVIDUAL,
+          balanceAfter: membershipPlan.creditAmount,
+        });
+        console.log('abc', abc);
+      },
+    },
   },
 });

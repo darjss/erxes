@@ -9,8 +9,11 @@ import {
 import { Button } from 'erxes-ui';
 import { Link } from 'react-router-dom';
 import { OneFitPageLayout } from '~/components/OneFitPageLayout';
+import { useOneFitMode } from '~/modules/config/hooks/useOneFitMode';
 
 export function IndexPage() {
+  const { isSlaveMode } = useOneFitMode();
+
   return (
     <OneFitPageLayout pageName="">
       <div className="flex h-full overflow-hidden">
@@ -24,12 +27,14 @@ export function IndexPage() {
                   View Bookings
                 </Link>
               </Button>
-              <Button asChild>
-                <Link to="/onefit/customers">
-                  <IconUsers />
-                  View Customers
-                </Link>
-              </Button>
+              {!isSlaveMode && (
+                <Button asChild>
+                  <Link to="/onefit/customers">
+                    <IconUsers />
+                    View Customers
+                  </Link>
+                </Button>
+              )}
               <Button asChild>
                 <Link to="/onefit/providers">
                   <IconBuildingStore />
@@ -42,18 +47,22 @@ export function IndexPage() {
                   View Activity Types
                 </Link>
               </Button>
-              <Button asChild>
-                <Link to="/onefit/categories">
-                  <IconTags />
-                  View Categories
-                </Link>
-              </Button>
-              <Button asChild>
-                <Link to="/onefit/membership-plans">
-                  <IconCreditCard />
-                  View Membership Plans
-                </Link>
-              </Button>
+              {!isSlaveMode && (
+                <Button asChild>
+                  <Link to="/onefit/categories">
+                    <IconTags />
+                    View Categories
+                  </Link>
+                </Button>
+              )}
+              {!isSlaveMode && (
+                <Button asChild>
+                  <Link to="/onefit/membership-plans">
+                    <IconCreditCard />
+                    View Membership Plans
+                  </Link>
+                </Button>
+              )}
             </div>
           </div>
         </div>
