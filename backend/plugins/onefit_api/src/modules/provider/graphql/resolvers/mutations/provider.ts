@@ -1,15 +1,18 @@
 import { IContext } from '~/connectionResolvers';
+import { IProvider, ProviderStatus } from '@/provider/@types/provider';
 import {
-  IProvider,
-  ProviderStatus,
-} from '@/provider/@types/provider';
+  validateProviderOwnershipByProvider,
+  ensureInstanceId,
+} from '~/utils/ownershipValidator';
 
 export const providerMutations = {
   async oneFitProviderCreate(
     _root: undefined,
     doc: IProvider,
-    { models }: IContext,
+    context: IContext,
   ) {
+    const { models } = context;
+
     if (doc.categoryIds && doc.categoryIds.length > 0) {
       const categories = await models.ActivityCategory.find({
         _id: { $in: doc.categoryIds },
@@ -20,23 +23,29 @@ export const providerMutations = {
       }
     }
 
+    const instanceId = ensureInstanceId(context);
+
     return await models.Provider.createProvider({
       ...doc,
       status: ProviderStatus.PENDING,
       isActive: doc.isActive ?? true,
+      instanceId,
     });
   },
 
   async oneFitProviderUpdate(
     _root: undefined,
     { _id, ...doc }: { _id: string } & Partial<IProvider>,
-    { models }: IContext,
+    context: IContext,
   ) {
+    const { models } = context;
     const provider = await models.Provider.findOne({ _id });
 
     if (!provider) {
       throw new Error('Provider not found');
     }
+
+    validateProviderOwnershipByProvider(context, provider);
 
     if (provider.status === ProviderStatus.REJECTED) {
       throw new Error('Cannot update a rejected provider');
@@ -58,13 +67,16 @@ export const providerMutations = {
   async oneFitProviderApprove(
     _root: undefined,
     { _id, approvedBy }: { _id: string; approvedBy: string },
-    { models }: IContext,
+    context: IContext,
   ) {
+    const { models } = context;
     const provider = await models.Provider.findOne({ _id });
 
     if (!provider) {
       throw new Error('Provider not found');
     }
+
+    validateProviderOwnershipByProvider(context, provider);
 
     if (provider.status === ProviderStatus.APPROVED) {
       throw new Error('Provider is already approved');
@@ -80,13 +92,16 @@ export const providerMutations = {
       rejectionReason,
       rejectedBy,
     }: { _id: string; rejectionReason: string; rejectedBy: string },
-    { models }: IContext,
+    context: IContext,
   ) {
+    const { models } = context;
     const provider = await models.Provider.findOne({ _id });
 
     if (!provider) {
       throw new Error('Provider not found');
     }
+
+    validateProviderOwnershipByProvider(context, provider);
 
     if (provider.status === ProviderStatus.REJECTED) {
       throw new Error('Provider is already rejected');
@@ -102,9 +117,18 @@ export const providerMutations = {
   async oneFitProvidersRemove(
     _root: undefined,
     { ids }: { ids: string[] },
-    { models }: IContext,
+    context: IContext,
   ) {
+    const { models } = context;
+
+    if (ids && ids.length > 0) {
+      const providers = await models.Provider.find({ _id: { $in: ids } });
+
+      for (const provider of providers) {
+        validateProviderOwnershipByProvider(context, provider);
+      }
+    }
+
     return await models.Provider.removeProviders(ids);
   },
 };
-
