@@ -1,5 +1,5 @@
 import { redis, startPlugin, getEnv } from 'erxes-api-shared/utils';
-import { getSaasOrganizationIdBySubdomain } from 'erxes-api-shared/utils/saas';
+import { getSaasOrganizationIdBySubdomain } from 'erxes-api-shared/utils';
 import resolvers from '~/apollo/resolvers';
 import { typeDefs } from '~/apollo/typeDefs';
 import { generateModels } from '~/connectionResolvers';
