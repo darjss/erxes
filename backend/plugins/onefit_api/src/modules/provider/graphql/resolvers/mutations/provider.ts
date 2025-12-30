@@ -1,9 +1,6 @@
 import { IContext } from '~/connectionResolvers';
 import { IProvider, ProviderStatus } from '@/provider/@types/provider';
-import {
-  validateProviderOwnershipByProvider,
-  ensureInstanceId,
-} from '~/utils/ownershipValidator';
+import { validateProviderOwnershipByProvider } from '~/utils/ownershipValidator';
 
 export const providerMutations = {
   async oneFitProviderCreate(
@@ -23,7 +20,7 @@ export const providerMutations = {
       }
     }
 
-    const instanceId = ensureInstanceId(context);
+    const instanceId = context.instanceId;
 
     return await models.Provider.createProvider({
       ...doc,
