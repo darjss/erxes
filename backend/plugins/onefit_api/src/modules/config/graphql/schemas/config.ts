@@ -41,4 +41,5 @@ export const mutations = `
   oneFitSystemConfigCreate(${configInput}): OneFitSystemConfig
   oneFitSystemConfigUpdate(key: String!, value: JSON!): OneFitSystemConfig
   oneFitSystemConfigsRemove(keys: [String]!): JSON
+  oneFitSystemConfigUpdateSelectedPayments(paymentIds: [String]!): OneFitSystemConfig
 `;

@@ -74,6 +74,14 @@ export const configQueries = {
     return models.SystemConfig.getConfig(key);
   },
 
+  async oneFitSystemConfigByKey(
+    _root: undefined,
+    { key }: { key: string },
+    { models }: IContext,
+  ) {
+    return models.SystemConfig.getConfig(key);
+  },
+
   async allSystemConfigs(
     _root: undefined,
     _params: undefined,
@@ -82,11 +90,7 @@ export const configQueries = {
     return models.SystemConfig.getAllConfigs();
   },
 
-  async oneFitMode(
-    _root: undefined,
-    _params: undefined,
-    context: IContext,
-  ) {
+  async oneFitMode(_root: undefined, _params: undefined, context: IContext) {
     return context.mode;
   },
 };

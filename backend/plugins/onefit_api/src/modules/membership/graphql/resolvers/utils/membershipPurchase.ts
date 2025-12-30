@@ -127,7 +127,6 @@ export async function updateCustomerCreditBalance(
 export async function createMembershipPurchaseInvoice(
   userId: string,
   planId: string,
-  paymentId: string,
   context: IContext,
 ) {
   const { models, subdomain } = context;
@@ -163,6 +162,19 @@ export async function createMembershipPurchaseInvoice(
     amount: plan.price,
   });
 
+  // Get paymentIds from config
+  const selectedPaymentsConfig = await models.SystemConfig.getConfig(
+    'selectedPayments',
+  );
+  const paymentIds: string[] =
+    (selectedPaymentsConfig?.value as string[]) || [];
+
+  if (paymentIds.length === 0) {
+    throw new Error(
+      'No payment methods configured. Please configure payments in settings.',
+    );
+  }
+
   // Create invoice using tRPC
   const invoiceInput: any = {
     amount: plan.price,
@@ -173,7 +185,7 @@ export async function createMembershipPurchaseInvoice(
     customerId: userId,
     contentType: 'onefit:membershipPurchase',
     contentTypeId: membershipPurchase._id,
-    paymentIds: [paymentId],
+    paymentIds,
   };
 
   const customerPhone = customer.primaryPhone || customer.phones?.[0];

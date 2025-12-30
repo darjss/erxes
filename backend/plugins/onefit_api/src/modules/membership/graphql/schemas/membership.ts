@@ -101,12 +101,10 @@ const planUpdateInput = `
 const purchaseInput = `
   userId: String!
   planId: String!
-  paymentId: String!
 `;
 
 const cpPurchaseInput = `
   planId: String!
-  paymentId: String!
 `;
 
 export const mutations = `

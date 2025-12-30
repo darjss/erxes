@@ -33,19 +33,10 @@ export const membershipMutations: Record<string, Resolver> = {
 
   async oneFitMembershipPurchaseCreate(
     _root: undefined,
-    {
-      userId,
-      planId,
-      paymentId,
-    }: { userId: string; planId: string; paymentId: string },
+    { userId, planId }: { userId: string; planId: string },
     context: IContext,
   ) {
-    return await createMembershipPurchaseInvoice(
-      userId,
-      planId,
-      paymentId,
-      context,
-    );
+    return await createMembershipPurchaseInvoice(userId, planId, context);
   },
 
   async oneFitMembershipPurchaseActivate(
@@ -58,7 +49,7 @@ export const membershipMutations: Record<string, Resolver> = {
 
   async cpOneFitMembershipPurchaseCreate(
     _root: undefined,
-    { planId, paymentId }: { planId: string; paymentId: string },
+    { planId }: { planId: string },
     context: IContext,
   ) {
     const { cpUser } = context;
@@ -68,12 +59,7 @@ export const membershipMutations: Record<string, Resolver> = {
 
     const userId = cpUser.erxesCustomerId || cpUser._id;
 
-    return await createMembershipPurchaseInvoice(
-      userId,
-      planId,
-      paymentId,
-      context,
-    );
+    return await createMembershipPurchaseInvoice(userId, planId, context);
   },
 
   async cpOneFitMembershipPurchaseActivate(
