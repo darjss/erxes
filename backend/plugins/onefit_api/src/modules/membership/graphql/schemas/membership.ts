@@ -56,6 +56,11 @@ const membershipPurchaseQueryParams = `
   planId: String,
 `;
 
+const cpMembershipPurchaseQueryParams = `
+  status: String,
+  planId: String,
+`;
+
 import { GQL_CURSOR_PARAM_DEFS } from 'erxes-api-shared/utils';
 
 export const queries = `
@@ -65,6 +70,8 @@ export const queries = `
   oneFitActiveMembershipPlans: [OneFitMembershipPlan]
   oneFitMembershipPurchases(${membershipPurchaseQueryParams}, ${GQL_CURSOR_PARAM_DEFS}): OneFitMembershipPurchaseListResponse
   oneFitMembershipPurchase(_id: String): OneFitMembershipPurchase
+  cpOneFitMembershipPurchases(${cpMembershipPurchaseQueryParams}, ${GQL_CURSOR_PARAM_DEFS}): OneFitMembershipPurchaseListResponse
+  cpOneFitMembershipPurchase(_id: String!): OneFitMembershipPurchase
 
 `;
 
@@ -92,11 +99,18 @@ const purchaseInput = `
   paymentId: String!
 `;
 
+const cpPurchaseInput = `
+  planId: String!
+  paymentId: String!
+`;
+
 export const mutations = `
   oneFitMembershipPlanCreate(${planInput}): OneFitMembershipPlan
   oneFitMembershipPlanUpdate(_id: String!, ${planUpdateInput}): OneFitMembershipPlan
   oneFitMembershipPlansRemove(ids: [String]!): JSON
   oneFitMembershipPurchaseCreate(${purchaseInput}): OneFitMembershipPurchase
   oneFitMembershipPurchaseActivate(_id: String!): OneFitMembershipPurchase
+  cpOneFitMembershipPurchaseCreate(${cpPurchaseInput}): OneFitMembershipPurchase
+  cpOneFitMembershipPurchaseActivate(_id: String!): OneFitMembershipPurchase
 
 `;
