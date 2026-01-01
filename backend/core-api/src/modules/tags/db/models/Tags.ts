@@ -70,7 +70,7 @@ export const loadTagClass = (
           throw new Error('Nested group is not allowed 3');
         }
 
-        if (!isGroup && childTags.length) {
+        if (!tag.isGroup && childTags.length) {
           throw new Error('Group has tags');
         }
       }
@@ -229,7 +229,6 @@ export const loadTagClass = (
           { $set: { tagIds: tags.map((tag) => tag._id) } },
         );
 
-        console.log('moduleName', moduleName);
         if (['customer', 'user', 'company', 'product'].includes(moduleName)) {
           buildBulkActivities(
             targets,
