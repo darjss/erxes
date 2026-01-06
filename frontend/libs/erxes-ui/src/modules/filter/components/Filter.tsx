@@ -33,11 +33,6 @@ import {
   openDialogState,
   openPopoverState,
 } from '../states/filterStates';
-import { getDisplayValue } from '../date-filter/utils/getDisplayValue';
-import { DateFilterCommand } from '../date-filter/components/DateFilterCommand';
-import { usePreviousHotkeyScope } from 'erxes-ui/modules/hotkey/hooks/usePreviousHotkeyScope';
-import { useFilterQueryState } from '../hooks/useFilterQueryState';
-import { FilterDialogDateView } from '../date-filter/components/DialogDateView';
 import { useTranslation } from 'react-i18next';
 
 const FilterProvider = ({
