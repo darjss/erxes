@@ -59,6 +59,8 @@ export const ONE_FIT_PROVIDERS = gql`
         approvedBy
         rejectedBy
         isActive
+        icon
+        coverImages
       }
       totalCount
       pageInfo {
@@ -132,6 +134,8 @@ export const ONE_FIT_PROVIDER = gql`
       approvedBy
       rejectedBy
       isActive
+      icon
+      coverImages
     }
   }
 `;

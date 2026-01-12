@@ -46,6 +46,8 @@ export interface OneFitProvider {
   approvedBy?: string;
   rejectedBy?: string;
   isActive: boolean;
+  icon?: string;
+  coverImages?: string[];
 }
 
 export interface OneFitProviderListResponse {
