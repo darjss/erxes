@@ -159,8 +159,12 @@ export default async function userMiddleware(
   let clientPortal;
   const clientPortalToken = req.headers['x-app-token'];
 
+  console.log('clientPortalToken', clientPortalToken)
+
   if (clientPortalToken) {
     const clientPortalTokenString = String(clientPortalToken);
+
+    console.log('clientPortalTokenString', clientPortalTokenString)
 
     try {
       const clientPortalTokenDecoded: any = jwt.verify(
@@ -168,9 +172,13 @@ export default async function userMiddleware(
         process.env.JWT_TOKEN_SECRET || 'SECRET',
       );
 
+      console.log('clientPortalTokenDecoded', clientPortalTokenDecoded)
+
       clientPortal = await models.ClientPortals.findOne({
         _id: clientPortalTokenDecoded.clientPortalId,
       });
+
+      console.log('clientPortal', clientPortal)
 
       if (!clientPortal) {
         return next();
@@ -184,8 +192,12 @@ export default async function userMiddleware(
     }
   }
 
+  console.log('clientPortal', clientPortal)
+
   const clientAuthToken =
     req.cookies['client-auth-token'] || req.headers['client-auth-token'];
+
+    console.log('clientAuthToken', clientAuthToken)
 
   if (clientPortal && clientAuthToken) {
     const clientAuthTokenString = String(clientAuthToken);
@@ -196,10 +208,14 @@ export default async function userMiddleware(
         process.env.JWT_TOKEN_SECRET || 'SECRET',
       );
 
+      console.log('clientAuthTokenDecoded', clientAuthTokenDecoded)
+
       const clientPortalUser = await models.CPUsers.findOne({
         _id: clientAuthTokenDecoded.userId,
         clientPortalId: clientPortal?._id,
       });
+
+      console.log('clientPortalUser', clientPortalUser)
 
       if (clientPortalUser) {
         req.cpUser = clientPortalUser;
