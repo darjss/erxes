@@ -159,6 +159,9 @@ export default async function userMiddleware(
   const clientPortalToken = req.headers['x-app-token'];
   const clientAuthToken = req.cookies['client-auth-token'] || req.headers['client-auth-token'];
 
+  console.log('clientPortalToken', clientPortalToken)
+  console.log('clientAuthToken', clientAuthToken)
+
   if (clientPortalToken) {
     const clientPortalTokenString = String(clientPortalToken);
 
@@ -171,6 +174,8 @@ export default async function userMiddleware(
       const clientPortal = await models.ClientPortals.findOne({
         _id: clientPortalTokenDecoded.clientPortalId,
       });
+
+      console.log('clientPortal', clientPortal)
 
       if (!clientPortal) {
         return next();
@@ -188,6 +193,8 @@ export default async function userMiddleware(
           _id: clientAuthTokenDecoded.userId,
           clientPortalId: clientPortal._id,
         });
+
+        console.log('clientPortalUser', clientPortalUser)
 
         if (clientPortalUser) {
           req.cpUser = clientPortalUser;
