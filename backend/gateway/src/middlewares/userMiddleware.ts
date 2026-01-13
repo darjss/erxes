@@ -5,8 +5,8 @@ import {
   getSubdomain,
   PERMISSION_ROLES,
   redis,
-  setCPUserHeader,
   setClientPortalHeader,
+  setCPUserHeader,
   setUserHeader,
 } from 'erxes-api-shared/utils';
 import { NextFunction, Request, Response } from 'express';
@@ -157,13 +157,16 @@ export default async function userMiddleware(
   }
 
   const clientPortalToken = req.headers['x-app-token'];
-  const clientAuthToken = req.cookies['client-auth-token'] || req.headers['client-auth-token'];
+  const clientAuthToken =
+    req.cookies['client-auth-token'] || req.headers['client-auth-token'];
 
-  console.log('clientPortalToken', clientPortalToken)
-  console.log('clientAuthToken', clientAuthToken)
+  console.log('clientPortalToken', clientPortalToken);
+  console.log('clientAuthToken', clientAuthToken);
 
   if (clientPortalToken) {
     const clientPortalTokenString = String(clientPortalToken);
+
+    console.log('clientPortalTokenString', clientPortalTokenString);
 
     try {
       const clientPortalTokenDecoded: any = jwt.verify(
@@ -175,38 +178,46 @@ export default async function userMiddleware(
         _id: clientPortalTokenDecoded.clientPortalId,
       });
 
-      console.log('clientPortal', clientPortal)
+      console.log('clientPortal', clientPortal);
 
       if (!clientPortal) {
         return next();
-      }
-
-      if (clientAuthToken) {
-        const clientAuthTokenString = String(clientAuthToken);
-
-        const clientAuthTokenDecoded: any = jwt.verify(
-          clientAuthTokenString,
-          process.env.JWT_TOKEN_SECRET || 'SECRET',
-        );
-
-        const clientPortalUser = await models.CPUsers.findOne({
-          _id: clientAuthTokenDecoded.userId,
-          clientPortalId: clientPortal._id,
-        });
-
-        console.log('clientPortalUser', clientPortalUser)
-
-        if (clientPortalUser) {
-          req.cpUser = clientPortalUser;
-          setCPUserHeader(req.headers, req.cpUser);
-        }
       }
 
       req.clientPortal = clientPortal;
 
       setClientPortalHeader(req.headers, req.clientPortal);
 
-      return next();
+      if (clientAuthToken) {
+         const clientAuthTokenString = String(clientAuthToken);
+
+         console.log('clientAuthToken', clientAuthToken)
+
+        try {
+          const decodedUser: any = jwt.verify(
+            clientAuthTokenString,
+            process.env.JWT_TOKEN_SECRET || 'SECRET',
+          );
+
+          console.log('decodedUser', decodedUser)
+
+          const clientPortalUser = await models.CPUsers.findOne({
+            _id: decodedUser.userId,
+            clientPortalId: clientPortal._id,
+          });
+
+          console.log('clientPortalUser', clientPortalUser)
+
+          if (clientPortalUser) {
+            req.cpUser = clientPortalUser;
+            setCPUserHeader(req.headers, clientPortalUser);
+          }
+        } catch (e) {
+          if (!(e instanceof jwt.TokenExpiredError)) {
+            console.error('Client portal user token error:', e);
+          }
+        }
+      }
     } catch (e) {
       if (e instanceof jwt.TokenExpiredError) {
         return next();
