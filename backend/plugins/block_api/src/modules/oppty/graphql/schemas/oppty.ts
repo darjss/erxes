@@ -50,6 +50,10 @@ export const types = `
     targetDate: Date
     customerSource: String
     projectId: String
+
+    # timer nemn
+    # chosenUnit
+    # activity
   }
 
   input IOpptyFilter {
