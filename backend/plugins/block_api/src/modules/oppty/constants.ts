@@ -22,3 +22,19 @@ export const OPPTY_CUSTOMER_SOURCES = {
   SALES_MANAGER: 'sales_manager',
   OTHER: 'other',
 } as const;
+
+export const OPPTY_FIELDS = {
+  customer: 'CUSTOMER',
+  number: 'NUMBER',
+  customerSource: 'CUSTOMER_SOURCE',
+  assignedUserId: 'ASSIGNED_USER',
+  blocks: 'BLOCK',
+  status: 'STATUS',
+  labelIds: 'LABEL',
+  tagIds: 'TAG',
+  projectId: 'PROJECT',
+  unitType: 'UNIT_TYPE',
+  units: 'UNIT',
+  startDate: 'START_DATE',
+  targetDate: 'TARGET_DATE',
+};

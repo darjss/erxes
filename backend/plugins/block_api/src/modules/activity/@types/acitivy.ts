@@ -7,9 +7,8 @@ interface IBlockActivityMetaData {
 
 export interface IBlockActivity {
   action: string;
-  itemId: string;
-  itemType: string;
-  module: string;
+  contentId: string;
+  field: string;
   metadata: IBlockActivityMetaData;
   createdBy: string;
 }

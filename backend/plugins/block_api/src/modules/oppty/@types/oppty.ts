@@ -1,6 +1,26 @@
 import { OPPTY_STATUSES } from '@/oppty/constants';
 import { Document } from 'mongoose';
 
+export enum FIELD {
+  STATUS = 'STATUS',
+  ASSIGNEE = 'ASSIGNEE',
+
+  CUSTOMER = 'CUSTOMER',
+  CUSTOMER_SOURCE = 'CUSTOMER_SOURCE',
+
+  PROJECT = 'PROJECT',
+  BLOCK = 'BLOCK',
+
+  UNIT_TYPE = 'UNIT_TYPE',
+  UNIT = 'UNIT',
+
+  LABEL = 'LABEL',
+  TAG = 'TAG',
+
+  START_DATE = 'START_DATE',
+  END_DATE = 'END_DATE',
+}
+
 export interface IOppty {
   number: string;
   description: string;

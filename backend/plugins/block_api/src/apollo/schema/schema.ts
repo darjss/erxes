@@ -88,6 +88,11 @@ import {
   types as OpptyTypes,
 } from '@/oppty/graphql/schemas/oppty';
 
+import {
+  queries as ActivityQueries,
+  types as ActivityTypes,
+} from '~/modules/activity/graphql/schemas';
+
 export const types = `
   type DeveloperAddress {
     countryCode: String
@@ -154,6 +159,7 @@ export const types = `
   ${OfferTypes}
   ${UnitTypeTypes}
   ${OpptyTypes}
+  ${ActivityTypes}
   `;
 
 export const queries = `
@@ -172,6 +178,7 @@ export const queries = `
   ${OfferQueries}
   ${UnitTypeQueries}
   ${OpptyQueries}
+  ${ActivityQueries}
   `;
 
 export const mutations = `

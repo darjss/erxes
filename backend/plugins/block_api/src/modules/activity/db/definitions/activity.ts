@@ -13,13 +13,12 @@ const metadataSchema = new Schema(
 export const activitySchema = new Schema(
   {
     action: { type: String, label: 'Action', required: true },
-    itemId: {
+    contentId: {
       type: Schema.Types.ObjectId,
       label: 'Content ID',
       required: true,
     },
-    itemType: { type: String, label: 'Item Type', required: true },
-    module: { type: String, label: 'Module', required: true },
+    field: { type: String, label: 'Field', required: true },
     metadata: { type: metadataSchema, label: 'Metadata' },
     createdBy: { type: String, label: 'Created By' },
   },

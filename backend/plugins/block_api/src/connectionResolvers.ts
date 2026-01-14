@@ -1,59 +1,61 @@
-import { createGenerateModels } from 'erxes-api-shared/utils';
-import { IMainContext } from 'erxes-api-shared/core-types';
-import { IProjectDocument } from '@/project/@types/project';
-import { IProjectPaymentPlan } from '@/project/@types/payment';
-import { IBuildingDocument } from '@/building/@types/building';
-import mongoose from 'mongoose';
-import { IZoningModel, loadZoningClass } from '@/building/db/models/Zoning';
-import { IZoningDocument } from '@/building/@types/zoning';
-import { IUnitDocument } from '@/unit/@types/unit';
-import { loadProjectClass, IProjectModel } from '@/project/db/models/Project';
-import {
-  loadProjectPaymentPlanClass,
-  IProjectPaymentPlanModel,
-} from '@/project/db/models/Payment';
-import { IUnitModel, loadUnitClass } from '@/unit/db/models/Unit';
-import { IBlockDocumentDocument } from '@/document/@types/document';
-import {
-  loadBuildingClass,
-  IBuildingModel,
-} from '@/building/db/models/Building';
-import {
-  IBlockDocumentModel,
-  loadBlockDocumentClass,
-} from '@/document/db/models/Document';
+import { IBlockAttachmentDocument } from '@/attachment/@types/attachment';
 import {
   IBlockAttachmentModel,
   loadBlockAttachmentClass,
 } from '@/attachment/db/models/Attachment';
-import { IBlockAttachmentDocument } from '@/attachment/@types/attachment';
+import { IBuildingDocument } from '@/building/@types/building';
+import { IZoningDocument } from '@/building/@types/zoning';
+import {
+  IBuildingModel,
+  loadBuildingClass,
+} from '@/building/db/models/Building';
+import { IZoningModel, loadZoningClass } from '@/building/db/models/Zoning';
+import { IContractDocument } from '@/contract/@types/contract';
+import { IOfferDocument } from '@/contract/@types/offer';
+import {
+  IContractModel,
+  loadContractClass,
+} from '@/contract/db/models/Contract';
+import { IOfferModel, loadOfferClass } from '@/contract/db/models/Offer';
+import { IBlockDeveloperDocument } from '@/developer/db/@types/developer';
 import {
   IBlockDeveloperModel,
   loadBlockDeveloperClass,
 } from '@/developer/db/models/Developer';
-import { IBlockDeveloperDocument } from '@/developer/db/@types/developer';
-import { IContractModel } from '@/contract/db/models/Contract';
-import { IContractDocument } from '@/contract/@types/contract';
-import { loadContractClass } from '@/contract/db/models/Contract';
-import { loadProjectMemberClass } from '@/project/db/models/Member';
+import { IBlockDocumentDocument } from '@/document/@types/document';
+import {
+  IBlockDocumentModel,
+  loadBlockDocumentClass,
+} from '@/document/db/models/Document';
+import { IInvoiceDocument } from '@/invoice/@types/invoice';
+import { IInvoiceModel, loadInvoiceClass } from '@/invoice/db/models/Invoice';
+import { IOpptyModel, loadOpptyClass } from '@/oppty/db/models/Oppty';
 import { IProjectMemberDocument } from '@/project/@types/member';
-import { IProjectMemberModel } from '@/project/db/models/Member';
+import { IProjectPaymentPlan } from '@/project/@types/payment';
+import { IProjectDocument } from '@/project/@types/project';
+import {
+  IProjectMemberModel,
+  loadProjectMemberClass,
+} from '@/project/db/models/Member';
+import {
+  IProjectPaymentPlanModel,
+  loadProjectPaymentPlanClass,
+} from '@/project/db/models/Payment';
+import { IProjectModel, loadProjectClass } from '@/project/db/models/Project';
+import { IUnitDocument } from '@/unit/@types/unit';
+import { IUnitLeadDocument } from '@/unit/@types/unitLead';
+import { IUnitTypeDocument } from '@/unit/@types/unitType';
+import { IUnitModel, loadUnitClass } from '@/unit/db/models/Unit';
+import { IUnitLeadModel, loadUnitLeadClass } from '@/unit/db/models/UnitLead';
+import { IUnitTypeModel, loadUnitTypeClass } from '@/unit/db/models/UnitType';
+import { IMainContext } from 'erxes-api-shared/core-types';
+import { createGenerateModels } from 'erxes-api-shared/utils';
+import mongoose from 'mongoose';
+import { IBlockActivityDocument } from '~/modules/activity/@types/acitivy';
 import {
   IBlockActivityModel,
   loadBlockActivityClass,
-} from '@/acitivity/db/models/Activity';
-import { IBlockActivityDocument } from '@/acitivity/@types/acitivy';
-import { IUnitLeadModel, loadUnitLeadClass } from '@/unit/db/models/UnitLead';
-import { IUnitLeadDocument } from '@/unit/@types/unitLead';
-import { IOfferModel } from '@/contract/db/models/Offer';
-import { IOfferDocument } from '@/contract/@types/offer';
-import { loadOfferClass } from '@/contract/db/models/Offer';
-import { IInvoiceModel } from '@/invoice/db/models/Invoice';
-import { IInvoiceDocument } from '@/invoice/@types/invoice';
-import { loadInvoiceClass } from '@/invoice/db/models/Invoice';
-import { IUnitTypeDocument } from '@/unit/@types/unitType';
-import { IUnitTypeModel, loadUnitTypeClass } from '@/unit/db/models/UnitType';
-import { IOpptyModel, loadOpptyClass } from '@/oppty/db/models/Oppty';
+} from '~/modules/activity/db/models/Activity';
 import { IOpptyDocument } from './modules/oppty/@types/oppty';
 
 export interface IModels {
@@ -79,7 +81,10 @@ export interface IContext extends IMainContext {
   models: IModels;
 }
 
-export const loadClasses = (db: mongoose.Connection): IModels => {
+export const loadClasses = (
+  db: mongoose.Connection,
+  subdomain: string,
+): IModels => {
   const models = {} as IModels;
 
   models.Project = db.model<IProjectDocument, IProjectModel>(
@@ -159,7 +164,7 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
 
   models.Oppty = db.model<IOpptyDocument, IOpptyModel>(
     'block_opptys',
-    loadOpptyClass(models),
+    loadOpptyClass(models, subdomain),
   );
 
   return models;
