@@ -93,6 +93,12 @@ import {
   types as ActivityTypes,
 } from '~/modules/activity/graphql/schemas';
 
+import {
+  mutations as StatusMutations,
+  queries as StatusQueries,
+  types as StatusTypes,
+} from '@/status/graphql/schemas/status';
+
 export const types = `
   type DeveloperAddress {
     countryCode: String
@@ -160,6 +166,7 @@ export const types = `
   ${UnitTypeTypes}
   ${OpptyTypes}
   ${ActivityTypes}
+  ${StatusTypes}
   `;
 
 export const queries = `
@@ -179,6 +186,7 @@ export const queries = `
   ${UnitTypeQueries}
   ${OpptyQueries}
   ${ActivityQueries}
+  ${StatusQueries}
   `;
 
 export const mutations = `
@@ -197,6 +205,7 @@ export const mutations = `
   ${OfferMutations}
   ${UnitTypeMutations}
   ${OpptyMutations}
+  ${StatusMutations}
   `;
 
 export default { types, queries, mutations };
