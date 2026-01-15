@@ -33,8 +33,9 @@ export const OPPTY_FIELDS = {
   labelIds: 'LABEL',
   tagIds: 'TAG',
   projectId: 'PROJECT',
-  unitType: 'UNIT_TYPE',
-  units: 'UNIT',
+  unitTypes: 'UNIT_TYPE',
+  units: 'UNITS',
+  unit: 'UNIT',
   startDate: 'START_DATE',
   targetDate: 'TARGET_DATE',
 };

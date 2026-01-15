@@ -60,22 +60,6 @@ export const loadOpptyClass = (models: IModels, subdomain: string) => {
         { new: true },
       );
 
-      if (input?.status === OPPTY_STATUSES.CANCELLED) {
-        const exists = await models.Oppty.exists({
-          unit: oppty.unit,
-          status: OPPTY_STATUSES.RESERVATION,
-        });
-
-        if (exists) {
-          throw new Error('Unit is already reserved');
-        }
-
-        await models.Unit.findOneAndUpdate(
-          { _id: oppty.unit },
-          { status: 'onHold' },
-        );
-      }
-
       graphqlPubsub.publish(`blockOpptyChanged:${_id}`, {
         blockOpptyChanged: { type: 'update', oppty: updatedOppty },
       });
