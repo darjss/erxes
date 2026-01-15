@@ -7,7 +7,7 @@ export const unitQueries = {
     { _id }: { _id: string },
     { models }: IContext,
   ) => {
-    return models.Unit.findOne({ _id }).populate('building');
+    return models.Unit.findOne({ _id });
   },
 
   blockGetUnits: async (

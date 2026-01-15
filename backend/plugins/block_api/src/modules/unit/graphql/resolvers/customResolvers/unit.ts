@@ -11,4 +11,22 @@ export default {
 
     return await models.UnitType.findOne({ _id: unit.type });
   },
+
+  buildingData: async (
+    unit: IUnitDocument,
+    _args: undefined,
+    { models }: IContext,
+  ) => {
+    if (!unit.zoning) return null;
+
+    const zoning = await models.Zoning.findOne({ _id: unit.zoning });
+
+    if (!zoning) {
+      return null;
+    }
+
+    const building = await models.Building.findOne({ _id: zoning.building });
+
+    return building;
+  },
 };

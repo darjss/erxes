@@ -1,4 +1,4 @@
-export const OPPTY_STATUSES = {
+export const OPPTY_STATUSES: Record<string, string> = {
   NEW_LEAD_UNASSIGNED: 'new_lead_unassigned',
   ASSIGNED_IN_CONTACT: 'assigned_in_contact',
   QUALIFIED_LEAD: 'qualified_lead',

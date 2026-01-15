@@ -6,6 +6,7 @@ export const opptySchema = new Schema({
   customerId: { type: String, required: true, label: 'Customer ID' },
   unitTypes: { type: [String], label: 'Unit Types' },
   units: { type: [String], label: 'Units' },
+  unit: { type: String, required: false },
   assignedUserId: { type: String, label: 'Assigned User' },
   blocks: { type: [String], label: 'Blocks' },
   status: { type: String, required: true, label: 'Status' },

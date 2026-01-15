@@ -27,6 +27,7 @@ export interface IOppty {
   customerId: string;
   unitTypes?: string[];
   units?: string[];
+  unit?: string;
   assignedUserId?: string;
   blocks?: string[];
   status: (typeof OPPTY_STATUSES)[keyof typeof OPPTY_STATUSES];

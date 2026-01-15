@@ -21,13 +21,13 @@ export const SelectUnitStatus = ({
   return (
     <Select value={value || 'available'} onValueChange={onValueChange}>
       <Control>
-        <Select.Trigger className="h-8">
+        <Select.Trigger className="h-8" disabled={value === 'onHold'}>
           <Select.Value />
         </Select.Trigger>
       </Control>
       <Select.Content>
         {Object.entries(statuses).map(([key, type]) => (
-          <Select.Item key={key} value={key}>
+          <Select.Item key={key} value={key} disabled={key === 'onHold'}>
             {type.mn}
           </Select.Item>
         ))}
