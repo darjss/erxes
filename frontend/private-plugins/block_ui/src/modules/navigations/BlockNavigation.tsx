@@ -13,11 +13,6 @@ import {
 export const BlockNavigation = () => {
   return (
     <>
-      <div className="relative">
-        <span className="absolute blk:-top-6.5 blk:left-8 bg-sidebar font-semibold text-xs text-accent-foreground">
-          Block developers modules
-        </span>
-      </div>
       <NavigationMenuLinkItem
         name="Developer Info"
         icon={IconBuilding}

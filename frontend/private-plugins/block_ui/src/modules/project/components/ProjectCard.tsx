@@ -157,7 +157,7 @@ export const ProjectCard = (project: IProject) => {
   return (
     <Link
       to={`/block/projects/${_id}`}
-      className="border p-2 blk:rounded-[1.25rem]"
+      className="border p-2 rounded-[1.25rem]"
     >
       <div className="grid grid-cols-2">
         <div className="w-full h-full relative blk:aspect-2/1 rounded-xl overflow-hidden flex items-center justify-center">
