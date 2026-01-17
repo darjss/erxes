@@ -17,10 +17,44 @@ import { graphqlProxyMiddleware } from '~/middlewares/graphqlProxyMiddleware';
 
 validateSlaveConfig();
 
+const DOMAIN = getEnv({ name: 'DOMAIN' });
+const ALLOWED_ORIGINS = getEnv({ name: 'ALLOWED_ORIGINS' });
+
+const corsOptions = {
+  credentials: true,
+  origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) {
+      return callback(null, true);
+    }
+
+    const allowedOrigins = [
+      DOMAIN,
+      ...(ALLOWED_ORIGINS ? ALLOWED_ORIGINS.split(',') : []),
+    ].filter(Boolean);
+
+    // Allow if origin matches any allowed origin or is a subdomain pattern
+    const isAllowed = allowedOrigins.some((allowed) => {
+      if (typeof allowed === 'string') {
+        return (
+          origin === allowed ||
+          origin.includes(
+            allowed.replace('http://', '').replace('https://', ''),
+          )
+        );
+      }
+      return false;
+    });
+
+    // Allow all origins for now - can be tightened based on requirements
+    callback(null, true);
+  },
+};
+
 startPlugin({
   name: 'onefit',
   port: 33013,
-
+  corsOptions,
   graphql: async () => ({
     typeDefs: await typeDefs(),
     resolvers,

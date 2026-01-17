@@ -36,7 +36,7 @@ export class MasterClient {
     this.masterUrl = masterUrl.replace(/\/$/, '');
     this.graphqlEndpoint = `${this.masterUrl}/graphql`;
     // Upload endpoint should go through gateway to onefit_api plugin
-    this.uploadEndpoint = `${this.masterUrl}/gateway/pl:onefit/upload-file`;
+    this.uploadEndpoint = `${this.masterUrl}/pl:onefit/upload-file`;
   }
 
   async request<T = any>(
@@ -123,6 +123,7 @@ export class MasterClient {
         },
         body: formData,
       });
+      console.log('result response', response);
 
       if (!response.ok) {
         const errorText = await response.text();
@@ -132,6 +133,7 @@ export class MasterClient {
       }
 
       const result = await response.text();
+      console.log('result uploadFile', result);
       return result;
     } catch (error: any) {
       throw new Error(

@@ -24,7 +24,6 @@ import { ProviderStatus } from '../types/provider';
 import { SelectCategories } from './SelectCategories';
 import { useUploadConfig } from '../../config/hooks/useUploadConfig';
 import {
-  getImageUrl,
   getImageReadUrl,
   extractImageKey,
 } from '../utils/imageUtils';
@@ -812,7 +811,7 @@ const ProviderForm = ({
                   <Form.Label>Icon</Form.Label>
                   <Form.Control>
                     <OneFitUpload.Root
-                      value={getImageUrl(field.value, imageOptions) || ''}
+                      value={getImageReadUrl(field.value, imageOptions) || ''}
                       onChange={(fileInfo: { url?: string }) => {
                         if (fileInfo.url) {
                           const imageKey = extractImageKey(
