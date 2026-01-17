@@ -7,17 +7,27 @@ const OneFitNavigation = lazy(() =>
     default: module.OneFitNavigation,
   })),
 );
-
+// const OnefitSettingsNavigation = lazy(() =>
+//   import('@/OnefitSettingsNavigation').then((mod) => ({
+//     default: mod.OnefitSettingsNavigation,
+//   })),
+// );
 export const CONFIG: IUIConfig = {
   name: 'onefit',
+  path: 'onefit',
+
   modules: [
     {
       name: 'onefit',
       icon: IconActivity,
       path: 'onefit',
-      hasSettings: true,
     },
   ],
+  settingsNavigation: () => (
+    <Suspense fallback={<div />}>
+      {/* <OperationSettingsNavigation /> */}
+    </Suspense>
+  ),
   navigationGroup: {
     name: 'onefit',
     icon: IconActivity,
