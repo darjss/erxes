@@ -93,4 +93,8 @@ export const configQueries = {
   async oneFitMode(_root: undefined, _params: undefined, context: IContext) {
     return context.mode;
   },
+
+  async oneFitMasterUrl(_root: undefined, _params: undefined, context: IContext) {
+    return context.masterUrl;
+  },
 };

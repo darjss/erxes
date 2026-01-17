@@ -9,6 +9,7 @@ import {
   Switch,
   Label,
   Upload,
+  useUpload as useErxesUpload,
 } from 'erxes-ui';
 import { IconPlus, IconUpload, IconTrash, IconX } from '@tabler/icons-react';
 import { useForm } from 'react-hook-form';
@@ -23,6 +24,12 @@ import {
 import { ONE_FIT_PROVIDER } from '../graphql/providerQueries';
 import { ProviderStatus } from '../types/provider';
 import { SelectCategories } from './SelectCategories';
+import { useUploadConfig } from '../../config/hooks/useUploadConfig';
+import {
+  getImageUrl,
+  getImageReadUrl,
+  extractImageKey,
+} from '../utils/imageUtils';
 
 const baseProviderSchema = z.object({
   businessName: z.object({
@@ -94,6 +101,7 @@ export const ProviderDialog = ({
 }: ProviderDialogProps) => {
   const isCreate = mode === 'create';
   const [internalOpen, setInternalOpen] = useState(false);
+  const { uploadUrl, masterUrl, isSlaveMode } = useUploadConfig();
 
   const effectiveOpen = open !== undefined ? open : internalOpen;
   const effectiveOnOpenChange =
@@ -115,6 +123,9 @@ export const ProviderDialog = ({
           </Sheet.Header>
           <ProviderForm
             mode="create"
+            uploadurl={uploadUrl}
+            masterUrl={masterUrl}
+            isSlaveMode={isSlaveMode}
             onClose={() => {
               effectiveOnOpenChange(false);
               onClose?.();
@@ -135,6 +146,9 @@ export const ProviderDialog = ({
         <ProviderForm
           mode="edit"
           providerId={providerId!}
+          uploadurl={uploadUrl}
+          masterUrl={masterUrl}
+          isSlaveMode={isSlaveMode}
           onClose={() => {
             effectiveOnOpenChange(false);
             onClose?.();
@@ -148,12 +162,27 @@ export const ProviderDialog = ({
 interface ProviderFormProps {
   mode: 'create' | 'edit';
   providerId?: string;
+  uploadurl?: string;
+  masterUrl?: string;
+  isSlaveMode?: boolean;
   onClose: () => void;
 }
 
-const ProviderForm = ({ mode, providerId, onClose }: ProviderFormProps) => {
+const ProviderForm = ({
+  mode,
+  providerId,
+  uploadurl,
+  masterUrl,
+  isSlaveMode,
+  onClose,
+}: ProviderFormProps) => {
   const isCreate = mode === 'create';
   const [selectedLanguage, setSelectedLanguage] = useState<'en' | 'mn'>('en');
+
+  const imageOptions = {
+    isSlaveMode: isSlaveMode ?? false,
+    masterUrl,
+  };
 
   const { data: providerData, loading: queryLoading } = useQuery(
     ONE_FIT_PROVIDER,
@@ -782,10 +811,12 @@ const ProviderForm = ({ mode, providerId, onClose }: ProviderFormProps) => {
                   <Form.Label>Icon</Form.Label>
                   <Form.Control>
                     <Upload.Root
-                      value={field.value || ''}
+                      value={getImageUrl(field.value, imageOptions) || ''}
                       onChange={(fileInfo) => {
                         if ('url' in fileInfo) {
-                          field.onChange(fileInfo.url);
+                          const url = fileInfo.url as string;
+                          const imageKey = extractImageKey(url, imageOptions);
+                          field.onChange(imageKey);
                         }
                       }}
                     >
@@ -816,12 +847,12 @@ const ProviderForm = ({ mode, providerId, onClose }: ProviderFormProps) => {
                           disabled={isRejected}
                         >
                           <IconUpload className="mb-2" />
-                          <Button
+                          {/* <Button
                             variant="outline"
                             className="text-sm font-medium"
-                          >
-                            Upload icon
-                          </Button>
+                          > */}
+                          Upload icon
+                          {/* </Button> */}
                         </Upload.Button>
                       )}
                     </Upload.Root>
@@ -839,11 +870,11 @@ const ProviderForm = ({ mode, providerId, onClose }: ProviderFormProps) => {
                   <Form.Control>
                     <div className="space-y-4">
                       <div className="grid grid-cols-2 gap-4">
-                        {field.value?.map((imageUrl, index) => (
+                        {field.value?.map((imageKey, index) => (
                           <div key={index} className="relative group">
                             <div className="relative w-full aspect-video rounded-md border overflow-hidden bg-accent">
                               <img
-                                src={imageUrl}
+                                src={getImageReadUrl(imageKey, imageOptions)}
                                 alt={`Cover ${index + 1}`}
                                 className="w-full h-full object-cover"
                                 onError={(e) => {
@@ -873,9 +904,13 @@ const ProviderForm = ({ mode, providerId, onClose }: ProviderFormProps) => {
                           value=""
                           onChange={(fileInfo) => {
                             if ('url' in fileInfo && fileInfo.url) {
+                              const imageKey = extractImageKey(
+                                fileInfo.url as string,
+                                imageOptions,
+                              );
                               field.onChange([
                                 ...(field.value || []),
-                                fileInfo.url,
+                                imageKey,
                               ]);
                             }
                           }}

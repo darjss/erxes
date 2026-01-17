@@ -8,6 +8,7 @@ import {
   getOneFitMode,
   getOneFitInstanceId,
   getOneFitSecret,
+  getOneFitMasterUrl,
   validateSlaveConfig,
   isSlaveMode,
 } from '~/constants/mode';
@@ -60,11 +61,13 @@ startPlugin({
     }
 
     const masterClient = isSlaveMode() ? getMasterClient() : undefined;
+    const masterUrl = getOneFitMasterUrl();
 
     context.models = models;
     context.mode = mode;
     context.instanceId = instanceId; // This will be set from header in master mode
     context.masterClient = masterClient;
+    context.masterUrl = masterUrl;
     console.log('context', context);
     return context;
   },

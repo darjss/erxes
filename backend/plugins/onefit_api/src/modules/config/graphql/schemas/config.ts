@@ -29,6 +29,7 @@ export const queries = `
   oneFitSystemConfigByKey(key: String!): OneFitSystemConfig
   oneFitAllSystemConfigs: [OneFitSystemConfig]
   oneFitMode: String
+  oneFitMasterUrl: String
 `;
 
 const configInput = `
