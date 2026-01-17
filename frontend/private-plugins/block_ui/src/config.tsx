@@ -17,6 +17,7 @@ const BlockProjectsNavigation = lazy(() =>
 export const CONFIG: IUIConfig = {
   name: 'block',
   path: 'block',
+  hasFloatingWidget: true,
   modules: [
     {
       name: 'block',
