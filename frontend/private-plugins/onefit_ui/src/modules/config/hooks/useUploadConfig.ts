@@ -10,11 +10,11 @@ export const useUploadConfig = () => {
   });
 
   const masterUrl = data?.oneFitMasterUrl as string | undefined;
-
+  console.log('isSlaveMode', isSlaveMode);
   const getUploadUrl = (): string => {
     if (isSlaveMode) {
       // Use onefit_api upload route which will proxy to master
-      return `${REACT_APP_API_URL}/gateway/pl:onefit/upload-file`;
+      return `${REACT_APP_API_URL}/pl:onefit/upload-file`;
     }
     // Use default core-api upload route
     return `${REACT_APP_API_URL}/upload-file`;

@@ -8,8 +8,47 @@ import { getMasterClient } from '~/utils/masterClient';
 import { getSubdomain } from 'erxes-api-shared/utils';
 
 /**
+ * List of config queries that should be handled locally in slave mode
+ * instead of being proxied to master
+ */
+const CONFIG_QUERIES = [
+  'oneFitMode',
+  'oneFitMasterUrl',
+  'oneFitSystemConfigs',
+  'oneFitSystemConfigsCount',
+  'oneFitSystemConfig',
+  'oneFitSystemConfigByKey',
+  'oneFitAllSystemConfigs',
+];
+
+/**
+ * Detects if a GraphQL query contains any config-related queries
+ * by parsing the query string and checking against the config query list
+ */
+const isConfigQuery = (query: string, operationName?: string): boolean => {
+  // Check operation name first if present
+  if (operationName && CONFIG_QUERIES.includes(operationName)) {
+    return true;
+  }
+
+  // Check for direct field matches in the query string
+  // Match the query name as a standalone field (not part of another word)
+  for (const configQuery of CONFIG_QUERIES) {
+    // Use word boundary to ensure we match the exact field name
+    // This handles cases like: query { oneFitMode } or { oneFitMode }
+    const regex = new RegExp(`\\b${configQuery}\\b`, 'i');
+    if (regex.test(query)) {
+      return true;
+    }
+  }
+
+  return false;
+};
+
+/**
  * Middleware that intercepts GraphQL requests in slave mode
  * and forwards them to the master instance
+ * Config queries are handled locally instead of being proxied
  */
 export const graphqlProxyMiddleware = async (
   req: Request,
@@ -27,16 +66,21 @@ export const graphqlProxyMiddleware = async (
   }
 
   try {
-    const masterClient = getMasterClient();
-    const subdomain = getSubdomain(req);
-    const instanceId = getOneFitInstanceId();
-
     // Get the GraphQL request body
     const { query, variables, operationName } = req.body;
 
     if (!query) {
       return next();
     }
+
+    // Check if this is a config query - if so, handle it locally
+    if (isConfigQuery(query, operationName)) {
+      return next();
+    }
+
+    const masterClient = getMasterClient();
+    const subdomain = getSubdomain(req);
+    const instanceId = getOneFitInstanceId();
 
     // Forward headers for authentication and context
     const headers: Record<string, string> = {};
