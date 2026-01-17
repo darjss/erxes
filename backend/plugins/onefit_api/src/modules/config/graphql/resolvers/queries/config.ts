@@ -91,10 +91,15 @@ export const configQueries = {
   },
 
   async oneFitMode(_root: undefined, _params: undefined, context: IContext) {
+    console.log('context.mode', context.mode);
     return context.mode;
   },
 
-  async oneFitMasterUrl(_root: undefined, _params: undefined, context: IContext) {
+  async oneFitMasterUrl(
+    _root: undefined,
+    _params: undefined,
+    context: IContext,
+  ) {
     return context.masterUrl;
   },
 };

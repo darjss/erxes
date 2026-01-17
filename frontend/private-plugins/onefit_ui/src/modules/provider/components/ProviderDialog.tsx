@@ -8,8 +8,6 @@ import {
   Textarea,
   Switch,
   Label,
-  Upload,
-  useUpload as useErxesUpload,
 } from 'erxes-ui';
 import { IconPlus, IconUpload, IconTrash, IconX } from '@tabler/icons-react';
 import { useForm } from 'react-hook-form';
@@ -30,6 +28,7 @@ import {
   getImageReadUrl,
   extractImageKey,
 } from '../utils/imageUtils';
+import { OneFitUpload } from '~/components/onefit-upload';
 
 const baseProviderSchema = z.object({
   businessName: z.object({
@@ -102,7 +101,9 @@ export const ProviderDialog = ({
   const isCreate = mode === 'create';
   const [internalOpen, setInternalOpen] = useState(false);
   const { uploadUrl, masterUrl, isSlaveMode } = useUploadConfig();
-
+  console.log('uploadUrl', uploadUrl);
+  console.log('masterUrl', masterUrl);
+  console.log('isSlaveMode', isSlaveMode);
   const effectiveOpen = open !== undefined ? open : internalOpen;
   const effectiveOnOpenChange =
     onOpenChange || ((newOpen: boolean) => setInternalOpen(newOpen));
@@ -810,20 +811,23 @@ const ProviderForm = ({
                 <Form.Item>
                   <Form.Label>Icon</Form.Label>
                   <Form.Control>
-                    <Upload.Root
+                    <OneFitUpload.Root
                       value={getImageUrl(field.value, imageOptions) || ''}
-                      onChange={(fileInfo) => {
-                        if ('url' in fileInfo) {
-                          const url = fileInfo.url as string;
-                          const imageKey = extractImageKey(url, imageOptions);
+                      onChange={(fileInfo: { url?: string }) => {
+                        if (fileInfo.url) {
+                          const imageKey = extractImageKey(
+                            fileInfo.url,
+                            imageOptions,
+                          );
                           field.onChange(imageKey);
                         }
                       }}
+                      uploadUrl={uploadurl}
                     >
                       {field.value ? (
                         <div className="relative w-full">
                           <div className="flex justify-center items-center w-full min-h-28 p-4 rounded-md border bg-accent">
-                            <Upload.Preview className="object-contain max-w-full max-h-32" />
+                            <OneFitUpload.Preview className="object-contain max-w-full max-h-32" />
                           </div>
                           <Button
                             size="sm"
@@ -839,7 +843,7 @@ const ProviderForm = ({
                           </Button>
                         </div>
                       ) : (
-                        <Upload.Button
+                        <OneFitUpload.Button
                           size="sm"
                           variant="secondary"
                           type="button"
@@ -853,9 +857,9 @@ const ProviderForm = ({
                           > */}
                           Upload icon
                           {/* </Button> */}
-                        </Upload.Button>
+                        </OneFitUpload.Button>
                       )}
-                    </Upload.Root>
+                    </OneFitUpload.Root>
                   </Form.Control>
                   <Form.Message />
                 </Form.Item>
@@ -900,12 +904,12 @@ const ProviderForm = ({
                             </Button>
                           </div>
                         ))}
-                        <Upload.Root
+                        <OneFitUpload.Root
                           value=""
-                          onChange={(fileInfo) => {
-                            if ('url' in fileInfo && fileInfo.url) {
+                          onChange={(fileInfo: { url?: string }) => {
+                            if (fileInfo.url) {
                               const imageKey = extractImageKey(
-                                fileInfo.url as string,
+                                fileInfo.url,
                                 imageOptions,
                               );
                               field.onChange([
@@ -914,9 +918,10 @@ const ProviderForm = ({
                               ]);
                             }
                           }}
+                          uploadUrl={uploadurl}
                         >
-                          <Upload.Preview className="hidden" />
-                          <Upload.Button
+                          <OneFitUpload.Preview className="hidden" />
+                          <OneFitUpload.Button
                             size="sm"
                             variant="secondary"
                             type="button"
@@ -927,8 +932,8 @@ const ProviderForm = ({
                             <span className="text-sm font-medium">
                               Add image
                             </span>
-                          </Upload.Button>
-                        </Upload.Root>
+                          </OneFitUpload.Button>
+                        </OneFitUpload.Root>
                       </div>
                     </div>
                   </Form.Control>
