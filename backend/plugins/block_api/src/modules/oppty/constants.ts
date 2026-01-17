@@ -1,4 +1,4 @@
-export const OPPTY_STATUSES = {
+export const OPPTY_STATUSES: Record<string, string> = {
   NEW_LEAD_UNASSIGNED: 'new_lead_unassigned',
   ASSIGNED_IN_CONTACT: 'assigned_in_contact',
   QUALIFIED_LEAD: 'qualified_lead',
@@ -22,3 +22,20 @@ export const OPPTY_CUSTOMER_SOURCES = {
   SALES_MANAGER: 'sales_manager',
   OTHER: 'other',
 } as const;
+
+export const OPPTY_FIELDS = {
+  customer: 'CUSTOMER',
+  number: 'NUMBER',
+  customerSource: 'CUSTOMER_SOURCE',
+  assignedUserId: 'ASSIGNED_USER',
+  blocks: 'BLOCK',
+  status: 'STATUS',
+  labelIds: 'LABEL',
+  tagIds: 'TAG',
+  projectId: 'PROJECT',
+  unitTypes: 'UNIT_TYPE',
+  units: 'UNITS',
+  unit: 'UNIT',
+  startDate: 'START_DATE',
+  targetDate: 'TARGET_DATE',
+};

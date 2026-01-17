@@ -1,7 +1,7 @@
+import { IProject, IProjectDocument } from '@/project/@types/project';
+import { projectSchema } from '@/project/db/definitions/project';
 import { Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
-import { projectSchema } from '@/project/db/definitions/project';
-import { IProject, IProjectDocument } from '@/project/@types/project';
 
 export interface IProjectModel extends Model<IProjectDocument> {
   getProject(_id: string): Promise<IProjectDocument>;
@@ -29,7 +29,14 @@ export const loadProjectClass = (models: IModels) => {
     }
 
     public static async createProject(name: string): Promise<IProjectDocument> {
-      return models.Project.insertOne({ name });
+      const project = await models.Project.create({ name });
+
+      // Create default statuses for the project
+      if (project) {
+        await models.Status.generateDefaultStatus(project._id);
+      }
+
+      return project;
     }
 
     public static async updateProject({
@@ -39,6 +46,12 @@ export const loadProjectClass = (models: IModels) => {
       _id: string;
       input: IProject;
     }) {
+      const status = await models.Status.exists({ projectId: _id });
+
+      if (!status) {
+        await models.Status.generateDefaultStatus(_id);
+      }
+
       return await models.Project.findOneAndUpdate(
         { _id },
         { $set: { ...input } },

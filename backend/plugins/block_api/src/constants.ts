@@ -4,3 +4,7 @@ export const BLOCK_VERIFICATION_STATUS = {
   PENDING: 'pending',
   ALL: ['verified', 'unverified', 'pending'],
 };
+
+export const BLOCK_MODULES = {
+  OPPTY: 'oppty',
+};

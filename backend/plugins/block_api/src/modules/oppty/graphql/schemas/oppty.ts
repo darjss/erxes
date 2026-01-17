@@ -42,6 +42,7 @@ export const types = `
     customerId: String
     unitTypes: [String]
     units: [String]
+    unit: String
     assignedUserId: String
     status: OpptyStatus
     labelIds: [String]
@@ -50,6 +51,10 @@ export const types = `
     targetDate: Date
     customerSource: String
     projectId: String
+
+    # timer nemn
+    # chosenUnit
+    # activity
   }
 
   input IOpptyFilter {

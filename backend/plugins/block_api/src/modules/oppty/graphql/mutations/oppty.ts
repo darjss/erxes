@@ -6,17 +6,17 @@ export const opptyMutations = {
   blockCreateOppty: async (
     _parent: undefined,
     { input }: { input: IOppty },
-    { models }: IContext,
+    { models, user }: IContext,
   ) => {
-    return models.Oppty.createOppty(input);
+    return models.Oppty.createOppty(input, user._id);
   },
 
   blockUpdateOppty: async (
     _parent: undefined,
     { _id, input }: { _id: string; input: IOppty },
-    { models }: IContext,
+    { models, user }: IContext,
   ) => {
-    return models.Oppty.updateOppty(_id, input);
+    return models.Oppty.updateOppty(_id, input, user._id);
   },
 
   blockDeleteOppty: async (

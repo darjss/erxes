@@ -64,6 +64,10 @@ export const UNIT_LEASE_STATUS = {
     mn: 'Дотоод хэрэглээ ',
     en: 'Internal use',
   },
+  onHold: {
+    mn: 'Түгжсэн',
+    en: 'On hold',
+  },
 };
 
 export const UNIT_USAGE_TYPE: Record<string, { en: string; mn: string }> = {

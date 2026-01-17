@@ -8,6 +8,7 @@ import {
 import {
   SelectBranches,
   SelectCompany,
+  SelectCustomer,
   SelectDepartments,
   SelectMember,
 } from 'ui-modules';
@@ -102,6 +103,7 @@ const SalesFilterBar = ({ queries }: { queries: SalesFilterState }) => {
     branchIds,
     departmentIds,
     companyIds,
+    customerIds,
     userIds,
     priority,
     labelIds,
@@ -145,6 +147,13 @@ const SalesFilterBar = ({ queries }: { queries: SalesFilterState }) => {
           mode="multiple"
           filterKey="companyIds"
           label="By Company"
+        />
+      )}
+      {customerIds && (
+        <SelectCustomer.FilterBar
+          mode="multiple"
+          filterKey="customerIds"
+          label="By Customer"
         />
       )}
       {assignedUserIds && (
@@ -198,6 +207,10 @@ const SalesFilterView = () => {
               Search
             </Filter.Item>
             <SelectCompany.FilterItem value="companyIds" label="By Company" />
+            <SelectCustomer.FilterItem
+              value="customerIds"
+              label="By Customer"
+            />
             <Command.Separator className="my-1" />
             <SelectMember.FilterItem
               value="assignedUserIds"
@@ -231,6 +244,7 @@ const SalesFilterView = () => {
       <SelectMember.FilterView mode="multiple" queryKey="assignedUserIds" />
       <SelectMember.FilterView mode="multiple" queryKey="userIds" />
       <SelectCompany.FilterView mode="multiple" filterKey="companyIds" />
+      <SelectCustomer.FilterView mode="multiple" filterKey="customerIds" />
       <SelectBranches.FilterView mode="multiple" filterKey="branchIds" />
       <SelectDepartments.FilterView mode="multiple" filterKey="departmentIds" />
       <SelectPriority.FilterView />

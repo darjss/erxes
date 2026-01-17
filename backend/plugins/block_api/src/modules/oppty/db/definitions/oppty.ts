@@ -1,15 +1,17 @@
 import { Schema } from 'mongoose';
 
 export const opptySchema = new Schema({
-  number: { type: String, required: true },
-  description: { type: String, required: true },
-  customerId: { type: String, required: true },
-  unitTypes: { type: [String], required: false },
-  units: { type: [String], required: false },
-  assignedUserId: { type: String, required: false },
-  blocks: { type: [String], required: false },
-  status: { type: String, required: true },
-  labelIds: { type: [String], required: false },
-  tagIds: { type: [String], required: false },
-  projectId: { type: String, required: false },
+  number: { type: String, required: true, label: 'Number' },
+  description: { type: String, required: true, label: 'Description' },
+  customerId: { type: String, required: true, label: 'Customer ID' },
+  unitTypes: { type: [String], label: 'Unit Types' },
+  units: { type: [String], label: 'Units' },
+  unit: { type: String, required: false },
+  assignedUserId: { type: String, label: 'Assigned User' },
+  blocks: { type: [String], label: 'Blocks' },
+  status: { type: String, required: true, label: 'Status' },
+  labelIds: { type: [String], label: 'Label IDs' },
+  tagIds: { type: [String], label: 'Tag IDs' },
+  projectId: { type: String, label: 'Project ID' },
+  customerSource: { type: String, label: 'Customer Source' },
 });

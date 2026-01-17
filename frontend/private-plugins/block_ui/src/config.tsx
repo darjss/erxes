@@ -16,13 +16,12 @@ const BlockProjectsNavigation = lazy(() =>
 
 export const CONFIG: IUIConfig = {
   name: 'block',
+  path: 'block',
   modules: [
     {
       name: 'block',
       icon: IconBlocks,
       path: 'block',
-      hasSettings: false,
-      hasFloatingWidget: true,
     },
   ],
   navigationGroup: {
@@ -33,7 +32,7 @@ export const CONFIG: IUIConfig = {
         <BlockNavigation />
       </Suspense>
     ),
-    subGroups: () => (
+    subGroup: () => (
       <Suspense fallback={<div />}>
         <BlockProjectsNavigation />
       </Suspense>
