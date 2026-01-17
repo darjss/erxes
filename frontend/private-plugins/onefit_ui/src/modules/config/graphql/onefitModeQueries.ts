@@ -6,3 +6,8 @@ export const ONE_FIT_MODE = gql`
   }
 `;
 
+export const ONE_FIT_MASTER_URL = gql`
+  query OneFitMasterUrl {
+    oneFitMasterUrl
+  }
+`;

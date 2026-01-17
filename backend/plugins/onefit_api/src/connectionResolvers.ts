@@ -113,6 +113,7 @@ export interface IContext extends IMainContext {
   mode: OneFitMode;
   instanceId?: string;
   masterClient?: MasterClient;
+  masterUrl?: string;
 }
 
 export const loadClasses = (db: mongoose.Connection): IModels => {

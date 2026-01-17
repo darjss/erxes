@@ -129,6 +129,8 @@ export const providerSchema = new Schema(
     approvedBy: { type: String, label: 'Approved By' },
     rejectedBy: { type: String, label: 'Rejected By' },
     isActive: { type: Boolean, default: true, label: 'Is Active' },
+    icon: { type: String, label: 'Icon URL', optional: true },
+    coverImages: { type: [String], label: 'Cover Images', optional: true },
     instanceId: { type: String, label: 'Instance ID', index: true },
   },
   {

@@ -8,8 +8,10 @@ import {
   Textarea,
   Switch,
   Label,
+  Upload,
+  useUpload as useErxesUpload,
 } from 'erxes-ui';
-import { IconPlus } from '@tabler/icons-react';
+import { IconPlus, IconUpload, IconTrash, IconX } from '@tabler/icons-react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -22,6 +24,12 @@ import {
 import { ONE_FIT_PROVIDER } from '../graphql/providerQueries';
 import { ProviderStatus } from '../types/provider';
 import { SelectCategories } from './SelectCategories';
+import { useUploadConfig } from '../../config/hooks/useUploadConfig';
+import {
+  getImageUrl,
+  getImageReadUrl,
+  extractImageKey,
+} from '../utils/imageUtils';
 
 const baseProviderSchema = z.object({
   businessName: z.object({
@@ -66,6 +74,8 @@ const baseProviderSchema = z.object({
     .array(z.string())
     .min(1, { message: 'At least one category is required' }),
   isActive: z.boolean().optional(),
+  icon: z.string().optional(),
+  coverImages: z.array(z.string()).optional(),
 });
 
 const createProviderSchema = baseProviderSchema;
@@ -91,6 +101,7 @@ export const ProviderDialog = ({
 }: ProviderDialogProps) => {
   const isCreate = mode === 'create';
   const [internalOpen, setInternalOpen] = useState(false);
+  const { uploadUrl, masterUrl, isSlaveMode } = useUploadConfig();
 
   const effectiveOpen = open !== undefined ? open : internalOpen;
   const effectiveOnOpenChange =
@@ -112,6 +123,9 @@ export const ProviderDialog = ({
           </Sheet.Header>
           <ProviderForm
             mode="create"
+            uploadurl={uploadUrl}
+            masterUrl={masterUrl}
+            isSlaveMode={isSlaveMode}
             onClose={() => {
               effectiveOnOpenChange(false);
               onClose?.();
@@ -132,6 +146,9 @@ export const ProviderDialog = ({
         <ProviderForm
           mode="edit"
           providerId={providerId!}
+          uploadurl={uploadUrl}
+          masterUrl={masterUrl}
+          isSlaveMode={isSlaveMode}
           onClose={() => {
             effectiveOnOpenChange(false);
             onClose?.();
@@ -145,12 +162,27 @@ export const ProviderDialog = ({
 interface ProviderFormProps {
   mode: 'create' | 'edit';
   providerId?: string;
+  uploadurl?: string;
+  masterUrl?: string;
+  isSlaveMode?: boolean;
   onClose: () => void;
 }
 
-const ProviderForm = ({ mode, providerId, onClose }: ProviderFormProps) => {
+const ProviderForm = ({
+  mode,
+  providerId,
+  uploadurl,
+  masterUrl,
+  isSlaveMode,
+  onClose,
+}: ProviderFormProps) => {
   const isCreate = mode === 'create';
   const [selectedLanguage, setSelectedLanguage] = useState<'en' | 'mn'>('en');
+
+  const imageOptions = {
+    isSlaveMode: isSlaveMode ?? false,
+    masterUrl,
+  };
 
   const { data: providerData, loading: queryLoading } = useQuery(
     ONE_FIT_PROVIDER,
@@ -199,6 +231,8 @@ const ProviderForm = ({ mode, providerId, onClose }: ProviderFormProps) => {
       facilities: [],
       categoryIds: [],
       isActive: true,
+      icon: '',
+      coverImages: [],
     },
   });
 
@@ -229,6 +263,8 @@ const ProviderForm = ({ mode, providerId, onClose }: ProviderFormProps) => {
         facilities: provider.facilities || [],
         categoryIds: provider.categoryIds || [],
         isActive: provider.isActive,
+        icon: provider.icon || '',
+        coverImages: provider.coverImages || [],
       });
       setSelectedLanguage('en');
     }
@@ -292,6 +328,11 @@ const ProviderForm = ({ mode, providerId, onClose }: ProviderFormProps) => {
           categoryIds: createData.categoryIds,
           isActive:
             createData.isActive !== undefined ? createData.isActive : true,
+          icon: createData.icon || undefined,
+          coverImages:
+            createData.coverImages && createData.coverImages.length > 0
+              ? createData.coverImages
+              : undefined,
         },
         onCompleted: () => {
           onClose();
@@ -317,6 +358,11 @@ const ProviderForm = ({ mode, providerId, onClose }: ProviderFormProps) => {
               : undefined,
           categoryIds: editData.categoryIds,
           isActive: editData.isActive,
+          icon: editData.icon || undefined,
+          coverImages:
+            editData.coverImages && editData.coverImages.length > 0
+              ? editData.coverImages
+              : undefined,
         },
         onCompleted: () => {
           onClose();
@@ -752,6 +798,139 @@ const ProviderForm = ({ mode, providerId, onClose }: ProviderFormProps) => {
                       onSelect={field.onChange}
                       disabled={isRejected}
                     />
+                  </Form.Control>
+                  <Form.Message />
+                </Form.Item>
+              )}
+            />
+            <Form.Field
+              control={form.control}
+              name="icon"
+              render={({ field }) => (
+                <Form.Item>
+                  <Form.Label>Icon</Form.Label>
+                  <Form.Control>
+                    <Upload.Root
+                      value={getImageUrl(field.value, imageOptions) || ''}
+                      onChange={(fileInfo) => {
+                        if ('url' in fileInfo) {
+                          const url = fileInfo.url as string;
+                          const imageKey = extractImageKey(url, imageOptions);
+                          field.onChange(imageKey);
+                        }
+                      }}
+                    >
+                      {field.value ? (
+                        <div className="relative w-full">
+                          <div className="flex justify-center items-center w-full min-h-28 p-4 rounded-md border bg-accent">
+                            <Upload.Preview className="object-contain max-w-full max-h-32" />
+                          </div>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            type="button"
+                            className="absolute right-2 bottom-2 size-6"
+                            onClick={() => {
+                              field.onChange('');
+                            }}
+                            disabled={isRejected}
+                          >
+                            <IconTrash size={12} color="red" />
+                          </Button>
+                        </div>
+                      ) : (
+                        <Upload.Button
+                          size="sm"
+                          variant="secondary"
+                          type="button"
+                          className="flex flex-col justify-center items-center w-full h-28 border border-dashed text-muted-foreground"
+                          disabled={isRejected}
+                        >
+                          <IconUpload className="mb-2" />
+                          {/* <Button
+                            variant="outline"
+                            className="text-sm font-medium"
+                          > */}
+                          Upload icon
+                          {/* </Button> */}
+                        </Upload.Button>
+                      )}
+                    </Upload.Root>
+                  </Form.Control>
+                  <Form.Message />
+                </Form.Item>
+              )}
+            />
+            <Form.Field
+              control={form.control}
+              name="coverImages"
+              render={({ field }) => (
+                <Form.Item>
+                  <Form.Label>Cover Images</Form.Label>
+                  <Form.Control>
+                    <div className="space-y-4">
+                      <div className="grid grid-cols-2 gap-4">
+                        {field.value?.map((imageKey, index) => (
+                          <div key={index} className="relative group">
+                            <div className="relative w-full aspect-video rounded-md border overflow-hidden bg-accent">
+                              <img
+                                src={getImageReadUrl(imageKey, imageOptions)}
+                                alt={`Cover ${index + 1}`}
+                                className="w-full h-full object-cover"
+                                onError={(e) => {
+                                  (e.target as HTMLImageElement).style.display =
+                                    'none';
+                                }}
+                              />
+                            </div>
+                            <Button
+                              size="sm"
+                              variant="destructive"
+                              type="button"
+                              className="absolute top-2 right-2 size-6 opacity-0 group-hover:opacity-100 transition-opacity"
+                              onClick={() => {
+                                const newImages = field.value?.filter(
+                                  (_, i) => i !== index,
+                                );
+                                field.onChange(newImages || []);
+                              }}
+                              disabled={isRejected}
+                            >
+                              <IconX size={12} />
+                            </Button>
+                          </div>
+                        ))}
+                        <Upload.Root
+                          value=""
+                          onChange={(fileInfo) => {
+                            if ('url' in fileInfo && fileInfo.url) {
+                              const imageKey = extractImageKey(
+                                fileInfo.url as string,
+                                imageOptions,
+                              );
+                              field.onChange([
+                                ...(field.value || []),
+                                imageKey,
+                              ]);
+                            }
+                          }}
+                        >
+                          <Upload.Preview className="hidden" />
+                          <Upload.Button
+                            size="sm"
+                            variant="secondary"
+                            type="button"
+                            className="flex flex-col justify-center items-center w-full h-full min-h-28 border border-dashed text-muted-foreground aspect-video"
+                            disabled={isRejected}
+                          >
+                            <IconPlus className="mb-2" />
+                            <span className="text-sm font-medium">
+                              Add image
+                            </span>
+                          </Upload.Button>
+                        </Upload.Root>
+                      </div>
+                    </div>
                   </Form.Control>
                   <Form.Message />
                 </Form.Item>

@@ -35,6 +35,8 @@ export const types = `
     approvedBy: String
     rejectedBy: String
     isActive: Boolean
+    icon: String
+    coverImages: [String]
   }
 
   type OneFitProviderListResponse {
@@ -83,6 +85,8 @@ const mutationParams = `
   facilities: [String]
   categoryIds: [String]!
   isActive: Boolean
+  icon: String
+  coverImages: [String]
 `;
 
 export const mutations = `

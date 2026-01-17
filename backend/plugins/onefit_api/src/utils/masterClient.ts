@@ -1,4 +1,6 @@
 import fetch from 'node-fetch';
+import FormData from 'form-data';
+import * as fs from 'fs';
 import { getOneFitMasterUrl } from '~/constants/mode';
 
 export interface GraphQLRequest {
@@ -16,13 +18,25 @@ export interface GraphQLResponse<T = any> {
   }>;
 }
 
+export interface FileUploadOptions {
+  filePath: string;
+  fileName: string;
+  mimetype: string;
+  maxHeight?: number;
+  maxWidth?: number;
+  kind?: string;
+}
+
 export class MasterClient {
   private masterUrl: string;
   private graphqlEndpoint: string;
+  private uploadEndpoint: string;
 
   constructor(masterUrl: string) {
     this.masterUrl = masterUrl.replace(/\/$/, '');
     this.graphqlEndpoint = `${this.masterUrl}/graphql`;
+    // Upload endpoint should go through gateway to onefit_api plugin
+    this.uploadEndpoint = `${this.masterUrl}/gateway/pl:onefit/upload-file`;
   }
 
   async request<T = any>(
@@ -71,6 +85,59 @@ export class MasterClient {
     headers?: Record<string, string>,
   ): Promise<T> {
     return this.query<T>(mutation, variables, headers);
+  }
+
+  async uploadFile(
+    options: FileUploadOptions,
+    headers?: Record<string, string>,
+  ): Promise<string> {
+    try {
+      if (!fs.existsSync(options.filePath)) {
+        throw new Error(`File not found: ${options.filePath}`);
+      }
+
+      const formData = new FormData();
+      formData.append('file', fs.createReadStream(options.filePath), {
+        filename: options.fileName,
+        contentType: options.mimetype,
+      });
+
+      const queryParams = new URLSearchParams();
+      if (options.kind) {
+        queryParams.append('kind', options.kind);
+      }
+      if (options.maxHeight) {
+        queryParams.append('maxHeight', options.maxHeight.toString());
+      }
+      if (options.maxWidth) {
+        queryParams.append('maxWidth', options.maxWidth.toString());
+      }
+
+      const url = `${this.uploadEndpoint}${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
+
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          ...formData.getHeaders(),
+          ...headers,
+        },
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(
+          `Master upload failed: ${response.status} ${response.statusText} - ${errorText}`,
+        );
+      }
+
+      const result = await response.text();
+      return result;
+    } catch (error: any) {
+      throw new Error(
+        `Failed to upload file to master: ${error.message}`,
+      );
+    }
   }
 }
 

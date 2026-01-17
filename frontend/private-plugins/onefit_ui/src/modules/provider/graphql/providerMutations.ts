@@ -9,6 +9,8 @@ export const ONE_FIT_PROVIDER_CREATE = gql`
     $facilities: [String]
     $categoryIds: [String]!
     $isActive: Boolean
+    $icon: String
+    $coverImages: [String]
   ) {
     oneFitProviderCreate(
       businessName: $businessName
@@ -18,6 +20,8 @@ export const ONE_FIT_PROVIDER_CREATE = gql`
       facilities: $facilities
       categoryIds: $categoryIds
       isActive: $isActive
+      icon: $icon
+      coverImages: $coverImages
     ) {
       _id
       createdAt
@@ -57,6 +61,8 @@ export const ONE_FIT_PROVIDER_CREATE = gql`
       categoryIds
       status
       isActive
+      icon
+      coverImages
     }
   }
 `;
@@ -71,6 +77,8 @@ export const ONE_FIT_PROVIDER_UPDATE = gql`
     $facilities: [String]
     $categoryIds: [String]!
     $isActive: Boolean
+    $icon: String
+    $coverImages: [String]
   ) {
     oneFitProviderUpdate(
       _id: $_id
@@ -81,6 +89,8 @@ export const ONE_FIT_PROVIDER_UPDATE = gql`
       facilities: $facilities
       categoryIds: $categoryIds
       isActive: $isActive
+      icon: $icon
+      coverImages: $coverImages
     ) {
       _id
       modifiedAt
@@ -119,6 +129,8 @@ export const ONE_FIT_PROVIDER_UPDATE = gql`
       categoryIds
       status
       isActive
+      icon
+      coverImages
     }
   }
 `;
