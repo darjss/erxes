@@ -10,7 +10,6 @@ export const useUploadConfig = () => {
   });
 
   const masterUrl = data?.oneFitMasterUrl as string | undefined;
-  console.log('isSlaveMode', isSlaveMode);
   const getUploadUrl = (): string => {
     if (isSlaveMode) {
       // Use onefit_api upload route which will proxy to master
