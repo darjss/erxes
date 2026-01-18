@@ -11,7 +11,6 @@ const bookingCustomResolvers = {
       if (!booking.userId) {
         return null;
       }
-      console.log('booking.userId', booking.userId);
       return await models.OneFitCustomer.findOne({ _id: booking.userId });
     },
 

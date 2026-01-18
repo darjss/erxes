@@ -7,11 +7,13 @@ const OneFitNavigation = lazy(() =>
     default: module.OneFitNavigation,
   })),
 );
-// const OnefitSettingsNavigation = lazy(() =>
-//   import('@/OnefitSettingsNavigation').then((mod) => ({
-//     default: mod.OnefitSettingsNavigation,
-//   })),
-// );
+
+const OneFitSettingsNavigation = lazy(() =>
+  import('./modules/OneFitSettingsNavigation').then((module) => ({
+    default: module.OneFitSettingsNavigation,
+  })),
+);
+
 export const CONFIG: IUIConfig = {
   name: 'onefit',
   path: 'onefit',
@@ -25,7 +27,7 @@ export const CONFIG: IUIConfig = {
   ],
   settingsNavigation: () => (
     <Suspense fallback={<div />}>
-      {/* <OperationSettingsNavigation /> */}
+      <OneFitSettingsNavigation />
     </Suspense>
   ),
   navigationGroup: {
