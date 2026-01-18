@@ -411,11 +411,21 @@ export const bookingMutations: Record<string, Resolver> = {
       _id,
       attendanceStatus,
     }: { _id: string; attendanceStatus: AttendanceStatus },
-    { models, user }: IContext,
+    { models, user, instanceId }: IContext,
   ) {
     const booking = await models.Booking.findOne({ _id });
     if (!booking) {
       throw new Error('Booking not found');
+    }
+
+    // Verify instanceId ownership if instanceId is set
+    if (instanceId) {
+      const provider = await models.Provider.findOne({
+        _id: booking.providerId,
+      });
+      if (provider && provider.instanceId !== instanceId) {
+        throw new Error('You do not have permission to modify this booking');
+      }
     }
 
     // Get current user from context (should be provider)

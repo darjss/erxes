@@ -37,6 +37,7 @@ export const types = `
     isActive: Boolean
     icon: String
     coverImages: [String]
+    distance: Float
   }
 
   type OneFitProviderListResponse {
@@ -69,6 +70,8 @@ const queryParams = `
   status: String,
   categoryId: String,
   isActive: Boolean,
+  near: OneFitCoordinatesInput,
+  maxDistance: Float,
 `;
 
 export const queries = `

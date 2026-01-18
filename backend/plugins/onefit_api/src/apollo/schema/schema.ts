@@ -49,6 +49,11 @@ import {
   queries as ActivityTypeQueries,
   mutations as ActivityTypeMutations,
 } from '@/activity-type/graphql/schemas/activityType';
+import {
+  types as BannerTypes,
+  queries as BannerQueries,
+  mutations as BannerMutations,
+} from '@/banner/graphql/schemas/banner';
 import { TypeExtensions } from './extensions';
 
 export const types = `
@@ -63,6 +68,7 @@ export const types = `
   ${ConfigTypes}
   ${OneFitCustomerTypes}
   ${ActivityTypeTypes}
+  ${BannerTypes}
 `;
 
 export const queries = `
@@ -76,6 +82,7 @@ export const queries = `
   ${ConfigQueries}
   ${OneFitCustomerQueries}
   ${ActivityTypeQueries}
+  ${BannerQueries}
 `;
 
 export const mutations = `
@@ -89,6 +96,7 @@ export const mutations = `
   ${ConfigMutations}
   ${OneFitCustomerMutations}
   ${ActivityTypeMutations}
+  ${BannerMutations}
 `;
 
 export default { types, queries, mutations };

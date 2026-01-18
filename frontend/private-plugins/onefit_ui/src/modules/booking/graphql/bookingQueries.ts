@@ -116,3 +116,49 @@ export const ONE_FIT_BOOKING = gql`
     }
   }
 `;
+
+export const ONE_FIT_BOOKING_BY_BOOKING_ID = gql`
+  query OneFitBookingByBookingId($bookingId: String!) {
+    oneFitBookingByBookingId(bookingId: $bookingId) {
+      _id
+      createdAt
+      modifiedAt
+      userId
+      providerId
+      activityTypeId
+      user {
+        _id
+        firstName
+        lastName
+        primaryEmail
+        primaryPhone
+      }
+      provider {
+        _id
+        businessName {
+          en
+          mn
+        }
+      }
+      activityType {
+        _id
+        name {
+          en
+          mn
+        }
+      }
+      bookingDate
+      startTime
+      endTime
+      creditCost
+      status
+      attendanceStatus
+      bookingId
+      cancelledAt
+      cancelledBy
+      cancellationReason
+      attendedAt
+      markedBy
+    }
+  }
+`;

@@ -4,6 +4,16 @@ import { sendTRPCMessage } from 'erxes-api-shared/utils';
 
 const resolvers = {
   OneFitMembershipPurchase: {
+    user: async (
+      purchase: IMembershipPurchaseDocument,
+      _params: undefined,
+      { models }: IContext,
+    ) => {
+      if (!purchase.userId) {
+        return null;
+      }
+      return await models.OneFitCustomer.findOne({ _id: purchase.userId });
+    },
     plan: async (
       purchase: IMembershipPurchaseDocument,
       _params: undefined,

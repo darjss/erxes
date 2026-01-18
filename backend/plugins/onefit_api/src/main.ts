@@ -107,13 +107,16 @@ startPlugin({
   meta: {
     payments: {
       transactionCallback: async (subdomain, data) => {
-        console.log('transactionCallback', subdomain, data);
+        // Intentionally left blank.
       },
       callback: async (subdomain, data) => {
-        const { contentTypeId, contentType, status, customerId } = data;
+        const { contentTypeId, contentType, status } = data;
 
         // Only process membership purchase callbacks
-        if (contentType !== 'onefit:membership:membershippurchase') {
+        if (
+          contentType !== 'onefit:membership:membershippurchase' &&
+          contentType !== 'onefit:membershipPurchase'
+        ) {
           return;
         }
 

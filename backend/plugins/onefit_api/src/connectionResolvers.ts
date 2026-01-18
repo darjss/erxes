@@ -83,6 +83,13 @@ import {
   loadOneFitCustomerClass,
 } from '@/onefitCustomer/db/models/OneFitCustomer';
 
+// Banner
+import { IBannerDocument } from '@/banner/@types/banner';
+import {
+  IBannerModel,
+  loadBannerClass,
+} from '@/banner/db/models/Banner';
+
 export interface IModels {
   models: mongoose.Model<
     unknown,
@@ -105,6 +112,7 @@ export interface IModels {
   Notification: INotificationModel;
   SystemConfig: ISystemConfigModel;
   OneFitCustomer: IOneFitCustomerModel;
+  Banner: IBannerModel;
 }
 
 export interface IContext extends IMainContext {
@@ -184,6 +192,11 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
   // console.log(models.OneFitCustomer);
   // console.log('OneFitCustomer', models.OneFitCustomer.collection.name);
   // console.log('OneFitCustomer', models.OneFitCustomer.discriminator);
+
+  models.Banner = db.model<IBannerDocument, IBannerModel>(
+    'onefit_banners',
+    loadBannerClass(models),
+  );
 
   return models;
 };

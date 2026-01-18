@@ -18,6 +18,7 @@ import { UpdateMembershipDialog } from './UpdateMembershipDialog';
 import { UpdateCreditBalanceDialog } from './UpdateCreditBalanceDialog';
 import { UpdateBookingPreferencesDialog } from './UpdateBookingPreferencesDialog';
 import { ONE_FIT_MEMBERSHIP_PLANS } from '~/modules/membership/graphql/membershipPlanQueries';
+import { CreateMembershipPurchaseDialog } from '~/modules/membership-purchase/components/CreateMembershipPurchaseDialog';
 
 interface OneFitCustomersListProps {
   filters?: OneFitCustomerFilters;
@@ -43,8 +44,9 @@ export const OneFitCustomersList = ({ filters }: OneFitCustomersListProps) => {
   const [membershipDialogOpen, setMembershipDialogOpen] = useState(false);
   const [creditDialogOpen, setCreditDialogOpen] = useState(false);
   const [preferencesDialogOpen, setPreferencesDialogOpen] = useState(false);
+  const [purchaseDialogOpen, setPurchaseDialogOpen] = useState(false);
   const [actionType, setActionType] = useState<
-    'membership' | 'credit' | 'preferences'
+    'membership' | 'credit' | 'preferences' | 'purchase'
   >('membership');
 
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
@@ -212,53 +214,31 @@ export const OneFitCustomersList = ({ filters }: OneFitCustomersListProps) => {
           );
         },
       },
-      // {
-      //   id: 'actions',
-      //   header: 'Actions',
-      //   cell: ({ row }) => {
-      //     const customer = row.original;
+      {
+        id: 'actions',
+        header: 'Actions',
+        cell: ({ row }) => {
+          const customer = row.original;
 
-      //     return (
-      //       <RecordTableInlineCell>
-      //         <div className="flex gap-2">
-      //           <Button
-      //             variant="outline"
-      //             size="sm"
-      //             onClick={() => {
-      //               setSelectedCustomer(customer._id);
-      //               setActionType('membership');
-      //               setMembershipDialogOpen(true);
-      //             }}
-      //           >
-      //             Update Membership
-      //           </Button>
-      //           <Button
-      //             variant="outline"
-      //             size="sm"
-      //             onClick={() => {
-      //               setSelectedCustomer(customer._id);
-      //               setActionType('credit');
-      //               setCreditDialogOpen(true);
-      //             }}
-      //           >
-      //             Update Credits
-      //           </Button>
-      //           <Button
-      //             variant="outline"
-      //             size="sm"
-      //             onClick={() => {
-      //               setSelectedCustomer(customer._id);
-      //               setActionType('preferences');
-      //               setPreferencesDialogOpen(true);
-      //             }}
-      //           >
-      //             Preferences
-      //           </Button>
-      //         </div>
-      //       </RecordTableInlineCell>
-      //     );
-      //   },
-      // },
+          return (
+            <RecordTableInlineCell>
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    setSelectedCustomer(customer._id);
+                    setActionType('purchase');
+                    setPurchaseDialogOpen(true);
+                  }}
+                >
+                  Purchase membership
+                </Button>
+              </div>
+            </RecordTableInlineCell>
+          );
+        },
+      },
     ],
     [membershipPlanMap],
   );
@@ -317,6 +297,14 @@ export const OneFitCustomersList = ({ filters }: OneFitCustomersListProps) => {
             open={preferencesDialogOpen && actionType === 'preferences'}
             onOpenChange={(open) => {
               setPreferencesDialogOpen(open);
+              if (!open) setSelectedCustomer(null);
+            }}
+          />
+          <CreateMembershipPurchaseDialog
+            defaultUserId={selectedCustomer}
+            open={purchaseDialogOpen && actionType === 'purchase'}
+            onOpenChange={(open) => {
+              setPurchaseDialogOpen(open);
               if (!open) setSelectedCustomer(null);
             }}
           />

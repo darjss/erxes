@@ -22,6 +22,7 @@ export const types = `
     createdAt: Date
     modifiedAt: Date
     userId: String
+    user: Customer
     planId: String
     status: String
     purchasedAt: Date

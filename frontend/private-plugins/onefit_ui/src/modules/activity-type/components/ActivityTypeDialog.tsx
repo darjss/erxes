@@ -26,6 +26,8 @@ import { ONE_FIT_ACTIVITY_TYPE } from '../graphql/activityTypeQueries';
 import { SelectCategories } from '~/modules/provider/components/SelectCategories';
 import { SelectProviderSearchable } from '~/modules/provider/components/SelectProviderSearchable';
 import { SelectProviderImage } from './SelectProviderImage';
+import { ONE_FIT_ACTIVITY_CATEGORIES } from '~/modules/category/graphql/categoryQueries';
+import { getLocalizedString as getCategoryLocalizedString } from '~/modules/category/utils/localization';
 
 const baseActivityTypeSchema = z.object({
   name: z.object({
@@ -155,7 +157,42 @@ const ActivityTypeForm = ({
     },
   );
 
+  const { data: categoriesData } = useQuery(ONE_FIT_ACTIVITY_CATEGORIES, {
+    variables: {},
+  });
+
   const activityType = activityTypeData?.oneFitActivityType;
+  const categories = categoriesData?.oneFitActivityCategories || [];
+
+  const getCategoryFullPath = (
+    categoryId: string,
+    categoriesList: Array<{
+      _id: string;
+      parentId?: string;
+      name: { en: string; mn: string };
+    }>,
+  ): string => {
+    const categoryMap = new Map(
+      categoriesList.map((cat) => [cat._id, cat]),
+    );
+
+    const getPath = (id: string, path: string[] = []): string[] => {
+      const cat = categoryMap.get(id);
+      if (!cat) return path;
+
+      const currentName = getCategoryLocalizedString(cat.name, 'en');
+      const newPath = [currentName, ...path];
+
+      if (cat.parentId) {
+        return getPath(cat.parentId, newPath);
+      }
+
+      return newPath;
+    };
+
+    const path = getPath(categoryId);
+    return path.join(' > ');
+  };
 
   const form = useForm<CreateActivityTypeFormData | EditActivityTypeFormData>({
     resolver: zodResolver(
@@ -501,18 +538,48 @@ const ActivityTypeForm = ({
             <Form.Field
               control={form.control}
               name="categoryIds"
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label>Categories *</Form.Label>
-                  <Form.Control>
-                    <SelectCategories
-                      selected={field.value || []}
-                      onSelect={field.onChange}
-                    />
-                  </Form.Control>
-                  <Form.Message />
-                </Form.Item>
-              )}
+              render={({ field }) => {
+                const selectedCategoryIds = field.value || [];
+                const selectedCategories = categories.filter((cat: {
+                  _id: string;
+                  parentId?: string;
+                  name: { en: string; mn: string };
+                }) => selectedCategoryIds.includes(cat._id));
+
+                return (
+                  <Form.Item>
+                    <Form.Label>Categories *</Form.Label>
+                    <Form.Control>
+                      <SelectCategories
+                        selected={selectedCategoryIds}
+                        onSelect={field.onChange}
+                      />
+                    </Form.Control>
+                    {selectedCategories.length > 0 && (
+                      <div className="mt-2 p-3 bg-muted rounded-md">
+                        <p className="text-sm font-medium mb-2">
+                          Selected Categories:
+                        </p>
+                        <div className="flex flex-wrap gap-2">
+                          {selectedCategories.map((category: {
+                            _id: string;
+                            parentId?: string;
+                            name: { en: string; mn: string };
+                          }) => (
+                            <span
+                              key={category._id}
+                              className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary text-primary-foreground"
+                            >
+                              {getCategoryFullPath(category._id, categories)}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    <Form.Message />
+                  </Form.Item>
+                );
+              }}
             />
             <Form.Field
               control={form.control}
