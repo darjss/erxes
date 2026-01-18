@@ -62,6 +62,7 @@ export const activityTypeSchema = new Schema(
       label: 'Cancellation Deadline (hours)',
       default: 0,
     },
+    image: { type: String, label: 'Image URL', optional: true },
   },
   {
     timestamps: true,

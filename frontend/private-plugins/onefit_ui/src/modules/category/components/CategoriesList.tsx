@@ -6,6 +6,7 @@ import {
   RecordTableInlineCell,
   RecordTableTree,
   RelativeDateDisplay,
+  readImage,
 } from 'erxes-ui';
 import { useCategories } from '../hooks/useCategories';
 import { CategoryFilters } from '../types/category';
@@ -72,7 +73,7 @@ export const CategoriesList = ({ filters }: CategoriesListProps) => {
           <RecordTableInlineCell>
             {icon ? (
               <img
-                src={icon}
+                src={readImage(icon)}
                 alt="Icon"
                 className="w-8 h-8 object-cover rounded"
                 onError={(e) => {
@@ -95,7 +96,7 @@ export const CategoriesList = ({ filters }: CategoriesListProps) => {
           <RecordTableInlineCell>
             {image ? (
               <img
-                src={image}
+                src={readImage(image)}
                 alt="Category"
                 className="w-12 h-12 object-cover rounded"
                 onError={(e) => {

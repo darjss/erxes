@@ -29,6 +29,7 @@ export const ONE_FIT_ACTIVITY_TYPES = gql`
             en
             mn
           }
+          coverImages
         }
         name {
           en
@@ -51,6 +52,7 @@ export const ONE_FIT_ACTIVITY_TYPES = gql`
         }
         isActive
         cancellationDeadline
+        image
       }
       totalCount
       pageInfo {
@@ -94,6 +96,7 @@ export const ONE_FIT_ACTIVITY_TYPE = gql`
           en
           mn
         }
+        coverImages
       }
       name {
         en
@@ -116,6 +119,7 @@ export const ONE_FIT_ACTIVITY_TYPE = gql`
       }
       isActive
       cancellationDeadline
+      image
     }
   }
 `;

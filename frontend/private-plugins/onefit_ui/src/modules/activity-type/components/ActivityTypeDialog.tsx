@@ -25,6 +25,7 @@ import { GenderRestriction } from '../types/activityType';
 import { ONE_FIT_ACTIVITY_TYPE } from '../graphql/activityTypeQueries';
 import { SelectCategories } from '~/modules/provider/components/SelectCategories';
 import { SelectProviderSearchable } from '~/modules/provider/components/SelectProviderSearchable';
+import { SelectProviderImage } from './SelectProviderImage';
 
 const baseActivityTypeSchema = z.object({
   name: z.object({
@@ -52,6 +53,7 @@ const baseActivityTypeSchema = z.object({
     .number()
     .min(0, { message: 'Cancellation deadline must be 0 or greater' })
     .optional(),
+  image: z.string().optional(),
 });
 
 const createActivityTypeSchema = baseActivityTypeSchema.extend({
@@ -174,9 +176,14 @@ const ActivityTypeForm = ({
       categoryIds: [],
       isActive: true,
       cancellationDeadline: 0,
+      image: '',
       ...(isCreate && { providerId: '' }),
     },
   });
+
+  const providerId = isCreate
+    ? form.watch('providerId')
+    : activityType?.providerId;
 
   useEffect(() => {
     if (!isCreate && activityType) {
@@ -189,9 +196,16 @@ const ActivityTypeForm = ({
         categoryIds: activityType.categoryIds || [],
         isActive: activityType.isActive,
         cancellationDeadline: activityType.cancellationDeadline || 0,
+        image: activityType.image || '',
       });
     }
   }, [activityType, isCreate, form]);
+
+  useEffect(() => {
+    if (isCreate && providerId) {
+      form.setValue('image', '');
+    }
+  }, [providerId, isCreate, form]);
 
   const { createActivityType, loading: createLoading } =
     useCreateActivityType();
@@ -221,6 +235,7 @@ const ActivityTypeForm = ({
           isActive:
             createData.isActive !== undefined ? createData.isActive : true,
           cancellationDeadline: createData.cancellationDeadline,
+          image: createData.image || undefined,
         },
         onCompleted: () => {
           onClose();
@@ -247,6 +262,7 @@ const ActivityTypeForm = ({
               : undefined,
           isActive: editData.isActive,
           cancellationDeadline: editData.cancellationDeadline,
+          image: editData.image || undefined,
         },
         onCompleted: () => {
           onClose();
@@ -491,6 +507,23 @@ const ActivityTypeForm = ({
                   <Form.Control>
                     <SelectCategories
                       selected={field.value || []}
+                      onSelect={field.onChange}
+                    />
+                  </Form.Control>
+                  <Form.Message />
+                </Form.Item>
+              )}
+            />
+            <Form.Field
+              control={form.control}
+              name="image"
+              render={({ field }) => (
+                <Form.Item>
+                  <Form.Label>Image</Form.Label>
+                  <Form.Control>
+                    <SelectProviderImage
+                      providerId={providerId}
+                      selectedImage={field.value}
                       onSelect={field.onChange}
                     />
                   </Form.Control>
