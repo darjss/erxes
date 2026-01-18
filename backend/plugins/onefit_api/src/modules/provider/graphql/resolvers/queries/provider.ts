@@ -7,12 +7,15 @@ import {
 import { IContext } from '~/connectionResolvers';
 import { ProviderStatus } from '@/provider/@types/provider';
 import { isSlaveMode } from '~/constants/mode';
+import { geospatialCursorPaginate } from '@/provider/utils/geospatialUtils';
 
 export interface IProviderQueryParams extends ICursorPaginateParams {
   searchValue?: string;
   status?: string;
   categoryId?: string;
   isActive?: boolean;
+  near?: { lat: number; lng: number };
+  maxDistance?: number;
 }
 
 const generateFilter = async (
@@ -104,6 +107,19 @@ export const providerQueries: Record<string, Resolver> = {
     const { models, mode, instanceId, masterClient } = context;
 
     const filter = await generateFilter(params, instanceId);
+
+    // Use geospatial query if near parameter is provided
+    if (params.near && params.near.lat && params.near.lng) {
+      return await geospatialCursorPaginate({
+        model: models.Provider,
+        near: params.near,
+        maxDistance: params.maxDistance,
+        filter,
+        params,
+      });
+    }
+
+    // Otherwise use standard cursor pagination
     return await cursorPaginate({
       model: models.Provider,
       params,

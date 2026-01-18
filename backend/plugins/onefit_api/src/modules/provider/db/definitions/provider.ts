@@ -58,6 +58,17 @@ const locationSchema = new Schema(
       lat: { type: Number, label: 'Latitude' },
       lng: { type: Number, label: 'Longitude' },
     },
+    geoPoint: {
+      type: {
+        type: String,
+        enum: ['Point'],
+        default: 'Point',
+      },
+      coordinates: {
+        type: [Number],
+        default: undefined,
+      },
+    },
   },
   { _id: false },
 );
@@ -138,7 +149,42 @@ export const providerSchema = new Schema(
   },
 );
 
+// Pre-save hook to automatically create geoPoint from lat/lng
+providerSchema.pre('save', function (next) {
+  if (this.location?.coordinates?.lat && this.location?.coordinates?.lng) {
+    this.location.geoPoint = {
+      type: 'Point',
+      coordinates: [this.location.coordinates.lng, this.location.coordinates.lat],
+    };
+  }
+  next();
+});
+
+// Pre-update hook for findOneAndUpdate
+providerSchema.pre(['findOneAndUpdate', 'updateOne', 'updateMany'], function (next) {
+  const update = this.getUpdate() as any;
+  const location = update.$set?.location || update.location;
+  
+  if (location?.coordinates?.lat && location?.coordinates?.lng) {
+    if (!update.$set) {
+      update.$set = {};
+    }
+    if (!update.$set.location) {
+      update.$set.location = {};
+    }
+    if (!update.$set.location.geoPoint) {
+      update.$set.location.geoPoint = {
+        type: 'Point',
+        coordinates: [location.coordinates.lng, location.coordinates.lat],
+      };
+    }
+  }
+  
+  next();
+});
+
 providerSchema.index({ status: 1 });
 providerSchema.index({ categoryIds: 1 });
 providerSchema.index({ status: 1, isActive: 1 });
 providerSchema.index({ instanceId: 1 });
+providerSchema.index({ 'location.geoPoint': '2dsphere' });

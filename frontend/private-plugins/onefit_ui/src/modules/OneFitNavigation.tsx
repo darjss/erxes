@@ -10,6 +10,7 @@ import {
   IconUsers,
   IconBuildingStore,
   IconBuilding,
+  IconPhoto,
 } from '@tabler/icons-react';
 import { useOneFitMode } from './config/hooks/useOneFitMode';
 
@@ -88,6 +89,12 @@ export const OneFitNavigation = () => {
         icon={IconBuildingStore}
         pathPrefix="onefit"
         path="providers"
+      />
+      <NavigationMenuLinkItem
+        name="Banners"
+        icon={IconPhoto}
+        pathPrefix="onefit"
+        path="banners"
       />
     </>
   );

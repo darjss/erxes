@@ -62,6 +62,12 @@ const ProvidersPage = lazy(() =>
   })),
 );
 
+const BannersPage = lazy(() =>
+  import('~/pages/BannersPage').then((module) => ({
+    default: module.BannersPage,
+  })),
+);
+
 const OneFitMain = () => {
   const { isSlaveMode } = useOneFitMode();
 
@@ -94,6 +100,7 @@ const OneFitMain = () => {
           <Route path="/customers" element={<OneFitCustomersPage />} />
         )}
         <Route path="/providers" element={<ProvidersPage />} />
+        <Route path="/banners" element={<BannersPage />} />
       </Routes>
     </Suspense>
   );
