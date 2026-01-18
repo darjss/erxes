@@ -7,7 +7,10 @@ import {
 import { IContext } from '~/connectionResolvers';
 import { ProviderStatus } from '@/provider/@types/provider';
 import { isSlaveMode } from '~/constants/mode';
-import { geospatialCursorPaginate } from '@/provider/utils/geospatialUtils';
+import {
+  geospatialCursorPaginate,
+  GeospatialCursorParams,
+} from '@/provider/utils/geospatialUtils';
 
 export interface IProviderQueryParams extends ICursorPaginateParams {
   searchValue?: string;
@@ -110,12 +113,37 @@ export const providerQueries: Record<string, Resolver> = {
 
     // Use geospatial query if near parameter is provided
     if (params.near && params.near.lat && params.near.lng) {
+      // Convert orderBy to compatible format if present
+      const orderBy = params.orderBy
+        ? Object.entries(params.orderBy).reduce(
+            (acc, [key, value]) => {
+              // Convert SortOrder to 1 | -1 | 'asc' | 'desc'
+              if (value === 1 || value === -1 || value === 'asc' || value === 'desc') {
+                acc[key] = value as 1 | -1 | 'asc' | 'desc';
+              } else if (value === 'ascending') {
+                acc[key] = 'asc';
+              } else if (value === 'descending') {
+                acc[key] = 'desc';
+              }
+              return acc;
+            },
+            {} as Record<string, 1 | -1 | 'asc' | 'desc'>,
+          )
+        : undefined;
+
+      const geospatialParams: GeospatialCursorParams = {
+        limit: params.limit,
+        cursor: params.cursor,
+        direction: params.direction,
+        orderBy,
+      };
+
       return await geospatialCursorPaginate({
         model: models.Provider,
         near: params.near,
         maxDistance: params.maxDistance,
         filter,
-        params,
+        params: geospatialParams,
       });
     }
 
