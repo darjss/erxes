@@ -86,7 +86,10 @@ export const membershipQueries: Record<string, Resolver> = {
 
     return await cursorPaginate({
       model: models.MembershipPurchase,
-      params: paginationParams,
+      params: {
+        ...paginationParams,
+        orderBy: { createdAt: -1 },
+      },
       query: filter,
     });
   },
@@ -121,7 +124,10 @@ export const membershipQueries: Record<string, Resolver> = {
 
     return await cursorPaginate({
       model: models.MembershipPurchase,
-      params: paginationParams,
+      params: {
+        ...paginationParams,
+        orderBy: { createdAt: -1 },
+      },
       query: filter,
     });
   },

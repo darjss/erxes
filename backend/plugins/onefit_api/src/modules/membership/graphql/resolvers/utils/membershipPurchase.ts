@@ -183,7 +183,7 @@ export async function createMembershipPurchaseInvoice(
     status: 'pending',
     customerType: 'customer',
     customerId: userId,
-    contentType: 'onefit:membershipPurchase',
+    contentType: 'onefit:membership:membershippurchase',
     contentTypeId: membershipPurchase._id,
     paymentIds,
   };

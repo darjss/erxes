@@ -1,6 +1,7 @@
 import { Checkbox, ScrollArea } from 'erxes-ui';
 import { useQuery } from '@apollo/client';
 import { ONE_FIT_PROVIDERS } from '../graphql/providerQueries';
+import { getLocalizedString } from '~/modules/activity-type/utils/localization';
 
 interface SelectProviderProps {
   selected?: string[];
@@ -53,8 +54,12 @@ export const SelectProvider = ({
     <div className="border rounded-md p-4">
       <ScrollArea className="h-[200px]">
         <div className="space-y-2">
-          {providers.map((provider: { _id: string; businessName: string }) => {
+          {providers.map((provider: {
+            _id: string;
+            businessName: { en: string; mn: string };
+          }) => {
             const isSelected = selected.includes(provider._id);
+            const businessName = getLocalizedString(provider.businessName, 'en');
             return (
               <div
                 key={provider._id}
@@ -70,7 +75,7 @@ export const SelectProvider = ({
                   htmlFor={provider._id}
                   className="text-sm font-medium leading-none cursor-pointer select-none flex-1"
                 >
-                  {provider.businessName}
+                  {businessName}
                 </label>
               </div>
             );

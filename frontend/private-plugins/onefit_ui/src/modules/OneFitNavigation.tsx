@@ -69,6 +69,14 @@ export const OneFitNavigation = () => {
       )}
       {!isSlaveMode && (
         <NavigationMenuLinkItem
+          name="Membership Purchases"
+          icon={IconShoppingCart}
+          pathPrefix="onefit"
+          path="membership-purchases"
+        />
+      )}
+      {!isSlaveMode && (
+        <NavigationMenuLinkItem
           name="Credit Transactions"
           icon={IconCoins}
           pathPrefix="onefit"
