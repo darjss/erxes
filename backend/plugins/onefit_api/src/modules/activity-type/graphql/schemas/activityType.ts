@@ -32,6 +32,7 @@ export const types = `
     categories: [OneFitActivityCategory]
     isActive: Boolean
     cancellationDeadline: Int
+    image: String
   }
 
   type OneFitActivityTypeListResponse {
@@ -99,6 +100,7 @@ const mutationParams = `
   categoryIds: [String]!
   isActive: Boolean
   cancellationDeadline: Int
+  image: String
 `;
 
 const updateParams = `
@@ -110,6 +112,7 @@ const updateParams = `
   categoryIds: [String]
   isActive: Boolean
   cancellationDeadline: Int
+  image: String
 `;
 
 export const mutations = `

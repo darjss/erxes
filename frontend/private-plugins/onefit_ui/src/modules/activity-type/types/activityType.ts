@@ -38,6 +38,7 @@ export interface OneFitActivityType {
   }>;
   isActive: boolean;
   cancellationDeadline?: number;
+  image?: string;
 }
 
 export interface OneFitActivityTypeListResponse {

@@ -6,12 +6,16 @@ export const ONE_FIT_ACTIVITY_CATEGORY_CREATE = gql`
     $description: OneFitMultilingualStringOptionalInput
     $parentId: String
     $isActive: Boolean
+    $icon: String
+    $image: String
   ) {
     oneFitActivityCategoryCreate(
       name: $name
       description: $description
       parentId: $parentId
       isActive: $isActive
+      icon: $icon
+      image: $image
     ) {
       _id
       createdAt
@@ -26,6 +30,8 @@ export const ONE_FIT_ACTIVITY_CATEGORY_CREATE = gql`
       }
       parentId
       isActive
+      icon
+      image
     }
   }
 `;
@@ -33,10 +39,12 @@ export const ONE_FIT_ACTIVITY_CATEGORY_CREATE = gql`
 export const ONE_FIT_ACTIVITY_CATEGORY_UPDATE = gql`
   mutation OneFitActivityCategoryUpdate(
     $_id: String!
-    $name: OneFitMultilingualStringInput
+    $name: OneFitMultilingualStringInput!
     $description: OneFitMultilingualStringOptionalInput
     $parentId: String
     $isActive: Boolean
+    $icon: String
+    $image: String
   ) {
     oneFitActivityCategoryUpdate(
       _id: $_id
@@ -44,6 +52,8 @@ export const ONE_FIT_ACTIVITY_CATEGORY_UPDATE = gql`
       description: $description
       parentId: $parentId
       isActive: $isActive
+      icon: $icon
+      image: $image
     ) {
       _id
       modifiedAt
@@ -57,6 +67,8 @@ export const ONE_FIT_ACTIVITY_CATEGORY_UPDATE = gql`
       }
       parentId
       isActive
+      icon
+      image
     }
   }
 `;

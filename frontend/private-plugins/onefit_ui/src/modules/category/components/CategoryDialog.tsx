@@ -8,6 +8,7 @@ import {
   Spinner,
   Switch,
   Textarea,
+  Upload,
 } from 'erxes-ui';
 import { IconPlus } from '@tabler/icons-react';
 import { useForm } from 'react-hook-form';
@@ -35,6 +36,8 @@ const categorySchema = z.object({
     .optional(),
   parentId: z.string().optional(),
   isActive: z.boolean().optional(),
+  icon: z.string().optional(),
+  image: z.string().optional(),
 });
 
 type CategoryFormData = z.infer<typeof categorySchema>;
@@ -117,6 +120,8 @@ function CategoryForm({ categoryId, onClose, isEditMode }: CategoryFormProps) {
       },
       parentId: '',
       isActive: true,
+      icon: '',
+      image: '',
     },
   });
 
@@ -127,6 +132,8 @@ function CategoryForm({ categoryId, onClose, isEditMode }: CategoryFormProps) {
         description: category.description || { en: '', mn: '' },
         parentId: category.parentId || '',
         isActive: category.isActive,
+        icon: category.icon || '',
+        image: category.image || '',
       });
       setSelectedLanguage('en');
     } else if (!isEditMode) {
@@ -141,6 +148,8 @@ function CategoryForm({ categoryId, onClose, isEditMode }: CategoryFormProps) {
         },
         parentId: '',
         isActive: true,
+        icon: '',
+        image: '',
       });
       setSelectedLanguage('en');
     }
@@ -159,6 +168,8 @@ function CategoryForm({ categoryId, onClose, isEditMode }: CategoryFormProps) {
           : undefined,
       parentId: data.parentId || undefined,
       isActive: data.isActive !== undefined ? data.isActive : true,
+      icon: data.icon || undefined,
+      image: data.image || undefined,
     };
 
     if (isEditMode && categoryId) {
@@ -314,6 +325,78 @@ function CategoryForm({ categoryId, onClose, isEditMode }: CategoryFormProps) {
                   placeholder="Enter description in Mongolian"
                   rows={3}
                 />
+              </Form.Control>
+              <Form.Message />
+            </Form.Item>
+          )}
+        />
+        <Form.Field
+          control={form.control}
+          name="icon"
+          render={({ field }) => (
+            <Form.Item>
+              <Form.Label>Icon</Form.Label>
+              <Form.Control>
+                <Upload.Root
+                  value={field.value || ''}
+                  onChange={(fileInfo: { url?: string } | string) => {
+                    if (typeof fileInfo === 'string') {
+                      field.onChange(fileInfo);
+                    } else {
+                      field.onChange(fileInfo.url || '');
+                    }
+                  }}
+                >
+                  {field.value ? (
+                    <div className="flex items-center gap-2">
+                      <Upload.Preview className="size-16 rounded" />
+                      <Upload.Button variant="outline" size="sm">
+                        Change
+                      </Upload.Button>
+                      <Upload.RemoveButton variant="outline" size="sm" />
+                    </div>
+                  ) : (
+                    <Upload.Button variant="outline" size="sm">
+                      Upload icon
+                    </Upload.Button>
+                  )}
+                </Upload.Root>
+              </Form.Control>
+              <Form.Message />
+            </Form.Item>
+          )}
+        />
+        <Form.Field
+          control={form.control}
+          name="image"
+          render={({ field }) => (
+            <Form.Item>
+              <Form.Label>Image</Form.Label>
+              <Form.Control>
+                <Upload.Root
+                  value={field.value || ''}
+                  onChange={(fileInfo: { url?: string } | string) => {
+                    if (typeof fileInfo === 'string') {
+                      field.onChange(fileInfo);
+                    } else {
+                      field.onChange(fileInfo.url || '');
+                    }
+                  }}
+                >
+                  {field.value ? (
+                    <div className="flex items-center gap-2">
+                      <Upload.Preview className="size-32 rounded" />
+                      <Upload.Button variant="outline" size="sm">
+                        Change
+                      </Upload.Button>
+                      <Upload.RemoveButton variant="outline" size="sm" />
+                    </div>
+                  ) : (
+                    <Upload.Button variant="outline" size="sm">
+                      Upload image
+                    </Upload.Button>
+                  )}
+                </Upload.Root>
               </Form.Control>
               <Form.Message />
             </Form.Item>
