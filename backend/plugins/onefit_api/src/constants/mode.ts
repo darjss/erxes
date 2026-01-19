@@ -4,7 +4,6 @@ export type OneFitMode = 'master' | 'slave';
 
 export const getOneFitMode = (): OneFitMode => {
   const mode = getEnv({ name: 'ONEFIT_MODE', defaultValue: 'master' });
-  console.log('mode', mode);
   if (mode === 'slave') {
     return 'slave';
   }
