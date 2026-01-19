@@ -30,7 +30,7 @@ export const types = `
     unitTypes: [String]
     units: [String]
     assignedUserId: String
-    status: OpptyStatus
+    status: String
     labelIds: [String]
     tagIds: [String]
     projectId: String
@@ -50,7 +50,7 @@ export const types = `
     units: [String]
     unit: String
     assignedUserId: String
-    status: OpptyStatus
+    status: String
     labelIds: [String]
     tagIds: [String]
     startDate: Date
@@ -70,7 +70,7 @@ export const types = `
     unitType: String
     unit: String
     assignedUserId: String
-    status: OpptyStatus
+    status: String
     startDate: Date
     targetDate: Date
     customerSource: String

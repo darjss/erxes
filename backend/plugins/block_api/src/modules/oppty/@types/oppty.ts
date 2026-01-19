@@ -30,7 +30,7 @@ export interface IOppty {
   unit?: string;
   assignedUserId?: string;
   blocks?: string[];
-  status: (typeof OPPTY_STATUSES)[keyof typeof OPPTY_STATUSES];
+  status: string;
   labelIds?: string[];
   tagIds?: string[];
   projectId?: string;
@@ -46,7 +46,7 @@ export interface IOpptyFilter {
   unitType?: string;
   unit?: string;
   assignedUserId?: string;
-  status?: (typeof OPPTY_STATUSES)[keyof typeof OPPTY_STATUSES];
+  status?: string;
   startDate?: Date;
   targetDate?: Date;
   customerSource?: string;
@@ -58,4 +58,21 @@ export interface IOpptyDocument extends IOppty, Document {
   _id: string;
   createdAt: Date;
   updatedAt: Date;
+}
+
+export interface IOpptyInput {
+  description: string;
+  customerId: string;
+  unitTypes?: string[];
+  units?: string[];
+  unit?: string;
+  assignedUserId?: string;
+  blocks?: string[];
+  status: string;
+  labelIds?: string[];
+  tagIds?: string[];
+  projectId?: string;
+  startDate?: Date;
+  targetDate?: Date;
+  customerSource?: string;
 }

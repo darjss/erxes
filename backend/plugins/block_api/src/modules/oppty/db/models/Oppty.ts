@@ -1,17 +1,23 @@
-import { IOppty, IOpptyDocument, IOpptyFilter } from '@/oppty/@types/oppty';
-import { OPPTY_STATUSES } from '@/oppty/constants';
+import { createActivity } from '@/activity/utils/createActivity';
+import {
+  IOppty,
+  IOpptyDocument,
+  IOpptyFilter,
+  IOpptyInput,
+} from '@/oppty/@types/oppty';
 import { opptySchema } from '@/oppty/db/definitions/oppty';
+import { DEFAULT_STATUS_TYPES } from '@/status/constants';
 import { graphqlPubsub } from 'erxes-api-shared/utils';
 import { Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
 import { BLOCK_MODULES } from '~/constants';
-import { createActivity } from '~/modules/activity/utils/createActivity';
+import { IUnit } from '~/modules/unit/@types/unit';
 
 export interface IOpptyModel extends Model<IOpptyDocument> {
-  createOppty(input: IOppty, userId: string): Promise<IOpptyDocument>;
+  createOppty(input: IOpptyInput, userId: string): Promise<IOpptyDocument>;
   updateOppty(
     _id: string,
-    input: Partial<IOppty>,
+    input: Partial<IOpptyInput>,
     userId: string,
   ): Promise<IOpptyDocument>;
   getOppty(_id: string): Promise<IOpptyDocument>;
@@ -31,28 +37,35 @@ export const loadOpptyClass = (models: IModels, subdomain: string) => {
 
     public static async updateOppty(
       _id: string,
-      input: Partial<IOppty>,
+      input: IOpptyInput,
       userId: string,
     ) {
       await this.validateOppty({ _id, ...input });
 
-      const oppty = await models.Oppty.getOppty(_id);
+      const status = await models.Status.getStatus(input.status);
 
-      if (input?.status === OPPTY_STATUSES.RESERVATION) {
+      if (!status) {
+        throw new Error('Status not found');
+      }
+
+      if (input?.unit && status?.type === DEFAULT_STATUS_TYPES.NEGOTIATION) {
+        const statusIds = await models.Status.find({
+          type: DEFAULT_STATUS_TYPES.NEGOTIATION,
+        }).distinct('_id');
+
         const exists = await models.Oppty.exists({
-          unit: oppty.unit,
-          status: OPPTY_STATUSES.RESERVATION,
+          unit: input.unit,
+          status: { $in: statusIds },
         });
 
         if (exists) {
           throw new Error('Unit is already reserved');
         }
 
-        await models.Unit.findOneAndUpdate(
-          { _id: oppty.unit },
-          { status: 'onHold' },
-        );
+        await models.Unit.updateUnit(input.unit, { status: 'onHold' } as IUnit);
       }
+
+      const oppty = await models.Oppty.getOppty(_id);
 
       const updatedOppty = await models.Oppty.findOneAndUpdate(
         { _id },
@@ -104,13 +117,17 @@ export const loadOpptyClass = (models: IModels, subdomain: string) => {
       const oppty = await models.Oppty.findOne({ _id: input._id });
 
       if (
-        [OPPTY_STATUSES.RESERVATION, OPPTY_STATUSES.CANCELLED].includes(
-          input.status || '',
-        ) &&
+        [
+          DEFAULT_STATUS_TYPES.NEGOTIATION,
+          DEFAULT_STATUS_TYPES.CLOSED_WON,
+          DEFAULT_STATUS_TYPES.CLOSED_LOST,
+        ].includes(input.status || '') &&
         !oppty?.unit
       ) {
         throw new Error('Unit is required');
       }
+
+      return oppty;
     }
   }
 
