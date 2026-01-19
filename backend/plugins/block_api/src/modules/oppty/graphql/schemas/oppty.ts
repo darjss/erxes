@@ -16,6 +16,11 @@ export const types = `
     cancelled
   }
 
+  enum Priority {
+    low
+    medium
+    high
+  }
 
   type Oppty {
     _id: String
@@ -29,6 +34,7 @@ export const types = `
     labelIds: [String]
     tagIds: [String]
     projectId: String
+    priority: Priority
     startDate: Date
     targetDate: Date
     customerSource: String
@@ -51,7 +57,7 @@ export const types = `
     targetDate: Date
     customerSource: String
     projectId: String
-
+    priority: Priority
     # timer nemn
     # chosenUnit
     # activity

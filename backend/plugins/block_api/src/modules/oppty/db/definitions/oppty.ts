@@ -14,4 +14,5 @@ export const opptySchema = new Schema({
   tagIds: { type: [String], label: 'Tag IDs' },
   projectId: { type: String, label: 'Project ID' },
   customerSource: { type: String, label: 'Customer Source' },
+  priority: { type: String, label: 'Priority' },
 });
