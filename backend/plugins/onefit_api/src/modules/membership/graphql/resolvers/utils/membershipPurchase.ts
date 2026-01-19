@@ -208,7 +208,7 @@ export async function createMembershipPurchaseInvoice(
     input: invoiceInput,
     defaultValue: null,
   });
-
+  console.log('Created invoice:', invoice);
   if (!invoice || !invoice._id) {
     throw new Error('Failed to create invoice');
   }

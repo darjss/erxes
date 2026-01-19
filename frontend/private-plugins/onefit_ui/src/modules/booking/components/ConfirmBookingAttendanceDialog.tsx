@@ -24,9 +24,7 @@ export function ConfirmBookingAttendanceDialog({
   onClose,
 }: ConfirmBookingAttendanceDialogProps) {
   const { markAttendance, loading } = useMarkAttendance();
-  console.log('booking', booking);
-  console.log('bookingLoading', bookingLoading);
-  console.log('bookingError', bookingError);
+
   if (!open) {
     return null;
   }
@@ -128,7 +126,9 @@ export function ConfirmBookingAttendanceDialog({
   const isDateDifferent = bookingDateOnly.getTime() !== today.getTime();
 
   const customerName = bookingData.user
-    ? `${bookingData.user.firstName || ''} ${bookingData.user.lastName || ''}`.trim() ||
+    ? `${bookingData.user.firstName || ''} ${
+        bookingData.user.lastName || ''
+      }`.trim() ||
       bookingData.user.primaryEmail ||
       bookingData.user.primaryPhone ||
       'Unnamed customer'
@@ -162,14 +162,17 @@ export function ConfirmBookingAttendanceDialog({
             <Alert variant="warning" className="mb-2">
               <Alert.Title>Warning</Alert.Title>
               <Alert.Description>
-                Booking date is different from today. Please verify before marking attendance.
+                Booking date is different from today. Please verify before
+                marking attendance.
               </Alert.Description>
             </Alert>
           )}
 
           <div className="flex flex-col gap-3 text-sm">
             <div>
-              <span className="text-muted-foreground font-medium">Customer:</span>
+              <span className="text-muted-foreground font-medium">
+                Customer:
+              </span>
               <div className="mt-1">
                 {bookingData.user ? (
                   <OneFitCustomersInline
@@ -193,19 +196,26 @@ export function ConfirmBookingAttendanceDialog({
             </div>
 
             <div>
-              <span className="text-muted-foreground font-medium">Provider:</span>
+              <span className="text-muted-foreground font-medium">
+                Provider:
+              </span>
               <div className="mt-1 font-medium">{providerName}</div>
             </div>
 
             <div>
-              <span className="text-muted-foreground font-medium">Activity Type:</span>
+              <span className="text-muted-foreground font-medium">
+                Activity Type:
+              </span>
               <div className="mt-1 font-medium">{activityTypeName}</div>
             </div>
 
             <div>
-              <span className="text-muted-foreground font-medium">Booking Date:</span>
+              <span className="text-muted-foreground font-medium">
+                Booking Date:
+              </span>
               <div className="mt-1 font-medium">
-                {bookingDate.toLocaleDateString()} {bookingData.startTime} - {bookingData.endTime}
+                {bookingDate.toLocaleDateString()} {bookingData.startTime} -{' '}
+                {bookingData.endTime}
               </div>
             </div>
 
@@ -217,9 +227,13 @@ export function ConfirmBookingAttendanceDialog({
             </div>
 
             <div>
-              <span className="text-muted-foreground font-medium">Attendance Status:</span>
+              <span className="text-muted-foreground font-medium">
+                Attendance Status:
+              </span>
               <div className="mt-1">
-                <Badge variant="secondary">{bookingData.attendanceStatus}</Badge>
+                <Badge variant="secondary">
+                  {bookingData.attendanceStatus}
+                </Badge>
               </div>
             </div>
           </div>

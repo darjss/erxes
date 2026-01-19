@@ -23,10 +23,7 @@ import { ONE_FIT_PROVIDER } from '../graphql/providerQueries';
 import { ProviderStatus } from '../types/provider';
 import { SelectCategories } from './SelectCategories';
 import { useUploadConfig } from '../../config/hooks/useUploadConfig';
-import {
-  getImageReadUrl,
-  extractImageKey,
-} from '../utils/imageUtils';
+import { getImageReadUrl, extractImageKey } from '../utils/imageUtils';
 import { OneFitUpload } from '~/components/onefit-upload';
 
 const baseProviderSchema = z.object({
@@ -100,9 +97,7 @@ export const ProviderDialog = ({
   const isCreate = mode === 'create';
   const [internalOpen, setInternalOpen] = useState(false);
   const { uploadUrl, masterUrl, isSlaveMode } = useUploadConfig();
-  console.log('uploadUrl', uploadUrl);
-  console.log('masterUrl', masterUrl);
-  console.log('isSlaveMode', isSlaveMode);
+
   const effectiveOpen = open !== undefined ? open : internalOpen;
   const effectiveOnOpenChange =
     onOpenChange || ((newOpen: boolean) => setInternalOpen(newOpen));
