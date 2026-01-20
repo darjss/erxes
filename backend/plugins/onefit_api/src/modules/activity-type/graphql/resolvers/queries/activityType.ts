@@ -244,14 +244,13 @@ export const activityTypeQueries = {
     }
 
     // Add instanceId filtering
-    baseFilter = await addInstanceIdFilter(context, baseFilter);
+    // baseFilter = await addInstanceIdFilter(context, baseFilter);
 
     // Get all activity types matching base filters (only _id and providerId for efficiency)
     const allActivityTypes = await context.models.ActivityType.find(
       baseFilter,
       { _id: 1, providerId: 1 },
     ).lean();
-
     if (allActivityTypes.length === 0) {
       return {
         list: [],

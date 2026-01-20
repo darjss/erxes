@@ -112,7 +112,8 @@ export const loadScheduleTemplateClass = (models: IModels) => {
     }
 
     public static async removeTemplates(ids: string[]) {
-      return models.ScheduleTemplate.deleteMany({ _id: { $in: ids } });
+      const result = await models.ScheduleTemplate.deleteMany({ _id: { $in: ids } });
+      return { n: result.deletedCount, ok: result.acknowledged ? 1 : 0 };
     }
   }
 
@@ -131,7 +132,8 @@ export const loadScheduleExceptionClass = (models: IModels) => {
     }
 
     public static async removeException(_id: string) {
-      return models.ScheduleException.deleteOne({ _id });
+      const result = await models.ScheduleException.deleteOne({ _id });
+      return { ok: result.acknowledged ? 1 : 0 };
     }
 
     public static async findByProviderAndDate(
@@ -161,7 +163,8 @@ export const loadScheduleExceptionClass = (models: IModels) => {
     }
 
     public static async removeExceptions(ids: string[]) {
-      return models.ScheduleException.deleteMany({ _id: { $in: ids } });
+      const result = await models.ScheduleException.deleteMany({ _id: { $in: ids } });
+      return { n: result.deletedCount, ok: result.acknowledged ? 1 : 0 };
     }
   }
 
