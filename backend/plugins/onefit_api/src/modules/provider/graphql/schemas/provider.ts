@@ -29,6 +29,7 @@ export const types = `
     contactInfo: OneFitContactInfo
     facilities: [String]
     categoryIds: [String]
+    categories: [OneFitActivityCategory]
     status: String
     rejectionReason: String
     approvedAt: Date

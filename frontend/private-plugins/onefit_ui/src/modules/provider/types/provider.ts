@@ -30,6 +30,11 @@ export interface OneFitContactInfo {
   website?: string;
 }
 
+export interface OneFitActivityCategory {
+  _id: string;
+  name: MultilingualString;
+}
+
 export interface OneFitProvider {
   _id: string;
   createdAt: string;
@@ -40,6 +45,7 @@ export interface OneFitProvider {
   contactInfo: OneFitContactInfo;
   facilities?: string[];
   categoryIds: string[];
+  categories?: OneFitActivityCategory[];
   status: string;
   rejectionReason?: string;
   approvedAt?: string;

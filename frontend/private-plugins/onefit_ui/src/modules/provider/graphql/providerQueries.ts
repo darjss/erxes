@@ -53,6 +53,13 @@ export const ONE_FIT_PROVIDERS = gql`
         }
         facilities
         categoryIds
+        categories {
+          _id
+          name {
+            en
+            mn
+          }
+        }
         status
         rejectionReason
         approvedAt
@@ -128,6 +135,13 @@ export const ONE_FIT_PROVIDER = gql`
       }
       facilities
       categoryIds
+      categories {
+        _id
+        name {
+          en
+          mn
+        }
+      }
       status
       rejectionReason
       approvedAt
