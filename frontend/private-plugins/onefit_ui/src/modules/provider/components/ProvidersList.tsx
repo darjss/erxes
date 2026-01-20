@@ -184,56 +184,57 @@ export const ProvidersList = ({ filters }: ProvidersListProps) => {
 
         return (
           <RecordTableInlineCell>
-            <DropdownMenu>
-              <DropdownMenu.Trigger asChild>
-                <Button variant="ghost" size="icon" className="h-8 w-8">
-                  <IconDots className="h-4 w-4" />
-                </Button>
-              </DropdownMenu.Trigger>
-              <DropdownMenu.Content align="end" className="w-48">
-                {(provider.status === ProviderStatus.PENDING ||
-                  provider.status === ProviderStatus.APPROVED) && (
+            <div className="flex gap-2 items-center">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  setSelectedProvider(provider._id);
+                  setEditDialogOpen(true);
+                }}
+              >
+                Edit
+              </Button>
+              <DropdownMenu>
+                <DropdownMenu.Trigger asChild>
+                  <Button variant="ghost" size="icon" className="h-8 w-8">
+                    <IconDots className="h-4 w-4" />
+                  </Button>
+                </DropdownMenu.Trigger>
+                <DropdownMenu.Content align="end" className="w-48">
+                  {provider.status === ProviderStatus.PENDING && (
+                    <>
+                      <DropdownMenu.Item
+                        onClick={() => {
+                          setSelectedProvider(provider._id);
+                          setApproveDialogOpen(true);
+                        }}
+                      >
+                        Approve
+                      </DropdownMenu.Item>
+                      <DropdownMenu.Item
+                        onClick={() => {
+                          setSelectedProvider(provider._id);
+                          setRejectDialogOpen(true);
+                        }}
+                      >
+                        Reject
+                      </DropdownMenu.Item>
+                      <DropdownMenu.Separator />
+                    </>
+                  )}
                   <DropdownMenu.Item
                     onClick={() => {
                       setSelectedProvider(provider._id);
-                      setEditDialogOpen(true);
+                      setRemoveDialogOpen(true);
                     }}
+                    className="text-destructive focus:text-destructive"
                   >
-                    Edit
+                    Remove
                   </DropdownMenu.Item>
-                )}
-                {provider.status === ProviderStatus.PENDING && (
-                  <>
-                    <DropdownMenu.Item
-                      onClick={() => {
-                        setSelectedProvider(provider._id);
-                        setApproveDialogOpen(true);
-                      }}
-                    >
-                      Approve
-                    </DropdownMenu.Item>
-                    <DropdownMenu.Item
-                      onClick={() => {
-                        setSelectedProvider(provider._id);
-                        setRejectDialogOpen(true);
-                      }}
-                    >
-                      Reject
-                    </DropdownMenu.Item>
-                    <DropdownMenu.Separator />
-                  </>
-                )}
-                <DropdownMenu.Item
-                  onClick={() => {
-                    setSelectedProvider(provider._id);
-                    setRemoveDialogOpen(true);
-                  }}
-                  className="text-destructive focus:text-destructive"
-                >
-                  Remove
-                </DropdownMenu.Item>
-              </DropdownMenu.Content>
-            </DropdownMenu>
+                </DropdownMenu.Content>
+              </DropdownMenu>
+            </div>
           </RecordTableInlineCell>
         );
       },
