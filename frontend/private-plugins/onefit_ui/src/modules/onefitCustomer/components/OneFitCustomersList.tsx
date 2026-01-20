@@ -214,31 +214,31 @@ export const OneFitCustomersList = ({ filters }: OneFitCustomersListProps) => {
           );
         },
       },
-      {
-        id: 'actions',
-        header: 'Actions',
-        cell: ({ row }) => {
-          const customer = row.original;
+      // {
+      //   id: 'actions',
+      //   header: 'Actions',
+      //   cell: ({ row }) => {
+      //     const customer = row.original;
 
-          return (
-            <RecordTableInlineCell>
-              <div className="flex gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => {
-                    setSelectedCustomer(customer._id);
-                    setActionType('purchase');
-                    setPurchaseDialogOpen(true);
-                  }}
-                >
-                  Purchase membership
-                </Button>
-              </div>
-            </RecordTableInlineCell>
-          );
-        },
-      },
+      //     return (
+      //       <RecordTableInlineCell>
+      //         <div className="flex gap-2">
+      //           <Button
+      //             variant="outline"
+      //             size="sm"
+      //             onClick={() => {
+      //               setSelectedCustomer(customer._id);
+      //               setActionType('purchase');
+      //               setPurchaseDialogOpen(true);
+      //             }}
+      //           >
+      //             Purchase membership
+      //           </Button>
+      //         </div>
+      //       </RecordTableInlineCell>
+      //     );
+      //   },
+      // },
     ],
     [membershipPlanMap],
   );

@@ -4,6 +4,7 @@ import oneFitCustomerCustomResolvers from '@/onefitCustomer/graphql/resolvers/cu
 import activityTypeCustomResolvers from '@/activity-type/graphql/resolvers/customResolvers/activityType';
 import scheduleTemplateCustomResolvers from '@/schedule/graphql/resolvers/customResolvers/schedule';
 import bookingCustomResolvers from '@/booking/graphql/resolvers/customResolvers/booking';
+import providerCustomResolvers from '@/provider/graphql/resolvers/customResolvers/provider';
 
 export const customResolvers = {
   ...creditTransactionCustomResolvers,
@@ -12,4 +13,5 @@ export const customResolvers = {
   ...activityTypeCustomResolvers,
   ...scheduleTemplateCustomResolvers,
   ...bookingCustomResolvers,
+  ...providerCustomResolvers,
 };

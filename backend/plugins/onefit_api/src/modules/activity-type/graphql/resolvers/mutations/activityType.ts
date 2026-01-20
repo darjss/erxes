@@ -1,5 +1,6 @@
 import { IContext } from '~/connectionResolvers';
 import { IActivityType } from '@/activity-type/@types/activityType';
+import { updateProviderCategoriesFromActivityTypes } from '~/modules/activity-type/utils/updateProviderCategories';
 
 export const activityTypeMutations = {
   async oneFitActivityTypeCreate(
@@ -28,10 +29,17 @@ export const activityTypeMutations = {
       }
     }
 
-    return await models.ActivityType.createActivityType({
+    const activityType = await models.ActivityType.createActivityType({
       ...doc,
       isActive: doc.isActive ?? true,
     });
+
+    // Update provider categories based on active activity-types
+    if (doc.providerId) {
+      await updateProviderCategoriesFromActivityTypes(models, doc.providerId);
+    }
+
+    return activityType;
   },
 
   async oneFitActivityTypeUpdate(
@@ -61,7 +69,20 @@ export const activityTypeMutations = {
       }
     }
 
-    return await models.ActivityType.updateActivityType(_id, { ...doc });
+    const updatedActivityType = await models.ActivityType.updateActivityType(
+      _id,
+      { ...doc },
+    );
+
+    // Update provider categories if categoryIds or isActive changed
+    if (doc.categoryIds !== undefined || doc.isActive !== undefined) {
+      await updateProviderCategoriesFromActivityTypes(
+        models,
+        activityType.providerId,
+      );
+    }
+
+    return updatedActivityType;
   },
 
   async oneFitActivityTypesRemove(
@@ -69,6 +90,25 @@ export const activityTypeMutations = {
     { ids }: { ids: string[] },
     { models }: IContext,
   ) {
-    return await models.ActivityType.removeActivityTypes(ids);
+    // Get provider IDs before removing activity-types
+    const activityTypesToRemove = await models.ActivityType.find({
+      _id: { $in: ids },
+    });
+    const providerIds = new Set<string>();
+    for (const activityType of activityTypesToRemove) {
+      if (activityType.providerId) {
+        providerIds.add(activityType.providerId);
+      }
+    }
+
+    // Remove activity-types
+    const result = await models.ActivityType.removeActivityTypes(ids);
+
+    // Update provider categories for affected providers
+    for (const providerId of providerIds) {
+      await updateProviderCategoriesFromActivityTypes(models, providerId);
+    }
+
+    return result;
   },
 };

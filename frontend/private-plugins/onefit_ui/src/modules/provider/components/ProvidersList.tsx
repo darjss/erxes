@@ -2,12 +2,18 @@ import { ColumnDef } from '@tanstack/table-core';
 import {
   Badge,
   Button,
+  DropdownMenu,
   RecordTable,
   RecordTableInlineCell,
   RelativeDateDisplay,
 } from 'erxes-ui';
+import { IconDots } from '@tabler/icons-react';
 import { useProviders } from '../hooks/useProviders';
-import { ProviderFilters, ProviderStatus } from '../types/provider';
+import {
+  ProviderFilters,
+  ProviderStatus,
+  OneFitActivityCategory,
+} from '../types/provider';
 import { PROVIDERS_CURSOR_SESSION_KEY } from '../constants/providerCursorSessionKey';
 import { EditProviderDialog } from './ProviderDialog';
 import { ApproveProviderDialog } from './ApproveProviderDialog';
@@ -15,6 +21,7 @@ import { RejectProviderDialog } from './RejectProviderDialog';
 import { RemoveProviderDialog } from './RemoveProviderDialog';
 import { useState } from 'react';
 import { getLocalizedString } from '~/modules/activity-type/utils/localization';
+import { getLocalizedString as getCategoryLocalizedString } from '~/modules/category/utils/localization';
 
 interface ProvidersListProps {
   filters?: ProviderFilters;
@@ -109,19 +116,30 @@ export const ProvidersList = ({ filters }: ProvidersListProps) => {
       },
     },
     {
-      accessorKey: 'categoryIds',
+      accessorKey: 'categories',
       header: 'Categories',
-      cell: ({ cell }) => {
-        const categoryIds = cell.getValue() as string[];
+      cell: ({ row }) => {
+        const provider = row.original;
+        const categories = provider.categories;
         return (
           <RecordTableInlineCell>
             <div className="flex flex-wrap gap-1">
-              {categoryIds?.length > 0
-                ? categoryIds.map((id) => (
-                    <Badge key={id} variant="secondary" className="text-xs">
-                      {id}
-                    </Badge>
-                  ))
+              {categories && categories.length > 0
+                ? categories.map((category: OneFitActivityCategory) => {
+                    const categoryName = getCategoryLocalizedString(
+                      category.name,
+                      'en',
+                    );
+                    return (
+                      <Badge
+                        key={category._id}
+                        variant="secondary"
+                        className="text-xs"
+                      >
+                        {categoryName}
+                      </Badge>
+                    );
+                  })
                 : '-'}
             </div>
           </RecordTableInlineCell>
@@ -166,54 +184,56 @@ export const ProvidersList = ({ filters }: ProvidersListProps) => {
 
         return (
           <RecordTableInlineCell>
-            <div className="flex gap-2 flex-wrap">
-              {(provider.status === ProviderStatus.PENDING ||
-                provider.status === ProviderStatus.APPROVED) && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => {
-                    setSelectedProvider(provider._id);
-                    setEditDialogOpen(true);
-                  }}
-                >
-                  Edit
-                </Button>
-              )}
-              {provider.status === ProviderStatus.PENDING && (
-                <>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => {
-                      setSelectedProvider(provider._id);
-                      setApproveDialogOpen(true);
-                    }}
-                  >
-                    Approve
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => {
-                      setSelectedProvider(provider._id);
-                      setRejectDialogOpen(true);
-                    }}
-                  >
-                    Reject
-                  </Button>
-                </>
-              )}
+            <div className="flex gap-2 items-center">
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => {
                   setSelectedProvider(provider._id);
-                  setRemoveDialogOpen(true);
+                  setEditDialogOpen(true);
                 }}
               >
-                Remove
+                Edit
               </Button>
+              <DropdownMenu>
+                <DropdownMenu.Trigger asChild>
+                  <Button variant="ghost" size="icon" className="h-8 w-8">
+                    <IconDots className="h-4 w-4" />
+                  </Button>
+                </DropdownMenu.Trigger>
+                <DropdownMenu.Content align="end" className="w-48">
+                  {provider.status === ProviderStatus.PENDING && (
+                    <>
+                      <DropdownMenu.Item
+                        onClick={() => {
+                          setSelectedProvider(provider._id);
+                          setApproveDialogOpen(true);
+                        }}
+                      >
+                        Approve
+                      </DropdownMenu.Item>
+                      <DropdownMenu.Item
+                        onClick={() => {
+                          setSelectedProvider(provider._id);
+                          setRejectDialogOpen(true);
+                        }}
+                      >
+                        Reject
+                      </DropdownMenu.Item>
+                      <DropdownMenu.Separator />
+                    </>
+                  )}
+                  <DropdownMenu.Item
+                    onClick={() => {
+                      setSelectedProvider(provider._id);
+                      setRemoveDialogOpen(true);
+                    }}
+                    className="text-destructive focus:text-destructive"
+                  >
+                    Remove
+                  </DropdownMenu.Item>
+                </DropdownMenu.Content>
+              </DropdownMenu>
             </div>
           </RecordTableInlineCell>
         );
