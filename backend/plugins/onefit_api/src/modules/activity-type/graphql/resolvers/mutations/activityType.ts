@@ -1,6 +1,6 @@
 import { IContext } from '~/connectionResolvers';
 import { IActivityType } from '@/activity-type/@types/activityType';
-import { updateProviderCategoriesFromActivityTypes } from '../../utils/updateProviderCategories';
+import { updateProviderCategoriesFromActivityTypes } from '~/modules/activity-type/utils/updateProviderCategories';
 
 export const activityTypeMutations = {
   async oneFitActivityTypeCreate(
