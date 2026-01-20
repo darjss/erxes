@@ -82,6 +82,9 @@ export const BlockDeveloperInfoForm = ({
   });
   const { updateDeveloperInfo } = useUpdateDeveloperInfo();
 
+  const logo = form.watch('logo');
+  const coverImage = form.watch('coverImage');
+
   useEffect(() => {
     if (developerInfo) {
       form.reset(getDefaultValues());
@@ -124,8 +127,10 @@ export const BlockDeveloperInfoForm = ({
             <Form.Item>
               <Form.Label>Logo</Form.Label>
               <UploadImage
-                value={field.value}
-                onValueChange={(value) => field.onChange(value)}
+                value={logo}
+                onValueChange={(value) => {
+                  field.onChange(value);
+                }}
                 className="size-16"
               />
               <Form.Message />
@@ -139,8 +144,10 @@ export const BlockDeveloperInfoForm = ({
             <Form.Item className="col-span-2">
               <Form.Label>Cover Image</Form.Label>
               <UploadImage
-                value={field.value}
-                onValueChange={(value) => field.onChange(value)}
+                value={coverImage}
+                onValueChange={(value) => {
+                  field.onChange(value);
+                }}
                 uploaderClassName="w-full"
                 className="w-full aspect-video"
               />
