@@ -90,12 +90,14 @@ export const OneFitNavigation = () => {
         pathPrefix="onefit"
         path="providers"
       />
-      <NavigationMenuLinkItem
-        name="Banners"
-        icon={IconPhoto}
-        pathPrefix="onefit"
-        path="banners"
-      />
+      {!isSlaveMode && (
+        <NavigationMenuLinkItem
+          name="Banners"
+          icon={IconPhoto}
+          pathPrefix="onefit"
+          path="banners"
+        />
+      )}
     </>
   );
 };
