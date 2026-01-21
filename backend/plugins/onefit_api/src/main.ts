@@ -14,6 +14,7 @@ import {
 } from '~/constants/mode';
 import { getMasterClient } from '~/utils/masterClient';
 import { graphqlProxyMiddleware } from '~/middlewares/graphqlProxyMiddleware';
+import { initMQWorkers } from '~/worker';
 
 validateSlaveConfig();
 
@@ -61,6 +62,9 @@ startPlugin({
   }),
   expressRouter: router,
   middlewares: [graphqlProxyMiddleware],
+  onServerInit: async () => {
+    await initMQWorkers(redis);
+  },
   apolloServerContext: async (subdomain, context, req, res) => {
     const models = await generateModels(subdomain);
     const mode = getOneFitMode();
