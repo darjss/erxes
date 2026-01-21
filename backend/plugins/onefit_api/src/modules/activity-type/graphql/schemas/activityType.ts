@@ -51,6 +51,7 @@ export const types = `
     description: OneFitMultilingualStringOptional
     creditCost: Float
     duration: Int
+    image: String
     genderRestriction: OneFitGenderRestriction
     categoryIds: [String]
     categories: [OneFitActivityCategory]
