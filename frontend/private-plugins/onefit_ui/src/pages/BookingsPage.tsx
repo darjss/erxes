@@ -11,8 +11,10 @@ import { ScanBookingQrDialog } from '~/modules/booking/components/ScanBookingQrD
 import { ConfirmBookingAttendanceDialog } from '~/modules/booking/components/ConfirmBookingAttendanceDialog';
 import { ONE_FIT_BOOKING_BY_BOOKING_ID } from '~/modules/booking/graphql/bookingQueries';
 import { toast } from 'erxes-ui';
+import { useOneFitMode } from '~/modules/config/hooks/useOneFitMode';
 
 export function BookingsPage() {
+  const { isSlaveMode } = useOneFitMode();
   const [filters, setFilters] = useState<BookingFilters>({});
   const [scanDialogOpen, setScanDialogOpen] = useState(false);
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
@@ -49,7 +51,7 @@ export function BookingsPage() {
         filtersComponent={BookingFiltersComponent}
         createDialog={
           <div className="flex items-center gap-2">
-            <CreateBookingDialog />
+            {!isSlaveMode && <CreateBookingDialog />}
             <Button
               type="button"
               variant="outline"

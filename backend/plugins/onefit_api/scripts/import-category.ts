@@ -307,10 +307,10 @@ async function main() {
 
   if (args.length === 0) {
     console.error(
-      'Usage: npm run import:activity-types <json-file-path> [subdomain]',
+      'Usage: npm run import:category <json-file-path> [subdomain]',
     );
     console.error(
-      '   or: tsx scripts/import-activity-types.ts <json-file-path> [subdomain]',
+      '   or: tsx scripts/import-category.ts <json-file-path> [subdomain]',
     );
     process.exit(1);
   }

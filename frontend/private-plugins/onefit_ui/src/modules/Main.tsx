@@ -100,7 +100,7 @@ const OneFitMain = () => {
           <Route path="/customers" element={<OneFitCustomersPage />} />
         )}
         <Route path="/providers" element={<ProvidersPage />} />
-        <Route path="/banners" element={<BannersPage />} />
+        {!isSlaveMode && <Route path="/banners" element={<BannersPage />} />}
       </Routes>
     </Suspense>
   );

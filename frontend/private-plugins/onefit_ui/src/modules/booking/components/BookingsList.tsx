@@ -19,6 +19,7 @@ import { useState } from 'react';
 import { OneFitCustomersInline } from '~/modules/onefitCustomer/components/OneFitCustomersInline';
 import { getLocalizedString } from '~/modules/activity-type/utils/localization';
 import { OneFitCustomer } from '@/credit/types/credit';
+import { useOneFitMode } from '~/modules/config/hooks/useOneFitMode';
 
 interface BookingsListProps {
   filters?: BookingFilters;
@@ -57,6 +58,7 @@ export const BookingsList = ({ filters }: BookingsListProps) => {
   const [selectedBooking, setSelectedBooking] = useState<string | null>(null);
   const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
   const [attendanceDialogOpen, setAttendanceDialogOpen] = useState(false);
+  const { isSlaveMode } = useOneFitMode();
 
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
 
@@ -195,46 +197,50 @@ export const BookingsList = ({ filters }: BookingsListProps) => {
         );
       },
     },
-    {
-      id: 'actions',
-      header: 'Actions',
-      cell: ({ row }) => {
-        const booking = row.original;
-        const isCancelled = booking.status === BookingStatus.CANCELLED;
-        const isCompleted = booking.status === BookingStatus.COMPLETED;
+    ...(!isSlaveMode
+      ? [
+          {
+            id: 'actions',
+            header: 'Actions',
+            cell: ({ row }) => {
+              const booking = row.original;
+              const isCancelled = booking.status === BookingStatus.CANCELLED;
+              const isCompleted = booking.status === BookingStatus.COMPLETED;
 
-        return (
-          <RecordTableInlineCell>
-            <div className="flex gap-2">
-              {!isCancelled && !isCompleted && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => {
-                    setSelectedBooking(booking._id);
-                    setCancelDialogOpen(true);
-                  }}
-                >
-                  Cancel
-                </Button>
-              )}
-              {booking.status === BookingStatus.CONFIRMED && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => {
-                    setSelectedBooking(booking._id);
-                    setAttendanceDialogOpen(true);
-                  }}
-                >
-                  Mark Attendance
-                </Button>
-              )}
-            </div>
-          </RecordTableInlineCell>
-        );
-      },
-    },
+              return (
+                <RecordTableInlineCell>
+                  <div className="flex gap-2">
+                    {!isCancelled && !isCompleted && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          setSelectedBooking(booking._id);
+                          setCancelDialogOpen(true);
+                        }}
+                      >
+                        Cancel
+                      </Button>
+                    )}
+                    {booking.status === BookingStatus.CONFIRMED && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          setSelectedBooking(booking._id);
+                          setAttendanceDialogOpen(true);
+                        }}
+                      >
+                        Mark Attendance
+                      </Button>
+                    )}
+                  </div>
+                </RecordTableInlineCell>
+              );
+            },
+          },
+        ]
+      : []),
   ];
 
   return (

@@ -26,6 +26,7 @@ export interface IActivityType {
   categoryIds: string[]; // Activity category IDs (Kids/Adults)
   isActive: boolean;
   cancellationDeadline?: number; // Hours before activity start when cancellation is allowed
+  image?: string;
   createdAt?: Date;
   modifiedAt?: Date;
 }
