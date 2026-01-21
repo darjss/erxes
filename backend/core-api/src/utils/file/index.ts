@@ -57,7 +57,7 @@ export const checkFile = async (
   if (!isValidPath(file.filepath)) {
     throw new Error('Invalid or unsafe file path');
   }
-
+  console.log(file.mimetype, 'file.mimetype')
   const { size } = file;
 
   // // 20mb
@@ -96,7 +96,7 @@ export const checkFile = async (
   }
 
   let { mime } = ft;
-
+  console.log(mime, 'mime')
   if (
     mime === 'application/zip' &&
     file.originalFilename?.toLowerCase().endsWith('.hwpx')
