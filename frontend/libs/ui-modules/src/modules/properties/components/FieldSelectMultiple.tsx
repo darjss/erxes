@@ -1,16 +1,17 @@
 import {
   Badge,
-  cn,
   Combobox,
   Command,
-  isDeeplyEqual,
   PopoverScoped,
   RecordTableInlineCell,
+  cn,
+  isDeeplyEqual,
 } from 'erxes-ui';
+
 import { IField } from '../types/fieldsTypes';
-import { useState } from 'react';
 import { SpecificFieldProps } from './Field';
 import { getStringArray } from '../propertyUtils';
+import { useState } from 'react';
 
 export const FieldSelectMultiple = (props: SpecificFieldProps) => {
   const { field, value, handleChange, id, inCell } = props;

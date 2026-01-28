@@ -1,7 +1,7 @@
 export enum FrontlinePaths {
   Frontline = 'frontline',
   Inbox = '/inbox',
-  Tickets = '/tickets',
+  TicketTags = '/ticket-tags',
   Calls = '/calls',
   IntegrationConfig = '/config',
   ErxesMessengerPreview = '/erxes-messenger-preview',
@@ -21,4 +21,5 @@ export enum FrontlinePaths {
   ChannelForms = '/:channelId',
   FormDetail = '/:channelId/:formId',
   FormPreview = '/form-preview',
+  Reports = '/reports',
 }
