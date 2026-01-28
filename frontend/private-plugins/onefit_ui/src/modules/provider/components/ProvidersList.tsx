@@ -68,20 +68,18 @@ export const ProvidersList = ({ filters }: ProvidersListProps) => {
       },
     },
     {
-      accessorKey: 'description',
-      header: 'Description',
+      accessorKey: 'instanceId',
+      header: 'Instance ID',
       cell: ({ cell }) => {
-        const description = cell.getValue() as
-          | { en?: string; mn?: string }
-          | undefined;
-        const desc = getLocalizedString(description, 'en');
+        const instanceId = cell.getValue() as string | undefined;
         return (
-          <RecordTableInlineCell className="text-xs font-medium text-muted-foreground max-w-xs truncate">
-            {desc || '-'}
+          <RecordTableInlineCell className="text-xs font-medium text-muted-foreground">
+            {instanceId || '-'}
           </RecordTableInlineCell>
         );
       },
     },
+
     {
       accessorKey: 'location',
       header: 'Location',
@@ -158,6 +156,23 @@ export const ProvidersList = ({ filters }: ProvidersListProps) => {
               className="capitalize"
             >
               {status}
+            </Badge>
+          </RecordTableInlineCell>
+        );
+      },
+    },
+    {
+      accessorKey: 'isActive',
+      header: 'Is Active',
+      cell: ({ cell }) => {
+        const isActive = cell.getValue() as boolean | undefined;
+        return (
+          <RecordTableInlineCell>
+            <Badge
+              variant={isActive ? 'success' : 'secondary'}
+              className="capitalize"
+            >
+              {isActive ? 'Active' : 'Inactive'}
             </Badge>
           </RecordTableInlineCell>
         );

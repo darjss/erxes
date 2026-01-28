@@ -39,6 +39,7 @@ export interface OneFitProvider {
   _id: string;
   createdAt: string;
   modifiedAt: string;
+  instanceId?: string;
   businessName: MultilingualString;
   description?: MultilingualStringOptional;
   location: OneFitLocation;
