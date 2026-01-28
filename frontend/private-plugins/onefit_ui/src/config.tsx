@@ -1,6 +1,6 @@
 import { IUIConfig } from 'erxes-ui';
 import { Suspense, lazy } from 'react';
-import { IconActivity } from '@tabler/icons-react';
+import { IconActivity, IconUser } from '@tabler/icons-react';
 
 const OneFitNavigation = lazy(() =>
   import('./modules/OneFitNavigation').then((module) => ({
@@ -25,6 +25,14 @@ export const CONFIG: IUIConfig = {
       path: 'onefit',
     },
   ],
+  widgets: {
+    relationWidgets: [
+      {
+        name: 'onefitcustomer',
+        icon: IconUser,
+      },
+    ],
+  },
   settingsNavigation: () => (
     <Suspense fallback={<div />}>
       <OneFitSettingsNavigation />

@@ -19,6 +19,7 @@ const config: ModuleFederationConfig = {
     './onefit': './src/modules/Main.tsx',
     './onefitSettings': './src/modules/Settings.tsx',
     './widgets': './src/widgets/Widgets.tsx',
+    './relationWidget': './src/widgets/Widgets.tsx',
   },
 
   shared: (libraryName, defaultConfig) => {
