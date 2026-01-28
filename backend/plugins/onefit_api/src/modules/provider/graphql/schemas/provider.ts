@@ -39,6 +39,7 @@ export const types = `
     icon: String
     coverImages: [String]
     distance: Float
+    instanceId: String
   }
 
   type OneFitProviderListResponse {

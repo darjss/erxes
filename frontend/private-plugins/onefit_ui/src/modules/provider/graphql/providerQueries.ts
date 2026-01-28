@@ -20,6 +20,7 @@ export const ONE_FIT_PROVIDERS = gql`
         _id
         createdAt
         modifiedAt
+        instanceId
         businessName {
           en
           mn
@@ -102,6 +103,7 @@ export const ONE_FIT_PROVIDER = gql`
       _id
       createdAt
       modifiedAt
+      instanceId
       businessName {
         en
         mn
