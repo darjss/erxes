@@ -91,6 +91,8 @@ export const createActivity = async <T>({
 
     const oldValue = oldDoc?.[field];
 
+    if (oldValue === newValue) continue;
+
     if (validator('array', oldValue, newValue)) {
       const added = difference(newValue, oldValue);
       const removed = difference(oldValue, newValue);
