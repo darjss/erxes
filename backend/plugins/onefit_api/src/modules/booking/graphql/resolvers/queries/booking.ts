@@ -103,7 +103,7 @@ export const bookingQueries: Record<string, Resolver> = {
     }
 
     const booking = await models.Booking.findOne(query);
-    
+
     // Verify instanceId ownership if instanceId is set
     if (booking && context.instanceId) {
       const provider = await models.Provider.findOne({
@@ -113,7 +113,7 @@ export const bookingQueries: Record<string, Resolver> = {
         return null;
       }
     }
-    
+
     return booking;
   },
 
@@ -123,7 +123,7 @@ export const bookingQueries: Record<string, Resolver> = {
     context: IContext,
   ) {
     const { models, clientPortal, cpUser } = context;
-    const query: any = { _id:bookingId };
+    const query: any = { _id: bookingId };
 
     // If clientPortal exists, filter by cpUser
     if (clientPortal && cpUser) {
@@ -141,7 +141,10 @@ export const bookingQueries: Record<string, Resolver> = {
         return null;
       }
     }
-    
+    if (!booking) {
+      throw new Error('Booking not found');
+    }
+
     return booking;
   },
 
@@ -226,7 +229,7 @@ export const bookingQueries: Record<string, Resolver> = {
     }
 
     const userId = cpUser.erxesCustomerId || cpUser._id;
-    const booking = await models.Booking.findOne({ _id:bookingId });
+    const booking = await models.Booking.findOne({ _id: bookingId });
 
     if (!booking) {
       throw new Error('Booking not found');

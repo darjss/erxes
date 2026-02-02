@@ -15,7 +15,15 @@ import {
 } from '~/constants/mode';
 import { getMasterClient } from '~/utils/masterClient';
 import { filterXSS } from 'xss';
+import { decodeQrFromImagePath } from '~/utils/qrDecoder';
 // import { modifierMiddleware } from '~/middlewares/modifierMiddleware';
+
+const ALLOWED_IMAGE_MIMES = [
+  'image/jpeg',
+  'image/png',
+  'image/webp',
+  'image/gif',
+];
 
 const router: Router = Router();
 
@@ -182,6 +190,64 @@ router.post('/upload-file', async (req: Request, res: Response) => {
     } catch (e: any) {
       console.error('Upload error:', e);
       return res.status(500).send(filterXSS(e.message || 'Upload failed'));
+    }
+  });
+});
+
+router.post('/decode-qr', async (req: Request, res: Response) => {
+  const form = new formidable.IncomingForm({
+    uploadDir: os.tmpdir(),
+    keepExtensions: true,
+  });
+
+  form.parse(req, async (error, _fields, files) => {
+    if (error) {
+      return res.status(400).json({
+        error: filterXSS(`File parsing error: ${error.message}`),
+      });
+    }
+
+    const uploaded = files.file || files.image;
+    const file = Array.isArray(uploaded) ? uploaded[0] : uploaded;
+
+    if (!file?.filepath || !isValidPath(file.filepath)) {
+      return res.status(400).json({
+        error: 'Invalid or unsafe file path',
+      });
+    }
+
+    const mimetype = file.mimetype;
+    if (!mimetype || !ALLOWED_IMAGE_MIMES.includes(mimetype)) {
+      try {
+        fs.unlinkSync(file.filepath);
+      } catch {
+        // ignore
+      }
+      return res.status(400).json({
+        error: 'Invalid or unsupported image',
+      });
+    }
+
+    try {
+      const result = await decodeQrFromImagePath(file.filepath);
+
+      try {
+        fs.unlinkSync(file.filepath);
+      } catch {
+        // ignore cleanup errors
+      }
+
+      return res.status(200).json(result);
+    } catch (e: unknown) {
+      try {
+        fs.unlinkSync(file.filepath);
+      } catch {
+        // ignore
+      }
+      const message = e instanceof Error ? e.message : 'Decode failed';
+      return res.status(500).json({
+        error: filterXSS(message),
+      });
     }
   });
 });

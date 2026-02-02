@@ -19,6 +19,9 @@ export interface ICreditTransactionModel
   getTransactionsByBooking(
     bookingId: string,
   ): Promise<ICreditTransactionDocument[]>;
+  getLatestTransaction(
+    userId: string,
+  ): Promise<ICreditTransactionDocument | null>;
   removeTransactions(ids: string[]): Promise<{ n: number; ok: number }>;
 }
 
@@ -54,6 +57,12 @@ export const loadCreditTransactionClass = (models: IModels) => {
 
     public static async getTransactionsByBooking(bookingId: string) {
       return await models.CreditTransaction.find({ bookingId });
+    }
+
+    public static async getLatestTransaction(userId: string) {
+      return await models.CreditTransaction.findOne({ userId }).sort({
+        createdAt: -1,
+      });
     }
 
     public static async removeTransactions(ids: string[]) {

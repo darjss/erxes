@@ -15,6 +15,7 @@ export function useRemoveCreditTransactions() {
     return removeCreditTransactionsMutation({
       variables: { ids },
       refetchQueries: [{ query: ONE_FIT_CREDIT_TRANSACTIONS }],
+      awaitRefetchQueries: true,
       onCompleted: () => {
         toast({
           title: 'Success',
@@ -37,12 +38,17 @@ export function useRemoveCreditTransactions() {
 export function useCreateCreditTransaction() {
   const [createCreditTransactionMutation, { loading }] = useMutation(
     ONE_FIT_CREDIT_TRANSACTION_CREATE,
+    {
+      refetchQueries: [{ query: ONE_FIT_CREDIT_TRANSACTIONS }],
+      awaitRefetchQueries: true,
+    },
   );
 
   const createCreditTransaction = (options: MutationFunctionOptions) => {
     return createCreditTransactionMutation({
       ...options,
       refetchQueries: [{ query: ONE_FIT_CREDIT_TRANSACTIONS }],
+      awaitRefetchQueries: true,
       onCompleted: (data) => {
         options.onCompleted?.(data);
         toast({
@@ -63,4 +69,3 @@ export function useCreateCreditTransaction() {
 
   return { createCreditTransaction, loading };
 }
-
