@@ -2,8 +2,10 @@ import { IContext } from '~/connectionResolvers';
 import {
   CreditTransactionType,
   CreditSource,
+  ICreditTransactionDocument,
 } from '@/membership/@types/credittransaction';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
+import { recomputeOneFitCustomerCreditFields } from '@/membership/graphql/resolvers/utils/creditTransactionUtils';
 
 export const creditTransactionMutations = {
   async oneFitCreditTransactionsRemove(
@@ -11,7 +13,60 @@ export const creditTransactionMutations = {
     { ids }: { ids: string[] },
     { models }: IContext,
   ) {
-    return await models.CreditTransaction.removeTransactions(ids);
+    if (!ids.length) {
+      return { n: 0, ok: 0 };
+    }
+
+    const transactions = await models.CreditTransaction.find({
+      _id: { $in: ids },
+    });
+
+    const linkedToBooking = transactions.filter(
+      (tx) => tx.bookingId != null && tx.bookingId !== '',
+    );
+    if (linkedToBooking.length > 0) {
+      throw new Error(
+        'Cannot delete credit transactions linked to a booking',
+      );
+    }
+
+    const linkedToCorporate = transactions.filter(
+      (tx) => tx.corporateCreditId != null && tx.corporateCreditId !== '',
+    );
+    if (linkedToCorporate.length > 0) {
+      throw new Error(
+        'Cannot delete credit transactions linked to corporate credit',
+      );
+    }
+
+    const affectedUserIds = [
+      ...new Set(transactions.map((tx) => tx.userId)),
+    ] as string[];
+
+    const latestByUser: Record<
+      string,
+      ICreditTransactionDocument | null
+    > = {};
+    for (const userId of affectedUserIds) {
+      latestByUser[userId] =
+        await models.CreditTransaction.getLatestTransaction(userId);
+    }
+    for (const tx of transactions) {
+      const latest = latestByUser[tx.userId];
+      if (!latest || tx._id !== latest._id) {
+        throw new Error(
+          "Cannot remove credit transaction: it is not the user's latest transaction.",
+        );
+      }
+    }
+
+    const result = await models.CreditTransaction.removeTransactions(ids);
+
+    for (const userId of affectedUserIds) {
+      await recomputeOneFitCustomerCreditFields(userId, models);
+    }
+
+    return result;
   },
 
   async oneFitCreditTransactionCreate(

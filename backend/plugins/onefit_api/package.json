@@ -15,7 +15,9 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "erxes-api-shared": "workspace:^"
+    "@zxing/library": "^0.21.3",
+    "erxes-api-shared": "workspace:^",
+    "sharp": "^0.33.0"
   },
   "devDependencies": {}
 }

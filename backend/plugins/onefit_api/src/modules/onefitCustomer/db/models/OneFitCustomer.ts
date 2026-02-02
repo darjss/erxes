@@ -31,6 +31,12 @@ export interface IOneFitCustomerModel extends Model<IOneFitCustomerDocument> {
     balance: number,
     refundAmount: number,
   ): Promise<IOneFitCustomerDocument>;
+  updateCreditTotals(
+    customerId: string,
+    balance: number,
+    totalCreditsEarned: number,
+    totalCreditsUsed: number,
+  ): Promise<IOneFitCustomerDocument>;
   updateBookingStats(
     customerId: string,
     lastBookingDate?: Date,
@@ -134,6 +140,25 @@ export const loadOneFitCustomerClass = (models: IModels) => {
           },
           $inc: {
             totalCreditsUsed: -refundAmount,
+          },
+        },
+        { new: true },
+      );
+    }
+
+    public static async updateCreditTotals(
+      customerId: string,
+      balance: number,
+      totalCreditsEarned: number,
+      totalCreditsUsed: number,
+    ) {
+      return await (this as any).findOneAndUpdate(
+        { _id: customerId, __t: 'OneFitCustomer' },
+        {
+          $set: {
+            currentCreditBalance: balance,
+            totalCreditsEarned,
+            totalCreditsUsed,
           },
         },
         { new: true },
