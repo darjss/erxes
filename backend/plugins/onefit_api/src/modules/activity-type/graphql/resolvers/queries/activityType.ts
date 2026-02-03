@@ -9,7 +9,10 @@ import { IContext } from '~/connectionResolvers';
 import { GenderRestriction } from '@/activity-type/@types/activityType';
 import { DayOfWeek } from '@/schedule/@types/schedule';
 import { BookingStatus } from '@/booking/@types/booking';
-import { addInstanceIdFilter } from '~/utils/providerFilter';
+import {
+  addInstanceIdFilter,
+  getProviderIdsByInstanceId,
+} from '~/utils/providerFilter';
 
 function getDayOfWeek(date: Date): DayOfWeek {
   const days = [
@@ -122,6 +125,7 @@ export interface IActivityTypeQueryParams extends ICursorPaginateParams {
   categoryId?: string;
   genderRestriction?: GenderRestriction;
   isActive?: boolean;
+  hasSchedule?: boolean;
 }
 
 const generateFilter = async (
@@ -157,6 +161,40 @@ const generateFilter = async (
 
   if (params.isActive !== undefined) {
     filter.isActive = params.isActive;
+  }
+
+  if (params.hasSchedule !== undefined && context) {
+    const now = new Date();
+    const currentYear = now.getFullYear();
+    const currentMonth = now.getMonth() + 1; // 1-12 to match schema
+
+    const scheduleFilter: {
+      providerId?: string | { $in: string[] };
+      $or?: Array<{ year: number | { $gt: number }; month?: { $gte: number } }>;
+    } = {
+      $or: [
+        { year: { $gt: currentYear } },
+        { year: currentYear, month: { $gte: currentMonth } },
+      ],
+    };
+    if (params.providerId) {
+      scheduleFilter.providerId = params.providerId;
+    } else {
+      const providerIds = await getProviderIdsByInstanceId(context);
+      if (providerIds?.length) {
+        scheduleFilter.providerId = { $in: providerIds };
+      }
+    }
+    const activityTypeIdsWithSchedule =
+      await context.models.ScheduleTemplate.distinct(
+        'dailySchedules.activityTypeId',
+        scheduleFilter,
+      );
+    if (params.hasSchedule) {
+      filter._id = { $in: activityTypeIdsWithSchedule };
+    } else {
+      filter._id = { $nin: activityTypeIdsWithSchedule };
+    }
   }
 
   // Add instanceId filtering if context is provided
