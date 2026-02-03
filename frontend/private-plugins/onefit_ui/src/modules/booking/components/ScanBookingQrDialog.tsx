@@ -1,8 +1,9 @@
-import { Button, Dialog } from 'erxes-ui';
+import { Button, Dialog, Input } from 'erxes-ui';
 import { ChangeEvent, useEffect, useRef, useState } from 'react';
 import { decodeQrFromImage } from '~/modules/booking/utils/decodeQrApi';
 
 const DECODE_THROTTLE_MS = 400;
+const QRCODE_RAPTOR_URL = 'https://qrcoderaptor.com/';
 
 interface ScanBookingQrDialogProps {
   open: boolean;
@@ -18,6 +19,7 @@ export function ScanBookingQrDialog({
   const [mode, setMode] = useState<'camera' | 'file' | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [fileLoading, setFileLoading] = useState(false);
+  const [manualBookingId, setManualBookingId] = useState('');
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const animationFrameRef = useRef<number | null>(null);
@@ -30,6 +32,7 @@ export function ScanBookingQrDialog({
       stopScanning();
       setMode(null);
       setError(null);
+      setManualBookingId('');
       return;
     }
     setError(null);
@@ -97,7 +100,8 @@ export function ScanBookingQrDialog({
                     if (!blob || mode !== 'camera' || !open) {
                       decodeInProgressRef.current = false;
                       if (mode === 'camera' && open) {
-                        animationFrameRef.current = requestAnimationFrame(scanFrame);
+                        animationFrameRef.current =
+                          requestAnimationFrame(scanFrame);
                       }
                       return;
                     }
@@ -117,7 +121,8 @@ export function ScanBookingQrDialog({
                       .finally(() => {
                         decodeInProgressRef.current = false;
                         if (mode === 'camera' && open) {
-                          animationFrameRef.current = requestAnimationFrame(scanFrame);
+                          animationFrameRef.current =
+                            requestAnimationFrame(scanFrame);
                         }
                       });
                   },
@@ -143,10 +148,20 @@ export function ScanBookingQrDialog({
 
         animationFrameRef.current = requestAnimationFrame(scanFrame);
       } catch (err: unknown) {
-        const message = err instanceof Error ? err.message : 'Failed to start camera';
-        if (err instanceof Error && (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError')) {
-          setError('Camera permission denied. Please allow camera access and try again.');
-        } else if (err instanceof Error && (err.name === 'NotFoundError' || err.name === 'DevicesNotFoundError')) {
+        const message =
+          err instanceof Error ? err.message : 'Failed to start camera';
+        if (
+          err instanceof Error &&
+          (err.name === 'NotAllowedError' ||
+            err.name === 'PermissionDeniedError')
+        ) {
+          setError(
+            'Camera permission denied. Please allow camera access and try again.',
+          );
+        } else if (
+          err instanceof Error &&
+          (err.name === 'NotFoundError' || err.name === 'DevicesNotFoundError')
+        ) {
           setError('No camera found. Please connect a camera and try again.');
         } else {
           setError(message);
@@ -200,7 +215,8 @@ export function ScanBookingQrDialog({
         setError(result.error || 'No QR code found in the image');
       }
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : 'Failed to scan QR code from file';
+      const message =
+        err instanceof Error ? err.message : 'Failed to scan QR code from file';
       setError(message);
     } finally {
       setFileLoading(false);
@@ -212,6 +228,19 @@ export function ScanBookingQrDialog({
     stopScanning();
     setMode(null);
     setError(null);
+    setManualBookingId('');
+    onOpenChange(false);
+  }
+
+  function handleManualLookup() {
+    const id = manualBookingId.trim();
+    if (!id) {
+      setError('Please enter a booking ID');
+      return;
+    }
+    setError(null);
+    onScanSuccess(id);
+    setManualBookingId('');
     onOpenChange(false);
   }
 
@@ -227,31 +256,70 @@ export function ScanBookingQrDialog({
 
         <div className="flex flex-col gap-4 py-4">
           {!mode && (
-            <div className="flex flex-col gap-2">
-              <Button
-                type="button"
-                onClick={handleCameraScan}
-                className="w-full"
-              >
-                Scan with Camera
-              </Button>
-              <label className="w-full cursor-pointer">
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleFileScan}
-                  className="hidden"
-                  disabled={fileLoading}
-                />
+            <div className="flex flex-col gap-4">
+              <div className="flex flex-col gap-2">
                 <Button
                   type="button"
-                  variant="outline"
-                  className="w-full pointer-events-none"
-                  disabled={fileLoading}
+                  onClick={handleCameraScan}
+                  className="w-full"
                 >
-                  {fileLoading ? 'Decoding...' : 'Upload Image'}
+                  Scan with Camera
                 </Button>
-              </label>
+                <label className="w-full cursor-pointer">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleFileScan}
+                    className="hidden"
+                    disabled={fileLoading}
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="w-full pointer-events-none"
+                    disabled={fileLoading}
+                  >
+                    {fileLoading ? 'Decoding...' : 'Upload Image'}
+                  </Button>
+                </label>
+              </div>
+
+              <div className="border-t pt-4 flex flex-col gap-2">
+                <p className="text-sm text-muted-foreground">
+                  If the QR reader doesn&apos;t work, decode your QR code at{' '}
+                  <a
+                    href={QRCODE_RAPTOR_URL}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-primary underline hover:no-underline"
+                  >
+                    QRCodeRaptor
+                  </a>{' '}
+                  (qrcoderaptor.com), then paste the booking ID below.
+                </p>
+                <div className="flex gap-2">
+                  <Input
+                    type="text"
+                    placeholder="Enter booking ID"
+                    value={manualBookingId}
+                    onChange={(e) => setManualBookingId(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        handleManualLookup();
+                      }
+                    }}
+                    className="flex-1"
+                  />
+                  <Button
+                    type="button"
+                    onClick={handleManualLookup}
+                    disabled={!manualBookingId.trim()}
+                  >
+                    Look up
+                  </Button>
+                </div>
+              </div>
             </div>
           )}
 

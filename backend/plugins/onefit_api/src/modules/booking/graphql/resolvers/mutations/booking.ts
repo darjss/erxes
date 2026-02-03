@@ -237,6 +237,7 @@ async function cancelBookingLogic(
   cancelledBy: string,
   reason: string | undefined,
   { models, subdomain }: IContext,
+  skipDateTimeCheck = false,
 ) {
   const booking = await models.Booking.findOne({ _id: bookingId });
   if (!booking) {
@@ -247,16 +248,18 @@ async function cancelBookingLogic(
     throw new Error('Booking already cancelled');
   }
 
-  // Check 24-hour cancellation policy
-  const now = new Date();
-  const bookingDateTime = new Date(booking.bookingDate);
-  const [hours, minutes] = booking.startTime.split(':').map(Number);
-  bookingDateTime.setHours(hours, minutes, 0, 0);
+  if (!skipDateTimeCheck) {
+    // Check 24-hour cancellation policy
+    const now = new Date();
+    const bookingDateTime = new Date(booking.bookingDate);
+    const [hours, minutes] = booking.startTime.split(':').map(Number);
+    bookingDateTime.setHours(hours, minutes, 0, 0);
 
-  const hoursUntilBooking =
-    (bookingDateTime.getTime() - now.getTime()) / (1000 * 60 * 60);
-  if (hoursUntilBooking < 24) {
-    throw new Error('Cancellation must be made at least 24 hours in advance');
+    const hoursUntilBooking =
+      (bookingDateTime.getTime() - now.getTime()) / (1000 * 60 * 60);
+    if (hoursUntilBooking < 24) {
+      throw new Error('Cancellation must be made at least 24 hours in advance');
+    }
   }
 
   // Find original credit transaction for this booking
@@ -399,10 +402,16 @@ export const bookingMutations: Record<string, Resolver> = {
     }
 
     const cancelledBy = user?._id || booking.userId;
-    return cancelBookingLogic(_id, cancelledBy, reason, {
-      models,
-      subdomain,
-    } as IContext);
+    return cancelBookingLogic(
+      _id,
+      cancelledBy,
+      reason,
+      {
+        models,
+        subdomain,
+      } as IContext,
+      true,
+    );
   },
 
   async oneFitBookingMarkAttendance(
