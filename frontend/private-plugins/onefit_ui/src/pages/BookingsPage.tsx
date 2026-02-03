@@ -20,18 +20,19 @@ export function BookingsPage() {
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
   const [scannedBookingId, setScannedBookingId] = useState<string | null>(null);
 
-  const { data: bookingData, loading: bookingLoading, error: bookingError } = useQuery(
-    ONE_FIT_BOOKING_BY_BOOKING_ID,
-    {
-      variables: { bookingId: scannedBookingId || '' },
-      skip: !scannedBookingId || !confirmDialogOpen,
-    },
-  );
+  const {
+    data: bookingData,
+    loading: bookingLoading,
+    error: bookingError,
+  } = useQuery(ONE_FIT_BOOKING_BY_BOOKING_ID, {
+    variables: { bookingId: scannedBookingId || '' },
+    skip: !scannedBookingId || !confirmDialogOpen,
+  });
 
-  const booking: OneFitBooking | null = bookingData?.oneFitBookingByBookingId || null;
+  const booking: OneFitBooking | null =
+    bookingData?.oneFitBookingByBookingId || null;
 
   function handleScanSuccess(bookingId: string) {
-    console.log('handleScanSuccess bookingId', bookingId);
     setScannedBookingId(bookingId);
     setScanDialogOpen(false);
     setConfirmDialogOpen(true);

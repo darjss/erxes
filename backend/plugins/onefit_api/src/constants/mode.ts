@@ -1,4 +1,7 @@
-import { getEnv } from 'erxes-api-shared/utils';
+import {
+  getEnv,
+  getSaasOrganizationIdBySubdomain,
+} from 'erxes-api-shared/utils';
 
 export type OneFitMode = 'master' | 'slave';
 
@@ -14,7 +17,18 @@ export const getOneFitMasterUrl = (): string | undefined => {
   return getEnv({ name: 'ONEFIT_MASTER_URL' });
 };
 
-export const getOneFitInstanceId = (): string | undefined => {
+export const getOneFitInstanceId = async (
+  subdomain: string,
+): Promise<string | undefined> => {
+  const VERSION = getEnv({ name: 'VERSION', defaultValue: 'os' });
+
+  if (VERSION === 'saas') {
+    try {
+      return await getSaasOrganizationIdBySubdomain(subdomain);
+    } catch (error) {
+      console.error('Failed to get organization ID for SaaS:', error);
+    }
+  }
   return getEnv({ name: 'ONEFIT_INSTANCE_ID' });
 };
 
@@ -39,7 +53,7 @@ export const validateSlaveConfig = (): void => {
 
   if (isSlaveMode()) {
     const masterUrl = getOneFitMasterUrl();
-    const instanceId = getOneFitInstanceId();
+    const instanceId = getOneFitInstanceId('');
 
     if (!masterUrl) {
       throw new Error(
