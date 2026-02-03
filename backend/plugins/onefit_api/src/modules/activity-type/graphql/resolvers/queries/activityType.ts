@@ -94,6 +94,7 @@ async function getActivityTypeAvailability(
       totalSeats: dailySchedule.dailyLimit,
       bookedSeats: 0,
       hasSchedule: true,
+      schedule: dailySchedule,
     };
   }
 
@@ -116,6 +117,7 @@ async function getActivityTypeAvailability(
     totalSeats,
     bookedSeats,
     hasSchedule: true,
+    schedule: dailySchedule,
   };
 }
 
