@@ -80,7 +80,7 @@ export const graphqlProxyMiddleware = async (
 
     const masterClient = getMasterClient();
     const subdomain = getSubdomain(req);
-    const instanceId = getOneFitInstanceId();
+    const instanceId = await getOneFitInstanceId(subdomain);
 
     // Forward headers for authentication and context
     const headers: Record<string, string> = {};

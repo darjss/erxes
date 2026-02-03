@@ -98,7 +98,9 @@ startPlugin({
     } else {
       // In slave mode, use environment variable
       // In master mode, use instanceId from header if present (from slave request)
-      instanceId = isSlaveMode() ? getOneFitInstanceId() : instanceIdFromHeader;
+      instanceId = isSlaveMode()
+        ? await getOneFitInstanceId(subdomain)
+        : instanceIdFromHeader;
     }
 
     const masterClient = isSlaveMode() ? getMasterClient() : undefined;

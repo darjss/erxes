@@ -75,7 +75,7 @@ router.post('/upload-file', async (req: Request, res: Response) => {
       if (isSlaveMode()) {
         try {
           const masterClient = getMasterClient();
-          const instanceId = getOneFitInstanceId();
+          const instanceId = await getOneFitInstanceId(subdomain);
           const onefitSecret = getOneFitSecret();
 
           // Build headers for master request
@@ -141,7 +141,9 @@ router.post('/upload-file', async (req: Request, res: Response) => {
         queryParams.append('maxWidth', maxWidth.toString());
       }
 
-      const uploadUrl = `${coreUploadUrl}${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
+      const uploadUrl = `${coreUploadUrl}${
+        queryParams.toString() ? `?${queryParams.toString()}` : ''
+      }`;
 
       // Forward file to core-api
       const formData = new FormData();
