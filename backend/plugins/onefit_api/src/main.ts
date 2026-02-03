@@ -23,7 +23,10 @@ const ALLOWED_ORIGINS = getEnv({ name: 'ALLOWED_ORIGINS' });
 
 const corsOptions = {
   credentials: true,
-  origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
+  origin: (
+    origin: string | undefined,
+    callback: (err: Error | null, allow?: boolean) => void,
+  ) => {
     // Allow requests with no origin (like mobile apps or curl requests)
     if (!origin) {
       return callback(null, true);
@@ -112,6 +115,7 @@ startPlugin({
     payments: {
       transactionCallback: async (subdomain, data) => {
         // Intentionally left blank.
+        console.log('transactionCallback', subdomain, data);
       },
       callback: async (subdomain, data) => {
         const { contentTypeId, contentType, status } = data;
