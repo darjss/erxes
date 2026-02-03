@@ -204,6 +204,14 @@ export const scheduleQueries = {
       totalSeats: number;
       bookedSeats: number;
       hasSchedule: boolean;
+      schedule?: {
+        dayOfWeek: DayOfWeek;
+        activityTypeId: string;
+        genderRestriction: string;
+        startTime: string;
+        endTime: string;
+        dailyLimit: number;
+      };
     }> = [];
 
     // Get all exceptions for this month
@@ -259,6 +267,16 @@ export const scheduleQueries = {
           totalSeats: dailySchedule?.dailyLimit || 0,
           bookedSeats: 0,
           hasSchedule: !!scheduleTemplate && !!dailySchedule,
+          schedule: dailySchedule
+            ? {
+                dayOfWeek,
+                activityTypeId,
+                genderRestriction: dailySchedule.genderRestriction,
+                startTime: dailySchedule.startTime,
+                endTime: dailySchedule.endTime,
+                dailyLimit: dailySchedule.dailyLimit,
+              }
+            : undefined,
         });
         continue;
       }
@@ -311,6 +329,14 @@ export const scheduleQueries = {
         totalSeats,
         bookedSeats,
         hasSchedule: true,
+        schedule: {
+          dayOfWeek,
+          activityTypeId,
+          genderRestriction: dailySchedule.genderRestriction,
+          startTime: dailySchedule.startTime,
+          endTime: dailySchedule.endTime,
+          dailyLimit: dailySchedule.dailyLimit,
+        },
       });
     }
 
