@@ -72,6 +72,7 @@ const queryParams = `
   status: String,
   categoryId: String,
   isActive: Boolean,
+  hasScheduleFutureOrNow: Boolean,
   near: OneFitCoordinatesInput,
   maxDistance: Float,
 `;
