@@ -60,6 +60,7 @@ export const types = `
     totalSeats: Int!
     bookedSeats: Int!
     hasSchedule: Boolean!
+    schedule: OneFitDailySchedule
   }
 
   type OneFitMonthAvailability {
