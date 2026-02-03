@@ -82,6 +82,7 @@ const queryParams = `
   categoryId: String,
   genderRestriction: OneFitGenderRestriction,
   isActive: Boolean,
+  hasSchedule: Boolean,
 `;
 
 export const queries = `
