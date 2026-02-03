@@ -26,7 +26,7 @@ export function BlockPhones({ form }: BlockPhonesProps) {
   };
 
   const handleValueChange = (values: IPhoneFieldProps) => {
-    form.setValue('primaryPhone', values.primaryPhone, { shouldDirty: true });
+    form.setValue('primaryPhone', values.primaryPhone ?? '', { shouldDirty: true });
     form.setValue('phones', values.phones || [], { shouldDirty: true });
   };
 

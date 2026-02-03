@@ -16,6 +16,11 @@ export const types = `
     cancelled
   }
 
+  enum Priority {
+    low
+    medium
+    high
+  }
 
   type Oppty {
     _id: String
@@ -25,10 +30,11 @@ export const types = `
     unitTypes: [String]
     units: [String]
     assignedUserId: String
-    status: OpptyStatus
+    status: String
     labelIds: [String]
     tagIds: [String]
     projectId: String
+    priority: Priority
     startDate: Date
     targetDate: Date
     customerSource: String
@@ -44,14 +50,14 @@ export const types = `
     units: [String]
     unit: String
     assignedUserId: String
-    status: OpptyStatus
+    status: String
     labelIds: [String]
     tagIds: [String]
     startDate: Date
     targetDate: Date
     customerSource: String
     projectId: String
-
+    priority: Priority
     # timer nemn
     # chosenUnit
     # activity
@@ -64,7 +70,7 @@ export const types = `
     unitType: String
     unit: String
     assignedUserId: String
-    status: OpptyStatus
+    status: String
     startDate: Date
     targetDate: Date
     customerSource: String

@@ -13,51 +13,51 @@ export const opptyQueries = {
 
     filterQuery.projectId = projectId;
 
-    if (filter.number) {
+    if (filter?.number) {
       filterQuery.number = filter.number;
     }
 
-    if (filter.description) {
+    if (filter?.description) {
       filterQuery.description = { $regex: filter.description, $options: 'i' };
     }
 
-    if (filter.customerId) {
+    if (filter?.customerId) {
       filterQuery.customerId = filter.customerId;
     }
 
-    if (filter.unitType) {
+    if (filter?.unitType) {
       filterQuery.unitTypes = { $in: [filter.unitType] };
     }
 
-    if (filter.unit) {
+    if (filter?.unit) {
       filterQuery.units = { $in: [filter.unit] };
     }
 
-    if (filter.assignedUserId) {
+    if (filter?.assignedUserId) {
       filterQuery.assignedUserId = filter.assignedUserId;
     }
 
-    if (filter.status) {
+    if (filter?.status) {
       filterQuery.status = filter.status;
     }
 
-    if (filter.startDate) {
+    if (filter?.startDate) {
       filterQuery.startDate = { $gte: filter.startDate };
     }
 
-    if (filter.targetDate) {
+    if (filter?.targetDate) {
       filterQuery.targetDate = { $gte: filter.targetDate };
     }
 
-    if (filter.customerSource) {
+    if (filter?.customerSource) {
       filterQuery.customerSource = filter.customerSource;
     }
 
-    if (filter.labelId) {
+    if (filter?.labelId) {
       filterQuery.labelIds = { $in: [filter.labelId] };
     }
 
-    if (filter.tagId) {
+    if (filter?.tagId) {
       filterQuery.tagIds = { $in: [filter.tagId] };
     }
 
@@ -65,7 +65,7 @@ export const opptyQueries = {
       {
         model: models.Oppty,
         params: {
-          ...filter,
+          ...(filter || {}),
           orderBy: {
             updatedAt: 'desc',
           },

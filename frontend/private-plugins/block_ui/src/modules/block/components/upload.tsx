@@ -1,7 +1,7 @@
 import { IconPhotoCirclePlus } from '@tabler/icons-react';
 import { buttonVariants, cn, readImage, Spinner, useUpload } from 'erxes-ui';
 import { Slot } from 'radix-ui';
-import { forwardRef, useEffect, useState } from 'react';
+import { forwardRef, useMemo, useState } from 'react';
 import { Button, FileTrigger, FileTriggerProps } from 'react-aria-components';
 import { UploadContext, useUploadContext } from '../context/UploadContext';
 
@@ -24,25 +24,13 @@ export const UploadProvider = ({
   const [totalFilesCount, setTotalFilesCount] = useState(0);
   const [finishedFilesCount, setFinishedFilesCount] = useState(0);
   const { upload, remove, isLoading } = useUpload();
-  const [responses, setResponses] = useState<{ url: string }[]>([]);
 
-  useEffect(() => {
-    if (value && Array.isArray(value)) {
-      setResponses(value.map((url) => ({ url })));
-    }
-
-    if (value && typeof value === 'string') {
-      setResponses([{ url: value }]);
-    }
+  const responses = useMemo(() => {
+    if (!value) return [];
+    return Array.isArray(value)
+      ? value.map((url) => ({ url }))
+      : [{ url: value }];
   }, [value]);
-
-  const handleValueChange = (_responses: { url: string }[]) => {
-    if (mode === 'single') {
-      onValueChange(_responses[0]?.url);
-      return;
-    }
-    onValueChange(_responses.map((r) => r?.url));
-  };
 
   const handleFileChange = (files: FileList | null) => {
     if (!files || files.length === 0) return;
@@ -52,24 +40,19 @@ export const UploadProvider = ({
 
     upload({
       files,
-      afterUpload: ({ response }: { response: { url: string } }) => {
-        const checkedResponse =
-          typeof response === 'string' ? { url: response } : response;
-        setResponses((prevResponses) => {
-          const newResponses = [...prevResponses, checkedResponse];
-          handleValueChange(newResponses);
+      afterUpload: ({ response }) => {
+        const checked = typeof response === 'string' ? response : response.url;
 
-          setFinishedFilesCount((prev) => {
-            const newCount = prev + 1;
-            if (newCount === files.length && mode === 'multiple') {
-              onUploadsFinished &&
-                onUploadsFinished(newResponses.map((r) => r.url));
-            }
-            return newCount;
-          });
+        if (mode === 'single') {
+          onValueChange(checked);
+          onUploadsFinished?.(checked);
+        } else {
+          const next = [...responses.map((r) => r.url), checked];
+          onValueChange(next);
+          onUploadsFinished?.(next);
+        }
 
-          return newResponses;
-        });
+        setFinishedFilesCount((c) => c + 1);
       },
       maxHeight: 10000,
       maxWidth: 10000,
@@ -77,24 +60,21 @@ export const UploadProvider = ({
   };
 
   const handleRemove = (url?: string) => {
-    const removeUrl =
-      url || (responses?.[responses?.length - 1]?.url as string);
+    const removeUrl = url ?? responses.at(-1)?.url;
+    if (!removeUrl) return;
+
     remove({
       fileName: removeUrl,
       afterRemove: () => {
-        handleValueChange(responses?.filter((r) => r.url !== removeUrl));
-        setResponses((prevResponses) => {
-          const newResponses = prevResponses?.filter(
-            (r) => r.url !== removeUrl,
-          );
-
-          if (mode === 'multiple') {
-            onUploadsFinished &&
-              onUploadsFinished(newResponses?.map((r) => r.url));
-          }
-
-          return newResponses;
-        });
+        if (mode === 'single') {
+          onValueChange(undefined);
+        } else {
+          const next = responses
+            .filter((r) => r.url !== removeUrl)
+            .map((r) => r.url);
+          onValueChange(next);
+          onUploadsFinished?.(next);
+        }
       },
     });
   };

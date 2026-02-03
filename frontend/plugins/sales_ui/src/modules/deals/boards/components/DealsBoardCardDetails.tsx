@@ -1,4 +1,4 @@
-import { Badge, cn } from 'erxes-ui';
+import { Badge, cn, renderFullName } from 'erxes-ui';
 
 type DealCardDetailsProps = {
   items: any;
@@ -30,7 +30,10 @@ export const DealCardDetails = ({
             style={{ backgroundColor: color }}
           />
           <span>
-            {item.product?.name || item.name || item.primaryName}
+            {item.product?.name ||
+              item.name ||
+              item.primaryName ||
+              renderFullName(item)}
             {item.quantity && (
               <span className="text-muted-foreground/70">
                 {' '}
@@ -50,7 +53,7 @@ export const DealCardDetails = ({
         </div>
       ))}
       {remainingCount > 0 && (
-        <Badge variant="secondary">+{remainingCount} more</Badge>
+        <Badge variant="ghost">+{remainingCount} more</Badge>
       )}
     </div>
   );

@@ -16,12 +16,12 @@ const FormNavigation = lazy(() =>
 
 export const CONFIG: IUIConfig = {
   name: 'blockadmin',
+  path: 'blockadmin',
   modules: [
     {
       name: 'blockadmin',
       icon: IconBlocks,
       path: 'blockadmin',
-      hasSettings: false,
     },
   ],
   navigationGroup: {
@@ -32,7 +32,7 @@ export const CONFIG: IUIConfig = {
         <BlockNavigation />
       </Suspense>
     ),
-    subGroups: () => (
+    subGroup: () => (
       <Suspense fallback={<div />}>
         <FormNavigation />
       </Suspense>

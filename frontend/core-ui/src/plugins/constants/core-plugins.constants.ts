@@ -52,18 +52,6 @@ export const GET_CORE_MODULES = (
       ],
     },
     {
-      name: t('products'),
-      icon: IconShoppingCart,
-      path: 'products',
-      submenus: [
-        {
-          name: 'categories',
-          path: 'products/categories',
-          icon: IconCategory,
-        },
-      ],
-    },
-    {
       name: t('segments'),
       icon: IconChartPie,
       path: 'segments',
@@ -76,6 +64,7 @@ export const GET_CORE_MODULES = (
     {
       name: t('logs'),
       path: 'logs',
+      settingsOnly: true,
     },
   ];
 
