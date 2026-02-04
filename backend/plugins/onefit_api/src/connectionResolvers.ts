@@ -62,13 +62,6 @@ import {
 import { IBookingDocument } from '@/booking/@types/booking';
 import { IBookingModel, loadBookingClass } from '@/booking/db/models/Booking';
 
-// Notification
-import { INotificationDocument } from '@/notification/@types/notification';
-import {
-  INotificationModel,
-  loadNotificationClass,
-} from '@/notification/db/models/Notification';
-
 // Config
 import { ISystemConfigDocument } from '@/config/@types/config';
 import {
@@ -85,10 +78,7 @@ import {
 
 // Banner
 import { IBannerDocument } from '@/banner/@types/banner';
-import {
-  IBannerModel,
-  loadBannerClass,
-} from '@/banner/db/models/Banner';
+import { IBannerModel, loadBannerClass } from '@/banner/db/models/Banner';
 
 export interface IModels {
   models: mongoose.Model<
@@ -109,7 +99,6 @@ export interface IModels {
   CreditTransaction: ICreditTransactionModel;
   MembershipPurchase: IMembershipPurchaseModel;
   Booking: IBookingModel;
-  Notification: INotificationModel;
   SystemConfig: ISystemConfigModel;
   OneFitCustomer: IOneFitCustomerModel;
   Banner: IBannerModel;
@@ -170,11 +159,6 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
   models.Booking = db.model<IBookingDocument, IBookingModel>(
     'onefit_bookings',
     loadBookingClass(models),
-  );
-
-  models.Notification = db.model<INotificationDocument, INotificationModel>(
-    'onefit_notifications',
-    loadNotificationClass(models),
   );
 
   models.SystemConfig = db.model<ISystemConfigDocument, ISystemConfigModel>(

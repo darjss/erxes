@@ -30,11 +30,6 @@ import {
 } from '@/booking/graphql/schemas/booking';
 
 import {
-  types as NotificationTypes,
-  queries as NotificationQueries,
-  mutations as NotificationMutations,
-} from '@/notification/graphql/schemas/notification';
-import {
   types as ConfigTypes,
   queries as ConfigQueries,
   mutations as ConfigMutations,
@@ -64,7 +59,6 @@ export const types = `
   ${MembershipTypes}
   ${CreditTransactionTypes}
   ${BookingTypes}
-  ${NotificationTypes}
   ${ConfigTypes}
   ${OneFitCustomerTypes}
   ${ActivityTypeTypes}
@@ -78,7 +72,6 @@ export const queries = `
   ${MembershipQueries}
   ${CreditTransactionQueries}
   ${BookingQueries}
-  ${NotificationQueries}
   ${ConfigQueries}
   ${OneFitCustomerQueries}
   ${ActivityTypeQueries}
@@ -92,7 +85,6 @@ export const mutations = `
   ${MembershipMutations}
   ${CreditTransactionMutations}
   ${BookingMutations}
-  ${NotificationMutations}
   ${ConfigMutations}
   ${OneFitCustomerMutations}
   ${ActivityTypeMutations}
