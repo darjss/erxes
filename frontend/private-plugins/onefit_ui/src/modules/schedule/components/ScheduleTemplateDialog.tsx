@@ -12,6 +12,7 @@ import {
 import {
   createScheduleTemplateSchema,
   editScheduleTemplateSchema,
+  expandDailyScheduleRowsToApi,
 } from '../schemas/scheduleSchemas';
 import { ONE_FIT_SCHEDULE_TEMPLATE } from '../graphql/scheduleQueries';
 import { DailyScheduleFields } from './DailyScheduleFields';
@@ -20,15 +21,14 @@ import {
   getDefaultDailySchedule,
   getCurrentMonth,
   getCurrentYear,
+  groupDailySchedulesToRows,
 } from '../utils/scheduleUtils';
 import { SelectProviderSearchable } from '~/modules/provider/components/SelectProviderSearchable';
 
 type CreateScheduleTemplateFormData = z.infer<
   typeof createScheduleTemplateSchema
 >;
-type EditScheduleTemplateFormData = z.infer<
-  typeof editScheduleTemplateSchema
->;
+type EditScheduleTemplateFormData = z.infer<typeof editScheduleTemplateSchema>;
 
 interface ScheduleTemplateDialogProps {
   mode: 'create' | 'edit';
@@ -143,8 +143,8 @@ const ScheduleTemplateForm = ({
   });
 
   useEffect(() => {
-    if (!isCreate && template?.dailySchedules) {
-      replace(template.dailySchedules);
+    if (!isCreate && template?.dailySchedules?.length) {
+      replace(groupDailySchedulesToRows(template.dailySchedules));
     }
   }, [template, isCreate, replace]);
 
@@ -166,6 +166,9 @@ const ScheduleTemplateForm = ({
   const onSubmit = (
     data: CreateScheduleTemplateFormData | EditScheduleTemplateFormData,
   ) => {
+    const dailySchedulesForApi = expandDailyScheduleRowsToApi(
+      data.dailySchedules,
+    );
     if (isCreate) {
       const createData = data as CreateScheduleTemplateFormData;
       createScheduleTemplate({
@@ -173,7 +176,7 @@ const ScheduleTemplateForm = ({
           providerId: createData.providerId,
           month: createData.month,
           year: createData.year,
-          dailySchedules: createData.dailySchedules,
+          dailySchedules: dailySchedulesForApi,
         },
         onCompleted: () => {
           onClose();
@@ -181,11 +184,10 @@ const ScheduleTemplateForm = ({
         },
       });
     } else {
-      const editData = data as EditScheduleTemplateFormData;
       updateScheduleTemplate({
         variables: {
           _id: templateId!,
-          dailySchedules: editData.dailySchedules,
+          dailySchedules: dailySchedulesForApi,
         },
         onCompleted: () => {
           onClose();
@@ -237,7 +239,9 @@ const ScheduleTemplateForm = ({
                   <Form.Label>Month *</Form.Label>
                   <Select
                     value={field.value?.toString()}
-                    onValueChange={(value) => field.onChange(parseInt(value, 10))}
+                    onValueChange={(value) =>
+                      field.onChange(parseInt(value, 10))
+                    }
                   >
                     <Form.Control>
                       <Select.Trigger>
@@ -366,4 +370,3 @@ export const EditScheduleTemplateDialog = ({
     onClose={onClose}
   />
 );
-

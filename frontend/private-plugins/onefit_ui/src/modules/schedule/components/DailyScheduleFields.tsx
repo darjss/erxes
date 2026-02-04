@@ -1,13 +1,12 @@
 import { Control, useWatch } from 'react-hook-form';
-import { Form, Input, Select } from 'erxes-ui';
+import { Form, Input, Select, Checkbox, Label } from 'erxes-ui';
 import { Button } from 'erxes-ui';
-import { DayOfWeek, OneFitDailySchedule } from '../types/schedule';
 import { DAYS_OF_WEEK, GENDER_RESTRICTIONS } from '../utils/scheduleUtils';
 import { useQuery } from '@apollo/client';
 import { ONE_FIT_ACTIVITY_TYPES } from '~/modules/activity-type/graphql/activityTypeQueries';
 import { EnumCursorDirection, EnumCursorMode } from 'erxes-ui';
 import { getLocalizedString } from '~/modules/activity-type/utils/localization';
-import { OneFitActivityType } from '~/modules/activity-type/types/activityType';
+import type { OneFitActivityType } from '~/modules/activity-type/types/activityType';
 
 interface DailyScheduleFieldsProps {
   index: number;
@@ -55,24 +54,38 @@ export function DailyScheduleFields({
       <div className="grid grid-cols-2 gap-4">
         <Form.Field
           control={control}
-          name={`dailySchedules.${index}.dayOfWeek`}
+          name={`dailySchedules.${index}.daysOfWeek`}
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Day of Week *</Form.Label>
-              <Select value={field.value} onValueChange={field.onChange}>
-                <Form.Control>
-                  <Select.Trigger>
-                    <Select.Value placeholder="Select day" />
-                  </Select.Trigger>
-                </Form.Control>
-                <Select.Content>
+              <Form.Label>Days of Week *</Form.Label>
+              <Form.Control>
+                <div className="flex flex-wrap gap-4">
                   {DAYS_OF_WEEK.map((day) => (
-                    <Select.Item key={day.value} value={day.value}>
-                      {day.label}
-                    </Select.Item>
+                    <div key={day.value} className="flex items-center gap-2">
+                      <Checkbox
+                        id={`${index}-${day.value}`}
+                        checked={field.value?.includes(day.value) ?? false}
+                        onCheckedChange={(checked) => {
+                          const current = field.value ?? [];
+                          if (checked) {
+                            field.onChange([...current, day.value]);
+                          } else {
+                            field.onChange(
+                              current.filter((d) => d !== day.value),
+                            );
+                          }
+                        }}
+                      />
+                      <Label
+                        htmlFor={`${index}-${day.value}`}
+                        className="cursor-pointer text-sm font-normal"
+                      >
+                        {day.label}
+                      </Label>
+                    </div>
                   ))}
-                </Select.Content>
-              </Select>
+                </div>
+              </Form.Control>
               <Form.Message />
             </Form.Item>
           )}
