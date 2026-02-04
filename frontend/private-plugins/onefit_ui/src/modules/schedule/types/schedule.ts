@@ -17,6 +17,16 @@ export interface OneFitDailySchedule {
   dailyLimit: number;
 }
 
+/** Form row shape: multiple weekdays per row, expanded to OneFitDailySchedule[] on submit */
+export interface OneFitDailyScheduleRow {
+  daysOfWeek: DayOfWeek[];
+  activityTypeId: string;
+  genderRestriction: string;
+  startTime: string;
+  endTime: string;
+  dailyLimit: number;
+}
+
 export interface OneFitScheduleTemplate {
   _id: string;
   createdAt: string;

@@ -1,5 +1,6 @@
 import { Input, Select } from 'erxes-ui';
 import { CategoryFilters } from '../types/category';
+import { NestedCategoryFilter } from './NestedCategoryFilter';
 import { OneFitFilterBase } from '~/components/OneFitFilterBase';
 import { FilterField } from '~/components/shared/FilterField';
 
@@ -21,6 +22,14 @@ export const CategoryFiltersComponent = ({
 
   return (
     <OneFitFilterBase filters={filters} onFiltersChange={onFiltersChange}>
+      <FilterField label="Parent category">
+        <NestedCategoryFilter
+          variant="parent"
+          value={filters.parentId}
+          onChange={(parentId) => onFiltersChange({ ...filters, parentId })}
+          id="onefit-category-filter-parent"
+        />
+      </FilterField>
       <FilterField label="Search">
         <Input
           value={filters.searchValue || ''}

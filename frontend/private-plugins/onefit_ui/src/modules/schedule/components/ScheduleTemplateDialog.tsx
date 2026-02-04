@@ -1,6 +1,6 @@
 import { Button, Dialog, Form, Input, Select, Spinner } from 'erxes-ui';
 import { IconPlus } from '@tabler/icons-react';
-import { useForm, useFieldArray } from 'react-hook-form';
+import { useForm, useFieldArray, useFormState } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useState, useEffect } from 'react';
 import { z } from 'zod';
@@ -12,6 +12,8 @@ import {
 import {
   createScheduleTemplateSchema,
   editScheduleTemplateSchema,
+  expandDailyScheduleRowsToApi,
+  getDuplicateDayActivityPairs,
 } from '../schemas/scheduleSchemas';
 import { ONE_FIT_SCHEDULE_TEMPLATE } from '../graphql/scheduleQueries';
 import { DailyScheduleFields } from './DailyScheduleFields';
@@ -20,15 +22,14 @@ import {
   getDefaultDailySchedule,
   getCurrentMonth,
   getCurrentYear,
+  groupDailySchedulesToRows,
 } from '../utils/scheduleUtils';
 import { SelectProviderSearchable } from '~/modules/provider/components/SelectProviderSearchable';
 
 type CreateScheduleTemplateFormData = z.infer<
   typeof createScheduleTemplateSchema
 >;
-type EditScheduleTemplateFormData = z.infer<
-  typeof editScheduleTemplateSchema
->;
+type EditScheduleTemplateFormData = z.infer<typeof editScheduleTemplateSchema>;
 
 interface ScheduleTemplateDialogProps {
   mode: 'create' | 'edit';
@@ -136,6 +137,7 @@ const ScheduleTemplateForm = ({
   });
 
   const watchedProviderId = form.watch('providerId');
+  const { errors } = useFormState({ control: form.control });
 
   const { fields, append, remove, replace } = useFieldArray({
     control: form.control,
@@ -143,8 +145,8 @@ const ScheduleTemplateForm = ({
   });
 
   useEffect(() => {
-    if (!isCreate && template?.dailySchedules) {
-      replace(template.dailySchedules);
+    if (!isCreate && template?.dailySchedules?.length) {
+      replace(groupDailySchedulesToRows(template.dailySchedules));
     }
   }, [template, isCreate, replace]);
 
@@ -166,6 +168,21 @@ const ScheduleTemplateForm = ({
   const onSubmit = (
     data: CreateScheduleTemplateFormData | EditScheduleTemplateFormData,
   ) => {
+    const duplicates = getDuplicateDayActivityPairs(data.dailySchedules);
+    if (duplicates.length > 0) {
+      const list = duplicates
+        .map((p) => `${p.dayOfWeek} / ${p.activityTypeId}`)
+        .join(', ');
+      form.setError('dailySchedules', {
+        type: 'manual',
+        message: `Each combination of day and activity type must be unique. Duplicates: ${list}`,
+      });
+      return;
+    }
+    form.clearErrors('dailySchedules');
+    const dailySchedulesForApi = expandDailyScheduleRowsToApi(
+      data.dailySchedules,
+    );
     if (isCreate) {
       const createData = data as CreateScheduleTemplateFormData;
       createScheduleTemplate({
@@ -173,7 +190,7 @@ const ScheduleTemplateForm = ({
           providerId: createData.providerId,
           month: createData.month,
           year: createData.year,
-          dailySchedules: createData.dailySchedules,
+          dailySchedules: dailySchedulesForApi,
         },
         onCompleted: () => {
           onClose();
@@ -181,11 +198,10 @@ const ScheduleTemplateForm = ({
         },
       });
     } else {
-      const editData = data as EditScheduleTemplateFormData;
       updateScheduleTemplate({
         variables: {
           _id: templateId!,
-          dailySchedules: editData.dailySchedules,
+          dailySchedules: dailySchedulesForApi,
         },
         onCompleted: () => {
           onClose();
@@ -237,7 +253,9 @@ const ScheduleTemplateForm = ({
                   <Form.Label>Month *</Form.Label>
                   <Select
                     value={field.value?.toString()}
-                    onValueChange={(value) => field.onChange(parseInt(value, 10))}
+                    onValueChange={(value) =>
+                      field.onChange(parseInt(value, 10))
+                    }
                   >
                     <Form.Control>
                       <Select.Trigger>
@@ -293,6 +311,15 @@ const ScheduleTemplateForm = ({
             Add Schedule
           </Button>
         </div>
+
+        {(errors.dailySchedules?.message || errors.root?.message) && (
+          <div
+            className="text-sm text-destructive rounded-md border border-destructive/50 bg-destructive/10 px-3 py-2"
+            role="alert"
+          >
+            {errors.dailySchedules?.message ?? errors.root?.message}
+          </div>
+        )}
 
         {fields.length === 0 && (
           <div className="text-sm text-muted-foreground text-center py-4">
@@ -366,4 +393,3 @@ export const EditScheduleTemplateDialog = ({
     onClose={onClose}
   />
 );
-
