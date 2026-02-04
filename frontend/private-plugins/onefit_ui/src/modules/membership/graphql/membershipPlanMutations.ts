@@ -5,7 +5,8 @@ export const ONE_FIT_MEMBERSHIP_PLAN_CREATE = gql`
     $name: String!
     $description: String
     $creditAmount: Float!
-    $duration: Int!
+    $planType: String
+    $duration: Int
     $price: Float!
     $isActive: Boolean
   ) {
@@ -13,6 +14,7 @@ export const ONE_FIT_MEMBERSHIP_PLAN_CREATE = gql`
       name: $name
       description: $description
       creditAmount: $creditAmount
+      planType: $planType
       duration: $duration
       price: $price
       isActive: $isActive
@@ -23,6 +25,7 @@ export const ONE_FIT_MEMBERSHIP_PLAN_CREATE = gql`
       name
       description
       creditAmount
+      planType
       duration
       price
       isActive
@@ -36,6 +39,7 @@ export const ONE_FIT_MEMBERSHIP_PLAN_UPDATE = gql`
     $name: String
     $description: String
     $creditAmount: Float
+    $planType: String
     $duration: Int
     $price: Float
     $isActive: Boolean
@@ -45,6 +49,7 @@ export const ONE_FIT_MEMBERSHIP_PLAN_UPDATE = gql`
       name: $name
       description: $description
       creditAmount: $creditAmount
+      planType: $planType
       duration: $duration
       price: $price
       isActive: $isActive
@@ -54,6 +59,7 @@ export const ONE_FIT_MEMBERSHIP_PLAN_UPDATE = gql`
       name
       description
       creditAmount
+      planType
       duration
       price
       isActive
@@ -66,11 +72,3 @@ export const ONE_FIT_MEMBERSHIP_PLANS_REMOVE = gql`
     oneFitMembershipPlansRemove(ids: $ids)
   }
 `;
-
-
-
-
-
-
-
-

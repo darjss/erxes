@@ -6,6 +6,7 @@ import {
 } from '@/membership/@types/credittransaction';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { recomputeOneFitCustomerCreditFields } from '@/membership/graphql/resolvers/utils/creditTransactionUtils';
+import { isCreditOnlyPlan } from '@/membership/graphql/resolvers/utils/membershipPurchase';
 
 export const creditTransactionMutations = {
   async oneFitCreditTransactionsRemove(
@@ -109,8 +110,12 @@ export const creditTransactionMutations = {
 
     const isPurchaseWithPlan =
       transactionType === CreditTransactionType.PURCHASE && membershipPlanId;
-    let plan: { duration: number; creditAmount: number; name?: string } | null =
-      null;
+    let plan: {
+      planType?: string;
+      duration?: number;
+      creditAmount: number;
+      name?: string;
+    } | null = null;
     if (isPurchaseWithPlan) {
       plan = await models.MembershipPlan.findOne({
         _id: membershipPlanId,
@@ -170,20 +175,29 @@ export const creditTransactionMutations = {
     }
 
     if (isPurchaseWithPlan && plan) {
-      const purchasedAt = new Date();
-      const expiresAt = new Date(
-        purchasedAt.getTime() + plan.duration * 24 * 60 * 60 * 1000,
-      );
-      await models.OneFitCustomer.updateMembership(
-        userId,
-        membershipPlanId!,
-        expiresAt,
-      );
-      await models.OneFitCustomer.updateCreditBalanceAndEarned(
-        userId,
-        balanceAfter,
-        plan.creditAmount,
-      );
+      if (isCreditOnlyPlan(plan)) {
+        await models.OneFitCustomer.updateCreditBalanceAndEarned(
+          userId,
+          balanceAfter,
+          plan.creditAmount,
+        );
+      } else {
+        const duration = plan.duration ?? 30;
+        const purchasedAt = new Date();
+        const expiresAt = new Date(
+          purchasedAt.getTime() + duration * 24 * 60 * 60 * 1000,
+        );
+        await models.OneFitCustomer.updateMembership(
+          userId,
+          membershipPlanId!,
+          expiresAt,
+        );
+        await models.OneFitCustomer.updateCreditBalanceAndEarned(
+          userId,
+          balanceAfter,
+          plan.creditAmount,
+        );
+      }
     } else {
       switch (transactionType) {
         case CreditTransactionType.PURCHASE:

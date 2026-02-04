@@ -8,13 +8,29 @@ import { Resolver } from 'erxes-api-shared/core-types';
 
 const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000;
 
+function validatePlanForNormal(
+  planType: string | undefined,
+  duration: number | undefined,
+) {
+  if (planType !== 'credit' && (duration == null || duration <= 0)) {
+    throw new Error(
+      'Duration is required and must be greater than 0 for normal plans',
+    );
+  }
+}
+
 export const membershipMutations: Record<string, Resolver> = {
   async oneFitMembershipPlanCreate(
     _root: undefined,
     doc: IMembershipPlan,
     { models }: IContext,
   ) {
-    return await models.MembershipPlan.createPlan({ ...doc });
+    const planType = doc.planType ?? 'normal';
+    validatePlanForNormal(planType, doc.duration);
+    return await models.MembershipPlan.createPlan({
+      ...doc,
+      planType: planType as 'normal' | 'credit',
+    });
   },
 
   async oneFitMembershipPlanUpdate(
@@ -22,6 +38,12 @@ export const membershipMutations: Record<string, Resolver> = {
     { _id, ...doc }: { _id: string } & Partial<IMembershipPlan>,
     { models }: IContext,
   ) {
+    const existing = await models.MembershipPlan.findById(_id).lean();
+    if (existing) {
+      const planType = doc.planType ?? existing.planType ?? 'normal';
+      const duration = doc.duration ?? existing.duration;
+      validatePlanForNormal(planType, duration);
+    }
     return await models.MembershipPlan.updatePlan(_id, doc);
   },
 

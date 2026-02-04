@@ -4,10 +4,10 @@ import {
   Dialog,
   Form,
   Input,
+  Select,
   Spinner,
   Textarea,
 } from 'erxes-ui';
-import { IconPlus } from '@tabler/icons-react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -19,16 +19,32 @@ import {
 } from '../hooks/useMembershipPlanMutations';
 import { ONE_FIT_MEMBERSHIP_PLAN } from '../graphql/membershipPlanQueries';
 
-const membershipPlanSchema = z.object({
-  name: z.string().min(1, { message: 'Name is required' }),
-  description: z.string().optional(),
-  creditAmount: z
-    .number()
-    .min(0, { message: 'Credit amount must be 0 or greater' }),
-  duration: z.number().min(1, { message: 'Duration must be at least 1 day' }),
-  price: z.number().min(0, { message: 'Price must be 0 or greater' }),
-  isActive: z.boolean().optional(),
-});
+const PLAN_TYPE_OPTIONS = [
+  { value: 'normal', label: 'Normal (membership + credits)' },
+  { value: 'credit', label: 'Credit only' },
+] as const;
+
+const membershipPlanSchema = z
+  .object({
+    name: z.string().min(1, { message: 'Name is required' }),
+    description: z.string().optional(),
+    creditAmount: z
+      .number()
+      .min(0, { message: 'Credit amount must be 0 or greater' }),
+    planType: z.enum(['normal', 'credit']),
+    duration: z.number().min(1).optional(),
+    price: z.number().min(0, { message: 'Price must be 0 or greater' }),
+    isActive: z.boolean().optional(),
+  })
+  .refine(
+    (data) =>
+      data.planType !== 'normal' ||
+      (data.duration != null && data.duration >= 1),
+    {
+      message: 'Duration must be at least 1 day for normal plans',
+      path: ['duration'],
+    },
+  );
 
 type MembershipPlanFormData = z.infer<typeof membershipPlanSchema>;
 
@@ -106,11 +122,14 @@ function MembershipPlanForm({
       name: '',
       description: '',
       creditAmount: 0,
+      planType: 'normal',
       duration: 30,
       price: 0,
       isActive: true,
     },
   });
+
+  const planType = form.watch('planType');
 
   useEffect(() => {
     if (plan && isEditMode) {
@@ -118,7 +137,8 @@ function MembershipPlanForm({
         name: plan.name,
         description: plan.description || '',
         creditAmount: plan.creditAmount,
-        duration: plan.duration,
+        planType: (plan.planType as 'normal' | 'credit') || 'normal',
+        duration: plan.duration ?? 30,
         price: plan.price,
         isActive: plan.isActive,
       });
@@ -127,6 +147,7 @@ function MembershipPlanForm({
         name: '',
         description: '',
         creditAmount: 0,
+        planType: 'normal',
         duration: 30,
         price: 0,
         isActive: true,
@@ -145,7 +166,11 @@ function MembershipPlanForm({
       name: data.name,
       description: data.description || undefined,
       creditAmount: data.creditAmount,
-      duration: data.duration,
+      planType: data.planType,
+      duration:
+        data.planType === 'normal' && data.duration != null
+          ? data.duration
+          : undefined,
       price: data.price,
       isActive: data.isActive !== undefined ? data.isActive : true,
     };
@@ -207,6 +232,34 @@ function MembershipPlanForm({
             </Form.Item>
           )}
         />
+        <Form.Field
+          control={form.control}
+          name="planType"
+          render={({ field }) => (
+            <Form.Item>
+              <Form.Label>Plan type</Form.Label>
+              <Select
+                value={field.value}
+                onValueChange={field.onChange}
+                disabled={field.disabled}
+              >
+                <Form.Control>
+                  <Select.Trigger>
+                    <Select.Value placeholder="Select plan type" />
+                  </Select.Trigger>
+                </Form.Control>
+                <Select.Content>
+                  {PLAN_TYPE_OPTIONS.map((opt) => (
+                    <Select.Item key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </Select.Item>
+                  ))}
+                </Select.Content>
+              </Select>
+              <Form.Message />
+            </Form.Item>
+          )}
+        />
         <div className="grid grid-cols-2 gap-4">
           <Form.Field
             control={form.control}
@@ -233,30 +286,32 @@ function MembershipPlanForm({
               </Form.Item>
             )}
           />
-          <Form.Field
-            control={form.control}
-            name="duration"
-            render={({ field }) => (
-              <Form.Item>
-                <Form.Label>Duration (days){!isEditMode && ' *'}</Form.Label>
-                <Form.Control>
-                  <Input
-                    {...field}
-                    type="number"
-                    min="1"
-                    placeholder="Enter duration in days"
-                    value={field.value || ''}
-                    onChange={(e) =>
-                      field.onChange(
-                        e.target.value ? parseInt(e.target.value, 10) : 0,
-                      )
-                    }
-                  />
-                </Form.Control>
-                <Form.Message />
-              </Form.Item>
-            )}
-          />
+          {planType === 'normal' && (
+            <Form.Field
+              control={form.control}
+              name="duration"
+              render={({ field }) => (
+                <Form.Item>
+                  <Form.Label>Duration (days) *</Form.Label>
+                  <Form.Control>
+                    <Input
+                      {...field}
+                      type="number"
+                      min="1"
+                      placeholder="Enter duration in days"
+                      value={field.value ?? ''}
+                      onChange={(e) =>
+                        field.onChange(
+                          e.target.value ? parseInt(e.target.value, 10) : 0,
+                        )
+                      }
+                    />
+                  </Form.Control>
+                  <Form.Message />
+                </Form.Item>
+              )}
+            />
+          )}
         </div>
         <Form.Field
           control={form.control}

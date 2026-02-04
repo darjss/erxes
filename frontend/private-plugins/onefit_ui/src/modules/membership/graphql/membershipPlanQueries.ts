@@ -19,6 +19,7 @@ export const ONE_FIT_MEMBERSHIP_PLANS = gql`
         name
         description
         creditAmount
+        planType
         duration
         price
         isActive
@@ -35,14 +36,8 @@ export const ONE_FIT_MEMBERSHIP_PLANS = gql`
 `;
 
 export const ONE_FIT_MEMBERSHIP_PLANS_COUNT = gql`
-  query OneFitMembershipPlansCount(
-    $searchValue: String
-    $isActive: Boolean
-  ) {
-    oneFitMembershipPlansCount(
-      searchValue: $searchValue
-      isActive: $isActive
-    )
+  query OneFitMembershipPlansCount($searchValue: String, $isActive: Boolean) {
+    oneFitMembershipPlansCount(searchValue: $searchValue, isActive: $isActive)
   }
 `;
 
@@ -55,6 +50,7 @@ export const ONE_FIT_MEMBERSHIP_PLAN = gql`
       name
       description
       creditAmount
+      planType
       duration
       price
       isActive
@@ -71,17 +67,10 @@ export const ONE_FIT_ACTIVE_MEMBERSHIP_PLANS = gql`
       name
       description
       creditAmount
+      planType
       duration
       price
       isActive
     }
   }
 `;
-
-
-
-
-
-
-
-

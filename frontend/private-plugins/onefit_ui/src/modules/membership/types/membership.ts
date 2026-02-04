@@ -5,7 +5,8 @@ export interface OneFitMembershipPlan {
   name: string;
   description?: string;
   creditAmount: number;
-  duration: number;
+  planType?: 'normal' | 'credit';
+  duration?: number;
   price: number;
   isActive: boolean;
 }
@@ -25,7 +26,3 @@ export interface MembershipPlanFilters {
   searchValue?: string;
   isActive?: boolean;
 }
-
-
-
-

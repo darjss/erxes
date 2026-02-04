@@ -6,6 +6,7 @@ export const types = `
     name: String
     description: String
     creditAmount: Float
+    planType: String
     duration: Int
     price: Float
     isActive: Boolean
@@ -82,7 +83,8 @@ const planInput = `
   name: String!
   description: String
   creditAmount: Float!
-  duration: Int!
+  planType: String
+  duration: Int
   price: Float!
   isActive: Boolean
 `;
@@ -91,6 +93,7 @@ const planUpdateInput = `
   name: String
   description: String
   creditAmount: Float
+  planType: String
   duration: Int
   price: Float
   isActive: Boolean

@@ -51,6 +51,20 @@ export const MembershipPlansList = ({ filters }: MembershipPlansListProps) => {
       },
     },
     {
+      accessorKey: 'planType',
+      header: 'Type',
+      cell: ({ cell }) => {
+        const planType = (cell.getValue() as string) || 'normal';
+        return (
+          <RecordTableInlineCell>
+            <Badge variant={planType === 'credit' ? 'secondary' : 'default'}>
+              {planType === 'credit' ? 'Credit only' : 'Normal'}
+            </Badge>
+          </RecordTableInlineCell>
+        );
+      },
+    },
+    {
       accessorKey: 'creditAmount',
       header: 'Credit Amount',
       cell: ({ cell }) => {
@@ -64,10 +78,18 @@ export const MembershipPlansList = ({ filters }: MembershipPlansListProps) => {
     {
       accessorKey: 'duration',
       header: 'Duration (days)',
-      cell: ({ cell }) => {
+      cell: ({ cell, row }) => {
+        const planType = (row.original as { planType?: string }).planType;
+        if (planType === 'credit') {
+          return (
+            <RecordTableInlineCell className="text-xs font-medium text-muted-foreground">
+              -
+            </RecordTableInlineCell>
+          );
+        }
         return (
           <RecordTableInlineCell className="text-xs font-medium">
-            {cell.getValue() as number}
+            {(cell.getValue() as number) ?? '-'}
           </RecordTableInlineCell>
         );
       },

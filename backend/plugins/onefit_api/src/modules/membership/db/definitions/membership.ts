@@ -10,9 +10,14 @@ export const membershipPlanSchema = new Schema(
     name: { type: String, required: true, label: 'Plan Name' },
     description: { type: String, label: 'Description' },
     creditAmount: { type: Number, required: true, label: 'Credit Amount' },
+    planType: {
+      type: String,
+      enum: ['normal', 'credit'],
+      default: 'normal',
+      label: 'Plan Type',
+    },
     duration: {
       type: Number,
-      required: true,
       default: 30,
       label: 'Duration (days)',
     },

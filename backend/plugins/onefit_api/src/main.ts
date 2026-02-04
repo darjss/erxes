@@ -20,6 +20,11 @@ import {
 import { getMasterClient } from '~/utils/masterClient';
 import { graphqlProxyMiddleware } from '~/middlewares/graphqlProxyMiddleware';
 import { initMQWorkers } from '~/worker';
+import { IContext } from '~/connectionResolvers';
+import {
+  activateMembershipPurchase,
+  isCreditOnlyPlan,
+} from '@/membership/graphql/resolvers/utils/membershipPurchase';
 
 validateSlaveConfig();
 
@@ -154,12 +159,19 @@ startPlugin({
         // Update purchase status to paid
         await models.MembershipPurchase.markAsPaid(membershipPurchase._id);
 
+        const plan = await models.MembershipPlan.findOne({
+          _id: membershipPurchase.planId,
+        });
+        if (plan && isCreditOnlyPlan(plan)) {
+          await activateMembershipPurchase(membershipPurchase._id, {
+            models,
+            subdomain,
+          } as IContext);
+        }
+
         const cpUserId = data.data?.cpUserId;
         const clientPortalId = data.data?.clientPortalId;
         if (cpUserId && clientPortalId) {
-          const plan = await models.MembershipPlan.findOne({
-            _id: membershipPurchase.planId,
-          });
           const planName = plan?.name ?? 'membership';
           await sendTRPCMessage({
             subdomain,

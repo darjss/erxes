@@ -4,8 +4,12 @@ import {
   CreditTransactionType,
   CreditSource,
 } from '@/membership/@types/credittransaction';
-import { sendTRPCMessage, getEnv, getPlugin } from 'erxes-api-shared/utils';
+import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { MembershipPurchaseStatus } from '@/membership/@types/membershippurchase';
+
+export function isCreditOnlyPlan(plan: { planType?: string }): boolean {
+  return plan.planType === 'credit';
+}
 
 export async function ensureOneFitCustomerExists(
   userId: string,
@@ -279,44 +283,52 @@ export async function activateMembershipPurchase(
     throw new Error('Membership plan not found');
   }
 
-  // Calculate expiry date (stacking if active membership exists)
+  const creditOnly = isCreditOnlyPlan(plan);
+
+  if (creditOnly) {
+    // Credit-only: add credits only; do not update customer membership or expire date
+    const { balanceAfter } = await createCreditTransactionForPurchase(
+      purchase.userId,
+      plan,
+      context,
+    );
+    await updateCustomerCreditBalance(
+      purchase.userId,
+      balanceAfter,
+      plan.creditAmount,
+      context,
+    );
+    return await models.MembershipPurchase.updatePurchase(purchaseId, {
+      activatedAt: new Date(),
+    });
+  }
+
+  // Normal: require duration and update membership + expire date
+  const duration = plan.duration ?? 30;
   const expiresAt = await calculateMembershipExpiry(
     purchase.userId,
-    plan.duration,
+    duration,
     context,
   );
-
-  // Update customer membership
   await updateCustomerMembership(
     purchase.userId,
     purchase.planId,
     expiresAt,
     context,
   );
-
-  // Create credit transaction
   const { balanceAfter } = await createCreditTransactionForPurchase(
     purchase.userId,
     plan,
     context,
   );
-
-  // Update customer credit balance
   await updateCustomerCreditBalance(
     purchase.userId,
     balanceAfter,
     plan.creditAmount,
     context,
   );
-
-  // Update purchase with activation info
-  const updatedPurchase = await models.MembershipPurchase.updatePurchase(
-    purchaseId,
-    {
-      activatedAt: new Date(),
-      expiresAt,
-    },
-  );
-
-  return updatedPurchase;
+  return await models.MembershipPurchase.updatePurchase(purchaseId, {
+    activatedAt: new Date(),
+    expiresAt,
+  });
 }
