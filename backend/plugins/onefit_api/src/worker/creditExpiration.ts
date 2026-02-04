@@ -1,14 +1,65 @@
 import { IModels } from '~/connectionResolvers';
-import {
-  NotificationType,
-  NotificationChannel,
-} from '@/notification/@types/notification';
+import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import {
   CreditTransactionType,
   CreditSource,
 } from '@/membership/@types/credittransaction';
 
-export async function processCreditExpiration(models: IModels) {
+interface CpNotificationData {
+  title: string;
+  message: string;
+  type?: 'info' | 'success' | 'warning' | 'error';
+  contentType?: string;
+  contentTypeId?: string;
+  metadata?: Record<string, unknown>;
+}
+
+async function sendCpNotificationByErxesCustomerId(
+  subdomain: string,
+  erxesCustomerId: string,
+  data: CpNotificationData,
+): Promise<void> {
+  const listResult = await sendTRPCMessage({
+    subdomain,
+    pluginName: 'core',
+    method: 'query',
+    module: 'cpUsers',
+    action: 'list',
+    input: { erxesCustomerId, limit: 100 },
+    defaultValue: { list: [], totalCount: 0 },
+  });
+
+  const list = listResult?.list ?? [];
+  if (!list.length) {
+    return;
+  }
+
+  const byPortal = new Map<string, string[]>();
+  for (const user of list) {
+    const portalId = user?.clientPortalId;
+    if (!portalId) continue;
+    const ids = byPortal.get(portalId) ?? [];
+    ids.push(user._id);
+    byPortal.set(portalId, ids);
+  }
+
+  for (const [clientPortalId, cpUserIds] of byPortal.entries()) {
+    await sendTRPCMessage({
+      subdomain,
+      pluginName: 'core',
+      method: 'mutation',
+      module: 'cpNotifications',
+      action: 'create',
+      input: { cpUserIds, clientPortalId, data },
+      defaultValue: null,
+    });
+  }
+}
+
+export async function processCreditExpiration(
+  models: IModels,
+  subdomain: string,
+) {
   const now = new Date();
 
   // Get grace period duration from config (default 7 days)
@@ -67,15 +118,13 @@ export async function processCreditExpiration(models: IModels) {
             { new: true },
           );
 
-          // Send notification
-          await models.Notification.createNotification({
-            userId: customer._id,
-            type: NotificationType.CREDIT_EXPIRATION,
-            channel: NotificationChannel.IN_APP,
-            title: 'Credits Expired',
-            message: `Your ${creditBalance} credits have expired after the grace period.`,
-            relatedId: customer._id,
-            isRead: false,
+          await sendCpNotificationByErxesCustomerId(subdomain, customer._id, {
+            title: 'Кредит дууссан',
+            message: `Таны ${creditBalance} кредит нэмэлт хугацаа дууссаны дараа хүчингүй боллоо.`,
+            type: 'error',
+            contentType: 'onefit:creditExpiration',
+            contentTypeId: customer._id,
+            metadata: { expiredCredits: creditBalance },
           });
         }
       } else {
@@ -85,15 +134,17 @@ export async function processCreditExpiration(models: IModels) {
             customer.gracePeriodEnd.getTime() - 2 * 24 * 60 * 60 * 1000,
           );
           if (now >= twoDaysBefore && now < customer.gracePeriodEnd) {
-            // Send reminder notification
-            await models.Notification.createNotification({
-              userId: customer._id,
-              type: NotificationType.GRACE_PERIOD_ENDING,
-              channel: NotificationChannel.SMS,
-              title: 'Grace Period Ending Soon',
-              message: `Your grace period ends in 2 days. Recharge now to save your ${creditBalance} credits.`,
-              relatedId: customer._id,
-              isRead: false,
+            await sendCpNotificationByErxesCustomerId(subdomain, customer._id, {
+              title: 'Нэмэлт хугацаа дуусах гэж байна',
+              message:
+                'Нэмэлт хугацаа 2 хоногийн дараа дуусна. Кредитээ хадгалахын тулд одоо цэнэглэнэ үү.',
+              type: 'warning',
+              contentType: 'onefit:creditExpiration',
+              contentTypeId: customer._id,
+              metadata: {
+                creditBalance,
+                gracePeriodEnd: customer.gracePeriodEnd,
+              },
             });
           }
         }
@@ -117,15 +168,17 @@ export async function processCreditExpiration(models: IModels) {
         { new: true },
       );
 
-      // Send notification
-      await models.Notification.createNotification({
-        userId: customer._id,
-        type: NotificationType.GRACE_PERIOD_START,
-        channel: NotificationChannel.SMS,
-        title: 'Grace Period Started',
-        message: `Your plan has expired. You have ${gracePeriodDays} days to recharge and save your ${creditBalance} credits.`,
-        relatedId: customer._id,
-        isRead: false,
+      await sendCpNotificationByErxesCustomerId(subdomain, customer._id, {
+        title: 'Хөнгөлөлтөн хугацаа эхэллээ',
+        message: `Таны багцын хугацаа дууссан. ${creditBalance} кредитээ хадгалахын тулд ${gracePeriodDays} хоног байна. Цэнэглэнэ үү.`,
+        type: 'warning',
+        contentType: 'onefit:creditExpiration',
+        contentTypeId: customer._id,
+        metadata: {
+          creditBalance,
+          gracePeriodDays,
+          gracePeriodEnd,
+        },
       });
     }
   }

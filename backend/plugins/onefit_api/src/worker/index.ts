@@ -1,6 +1,11 @@
 import { Queue } from 'bullmq';
 import { Job } from 'bullmq';
-import { createMQWorkerWithListeners, getEnv, getSaasOrganizations, sendWorkerQueue } from 'erxes-api-shared/utils';
+import {
+  createMQWorkerWithListeners,
+  getEnv,
+  getSaasOrganizations,
+  sendWorkerQueue,
+} from 'erxes-api-shared/utils';
 import { generateModels } from '~/connectionResolvers';
 import { processCreditExpiration } from './creditExpiration';
 
@@ -35,7 +40,7 @@ export const runner = async (job: Job) => {
   // }
 
   const models = await generateModels(subdomain);
-  await processCreditExpiration(models);
+  await processCreditExpiration(models, subdomain);
 
   console.log(
     `Credit expiration processed at: ${new Date()}, org: ${subdomain}`,
@@ -84,4 +89,3 @@ export const initMQWorkers = async (redis: any) => {
     },
   );
 };
-
