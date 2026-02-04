@@ -47,6 +47,11 @@ export interface IOneFitCustomerModel extends Model<IOneFitCustomerDocument> {
   ): Promise<IOneFitCustomerDocument>;
   getOneFitCustomer(_id: string): Promise<IOneFitCustomerDocument | null>;
   findOneFitCustomers(query: any): Promise<IOneFitCustomerDocument[]>;
+  startMembershipHold(
+    customerId: string,
+    holdDays: number,
+  ): Promise<IOneFitCustomerDocument>;
+  cancelMembershipHold(customerId: string): Promise<IOneFitCustomerDocument>;
 }
 
 export const loadOneFitCustomerClass = (models: IModels) => {
@@ -218,6 +223,69 @@ export const loadOneFitCustomerClass = (models: IModels) => {
 
     public static async findOneFitCustomers(query: any) {
       return await (this as any).find({ ...query, __t: 'OneFitCustomer' });
+    }
+
+    public static async startMembershipHold(
+      customerId: string,
+      holdDays: number,
+    ) {
+      const now = new Date();
+      const holdEndAt = new Date(
+        now.getTime() + holdDays * 24 * 60 * 60 * 1000,
+      );
+      return await (this as any).findOneAndUpdate(
+        { _id: customerId, __t: 'OneFitCustomer' },
+        {
+          $set: {
+            isMembershipOnHold: true,
+            membershipHoldStartAt: now,
+            membershipHoldEndAt: holdEndAt,
+          },
+        },
+        { new: true },
+      );
+    }
+
+    public static async cancelMembershipHold(customerId: string) {
+      const customer = await (this as any).findOne({
+        _id: customerId,
+        __t: 'OneFitCustomer',
+      });
+      if (!customer) {
+        throw new Error('OneFitCustomer not found');
+      }
+      const now = new Date();
+      const startAt = customer.membershipHoldStartAt
+        ? new Date(customer.membershipHoldStartAt)
+        : now;
+      const daysHeld = Math.max(
+        0,
+        Math.floor((now.getTime() - startAt.getTime()) / (24 * 60 * 60 * 1000)),
+      );
+      const currentExpiresAt = customer.membershipExpiresAt
+        ? new Date(customer.membershipExpiresAt)
+        : now;
+      const newExpiresAt = new Date(
+        currentExpiresAt.getTime() + daysHeld * 24 * 60 * 60 * 1000,
+      );
+      const membershipStatus =
+        newExpiresAt > now ? 'active' : newExpiresAt < now ? 'expired' : 'none';
+      return await (this as any).findOneAndUpdate(
+        { _id: customerId, __t: 'OneFitCustomer' },
+        {
+          $set: {
+            membershipExpiresAt: newExpiresAt,
+            membershipStatus,
+            isMembershipOnHold: false,
+            membershipHoldEndedAt: now,
+          },
+          $unset: {
+            membershipHoldStartAt: 1,
+            membershipHoldEndAt: 1,
+          },
+        },
+        { new: true },
+      );
     }
   }
 

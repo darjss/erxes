@@ -1,4 +1,9 @@
 export const types = `
+  enum OneFitMembershipPlanType {
+    normal
+    credit
+  }
+
   type OneFitMembershipPlan {
     _id: String
     createdAt: Date
@@ -6,6 +11,7 @@ export const types = `
     name: String
     description: String
     creditAmount: Float
+    planType: OneFitMembershipPlanType
     duration: Int
     price: Float
     isActive: Boolean
@@ -45,6 +51,7 @@ export const types = `
 const planQueryParams = `
   searchValue: String,
   isActive: Boolean,
+  planType: OneFitMembershipPlanType,
 `;
 
 const purchaseQueryParams = `
@@ -82,7 +89,8 @@ const planInput = `
   name: String!
   description: String
   creditAmount: Float!
-  duration: Int!
+  planType: OneFitMembershipPlanType
+  duration: Int
   price: Float!
   isActive: Boolean
 `;
@@ -91,6 +99,7 @@ const planUpdateInput = `
   name: String
   description: String
   creditAmount: Float
+  planType: OneFitMembershipPlanType
   duration: Int
   price: Float
   isActive: Boolean
@@ -113,5 +122,6 @@ export const mutations = `
   oneFitMembershipPurchaseActivate(_id: String!): OneFitMembershipPurchase
   cpOneFitMembershipPurchaseCreate(${cpPurchaseInput}): OneFitMembershipPurchase
   cpOneFitMembershipPurchaseActivate(_id: String!): OneFitMembershipPurchase
-
+  cpOneFitMembershipHoldStart(holdDays: Int!): Customer
+  cpOneFitMembershipHoldCancel: Customer
 `;

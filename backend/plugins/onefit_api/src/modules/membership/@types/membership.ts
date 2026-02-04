@@ -4,7 +4,8 @@ export interface IMembershipPlan {
   name: string;
   description?: string;
   creditAmount: number; // Number of credits
-  duration: number; // Duration in days (typically 30)
+  planType: 'normal' | 'credit';
+  duration?: number; // Duration in days (used only when planType is 'normal')
   price: number;
   isActive: boolean;
   gracePeriodDuration: number;

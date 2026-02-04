@@ -62,17 +62,63 @@ export async function processCreditExpiration(
 ) {
   const now = new Date();
 
+  // Auto-clear hold: end hold for customers whose hold period has passed; add hold days to membership expiry
+  const holdsToClear = await models.OneFitCustomer.findOneFitCustomers({
+    isMembershipOnHold: true,
+    membershipHoldEndAt: { $lt: now },
+  });
+  for (const customer of holdsToClear) {
+    const startAt = customer.membershipHoldStartAt
+      ? new Date(customer.membershipHoldStartAt)
+      : now;
+    const endAt = customer.membershipHoldEndAt
+      ? new Date(customer.membershipHoldEndAt)
+      : now;
+    const daysHeld = Math.max(
+      0,
+      Math.floor((endAt.getTime() - startAt.getTime()) / (24 * 60 * 60 * 1000)),
+    );
+    const currentExpiresAt = customer.membershipExpiresAt
+      ? new Date(customer.membershipExpiresAt)
+      : now;
+    const newExpiresAt = new Date(
+      currentExpiresAt.getTime() + daysHeld * 24 * 60 * 60 * 1000,
+    );
+    const membershipStatus =
+      newExpiresAt > now ? 'active' : newExpiresAt < now ? 'expired' : 'none';
+    await models.OneFitCustomer.findOneAndUpdate(
+      { _id: customer._id, __t: 'OneFitCustomer' },
+      {
+        $set: {
+          membershipExpiresAt: newExpiresAt,
+          membershipStatus,
+          isMembershipOnHold: false,
+          membershipHoldEndedAt: now,
+        },
+        $unset: {
+          membershipHoldStartAt: 1,
+          membershipHoldEndAt: 1,
+        },
+      },
+      { new: true },
+    );
+  }
+
   // Get grace period duration from config (default 7 days)
   const gracePeriodConfig = await models.SystemConfig.getConfig(
     'grace_period_days',
   );
   const gracePeriodDays = gracePeriodConfig?.value || 7;
 
-  // Find expired customers with credits
+  // Find expired customers with credits (exclude customers still on hold)
   const expiredCustomers = await models.OneFitCustomer.findOneFitCustomers({
     membershipExpiresAt: { $lt: now },
     isExpired: false,
     currentCreditBalance: { $gt: 0 },
+    $or: [
+      { isMembershipOnHold: { $ne: true } },
+      { membershipHoldEndAt: { $lt: now } },
+    ],
   });
 
   for (const customer of expiredCustomers) {

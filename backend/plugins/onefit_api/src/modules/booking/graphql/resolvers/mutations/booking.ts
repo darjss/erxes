@@ -122,6 +122,19 @@ async function createBookingLogic(
     throw new Error('User already has a booking for this time slot');
   }
 
+  // Check membership is not on hold (booking not allowed during hold)
+  const oneFitCustomerForHold = await models.OneFitCustomer.getOneFitCustomer(
+    userId,
+  );
+  if (oneFitCustomerForHold?.isMembershipOnHold) {
+    const holdEndAt = oneFitCustomerForHold.membershipHoldEndAt
+      ? new Date(oneFitCustomerForHold.membershipHoldEndAt)
+      : null;
+    if (!holdEndAt || now <= holdEndAt) {
+      throw new Error('Booking is not allowed while membership is on hold');
+    }
+  }
+
   // Check user credit balance
   const totalBalance = await models.CreditTransaction.getUserBalance(userId);
   if (totalBalance < activityType.creditCost) {

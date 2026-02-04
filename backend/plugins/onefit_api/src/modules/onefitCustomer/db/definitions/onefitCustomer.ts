@@ -87,6 +87,28 @@ export const onefitCustomerSchema = new Schema(
       default: false,
       label: 'Is In Grace Period',
     },
+    // Membership hold
+    isMembershipOnHold: {
+      type: Boolean,
+      default: false,
+      optional: true,
+      label: 'Is Membership On Hold',
+    },
+    membershipHoldStartAt: {
+      type: Date,
+      optional: true,
+      label: 'Membership Hold Start At',
+    },
+    membershipHoldEndAt: {
+      type: Date,
+      optional: true,
+      label: 'Membership Hold End At',
+    },
+    membershipHoldEndedAt: {
+      type: Date,
+      optional: true,
+      label: 'Membership Hold Ended At',
+    },
     __t: {
       type: String,
       default: '',
