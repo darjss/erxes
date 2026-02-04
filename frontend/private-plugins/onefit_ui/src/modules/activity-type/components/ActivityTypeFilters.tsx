@@ -3,12 +3,10 @@ import { useQuery } from '@apollo/client';
 import { EnumCursorDirection, EnumCursorMode } from 'erxes-ui';
 import { ActivityTypeFilters, GenderRestriction } from '../types/activityType';
 import { ONE_FIT_PROVIDERS } from '~/modules/provider/graphql/providerQueries';
-import { ONE_FIT_ACTIVITY_CATEGORIES } from '~/modules/category/graphql/categoryQueries';
-import { getLocalizedString } from '../utils/localization';
-import { getLocalizedString as getCategoryLocalizedString } from '~/modules/category/utils/localization';
+import { NestedCategoryFilter } from '~/modules/category/components/NestedCategoryFilter';
 import { OneFitFilterBase } from '~/components/OneFitFilterBase';
 import { FilterField } from '~/components/shared/FilterField';
-import { SelectProviderSearchable } from '@/provider/components/SelectProviderSearchable';
+import { SelectProviderSearchable } from '~/modules/provider/components/SelectProviderSearchable';
 
 interface ActivityTypeFiltersProps {
   filters: ActivityTypeFilters;
@@ -19,28 +17,15 @@ export const ActivityTypeFiltersComponent = ({
   filters,
   onFiltersChange,
 }: ActivityTypeFiltersProps) => {
-  const { data: providersData, loading: providersLoading } = useQuery(
-    ONE_FIT_PROVIDERS,
-    {
-      variables: {
-        isActive: true,
-        limit: 100,
-        cursor: undefined,
-        cursorMode: EnumCursorMode.INCLUSIVE,
-        direction: EnumCursorDirection.FORWARD,
-      },
+  useQuery(ONE_FIT_PROVIDERS, {
+    variables: {
+      isActive: true,
+      limit: 100,
+      cursor: undefined,
+      cursorMode: EnumCursorMode.INCLUSIVE,
+      direction: EnumCursorDirection.FORWARD,
     },
-  );
-
-  const { data: categoriesData, loading: categoriesLoading } = useQuery(
-    ONE_FIT_ACTIVITY_CATEGORIES,
-    {
-      variables: {},
-    },
-  );
-
-  const providers = providersData?.oneFitProviders?.list || [];
-  const categories = categoriesData?.oneFitActivityCategories || [];
+  });
 
   const handleFilterChange = (key: keyof ActivityTypeFilters, value: any) => {
     onFiltersChange({
@@ -69,30 +54,12 @@ export const ActivityTypeFiltersComponent = ({
         </FilterField>
       </FilterField>
       <FilterField label="Category">
-        <Select
-          value={filters.categoryId || '__all__'}
-          onValueChange={(value) =>
-            handleFilterChange(
-              'categoryId',
-              value === '__all__' ? undefined : value,
-            )
-          }
-          disabled={categoriesLoading}
-        >
-          <Select.Trigger>
-            <Select.Value placeholder="All categories" />
-          </Select.Trigger>
-          <Select.Content>
-            <Select.Item value="__all__">All categories</Select.Item>
-            {categories.map(
-              (category: { _id: string; name: { en: string; mn: string } }) => (
-                <Select.Item key={category._id} value={category._id}>
-                  {getCategoryLocalizedString(category.name, 'en')}
-                </Select.Item>
-              ),
-            )}
-          </Select.Content>
-        </Select>
+        <NestedCategoryFilter
+          variant="category"
+          value={filters.categoryId}
+          onChange={(value) => handleFilterChange('categoryId', value)}
+          id="onefit-activity-type-filter-category"
+        />
       </FilterField>
       <FilterField label="Gender Restriction">
         <Select

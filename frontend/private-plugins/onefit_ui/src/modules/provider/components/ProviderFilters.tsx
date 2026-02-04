@@ -1,6 +1,6 @@
 import { Input, Select } from 'erxes-ui';
 import { ProviderFilters as ProviderFiltersType } from '../types/provider';
-import { SelectCategory } from '~/modules/category/components/SelectCategory';
+import { NestedCategoryFilter } from '~/modules/category/components/NestedCategoryFilter';
 import { ProviderStatus } from '../types/provider';
 import { OneFitFilterBase } from '~/components/OneFitFilterBase';
 import { FilterField } from '~/components/shared/FilterField';
@@ -55,9 +55,11 @@ export const ProviderFilters = ({
         </Select>
       </FilterField>
       <FilterField label="Category">
-        <SelectCategory
-          selected={filters.categoryId}
-          onSelect={(value) => handleFilterChange('categoryId', value)}
+        <NestedCategoryFilter
+          variant="category"
+          value={filters.categoryId}
+          onChange={(value) => handleFilterChange('categoryId', value)}
+          id="onefit-provider-filter-category"
         />
       </FilterField>
       <FilterField label="Active Status">
