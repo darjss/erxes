@@ -1,4 +1,9 @@
 export const types = `
+  enum OneFitMembershipPlanType {
+    normal
+    credit
+  }
+
   type OneFitMembershipPlan {
     _id: String
     createdAt: Date
@@ -6,7 +11,7 @@ export const types = `
     name: String
     description: String
     creditAmount: Float
-    planType: String
+    planType: OneFitMembershipPlanType
     duration: Int
     price: Float
     isActive: Boolean
@@ -46,6 +51,7 @@ export const types = `
 const planQueryParams = `
   searchValue: String,
   isActive: Boolean,
+  planType: OneFitMembershipPlanType,
 `;
 
 const purchaseQueryParams = `
@@ -83,7 +89,7 @@ const planInput = `
   name: String!
   description: String
   creditAmount: Float!
-  planType: String
+  planType: OneFitMembershipPlanType
   duration: Int
   price: Float!
   isActive: Boolean
@@ -93,7 +99,7 @@ const planUpdateInput = `
   name: String
   description: String
   creditAmount: Float
-  planType: String
+  planType: OneFitMembershipPlanType
   duration: Int
   price: Float
   isActive: Boolean

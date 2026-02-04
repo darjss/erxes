@@ -1,3 +1,12 @@
+/** Matches GraphQL enum OneFitMembershipPlanType */
+export const OneFitMembershipPlanType = {
+  NORMAL: 'normal',
+  CREDIT: 'credit',
+} as const;
+
+export type OneFitMembershipPlanTypeValue =
+  (typeof OneFitMembershipPlanType)[keyof typeof OneFitMembershipPlanType];
+
 export interface OneFitMembershipPlan {
   _id: string;
   createdAt: string;
@@ -5,7 +14,7 @@ export interface OneFitMembershipPlan {
   name: string;
   description?: string;
   creditAmount: number;
-  planType?: 'normal' | 'credit';
+  planType?: OneFitMembershipPlanTypeValue;
   duration?: number;
   price: number;
   isActive: boolean;
@@ -25,4 +34,5 @@ export interface OneFitMembershipPlanListResponse {
 export interface MembershipPlanFilters {
   searchValue?: string;
   isActive?: boolean;
+  planType?: OneFitMembershipPlanTypeValue;
 }

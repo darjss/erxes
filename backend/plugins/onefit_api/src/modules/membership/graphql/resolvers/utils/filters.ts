@@ -25,6 +25,10 @@ export function generatePlanFilter(params: IPlanQueryParams) {
     filter.isActive = params.isActive;
   }
 
+  if (params.planType) {
+    filter.planType = params.planType;
+  }
+
   return filter;
 }
 

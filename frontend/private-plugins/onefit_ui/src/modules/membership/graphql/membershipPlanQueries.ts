@@ -5,11 +5,13 @@ export const ONE_FIT_MEMBERSHIP_PLANS = gql`
   query OneFitMembershipPlans(
     $searchValue: String
     $isActive: Boolean
+    $planType: OneFitMembershipPlanType
     ${GQL_CURSOR_PARAM_DEFS}
   ) {
     oneFitMembershipPlans(
       searchValue: $searchValue
       isActive: $isActive
+      planType: $planType
       ${GQL_CURSOR_PARAMS}
     ) {
       list {
@@ -36,8 +38,16 @@ export const ONE_FIT_MEMBERSHIP_PLANS = gql`
 `;
 
 export const ONE_FIT_MEMBERSHIP_PLANS_COUNT = gql`
-  query OneFitMembershipPlansCount($searchValue: String, $isActive: Boolean) {
-    oneFitMembershipPlansCount(searchValue: $searchValue, isActive: $isActive)
+  query OneFitMembershipPlansCount(
+    $searchValue: String
+    $isActive: Boolean
+    $planType: OneFitMembershipPlanType
+  ) {
+    oneFitMembershipPlansCount(
+      searchValue: $searchValue
+      isActive: $isActive
+      planType: $planType
+    )
   }
 `;
 

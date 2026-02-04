@@ -5,7 +5,7 @@ export const ONE_FIT_MEMBERSHIP_PLAN_CREATE = gql`
     $name: String!
     $description: String
     $creditAmount: Float!
-    $planType: String
+    $planType: OneFitMembershipPlanType
     $duration: Int
     $price: Float!
     $isActive: Boolean
@@ -39,7 +39,7 @@ export const ONE_FIT_MEMBERSHIP_PLAN_UPDATE = gql`
     $name: String
     $description: String
     $creditAmount: Float
-    $planType: String
+    $planType: OneFitMembershipPlanType
     $duration: Int
     $price: Float
     $isActive: Boolean

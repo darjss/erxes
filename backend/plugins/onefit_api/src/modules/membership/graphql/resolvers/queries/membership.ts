@@ -6,6 +6,7 @@ import { generatePlanFilter, generatePurchaseFilter } from '../utils/filters';
 export interface IPlanQueryParams extends ICursorPaginateParams {
   searchValue?: string;
   isActive?: boolean;
+  planType?: string;
 }
 
 export interface IPurchaseQueryParams extends ICursorPaginateParams {
