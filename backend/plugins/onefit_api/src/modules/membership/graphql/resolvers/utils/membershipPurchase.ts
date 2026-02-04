@@ -6,6 +6,7 @@ import {
 } from '@/membership/@types/credittransaction';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { MembershipPurchaseStatus } from '@/membership/@types/membershippurchase';
+import { validateAndDiscount } from '@/promoCode/utils/validateAndDiscount';
 
 export function isCreditOnlyPlan(plan: { planType?: string }): boolean {
   return plan.planType === 'credit';
@@ -128,16 +129,35 @@ export async function updateCustomerCreditBalance(
   }
 }
 
+export interface ICreateMembershipPurchaseInvoiceOptions {
+  promoCode?: string;
+  promoCodeId?: string;
+}
+
 export async function createMembershipPurchaseInvoice(
   userId: string,
   planId: string,
   context: IContext,
+  options?: ICreateMembershipPurchaseInvoiceOptions,
 ) {
   const { models, subdomain } = context;
 
   const plan = await models.MembershipPlan.findOne({ _id: planId });
   if (!plan) {
     throw new Error('Membership plan not found');
+  }
+
+  let amount = plan.price;
+  let promoCodeId: string | undefined;
+
+  if (options?.promoCode || options?.promoCodeId) {
+    const result = await validateAndDiscount(context, {
+      promoCode: options.promoCode,
+      promoCodeId: options.promoCodeId,
+      originalPrice: plan.price,
+    });
+    amount = result.discountedAmount;
+    promoCodeId = result.promoCodeId;
   }
 
   // Get customer info
@@ -163,8 +183,20 @@ export async function createMembershipPurchaseInvoice(
     planId,
     status: MembershipPurchaseStatus.PENDING,
     purchasedAt: new Date(),
-    amount: plan.price,
+    amount,
+    ...(promoCodeId && { promoCodeId }),
   });
+
+  if (amount <= 0) {
+    await models.MembershipPurchase.markAsPaid(membershipPurchase._id);
+    if (promoCodeId) {
+      await models.PromoCode.updateOne(
+        { _id: promoCodeId },
+        { $inc: { usedCount: 1 } },
+      );
+    }
+    return await activateMembershipPurchase(membershipPurchase._id, context);
+  }
 
   // Get paymentIds from config
   const selectedPaymentsConfig = await models.SystemConfig.getConfig(
@@ -181,7 +213,7 @@ export async function createMembershipPurchaseInvoice(
 
   // Create invoice using tRPC
   const invoiceInput: any = {
-    amount: plan.price,
+    amount,
     currency: 'MNT',
     description: `Membership purchase: ${plan.name}`,
     status: 'pending',

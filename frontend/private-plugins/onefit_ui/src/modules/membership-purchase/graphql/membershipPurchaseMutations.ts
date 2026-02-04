@@ -1,8 +1,18 @@
 import { gql } from '@apollo/client';
 
 export const ONE_FIT_MEMBERSHIP_PURCHASE_CREATE = gql`
-  mutation OneFitMembershipPurchaseCreate($userId: String!, $planId: String!) {
-    oneFitMembershipPurchaseCreate(userId: $userId, planId: $planId) {
+  mutation OneFitMembershipPurchaseCreate(
+    $userId: String!
+    $planId: String!
+    $promoCode: String
+    $promoCodeId: String
+  ) {
+    oneFitMembershipPurchaseCreate(
+      userId: $userId
+      planId: $planId
+      promoCode: $promoCode
+      promoCodeId: $promoCodeId
+    ) {
       _id
       createdAt
       modifiedAt
@@ -22,6 +32,7 @@ export const ONE_FIT_MEMBERSHIP_PURCHASE_CREATE = gql`
       expiresAt
       amount
       invoiceId
+      promoCodeId
       plan {
         _id
         name
@@ -63,4 +74,3 @@ export const ONE_FIT_MEMBERSHIP_PURCHASE_ACTIVATE = gql`
     }
   }
 `;
-

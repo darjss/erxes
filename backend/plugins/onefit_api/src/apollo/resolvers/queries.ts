@@ -9,6 +9,7 @@ import { configQueries } from '@/config/graphql/resolvers/queries/config';
 import { oneFitCustomerQueries } from '@/onefitCustomer/graphql/resolvers/queries/onefitCustomer';
 import { activityTypeQueries } from '@/activity-type/graphql/resolvers/queries/activityType';
 import { bannerQueries } from '@/banner/graphql/resolvers/queries/banner';
+import { promoCodeQueries } from '@/promoCode/graphql/resolvers/queries/promoCode';
 
 export const queries = {
   ...categoryQueries,
@@ -21,4 +22,5 @@ export const queries = {
   ...oneFitCustomerQueries,
   ...activityTypeQueries,
   ...bannerQueries,
+  ...promoCodeQueries,
 };

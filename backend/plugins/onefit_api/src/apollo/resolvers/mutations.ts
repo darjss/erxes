@@ -9,6 +9,7 @@ import { configMutations } from '@/config/graphql/resolvers/mutations/config';
 import { oneFitCustomerMutations } from '@/onefitCustomer/graphql/resolvers/mutations/onefitCustomer';
 import { activityTypeMutations } from '@/activity-type/graphql/resolvers/mutations/activityType';
 import { bannerMutations } from '@/banner/graphql/resolvers/mutations/banner';
+import { promoCodeMutations } from '@/promoCode/graphql/resolvers/mutations/promoCode';
 
 export const mutations = Object.assign(
   {},
@@ -22,4 +23,5 @@ export const mutations = Object.assign(
   oneFitCustomerMutations,
   activityTypeMutations,
   bannerMutations,
+  promoCodeMutations,
 );

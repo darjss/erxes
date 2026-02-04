@@ -68,6 +68,12 @@ const BannersPage = lazy(() =>
   })),
 );
 
+const PromoCodesPage = lazy(() =>
+  import('~/pages/PromoCodesPage').then((module) => ({
+    default: module.PromoCodesPage,
+  })),
+);
+
 const OneFitMain = () => {
   const { isSlaveMode } = useOneFitMode();
 
@@ -101,6 +107,9 @@ const OneFitMain = () => {
         )}
         <Route path="/providers" element={<ProvidersPage />} />
         {!isSlaveMode && <Route path="/banners" element={<BannersPage />} />}
+        {!isSlaveMode && (
+          <Route path="/promo-codes" element={<PromoCodesPage />} />
+        )}
       </Routes>
     </Suspense>
   );

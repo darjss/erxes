@@ -8,6 +8,11 @@ export interface OneFitMembershipPurchaseUser {
   primaryPhone?: string;
 }
 
+export interface OneFitMembershipPurchasePromoCode {
+  _id: string;
+  code: string;
+}
+
 export interface OneFitMembershipPurchase {
   _id: string;
   createdAt: string;
@@ -22,6 +27,8 @@ export interface OneFitMembershipPurchase {
   expiresAt?: string;
   amount: number;
   invoiceId?: string;
+  promoCodeId?: string;
+  promoCode?: OneFitMembershipPurchasePromoCode;
   plan?: OneFitMembershipPlan;
   invoice?: any;
 }
@@ -42,4 +49,3 @@ export interface MembershipPurchaseFilters {
   status?: string;
   planId?: string;
 }
-

@@ -37,6 +37,8 @@ export const types = `
     expiresAt: Date
     amount: Float
     invoiceId: String
+    promoCodeId: String
+    promoCode: OneFitPromoCode
     plan: OneFitMembershipPlan
     invoice: JSON
   }
@@ -108,10 +110,14 @@ const planUpdateInput = `
 const purchaseInput = `
   userId: String!
   planId: String!
+  promoCode: String
+  promoCodeId: String
 `;
 
 const cpPurchaseInput = `
   planId: String!
+  promoCode: String
+  promoCodeId: String
 `;
 
 export const mutations = `

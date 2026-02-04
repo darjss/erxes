@@ -1,7 +1,7 @@
 import { useQuery } from '@apollo/client';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { IconPlus } from '@tabler/icons-react';
-import { Button, Dialog, Form, Select, Spinner } from 'erxes-ui';
+import { Button, Dialog, Form, Input, Select, Spinner } from 'erxes-ui';
 import { useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -13,6 +13,7 @@ import { useCreateMembershipPurchase } from '../hooks/useMembershipPurchaseMutat
 const createMembershipPurchaseSchema = z.object({
   userId: z.string().min(1, { message: 'Customer is required' }),
   planId: z.string().min(1, { message: 'Membership plan is required' }),
+  promoCode: z.string().optional(),
 });
 
 type CreateMembershipPurchaseFormData = z.infer<
@@ -44,6 +45,7 @@ export function CreateMembershipPurchaseDialog({
     defaultValues: {
       userId: defaultUserId || '',
       planId: '',
+      promoCode: '',
     },
   });
 
@@ -52,6 +54,7 @@ export function CreateMembershipPurchaseDialog({
       form.reset({
         userId: defaultUserId || '',
         planId: '',
+        promoCode: '',
       });
     }
   }, [defaultUserId, form, open]);
@@ -72,6 +75,7 @@ export function CreateMembershipPurchaseDialog({
     form.reset({
       userId: defaultUserId || '',
       planId: '',
+      promoCode: '',
     });
   }
 
@@ -80,6 +84,7 @@ export function CreateMembershipPurchaseDialog({
       variables: {
         userId: values.userId,
         planId: values.planId,
+        ...(values.promoCode?.trim() && { promoCode: values.promoCode.trim() }),
       },
       onCompleted: () => handleClose(),
     });
@@ -155,6 +160,24 @@ export function CreateMembershipPurchaseDialog({
               )}
             />
 
+            <Form.Field
+              control={form.control}
+              name="promoCode"
+              render={({ field }) => (
+                <Form.Item>
+                  <Form.Label>Promo code</Form.Label>
+                  <Form.Control>
+                    <Input
+                      {...field}
+                      placeholder="Enter promo code (optional)"
+                      value={field.value ?? ''}
+                    />
+                  </Form.Control>
+                  <Form.Message />
+                </Form.Item>
+              )}
+            />
+
             {selectedPlan && (
               <div className="rounded-lg border bg-muted/20 p-4 text-sm">
                 <div className="font-medium mb-2">Summary</div>
@@ -163,10 +186,19 @@ export function CreateMembershipPurchaseDialog({
                   <div className="font-medium">
                     {selectedPlan.price.toLocaleString()} MNT
                   </div>
+                  {form.watch('promoCode')?.trim() && (
+                    <>
+                      <div className="text-muted-foreground col-span-2">
+                        Promo will be applied at checkout
+                      </div>
+                    </>
+                  )}
                   <div className="text-muted-foreground">Credits</div>
                   <div className="font-medium">{selectedPlan.creditAmount}</div>
                   <div className="text-muted-foreground">Duration</div>
-                  <div className="font-medium">{selectedPlan.duration} days</div>
+                  <div className="font-medium">
+                    {selectedPlan.duration} days
+                  </div>
                 </div>
               </div>
             )}
@@ -191,4 +223,3 @@ export function CreateMembershipPurchaseDialog({
     </Dialog>
   );
 }
-
