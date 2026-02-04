@@ -3,6 +3,7 @@ import { toast } from 'erxes-ui';
 import {
   ONE_FIT_CREDIT_TRANSACTIONS_REMOVE,
   ONE_FIT_CREDIT_TRANSACTION_CREATE,
+  ONE_FIT_CREDIT_TRANSACTIONS_BULK_CREATE,
 } from '../graphql/creditMutations';
 import { ONE_FIT_CREDIT_TRANSACTIONS } from '../graphql/creditQueries';
 
@@ -68,4 +69,41 @@ export function useCreateCreditTransaction() {
   };
 
   return { createCreditTransaction, loading };
+}
+
+export function useBulkCreateCreditTransactions() {
+  const [bulkCreateMutation, { loading }] = useMutation(
+    ONE_FIT_CREDIT_TRANSACTIONS_BULK_CREATE,
+    {
+      refetchQueries: [{ query: ONE_FIT_CREDIT_TRANSACTIONS }],
+      awaitRefetchQueries: true,
+    },
+  );
+
+  const bulkCreateCreditTransactions = (options: MutationFunctionOptions) => {
+    return bulkCreateMutation({
+      ...options,
+      refetchQueries: [{ query: ONE_FIT_CREDIT_TRANSACTIONS }],
+      awaitRefetchQueries: true,
+      onCompleted: (data) => {
+        options.onCompleted?.(data);
+        const count =
+          (data?.oneFitCreditTransactionsBulkCreate as unknown[])?.length ?? 0;
+        toast({
+          title: 'Success',
+          description: `${count} credit transaction(s) created successfully`,
+        });
+      },
+      onError: (error) => {
+        options.onError?.(error);
+        toast({
+          title: 'Error',
+          description: error.message,
+          variant: 'destructive',
+        });
+      },
+    });
+  };
+
+  return { bulkCreateCreditTransactions, loading };
 }

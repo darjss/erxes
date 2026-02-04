@@ -74,6 +74,7 @@ export const creditTransactionMutations = {
       source,
       bookingId,
       corporateCreditId,
+      companyId,
       membershipPlanId,
       description,
     }: {
@@ -83,6 +84,7 @@ export const creditTransactionMutations = {
       source: CreditSource;
       bookingId?: string;
       corporateCreditId?: string;
+      companyId?: string;
       membershipPlanId?: string;
       description?: string;
     },
@@ -104,6 +106,7 @@ export const creditTransactionMutations = {
       source,
       bookingId,
       corporateCreditId,
+      companyId,
       description: description ?? defaultDescription,
       balanceAfter,
     });
@@ -226,5 +229,140 @@ export const creditTransactionMutations = {
     }
 
     return transaction;
+  },
+
+  async oneFitCreditTransactionsBulkCreate(
+    _root: undefined,
+    {
+      userIds,
+      companyId,
+      amount,
+      transactionType,
+      source,
+      membershipPlanId,
+      description,
+    }: {
+      userIds: string[];
+      companyId: string;
+      amount: number;
+      transactionType: CreditTransactionType;
+      source: CreditSource;
+      membershipPlanId?: string;
+      description?: string;
+    },
+    context: IContext,
+  ) {
+    if (!userIds.length) {
+      return [];
+    }
+
+    const created: ICreditTransactionDocument[] = [];
+    const { models, subdomain } = context;
+
+    const defaultDescription =
+      transactionType === CreditTransactionType.PURCHASE
+        ? 'Membership purchase (bulk corporate)'
+        : `Credit ${transactionType}`;
+    const finalDescription = description?.trim() ?? defaultDescription;
+
+    for (const userId of userIds) {
+      const currentBalance = await models.CreditTransaction.getUserBalance(
+        userId,
+      );
+      const balanceAfter = currentBalance + amount;
+
+      const transaction = await models.CreditTransaction.createTransaction({
+        userId,
+        amount,
+        transactionType,
+        source,
+        companyId,
+        description: finalDescription,
+        balanceAfter,
+      });
+      created.push(transaction);
+
+      let oneFitCustomer;
+      try {
+        oneFitCustomer = await models.OneFitCustomer.getOneFitCustomer(userId);
+      } catch {
+        oneFitCustomer = null;
+      }
+      if (!oneFitCustomer) {
+        const customer = await sendTRPCMessage({
+          subdomain,
+          pluginName: 'core',
+          method: 'query',
+          module: 'customers',
+          action: 'findOne',
+          input: { query: { _id: userId } },
+          defaultValue: null,
+        });
+        if (!customer) {
+          continue;
+        }
+        await sendTRPCMessage({
+          subdomain,
+          pluginName: 'core',
+          method: 'mutation',
+          module: 'customers',
+          action: 'updateCustomer',
+          input: { _id: userId, doc: { state: 'customer' } },
+        });
+        await models.OneFitCustomer.findOneAndUpdate(
+          { _id: userId },
+          {
+            $set: {
+              __t: 'OneFitCustomer',
+              membershipStatus: 'none',
+              currentCreditBalance: 0,
+              totalCreditsEarned: 0,
+              totalCreditsUsed: 0,
+              totalBookings: 0,
+            },
+          },
+          { upsert: false, new: true },
+        );
+      }
+
+      const plan =
+        transactionType === CreditTransactionType.PURCHASE && membershipPlanId
+          ? await models.MembershipPlan.findOne({
+              _id: membershipPlanId,
+            }).lean()
+          : null;
+
+      if (plan && isCreditOnlyPlan(plan)) {
+        await models.OneFitCustomer.updateCreditBalanceAndEarned(
+          userId,
+          balanceAfter,
+          plan.creditAmount,
+        );
+      } else if (transactionType === CreditTransactionType.PURCHASE && plan) {
+        const duration = plan.duration ?? 30;
+        const purchasedAt = new Date();
+        const expiresAt = new Date(
+          purchasedAt.getTime() + duration * 24 * 60 * 60 * 1000,
+        );
+        await models.OneFitCustomer.updateMembership(
+          userId,
+          membershipPlanId!,
+          expiresAt,
+        );
+        await models.OneFitCustomer.updateCreditBalanceAndEarned(
+          userId,
+          balanceAfter,
+          plan.creditAmount,
+        );
+      } else if (transactionType === CreditTransactionType.PURCHASE) {
+        await models.OneFitCustomer.updateCreditBalanceAndEarned(
+          userId,
+          balanceAfter,
+          amount,
+        );
+      }
+    }
+
+    return created;
   },
 };

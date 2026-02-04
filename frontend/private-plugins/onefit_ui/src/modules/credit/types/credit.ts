@@ -30,6 +30,7 @@ export interface OneFitCreditTransaction {
   source: OneFitCreditSource;
   bookingId?: string;
   corporateCreditId?: string;
+  companyId?: string;
   description?: string;
   balanceAfter: number;
 }

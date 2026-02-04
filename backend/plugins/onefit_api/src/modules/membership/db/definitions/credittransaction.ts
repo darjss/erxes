@@ -31,6 +31,7 @@ export const creditTransactionSchema = new Schema(
       index: true,
       label: 'Corporate Credit ID',
     },
+    companyId: { type: String, label: 'Company ID' },
     description: { type: String, label: 'Description' },
     balanceAfter: { type: Number, required: true, label: 'Balance After' },
   },

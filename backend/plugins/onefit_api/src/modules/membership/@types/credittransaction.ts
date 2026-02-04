@@ -19,6 +19,7 @@ export interface ICreditTransaction {
   source: CreditSource;
   bookingId?: string; // Reference to Booking
   corporateCreditId?: string; // Reference to CorporateCredit
+  companyId?: string; // Reference to Company (core) for corporate transactions
   description?: string;
   balanceAfter: number; // Balance after this transaction
   createdAt?: Date;
