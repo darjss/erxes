@@ -80,6 +80,13 @@ import {
 import { IBannerDocument } from '@/banner/@types/banner';
 import { IBannerModel, loadBannerClass } from '@/banner/db/models/Banner';
 
+// PromoCode
+import { IPromoCodeDocument } from '@/promoCode/@types/promoCode';
+import {
+  IPromoCodeModel,
+  loadPromoCodeClass,
+} from '@/promoCode/db/models/PromoCode';
+
 export interface IModels {
   models: mongoose.Model<
     unknown,
@@ -102,6 +109,7 @@ export interface IModels {
   SystemConfig: ISystemConfigModel;
   OneFitCustomer: IOneFitCustomerModel;
   Banner: IBannerModel;
+  PromoCode: IPromoCodeModel;
 }
 
 export interface IContext extends IMainContext {
@@ -180,6 +188,11 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
   models.Banner = db.model<IBannerDocument, IBannerModel>(
     'onefit_banners',
     loadBannerClass(models),
+  );
+
+  models.PromoCode = db.model<IPromoCodeDocument, IPromoCodeModel>(
+    'onefit_promo_codes',
+    loadPromoCodeClass(models),
   );
 
   return models;

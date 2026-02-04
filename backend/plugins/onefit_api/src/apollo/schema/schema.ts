@@ -49,6 +49,11 @@ import {
   queries as BannerQueries,
   mutations as BannerMutations,
 } from '@/banner/graphql/schemas/banner';
+import {
+  types as PromoCodeTypes,
+  queries as PromoCodeQueries,
+  mutations as PromoCodeMutations,
+} from '@/promoCode/graphql/schemas/promoCode';
 import { TypeExtensions } from './extensions';
 
 export const types = `
@@ -63,6 +68,7 @@ export const types = `
   ${OneFitCustomerTypes}
   ${ActivityTypeTypes}
   ${BannerTypes}
+  ${PromoCodeTypes}
 `;
 
 export const queries = `
@@ -76,6 +82,7 @@ export const queries = `
   ${OneFitCustomerQueries}
   ${ActivityTypeQueries}
   ${BannerQueries}
+  ${PromoCodeQueries}
 `;
 
 export const mutations = `
@@ -89,6 +96,7 @@ export const mutations = `
   ${OneFitCustomerMutations}
   ${ActivityTypeMutations}
   ${BannerMutations}
+  ${PromoCodeMutations}
 `;
 
 export default { types, queries, mutations };

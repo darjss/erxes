@@ -11,6 +11,7 @@ import {
   IconBuildingStore,
   IconBuilding,
   IconPhoto,
+  IconTicket,
 } from '@tabler/icons-react';
 import { useOneFitMode } from './config/hooks/useOneFitMode';
 
@@ -96,6 +97,14 @@ export const OneFitNavigation = () => {
           icon={IconPhoto}
           pathPrefix="onefit"
           path="banners"
+        />
+      )}
+      {!isSlaveMode && (
+        <NavigationMenuLinkItem
+          name="Promo Codes"
+          icon={IconTicket}
+          pathPrefix="onefit"
+          path="promo-codes"
         />
       )}
     </>
