@@ -1,6 +1,6 @@
 import { Button, Dialog, Form, Input, Select, Spinner } from 'erxes-ui';
 import { IconPlus } from '@tabler/icons-react';
-import { useForm, useFieldArray } from 'react-hook-form';
+import { useForm, useFieldArray, useFormState } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useState, useEffect } from 'react';
 import { z } from 'zod';
@@ -13,6 +13,7 @@ import {
   createScheduleTemplateSchema,
   editScheduleTemplateSchema,
   expandDailyScheduleRowsToApi,
+  getDuplicateDayActivityPairs,
 } from '../schemas/scheduleSchemas';
 import { ONE_FIT_SCHEDULE_TEMPLATE } from '../graphql/scheduleQueries';
 import { DailyScheduleFields } from './DailyScheduleFields';
@@ -136,6 +137,7 @@ const ScheduleTemplateForm = ({
   });
 
   const watchedProviderId = form.watch('providerId');
+  const { errors } = useFormState({ control: form.control });
 
   const { fields, append, remove, replace } = useFieldArray({
     control: form.control,
@@ -166,6 +168,18 @@ const ScheduleTemplateForm = ({
   const onSubmit = (
     data: CreateScheduleTemplateFormData | EditScheduleTemplateFormData,
   ) => {
+    const duplicates = getDuplicateDayActivityPairs(data.dailySchedules);
+    if (duplicates.length > 0) {
+      const list = duplicates
+        .map((p) => `${p.dayOfWeek} / ${p.activityTypeId}`)
+        .join(', ');
+      form.setError('dailySchedules', {
+        type: 'manual',
+        message: `Each combination of day and activity type must be unique. Duplicates: ${list}`,
+      });
+      return;
+    }
+    form.clearErrors('dailySchedules');
     const dailySchedulesForApi = expandDailyScheduleRowsToApi(
       data.dailySchedules,
     );
@@ -297,6 +311,15 @@ const ScheduleTemplateForm = ({
             Add Schedule
           </Button>
         </div>
+
+        {(errors.dailySchedules?.message || errors.root?.message) && (
+          <div
+            className="text-sm text-destructive rounded-md border border-destructive/50 bg-destructive/10 px-3 py-2"
+            role="alert"
+          >
+            {errors.dailySchedules?.message ?? errors.root?.message}
+          </div>
+        )}
 
         {fields.length === 0 && (
           <div className="text-sm text-muted-foreground text-center py-4">

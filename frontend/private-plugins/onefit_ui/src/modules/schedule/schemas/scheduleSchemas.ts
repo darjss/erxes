@@ -5,6 +5,34 @@ import type {
   OneFitDailyScheduleRow,
 } from '../types/schedule';
 
+/**
+ * Returns (dayOfWeek, activityTypeId) pairs that appear more than once when rows are expanded.
+ */
+export function getDuplicateDayActivityPairs(
+  rows: OneFitDailyScheduleRow[],
+): Array<{ dayOfWeek: DayOfWeek; activityTypeId: string }> {
+  const counts = new Map<string, number>();
+  for (const row of rows) {
+    for (const dayOfWeek of row.daysOfWeek) {
+      if (!row.activityTypeId) continue;
+      const key = `${dayOfWeek}|${row.activityTypeId}`;
+      counts.set(key, (counts.get(key) ?? 0) + 1);
+    }
+  }
+  const duplicates: Array<{ dayOfWeek: DayOfWeek; activityTypeId: string }> =
+    [];
+  for (const [key, count] of counts) {
+    if (count > 1) {
+      const [dayOfWeek, activityTypeId] = key.split('|');
+      duplicates.push({
+        dayOfWeek: dayOfWeek as DayOfWeek,
+        activityTypeId,
+      });
+    }
+  }
+  return duplicates;
+}
+
 /** API shape: one day per entry */
 export const dailyScheduleSchema = z.object({
   dayOfWeek: z.nativeEnum(DayOfWeek),
