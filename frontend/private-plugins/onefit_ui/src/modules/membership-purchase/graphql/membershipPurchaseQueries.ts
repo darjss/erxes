@@ -34,6 +34,11 @@ export const ONE_FIT_MEMBERSHIP_PURCHASES = gql`
         expiresAt
         amount
         invoiceId
+        promoCodeId
+        promoCode {
+          _id
+          code
+        }
         plan {
           _id
           name
@@ -77,6 +82,11 @@ export const ONE_FIT_MEMBERSHIP_PURCHASE = gql`
       expiresAt
       amount
       invoiceId
+      promoCodeId
+      promoCode {
+        _id
+        code
+      }
       plan {
         _id
         name
@@ -89,4 +99,3 @@ export const ONE_FIT_MEMBERSHIP_PURCHASE = gql`
     }
   }
 `;
-

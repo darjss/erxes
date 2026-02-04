@@ -24,6 +24,16 @@ const resolvers = {
       }
       return await models.MembershipPlan.findOne({ _id: purchase.planId });
     },
+    promoCode: async (
+      purchase: IMembershipPurchaseDocument,
+      _params: undefined,
+      { models }: IContext,
+    ) => {
+      if (!purchase.promoCodeId) {
+        return null;
+      }
+      return await models.PromoCode.findOne({ _id: purchase.promoCodeId });
+    },
     invoice: async (
       purchase: IMembershipPurchaseDocument,
       _params: undefined,

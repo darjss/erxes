@@ -36,7 +36,9 @@ function getStatusBadgeVariant(status?: OneFitMembershipPurchase['status']) {
   }
 }
 
-export function MembershipPurchasesList({ filters }: MembershipPurchasesListProps) {
+export function MembershipPurchasesList({
+  filters,
+}: MembershipPurchasesListProps) {
   const { membershipPurchases, handleFetchMore, loading, pageInfo } =
     useMembershipPurchases(filters);
 
@@ -104,6 +106,19 @@ export function MembershipPurchasesList({ filters }: MembershipPurchasesListProp
         },
       },
       {
+        id: 'promoCode',
+        header: 'Promo code',
+        cell: ({ row }) => {
+          const purchase = row.original;
+          const code = purchase.promoCode?.code;
+          return (
+            <RecordTableInlineCell className="text-xs font-medium">
+              {code ?? '-'}
+            </RecordTableInlineCell>
+          );
+        },
+      },
+      {
         accessorKey: 'amount',
         header: 'Amount',
         cell: ({ cell }) => {
@@ -122,7 +137,10 @@ export function MembershipPurchasesList({ filters }: MembershipPurchasesListProp
           const status = cell.getValue() as OneFitMembershipPurchase['status'];
           return (
             <RecordTableInlineCell>
-              <Badge variant={getStatusBadgeVariant(status)} className="capitalize">
+              <Badge
+                variant={getStatusBadgeVariant(status)}
+                className="capitalize"
+              >
                 {status || 'pending'}
               </Badge>
             </RecordTableInlineCell>
@@ -133,7 +151,9 @@ export function MembershipPurchasesList({ filters }: MembershipPurchasesListProp
         id: 'invoiceStatus',
         header: 'Invoice',
         cell: ({ row }) => {
-          const invoiceStatus = row.original.invoice?.status as string | undefined;
+          const invoiceStatus = row.original.invoice?.status as
+            | string
+            | undefined;
           return (
             <RecordTableInlineCell className="text-xs font-medium">
               {invoiceStatus ? (
@@ -215,12 +235,12 @@ export function MembershipPurchasesList({ filters }: MembershipPurchasesListProp
         header: 'Actions',
         cell: ({ row }) => {
           const purchase = row.original;
-          const canActivate = purchase.status === 'paid' && !purchase.activatedAt;
+          const canActivate =
+            purchase.status === 'paid' && !purchase.activatedAt;
           const invoiceStatus = purchase.invoice?.status as string | undefined;
           const invoicePending = invoiceStatus === 'pending';
-          const qrData = purchase.invoice?.transactions?.[0]?.response?.qrData as
-            | string
-            | undefined;
+          const qrData = purchase.invoice?.transactions?.[0]?.response
+            ?.qrData as string | undefined;
           const showQrButton = invoicePending && qrData;
 
           return (
@@ -274,10 +294,14 @@ export function MembershipPurchasesList({ filters }: MembershipPurchasesListProp
           <RecordTable>
             <RecordTable.Header />
             <RecordTable.Body>
-              <RecordTable.CursorBackwardSkeleton handleFetchMore={handleFetchMore} />
+              <RecordTable.CursorBackwardSkeleton
+                handleFetchMore={handleFetchMore}
+              />
               {loading && <RecordTable.RowSkeleton rows={40} />}
               <RecordTable.RowList />
-              <RecordTable.CursorForwardSkeleton handleFetchMore={handleFetchMore} />
+              <RecordTable.CursorForwardSkeleton
+                handleFetchMore={handleFetchMore}
+              />
             </RecordTable.Body>
           </RecordTable>
         </RecordTable.CursorProvider>
@@ -309,4 +333,3 @@ export function MembershipPurchasesList({ filters }: MembershipPurchasesListProp
     </>
   );
 }
-

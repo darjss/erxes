@@ -159,6 +159,13 @@ startPlugin({
         // Update purchase status to paid
         await models.MembershipPurchase.markAsPaid(membershipPurchase._id);
 
+        if (membershipPurchase.promoCodeId) {
+          await models.PromoCode.updateOne(
+            { _id: membershipPurchase.promoCodeId },
+            { $inc: { usedCount: 1 } },
+          );
+        }
+
         const plan = await models.MembershipPlan.findOne({
           _id: membershipPurchase.planId,
         });

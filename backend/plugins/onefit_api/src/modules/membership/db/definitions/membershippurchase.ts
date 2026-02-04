@@ -56,6 +56,11 @@ export const membershipPurchaseSchema = new Schema(
       label: 'Invoice ID',
       index: true,
     },
+    promoCodeId: {
+      type: String,
+      label: 'Promo Code ID',
+      index: true,
+    },
   },
   {
     timestamps: true,
