@@ -5,7 +5,6 @@ import { membershipMutations } from '@/membership/graphql/resolvers/mutations/me
 import { creditTransactionMutations } from '@/membership/graphql/resolvers/mutations/credittransaction';
 import { bookingMutations } from '@/booking/graphql/resolvers/mutations/booking';
 
-import { notificationMutations } from '@/notification/graphql/resolvers/mutations/notification';
 import { configMutations } from '@/config/graphql/resolvers/mutations/config';
 import { oneFitCustomerMutations } from '@/onefitCustomer/graphql/resolvers/mutations/onefitCustomer';
 import { activityTypeMutations } from '@/activity-type/graphql/resolvers/mutations/activityType';
@@ -19,7 +18,6 @@ export const mutations = Object.assign(
   membershipMutations,
   creditTransactionMutations,
   bookingMutations,
-  notificationMutations,
   configMutations,
   oneFitCustomerMutations,
   activityTypeMutations,

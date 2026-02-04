@@ -25,9 +25,7 @@ export const creditTransactionMutations = {
       (tx) => tx.bookingId != null && tx.bookingId !== '',
     );
     if (linkedToBooking.length > 0) {
-      throw new Error(
-        'Cannot delete credit transactions linked to a booking',
-      );
+      throw new Error('Cannot delete credit transactions linked to a booking');
     }
 
     const linkedToCorporate = transactions.filter(
@@ -43,10 +41,7 @@ export const creditTransactionMutations = {
       ...new Set(transactions.map((tx) => tx.userId)),
     ] as string[];
 
-    const latestByUser: Record<
-      string,
-      ICreditTransactionDocument | null
-    > = {};
+    const latestByUser: Record<string, ICreditTransactionDocument | null> = {};
     for (const userId of affectedUserIds) {
       latestByUser[userId] =
         await models.CreditTransaction.getLatestTransaction(userId);
@@ -97,6 +92,10 @@ export const creditTransactionMutations = {
     );
     const balanceAfter = currentBalance + amount;
 
+    const defaultDescription =
+      transactionType === CreditTransactionType.PURCHASE
+        ? 'Membership purchase'
+        : `Credit ${transactionType}`;
     const transaction = await models.CreditTransaction.createTransaction({
       userId,
       amount,
@@ -104,60 +103,51 @@ export const creditTransactionMutations = {
       source,
       bookingId,
       corporateCreditId,
-      description: description || `Membership purchase: `,
+      description: description ?? defaultDescription,
       balanceAfter,
     });
 
-    const plan = await models.MembershipPlan.findOne({ _id: membershipPlanId });
-    if (!plan) {
-      throw new Error('Membership plan not found');
+    const isPurchaseWithPlan =
+      transactionType === CreditTransactionType.PURCHASE && membershipPlanId;
+    let plan: { duration: number; creditAmount: number; name?: string } | null =
+      null;
+    if (isPurchaseWithPlan) {
+      plan = await models.MembershipPlan.findOne({
+        _id: membershipPlanId,
+      }).lean();
+      if (!plan) {
+        throw new Error('Membership plan not found');
+      }
     }
 
-    const purchasedAt = new Date();
-    const expiresAt = new Date(
-      purchasedAt.getTime() + plan.duration * 24 * 60 * 60 * 1000,
-    );
-
-    // Check if OneFitCustomer exists
+    // Ensure OneFitCustomer exists
     let oneFitCustomer;
     try {
       oneFitCustomer = await models.OneFitCustomer.getOneFitCustomer(userId);
-    } catch (error) {
-      // If query fails, assume OneFitCustomer doesn't exist yet
+    } catch {
       oneFitCustomer = null;
     }
     if (!oneFitCustomer) {
-      // Verify customer exists
       const customer = await sendTRPCMessage({
         subdomain,
         pluginName: 'core',
         method: 'query',
         module: 'customers',
         action: 'findOne',
-        input: {
-          query: { _id: userId },
-        },
+        input: { query: { _id: userId } },
         defaultValue: null,
       });
-
       if (!customer) {
         throw new Error('Customer not found');
       }
-
-      // Update erxes customer to have state='customer'
       await sendTRPCMessage({
         subdomain,
         pluginName: 'core',
         method: 'mutation',
         module: 'customers',
         action: 'updateCustomer',
-        input: {
-          _id: userId,
-          doc: { state: 'customer' },
-        },
+        input: { _id: userId, doc: { state: 'customer' } },
       });
-
-      // Create OneFitCustomer by updating the customer document with discriminator
       await models.OneFitCustomer.findOneAndUpdate(
         { _id: userId },
         {
@@ -172,26 +162,53 @@ export const creditTransactionMutations = {
         },
         { upsert: false, new: true },
       );
-
       oneFitCustomer = await models.OneFitCustomer.getOneFitCustomer(userId);
     }
 
-    // Update OneFitCustomer with membership information
-    if (oneFitCustomer && membershipPlanId) {
-      await models.OneFitCustomer.updateMembership(
-        userId,
-        membershipPlanId,
-        expiresAt,
-      );
+    if (!oneFitCustomer) {
+      return transaction;
     }
 
-    // Update OneFitCustomer credit balance fields
-    if (oneFitCustomer) {
+    if (isPurchaseWithPlan && plan) {
+      const purchasedAt = new Date();
+      const expiresAt = new Date(
+        purchasedAt.getTime() + plan.duration * 24 * 60 * 60 * 1000,
+      );
+      await models.OneFitCustomer.updateMembership(
+        userId,
+        membershipPlanId!,
+        expiresAt,
+      );
       await models.OneFitCustomer.updateCreditBalanceAndEarned(
         userId,
         balanceAfter,
         plan.creditAmount,
       );
+    } else {
+      switch (transactionType) {
+        case CreditTransactionType.PURCHASE:
+          await models.OneFitCustomer.updateCreditBalanceAndEarned(
+            userId,
+            balanceAfter,
+            amount,
+          );
+          break;
+        case CreditTransactionType.USAGE:
+        case CreditTransactionType.EXPIRATION:
+          await models.OneFitCustomer.updateCreditBalanceAndUsed(
+            userId,
+            balanceAfter,
+            Math.abs(amount),
+          );
+          break;
+        case CreditTransactionType.REFUND:
+          await models.OneFitCustomer.updateCreditBalanceForRefund(
+            userId,
+            balanceAfter,
+            Math.abs(amount),
+          );
+          break;
+      }
     }
 
     return transaction;
