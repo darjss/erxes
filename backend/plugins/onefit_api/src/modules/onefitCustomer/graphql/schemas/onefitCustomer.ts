@@ -42,6 +42,12 @@ export const types = `
     pageInfo: PageInfo
     totalCount: Int
   }
+
+  type OneFitCustomerByCompany {
+    _id: String
+    primaryPhone: String
+    primaryEmail: String
+  }
 `;
 
 const oneFitCustomerQueryParams = `
@@ -58,6 +64,7 @@ export const queries = `
   oneFitCustomers(${oneFitCustomerQueryParams}, ${GQL_CURSOR_PARAM_DEFS}): OneFitCustomerListResponse
   oneFitCustomer(_id: String!): Customer
   oneFitCustomersCount(${oneFitCustomerQueryParams}): Int
+  oneFitCustomersByCompanyId(companyId: String!): [OneFitCustomerByCompany]
 `;
 
 export const mutations = `

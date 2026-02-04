@@ -32,6 +32,7 @@ export const ONE_FIT_CREDIT_TRANSACTIONS = gql`
         source
         bookingId
         corporateCreditId
+        companyId
         description
         balanceAfter
       }
@@ -80,6 +81,7 @@ export const ONE_FIT_CREDIT_TRANSACTION = gql`
       source
       bookingId
       corporateCreditId
+      companyId
       description
       balanceAfter
     }
@@ -115,6 +117,7 @@ export const ONE_FIT_USER_CREDIT_TRANSACTIONS = gql`
       source
       bookingId
       corporateCreditId
+      companyId
       description
       balanceAfter
     }

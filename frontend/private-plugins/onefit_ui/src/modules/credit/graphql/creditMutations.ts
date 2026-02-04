@@ -14,6 +14,7 @@ export const ONE_FIT_CREDIT_TRANSACTION_CREATE = gql`
     $source: OneFitCreditSource!
     $bookingId: String
     $corporateCreditId: String
+    $companyId: String
     $membershipPlanId: String
     $description: String
   ) {
@@ -24,6 +25,7 @@ export const ONE_FIT_CREDIT_TRANSACTION_CREATE = gql`
       source: $source
       bookingId: $bookingId
       corporateCreditId: $corporateCreditId
+      companyId: $companyId
       membershipPlanId: $membershipPlanId
       description: $description
     ) {
@@ -35,6 +37,39 @@ export const ONE_FIT_CREDIT_TRANSACTION_CREATE = gql`
       source
       bookingId
       corporateCreditId
+      companyId
+      description
+      balanceAfter
+    }
+  }
+`;
+
+export const ONE_FIT_CREDIT_TRANSACTIONS_BULK_CREATE = gql`
+  mutation OneFitCreditTransactionsBulkCreate(
+    $userIds: [String]!
+    $companyId: String!
+    $amount: Float!
+    $transactionType: OneFitCreditTransactionType!
+    $source: OneFitCreditSource!
+    $membershipPlanId: String
+    $description: String
+  ) {
+    oneFitCreditTransactionsBulkCreate(
+      userIds: $userIds
+      companyId: $companyId
+      amount: $amount
+      transactionType: $transactionType
+      source: $source
+      membershipPlanId: $membershipPlanId
+      description: $description
+    ) {
+      _id
+      createdAt
+      userId
+      amount
+      transactionType
+      source
+      companyId
       description
       balanceAfter
     }

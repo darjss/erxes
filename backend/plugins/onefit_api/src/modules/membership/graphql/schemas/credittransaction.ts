@@ -23,6 +23,7 @@ export const types = `
     source: OneFitCreditSource
     bookingId: String
     corporateCreditId: String
+    companyId: String
     description: String
     balanceAfter: Float
   }
@@ -65,7 +66,17 @@ export const mutations = `
     source: OneFitCreditSource!
     bookingId: String
     corporateCreditId: String
+    companyId: String
     membershipPlanId: String
     description: String
   ): OneFitCreditTransaction
+  oneFitCreditTransactionsBulkCreate(
+    userIds: [String]!
+    companyId: String!
+    amount: Float!
+    transactionType: OneFitCreditTransactionType!
+    source: OneFitCreditSource!
+    membershipPlanId: String
+    description: String
+  ): [OneFitCreditTransaction]
 `;

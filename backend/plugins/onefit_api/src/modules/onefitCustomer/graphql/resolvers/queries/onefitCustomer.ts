@@ -3,6 +3,7 @@ import {
   cursorPaginate,
   escapeRegExp,
   markResolvers,
+  sendTRPCMessage,
 } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 
@@ -110,6 +111,56 @@ export const oneFitCustomerQueries: Record<string, Resolver> = {
   ) {
     const filter = await generateFilter(params);
     return models.OneFitCustomer.find(filter).countDocuments();
+  },
+
+  async oneFitCustomersByCompanyId(
+    _root: undefined,
+    { companyId }: { companyId: string },
+    { subdomain }: IContext,
+  ) {
+    const customerIds = (await sendTRPCMessage({
+      subdomain,
+      pluginName: 'core',
+      method: 'query',
+      module: 'relation',
+      action: 'getRelationIds',
+      input: {
+        contentType: 'core:company',
+        contentId: companyId,
+        relatedContentType: 'core:customer',
+      },
+      defaultValue: [] as string[],
+    })) as string[];
+
+    const ids = customerIds?.filter((id) => id && id.trim()) ?? [];
+    if (!ids.length) {
+      return [];
+    }
+
+    const customers = (await sendTRPCMessage({
+      subdomain,
+      pluginName: 'core',
+      method: 'query',
+      module: 'customers',
+      action: 'find',
+      input: {
+        query: {
+          _id: { $in: ids },
+          status: { $ne: 'deleted' },
+        },
+      },
+      defaultValue: [] as Array<{
+        _id: string;
+        primaryPhone?: string;
+        primaryEmail?: string;
+      }>,
+    })) as Array<{ _id: string; primaryPhone?: string; primaryEmail?: string }>;
+
+    return customers.map((c) => ({
+      _id: c._id,
+      primaryPhone: c.primaryPhone ?? undefined,
+      primaryEmail: c.primaryEmail ?? undefined,
+    }));
   },
 };
 markResolvers(oneFitCustomerQueries, {
