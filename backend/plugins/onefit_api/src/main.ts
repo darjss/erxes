@@ -1,4 +1,9 @@
-import { redis, startPlugin, getEnv } from 'erxes-api-shared/utils';
+import {
+  redis,
+  startPlugin,
+  getEnv,
+  sendTRPCMessage,
+} from 'erxes-api-shared/utils';
 import { getSaasOrganizationIdBySubdomain } from 'erxes-api-shared/utils';
 import resolvers from '~/apollo/resolvers';
 import { typeDefs } from '~/apollo/typeDefs';
@@ -148,6 +153,35 @@ startPlugin({
 
         // Update purchase status to paid
         await models.MembershipPurchase.markAsPaid(membershipPurchase._id);
+
+        const cpUserId = data.data?.cpUserId;
+        const clientPortalId = data.data?.clientPortalId;
+        if (cpUserId && clientPortalId) {
+          const plan = await models.MembershipPlan.findOne({
+            _id: membershipPurchase.planId,
+          });
+          const planName = plan?.name ?? 'membership';
+          await sendTRPCMessage({
+            subdomain,
+            pluginName: 'core',
+            method: 'mutation',
+            module: 'cpNotifications',
+            action: 'create',
+            input: {
+              cpUserIds: [cpUserId],
+              clientPortalId,
+              data: {
+                title: 'Төлбөр хүлээн авлаа',
+                message: `Таны "${planName}" гишүүнчлэлийн төлбөр амжилттай төлөгдлөө.`,
+                type: 'success',
+                contentType:
+                  data.contentType ?? 'onefit:membership:membershippurchase',
+                contentTypeId: contentTypeId,
+              },
+            },
+            defaultValue: null,
+          });
+        }
       },
     },
   },

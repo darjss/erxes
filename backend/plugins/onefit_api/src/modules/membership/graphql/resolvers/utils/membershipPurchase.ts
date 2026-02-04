@@ -199,6 +199,13 @@ export async function createMembershipPurchaseInvoice(
     invoiceInput.email = customerEmail;
   }
 
+  if (context.cpUser) {
+    invoiceInput.data = {
+      cpUserId: context.cpUser._id,
+      clientPortalId: context.cpUser.clientPortalId,
+    };
+  }
+
   const invoice = await sendTRPCMessage({
     subdomain,
     pluginName: 'payment',
@@ -208,7 +215,7 @@ export async function createMembershipPurchaseInvoice(
     input: invoiceInput,
     defaultValue: null,
   });
-  console.log('Created invoice:', invoice);
+
   if (!invoice || !invoice._id) {
     throw new Error('Failed to create invoice');
   }
