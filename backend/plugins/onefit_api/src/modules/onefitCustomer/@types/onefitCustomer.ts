@@ -25,7 +25,11 @@ export interface IOneFitCustomer extends ICustomer {
   gracePeriodEnd: Date;
   isExpired: boolean;
   isInGracePeriod: boolean;
-  // _id: string;
+  // Membership hold
+  isMembershipOnHold?: boolean;
+  membershipHoldStartAt?: Date;
+  membershipHoldEndAt?: Date;
+  membershipHoldEndedAt?: Date;
   __t?: string;
 }
 

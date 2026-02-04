@@ -6,6 +6,8 @@ import {
 } from '../utils/membershipPurchase';
 import { Resolver } from 'erxes-api-shared/core-types';
 
+const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000;
+
 export const membershipMutations: Record<string, Resolver> = {
   async oneFitMembershipPlanCreate(
     _root: undefined,
@@ -83,6 +85,80 @@ export const membershipMutations: Record<string, Resolver> = {
 
     return await activateMembershipPurchase(_id, context);
   },
+
+  async cpOneFitMembershipHoldStart(
+    _root: undefined,
+    { holdDays }: { holdDays: number },
+    context: IContext,
+  ) {
+    const { models, cpUser } = context;
+    if (!cpUser) {
+      throw new Error('Client portal user required');
+    }
+    const userId = cpUser.erxesCustomerId || cpUser._id;
+    const customer = await models.OneFitCustomer.getOneFitCustomer(userId);
+    if (!customer) {
+      throw new Error('Customer not found');
+    }
+    if (customer.membershipStatus !== 'active') {
+      throw new Error('Membership must be active to start a hold');
+    }
+    if (customer.isMembershipOnHold) {
+      throw new Error('Membership is already on hold');
+    }
+    if (customer.membershipHoldEndedAt) {
+      const nextHoldAllowedAt =
+        new Date(customer.membershipHoldEndedAt).getTime() + THIRTY_DAYS_MS;
+      if (Date.now() < nextHoldAllowedAt) {
+        throw new Error('You can only hold once every 30 days');
+      }
+    }
+    if (holdDays <= 0) {
+      throw new Error('holdDays must be greater than 0');
+    }
+    const maxHoldDaysConfig = await models.SystemConfig.getConfig(
+      'membership_hold_max_days',
+    );
+    if (maxHoldDaysConfig?.value != null) {
+      const maxHoldDays = Number(maxHoldDaysConfig.value);
+      if (holdDays > maxHoldDays) {
+        throw new Error(
+          `Hold days cannot exceed ${maxHoldDays}. Please use a value between 1 and ${maxHoldDays}.`,
+        );
+      }
+    }
+    return await models.OneFitCustomer.startMembershipHold(userId, holdDays);
+  },
+
+  async cpOneFitMembershipHoldCancel(
+    _root: undefined,
+    _args: undefined,
+    context: IContext,
+  ) {
+    const { models, cpUser } = context;
+    if (!cpUser) {
+      throw new Error('Client portal user required');
+    }
+    const userId = cpUser.erxesCustomerId || cpUser._id;
+    const customer = await models.OneFitCustomer.getOneFitCustomer(userId);
+    if (!customer) {
+      throw new Error('Customer not found');
+    }
+    if (!customer.isMembershipOnHold) {
+      throw new Error('Membership is not on hold');
+    }
+    return await models.OneFitCustomer.cancelMembershipHold(userId);
+  },
+};
+
+membershipMutations.cpOneFitMembershipHoldStart.wrapperConfig = {
+  forClientPortal: true,
+  cpUserRequired: true,
+};
+
+membershipMutations.cpOneFitMembershipHoldCancel.wrapperConfig = {
+  forClientPortal: true,
+  cpUserRequired: true,
 };
 
 membershipMutations.cpOneFitMembershipPurchaseCreate.wrapperConfig = {

@@ -113,5 +113,6 @@ export const mutations = `
   oneFitMembershipPurchaseActivate(_id: String!): OneFitMembershipPurchase
   cpOneFitMembershipPurchaseCreate(${cpPurchaseInput}): OneFitMembershipPurchase
   cpOneFitMembershipPurchaseActivate(_id: String!): OneFitMembershipPurchase
-
+  cpOneFitMembershipHoldStart(holdDays: Int!): Customer
+  cpOneFitMembershipHoldCancel: Customer
 `;

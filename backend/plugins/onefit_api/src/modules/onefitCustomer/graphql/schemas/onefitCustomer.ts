@@ -19,6 +19,12 @@ export const types = `
     oneFitMembershipExpiresAt: Date
     oneFitMembershipStatus: OneFitMembershipStatus
 
+    # Membership hold
+    oneFitIsMembershipOnHold: Boolean
+    oneFitMembershipHoldStartAt: Date
+    oneFitMembershipHoldEndAt: Date
+    oneFitMembershipHoldEndedAt: Date
+
     # Credit information
     oneFitCurrentCreditBalance: Float
     oneFitTotalCreditsEarned: Float
@@ -70,4 +76,7 @@ export const mutations = `
     _id: String!
     preferences: JSON
   ): Customer
+
+  oneFitMembershipHoldStart(userId: String!, holdDays: Int!): Customer
+  oneFitMembershipHoldCancel(userId: String!): Customer
 `;

@@ -3,7 +3,10 @@ import { IContext } from '~/connectionResolvers';
 
 export default {
   Customer: {
-    __resolveReference: async ({ _id }: { _id: string }, { models }: IContext) => {
+    __resolveReference: async (
+      { _id }: { _id: string },
+      { models }: IContext,
+    ) => {
       // Try to find as OneFitCustomer first, fallback to regular Customer
       const oneFitCustomer = await models.OneFitCustomer.findOne({ _id });
       if (oneFitCustomer) {
@@ -29,6 +32,30 @@ export default {
         return 'none';
       }
       return customer.membershipStatus || 'none';
+    },
+    oneFitIsMembershipOnHold: (customer: IOneFitCustomerDocument) => {
+      if (!customer || !('isMembershipOnHold' in customer)) {
+        return false;
+      }
+      return !!customer.isMembershipOnHold;
+    },
+    oneFitMembershipHoldStartAt: (customer: IOneFitCustomerDocument) => {
+      if (!customer || !('membershipHoldStartAt' in customer)) {
+        return null;
+      }
+      return customer.membershipHoldStartAt ?? null;
+    },
+    oneFitMembershipHoldEndAt: (customer: IOneFitCustomerDocument) => {
+      if (!customer || !('membershipHoldEndAt' in customer)) {
+        return null;
+      }
+      return customer.membershipHoldEndAt ?? null;
+    },
+    oneFitMembershipHoldEndedAt: (customer: IOneFitCustomerDocument) => {
+      if (!customer || !('membershipHoldEndedAt' in customer)) {
+        return null;
+      }
+      return customer.membershipHoldEndedAt ?? null;
     },
     oneFitCurrentCreditBalance: (customer: IOneFitCustomerDocument) => {
       if (!customer || !('currentCreditBalance' in customer)) {
@@ -74,4 +101,3 @@ export default {
     },
   },
 };
-
