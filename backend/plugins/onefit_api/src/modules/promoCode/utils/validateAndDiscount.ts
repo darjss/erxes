@@ -1,9 +1,14 @@
 import { IContext } from '~/connectionResolvers';
-import { PromoCodeDiscountType } from '@/promoCode/@types/promoCode';
+import {
+  PromoCodeDiscountType,
+  type PromoCodeDiscountTypeValue,
+} from '@/promoCode/@types/promoCode';
 
 export interface IValidateAndDiscountResult {
   promoCodeId: string;
   discountedAmount: number;
+  discountType: PromoCodeDiscountTypeValue;
+  value: number;
 }
 
 export async function validateAndDiscount(
@@ -52,14 +57,13 @@ export async function validateAndDiscount(
   if (usedCount >= usageLimit) {
     throw new Error('Promo code usage limit reached');
   }
-  console.log('promo  ', promo);
+
   let discountedAmount: number;
   if (promo.discountType === PromoCodeDiscountType.PERCENT) {
     discountedAmount = Math.max(
       0,
       originalPrice * (1 - (promo.value ?? 0) / 100),
     );
-    console.log('discountedAmount', discountedAmount);
   } else {
     discountedAmount = Math.max(0, originalPrice - (promo.value ?? 0));
   }
@@ -67,5 +71,7 @@ export async function validateAndDiscount(
   return {
     promoCodeId: promo._id,
     discountedAmount,
+    discountType: promo.discountType as PromoCodeDiscountTypeValue,
+    value: promo.value ?? 0,
   };
 }

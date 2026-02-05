@@ -4,6 +4,7 @@ import {
   createMembershipPurchaseInvoice,
   activateMembershipPurchase,
 } from '../utils/membershipPurchase';
+import { validateAndDiscount } from '@/promoCode/utils/validateAndDiscount';
 import { Resolver } from 'erxes-api-shared/core-types';
 
 const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000;
@@ -195,6 +196,71 @@ export const membershipMutations: Record<string, Resolver> = {
     }
     return await models.OneFitCustomer.cancelMembershipHold(userId);
   },
+
+  async cpOneFitMembershipCheckPromoDiscount(
+    _root: undefined,
+    {
+      planId,
+      promoCode,
+      promoCodeId,
+    }: {
+      planId: string;
+      promoCode?: string;
+      promoCodeId?: string;
+    },
+    context: IContext,
+  ) {
+    if (!context.cpUser) {
+      return {
+        valid: false,
+        error: 'Client portal user required',
+      };
+    }
+
+    if (!promoCode && !promoCodeId) {
+      return {
+        valid: false,
+        error: 'Provide promoCode or promoCodeId',
+      };
+    }
+
+    if (promoCode && promoCodeId) {
+      return {
+        valid: false,
+        error: 'Provide only one of promoCode or promoCodeId',
+      };
+    }
+
+    const { models } = context;
+    const plan = await models.MembershipPlan.findOne({ _id: planId });
+    if (!plan) {
+      return {
+        valid: false,
+        error: 'Membership plan not found',
+      };
+    }
+
+    try {
+      const result = await validateAndDiscount(context, {
+        promoCode,
+        promoCodeId,
+        originalPrice: plan.price,
+      });
+      return {
+        valid: true,
+        originalPrice: plan.price,
+        discountedAmount: result.discountedAmount,
+        promoCodeId: result.promoCodeId,
+        discountType: result.discountType,
+        value: result.value,
+      };
+    } catch (err) {
+      return {
+        valid: false,
+        error: err instanceof Error ? err.message : 'Invalid promo code',
+      };
+    }
+  },
 };
 
 membershipMutations.cpOneFitMembershipHoldStart.wrapperConfig = {
@@ -213,6 +279,11 @@ membershipMutations.cpOneFitMembershipPurchaseCreate.wrapperConfig = {
 };
 
 membershipMutations.cpOneFitMembershipPurchaseActivate.wrapperConfig = {
+  forClientPortal: true,
+  cpUserRequired: true,
+};
+
+membershipMutations.cpOneFitMembershipCheckPromoDiscount.wrapperConfig = {
   forClientPortal: true,
   cpUserRequired: true,
 };

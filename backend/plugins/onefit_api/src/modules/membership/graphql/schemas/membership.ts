@@ -48,6 +48,16 @@ export const types = `
     pageInfo: PageInfo
     totalCount: Int
   }
+
+  type OneFitPromoDiscountCheck {
+    valid: Boolean!
+    originalPrice: Float
+    discountedAmount: Float
+    promoCodeId: String
+    discountType: OneFitPromoCodeDiscountType
+    value: Float
+    error: String
+  }
 `;
 
 const planQueryParams = `
@@ -130,4 +140,5 @@ export const mutations = `
   cpOneFitMembershipPurchaseActivate(_id: String!): OneFitMembershipPurchase
   cpOneFitMembershipHoldStart(holdDays: Int!): Customer
   cpOneFitMembershipHoldCancel: Customer
+  cpOneFitMembershipCheckPromoDiscount(planId: String!, promoCode: String, promoCodeId: String): OneFitPromoDiscountCheck
 `;
