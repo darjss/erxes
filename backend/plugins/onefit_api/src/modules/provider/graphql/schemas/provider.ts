@@ -102,6 +102,8 @@ export const queries = `
   oneFitProvider(_id: String): OneFitProvider
   oneFitCities(isActive: Boolean): [OneFitCity]
   oneFitDistricts(cityId: String, isActive: Boolean): [OneFitDistrict]
+  oneFitCitiesAdmin(isActive: Boolean, searchValue: String): [OneFitCity]
+  oneFitDistrictsAdmin(cityId: String, isActive: Boolean, searchValue: String): [OneFitDistrict]
 `;
 
 const mutationParams = `
@@ -122,4 +124,30 @@ export const mutations = `
   oneFitProviderApprove(_id: String!, approvedBy: String!): OneFitProvider
   oneFitProviderReject(_id: String!, rejectionReason: String!, rejectedBy: String!): OneFitProvider
   oneFitProvidersRemove(ids: [String]!): JSON
+  oneFitCityCreate(
+    name: OneFitMultilingualStringInput!
+    code: String
+    isActive: Boolean
+  ): OneFitCity
+  oneFitCityUpdate(
+    _id: String!
+    name: OneFitMultilingualStringInput
+    code: String
+    isActive: Boolean
+  ): OneFitCity
+  oneFitCityRemove(_id: String!): JSON
+  oneFitDistrictCreate(
+    cityId: String!
+    name: OneFitMultilingualStringInput!
+    code: String
+    isActive: Boolean
+  ): OneFitDistrict
+  oneFitDistrictUpdate(
+    _id: String!
+    cityId: String
+    name: OneFitMultilingualStringInput
+    code: String
+    isActive: Boolean
+  ): OneFitDistrict
+  oneFitDistrictRemove(_id: String!): JSON
 `;
