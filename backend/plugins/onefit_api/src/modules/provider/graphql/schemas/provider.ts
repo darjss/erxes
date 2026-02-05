@@ -1,6 +1,25 @@
 import { GQL_CURSOR_PARAM_DEFS } from 'erxes-api-shared/utils';
 
 export const types = `
+  type OneFitCity {
+    _id: String
+    name: OneFitMultilingualString
+    code: String
+    isActive: Boolean
+    createdAt: Date
+    modifiedAt: Date
+  }
+
+  type OneFitDistrict {
+    _id: String
+    cityId: String
+    name: OneFitMultilingualString
+    code: String
+    isActive: Boolean
+    createdAt: Date
+    modifiedAt: Date
+  }
+
   type OneFitLocation {
     address: OneFitMultilingualString
     city: OneFitMultilingualString
@@ -81,6 +100,8 @@ export const queries = `
   oneFitProviders(${queryParams}, ${GQL_CURSOR_PARAM_DEFS}): OneFitProviderListResponse
   oneFitProvidersCount(${queryParams}): Int
   oneFitProvider(_id: String): OneFitProvider
+  oneFitCities(isActive: Boolean): [OneFitCity]
+  oneFitDistricts(cityId: String, isActive: Boolean): [OneFitDistrict]
 `;
 
 const mutationParams = `

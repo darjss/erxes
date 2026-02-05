@@ -22,6 +22,8 @@ import {
 import { ONE_FIT_PROVIDER } from '../graphql/providerQueries';
 import { ProviderStatus } from '../types/provider';
 import { SelectCategories } from './SelectCategories';
+import { SelectCity } from './SelectCity';
+import { SelectDistrict } from './SelectDistrict';
 import { useUploadConfig } from '../../config/hooks/useUploadConfig';
 import { getImageReadUrl, extractImageKey } from '../utils/imageUtils';
 import { OneFitUpload } from '~/components/onefit-upload';
@@ -204,9 +206,7 @@ const ProviderForm = ({
       name: { en: string; mn: string };
     }>,
   ): string => {
-    const categoryMap = new Map(
-      categoriesList.map((cat) => [cat._id, cat]),
-    );
+    const categoryMap = new Map(categoriesList.map((cat) => [cat._id, cat]));
 
     const getPath = (id: string, path: string[] = []): string[] => {
       const cat = categoryMap.get(id);
@@ -592,19 +592,16 @@ const ProviderForm = ({
               <div className="grid grid-cols-2 gap-4">
                 <Form.Field
                   control={form.control}
-                  name="location.city.en"
+                  name="location.city"
                   render={({ field }) => (
-                    <Form.Item
-                      className={selectedLanguage !== 'en' ? 'hidden' : ''}
-                    >
-                      <Form.Label>City (English) *</Form.Label>
+                    <Form.Item>
+                      <Form.Label>City *</Form.Label>
                       <Form.Control>
-                        <Input
-                          value={field.value || ''}
-                          onChange={field.onChange}
-                          onBlur={field.onBlur}
-                          ref={field.ref}
-                          placeholder="Enter city in English"
+                        <SelectCity
+                          value={field.value}
+                          onValueChange={field.onChange}
+                          selectedLanguage={selectedLanguage}
+                          placeholder="Select city..."
                           disabled={isRejected}
                         />
                       </Form.Control>
@@ -614,63 +611,17 @@ const ProviderForm = ({
                 />
                 <Form.Field
                   control={form.control}
-                  name="location.city.mn"
+                  name="location.district"
                   render={({ field }) => (
-                    <Form.Item
-                      className={selectedLanguage !== 'mn' ? 'hidden' : ''}
-                    >
-                      <Form.Label>City (Mongolian) *</Form.Label>
+                    <Form.Item>
+                      <Form.Label>District</Form.Label>
                       <Form.Control>
-                        <Input
-                          value={field.value || ''}
-                          onChange={field.onChange}
-                          onBlur={field.onBlur}
-                          ref={field.ref}
-                          placeholder="Enter city in Mongolian"
-                          disabled={isRejected}
-                        />
-                      </Form.Control>
-                      <Form.Message />
-                    </Form.Item>
-                  )}
-                />
-                <Form.Field
-                  control={form.control}
-                  name="location.district.en"
-                  render={({ field }) => (
-                    <Form.Item
-                      className={selectedLanguage !== 'en' ? 'hidden' : ''}
-                    >
-                      <Form.Label>District (English)</Form.Label>
-                      <Form.Control>
-                        <Input
-                          value={field.value || ''}
-                          onChange={field.onChange}
-                          onBlur={field.onBlur}
-                          ref={field.ref}
-                          placeholder="Enter district in English"
-                          disabled={isRejected}
-                        />
-                      </Form.Control>
-                      <Form.Message />
-                    </Form.Item>
-                  )}
-                />
-                <Form.Field
-                  control={form.control}
-                  name="location.district.mn"
-                  render={({ field }) => (
-                    <Form.Item
-                      className={selectedLanguage !== 'mn' ? 'hidden' : ''}
-                    >
-                      <Form.Label>District (Mongolian)</Form.Label>
-                      <Form.Control>
-                        <Input
-                          value={field.value || ''}
-                          onChange={field.onChange}
-                          onBlur={field.onBlur}
-                          ref={field.ref}
-                          placeholder="Enter district in Mongolian"
+                        <SelectDistrict
+                          value={field.value}
+                          onValueChange={field.onChange}
+                          cityValue={form.watch('location.city')}
+                          selectedLanguage={selectedLanguage}
+                          placeholder="Select district..."
                           disabled={isRejected}
                         />
                       </Form.Control>
@@ -823,11 +774,13 @@ const ProviderForm = ({
               name="categoryIds"
               render={({ field }) => {
                 const selectedCategoryIds = field.value || [];
-                const selectedCategories = categories.filter((cat: {
-                  _id: string;
-                  parentId?: string;
-                  name: { en: string; mn: string };
-                }) => selectedCategoryIds.includes(cat._id));
+                const selectedCategories = categories.filter(
+                  (cat: {
+                    _id: string;
+                    parentId?: string;
+                    name: { en: string; mn: string };
+                  }) => selectedCategoryIds.includes(cat._id),
+                );
 
                 return (
                   <Form.Item>
@@ -845,18 +798,20 @@ const ProviderForm = ({
                           Selected Categories:
                         </p>
                         <div className="flex flex-wrap gap-2">
-                          {selectedCategories.map((category: {
-                            _id: string;
-                            parentId?: string;
-                            name: { en: string; mn: string };
-                          }) => (
-                            <span
-                              key={category._id}
-                              className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary text-primary-foreground"
-                            >
-                              {getCategoryFullPath(category._id, categories)}
-                            </span>
-                          ))}
+                          {selectedCategories.map(
+                            (category: {
+                              _id: string;
+                              parentId?: string;
+                              name: { en: string; mn: string };
+                            }) => (
+                              <span
+                                key={category._id}
+                                className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary text-primary-foreground"
+                              >
+                                {getCategoryFullPath(category._id, categories)}
+                              </span>
+                            ),
+                          )}
                         </div>
                       </div>
                     )}

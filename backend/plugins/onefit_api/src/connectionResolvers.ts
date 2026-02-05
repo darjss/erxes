@@ -19,11 +19,20 @@ import {
 } from '@/activity-type/db/models/ActivityType';
 
 // Provider
-import { IProviderDocument } from '@/provider/@types/provider';
+import {
+  IProviderDocument,
+  ICityDocument,
+  IDistrictDocument,
+} from '@/provider/@types/provider';
 import {
   IProviderModel,
   loadProviderClass,
 } from '@/provider/db/models/Provider';
+import { ICityModel, loadCityClass } from '@/provider/db/models/City';
+import {
+  IDistrictModel,
+  loadDistrictClass,
+} from '@/provider/db/models/District';
 
 // Schedule
 import {
@@ -100,6 +109,8 @@ export interface IModels {
   ActivityCategory: IActivityCategoryModel;
   ActivityType: IActivityTypeModel;
   Provider: IProviderModel;
+  City: ICityModel;
+  District: IDistrictModel;
   ScheduleTemplate: IScheduleTemplateModel;
   ScheduleException: IScheduleExceptionModel;
   MembershipPlan: IMembershipPlanModel;
@@ -137,6 +148,16 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
   models.Provider = db.model<IProviderDocument, IProviderModel>(
     'onefit_providers',
     loadProviderClass(models),
+  );
+
+  models.City = db.model<ICityDocument, ICityModel>(
+    'onefit_cities',
+    loadCityClass(models),
+  );
+
+  models.District = db.model<IDistrictDocument, IDistrictModel>(
+    'onefit_districts',
+    loadDistrictClass(models),
   );
 
   models.ScheduleTemplate = db.model<

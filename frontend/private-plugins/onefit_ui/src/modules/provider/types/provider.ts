@@ -74,3 +74,22 @@ export interface ProviderFilters {
   categoryId?: string;
   isActive?: boolean;
 }
+
+export interface OneFitCity {
+  _id: string;
+  name: MultilingualString;
+  code?: string;
+  isActive?: boolean;
+  createdAt?: string;
+  modifiedAt?: string;
+}
+
+export interface OneFitDistrict {
+  _id: string;
+  cityId: string;
+  name: MultilingualString;
+  code?: string;
+  isActive?: boolean;
+  createdAt?: string;
+  modifiedAt?: string;
+}
