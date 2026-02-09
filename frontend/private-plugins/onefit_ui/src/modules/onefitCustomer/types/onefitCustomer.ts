@@ -23,6 +23,10 @@ export interface OneFitCustomer {
   oneFitMembershipPlanId?: string;
   oneFitMembershipExpiresAt?: string;
   oneFitMembershipStatus?: OneFitMembershipStatus;
+  oneFitIsMembershipOnHold?: boolean;
+  oneFitMembershipHoldStartAt?: string;
+  oneFitMembershipHoldEndAt?: string;
+  oneFitMembershipHoldEndedAt?: string;
   oneFitCurrentCreditBalance?: number;
   oneFitTotalCreditsEarned?: number;
   oneFitTotalCreditsUsed?: number;

@@ -56,6 +56,12 @@ const OneFitCustomersPage = lazy(() =>
   })),
 );
 
+const OneFitCustomerDetailPage = lazy(() =>
+  import('~/pages/OneFitCustomerDetailPage').then((module) => ({
+    default: module.OneFitCustomerDetailPage,
+  })),
+);
+
 const ProvidersPage = lazy(() =>
   import('~/pages/ProvidersPage').then((module) => ({
     default: module.ProvidersPage,
@@ -104,6 +110,12 @@ const OneFitMain = () => {
         )}
         {!isSlaveMode && (
           <Route path="/customers" element={<OneFitCustomersPage />} />
+        )}
+        {!isSlaveMode && (
+          <Route
+            path="/customers/:id"
+            element={<OneFitCustomerDetailPage />}
+          />
         )}
         <Route path="/providers" element={<ProvidersPage />} />
         {!isSlaveMode && <Route path="/banners" element={<BannersPage />} />}

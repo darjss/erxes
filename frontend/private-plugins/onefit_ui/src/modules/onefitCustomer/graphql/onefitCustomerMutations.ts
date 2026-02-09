@@ -44,3 +44,29 @@ export const ONE_FIT_CUSTOMER_UPDATE_BOOKING_PREFERENCES = gql`
   }
 `;
 
+const HOLD_CUSTOMER_FRAGMENT = `
+  _id
+  oneFitIsMembershipOnHold
+  oneFitMembershipHoldStartAt
+  oneFitMembershipHoldEndAt
+  oneFitMembershipHoldEndedAt
+  oneFitMembershipExpiresAt
+  oneFitMembershipStatus
+`;
+
+export const ONE_FIT_MEMBERSHIP_HOLD_START = gql`
+  mutation OneFitMembershipHoldStart($userId: String!, $holdDays: Int!) {
+    oneFitMembershipHoldStart(userId: $userId, holdDays: $holdDays) {
+      ${HOLD_CUSTOMER_FRAGMENT}
+    }
+  }
+`;
+
+export const ONE_FIT_MEMBERSHIP_HOLD_CANCEL = gql`
+  mutation OneFitMembershipHoldCancel($userId: String!) {
+    oneFitMembershipHoldCancel(userId: $userId) {
+      ${HOLD_CUSTOMER_FRAGMENT}
+    }
+  }
+`;
+
