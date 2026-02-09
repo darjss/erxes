@@ -5,6 +5,8 @@ import {
   RecordTable,
   RecordTableInlineCell,
   RelativeDateDisplay,
+  Sheet,
+  Spinner,
 } from 'erxes-ui';
 import { useQuery } from '@apollo/client';
 import { useOneFitCustomers } from '../hooks/useOneFitCustomers';
@@ -19,6 +21,8 @@ import { UpdateCreditBalanceDialog } from './UpdateCreditBalanceDialog';
 import { UpdateBookingPreferencesDialog } from './UpdateBookingPreferencesDialog';
 import { ONE_FIT_MEMBERSHIP_PLANS } from '~/modules/membership/graphql/membershipPlanQueries';
 import { CreateMembershipPurchaseDialog } from '~/modules/membership-purchase/components/CreateMembershipPurchaseDialog';
+import { OneFitCustomerDetailContent } from './OneFitCustomerDetailContent';
+import { useOneFitCustomerDetail } from '../hooks/useOneFitCustomerDetail';
 
 interface OneFitCustomersListProps {
   filters?: OneFitCustomerFilters;
@@ -41,6 +45,7 @@ export const OneFitCustomersList = ({ filters }: OneFitCustomersListProps) => {
   const { customers, handleFetchMore, loading, pageInfo } =
     useOneFitCustomers(filters);
   const [selectedCustomer, setSelectedCustomer] = useState<string | null>(null);
+  const [detailSheetOpen, setDetailSheetOpen] = useState(false);
   const [membershipDialogOpen, setMembershipDialogOpen] = useState(false);
   const [creditDialogOpen, setCreditDialogOpen] = useState(false);
   const [preferencesDialogOpen, setPreferencesDialogOpen] = useState(false);
@@ -49,7 +54,36 @@ export const OneFitCustomersList = ({ filters }: OneFitCustomersListProps) => {
     'membership' | 'credit' | 'preferences' | 'purchase'
   >('membership');
 
+  const openDetailSheet = (customerId: string) => {
+    setSelectedCustomer(customerId);
+    setDetailSheetOpen(true);
+  };
+
+  const closeDetailSheet = (open: boolean) => {
+    setDetailSheetOpen(open);
+    if (!open) setSelectedCustomer(null);
+  };
+
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
+
+  const {
+    oneFitCustomer: detailCustomer,
+    loading: detailLoading,
+    refetch: refetchDetail,
+  } = useOneFitCustomerDetail({
+    variables: { _id: selectedCustomer ?? '' },
+    skip: !selectedCustomer || !detailSheetOpen,
+  });
+
+  const detailCustomerName =
+    detailCustomer?.firstName || detailCustomer?.lastName
+      ? [detailCustomer?.firstName, detailCustomer?.lastName]
+          .filter(Boolean)
+          .join(' ')
+          .trim()
+      : detailCustomer?.primaryEmail ||
+        detailCustomer?.primaryPhone ||
+        'Customer';
 
   // Fetch all membership plans to map IDs to names
   const { data: membershipPlansData } = useQuery(ONE_FIT_MEMBERSHIP_PLANS, {
@@ -79,7 +113,13 @@ export const OneFitCustomersList = ({ filters }: OneFitCustomersListProps) => {
               : customer.primaryEmail || customer.primaryPhone || 'Unknown';
           return (
             <RecordTableInlineCell className="text-xs font-medium">
-              {name}
+              <Button
+                variant="link"
+                className="p-0 h-auto text-xs font-medium"
+                onClick={() => openDetailSheet(customer._id)}
+              >
+                {name}
+              </Button>
             </RecordTableInlineCell>
           );
         },
@@ -274,39 +314,94 @@ export const OneFitCustomersList = ({ filters }: OneFitCustomersListProps) => {
           </RecordTable.CursorProvider>
         </RecordTable.Provider>
       </div>
+      <Sheet open={detailSheetOpen} onOpenChange={closeDetailSheet}>
+        <Sheet.View className="sm:max-w-xl">
+          <Sheet.Header>
+            <Sheet.Title>{detailCustomerName}</Sheet.Title>
+            <Sheet.Close />
+          </Sheet.Header>
+          <Sheet.Content className="flex-auto overflow-y-auto">
+            {selectedCustomer ? (
+              <>
+                <div className="p-4 flex flex-wrap gap-2 border-b">
+                  {/* <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      setActionType('membership');
+                      setMembershipDialogOpen(true);
+                    }}
+                  >
+                    Update membership
+                  </Button> */}
+                  {/* <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      setActionType('credit');
+                      setCreditDialogOpen(true);
+                    }}
+                  >
+                    Update credit
+                  </Button> */}
+                  {/* <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      setActionType('preferences');
+                      setPreferencesDialogOpen(true);
+                    }}
+                  >
+                    Update preferences
+                  </Button> */}
+                  {/* <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      setActionType('purchase');
+                      setPurchaseDialogOpen(true);
+                    }}
+                  >
+                    Purchase membership
+                  </Button> */}
+                </div>
+                <div className="p-4">
+                  {detailLoading && !detailCustomer ? (
+                    <Spinner containerClassName="py-20" />
+                  ) : (
+                    <OneFitCustomerDetailContent
+                      oneFitCustomer={detailCustomer}
+                      loading={detailLoading}
+                      refetch={refetchDetail}
+                    />
+                  )}
+                </div>
+              </>
+            ) : null}
+          </Sheet.Content>
+        </Sheet.View>
+      </Sheet>
       {selectedCustomer && (
         <>
           <UpdateMembershipDialog
             customerId={selectedCustomer}
             open={membershipDialogOpen && actionType === 'membership'}
-            onOpenChange={(open) => {
-              setMembershipDialogOpen(open);
-              if (!open) setSelectedCustomer(null);
-            }}
+            onOpenChange={setMembershipDialogOpen}
           />
           <UpdateCreditBalanceDialog
             customerId={selectedCustomer}
             open={creditDialogOpen && actionType === 'credit'}
-            onOpenChange={(open) => {
-              setCreditDialogOpen(open);
-              if (!open) setSelectedCustomer(null);
-            }}
+            onOpenChange={setCreditDialogOpen}
           />
           <UpdateBookingPreferencesDialog
             customerId={selectedCustomer}
             open={preferencesDialogOpen && actionType === 'preferences'}
-            onOpenChange={(open) => {
-              setPreferencesDialogOpen(open);
-              if (!open) setSelectedCustomer(null);
-            }}
+            onOpenChange={setPreferencesDialogOpen}
           />
           <CreateMembershipPurchaseDialog
             defaultUserId={selectedCustomer}
             open={purchaseDialogOpen && actionType === 'purchase'}
-            onOpenChange={(open) => {
-              setPurchaseDialogOpen(open);
-              if (!open) setSelectedCustomer(null);
-            }}
+            onOpenChange={setPurchaseDialogOpen}
           />
         </>
       )}

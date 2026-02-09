@@ -33,6 +33,10 @@ export const ONE_FIT_CUSTOMERS = gql`
         oneFitMembershipPlanId
         oneFitMembershipExpiresAt
         oneFitMembershipStatus
+        oneFitIsMembershipOnHold
+        oneFitMembershipHoldStartAt
+        oneFitMembershipHoldEndAt
+        oneFitMembershipHoldEndedAt
         oneFitCurrentCreditBalance
         oneFitTotalCreditsEarned
         oneFitTotalCreditsUsed
@@ -69,6 +73,10 @@ export const ONE_FIT_CUSTOMER = gql`
       oneFitMembershipPlanId
       oneFitMembershipExpiresAt
       oneFitMembershipStatus
+      oneFitIsMembershipOnHold
+      oneFitMembershipHoldStartAt
+      oneFitMembershipHoldEndAt
+      oneFitMembershipHoldEndedAt
       oneFitCurrentCreditBalance
       oneFitTotalCreditsEarned
       oneFitTotalCreditsUsed

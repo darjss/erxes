@@ -229,6 +229,109 @@ export const providerQueries: Record<string, Resolver> = {
     }
     return provider;
   },
+
+  async oneFitCities(
+    _root: undefined,
+    { isActive }: { isActive?: boolean },
+    context: IContext,
+  ) {
+    const { models } = context;
+    const filter: any = {};
+    if (isActive !== undefined) {
+      filter.isActive = isActive;
+    }
+    return models.City.find(filter).sort({ 'name.en': 1 }).lean();
+  },
+
+  async oneFitDistricts(
+    _root: undefined,
+    { cityId, isActive }: { cityId?: string; isActive?: boolean },
+    context: IContext,
+  ) {
+    const { models } = context;
+    const filter: any = {};
+    if (cityId) {
+      filter.cityId = cityId;
+    }
+    if (isActive !== undefined) {
+      filter.isActive = isActive;
+    }
+    return models.District.find(filter).sort({ 'name.en': 1 }).lean();
+  },
+
+  async oneFitCitiesAdmin(
+    _root: undefined,
+    { isActive, searchValue }: { isActive?: boolean; searchValue?: string },
+    context: IContext,
+  ) {
+    const { models } = context;
+    const filter: any = {};
+
+    if (isActive !== undefined) {
+      filter.isActive = isActive;
+    }
+
+    if (searchValue) {
+      const escaped = escapeRegExp(searchValue);
+      filter.$or = [
+        {
+          'name.en': {
+            $regex: `.*${escaped}.*`,
+            $options: 'i',
+          },
+        },
+        {
+          'name.mn': {
+            $regex: `.*${escaped}.*`,
+            $options: 'i',
+          },
+        },
+      ];
+    }
+
+    return models.City.find(filter).sort({ 'name.en': 1 }).lean();
+  },
+
+  async oneFitDistrictsAdmin(
+    _root: undefined,
+    {
+      cityId,
+      isActive,
+      searchValue,
+    }: { cityId?: string; isActive?: boolean; searchValue?: string },
+    context: IContext,
+  ) {
+    const { models } = context;
+    const filter: any = {};
+
+    if (cityId) {
+      filter.cityId = cityId;
+    }
+
+    if (isActive !== undefined) {
+      filter.isActive = isActive;
+    }
+
+    if (searchValue) {
+      const escaped = escapeRegExp(searchValue);
+      filter.$or = [
+        {
+          'name.en': {
+            $regex: `.*${escaped}.*`,
+            $options: 'i',
+          },
+        },
+        {
+          'name.mn': {
+            $regex: `.*${escaped}.*`,
+            $options: 'i',
+          },
+        },
+      ];
+    }
+
+    return models.District.find(filter).sort({ 'name.en': 1 }).lean();
+  },
 };
 markResolvers(providerQueries, {
   wrapperConfig: {

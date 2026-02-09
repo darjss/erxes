@@ -57,3 +57,34 @@ export interface IProviderDocument extends Document, IProvider {
   createdAt: Date;
   modifiedAt: Date;
 }
+
+export interface ICity {
+  _id: string;
+  name: IMultilingualString;
+  code?: string;
+  isActive?: boolean;
+  createdAt?: Date;
+  modifiedAt?: Date;
+}
+
+export interface ICityDocument extends Document, ICity {
+  _id: string;
+  createdAt: Date;
+  modifiedAt: Date;
+}
+
+export interface IDistrict {
+  _id: string;
+  cityId: string;
+  name: IMultilingualString;
+  code?: string;
+  isActive?: boolean;
+  createdAt?: Date;
+  modifiedAt?: Date;
+}
+
+export interface IDistrictDocument extends Document, IDistrict {
+  _id: string;
+  createdAt: Date;
+  modifiedAt: Date;
+}
