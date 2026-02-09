@@ -703,11 +703,6 @@ const ProviderForm = ({
                     coordinates={form.watch('location.coordinates')}
                     disabled={isRejected}
                     onSelect={(data) => {
-                      form.setValue('location.address', data.address);
-                      form.setValue('location.city', data.city);
-                      if (data.district) {
-                        form.setValue('location.district', data.district);
-                      }
                       form.setValue('location.coordinates', data.coordinates);
                     }}
                   />
