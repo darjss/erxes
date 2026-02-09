@@ -24,6 +24,7 @@ import { ProviderStatus } from '../types/provider';
 import { SelectCategories } from './SelectCategories';
 import { SelectCity } from './SelectCity';
 import { SelectDistrict } from './SelectDistrict';
+import { ProviderLocationMap } from './ProviderLocationMap';
 import { useUploadConfig } from '../../config/hooks/useUploadConfig';
 import { getImageReadUrl, extractImageKey } from '../utils/imageUtils';
 import { OneFitUpload } from '~/components/onefit-upload';
@@ -177,6 +178,7 @@ const ProviderForm = ({
 }: ProviderFormProps) => {
   const isCreate = mode === 'create';
   const [selectedLanguage, setSelectedLanguage] = useState<'en' | 'mn'>('en');
+  const [showMap, setShowMap] = useState(false);
 
   const imageOptions = {
     isSlaveMode: isSlaveMode ?? false,
@@ -685,6 +687,31 @@ const ProviderForm = ({
                     </Form.Item>
                   )}
                 />
+              </div>
+              <div className="space-y-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowMap((prev) => !prev)}
+                  disabled={isRejected}
+                >
+                  {showMap ? 'Hide map' : 'Show map'}
+                </Button>
+                {showMap && (
+                  <ProviderLocationMap
+                    coordinates={form.watch('location.coordinates')}
+                    disabled={isRejected}
+                    onSelect={(data) => {
+                      form.setValue('location.address', data.address);
+                      form.setValue('location.city', data.city);
+                      if (data.district) {
+                        form.setValue('location.district', data.district);
+                      }
+                      form.setValue('location.coordinates', data.coordinates);
+                    }}
+                  />
+                )}
               </div>
             </div>
             <div className="space-y-4 border p-4 rounded-lg">
