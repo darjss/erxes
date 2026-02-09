@@ -1,15 +1,20 @@
 import { useState } from 'react';
-import { useQuery } from '@apollo/client';
+import { useLazyQuery } from '@apollo/client';
 import { Button } from 'erxes-ui';
 import { IconQrcode } from '@tabler/icons-react';
 import { BookingsList } from '~/modules/booking/components/BookingsList';
 import { CreateBookingDialog } from '~/modules/booking/components/CreateBookingDialog';
 import { BookingFiltersComponent } from '~/modules/booking/components/BookingFilters';
-import { BookingFilters, OneFitBooking } from '~/modules/booking/types/booking';
+import {
+  BookingFilters,
+  OneFitBooking,
+  BookingStatus,
+} from '~/modules/booking/types/booking';
 import { OneFitListPageLayout } from '~/components/OneFitListPageLayout';
 import { ScanBookingQrDialog } from '~/modules/booking/components/ScanBookingQrDialog';
 import { ConfirmBookingAttendanceDialog } from '~/modules/booking/components/ConfirmBookingAttendanceDialog';
-import { ONE_FIT_BOOKING_BY_BOOKING_ID } from '~/modules/booking/graphql/bookingQueries';
+import { SelectCustomerBookingDialog } from '~/modules/booking/components/SelectCustomerBookingDialog';
+import { ONE_FIT_BOOKINGS } from '~/modules/booking/graphql/bookingQueries';
 import { toast } from 'erxes-ui';
 import { useOneFitMode } from '~/modules/config/hooks/useOneFitMode';
 
@@ -18,29 +23,60 @@ export function BookingsPage() {
   const [filters, setFilters] = useState<BookingFilters>({});
   const [scanDialogOpen, setScanDialogOpen] = useState(false);
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
-  const [scannedBookingId, setScannedBookingId] = useState<string | null>(null);
+  const [pickerOpen, setPickerOpen] = useState(false);
+  const [confirmBooking, setConfirmBooking] = useState<OneFitBooking | null>(
+    null,
+  );
+  const [pickerBookings, setPickerBookings] = useState<OneFitBooking[]>([]);
 
-  const {
-    data: bookingData,
-    loading: bookingLoading,
-    error: bookingError,
-  } = useQuery(ONE_FIT_BOOKING_BY_BOOKING_ID, {
-    variables: { bookingId: scannedBookingId || '' },
-    skip: !scannedBookingId || !confirmDialogOpen,
-  });
+  const [fetchBookingsByCustomer, { loading: bookingsLoading }] = useLazyQuery(
+    ONE_FIT_BOOKINGS,
+    {
+      onCompleted(data) {
+        const list = data?.oneFitBookings?.list ?? [];
+        if (list.length === 0) {
+          setConfirmDialogOpen(false);
+          toast({
+            title: 'No bookings',
+            description: 'No bookings found for this customer.',
+          });
+          return;
+        }
+        if (list.length === 1) {
+          setConfirmBooking(list[0]);
+          setConfirmDialogOpen(true);
+          return;
+        }
+        setConfirmDialogOpen(false);
+        setPickerBookings(list);
+        setPickerOpen(true);
+      },
+    },
+  );
 
-  const booking: OneFitBooking | null =
-    bookingData?.oneFitBookingByBookingId || null;
-
-  function handleScanSuccess(bookingId: string) {
-    setScannedBookingId(bookingId);
+  function handleScanSuccess(customerId: string) {
     setScanDialogOpen(false);
+    setConfirmBooking(null);
     setConfirmDialogOpen(true);
+    fetchBookingsByCustomer({
+      variables: {
+        userId: customerId,
+        status: BookingStatus.CONFIRMED,
+        limit: 10,
+      },
+    });
   }
 
   function handleConfirmDialogClose() {
     setConfirmDialogOpen(false);
-    setScannedBookingId(null);
+    setConfirmBooking(null);
+  }
+
+  function handleSelectBooking(booking: OneFitBooking) {
+    setPickerOpen(false);
+    setPickerBookings([]);
+    setConfirmBooking(booking);
+    setConfirmDialogOpen(true);
   }
 
   return (
@@ -73,12 +109,19 @@ export function BookingsPage() {
       />
 
       <ConfirmBookingAttendanceDialog
-        booking={booking}
-        loading={bookingLoading}
-        error={bookingError || null}
+        booking={confirmBooking}
+        loading={bookingsLoading}
+        error={null}
         open={confirmDialogOpen}
         onOpenChange={setConfirmDialogOpen}
         onClose={handleConfirmDialogClose}
+      />
+
+      <SelectCustomerBookingDialog
+        bookings={pickerBookings}
+        open={pickerOpen}
+        onOpenChange={setPickerOpen}
+        onSelectBooking={handleSelectBooking}
       />
     </>
   );

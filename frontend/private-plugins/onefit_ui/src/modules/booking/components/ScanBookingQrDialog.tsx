@@ -8,7 +8,7 @@ const QRCODE_RAPTOR_URL = 'https://qrcoderaptor.com/';
 interface ScanBookingQrDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onScanSuccess: (bookingId: string) => void;
+  onScanSuccess: (customerId: string) => void;
 }
 
 export function ScanBookingQrDialog({
@@ -19,7 +19,7 @@ export function ScanBookingQrDialog({
   const [mode, setMode] = useState<'camera' | 'file' | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [fileLoading, setFileLoading] = useState(false);
-  const [manualBookingId, setManualBookingId] = useState('');
+  const [manualCustomerId, setManualCustomerId] = useState('');
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const animationFrameRef = useRef<number | null>(null);
@@ -32,7 +32,7 @@ export function ScanBookingQrDialog({
       stopScanning();
       setMode(null);
       setError(null);
-      setManualBookingId('');
+      setManualCustomerId('');
       return;
     }
     setError(null);
@@ -228,19 +228,19 @@ export function ScanBookingQrDialog({
     stopScanning();
     setMode(null);
     setError(null);
-    setManualBookingId('');
+    setManualCustomerId('');
     onOpenChange(false);
   }
 
   function handleManualLookup() {
-    const id = manualBookingId.trim();
+    const id = manualCustomerId.trim();
     if (!id) {
-      setError('Please enter a booking ID');
+      setError('Please enter a customer ID');
       return;
     }
     setError(null);
     onScanSuccess(id);
-    setManualBookingId('');
+    setManualCustomerId('');
     onOpenChange(false);
   }
 
@@ -248,9 +248,9 @@ export function ScanBookingQrDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <Dialog.Content className="max-w-md">
         <Dialog.Header>
-          <Dialog.Title>Scan Booking QR Code</Dialog.Title>
+          <Dialog.Title>Scan Customer ID</Dialog.Title>
           <Dialog.Description>
-            Scan a QR code to mark booking attendance
+            Scan a customer QR or enter customer ID to mark booking attendance
           </Dialog.Description>
         </Dialog.Header>
 
@@ -295,14 +295,14 @@ export function ScanBookingQrDialog({
                   >
                     QRCodeRaptor
                   </a>{' '}
-                  (qrcoderaptor.com), then paste the booking ID below.
+                  (qrcoderaptor.com), then paste the customer ID below.
                 </p>
                 <div className="flex gap-2">
                   <Input
                     type="text"
-                    placeholder="Enter booking ID"
-                    value={manualBookingId}
-                    onChange={(e) => setManualBookingId(e.target.value)}
+                    placeholder="Enter customer ID"
+                    value={manualCustomerId}
+                    onChange={(e) => setManualCustomerId(e.target.value)}
                     onKeyDown={(e) => {
                       if (e.key === 'Enter') {
                         e.preventDefault();
@@ -314,7 +314,7 @@ export function ScanBookingQrDialog({
                   <Button
                     type="button"
                     onClick={handleManualLookup}
-                    disabled={!manualBookingId.trim()}
+                    disabled={!manualCustomerId.trim()}
                   >
                     Look up
                   </Button>
