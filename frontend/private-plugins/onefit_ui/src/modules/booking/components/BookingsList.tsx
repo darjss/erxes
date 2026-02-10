@@ -64,6 +64,18 @@ export const BookingsList = ({ filters }: BookingsListProps) => {
 
   const columns: ColumnDef<any>[] = [
     {
+      accessorKey: 'bookingId',
+      header: 'Booking ID',
+      cell: ({ row }) => {
+        const booking = row.original;
+        return (
+          <RecordTableInlineCell className="text-xs font-medium font-mono">
+            {booking.bookingId ?? '-'}
+          </RecordTableInlineCell>
+        );
+      },
+    },
+    {
       accessorKey: 'user',
       header: 'User',
       cell: ({ row }) => {

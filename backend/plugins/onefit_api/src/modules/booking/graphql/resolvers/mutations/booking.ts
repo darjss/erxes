@@ -144,11 +144,7 @@ async function createBookingLogic(
   let creditSource = CreditSource.INDIVIDUAL;
   let corporateCreditId: string | undefined;
 
-  // Generate booking ID
-  const bookingId = `BK${Date.now()}${Math.floor(Math.random() * 1000)}`;
-
-  // Create booking
-  const booking: IBooking = {
+  const booking: Omit<IBooking, 'bookingId'> = {
     userId,
     providerId,
     activityTypeId,
@@ -158,7 +154,6 @@ async function createBookingLogic(
     creditCost: activityType.creditCost,
     status: BookingStatus.CONFIRMED,
     attendanceStatus: AttendanceStatus.PENDING,
-    bookingId,
   };
 
   const createdBooking = await models.Booking.createBooking(booking);
