@@ -62,6 +62,11 @@ export const activityTypeSchema = new Schema(
       label: 'Cancellation Deadline (hours)',
       default: 0,
     },
+    singlePersonLimit: {
+      type: Number,
+      label: 'Single Person Limit',
+      default: 5,
+    },
     image: { type: String, label: 'Image URL', optional: true },
   },
   {

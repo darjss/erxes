@@ -32,6 +32,7 @@ export const types = `
     categories: [OneFitActivityCategory]
     isActive: Boolean
     cancellationDeadline: Int
+    singlePersonLimit: Int
     image: String
   }
 
@@ -57,6 +58,7 @@ export const types = `
     categories: [OneFitActivityCategory]
     isActive: Boolean
     cancellationDeadline: Int
+    singlePersonLimit: Int
     availability: OneFitDayAvailability
   }
 
@@ -102,6 +104,7 @@ const mutationParams = `
   categoryIds: [String]!
   isActive: Boolean
   cancellationDeadline: Int
+  singlePersonLimit: Int
   image: String
 `;
 
@@ -114,6 +117,7 @@ const updateParams = `
   categoryIds: [String]
   isActive: Boolean
   cancellationDeadline: Int
+  singlePersonLimit: Int
   image: String
 `;
 

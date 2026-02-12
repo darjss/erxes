@@ -122,6 +122,45 @@ async function createBookingLogic(
     throw new Error('User already has a booking for this time slot');
   }
 
+  // Check single-person limit: in any 30-day window, user cannot exceed activityType.singlePersonLimit bookings for this activity
+  const singlePersonLimit = activityType.singlePersonLimit ?? 5;
+  const MS_PER_DAY = 24 * 60 * 60 * 1000;
+  const rangeStart = new Date(
+    bookingDatePure.getTime() - 29 * MS_PER_DAY,
+  );
+  const rangeEnd = new Date(
+    bookingDatePure.getTime() + 30 * MS_PER_DAY,
+  );
+  const existingInRange = await models.Booking.find(
+    {
+      userId,
+      activityTypeId,
+      status: { $ne: BookingStatus.CANCELLED },
+      bookingDate: { $gte: rangeStart, $lt: rangeEnd },
+    },
+    { bookingDate: 1 },
+  ).lean();
+
+  let maxCountInAnyWindow = 0;
+  for (let offset = 0; offset < 30; offset++) {
+    const windowStartMs =
+      bookingDatePure.getTime() - (29 - offset) * MS_PER_DAY;
+    const windowEndMs = windowStartMs + 30 * MS_PER_DAY;
+    const count = existingInRange.filter(
+      (b) =>
+        b.bookingDate.getTime() >= windowStartMs &&
+        b.bookingDate.getTime() < windowEndMs,
+    ).length;
+    if (count > maxCountInAnyWindow) {
+      maxCountInAnyWindow = count;
+    }
+  }
+  if (maxCountInAnyWindow >= singlePersonLimit) {
+    throw new Error(
+      `You have reached the maximum number of bookings (${singlePersonLimit}) for this activity in a 30-day period.`,
+    );
+  }
+
   // Check membership is not on hold (booking not allowed during hold)
   const oneFitCustomerForHold = await models.OneFitCustomer.getOneFitCustomer(
     userId,

@@ -55,6 +55,10 @@ const baseActivityTypeSchema = z.object({
     .number()
     .min(0, { message: 'Cancellation deadline must be 0 or greater' })
     .optional(),
+  singlePersonLimit: z
+    .number()
+    .min(1, { message: 'Single person limit must be at least 1' })
+    .optional(),
   image: z.string().optional(),
 });
 
@@ -213,6 +217,7 @@ const ActivityTypeForm = ({
       categoryIds: [],
       isActive: true,
       cancellationDeadline: 0,
+      singlePersonLimit: 5,
       image: '',
       ...(isCreate && { providerId: '' }),
     },
@@ -233,6 +238,7 @@ const ActivityTypeForm = ({
         categoryIds: activityType.categoryIds || [],
         isActive: activityType.isActive,
         cancellationDeadline: activityType.cancellationDeadline || 0,
+        singlePersonLimit: activityType.singlePersonLimit ?? 5,
         image: activityType.image || '',
       });
     }
@@ -272,6 +278,7 @@ const ActivityTypeForm = ({
           isActive:
             createData.isActive !== undefined ? createData.isActive : true,
           cancellationDeadline: createData.cancellationDeadline,
+          singlePersonLimit: createData.singlePersonLimit ?? 5,
           image: createData.image || undefined,
         },
         onCompleted: () => {
@@ -299,6 +306,7 @@ const ActivityTypeForm = ({
               : undefined,
           isActive: editData.isActive,
           cancellationDeadline: editData.cancellationDeadline,
+          singlePersonLimit: editData.singlePersonLimit,
           image: editData.image || undefined,
         },
         onCompleted: () => {
@@ -615,6 +623,32 @@ const ActivityTypeForm = ({
                       onChange={(e) =>
                         field.onChange(
                           e.target.value ? parseFloat(e.target.value) : 0,
+                        )
+                      }
+                    />
+                  </Form.Control>
+                  <Form.Message />
+                </Form.Item>
+              )}
+            />
+            <Form.Field
+              control={form.control}
+              name="singlePersonLimit"
+              render={({ field }) => (
+                <Form.Item>
+                  <Form.Label>Single Person Limit</Form.Label>
+                  <Form.Control>
+                    <Input
+                      {...field}
+                      type="number"
+                      min="1"
+                      placeholder="Max bookings per person (default 5)"
+                      value={field.value ?? ''}
+                      onChange={(e) =>
+                        field.onChange(
+                          e.target.value
+                            ? parseInt(e.target.value, 10)
+                            : undefined,
                         )
                       }
                     />
