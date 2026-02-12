@@ -549,6 +549,10 @@ export const bookingMutations: Record<string, Resolver> = {
       throw new Error('You do not have permission to cancel this booking');
     }
 
+    if (booking.attendanceStatus === AttendanceStatus.NO_SHOW) {
+      throw new Error('Cannot cancel a booking that was marked as no-show');
+    }
+
     return cancelBookingLogic(_id, userId, reason, {
       models,
       subdomain,
