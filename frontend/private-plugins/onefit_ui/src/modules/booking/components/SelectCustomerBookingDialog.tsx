@@ -28,6 +28,13 @@ export function SelectCustomerBookingDialog({
     b.provider ? getLocalizedString(b.provider.businessName, 'en') : '-';
   const activityName = (b: OneFitBooking) =>
     b.activityType ? getLocalizedString(b.activityType.name, 'en') : '-';
+  const dateLabel = (b: OneFitBooking) =>
+    new Date(b.bookingDate).toLocaleDateString(undefined, {
+      weekday: 'short',
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+    });
   const timeLabel = (b: OneFitBooking) =>
     `${b.startTime} - ${b.endTime}`;
 
@@ -52,7 +59,7 @@ export function SelectCustomerBookingDialog({
             >
               <span className="font-medium">{providerName(booking)}</span>
               <span className="text-sm text-muted-foreground">
-                {activityName(booking)} · {timeLabel(booking)}
+                {activityName(booking)} · {dateLabel(booking)} · {timeLabel(booking)}
               </span>
             </button>
           ))}
