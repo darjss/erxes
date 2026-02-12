@@ -29,7 +29,7 @@ export async function processBookingNoShow(
       $lte: getPureDate(cutoff),
     },
   }).lean();
-
+  console.log('candidates', candidates.length);
   for (const booking of candidates) {
     const slotEnd = getSlotEnd(booking.bookingDate, booking.endTime);
     if (slotEnd < cutoff) {
