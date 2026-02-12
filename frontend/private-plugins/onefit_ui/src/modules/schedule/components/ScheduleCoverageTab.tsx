@@ -176,7 +176,7 @@ export function ScheduleCoverageTab({
     });
 
     return sorted;
-  }, [rows, mode, activityTypeId, providerStatus, approvalStatus]);
+  }, [rows, mode, activityTypeId, providerStatus, approvalStatus, nameFilter]);
 
   const summary = useMemo(() => {
     const total = filteredRows.length;
@@ -224,15 +224,8 @@ export function ScheduleCoverageTab({
           </Button>
         </div>
 
-        <OneFitFilterBase
-          filters={{
-            providerId,
-            year,
-            month,
-          }}
-          onFiltersChange={() => undefined}
-        >
-          <div className="grid grid-cols-1 sm:grid-cols-5 gap-3">
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="w-full sm:w-64">
             <FilterField label="Search by name">
               <input
                 type="text"
@@ -242,7 +235,18 @@ export function ScheduleCoverageTab({
                 onChange={(event) => setNameFilter(event.target.value)}
               />
             </FilterField>
+          </div>
+        </div>
 
+        <OneFitFilterBase
+          filters={{
+            providerId,
+            year,
+            month,
+          }}
+          onFiltersChange={() => undefined}
+        >
+          <div className="grid grid-cols-1 sm:grid-cols-5 gap-3">
             <FilterField label="Provider">
               <SelectProviderSearchable
                 value={providerId || ''}
@@ -399,12 +403,22 @@ export function ScheduleCoverageTab({
               },
             },
             {
-              id: 'providerStatus',
-              header: 'Provider status',
+              id: 'providerMeta',
+              header: 'Provider status / approval',
               cell: ({ row }) => {
                 const record = row.original as CoverageRow;
+                const approvalLabel = record.providerStatus ?? 'unknown';
+                const approvalVariant =
+                  approvalLabel === 'approved'
+                    ? 'success'
+                    : approvalLabel === 'pending'
+                    ? 'warning'
+                    : approvalLabel === 'rejected'
+                    ? 'destructive'
+                    : 'secondary';
+
                 return (
-                  <RecordTableInlineCell>
+                  <RecordTableInlineCell className="flex flex-wrap gap-1">
                     <Badge
                       variant={
                         record.providerIsActive ? 'success' : 'secondary'
@@ -413,32 +427,12 @@ export function ScheduleCoverageTab({
                     >
                       {record.providerIsActive ? 'Active' : 'Inactive'}
                     </Badge>
-                  </RecordTableInlineCell>
-                );
-              },
-            },
-            {
-              id: 'approvalStatus',
-              header: 'Approval status',
-              cell: ({ row }) => {
-                const record = row.original as CoverageRow;
-                const label = record.providerStatus ?? 'unknown';
-                const variant =
-                  label === 'approved'
-                    ? 'success'
-                    : label === 'pending'
-                    ? 'warning'
-                    : label === 'rejected'
-                    ? 'destructive'
-                    : 'secondary';
-
-                return (
-                  <RecordTableInlineCell>
                     <Badge
-                      variant={variant}
+                      variant={approvalVariant}
                       className="text-[11px] px-2 py-0.5"
                     >
-                      {label.charAt(0).toUpperCase() + label.slice(1)}
+                      {approvalLabel.charAt(0).toUpperCase() +
+                        approvalLabel.slice(1)}
                     </Badge>
                   </RecordTableInlineCell>
                 );

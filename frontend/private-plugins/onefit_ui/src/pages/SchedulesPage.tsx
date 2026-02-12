@@ -40,12 +40,10 @@ export function SchedulesPage() {
     {
       value: 'coverage',
       label: 'Coverage',
-      filters: templateFilters,
-      onFiltersChange: setTemplateFilters,
-      filtersComponent: ScheduleTemplateFiltersComponent,
-      listComponent: () => (
-        <ScheduleCoverageTab initialFilters={templateFilters} />
-      ),
+      filters: {},
+      onFiltersChange: () => undefined,
+      filtersComponent: () => null,
+      listComponent: () => <ScheduleCoverageTab />,
     },
     {
       value: 'exceptions',
