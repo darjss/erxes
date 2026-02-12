@@ -247,11 +247,11 @@ export const scheduleQueries = {
     // Process each day in the month
     for (let day = 1; day <= daysInMonth; day++) {
       const currentDate = new Date(year, month - 1, day);
-      console.log('currentDate', currentDate);
       const dateKey = currentDate.getTime();
+      const isBlocked = exceptionDates.has(dateKey);
 
       // Check if there's an exception for this date
-      if (exceptionDates.has(dateKey)) {
+      if (isBlocked) {
         // Find the daily schedule to get totalSeats
         const dayOfWeek = getDayOfWeek(currentDate);
         const dailySchedule = scheduleTemplate?.dailySchedules.find(
@@ -267,6 +267,7 @@ export const scheduleQueries = {
           totalSeats: dailySchedule?.dailyLimit || 0,
           bookedSeats: 0,
           hasSchedule: !!scheduleTemplate && !!dailySchedule,
+          isBlockedByException: true,
           schedule: dailySchedule
             ? {
                 dayOfWeek,
@@ -290,6 +291,7 @@ export const scheduleQueries = {
           totalSeats: 0,
           bookedSeats: 0,
           hasSchedule: false,
+          isBlockedByException: false,
         });
         continue;
       }
@@ -312,6 +314,7 @@ export const scheduleQueries = {
           totalSeats: 0,
           bookedSeats: 0,
           hasSchedule: false,
+          isBlockedByException: false,
         });
         continue;
       }
@@ -329,6 +332,7 @@ export const scheduleQueries = {
         totalSeats,
         bookedSeats,
         hasSchedule: true,
+        isBlockedByException: false,
         schedule: {
           dayOfWeek,
           activityTypeId,

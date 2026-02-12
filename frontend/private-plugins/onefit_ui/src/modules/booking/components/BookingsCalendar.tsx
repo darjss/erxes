@@ -13,10 +13,18 @@ import {
   parseISO,
   startOfDay,
 } from 'date-fns';
-import { Button, ScrollArea } from 'erxes-ui';
-import { IconChevronLeft, IconChevronRight } from '@tabler/icons-react';
+import { Button, ScrollArea, Tooltip } from 'erxes-ui';
+import {
+  IconBan,
+  IconCalendarOff,
+  IconChevronLeft,
+  IconChevronRight,
+  IconCircleCheck,
+} from '@tabler/icons-react';
 import { useBookingsForMonth } from '../hooks/useBookingsForMonth';
+import { useMonthAvailability } from '../hooks/useMonthAvailability';
 import { BookingFilters, OneFitBooking } from '../types/booking';
+import type { OneFitDayAvailability } from '../types/schedule';
 import { getLocalizedString } from '~/modules/activity-type/utils/localization';
 
 const WEEKDAY_LABELS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
@@ -45,6 +53,48 @@ function groupBookingsByDay(bookings: OneFitBooking[]): Map<number, OneFitBookin
   return map;
 }
 
+function ScheduleStatusIndicator({
+  availability,
+}: {
+  availability: OneFitDayAvailability;
+}) {
+  const { isBlockedByException, hasSchedule, seatsLeft } = availability;
+  if (isBlockedByException) {
+    return (
+      <Tooltip>
+        <Tooltip.Trigger asChild>
+          <span className="text-destructive inline-flex cursor-default">
+            <IconBan className="h-3.5 w-3.5" />
+          </span>
+        </Tooltip.Trigger>
+        <Tooltip.Content>Blocked by exception</Tooltip.Content>
+      </Tooltip>
+    );
+  }
+  if (!hasSchedule) {
+    return (
+      <Tooltip>
+        <Tooltip.Trigger asChild>
+          <span className="text-muted-foreground inline-flex cursor-default">
+            <IconCalendarOff className="h-3.5 w-3.5" />
+          </span>
+        </Tooltip.Trigger>
+        <Tooltip.Content>No schedule</Tooltip.Content>
+      </Tooltip>
+    );
+  }
+  return (
+    <Tooltip>
+      <Tooltip.Trigger asChild>
+        <span className="text-green-600 dark:text-green-500 inline-flex cursor-default">
+          <IconCircleCheck className="h-3.5 w-3.5" />
+        </span>
+      </Tooltip.Trigger>
+      <Tooltip.Content>Has schedule – {seatsLeft} seats left</Tooltip.Content>
+    </Tooltip>
+  );
+}
+
 interface BookingsCalendarProps {
   filters?: BookingFilters;
 }
@@ -52,6 +102,14 @@ interface BookingsCalendarProps {
 export function BookingsCalendar({ filters }: BookingsCalendarProps) {
   const [currentMonth, setCurrentMonth] = useState(() => new Date());
   const { bookings, loading, error } = useBookingsForMonth(currentMonth, filters);
+  const { daysByDate } = useMonthAvailability(
+    currentMonth,
+    filters?.providerId,
+    filters?.activityTypeId,
+  );
+  const hasAvailabilityData =
+    Boolean(filters?.providerId && filters?.activityTypeId) &&
+    daysByDate.size > 0;
 
   const { calendarDays, bookingsByDay } = useMemo(() => {
     const monthStart = startOfMonth(currentMonth);
@@ -134,6 +192,10 @@ export function BookingsCalendar({ filters }: BookingsCalendarProps) {
               const dayBookings = bookingsByDay.get(dayKey) ?? [];
               const isCurrentMonth = isSameMonth(day, currentMonth);
               const isTodayDate = isToday(day);
+              const availability =
+                isCurrentMonth && hasAvailabilityData
+                  ? daysByDate.get(dayKey)
+                  : undefined;
 
               return (
                 <div
@@ -142,15 +204,20 @@ export function BookingsCalendar({ filters }: BookingsCalendarProps) {
                     !isCurrentMonth ? 'opacity-50' : ''
                   }`}
                 >
-                  <span
-                    className={`inline-flex items-center justify-center text-sm font-medium shrink-0 w-7 h-7 ${
-                      isTodayDate
-                        ? 'bg-primary text-primary-foreground rounded-full'
-                        : ''
-                    }`}
-                  >
-                    {format(day, 'd')}
-                  </span>
+                  <div className="flex items-center justify-between gap-0.5 shrink-0">
+                    <span
+                      className={`inline-flex items-center justify-center text-sm font-medium w-7 h-7 ${
+                        isTodayDate
+                          ? 'bg-primary text-primary-foreground rounded-full'
+                          : ''
+                      }`}
+                    >
+                      {format(day, 'd')}
+                    </span>
+                    {availability && (
+                      <ScheduleStatusIndicator availability={availability} />
+                    )}
+                  </div>
                   <div className="flex-1 overflow-hidden flex flex-col gap-0.5 mt-1 min-h-0">
                     {dayBookings
                       .slice(0, MAX_VISIBLE_BOOKINGS_PER_CELL)
