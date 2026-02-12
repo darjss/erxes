@@ -10,6 +10,7 @@ import { ScheduleExceptionsList } from '~/modules/schedule/components/ScheduleEx
 import { ScheduleExceptionFiltersComponent } from '~/modules/schedule/components/ScheduleExceptionFilters';
 import { CreateScheduleExceptionDialog } from '~/modules/schedule/components/CreateScheduleExceptionDialog';
 import { ScheduleExceptionFilters } from '~/modules/schedule/types/schedule';
+import { ScheduleCoverageTab } from '~/modules/schedule/components/ScheduleCoverageTab';
 import { OneFitTabbedListPageLayout } from '~/components/OneFitTabbedListPageLayout';
 
 export function SchedulesPage() {
@@ -34,6 +35,16 @@ export function SchedulesPage() {
         <Button variant="outline" onClick={() => setCopyDialogOpen(true)}>
           Copy Previous Month
         </Button>
+      ),
+    },
+    {
+      value: 'coverage',
+      label: 'Coverage',
+      filters: templateFilters,
+      onFiltersChange: setTemplateFilters,
+      filtersComponent: ScheduleTemplateFiltersComponent,
+      listComponent: () => (
+        <ScheduleCoverageTab initialFilters={templateFilters} />
       ),
     },
     {

@@ -11,6 +11,7 @@ import {
 } from '../utils/filters';
 import { DayOfWeek } from '@/schedule/@types/schedule';
 import { BookingStatus } from '@/booking/@types/booking';
+import { IModels } from '~/connectionResolvers';
 
 export interface IScheduleTemplateQueryParams extends ICursorPaginateParams {
   providerId?: string;
@@ -204,6 +205,7 @@ export const scheduleQueries = {
       totalSeats: number;
       bookedSeats: number;
       hasSchedule: boolean;
+      isBlockedByException: boolean;
       schedule?: {
         dayOfWeek: DayOfWeek;
         activityTypeId: string;
@@ -278,7 +280,7 @@ export const scheduleQueries = {
                 dailyLimit: dailySchedule.dailyLimit,
               }
             : undefined,
-        });
+        } as (typeof days)[number]);
         continue;
       }
 
@@ -292,7 +294,7 @@ export const scheduleQueries = {
           bookedSeats: 0,
           hasSchedule: false,
           isBlockedByException: false,
-        });
+        } as (typeof days)[number]);
         continue;
       }
 
@@ -315,7 +317,7 @@ export const scheduleQueries = {
           bookedSeats: 0,
           hasSchedule: false,
           isBlockedByException: false,
-        });
+        } as (typeof days)[number]);
         continue;
       }
 
@@ -341,7 +343,7 @@ export const scheduleQueries = {
           endTime: dailySchedule.endTime,
           dailyLimit: dailySchedule.dailyLimit,
         },
-      });
+      } as (typeof days)[number]);
     }
 
     // If lastDays is provided, return only days between currentDate and currentDate + lastDays
@@ -371,6 +373,169 @@ export const scheduleQueries = {
       month,
       days: resultDays,
     };
+  },
+
+  async oneFitScheduleCoverageSummary(
+    _root: undefined,
+    params: {
+      providerId?: string;
+      activityTypeId?: string;
+      year: number;
+      month: number;
+    },
+    context: IContext,
+  ) {
+    const { models, instanceId } = context;
+    const { providerId, activityTypeId, year, month } = params;
+
+    const providerFilter: any = {};
+
+    if (instanceId) {
+      providerFilter.instanceId = instanceId;
+    }
+
+    if (providerId) {
+      providerFilter._id = providerId;
+    }
+
+    const providers = await models.Provider.find(providerFilter).lean();
+
+    if (providers.length === 0) {
+      return [];
+    }
+
+    const providerIds = providers.map((p) => p._id.toString());
+
+    const providersById = new Map<string, (typeof providers)[number]>();
+    for (const provider of providers) {
+      providersById.set(provider._id.toString(), provider);
+    }
+
+    const templateFilter = await generateTemplateFilter(
+      {
+        providerId,
+        year,
+        month,
+        activityTypeId,
+      },
+      context,
+    );
+
+    const templates = await models.ScheduleTemplate.find(templateFilter);
+
+    const activityTypesFilter: any = {};
+
+    if (providerId) {
+      activityTypesFilter.providerId = providerId;
+    } else {
+      activityTypesFilter.providerId = { $in: providerIds };
+    }
+
+    if (activityTypeId) {
+      activityTypesFilter._id = activityTypeId;
+    }
+
+    const activityTypes = await models.ActivityType.find(
+      activityTypesFilter,
+    ).lean();
+
+    const activityTypesById = new Map<
+      string,
+      (typeof activityTypes)[number]
+    >();
+    for (const at of activityTypes) {
+      activityTypesById.set(at._id.toString(), at);
+    }
+
+    const daysInMonth = new Date(year, month, 0).getDate();
+
+    const rows: Array<{
+      providerId: string;
+      provider: any;
+      providerIsActive: boolean;
+      providerStatus: string | null;
+      activityTypeId?: string;
+      activityType?: any;
+      year: number;
+      month: number;
+      hasTemplate: boolean;
+      hasAnySchedule: boolean;
+      missingDaysCount: number;
+    }> = [];
+
+    for (const pid of providerIds) {
+      const providerTemplates = templates.filter(
+        (t) => t.providerId === pid,
+      );
+      const provider = providersById.get(pid) || null;
+      const providerIsActive = Boolean(provider?.isActive);
+      const providerStatus = (provider?.status as string | undefined) ?? null;
+      const providerTemplate = providerTemplates[0];
+      const providerActivityTypes = activityTypes.filter(
+        (at) => at.providerId?.toString() === pid,
+      );
+
+      const hasTemplate = providerTemplates.length > 0;
+      const hasAnyScheduleOverall = providerTemplates.some(
+        (t) => (t.dailySchedules?.length ?? 0) > 0,
+      );
+
+      if (!activityTypeId) {
+        rows.push({
+          providerId: pid,
+          provider,
+          providerIsActive,
+          providerStatus,
+          activityTypeId: undefined,
+          activityType: undefined,
+          year,
+          month,
+          hasTemplate,
+          hasAnySchedule: hasAnyScheduleOverall,
+          missingDaysCount: hasAnyScheduleOverall ? 0 : daysInMonth,
+        });
+      }
+
+      for (const at of providerActivityTypes) {
+        const dailySchedules =
+          providerTemplate?.dailySchedules?.filter(
+            (s) => s.activityTypeId === at._id.toString(),
+          ) ?? [];
+
+        const hasTemplateForActivity = Boolean(providerTemplate);
+        const hasAnyScheduleForActivity = dailySchedules.length > 0;
+
+        const hasScheduleForDayOfWeek = new Set<DayOfWeek>();
+        for (const s of dailySchedules) {
+          hasScheduleForDayOfWeek.add(s.dayOfWeek as DayOfWeek);
+        }
+
+        let missingDaysCount = 0;
+        for (let day = 1; day <= daysInMonth; day++) {
+          const currentDate = new Date(year, month - 1, day);
+          const dayOfWeek = getDayOfWeek(currentDate);
+          if (!hasScheduleForDayOfWeek.has(dayOfWeek)) {
+            missingDaysCount += 1;
+          }
+        }
+
+        rows.push({
+          providerId: pid,
+          provider,
+          providerIsActive,
+          providerStatus,
+          activityTypeId: at._id.toString(),
+          activityType: activityTypesById.get(at._id.toString()) || null,
+          year,
+          month,
+          hasTemplate: hasTemplateForActivity,
+          hasAnySchedule: hasAnyScheduleForActivity,
+          missingDaysCount,
+        });
+      }
+    }
+
+    return rows;
   },
 };
 markResolvers(scheduleQueries, {
