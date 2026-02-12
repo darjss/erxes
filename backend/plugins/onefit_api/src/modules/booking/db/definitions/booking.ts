@@ -2,10 +2,6 @@ import { mongooseStringRandomId } from 'erxes-api-shared/utils';
 import { Schema } from 'mongoose';
 import { BookingStatus, AttendanceStatus } from '@/booking/@types/booking';
 
-function generateBookingId(): string {
-  return `BK${Date.now()}${Math.floor(Math.random() * 1000)}`;
-}
-
 export const bookingSchema = new Schema(
   {
     _id: mongooseStringRandomId,
@@ -50,7 +46,6 @@ export const bookingSchema = new Schema(
       type: String,
       required: true,
       unique: true,
-      default: generateBookingId,
       label: 'Booking ID',
     },
     cancelledAt: { type: Date, label: 'Cancelled At' },

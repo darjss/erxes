@@ -46,6 +46,83 @@ const isConfigQuery = (query: string, operationName?: string): boolean => {
 };
 
 /**
+ * Operations that must never run locally in slave mode.
+ * Config mutations should only be executed on master.
+ */
+const BLOCKED_IN_SLAVE = [
+  'oneFitSystemConfigCreate',
+  'oneFitSystemConfigUpdate',
+  'oneFitSystemConfigsRemove',
+  'oneFitSystemConfigUpdateSelectedPayments',
+  'oneFitCreditTransactionsRemove',
+  'oneFitCreditTransactionCreate',
+  'oneFitCreditTransactionsBulkCreate',
+  'oneFitCustomerUpdateCreditBalance',
+  'oneFitCreditTransactions',
+  'oneFitCreditTransactionsCount',
+  'oneFitCreditTransaction',
+  'oneFitUserCreditBalance',
+  'oneFitUserCreditTransactions',
+  'oneFitMembershipPlans',
+  'oneFitMembershipPlansCount',
+  'oneFitMembershipPlan',
+  'oneFitActiveMembershipPlans',
+  'oneFitMembershipPurchases',
+  'oneFitMembershipPurchase',
+  'cpOneFitMembershipPurchases',
+  'cpOneFitMembershipPurchase',
+  'oneFitMembershipPlanCreate',
+  'oneFitMembershipPlanUpdate',
+  'oneFitMembershipPlansRemove',
+  'oneFitMembershipPurchaseCreate',
+  'oneFitMembershipPurchaseActivate',
+  'cpOneFitMembershipPurchaseCreate',
+  'cpOneFitMembershipPurchaseActivate',
+  'cpOneFitMembershipHoldStart',
+  'cpOneFitMembershipHoldCancel',
+  'cpOneFitMembershipCheckPromoDiscount',
+  'oneFitBanners',
+  'oneFitBannersCount',
+  'oneFitBanner',
+  'oneFitBannerCreate',
+  'oneFitBannerUpdate',
+  'oneFitBannersRemove',
+  'oneFitPromoCodes',
+  'oneFitPromoCodesCount',
+  'oneFitPromoCode',
+  'oneFitPromoCodeCreate',
+  'oneFitPromoCodeUpdate',
+  'oneFitPromoCodesRemove',
+  'oneFitActivityCategoryCreate',
+  'oneFitActivityCategoryUpdate',
+  'oneFitActivityCategoriesRemove',
+  'oneFitCityCreate',
+  'oneFitCityUpdate',
+  'oneFitCityRemove',
+  'oneFitDistrictCreate',
+  'oneFitDistrictUpdate',
+  'oneFitDistrictRemove',
+  'oneFitCustomers',
+];
+
+const isBlockedOperation = (
+  query: string,
+  operationName: string | undefined,
+  blocklist: string[],
+): boolean => {
+  if (operationName && blocklist.includes(operationName)) {
+    return true;
+  }
+  for (const op of blocklist) {
+    const regex = new RegExp(`\\b${op}\\b`, 'i');
+    if (regex.test(query)) {
+      return true;
+    }
+  }
+  return false;
+};
+
+/**
  * Middleware that intercepts GraphQL requests in slave mode
  * and forwards them to the master instance
  * Config queries are handled locally instead of being proxied
@@ -76,6 +153,19 @@ export const graphqlProxyMiddleware = async (
     // Check if this is a config query - if so, handle it locally
     if (isConfigQuery(query, operationName)) {
       return next();
+    }
+
+    // Block config mutations in slave - must use master for config changes
+    if (isBlockedOperation(query, operationName, BLOCKED_IN_SLAVE)) {
+      return res.json({
+        data: null,
+        errors: [
+          {
+            message: 'OPERATION_NOT_ALLOWED_IN_SLAVE_MODE',
+            extensions: { code: 'FORBIDDEN' },
+          },
+        ],
+      });
     }
 
     const masterClient = getMasterClient();
@@ -142,6 +232,16 @@ export const graphqlProxyMiddleware = async (
       });
     }
     return res.json(result);
-  } catch (error: any) {}
-  return next();
+  } catch (error: any) {
+    console.error('Master proxy failed:', error?.message);
+    return res.status(503).json({
+      data: null,
+      errors: [
+        {
+          message: 'SLAVE_MODE_MASTER_UNAVAILABLE',
+          extensions: { code: 'SERVICE_UNAVAILABLE' },
+        },
+      ],
+    });
+  }
 };
