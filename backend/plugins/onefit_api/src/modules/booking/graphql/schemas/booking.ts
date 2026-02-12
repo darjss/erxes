@@ -48,6 +48,8 @@ const bookingQueryParams = `
   providerId: String,
   activityTypeId: String,
   bookingDate: Date,
+  startDate: Date,
+  endDate: Date,
   status: OneFitBookingStatus,
   attendanceStatus: OneFitAttendanceStatus,
 `;
@@ -56,6 +58,8 @@ const cpBookingQueryParams = `
   providerId: String,
   activityTypeId: String,
   bookingDate: Date,
+  startDate: Date,
+  endDate: Date,
   status: OneFitBookingStatus,
   attendanceStatus: OneFitAttendanceStatus,
 `;

@@ -13,6 +13,8 @@ export interface IBookingQueryParams extends ICursorPaginateParams {
   providerId?: string;
   activityTypeId?: string;
   bookingDate?: Date;
+  startDate?: Date;
+  endDate?: Date;
   status?: BookingStatus;
   attendanceStatus?: AttendanceStatus;
 }
@@ -40,7 +42,18 @@ const generateFilter = async (
     filter.activityTypeId = params.activityTypeId;
   }
 
-  if (params.bookingDate) {
+  if (params.startDate != null || params.endDate != null) {
+    if (params.startDate != null) {
+      filter.bookingDate = filter.bookingDate || {};
+      filter.bookingDate.$gte = getPureDate(params.startDate);
+    }
+    if (params.endDate != null) {
+      const endDateEod = new Date(getPureDate(params.endDate));
+      endDateEod.setHours(23, 59, 59, 999);
+      filter.bookingDate = filter.bookingDate || {};
+      filter.bookingDate.$lte = endDateEod;
+    }
+  } else if (params.bookingDate) {
     const dateStart = getPureDate(params.bookingDate);
     const dateEnd = new Date(dateStart);
     dateEnd.setHours(23, 59, 59, 999);

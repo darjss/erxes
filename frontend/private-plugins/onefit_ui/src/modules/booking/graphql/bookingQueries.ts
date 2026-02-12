@@ -7,6 +7,8 @@ export const ONE_FIT_BOOKINGS = gql`
     $providerId: String
     $activityTypeId: String
     $bookingDate: Date
+    $startDate: Date
+    $endDate: Date
     $status: OneFitBookingStatus
     $attendanceStatus: OneFitAttendanceStatus
     ${GQL_CURSOR_PARAM_DEFS}
@@ -16,6 +18,8 @@ export const ONE_FIT_BOOKINGS = gql`
       providerId: $providerId
       activityTypeId: $activityTypeId
       bookingDate: $bookingDate
+      startDate: $startDate
+      endDate: $endDate
       status: $status
       attendanceStatus: $attendanceStatus
       ${GQL_CURSOR_PARAMS}
@@ -78,6 +82,8 @@ export const ONE_FIT_BOOKINGS_COUNT = gql`
     $providerId: String
     $activityTypeId: String
     $bookingDate: Date
+    $startDate: Date
+    $endDate: Date
     $status: OneFitBookingStatus
     $attendanceStatus: OneFitAttendanceStatus
   ) {
@@ -86,6 +92,8 @@ export const ONE_FIT_BOOKINGS_COUNT = gql`
       providerId: $providerId
       activityTypeId: $activityTypeId
       bookingDate: $bookingDate
+      startDate: $startDate
+      endDate: $endDate
       status: $status
       attendanceStatus: $attendanceStatus
     )
