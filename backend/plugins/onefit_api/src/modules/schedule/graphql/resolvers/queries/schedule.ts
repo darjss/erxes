@@ -454,6 +454,7 @@ export const scheduleQueries = {
       provider: any;
       providerIsActive: boolean;
       providerStatus: string | null;
+      templateId: string | null;
       activityTypeId?: string;
       activityType?: any;
       year: number;
@@ -486,6 +487,7 @@ export const scheduleQueries = {
           provider,
           providerIsActive,
           providerStatus,
+          templateId: providerTemplate?._id?.toString() ?? null,
           activityTypeId: undefined,
           activityType: undefined,
           year,
@@ -524,6 +526,7 @@ export const scheduleQueries = {
           provider,
           providerIsActive,
           providerStatus,
+          templateId: providerTemplate?._id?.toString() ?? null,
           activityTypeId: at._id.toString(),
           activityType: activityTypesById.get(at._id.toString()) || null,
           year,

@@ -15,6 +15,7 @@ import { ONE_FIT_ACTIVITY_TYPES } from '~/modules/activity-type/graphql/activity
 import { getLocalizedString } from '~/modules/activity-type/utils/localization';
 import { FilterField } from '~/components/shared/FilterField';
 import { OneFitFilterBase } from '~/components/OneFitFilterBase';
+import { ScheduleTemplateDialog } from '~/modules/schedule/components/ScheduleTemplateDialog';
 
 type CoverageMode = 'provider' | 'providerActivity';
 
@@ -33,6 +34,7 @@ interface CoverageRow {
   };
   providerIsActive: boolean;
   providerStatus: string | null;
+  templateId?: string | null;
   activityTypeId?: string | null;
   activityType?: {
     _id: string;
@@ -70,6 +72,17 @@ export function ScheduleCoverageTab({
     'all' | 'pending' | 'approved' | 'rejected'
   >('approved');
   const [nameFilter, setNameFilter] = useState<string>('');
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [dialogMode, setDialogMode] = useState<'create' | 'edit' | null>(null);
+  const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(
+    null,
+  );
+  const [dialogDefaults, setDialogDefaults] = useState<{
+    providerId?: string;
+    year?: number;
+    month?: number;
+    activityTypeId?: string | null;
+  }>({});
 
   const { data: activityTypesData } = useQuery(ONE_FIT_ACTIVITY_TYPES, {
     variables: {
@@ -127,6 +140,25 @@ export function ScheduleCoverageTab({
     return '—';
   }
 
+  function handleStatusClick(row: CoverageRow) {
+    if (row.hasTemplate && row.templateId) {
+      setDialogMode('edit');
+      setSelectedTemplateId(row.templateId);
+      setDialogOpen(true);
+      return;
+    }
+
+    setDialogMode('create');
+    setSelectedTemplateId(null);
+    setDialogDefaults({
+      providerId: row.providerId,
+      year: row.year,
+      month: row.month,
+      activityTypeId: row.activityTypeId ?? null,
+    });
+    setDialogOpen(true);
+  }
+
   const filteredRows = useMemo(() => {
     let result: CoverageRow[] =
       mode === 'provider'
@@ -152,16 +184,15 @@ export function ScheduleCoverageTab({
       result = result.filter((row) => {
         const providerName = getProviderName(row).toLowerCase();
         const activityName = getActivityTypeName(row).toLowerCase();
-        return (
-          providerName.includes(query) ||
-          activityName.includes(query)
-        );
+        return providerName.includes(query) || activityName.includes(query);
       });
     }
 
     const sorted = [...result].sort((a, b) => {
       if (mode === 'providerActivity') {
-        const providerCmp = (a.providerId ?? '').localeCompare(b.providerId ?? '');
+        const providerCmp = (a.providerId ?? '').localeCompare(
+          b.providerId ?? '',
+        );
         if (providerCmp !== 0) return providerCmp;
       }
 
@@ -352,9 +383,7 @@ export function ScheduleCoverageTab({
 
         <div className="flex flex-wrap items-center gap-4 text-xs text-muted-foreground">
           <div className="flex items-center gap-1.5">
-            <span className="font-medium text-foreground">
-              {summary.total}
-            </span>
+            <span className="font-medium text-foreground">{summary.total}</span>
             <span>
               {mode === 'provider'
                 ? 'providers in result'
@@ -402,42 +431,7 @@ export function ScheduleCoverageTab({
                 );
               },
             },
-            {
-              id: 'providerMeta',
-              header: 'Provider status / approval',
-              cell: ({ row }) => {
-                const record = row.original as CoverageRow;
-                const approvalLabel = record.providerStatus ?? 'unknown';
-                const approvalVariant =
-                  approvalLabel === 'approved'
-                    ? 'success'
-                    : approvalLabel === 'pending'
-                    ? 'warning'
-                    : approvalLabel === 'rejected'
-                    ? 'destructive'
-                    : 'secondary';
 
-                return (
-                  <RecordTableInlineCell className="flex flex-wrap gap-1">
-                    <Badge
-                      variant={
-                        record.providerIsActive ? 'success' : 'secondary'
-                      }
-                      className="text-[11px] px-2 py-0.5"
-                    >
-                      {record.providerIsActive ? 'Active' : 'Inactive'}
-                    </Badge>
-                    <Badge
-                      variant={approvalVariant}
-                      className="text-[11px] px-2 py-0.5"
-                    >
-                      {approvalLabel.charAt(0).toUpperCase() +
-                        approvalLabel.slice(1)}
-                    </Badge>
-                  </RecordTableInlineCell>
-                );
-              },
-            },
             {
               id: 'activityType',
               header: 'Activity Type',
@@ -476,8 +470,9 @@ export function ScheduleCoverageTab({
                   return (
                     <RecordTableInlineCell>
                       <Badge
-                        className="border-amber-500 text-amber-600 dark:text-amber-400 text-xs flex items-center gap-1"
+                        className="border-amber-500 text-amber-600 dark:text-amber-400 text-xs flex items-center gap-1 cursor-pointer"
                         variant="warning"
+                        onClick={() => handleStatusClick(record)}
                       >
                         <IconAlertTriangle className="h-3 w-3" />
                         Missing schedule
@@ -489,11 +484,48 @@ export function ScheduleCoverageTab({
                 return (
                   <RecordTableInlineCell>
                     <Badge
-                      className="border-emerald-600 text-emerald-700 dark:text-emerald-400 text-xs flex items-center gap-1"
+                      className="border-emerald-600 text-emerald-700 dark:text-emerald-400 text-xs flex items-center gap-1 cursor-pointer"
                       variant="success"
+                      onClick={() => handleStatusClick(record)}
                     >
                       <IconCircleCheck className="h-3 w-3" />
                       Covered
+                    </Badge>
+                  </RecordTableInlineCell>
+                );
+              },
+            },
+            {
+              id: 'providerMeta',
+              header: 'Provider status / approval',
+              cell: ({ row }) => {
+                const record = row.original as CoverageRow;
+                const approvalLabel = record.providerStatus ?? 'unknown';
+                const approvalVariant =
+                  approvalLabel === 'approved'
+                    ? 'success'
+                    : approvalLabel === 'pending'
+                    ? 'warning'
+                    : approvalLabel === 'rejected'
+                    ? 'destructive'
+                    : 'secondary';
+
+                return (
+                  <RecordTableInlineCell className="flex flex-wrap gap-1">
+                    <Badge
+                      variant={
+                        record.providerIsActive ? 'success' : 'secondary'
+                      }
+                      className="text-[11px] px-2 py-0.5"
+                    >
+                      {record.providerIsActive ? 'Active' : 'Inactive'}
+                    </Badge>
+                    <Badge
+                      variant={approvalVariant}
+                      className="text-[11px] px-2 py-0.5"
+                    >
+                      {approvalLabel.charAt(0).toUpperCase() +
+                        approvalLabel.slice(1)}
                     </Badge>
                   </RecordTableInlineCell>
                 );
@@ -512,6 +544,50 @@ export function ScheduleCoverageTab({
           </RecordTable>
         </RecordTable.Provider>
       </div>
+      {dialogMode && (
+        <ScheduleTemplateDialog
+          mode={dialogMode}
+          templateId={
+            dialogMode === 'edit' && selectedTemplateId
+              ? selectedTemplateId
+              : undefined
+          }
+          open={dialogOpen}
+          onOpenChange={(open) => {
+            setDialogOpen(open);
+            if (!open) {
+              setDialogMode(null);
+              setSelectedTemplateId(null);
+            }
+          }}
+          onClose={() => {
+            setDialogOpen(false);
+            setDialogMode(null);
+            setSelectedTemplateId(null);
+            void refetch({
+              providerId: providerId || null,
+              activityTypeId:
+                mode === 'providerActivity' ? activityTypeId || null : null,
+              year,
+              month,
+            });
+          }}
+          initialProviderId={
+            dialogMode === 'create' ? dialogDefaults.providerId : undefined
+          }
+          initialYear={
+            dialogMode === 'create' ? dialogDefaults.year : undefined
+          }
+          initialMonth={
+            dialogMode === 'create' ? dialogDefaults.month : undefined
+          }
+          initialActivityTypeId={
+            dialogMode === 'create'
+              ? dialogDefaults.activityTypeId ?? undefined
+              : undefined
+          }
+        />
+      )}
     </div>
   );
 }

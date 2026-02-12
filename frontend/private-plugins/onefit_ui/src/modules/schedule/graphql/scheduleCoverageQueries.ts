@@ -37,6 +37,7 @@ export const ONE_FIT_SCHEDULE_COVERAGE_SUMMARY = gql`
       hasTemplate
       hasAnySchedule
       missingDaysCount
+      templateId
     }
   }
 `;

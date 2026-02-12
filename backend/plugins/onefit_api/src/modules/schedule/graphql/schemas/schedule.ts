@@ -69,6 +69,7 @@ export const types = `
     provider: OneFitProvider
     providerIsActive: Boolean!
     providerStatus: String!
+    templateId: String
     activityTypeId: String
     activityType: OneFitActivityType
     year: Int!
