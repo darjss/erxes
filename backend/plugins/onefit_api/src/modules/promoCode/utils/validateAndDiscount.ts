@@ -62,7 +62,7 @@ export async function validateAndDiscount(
   if (promo.discountType === PromoCodeDiscountType.PERCENT) {
     discountedAmount = Math.max(
       0,
-      originalPrice * (1 - (promo.value ?? 0) / 100),
+      (originalPrice * (100 - (promo.value ?? 0))) / 100,
     );
   } else {
     discountedAmount = Math.max(0, originalPrice - (promo.value ?? 0));
