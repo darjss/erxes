@@ -9,6 +9,8 @@ import { IContext } from '~/connectionResolvers';
 
 export interface IOneFitCustomerQueryParams extends ICursorPaginateParams {
   searchValue?: string;
+  phone?: string;
+  email?: string;
   membershipPlanId?: string;
   membershipStatus?: 'active' | 'expired' | 'none';
   minCreditBalance?: number;
@@ -22,6 +24,20 @@ const generateFilter = async (params: IOneFitCustomerQueryParams) => {
 
   if (!params.type || params.type === 'onefit') {
     filter.__t = 'OneFitCustomer';
+  }
+
+  if (params.phone) {
+    filter.primaryPhone = {
+      $regex: `.*${escapeRegExp(params.phone)}.*`,
+      $options: 'i',
+    };
+  }
+
+  if (params.email) {
+    filter.primaryEmail = {
+      $regex: `.*${escapeRegExp(params.email)}.*`,
+      $options: 'i',
+    };
   }
 
   if (params.searchValue) {
