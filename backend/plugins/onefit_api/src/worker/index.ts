@@ -8,6 +8,7 @@ import {
 } from 'erxes-api-shared/utils';
 import { generateModels } from '~/connectionResolvers';
 import { processCreditExpiration } from './creditExpiration';
+import { processBookingNoShow } from './bookingNoShow';
 
 export const mainScheduler = async () => {
   const VERSION = getEnv({ name: 'VERSION' });
@@ -45,6 +46,36 @@ export const runner = async (job: Job) => {
   console.log(
     `Credit expiration processed at: ${new Date()}, org: ${subdomain}`,
   );
+};
+
+export const bookingNoShowScheduler = async () => {
+  const VERSION = getEnv({ name: 'VERSION' });
+
+  if (VERSION && VERSION === 'saas') {
+    // const orgs = await getSaasOrganizations();
+
+    // for (const org of orgs) {
+    //   sendWorkerQueue('onefit', 'booking-no-show').add('booking-no-show', {
+    //     subdomain: org.subdomain,
+    //   });
+    // }
+
+    return 'success';
+  } else {
+    sendWorkerQueue('onefit', 'booking-no-show').add('booking-no-show', {
+      subdomain: 'os',
+    });
+    return 'success';
+  }
+};
+
+export const bookingNoShowRunner = async (job: Job) => {
+  const { subdomain } = job?.data ?? {};
+  console.log(
+    `################### Booking no-show processed at: ${new Date()}, org: ${subdomain}`,
+  );
+  const models = await generateModels(subdomain);
+  await processBookingNoShow(models, subdomain);
 };
 
 export const initMQWorkers = async (redis: any) => {
@@ -86,6 +117,48 @@ export const initMQWorkers = async (redis: any) => {
     redis,
     () => {
       console.log('Worker for queue onefit-daily-credit-expiration is ready');
+    },
+  );
+
+  const bookingNoShowSchedulerQueue = new Queue(
+    'onefit-daily-booking-no-show',
+    {
+      connection: redis,
+      defaultJobOptions: {
+        removeOnComplete: true,
+        removeOnFail: true,
+      },
+    },
+  );
+
+  await bookingNoShowSchedulerQueue.upsertJobScheduler(
+    'onefit-daily-booking-no-show',
+    {
+      pattern: '0 * * * *',
+      tz: 'UTC',
+    },
+    {
+      name: 'onefit-booking-no-show',
+    },
+  );
+
+  createMQWorkerWithListeners(
+    'onefit',
+    'booking-no-show',
+    bookingNoShowRunner,
+    redis,
+    () => {
+      console.log('Worker for queue onefit-booking-no-show is ready');
+    },
+  );
+
+  createMQWorkerWithListeners(
+    'onefit',
+    'daily-booking-no-show',
+    bookingNoShowScheduler,
+    redis,
+    () => {
+      console.log('Worker for queue onefit-daily-booking-no-show is ready');
     },
   );
 };

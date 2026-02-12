@@ -49,6 +49,8 @@ export interface OneFitCustomerListResponse {
 
 export interface OneFitCustomerFilters {
   searchValue?: string;
+  phone?: string;
+  email?: string;
   membershipPlanId?: string;
   membershipStatus?: OneFitMembershipStatus;
   minCreditBalance?: number;

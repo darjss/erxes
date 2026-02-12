@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { useLazyQuery } from '@apollo/client';
-import { Button } from 'erxes-ui';
-import { IconQrcode } from '@tabler/icons-react';
+import { Button, ToggleGroup } from 'erxes-ui';
+import { IconCalendarMonth, IconQrcode, IconList } from '@tabler/icons-react';
 import { BookingsList } from '~/modules/booking/components/BookingsList';
+import { BookingsCalendar } from '~/modules/booking/components/BookingsCalendar';
 import { CreateBookingDialog } from '~/modules/booking/components/CreateBookingDialog';
 import { BookingFiltersComponent } from '~/modules/booking/components/BookingFilters';
 import {
@@ -18,8 +19,11 @@ import { ONE_FIT_BOOKINGS } from '~/modules/booking/graphql/bookingQueries';
 import { toast } from 'erxes-ui';
 import { useOneFitMode } from '~/modules/config/hooks/useOneFitMode';
 
+type BookingsView = 'list' | 'calendar';
+
 export function BookingsPage() {
   const { isSlaveMode } = useOneFitMode();
+  const [view, setView] = useState<BookingsView>('list');
   const [filters, setFilters] = useState<BookingFilters>({});
   const [scanDialogOpen, setScanDialogOpen] = useState(false);
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
@@ -79,6 +83,11 @@ export function BookingsPage() {
     setConfirmDialogOpen(true);
   }
 
+  function ListOrCalendarComponent({ filters: f }: { filters: BookingFilters }) {
+    if (view === 'calendar') return <BookingsCalendar filters={f} />;
+    return <BookingsList filters={f} />;
+  }
+
   return (
     <>
       <OneFitListPageLayout
@@ -99,7 +108,25 @@ export function BookingsPage() {
             </Button>
           </div>
         }
-        listComponent={BookingsList}
+        listComponent={ListOrCalendarComponent}
+        headerActions={
+          <ToggleGroup
+            type="single"
+            value={view}
+            onValueChange={(v) => v && setView(v as BookingsView)}
+            variant="outline"
+            size="sm"
+          >
+            <ToggleGroup.Item value="list" aria-label="List view">
+              <IconList className="h-4 w-4 mr-1.5" />
+              List
+            </ToggleGroup.Item>
+            <ToggleGroup.Item value="calendar" aria-label="Calendar view">
+              <IconCalendarMonth className="h-4 w-4 mr-1.5" />
+              Calendar
+            </ToggleGroup.Item>
+          </ToggleGroup>
+        }
       />
 
       <ScanBookingQrDialog

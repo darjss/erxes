@@ -37,6 +37,10 @@ interface ScheduleTemplateDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onClose: () => void;
+  initialProviderId?: string;
+  initialYear?: number;
+  initialMonth?: number;
+  initialActivityTypeId?: string;
 }
 
 export const ScheduleTemplateDialog = ({
@@ -45,6 +49,10 @@ export const ScheduleTemplateDialog = ({
   open,
   onOpenChange,
   onClose,
+  initialProviderId,
+  initialYear,
+  initialMonth,
+  initialActivityTypeId,
 }: ScheduleTemplateDialogProps) => {
   const isCreate = mode === 'create';
   const [internalOpen, setInternalOpen] = useState(false);
@@ -68,6 +76,10 @@ export const ScheduleTemplateDialog = ({
           </Dialog.Header>
           <ScheduleTemplateForm
             mode="create"
+            initialProviderId={initialProviderId}
+            initialYear={initialYear}
+            initialMonth={initialMonth}
+            initialActivityTypeId={initialActivityTypeId}
             onClose={() => {
               effectiveOnOpenChange(false);
               onClose?.();
@@ -101,12 +113,20 @@ interface ScheduleTemplateFormProps {
   mode: 'create' | 'edit';
   templateId?: string;
   onClose: () => void;
+  initialProviderId?: string;
+  initialYear?: number;
+  initialMonth?: number;
+  initialActivityTypeId?: string;
 }
 
 const ScheduleTemplateForm = ({
   mode,
   templateId,
   onClose,
+  initialProviderId,
+  initialYear,
+  initialMonth,
+  initialActivityTypeId,
 }: ScheduleTemplateFormProps) => {
   const isCreate = mode === 'create';
 
@@ -126,14 +146,23 @@ const ScheduleTemplateForm = ({
     resolver: zodResolver(
       isCreate ? createScheduleTemplateSchema : editScheduleTemplateSchema,
     ),
-    defaultValues: {
-      dailySchedules: [],
-      ...(isCreate && {
-        providerId: '',
-        month: getCurrentMonth(),
-        year: getCurrentYear(),
-      }),
-    },
+    defaultValues: isCreate
+      ? {
+          providerId: initialProviderId ?? '',
+          month: initialMonth ?? getCurrentMonth(),
+          year: initialYear ?? getCurrentYear(),
+          dailySchedules: initialActivityTypeId
+            ? [
+                {
+                  ...getDefaultDailySchedule(),
+                  activityTypeId: initialActivityTypeId,
+                },
+              ]
+            : [],
+        }
+      : {
+          dailySchedules: [],
+        },
   });
 
   const watchedProviderId = form.watch('providerId');

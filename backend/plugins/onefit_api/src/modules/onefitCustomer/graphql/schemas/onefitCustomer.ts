@@ -52,6 +52,8 @@ export const types = `
 
 const oneFitCustomerQueryParams = `
   searchValue: String
+  phone: String
+  email: String
   membershipPlanId: String
   membershipStatus: OneFitMembershipStatus
   minCreditBalance: Float

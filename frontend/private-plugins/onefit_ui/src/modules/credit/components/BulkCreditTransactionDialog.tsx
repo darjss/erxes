@@ -1,9 +1,17 @@
 import { useQuery } from '@apollo/client';
-import { Button, Dialog, Form, Select, Spinner, Textarea } from 'erxes-ui';
+import {
+  Button,
+  Dialog,
+  Form,
+  Input,
+  Select,
+  Spinner,
+  Textarea,
+} from 'erxes-ui';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { ONE_FIT_ACTIVE_MEMBERSHIP_PLANS } from '~/modules/membership/graphql/membershipPlanQueries';
 import { OneFitMembershipPlan } from '~/modules/membership/types/membership';
 import { SelectCompany } from './SelectCompany';
@@ -74,11 +82,25 @@ export function BulkCreditTransactionDialog({
     useBulkCreateCreditTransactions();
 
   const relatedCustomers = customersData?.oneFitCustomersByCompanyId ?? [];
+  const [customerSearch, setCustomerSearch] = useState('');
+
+  const filteredRelatedCustomers = useMemo(() => {
+    if (!customerSearch.trim()) return relatedCustomers;
+    const term = customerSearch.trim().toLowerCase();
+    return relatedCustomers.filter(
+      (c: { _id: string; primaryPhone?: string; primaryEmail?: string }) => {
+        const phone = (c.primaryPhone ?? '').toLowerCase();
+        const email = (c.primaryEmail ?? '').toLowerCase();
+        return phone.includes(term) || email.includes(term);
+      },
+    );
+  }, [relatedCustomers, customerSearch]);
   const planId = form.watch('planId');
   const selectedPlan = plans.find((p) => p._id === planId);
 
   function handleClose() {
     setOpen(false);
+    setCustomerSearch('');
     form.reset({
       companyId: '',
       customerIds: [],
@@ -113,7 +135,7 @@ export function BulkCreditTransactionDialog({
   const selectAll = () => {
     form.setValue(
       'customerIds',
-      relatedCustomers.map((c: { _id: string }) => c._id),
+      filteredRelatedCustomers.map((c: { _id: string }) => c._id),
     );
   };
   const clearAll = () => form.setValue('customerIds', []);
@@ -151,6 +173,7 @@ export function BulkCreditTransactionDialog({
                       onValueChange={(v) => {
                         field.onChange(v);
                         form.setValue('customerIds', []);
+                        setCustomerSearch('');
                       }}
                       placeholder="Select company"
                     />
@@ -167,6 +190,12 @@ export function BulkCreditTransactionDialog({
                 render={() => (
                   <Form.Item>
                     <Form.Label>Related customers *</Form.Label>
+                    <Input
+                      placeholder="Search by phone or email"
+                      value={customerSearch}
+                      onChange={(e) => setCustomerSearch(e.target.value)}
+                      className="mb-2"
+                    />
                     <div className="flex gap-2 mb-2">
                       <Button
                         type="button"
@@ -191,12 +220,14 @@ export function BulkCreditTransactionDialog({
                           <div className="text-sm text-muted-foreground py-4 text-center">
                             Loading customers...
                           </div>
-                        ) : relatedCustomers.length === 0 ? (
+                        ) : filteredRelatedCustomers.length === 0 ? (
                           <div className="text-sm text-muted-foreground py-4 text-center">
-                            No customers found for this company.
+                            {relatedCustomers.length === 0
+                              ? 'No customers found for this company.'
+                              : 'No matching customers.'}
                           </div>
                         ) : (
-                          relatedCustomers.map(
+                          filteredRelatedCustomers.map(
                             (customer: {
                               _id: string;
                               primaryPhone?: string;

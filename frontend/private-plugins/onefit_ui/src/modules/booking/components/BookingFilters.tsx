@@ -1,3 +1,4 @@
+import { useQuery } from '@apollo/client';
 import { Input, Select } from 'erxes-ui';
 import {
   BookingFilters,
@@ -8,6 +9,8 @@ import { SelectOneFitCustomer } from '~/modules/onefitCustomer/components/Select
 import { SelectProviderSearchable } from '~/modules/provider/components/SelectProviderSearchable';
 import { OneFitFilterBase } from '~/components/OneFitFilterBase';
 import { FilterField } from '~/components/shared/FilterField';
+import { ONE_FIT_ACTIVITY_TYPES } from '~/modules/activity-type/graphql/activityTypeQueries';
+import { getLocalizedString } from '~/modules/activity-type/utils/localization';
 
 interface BookingFiltersProps {
   filters: BookingFilters;
@@ -25,6 +28,14 @@ export const BookingFiltersComponent = ({
     });
   };
 
+  const { data: activityTypesData } = useQuery(ONE_FIT_ACTIVITY_TYPES, {
+    variables: {
+      isActive: true,
+      providerId: filters.providerId || undefined,
+    },
+  });
+  const activityTypes = activityTypesData?.oneFitActivityTypes?.list ?? [];
+
   return (
     <OneFitFilterBase filters={filters} onFiltersChange={onFiltersChange}>
       <FilterField label="User">
@@ -40,6 +51,29 @@ export const BookingFiltersComponent = ({
           value={filters.providerId || ''}
           onValueChange={(value) => handleFilterChange('providerId', value)}
         />
+      </FilterField>
+      <FilterField label="Activity Type">
+        <Select
+          value={filters.activityTypeId || '__all__'}
+          onValueChange={(value) =>
+            handleFilterChange(
+              'activityTypeId',
+              value === '__all__' ? undefined : value,
+            )
+          }
+        >
+          <Select.Trigger>
+            <Select.Value placeholder="All activity types" />
+          </Select.Trigger>
+          <Select.Content>
+            <Select.Item value="__all__">All activity types</Select.Item>
+            {activityTypes.map((at) => (
+              <Select.Item key={at._id} value={at._id}>
+                {getLocalizedString(at.name)}
+              </Select.Item>
+            ))}
+          </Select.Content>
+        </Select>
       </FilterField>
       <FilterField label="Status">
         <Select

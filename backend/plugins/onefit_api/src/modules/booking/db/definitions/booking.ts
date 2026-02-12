@@ -61,3 +61,4 @@ export const bookingSchema = new Schema(
 
 bookingSchema.index({ userId: 1, createdAt: -1 });
 bookingSchema.index({ providerId: 1, bookingDate: 1 });
+bookingSchema.index({ userId: 1, activityTypeId: 1, bookingDate: 1 });

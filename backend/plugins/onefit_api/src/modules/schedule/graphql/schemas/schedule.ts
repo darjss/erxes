@@ -60,7 +60,23 @@ export const types = `
     totalSeats: Int!
     bookedSeats: Int!
     hasSchedule: Boolean!
+    isBlockedByException: Boolean!
     schedule: OneFitDailySchedule
+  }
+
+  type OneFitScheduleCoverage {
+    providerId: String!
+    provider: OneFitProvider
+    providerIsActive: Boolean!
+    providerStatus: String!
+    templateId: String
+    activityTypeId: String
+    activityType: OneFitActivityType
+    year: Int!
+    month: Int!
+    hasTemplate: Boolean!
+    hasAnySchedule: Boolean!
+    missingDaysCount: Int!
   }
 
   type OneFitMonthAvailability {
@@ -86,6 +102,13 @@ const scheduleQueryParams = `
   activityTypeId: String,
 `;
 
+const scheduleCoverageQueryParams = `
+  providerId: String,
+  activityTypeId: String,
+  year: Int!,
+  month: Int!,
+`;
+
 const exceptionQueryParams = `
   providerId: String,
   startDate: Date,
@@ -98,6 +121,7 @@ export const queries = `
   oneFitScheduleTemplatesCount(${scheduleQueryParams}): Int
   oneFitScheduleTemplate(_id: String): OneFitScheduleTemplate
   oneFitScheduleTemplateByProviderAndMonth(providerId: String!, year: Int!, month: Int!): OneFitScheduleTemplate
+  oneFitScheduleCoverageSummary(${scheduleCoverageQueryParams}): [OneFitScheduleCoverage!]!
   oneFitScheduleExceptions(${exceptionQueryParams}, ${GQL_CURSOR_PARAM_DEFS}): OneFitScheduleExceptionListResponse
   oneFitScheduleExceptionsCount(${exceptionQueryParams}): Int
   oneFitScheduleException(_id: String): OneFitScheduleException

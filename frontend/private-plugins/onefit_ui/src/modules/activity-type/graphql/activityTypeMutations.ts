@@ -11,6 +11,7 @@ export const ONE_FIT_ACTIVITY_TYPE_CREATE = gql`
     $categoryIds: [String]!
     $isActive: Boolean
     $cancellationDeadline: Int
+    $singlePersonLimit: Int
     $image: String
   ) {
     oneFitActivityTypeCreate(
@@ -23,6 +24,7 @@ export const ONE_FIT_ACTIVITY_TYPE_CREATE = gql`
       categoryIds: $categoryIds
       isActive: $isActive
       cancellationDeadline: $cancellationDeadline
+      singlePersonLimit: $singlePersonLimit
       image: $image
     ) {
       _id
@@ -43,6 +45,7 @@ export const ONE_FIT_ACTIVITY_TYPE_CREATE = gql`
       categoryIds
       isActive
       cancellationDeadline
+      singlePersonLimit
       image
     }
   }
@@ -59,6 +62,7 @@ export const ONE_FIT_ACTIVITY_TYPE_UPDATE = gql`
     $categoryIds: [String]
     $isActive: Boolean
     $cancellationDeadline: Int
+    $singlePersonLimit: Int
     $image: String
   ) {
     oneFitActivityTypeUpdate(
@@ -71,6 +75,7 @@ export const ONE_FIT_ACTIVITY_TYPE_UPDATE = gql`
       categoryIds: $categoryIds
       isActive: $isActive
       cancellationDeadline: $cancellationDeadline
+      singlePersonLimit: $singlePersonLimit
       image: $image
     ) {
       _id
@@ -89,6 +94,7 @@ export const ONE_FIT_ACTIVITY_TYPE_UPDATE = gql`
       categoryIds
       isActive
       cancellationDeadline
+      singlePersonLimit
       image
     }
   }

@@ -52,6 +52,7 @@ export const ONE_FIT_ACTIVITY_TYPES = gql`
         }
         isActive
         cancellationDeadline
+        singlePersonLimit
         image
       }
       totalCount
@@ -119,6 +120,7 @@ export const ONE_FIT_ACTIVITY_TYPE = gql`
       }
       isActive
       cancellationDeadline
+      singlePersonLimit
       image
     }
   }

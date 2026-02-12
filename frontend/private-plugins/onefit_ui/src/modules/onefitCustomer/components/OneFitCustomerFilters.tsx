@@ -24,6 +24,24 @@ export const OneFitCustomerFiltersComponent = ({
 
   return (
     <OneFitFilterBase filters={filters} onFiltersChange={onFiltersChange}>
+      <FilterField label="Phone">
+        <Input
+          value={filters.phone || ''}
+          onChange={(e) =>
+            handleFilterChange('phone', e.target.value || undefined)
+          }
+          placeholder="Filter by phone"
+        />
+      </FilterField>
+      <FilterField label="Email">
+        <Input
+          value={filters.email || ''}
+          onChange={(e) =>
+            handleFilterChange('email', e.target.value || undefined)
+          }
+          placeholder="Filter by email"
+        />
+      </FilterField>
       <FilterField label="Membership Plan ID">
         <Input
           value={filters.membershipPlanId || ''}
