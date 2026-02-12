@@ -7,7 +7,8 @@ export const useOneFitMode = () => {
   });
 
   const mode = data?.oneFitMode as 'master' | 'slave' | undefined;
-  const isSlaveMode = mode === 'slave';
+  // Default to slave mode on error or when mode is undefined (safer fallback)
+  const isSlaveMode = mode === undefined || mode === 'slave' || Boolean(error);
 
   return {
     mode,
@@ -16,4 +17,3 @@ export const useOneFitMode = () => {
     error,
   };
 };
-
