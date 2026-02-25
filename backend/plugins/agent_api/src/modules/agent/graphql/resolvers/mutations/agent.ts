@@ -36,10 +36,7 @@ export const agentMutations = {
         status: SERVER_STATUSES.DEPLOYING,
       });
     } catch (error) {
-      await models.AgentServer.updateOne(
-        { agentId: name },
-        { $set: { status: SERVER_STATUSES.FAILED } },
-      );
+      await models.AgentServer.deleteOne({});
 
       const message = error instanceof Error ? error.message : String(error);
       throw new Error(message);
@@ -68,11 +65,6 @@ export const agentMutations = {
         { new: true },
       );
     } catch (error) {
-      await models.AgentServer.updateOne(
-        { agentId: agent.agentId },
-        { $set: { status: SERVER_STATUSES.FAILED } },
-      );
-
       const message = error instanceof Error ? error.message : String(error);
       throw new Error(message);
     }
