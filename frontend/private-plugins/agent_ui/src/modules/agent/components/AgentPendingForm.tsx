@@ -1,9 +1,11 @@
+import { useState } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button, Form, Input, useToast } from 'erxes-ui';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { useAgentApprove } from '../hooks/useAgentApprove';
 import { useAgentDestroy } from '../hooks/useAgentDestroy';
+import { DestroyServerDialog } from './DestroyServerDialog';
 
 const approveFormSchema = z.object({
   code: z.string().min(1, 'Code is required'),
@@ -12,6 +14,7 @@ const approveFormSchema = z.object({
 type ApproveFormValues = z.infer<typeof approveFormSchema>;
 
 export const AgentPendingForm = () => {
+  const [destroyOpen, setDestroyOpen] = useState(false);
   const { approveAgent, loading } = useAgentApprove();
   const { destroyAgent, loading: destroyLoading } = useAgentDestroy();
   const { toast } = useToast();
@@ -74,12 +77,18 @@ export const AgentPendingForm = () => {
       <Button
         variant="destructive"
         type="button"
-        onClick={onDestroy}
+        onClick={() => setDestroyOpen(true)}
         disabled={destroyLoading}
         className="w-full"
       >
-        {destroyLoading ? 'Destroying server...' : 'Destroy server'}
+        Destroy server
       </Button>
+      <DestroyServerDialog
+        open={destroyOpen}
+        onOpenChange={setDestroyOpen}
+        onConfirm={onDestroy}
+        loading={destroyLoading}
+      />
     </div>
   );
 };

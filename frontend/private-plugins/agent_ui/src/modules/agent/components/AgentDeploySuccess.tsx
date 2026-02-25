@@ -1,7 +1,10 @@
+import { useState } from 'react';
 import { Button, useToast } from 'erxes-ui';
 import { useAgentDestroy } from '../hooks/useAgentDestroy';
+import { DestroyServerDialog } from './DestroyServerDialog';
 
 export const AgentDeploySuccess = () => {
+  const [destroyOpen, setDestroyOpen] = useState(false);
   const { destroyAgent, loading: destroyLoading } = useAgentDestroy();
   const { toast } = useToast();
 
@@ -20,20 +23,27 @@ export const AgentDeploySuccess = () => {
 
   return (
     <div className="flex flex-col items-center gap-3 py-2 text-center">
-      <Button
-        variant="destructive"
-        type="button"
-        onClick={onDestroy}
-        disabled={destroyLoading}
-        className="w-full"
-      >
-        {destroyLoading ? 'Destroying server...' : 'Destroy server'}
-      </Button>
+      <DestroyServerDialog
+        open={destroyOpen}
+        onOpenChange={setDestroyOpen}
+        onConfirm={onDestroy}
+        loading={destroyLoading}
+      />
       <h3 className="font-medium text-sm">Agent deployed successfully</h3>
       <p className="text-muted-foreground text-xs">
         Your agent has been deployed successfully. You can use it now with
         discord bot.
       </p>
+
+      <Button
+        variant="destructive"
+        type="button"
+        onClick={() => setDestroyOpen(true)}
+        disabled={destroyLoading}
+        className=""
+      >
+        Destroy server
+      </Button>
     </div>
   );
 };
