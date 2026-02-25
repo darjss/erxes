@@ -71,7 +71,7 @@ export const AgentDeployForm = () => {
             <Form.Item className="w-full">
               <Form.Label>Token</Form.Label>
               <Form.Control>
-                <Input {...field} type="password" className="w-full" />
+                <Input {...field} className="w-full" />
               </Form.Control>
               <Form.Message />
             </Form.Item>
