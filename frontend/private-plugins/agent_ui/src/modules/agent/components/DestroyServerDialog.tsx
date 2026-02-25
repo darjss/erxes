@@ -17,6 +17,7 @@ export const DestroyServerDialog = ({
   const handleConfirm = async () => {
     await onConfirm();
     onOpenChange(false);
+    window.location.reload();
   };
 
   return (
