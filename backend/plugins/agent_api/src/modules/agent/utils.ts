@@ -36,9 +36,20 @@ export const deployServer = async (
   });
 
   if (!response.ok) {
-    const error = await response.text();
-
-    throw new Error(`Deployment failed: ${error}`);
+    const raw = await response.text();
+    let message = raw;
+    try {
+      const parsed = JSON.parse(raw) as { error?: string };
+      if (parsed?.error === 'Not found') {
+        message =
+          'Deployer could not create the agent. Check DEPLOYER_URL and try again.';
+      } else if (parsed?.error) {
+        message = parsed.error;
+      }
+    } catch {
+      // use raw text as message
+    }
+    throw new Error(`Deployment failed: ${message}`);
   }
 
   return response.json();
@@ -58,9 +69,20 @@ export const approveServer = async (agent: IAgentServerDocument, code: string) =
   });
 
   if (!response.ok) {
-    const error = await response.text();
-
-    throw new Error(`Approve failed: ${error}`);
+    const raw = await response.text();
+    let message = raw;
+    try {
+      const parsed = JSON.parse(raw) as { error?: string };
+      if (parsed?.error === 'Not found') {
+        message =
+          'Agent was not found by the deployer. It may still be deploying—try again in a few minutes, or redeploy.';
+      } else if (parsed?.error) {
+        message = parsed.error;
+      }
+    } catch {
+      // use raw text as message
+    }
+    throw new Error(`Approve failed: ${message}`);
   }
 
   return response.json();

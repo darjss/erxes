@@ -1,5 +1,5 @@
 import { IconSparkles } from '@tabler/icons-react';
-import { Breadcrumb, Button, Separator } from 'erxes-ui';
+import { Breadcrumb, Button, Card, Separator } from 'erxes-ui';
 import { Link } from 'react-router-dom';
 import { PageHeader } from 'ui-modules';
 import { AgentScreen } from '~/modules/agent/components/AgentScreen';
@@ -26,9 +26,11 @@ export const IndexPage = () => {
         </PageHeader.Start>
       </PageHeader>
 
-      <div className="flex h-full overflow-hidden">
-        <div className="flex flex-col flex-auto justify-center items-center h-full overflow-hidden">
-          <AgentScreen />
+      <div className="flex flex-1 overflow-auto p-4">
+        <div className="flex flex-col flex-auto justify-center items-center min-h-0 w-full">
+          <Card className="w-full max-w-md p-6">
+            <AgentScreen />
+          </Card>
         </div>
       </div>
     </div>

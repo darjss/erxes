@@ -2,7 +2,7 @@ import { OperationVariables, useMutation } from '@apollo/client';
 import { DEPLOY_AGENT } from '../graphql/mutations';
 
 export const useAgentDeploy = () => {
-  const [deploy, { loading }] = useMutation(DEPLOY_AGENT);
+  const [deploy, { loading, error }] = useMutation(DEPLOY_AGENT);
 
   const deployAgent = async (
     name: string,
@@ -15,5 +15,6 @@ export const useAgentDeploy = () => {
   return {
     deployAgent,
     loading,
+    error,
   };
 };

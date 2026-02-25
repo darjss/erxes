@@ -1,5 +1,4 @@
 import { IContext } from '~/connectionResolvers';
-import { SERVER_STATUSES } from '~/modules/agent/constants';
 
 export const agentQueries = {
   getAgent: async (
@@ -11,14 +10,6 @@ export const agentQueries = {
 
     if (!agent) {
       throw new Error('Agent not found');
-    }
-
-    if (agent?.status === SERVER_STATUSES.PENDING && agent.approveCode) {
-      return models.AgentServer.findOneAndUpdate(
-        { _id: agent._id },
-        { set: { status: SERVER_STATUSES.APPROVED } },
-        { new: true },
-      );
     }
 
     return agent;

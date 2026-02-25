@@ -8,6 +8,7 @@ export const types = `
 
     agentId: String
     serverId: String
+    status: String
 
     createdAt: Date
     updatedAt: Date

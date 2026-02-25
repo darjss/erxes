@@ -33,7 +33,6 @@ export const agentMutations = {
         url: server.serverUrl,
         token: server.gatewayToken,
         serverId: server.serverId,
-
         status: SERVER_STATUSES.DEPLOYING,
       });
     } catch (error) {
@@ -42,7 +41,8 @@ export const agentMutations = {
         { $set: { status: SERVER_STATUSES.FAILED } },
       );
 
-      throw new Error(error);
+      const message = error instanceof Error ? error.message : String(error);
+      throw new Error(message);
     }
   },
 
@@ -64,7 +64,7 @@ export const agentMutations = {
 
       return models.AgentServer.findOneAndUpdate(
         { _id: agent._id },
-        { set: { status: SERVER_STATUSES.PENDING, approveCode: code } },
+        { $set: { status: SERVER_STATUSES.APPROVED, approveCode: code } },
         { new: true },
       );
     } catch (error) {
@@ -72,8 +72,9 @@ export const agentMutations = {
         { agentId: agent.agentId },
         { $set: { status: SERVER_STATUSES.FAILED } },
       );
-    
-      throw new Error(error);
+
+      const message = error instanceof Error ? error.message : String(error);
+      throw new Error(message);
     }
   },
 };
