@@ -13,7 +13,7 @@ export const IndexPage = () => {
             <Breadcrumb.List className="gap-1">
               <Breadcrumb.Item>
                 <Button variant="ghost" asChild>
-                  <Link to="/settings/agent">
+                  <Link to="/agent">
                     <IconSparkles />
                     Agent
                   </Link>
