@@ -1,5 +1,5 @@
-import { IconSandbox } from '@tabler/icons-react';
 import { IUIConfig } from 'erxes-ui';
+import { IconSandbox } from '@tabler/icons-react';
 import { lazy, Suspense } from 'react';
 
 const AgentNavigation = lazy(() =>
