@@ -96,3 +96,40 @@ export const approveServer = async (
 
   return response.json();
 };
+
+export const destroyServer = async (agent: IAgentServerDocument) => {
+  const DEPLOYER = getEnv({ name: 'DEPLOYER_URL' });
+
+  const DEPLOYER_URL = `${DEPLOYER}/agents/${agent.name}`;
+
+  const response = await fetch(DEPLOYER_URL, {
+    method: 'DELETE',
+    headers: { 'Content-Type': 'application/json' },
+  });
+
+  if (!response.ok) {
+    const raw = await response.text();
+    let message = raw;
+    try {
+      const parsed = JSON.parse(raw) as { error?: string };
+      if (parsed?.error) {
+        message = parsed.error;
+      }
+    } catch {
+      // use raw text as message
+    }
+    throw new Error(`Destroy failed: ${message}`);
+  }
+
+  return response.json();
+};
+
+// // agents.delete("/:serverName", async c => {
+//   const { serverName } = c.req.param();
+//   try {
+//     await destroyServer(serverName);
+//     return c.json({ success: true });
+//   } catch (err: any) {
+//     return c.json({ error: err.message }, 500);
+//   }
+// });

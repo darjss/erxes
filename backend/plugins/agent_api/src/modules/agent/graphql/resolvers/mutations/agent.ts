@@ -1,6 +1,10 @@
 import { IContext } from '~/connectionResolvers';
 import { SERVER_STATUSES } from '~/modules/agent/constants';
-import { approveServer, deployServer } from '~/modules/agent/utils';
+import {
+  approveServer,
+  deployServer,
+  destroyServer,
+} from '~/modules/agent/utils';
 
 export const agentMutations = {
   deployAgent: async (
@@ -64,6 +68,29 @@ export const agentMutations = {
         { $set: { status: SERVER_STATUSES.APPROVED, approveCode: code } },
         { new: true },
       );
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      throw new Error(message);
+    }
+  },
+
+  destroyAgent: async (
+    _root: undefined,
+    _args: undefined,
+    { models }: IContext,
+  ) => {
+    const agent = await models.AgentServer.findOne({}).lean();
+
+    if (!agent) {
+      throw new Error('Agent not found');
+    }
+
+    try {
+      await destroyServer(agent);
+
+      await models.AgentServer.deleteOne({});
+
+      return agent;
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       throw new Error(message);

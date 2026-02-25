@@ -30,5 +30,6 @@ export const queries = `
 
 export const mutations = `
   deployAgent(input: DeployAgentInput!): Agent
+  destroyAgent: Agent
   approveAgent(input: ApproveAgentInput!): Agent
 `;
