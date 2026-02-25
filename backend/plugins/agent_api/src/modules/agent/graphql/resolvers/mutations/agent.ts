@@ -1,0 +1,79 @@
+import { IContext } from '~/connectionResolvers';
+import { SERVER_STATUSES } from '~/modules/agent/constants';
+import { approveServer, deployServer } from '~/modules/agent/utils';
+
+export const agentMutations = {
+  deployAgent: async (
+    _root: undefined,
+    { input }: { input: { name: string; token: string } },
+    { models, subdomain }: IContext,
+  ) => {
+    const { name, token } = input || {};
+
+    const agentServer = await models.AgentServer.findOne({}).lean();
+
+    if (agentServer) {
+      return agentServer;
+    }
+
+    try {
+      const server = await deployServer({
+        orgId: subdomain,
+        agentId: name,
+        discordBotToken: token,
+      });
+
+      if (!server) {
+        throw new Error('Failed to deploy server');
+      }
+
+      return models.AgentServer.create({
+        agentId: name,
+        name: server.serverName,
+        url: server.serverUrl,
+        token: server.gatewayToken,
+        serverId: server.serverId,
+
+        status: SERVER_STATUSES.DEPLOYING,
+      });
+    } catch (error) {
+      await models.AgentServer.updateOne(
+        { agentId: name },
+        { $set: { status: SERVER_STATUSES.FAILED } },
+      );
+
+      throw new Error(error);
+    }
+  },
+
+  approveAgent: async (
+    _root: undefined,
+    { input }: { input: { code: string } },
+    { models }: IContext,
+  ) => {
+    const { code } = input || {};
+
+    const agent = await models.AgentServer.findOne({}).lean();
+
+    if (!agent) {
+      throw new Error('Agent not found');
+    }
+
+    try {
+      await approveServer(agent, code);
+
+      return models.AgentServer.findOneAndUpdate(
+        { _id: agent._id },
+        { set: { status: SERVER_STATUSES.PENDING, approveCode: code } },
+        { new: true },
+      );
+    } catch (error) {
+      await models.AgentServer.updateOne(
+        { agentId: agent.agentId },
+        { $set: { status: SERVER_STATUSES.FAILED } },
+      );
+    
+      throw new Error(error);
+    }
+  },
+};
