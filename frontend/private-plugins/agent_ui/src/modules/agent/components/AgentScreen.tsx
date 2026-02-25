@@ -12,7 +12,7 @@ export const AgentScreen = () => {
 
   const isAgentCreatedFiveMinutesAgo = useMemo(() => {
     if (!agent) return false;
-    return new Date(agent.createdAt).getTime() > Date.now() - 5 * 60 * 1000;
+    return new Date(agent.createdAt).getTime() > Date.now() - 2 * 60 * 1000;
   }, [agent]);
 
   if (loading) {
@@ -30,7 +30,7 @@ export const AgentScreen = () => {
     return <AgentDeployingScreen />;
   }
 
-  if (agent?.status === SERVER_STATUSES.PENDING) {
+  if (agent?.status === SERVER_STATUSES.DEPLOYING) {
     return <AgentPendingForm />;
   }
 

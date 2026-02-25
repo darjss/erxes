@@ -27,7 +27,11 @@ export const deployServer = async (
 
   const DEPLOYER_URL = `${DEPLOYER}/agents/deploy`;
 
-  const body = { ...payload, botName: BOT_NAME, moonshotApiKey: MOONSHOT_API_KEY }
+  const body = {
+    ...payload,
+    botName: BOT_NAME,
+    moonshotApiKey: MOONSHOT_API_KEY,
+  };
 
   const response = await fetch(DEPLOYER_URL, {
     method: 'POST',
@@ -55,15 +59,20 @@ export const deployServer = async (
   return response.json();
 };
 
-export const approveServer = async (agent: IAgentServerDocument, code: string) => {
+export const approveServer = async (
+  agent: IAgentServerDocument,
+  code: string,
+) => {
   const DEPLOYER = getEnv({ name: 'DEPLOYER_URL' });
+
+  console.log(agent.name);
 
   const DEPLOYER_URL = `${DEPLOYER}/tools/${agent.name}/discordapprove`;
 
-  const body = { accessToken: code }
+  const body = { approveToken: code };
 
   const response = await fetch(DEPLOYER_URL, {
-    method: 'POST',
+    method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
   });
@@ -86,4 +95,4 @@ export const approveServer = async (agent: IAgentServerDocument, code: string) =
   }
 
   return response.json();
-}
+};
