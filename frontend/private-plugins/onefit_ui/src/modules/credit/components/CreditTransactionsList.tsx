@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { ColumnDef } from '@tanstack/table-core';
 import {
   Badge,
@@ -6,6 +7,7 @@ import {
   RecordTableInlineCell,
   RelativeDateDisplay,
 } from 'erxes-ui';
+import { useQuery } from '@apollo/client';
 import { useCreditTransactions } from '../hooks/useCreditTransactions';
 import { CreditTransactionFilters } from '../types/credit';
 import { CREDIT_TRANSACTIONS_CURSOR_SESSION_KEY } from '../constants/creditTransactionCursorSessionKey';
@@ -16,6 +18,7 @@ import {
   OneFitCreditSource,
 } from '../types/credit';
 import { OneFitCustomersInline } from '~/modules/onefitCustomer/components/OneFitCustomersInline';
+import { GET_COMPANIES_BY_IDS } from '../graphql/companyQueries';
 
 interface CreditTransactionsListProps {
   filters?: CreditTransactionFilters;
@@ -56,6 +59,28 @@ export const CreditTransactionsList = ({
     [],
   );
   const [removeDialogOpen, setRemoveDialogOpen] = useState(false);
+
+  const companyIds = useMemo(
+    () =>
+      Array.from(
+        new Set(
+          (creditTransactions ?? [])
+            .map((t) => t.companyId)
+            .filter((id): id is string => Boolean(id)),
+        ),
+      ),
+    [creditTransactions],
+  );
+
+  const { data: companiesData } = useQuery(GET_COMPANIES_BY_IDS, {
+    variables: { ids: companyIds },
+    skip: companyIds.length === 0,
+  });
+
+  const companyNameById = useMemo(() => {
+    const list = companiesData?.companies?.list ?? [];
+    return new Map(list.map((c) => [c._id, c.primaryName ?? c._id]));
+  }, [companiesData]);
 
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
 
@@ -157,6 +182,27 @@ export const CreditTransactionsList = ({
             <Badge variant={getSourceBadgeVariant(source)}>
               {source.charAt(0).toUpperCase() + source.slice(1)}
             </Badge>
+          </RecordTableInlineCell>
+        );
+      },
+    },
+    {
+      accessorKey: 'companyId',
+      header: 'Company',
+      cell: ({ row }) => {
+        const transaction = row.original;
+        const companyId = transaction.companyId;
+        if (!companyId) {
+          return (
+            <RecordTableInlineCell className="text-xs text-muted-foreground">
+              —
+            </RecordTableInlineCell>
+          );
+        }
+        const name = companyNameById.get(companyId);
+        return (
+          <RecordTableInlineCell className="text-xs font-medium">
+            {name ?? companyId}
           </RecordTableInlineCell>
         );
       },
