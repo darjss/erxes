@@ -47,6 +47,7 @@ export const activityTypeSchema = new Schema(
       },
     },
     creditCost: { type: Number, required: true, label: 'Credit Cost' },
+    price: { type: Number, label: 'Price', default: 0 },
     duration: { type: Number, required: true, label: 'Duration (minutes)' },
     genderRestriction: {
       type: String,

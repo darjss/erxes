@@ -26,6 +26,7 @@ export interface OneFitActivityType {
   name: MultilingualString;
   description?: MultilingualStringOptional;
   creditCost: number;
+  price?: number;
   duration: number;
   genderRestriction: GenderRestriction;
   categoryIds: string[];

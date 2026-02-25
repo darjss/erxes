@@ -40,6 +40,7 @@ export const ONE_FIT_ACTIVITY_TYPES = gql`
           mn
         }
         creditCost
+        price
         duration
         genderRestriction
         categoryIds
@@ -108,6 +109,7 @@ export const ONE_FIT_ACTIVITY_TYPE = gql`
         mn
       }
       creditCost
+      price
       duration
       genderRestriction
       categoryIds

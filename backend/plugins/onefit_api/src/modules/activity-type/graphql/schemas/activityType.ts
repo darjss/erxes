@@ -26,6 +26,7 @@ export const types = `
     name: OneFitMultilingualString
     description: OneFitMultilingualStringOptional
     creditCost: Float
+    price: Float
     duration: Int
     genderRestriction: OneFitGenderRestriction
     categoryIds: [String]
@@ -51,6 +52,7 @@ export const types = `
     name: OneFitMultilingualString
     description: OneFitMultilingualStringOptional
     creditCost: Float
+    price: Float
     duration: Int
     image: String
     genderRestriction: OneFitGenderRestriction
@@ -99,6 +101,7 @@ const mutationParams = `
   name: OneFitMultilingualStringInput!
   description: OneFitMultilingualStringOptionalInput
   creditCost: Float!
+  price: Float
   duration: Int!
   genderRestriction: OneFitGenderRestriction!
   categoryIds: [String]!
@@ -112,6 +115,7 @@ const updateParams = `
   name: OneFitMultilingualStringInput
   description: OneFitMultilingualStringOptionalInput
   creditCost: Float
+  price: Float
   duration: Int
   genderRestriction: OneFitGenderRestriction
   categoryIds: [String]

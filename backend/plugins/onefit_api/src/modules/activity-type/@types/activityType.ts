@@ -21,6 +21,7 @@ export interface IActivityType {
   name: IMultilingualString;
   description?: IMultilingualStringOptional;
   creditCost: number; // Credit points required
+  price?: number;
   duration: number; // Duration in minutes
   genderRestriction: GenderRestriction;
   categoryIds: string[]; // Activity category IDs (Kids/Adults)

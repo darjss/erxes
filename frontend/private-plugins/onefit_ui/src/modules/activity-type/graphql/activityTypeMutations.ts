@@ -6,6 +6,7 @@ export const ONE_FIT_ACTIVITY_TYPE_CREATE = gql`
     $name: OneFitMultilingualStringInput!
     $description: OneFitMultilingualStringOptionalInput
     $creditCost: Float!
+    $price: Float
     $duration: Int!
     $genderRestriction: OneFitGenderRestriction!
     $categoryIds: [String]!
@@ -19,6 +20,7 @@ export const ONE_FIT_ACTIVITY_TYPE_CREATE = gql`
       name: $name
       description: $description
       creditCost: $creditCost
+      price: $price
       duration: $duration
       genderRestriction: $genderRestriction
       categoryIds: $categoryIds
@@ -40,6 +42,7 @@ export const ONE_FIT_ACTIVITY_TYPE_CREATE = gql`
         mn
       }
       creditCost
+      price
       duration
       genderRestriction
       categoryIds
@@ -57,6 +60,7 @@ export const ONE_FIT_ACTIVITY_TYPE_UPDATE = gql`
     $name: OneFitMultilingualStringInput
     $description: OneFitMultilingualStringOptionalInput
     $creditCost: Float
+    $price: Float
     $duration: Int
     $genderRestriction: OneFitGenderRestriction
     $categoryIds: [String]
@@ -70,6 +74,7 @@ export const ONE_FIT_ACTIVITY_TYPE_UPDATE = gql`
       name: $name
       description: $description
       creditCost: $creditCost
+      price: $price
       duration: $duration
       genderRestriction: $genderRestriction
       categoryIds: $categoryIds
@@ -89,6 +94,7 @@ export const ONE_FIT_ACTIVITY_TYPE_UPDATE = gql`
         mn
       }
       creditCost
+      price
       duration
       genderRestriction
       categoryIds

@@ -43,6 +43,7 @@ const baseActivityTypeSchema = z.object({
   creditCost: z
     .number()
     .min(0, { message: 'Credit cost must be 0 or greater' }),
+  price: z.number().min(0, { message: 'Price must be 0 or greater' }).optional(),
   duration: z
     .number()
     .min(1, { message: 'Duration must be at least 1 minute' }),
@@ -212,6 +213,7 @@ const ActivityTypeForm = ({
         mn: '',
       },
       creditCost: 0,
+      price: 0,
       duration: 60,
       genderRestriction: GenderRestriction.MIXED,
       categoryIds: [],
@@ -233,6 +235,7 @@ const ActivityTypeForm = ({
         name: activityType.name,
         description: activityType.description || { en: '', mn: '' },
         creditCost: activityType.creditCost,
+        price: activityType.price ?? 0,
         duration: activityType.duration,
         genderRestriction: activityType.genderRestriction,
         categoryIds: activityType.categoryIds || [],
@@ -272,6 +275,7 @@ const ActivityTypeForm = ({
               ? createData.description
               : undefined,
           creditCost: createData.creditCost,
+          price: createData.price ?? 0,
           duration: createData.duration,
           genderRestriction: createData.genderRestriction,
           categoryIds: createData.categoryIds,
@@ -298,6 +302,7 @@ const ActivityTypeForm = ({
               ? editData.description
               : undefined,
           creditCost: editData.creditCost,
+          price: editData.price,
           duration: editData.duration,
           genderRestriction: editData.genderRestriction,
           categoryIds:
@@ -464,7 +469,7 @@ const ActivityTypeForm = ({
                 </Form.Item>
               )}
             />
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-3 gap-4">
               <Form.Field
                 control={form.control}
                 name="creditCost"
@@ -479,6 +484,31 @@ const ActivityTypeForm = ({
                         min="0"
                         placeholder="Enter credit cost"
                         value={field.value || ''}
+                        onChange={(e) =>
+                          field.onChange(
+                            e.target.value ? parseFloat(e.target.value) : 0,
+                          )
+                        }
+                      />
+                    </Form.Control>
+                    <Form.Message />
+                  </Form.Item>
+                )}
+              />
+              <Form.Field
+                control={form.control}
+                name="price"
+                render={({ field }) => (
+                  <Form.Item>
+                    <Form.Label>Price</Form.Label>
+                    <Form.Control>
+                      <Input
+                        {...field}
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        placeholder="Enter price"
+                        value={field.value ?? ''}
                         onChange={(e) =>
                           field.onChange(
                             e.target.value ? parseFloat(e.target.value) : 0,
