@@ -1,4 +1,7 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
+import { Button } from 'erxes-ui';
+import { IconReportMoney } from '@tabler/icons-react';
 import { ProvidersList } from '~/modules/provider/components/ProvidersList';
 import { CreateProviderDialog } from '~/modules/provider/components/ProviderDialog';
 import { ProviderFilters } from '~/modules/provider/components/ProviderFilters';
@@ -16,6 +19,14 @@ export function ProvidersPage() {
       filtersComponent={ProviderFilters}
       createDialog={<CreateProviderDialog />}
       listComponent={ProvidersList}
+      headerActions={
+        <Button variant="outline" size="sm" asChild>
+          <Link to="./account-statement">
+            <IconReportMoney />
+            Account Statement
+          </Link>
+        </Button>
+      }
     />
   );
 }

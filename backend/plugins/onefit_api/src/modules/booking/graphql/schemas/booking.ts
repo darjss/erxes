@@ -41,6 +41,22 @@ export const types = `
     pageInfo: PageInfo
     totalCount: Int
   }
+
+  type OneFitAccountStatementRow {
+    year: Int
+    month: Int
+    providerId: String
+    provider: OneFitProvider
+    creditsEarnedCompleted: Float
+    creditsEarnedNoShow: Float
+    bookingCountCompleted: Int
+    bookingCountNoShow: Int
+  }
+
+  type OneFitAccountStatementResponse {
+    rows: [OneFitAccountStatementRow]
+    totalCreditsEarned: Float
+  }
 `;
 
 const bookingQueryParams = `
@@ -71,6 +87,7 @@ export const queries = `
   oneFitBookingsCount(${bookingQueryParams}): Int
   oneFitBooking(_id: String): OneFitBooking
   oneFitBookingByBookingId(bookingId: String!): OneFitBooking
+  oneFitAccountStatement(providerId: String, startDate: Date!, endDate: Date!): OneFitAccountStatementResponse
   cpOneFitBookings(${cpBookingQueryParams}, ${GQL_CURSOR_PARAM_DEFS}): OneFitBookingListResponse
   cpOneFitBookingsCount(${cpBookingQueryParams}): Int
   cpOneFitBooking(_id: String!): OneFitBooking

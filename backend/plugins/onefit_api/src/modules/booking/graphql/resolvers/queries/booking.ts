@@ -7,6 +7,7 @@ import {
 import { IContext } from '~/connectionResolvers';
 import { BookingStatus, AttendanceStatus } from '@/booking/@types/booking';
 import { addInstanceIdFilter } from '~/utils/providerFilter';
+import { accountStatementQueries } from '@/booking/graphql/resolvers/queries/accountStatement';
 
 export interface IBookingQueryParams extends ICursorPaginateParams {
   userId?: string;
@@ -73,6 +74,7 @@ const generateFilter = async (
 };
 
 export const bookingQueries: Record<string, Resolver> = {
+  ...accountStatementQueries,
   async oneFitBookings(
     _root: undefined,
     params: IBookingQueryParams,

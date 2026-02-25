@@ -12,6 +12,7 @@ import {
   IconBuilding,
   IconPhoto,
   IconTicket,
+  IconReportMoney,
 } from '@tabler/icons-react';
 import { useOneFitMode } from './config/hooks/useOneFitMode';
 
@@ -90,6 +91,12 @@ export const OneFitNavigation = () => {
         icon={IconBuildingStore}
         pathPrefix="onefit"
         path="providers"
+      />
+      <NavigationMenuLinkItem
+        name="Account Statement"
+        icon={IconReportMoney}
+        pathPrefix="onefit"
+        path="providers/account-statement"
       />
       {!isSlaveMode && (
         <NavigationMenuLinkItem
