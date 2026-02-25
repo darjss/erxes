@@ -1,5 +1,5 @@
 import { IUIConfig } from 'erxes-ui';
-import { IconSandbox } from '@tabler/icons-react';
+import { IconSparkles } from '@tabler/icons-react';
 import { lazy, Suspense } from 'react';
 
 const AgentNavigation = lazy(() =>
@@ -13,7 +13,7 @@ export const CONFIG: IUIConfig = {
   path: 'agent',
   navigationGroup: {
     name: 'agent',
-    icon: IconSandbox,
+    icon: IconSparkles,
     content: () => (
       <Suspense fallback={<div />}>
         <AgentNavigation />
@@ -23,7 +23,7 @@ export const CONFIG: IUIConfig = {
   modules: [
     {
       name: 'agent',
-      icon: IconSandbox,
+      icon: IconSparkles,
       path: 'agent',
     },
   ],
