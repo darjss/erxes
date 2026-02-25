@@ -16,8 +16,8 @@ const config: ModuleFederationConfig = {
   name: 'agent_ui',
   exposes: {
     './config': './src/config.tsx',
-    './agent': './src/modules/agentMain.tsx',
-    './agentSettings': './src/modules/agentSettings.tsx',
+    './agent': './src/modules/AgentMain.tsx',
+    './agentSettings': './src/modules/AgentSettings.tsx',
     './widgets': './src/widgets/Widgets.tsx',
   },
 
