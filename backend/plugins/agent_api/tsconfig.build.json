@@ -3,20 +3,10 @@
   "compilerOptions": {
     "rootDir": ".",
     "paths": {
-      "~/*": [
-        "./src/*"
-      ],
-      "@/*": [
-        "./src/modules/*"
-      ]
+      "~/*": ["./src/*"],
+      "@/*": ["./src/modules/*"]
     },
-    "types": [
-      "node"
-    ]
+    "types": ["node"]
   },
-  "exclude": [
-    "node_modules",
-    "dist",
-    "**/*spec.ts"
-  ]
+  "exclude": ["node_modules", "dist", "**/*spec.ts"]
 }
