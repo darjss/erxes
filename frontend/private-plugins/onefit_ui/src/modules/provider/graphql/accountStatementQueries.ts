@@ -26,8 +26,11 @@ export const ONE_FIT_ACCOUNT_STATEMENT = gql`
         creditsEarnedNoShow
         bookingCountCompleted
         bookingCountNoShow
+        amountEarnedCompleted
+        amountEarnedNoShow
       }
       totalCreditsEarned
+      totalAmountEarned
     }
   }
 `;

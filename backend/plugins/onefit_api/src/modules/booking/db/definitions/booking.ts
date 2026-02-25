@@ -30,6 +30,7 @@ export const bookingSchema = new Schema(
     startTime: { type: String, required: true, label: 'Start Time' }, // HH:mm
     endTime: { type: String, required: true, label: 'End Time' }, // HH:mm
     creditCost: { type: Number, required: true, label: 'Credit Cost' },
+    price: { type: Number, label: 'Price' },
     status: {
       type: String,
       enum: Object.values(BookingStatus),

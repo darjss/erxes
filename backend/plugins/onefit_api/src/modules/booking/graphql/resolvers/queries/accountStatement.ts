@@ -80,6 +80,24 @@ export const accountStatementQueries: Record<string, Resolver> = {
               ],
             },
           },
+          amountEarnedCompleted: {
+            $sum: {
+              $cond: [
+                { $eq: ['$status', BookingStatus.COMPLETED] },
+                { $ifNull: ['$price', 0] },
+                0,
+              ],
+            },
+          },
+          amountEarnedNoShow: {
+            $sum: {
+              $cond: [
+                { $eq: ['$status', BookingStatus.NO_SHOW] },
+                { $ifNull: ['$price', 0] },
+                0,
+              ],
+            },
+          },
         },
       },
       { $sort: { '_id.year': 1, '_id.month': 1, '_id.providerId': 1 } },
@@ -103,6 +121,8 @@ export const accountStatementQueries: Record<string, Resolver> = {
       creditsEarnedNoShow: a.creditsEarnedNoShow,
       bookingCountCompleted: a.bookingCountCompleted,
       bookingCountNoShow: a.bookingCountNoShow,
+      amountEarnedCompleted: a.amountEarnedCompleted,
+      amountEarnedNoShow: a.amountEarnedNoShow,
     }));
 
     const totalCreditsEarned = rows.reduce(
@@ -111,6 +131,12 @@ export const accountStatementQueries: Record<string, Resolver> = {
       0,
     );
 
-    return { rows, totalCreditsEarned };
+    const totalAmountEarned = rows.reduce(
+      (sum: number, r: any) =>
+        sum + r.amountEarnedCompleted + r.amountEarnedNoShow,
+      0,
+    );
+
+    return { rows, totalCreditsEarned, totalAmountEarned };
   },
 };

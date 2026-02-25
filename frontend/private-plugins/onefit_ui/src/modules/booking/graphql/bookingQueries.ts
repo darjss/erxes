@@ -56,6 +56,7 @@ export const ONE_FIT_BOOKINGS = gql`
         startTime
         endTime
         creditCost
+        price
         status
         attendanceStatus
         bookingId

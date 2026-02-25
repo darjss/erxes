@@ -26,6 +26,7 @@ export const types = `
     startTime: String
     endTime: String
     creditCost: Float
+    price: Float
     status: OneFitBookingStatus
     attendanceStatus: OneFitAttendanceStatus
     bookingId: String
@@ -51,11 +52,14 @@ export const types = `
     creditsEarnedNoShow: Float
     bookingCountCompleted: Int
     bookingCountNoShow: Int
+    amountEarnedCompleted: Float
+    amountEarnedNoShow: Float
   }
 
   type OneFitAccountStatementResponse {
     rows: [OneFitAccountStatementRow]
     totalCreditsEarned: Float
+    totalAmountEarned: Float
   }
 `;
 

@@ -191,6 +191,7 @@ async function createBookingLogic(
     startTime,
     endTime,
     creditCost: activityType.creditCost,
+    price: activityType.price ?? 0,
     status: BookingStatus.CONFIRMED,
     attendanceStatus: AttendanceStatus.PENDING,
   };

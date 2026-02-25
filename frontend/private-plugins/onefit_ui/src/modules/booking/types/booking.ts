@@ -43,6 +43,7 @@ export interface OneFitBooking {
   startTime: string;
   endTime: string;
   creditCost: number;
+  price?: number;
   status: BookingStatus;
   attendanceStatus: AttendanceStatus;
   bookingId: string;
@@ -69,6 +70,8 @@ export interface BookingFilters {
   providerId?: string;
   activityTypeId?: string;
   bookingDate?: Date;
+  startDate?: Date;
+  endDate?: Date;
   status?: BookingStatus;
   attendanceStatus?: AttendanceStatus;
 }
