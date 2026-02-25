@@ -2,6 +2,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Button, Form, Input, useToast } from 'erxes-ui';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
+import { useAgent } from '../hooks/useAgent';
 import { useAgentDeploy } from '../hooks/useAgentDeploy';
 
 const nameRegex = /^[a-z]+$/;
@@ -17,6 +18,7 @@ const deployFormSchema = z.object({
 type DeployFormValues = z.infer<typeof deployFormSchema>;
 
 export const AgentDeployForm = () => {
+  const { refetch } = useAgent();
   const { deployAgent, loading } = useAgentDeploy();
   const { toast } = useToast();
 
@@ -28,6 +30,7 @@ export const AgentDeployForm = () => {
   const onSubmit = async (data: DeployFormValues) => {
     try {
       await deployAgent(data.name, data.token);
+      await refetch();
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
       toast({
