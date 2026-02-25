@@ -6,13 +6,20 @@ import { useAgent } from '../hooks/useAgent';
 import { useAgentDeploy } from '../hooks/useAgentDeploy';
 
 const nameRegex = /^[a-z]+$/;
+const tokenRegex = /^[A-Za-z0-9+/=]+\.[A-Za-z0-9._-]+\.[A-Za-z0-9._-]+$/;
 
 const deployFormSchema = z.object({
   name: z
     .string()
     .min(1, 'Server Name is required')
     .regex(nameRegex, 'Only lowercase letters allowed (no spaces or symbols)'),
-  token: z.string().min(1, 'Token is required'),
+  token: z
+    .string()
+    .min(1, 'Token is required')
+    .regex(
+      tokenRegex,
+      'Token must be in Discord bot format (e.g. XXX.XXX.XXX)',
+    ),
 });
 
 type DeployFormValues = z.infer<typeof deployFormSchema>;
