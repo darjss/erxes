@@ -19,6 +19,7 @@ const config: ModuleFederationConfig = {
     './agent': './src/modules/AgentMain.tsx',
     './agentSettings': './src/modules/AgentSettings.tsx',
     './widgets': './src/widgets/Widgets.tsx',
+    './notificationWidget': './src/widgets/Widgets.tsx',
   },
 
   shared: (libraryName, defaultConfig) => {
