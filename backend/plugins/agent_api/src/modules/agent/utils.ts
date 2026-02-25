@@ -1,4 +1,4 @@
-import { getEnv } from 'erxes-api-shared/src/utils';
+import { getEnv } from 'erxes-api-shared/utils';
 import { IAgentServerDocument } from './@types/agent';
 
 interface DeployPaylaod {
