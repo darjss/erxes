@@ -20,7 +20,7 @@ export const AgentScreen = () => {
   }
 
   if (!agent) {
-    return <AgentDeployForm />;
+    return <AgentPendingForm />;
   }
 
   if (

@@ -69,7 +69,7 @@ export const AgentDeployForm = () => {
           name="token"
           render={({ field }) => (
             <Form.Item className="w-full">
-              <Form.Label>Token</Form.Label>
+              <Form.Label>Discord bot token</Form.Label>
               <Form.Control>
                 <Input {...field} className="w-full" />
               </Form.Control>
