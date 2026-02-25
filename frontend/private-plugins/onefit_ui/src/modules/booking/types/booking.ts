@@ -75,3 +75,24 @@ export interface BookingFilters {
   status?: BookingStatus;
   attendanceStatus?: AttendanceStatus;
 }
+
+export interface CreditConsumptionRow {
+  year: number;
+  month: number;
+  userId: string;
+  user?: {
+    _id: string;
+    firstName?: string;
+    lastName?: string;
+    primaryEmail?: string;
+    primaryPhone?: string;
+  } | null;
+  totalCreditsConsumed: number;
+  bookingCount: number;
+}
+
+export interface OneFitCreditConsumptionResponse {
+  rows: CreditConsumptionRow[];
+  totalCreditsConsumed: number;
+  totalBookings: number;
+}

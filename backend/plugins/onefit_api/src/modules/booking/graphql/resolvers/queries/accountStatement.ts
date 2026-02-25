@@ -139,4 +139,85 @@ export const accountStatementQueries: Record<string, Resolver> = {
 
     return { rows, totalCreditsEarned, totalAmountEarned };
   },
+
+  async oneFitCreditConsumption(
+    _root: undefined,
+    params: {
+      providerId?: string;
+      userId?: string;
+      startDate: Date;
+      endDate: Date;
+    },
+    context: IContext,
+  ) {
+    const { models } = context;
+    const { providerId, userId, startDate, endDate } = params;
+
+    const filter: any = {
+      status: { $in: [BookingStatus.COMPLETED, BookingStatus.NO_SHOW] },
+      bookingDate: {
+        $gte: getPureDate(startDate),
+        $lte: (() => {
+          const end = new Date(getPureDate(endDate));
+          end.setHours(23, 59, 59, 999);
+          return end;
+        })(),
+      },
+    };
+
+    if (providerId) {
+      filter.providerId = providerId;
+    }
+
+    if (userId) {
+      filter.userId = userId;
+    }
+
+    const resolvedFilter = await addInstanceIdFilter(context, filter);
+
+    const aggregated = await models.Booking.aggregate([
+      { $match: resolvedFilter },
+      {
+        $group: {
+          _id: {
+            year: { $year: '$bookingDate' },
+            month: { $month: '$bookingDate' },
+            userId: '$userId',
+          },
+          totalCreditsConsumed: {
+            $sum: { $ifNull: ['$creditCost', 0] },
+          },
+          bookingCount: {
+            $sum: 1,
+          },
+        },
+      },
+      { $sort: { '_id.year': 1, '_id.month': 1, '_id.userId': 1 } },
+    ]);
+
+    const rows = aggregated.map((a: any) => ({
+      year: a._id.year,
+      month: a._id.month,
+      userId: a._id.userId,
+      user: a._id.userId
+        ? {
+            _id: a._id.userId,
+          }
+        : null,
+      totalCreditsConsumed: a.totalCreditsConsumed,
+      bookingCount: a.bookingCount,
+    }));
+
+    const totalCreditsConsumed = rows.reduce(
+      (sum: number, r: any) => sum + r.totalCreditsConsumed,
+      0,
+    );
+
+    const totalBookings = rows.reduce(
+      (sum: number, r: any) => sum + r.bookingCount,
+      0,
+    );
+
+    return { rows, totalCreditsConsumed, totalBookings };
+  },
 };

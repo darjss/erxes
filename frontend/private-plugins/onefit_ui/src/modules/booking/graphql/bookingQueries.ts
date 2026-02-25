@@ -171,3 +171,36 @@ export const ONE_FIT_BOOKING_BY_BOOKING_ID = gql`
     }
   }
 `;
+
+export const ONE_FIT_CREDIT_CONSUMPTION = gql`
+  query OneFitCreditConsumption(
+    $startDate: Date!
+    $endDate: Date!
+    $providerId: String
+    $userId: String
+  ) {
+    oneFitCreditConsumption(
+      startDate: $startDate
+      endDate: $endDate
+      providerId: $providerId
+      userId: $userId
+    ) {
+      rows {
+        year
+        month
+        userId
+        user {
+          _id
+          firstName
+          lastName
+          primaryEmail
+          primaryPhone
+        }
+        totalCreditsConsumed
+        bookingCount
+      }
+      totalCreditsConsumed
+      totalBookings
+    }
+  }
+`;
