@@ -11,6 +11,7 @@ export const GET_AGENT = gql`
       serverId
       createdAt
       updatedAt
+      status
     }
   }
 `;
