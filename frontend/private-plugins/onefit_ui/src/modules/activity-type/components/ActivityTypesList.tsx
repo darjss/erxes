@@ -106,6 +106,18 @@ export const ActivityTypesList = ({ filters }: ActivityTypesListProps) => {
       },
     },
     {
+      accessorKey: 'price',
+      header: 'Price',
+      cell: ({ cell }) => {
+        const value = cell.getValue() as number | undefined;
+        return (
+          <RecordTableInlineCell className="text-xs font-medium">
+            {value != null ? value : '-'}
+          </RecordTableInlineCell>
+        );
+      },
+    },
+    {
       accessorKey: 'duration',
       header: 'Duration',
       cell: ({ cell }) => {

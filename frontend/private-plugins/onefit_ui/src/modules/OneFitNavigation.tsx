@@ -98,6 +98,12 @@ export const OneFitNavigation = () => {
         pathPrefix="onefit"
         path="providers/account-statement"
       />
+      <NavigationMenuLinkItem
+        name="Credit Consumption"
+        icon={IconCoins}
+        pathPrefix="onefit"
+        path="credit-consumption"
+      />
       {!isSlaveMode && (
         <NavigationMenuLinkItem
           name="Banners"

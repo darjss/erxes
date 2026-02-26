@@ -17,6 +17,17 @@ export const GET_COMPANIES_LIST = gql`
   }
 `;
 
+export const GET_COMPANIES_BY_IDS = gql`
+  query GetCompaniesByIds($ids: [String]) {
+    companies(ids: $ids) {
+      list {
+        _id
+        primaryName
+      }
+    }
+  }
+`;
+
 export const ONE_FIT_CUSTOMERS_BY_COMPANY_ID = gql`
   query OneFitCustomersByCompanyId($companyId: String!) {
     oneFitCustomersByCompanyId(companyId: $companyId) {

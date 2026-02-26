@@ -86,6 +86,12 @@ const PromoCodesPage = lazy(() =>
   })),
 );
 
+const CreditConsumptionPage = lazy(() =>
+  import('~/pages/CreditConsumptionPage').then((module) => ({
+    default: module.CreditConsumptionPage,
+  })),
+);
+
 const OneFitMain = () => {
   const { isSlaveMode } = useOneFitMode();
 
@@ -118,16 +124,14 @@ const OneFitMain = () => {
           <Route path="/customers" element={<OneFitCustomersPage />} />
         )}
         {!isSlaveMode && (
-          <Route
-            path="/customers/:id"
-            element={<OneFitCustomerDetailPage />}
-          />
+          <Route path="/customers/:id" element={<OneFitCustomerDetailPage />} />
         )}
         <Route path="/providers" element={<ProvidersPage />} />
         <Route
           path="/providers/account-statement"
           element={<AccountStatementPage />}
         />
+        <Route path="/credit-consumption" element={<CreditConsumptionPage />} />
         {!isSlaveMode && <Route path="/banners" element={<BannersPage />} />}
         {!isSlaveMode && (
           <Route path="/promo-codes" element={<PromoCodesPage />} />

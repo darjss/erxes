@@ -43,6 +43,10 @@ const baseActivityTypeSchema = z.object({
   creditCost: z
     .number()
     .min(0, { message: 'Credit cost must be 0 or greater' }),
+  price: z
+    .number()
+    .min(0, { message: 'Price must be 0 or greater' })
+    .optional(),
   duration: z
     .number()
     .min(1, { message: 'Duration must be at least 1 minute' }),
@@ -176,9 +180,7 @@ const ActivityTypeForm = ({
       name: { en: string; mn: string };
     }>,
   ): string => {
-    const categoryMap = new Map(
-      categoriesList.map((cat) => [cat._id, cat]),
-    );
+    const categoryMap = new Map(categoriesList.map((cat) => [cat._id, cat]));
 
     const getPath = (id: string, path: string[] = []): string[] => {
       const cat = categoryMap.get(id);
@@ -212,6 +214,7 @@ const ActivityTypeForm = ({
         mn: '',
       },
       creditCost: 0,
+      price: 0,
       duration: 60,
       genderRestriction: GenderRestriction.MIXED,
       categoryIds: [],
@@ -233,6 +236,7 @@ const ActivityTypeForm = ({
         name: activityType.name,
         description: activityType.description || { en: '', mn: '' },
         creditCost: activityType.creditCost,
+        price: activityType.price ?? 0,
         duration: activityType.duration,
         genderRestriction: activityType.genderRestriction,
         categoryIds: activityType.categoryIds || [],
@@ -272,6 +276,7 @@ const ActivityTypeForm = ({
               ? createData.description
               : undefined,
           creditCost: createData.creditCost,
+          price: createData.price ?? 0,
           duration: createData.duration,
           genderRestriction: createData.genderRestriction,
           categoryIds: createData.categoryIds,
@@ -298,6 +303,7 @@ const ActivityTypeForm = ({
               ? editData.description
               : undefined,
           creditCost: editData.creditCost,
+          price: editData.price,
           duration: editData.duration,
           genderRestriction: editData.genderRestriction,
           categoryIds:
@@ -464,7 +470,7 @@ const ActivityTypeForm = ({
                 </Form.Item>
               )}
             />
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-3 gap-4">
               <Form.Field
                 control={form.control}
                 name="creditCost"
@@ -479,6 +485,31 @@ const ActivityTypeForm = ({
                         min="0"
                         placeholder="Enter credit cost"
                         value={field.value || ''}
+                        onChange={(e) =>
+                          field.onChange(
+                            e.target.value ? parseFloat(e.target.value) : 0,
+                          )
+                        }
+                      />
+                    </Form.Control>
+                    <Form.Message />
+                  </Form.Item>
+                )}
+              />
+              <Form.Field
+                control={form.control}
+                name="price"
+                render={({ field }) => (
+                  <Form.Item>
+                    <Form.Label>Price</Form.Label>
+                    <Form.Control>
+                      <Input
+                        {...field}
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        placeholder="Enter price"
+                        value={field.value ?? ''}
                         onChange={(e) =>
                           field.onChange(
                             e.target.value ? parseFloat(e.target.value) : 0,
@@ -548,11 +579,13 @@ const ActivityTypeForm = ({
               name="categoryIds"
               render={({ field }) => {
                 const selectedCategoryIds = field.value || [];
-                const selectedCategories = categories.filter((cat: {
-                  _id: string;
-                  parentId?: string;
-                  name: { en: string; mn: string };
-                }) => selectedCategoryIds.includes(cat._id));
+                const selectedCategories = categories.filter(
+                  (cat: {
+                    _id: string;
+                    parentId?: string;
+                    name: { en: string; mn: string };
+                  }) => selectedCategoryIds.includes(cat._id),
+                );
 
                 return (
                   <Form.Item>
@@ -569,18 +602,20 @@ const ActivityTypeForm = ({
                           Selected Categories:
                         </p>
                         <div className="flex flex-wrap gap-2">
-                          {selectedCategories.map((category: {
-                            _id: string;
-                            parentId?: string;
-                            name: { en: string; mn: string };
-                          }) => (
-                            <span
-                              key={category._id}
-                              className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary text-primary-foreground"
-                            >
-                              {getCategoryFullPath(category._id, categories)}
-                            </span>
-                          ))}
+                          {selectedCategories.map(
+                            (category: {
+                              _id: string;
+                              parentId?: string;
+                              name: { en: string; mn: string };
+                            }) => (
+                              <span
+                                key={category._id}
+                                className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary text-primary-foreground"
+                              >
+                                {getCategoryFullPath(category._id, categories)}
+                              </span>
+                            ),
+                          )}
                         </div>
                       </div>
                     )}

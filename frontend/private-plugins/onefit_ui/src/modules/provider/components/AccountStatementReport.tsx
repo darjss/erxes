@@ -1,11 +1,12 @@
 import { useState, useMemo } from 'react';
 import { useQuery } from '@apollo/client';
 import { ColumnDef } from '@tanstack/table-core';
-import { Input, RecordTable, RecordTableInlineCell } from 'erxes-ui';
+import { Button, Input, RecordTable, RecordTableInlineCell } from 'erxes-ui';
 import { ONE_FIT_ACCOUNT_STATEMENT } from '../graphql/accountStatementQueries';
 import { SelectProviderSearchable } from './SelectProviderSearchable';
 import { getLocalizedString } from '~/modules/activity-type/utils/localization';
 import { FilterField } from '~/components/shared/FilterField';
+import { AccountStatementRowDetailsDialog } from './AccountStatementRowDetailsDialog';
 
 function startOfMonth(date: Date): string {
   const y = date.getFullYear();
@@ -25,11 +26,16 @@ interface AccountStatementRow {
   year: number;
   month: number;
   providerId: string;
-  provider?: { _id: string; businessName?: { en?: string; mn?: string } } | null;
+  provider?: {
+    _id: string;
+    businessName?: { en?: string; mn?: string };
+  } | null;
   creditsEarnedCompleted: number;
   creditsEarnedNoShow: number;
   bookingCountCompleted: number;
   bookingCountNoShow: number;
+  amountEarnedCompleted: number;
+  amountEarnedNoShow: number;
 }
 
 export function AccountStatementReport() {
@@ -37,6 +43,10 @@ export function AccountStatementReport() {
   const [startDate, setStartDate] = useState(startOfMonth(now));
   const [endDate, setEndDate] = useState(endOfMonth(now));
   const [providerId, setProviderId] = useState<string>('');
+  const [detailsRow, setDetailsRow] = useState<AccountStatementRow | null>(
+    null,
+  );
+  const [detailsOpen, setDetailsOpen] = useState(false);
 
   const { data, loading } = useQuery(ONE_FIT_ACCOUNT_STATEMENT, {
     variables: {
@@ -50,6 +60,7 @@ export function AccountStatementReport() {
   const result = data?.oneFitAccountStatement;
   const rows: AccountStatementRow[] = result?.rows ?? [];
   const totalCreditsEarned = result?.totalCreditsEarned ?? 0;
+  const totalAmountEarned = result?.totalAmountEarned ?? 0;
 
   const columns: ColumnDef<AccountStatementRow>[] = [
     {
@@ -125,6 +136,42 @@ export function AccountStatementReport() {
         </RecordTableInlineCell>
       ),
     },
+    {
+      accessorKey: 'amountEarnedCompleted',
+      header: 'Amount (completed)',
+      cell: ({ cell }) => (
+        <RecordTableInlineCell className="text-xs font-medium">
+          {(cell.getValue() as number).toFixed(2)}
+        </RecordTableInlineCell>
+      ),
+    },
+    {
+      accessorKey: 'amountEarnedNoShow',
+      header: 'Amount (no-show)',
+      cell: ({ cell }) => (
+        <RecordTableInlineCell className="text-xs font-medium">
+          {(cell.getValue() as number).toFixed(2)}
+        </RecordTableInlineCell>
+      ),
+    },
+    {
+      id: 'details',
+      header: '',
+      cell: ({ row }) => (
+        <RecordTableInlineCell>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => {
+              setDetailsRow(row.original);
+              setDetailsOpen(true);
+            }}
+          >
+            View bookings
+          </Button>
+        </RecordTableInlineCell>
+      ),
+    },
   ];
 
   return (
@@ -164,8 +211,9 @@ export function AccountStatementReport() {
           </RecordTable>
         </RecordTable.Provider>
         {!loading && rows.length > 0 && (
-          <div className="border-t bg-muted/30 px-4 py-2 text-sm font-medium">
-            Total credits earned: {totalCreditsEarned.toFixed(2)}
+          <div className="border-t bg-muted/30 px-4 py-2 text-sm font-medium space-y-1">
+            <div>Total credits earned: {totalCreditsEarned.toFixed(2)}</div>
+            <div>Total amount earned: {totalAmountEarned.toFixed(2)}</div>
           </div>
         )}
       </div>
@@ -175,6 +223,15 @@ export function AccountStatementReport() {
           No completed or no-show bookings in the selected date range.
         </p>
       )}
+
+      <AccountStatementRowDetailsDialog
+        row={detailsRow}
+        open={detailsOpen}
+        onOpenChange={(open) => {
+          setDetailsOpen(open);
+          if (!open) setDetailsRow(null);
+        }}
+      />
     </div>
   );
 }

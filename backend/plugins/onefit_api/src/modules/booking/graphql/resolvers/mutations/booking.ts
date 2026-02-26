@@ -125,12 +125,8 @@ async function createBookingLogic(
   // Check single-person limit: in any 30-day window, user cannot exceed activityType.singlePersonLimit bookings for this activity
   const singlePersonLimit = activityType.singlePersonLimit ?? 5;
   const MS_PER_DAY = 24 * 60 * 60 * 1000;
-  const rangeStart = new Date(
-    bookingDatePure.getTime() - 29 * MS_PER_DAY,
-  );
-  const rangeEnd = new Date(
-    bookingDatePure.getTime() + 30 * MS_PER_DAY,
-  );
+  const rangeStart = new Date(bookingDatePure.getTime() - 29 * MS_PER_DAY);
+  const rangeEnd = new Date(bookingDatePure.getTime() + 30 * MS_PER_DAY);
   const existingInRange = await models.Booking.find(
     {
       userId,
@@ -162,9 +158,8 @@ async function createBookingLogic(
   }
 
   // Check membership is not on hold (booking not allowed during hold)
-  const oneFitCustomerForHold = await models.OneFitCustomer.getOneFitCustomer(
-    userId,
-  );
+  const oneFitCustomerForHold =
+    await models.OneFitCustomer.getOneFitCustomer(userId);
   if (oneFitCustomerForHold?.isMembershipOnHold) {
     const holdEndAt = oneFitCustomerForHold.membershipHoldEndAt
       ? new Date(oneFitCustomerForHold.membershipHoldEndAt)
@@ -191,6 +186,7 @@ async function createBookingLogic(
     startTime,
     endTime,
     creditCost: activityType.creditCost,
+    price: activityType.price ?? 0,
     status: BookingStatus.CONFIRMED,
     attendanceStatus: AttendanceStatus.PENDING,
   };

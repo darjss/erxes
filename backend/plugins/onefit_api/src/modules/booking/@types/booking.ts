@@ -21,6 +21,7 @@ export interface IBooking {
   startTime: string; // HH:mm format
   endTime: string; // HH:mm format
   creditCost: number;
+  price?: number;
   status: BookingStatus;
   attendanceStatus: AttendanceStatus;
   bookingId: string; // Unique booking identifier

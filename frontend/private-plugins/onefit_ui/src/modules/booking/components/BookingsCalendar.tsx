@@ -13,7 +13,7 @@ import {
   parseISO,
   startOfDay,
 } from 'date-fns';
-import { Button, ScrollArea, Tooltip } from 'erxes-ui';
+import { Badge, Button, ScrollArea, Tooltip } from 'erxes-ui';
 import {
   IconBan,
   IconCalendarOff,
@@ -23,9 +23,10 @@ import {
 } from '@tabler/icons-react';
 import { useBookingsForMonth } from '../hooks/useBookingsForMonth';
 import { useMonthAvailability } from '../hooks/useMonthAvailability';
-import { BookingFilters, OneFitBooking } from '../types/booking';
+import { BookingFilters, BookingStatus, OneFitBooking } from '../types/booking';
 import type { OneFitDayAvailability } from '../types/schedule';
 import { getLocalizedString } from '~/modules/activity-type/utils/localization';
+import { BookingDetailDialog } from './BookingDetailDialog';
 
 const WEEKDAY_LABELS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 const MAX_VISIBLE_BOOKINGS_PER_CELL = 3;
@@ -40,11 +41,47 @@ function getCustomerDisplayName(booking: OneFitBooking): string {
   return '—';
 }
 
-function groupBookingsByDay(bookings: OneFitBooking[]): Map<number, OneFitBooking[]> {
+function getStatusBadgeVariant(
+  status: BookingStatus,
+): 'success' | 'destructive' | 'info' | 'warning' | 'secondary' {
+  switch (status) {
+    case BookingStatus.CONFIRMED:
+      return 'success';
+    case BookingStatus.CANCELLED:
+      return 'destructive';
+    case BookingStatus.COMPLETED:
+      return 'info';
+    case BookingStatus.NO_SHOW:
+      return 'warning';
+    default:
+      return 'secondary';
+  }
+}
+
+function getStatusLabel(status: BookingStatus): string {
+  switch (status) {
+    case BookingStatus.CONFIRMED:
+      return 'Confirmed';
+    case BookingStatus.CANCELLED:
+      return 'Cancelled';
+    case BookingStatus.COMPLETED:
+      return 'Completed';
+    case BookingStatus.NO_SHOW:
+      return 'No Show';
+    default:
+      return status ?? '—';
+  }
+}
+
+function groupBookingsByDay(
+  bookings: OneFitBooking[],
+): Map<number, OneFitBooking[]> {
   const map = new Map<number, OneFitBooking[]>();
   for (const b of bookings) {
     const d = startOfDay(
-      typeof b.bookingDate === 'string' ? parseISO(b.bookingDate) : new Date(b.bookingDate),
+      typeof b.bookingDate === 'string'
+        ? parseISO(b.bookingDate)
+        : new Date(b.bookingDate),
     ).getTime();
     const list = map.get(d) ?? [];
     list.push(b);
@@ -101,7 +138,13 @@ interface BookingsCalendarProps {
 
 export function BookingsCalendar({ filters }: BookingsCalendarProps) {
   const [currentMonth, setCurrentMonth] = useState(() => new Date());
-  const { bookings, loading, error } = useBookingsForMonth(currentMonth, filters);
+  const [selectedBooking, setSelectedBooking] = useState<OneFitBooking | null>(
+    null,
+  );
+  const { bookings, loading, error } = useBookingsForMonth(
+    currentMonth,
+    filters,
+  );
   const { daysByDate } = useMonthAvailability(
     currentMonth,
     filters?.providerId,
@@ -222,22 +265,28 @@ export function BookingsCalendar({ filters }: BookingsCalendarProps) {
                     {dayBookings
                       .slice(0, MAX_VISIBLE_BOOKINGS_PER_CELL)
                       .map((booking) => (
-                        <div
+                        <button
+                          type="button"
                           key={booking._id}
-                          className="text-xs truncate rounded px-1.5 py-0.5 bg-muted/80"
-                          title={`${getCustomerDisplayName(booking)} · ${booking.startTime}${booking.activityType ? ` · ${getLocalizedString(booking.activityType.name)}` : ''}`}
+                          onClick={() => setSelectedBooking(booking)}
+                          className="text-xs truncate rounded px-1.5 py-0.5 bg-muted/80 flex items-center gap-1 flex-wrap w-full text-left hover:bg-muted cursor-pointer transition-colors"
+                          title={`${getCustomerDisplayName(booking)} · ${getStatusLabel(booking.status)}${booking.activityType ? ` · ${getLocalizedString(booking.activityType.name)}` : ''} · Click for details`}
                         >
-                          <span className="font-medium">
+                          <span className="font-medium truncate min-w-0">
                             {getCustomerDisplayName(booking)}
                           </span>
-                          <span className="text-muted-foreground ml-1">
-                            {booking.startTime}
-                          </span>
-                        </div>
+                          <Badge
+                            variant={getStatusBadgeVariant(booking.status)}
+                            className="text-[10px] px-1 py-0 shrink-0"
+                          >
+                            {getStatusLabel(booking.status)}
+                          </Badge>
+                        </button>
                       ))}
                     {dayBookings.length > MAX_VISIBLE_BOOKINGS_PER_CELL && (
                       <span className="text-xs text-muted-foreground px-1 shrink-0">
-                        +{dayBookings.length - MAX_VISIBLE_BOOKINGS_PER_CELL} more
+                        +{dayBookings.length - MAX_VISIBLE_BOOKINGS_PER_CELL}{' '}
+                        more
                       </span>
                     )}
                   </div>
@@ -247,6 +296,12 @@ export function BookingsCalendar({ filters }: BookingsCalendarProps) {
           </div>
         </ScrollArea>
       )}
+
+      <BookingDetailDialog
+        booking={selectedBooking}
+        open={!!selectedBooking}
+        onOpenChange={(open) => !open && setSelectedBooking(null)}
+      />
     </div>
   );
 }

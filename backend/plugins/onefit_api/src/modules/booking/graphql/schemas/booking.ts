@@ -26,6 +26,7 @@ export const types = `
     startTime: String
     endTime: String
     creditCost: Float
+    price: Float
     status: OneFitBookingStatus
     attendanceStatus: OneFitAttendanceStatus
     bookingId: String
@@ -51,11 +52,29 @@ export const types = `
     creditsEarnedNoShow: Float
     bookingCountCompleted: Int
     bookingCountNoShow: Int
+    amountEarnedCompleted: Float
+    amountEarnedNoShow: Float
   }
 
   type OneFitAccountStatementResponse {
     rows: [OneFitAccountStatementRow]
     totalCreditsEarned: Float
+    totalAmountEarned: Float
+  }
+
+  type OneFitCreditConsumptionRow {
+    year: Int
+    month: Int
+    userId: String
+    user: Customer
+    totalCreditsConsumed: Float
+    bookingCount: Int
+  }
+
+  type OneFitCreditConsumptionResponse {
+    rows: [OneFitCreditConsumptionRow]
+    totalCreditsConsumed: Float
+    totalBookings: Int
   }
 `;
 
@@ -88,6 +107,7 @@ export const queries = `
   oneFitBooking(_id: String): OneFitBooking
   oneFitBookingByBookingId(bookingId: String!): OneFitBooking
   oneFitAccountStatement(providerId: String, startDate: Date!, endDate: Date!): OneFitAccountStatementResponse
+  oneFitCreditConsumption(startDate: Date!, endDate: Date!, providerId: String, userId: String, companyId: String): OneFitCreditConsumptionResponse
   cpOneFitBookings(${cpBookingQueryParams}, ${GQL_CURSOR_PARAM_DEFS}): OneFitBookingListResponse
   cpOneFitBookingsCount(${cpBookingQueryParams}): Int
   cpOneFitBooking(_id: String!): OneFitBooking

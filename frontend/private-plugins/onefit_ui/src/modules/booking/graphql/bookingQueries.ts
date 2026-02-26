@@ -56,6 +56,7 @@ export const ONE_FIT_BOOKINGS = gql`
         startTime
         endTime
         creditCost
+        price
         status
         attendanceStatus
         bookingId
@@ -167,6 +168,41 @@ export const ONE_FIT_BOOKING_BY_BOOKING_ID = gql`
       cancellationReason
       attendedAt
       markedBy
+    }
+  }
+`;
+
+export const ONE_FIT_CREDIT_CONSUMPTION = gql`
+  query OneFitCreditConsumption(
+    $startDate: Date!
+    $endDate: Date!
+    $providerId: String
+    $userId: String
+    $companyId: String
+  ) {
+    oneFitCreditConsumption(
+      startDate: $startDate
+      endDate: $endDate
+      providerId: $providerId
+      userId: $userId
+      companyId: $companyId
+    ) {
+      rows {
+        year
+        month
+        userId
+        user {
+          _id
+          firstName
+          lastName
+          primaryEmail
+          primaryPhone
+        }
+        totalCreditsConsumed
+        bookingCount
+      }
+      totalCreditsConsumed
+      totalBookings
     }
   }
 `;
