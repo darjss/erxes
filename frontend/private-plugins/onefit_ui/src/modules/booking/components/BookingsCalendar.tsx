@@ -41,7 +41,9 @@ function getCustomerDisplayName(booking: OneFitBooking): string {
   return '—';
 }
 
-function getStatusBadgeVariant(status: BookingStatus): 'success' | 'destructive' | 'info' | 'warning' | 'secondary' {
+function getStatusBadgeVariant(
+  status: BookingStatus,
+): 'success' | 'destructive' | 'info' | 'warning' | 'secondary' {
   switch (status) {
     case BookingStatus.CONFIRMED:
       return 'success';
@@ -71,11 +73,15 @@ function getStatusLabel(status: BookingStatus): string {
   }
 }
 
-function groupBookingsByDay(bookings: OneFitBooking[]): Map<number, OneFitBooking[]> {
+function groupBookingsByDay(
+  bookings: OneFitBooking[],
+): Map<number, OneFitBooking[]> {
   const map = new Map<number, OneFitBooking[]>();
   for (const b of bookings) {
     const d = startOfDay(
-      typeof b.bookingDate === 'string' ? parseISO(b.bookingDate) : new Date(b.bookingDate),
+      typeof b.bookingDate === 'string'
+        ? parseISO(b.bookingDate)
+        : new Date(b.bookingDate),
     ).getTime();
     const list = map.get(d) ?? [];
     list.push(b);
@@ -132,8 +138,13 @@ interface BookingsCalendarProps {
 
 export function BookingsCalendar({ filters }: BookingsCalendarProps) {
   const [currentMonth, setCurrentMonth] = useState(() => new Date());
-  const [selectedBooking, setSelectedBooking] = useState<OneFitBooking | null>(null);
-  const { bookings, loading, error } = useBookingsForMonth(currentMonth, filters);
+  const [selectedBooking, setSelectedBooking] = useState<OneFitBooking | null>(
+    null,
+  );
+  const { bookings, loading, error } = useBookingsForMonth(
+    currentMonth,
+    filters,
+  );
   const { daysByDate } = useMonthAvailability(
     currentMonth,
     filters?.providerId,
@@ -274,7 +285,8 @@ export function BookingsCalendar({ filters }: BookingsCalendarProps) {
                       ))}
                     {dayBookings.length > MAX_VISIBLE_BOOKINGS_PER_CELL && (
                       <span className="text-xs text-muted-foreground px-1 shrink-0">
-                        +{dayBookings.length - MAX_VISIBLE_BOOKINGS_PER_CELL} more
+                        +{dayBookings.length - MAX_VISIBLE_BOOKINGS_PER_CELL}{' '}
+                        more
                       </span>
                     )}
                   </div>

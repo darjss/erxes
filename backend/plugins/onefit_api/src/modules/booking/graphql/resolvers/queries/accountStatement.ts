@@ -64,20 +64,12 @@ export const accountStatementQueries: Record<string, Resolver> = {
           },
           bookingCountCompleted: {
             $sum: {
-              $cond: [
-                { $eq: ['$status', BookingStatus.COMPLETED] },
-                1,
-                0,
-              ],
+              $cond: [{ $eq: ['$status', BookingStatus.COMPLETED] }, 1, 0],
             },
           },
           bookingCountNoShow: {
             $sum: {
-              $cond: [
-                { $eq: ['$status', BookingStatus.NO_SHOW] },
-                1,
-                0,
-              ],
+              $cond: [{ $eq: ['$status', BookingStatus.NO_SHOW] }, 1, 0],
             },
           },
           amountEarnedCompleted: {

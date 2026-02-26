@@ -26,7 +26,10 @@ interface AccountStatementRow {
   year: number;
   month: number;
   providerId: string;
-  provider?: { _id: string; businessName?: { en?: string; mn?: string } } | null;
+  provider?: {
+    _id: string;
+    businessName?: { en?: string; mn?: string };
+  } | null;
   creditsEarnedCompleted: number;
   creditsEarnedNoShow: number;
   bookingCountCompleted: number;
@@ -40,7 +43,9 @@ export function AccountStatementReport() {
   const [startDate, setStartDate] = useState(startOfMonth(now));
   const [endDate, setEndDate] = useState(endOfMonth(now));
   const [providerId, setProviderId] = useState<string>('');
-  const [detailsRow, setDetailsRow] = useState<AccountStatementRow | null>(null);
+  const [detailsRow, setDetailsRow] = useState<AccountStatementRow | null>(
+    null,
+  );
   const [detailsOpen, setDetailsOpen] = useState(false);
 
   const { data, loading } = useQuery(ONE_FIT_ACCOUNT_STATEMENT, {

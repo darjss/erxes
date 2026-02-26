@@ -131,7 +131,8 @@ export function BookingDetailDialog({
             <div>
               <span className="text-muted-foreground font-medium">Date:</span>
               <div className="mt-1 font-medium">
-                {format(bookingDate, 'PPP')} {booking.startTime}–{booking.endTime}
+                {format(bookingDate, 'PPP')} {booking.startTime}–
+                {booking.endTime}
               </div>
             </div>
 
@@ -156,7 +157,9 @@ export function BookingDetailDialog({
                 Attendance:
               </span>
               <div className="mt-1">
-                <Badge variant={getAttendanceBadgeVariant(booking.attendanceStatus)}>
+                <Badge
+                  variant={getAttendanceBadgeVariant(booking.attendanceStatus)}
+                >
                   {booking.attendanceStatus === 'attended'
                     ? 'Attended'
                     : booking.attendanceStatus === 'no_show'

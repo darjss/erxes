@@ -43,7 +43,10 @@ const baseActivityTypeSchema = z.object({
   creditCost: z
     .number()
     .min(0, { message: 'Credit cost must be 0 or greater' }),
-  price: z.number().min(0, { message: 'Price must be 0 or greater' }).optional(),
+  price: z
+    .number()
+    .min(0, { message: 'Price must be 0 or greater' })
+    .optional(),
   duration: z
     .number()
     .min(1, { message: 'Duration must be at least 1 minute' }),
@@ -177,9 +180,7 @@ const ActivityTypeForm = ({
       name: { en: string; mn: string };
     }>,
   ): string => {
-    const categoryMap = new Map(
-      categoriesList.map((cat) => [cat._id, cat]),
-    );
+    const categoryMap = new Map(categoriesList.map((cat) => [cat._id, cat]));
 
     const getPath = (id: string, path: string[] = []): string[] => {
       const cat = categoryMap.get(id);
@@ -578,11 +579,13 @@ const ActivityTypeForm = ({
               name="categoryIds"
               render={({ field }) => {
                 const selectedCategoryIds = field.value || [];
-                const selectedCategories = categories.filter((cat: {
-                  _id: string;
-                  parentId?: string;
-                  name: { en: string; mn: string };
-                }) => selectedCategoryIds.includes(cat._id));
+                const selectedCategories = categories.filter(
+                  (cat: {
+                    _id: string;
+                    parentId?: string;
+                    name: { en: string; mn: string };
+                  }) => selectedCategoryIds.includes(cat._id),
+                );
 
                 return (
                   <Form.Item>
@@ -599,18 +602,20 @@ const ActivityTypeForm = ({
                           Selected Categories:
                         </p>
                         <div className="flex flex-wrap gap-2">
-                          {selectedCategories.map((category: {
-                            _id: string;
-                            parentId?: string;
-                            name: { en: string; mn: string };
-                          }) => (
-                            <span
-                              key={category._id}
-                              className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary text-primary-foreground"
-                            >
-                              {getCategoryFullPath(category._id, categories)}
-                            </span>
-                          ))}
+                          {selectedCategories.map(
+                            (category: {
+                              _id: string;
+                              parentId?: string;
+                              name: { en: string; mn: string };
+                            }) => (
+                              <span
+                                key={category._id}
+                                className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary text-primary-foreground"
+                              >
+                                {getCategoryFullPath(category._id, categories)}
+                              </span>
+                            ),
+                          )}
                         </div>
                       </div>
                     )}
