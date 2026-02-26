@@ -1,5 +1,5 @@
 import { Resolver } from 'erxes-api-shared/core-types';
-import { getPureDate } from 'erxes-api-shared/utils';
+import { getPureDate, sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 import { BookingStatus } from '@/booking/@types/booking';
 import { addInstanceIdFilter } from '~/utils/providerFilter';
@@ -145,13 +145,14 @@ export const accountStatementQueries: Record<string, Resolver> = {
     params: {
       providerId?: string;
       userId?: string;
+      companyId?: string;
       startDate: Date;
       endDate: Date;
     },
     context: IContext,
   ) {
-    const { models } = context;
-    const { providerId, userId, startDate, endDate } = params;
+    const { models, subdomain } = context;
+    const { providerId, userId, companyId, startDate, endDate } = params;
 
     const filter: any = {
       status: { $in: [BookingStatus.COMPLETED, BookingStatus.NO_SHOW] },
@@ -171,6 +172,23 @@ export const accountStatementQueries: Record<string, Resolver> = {
 
     if (userId) {
       filter.userId = userId;
+    } else if (companyId) {
+      const customerIds = (await sendTRPCMessage({
+        subdomain,
+        pluginName: 'core',
+        method: 'query',
+        module: 'relation',
+        action: 'getRelationIds',
+        input: {
+          contentType: 'core:company',
+          contentId: companyId,
+          relatedContentType: 'core:customer',
+        },
+        defaultValue: [] as string[],
+      })) as string[];
+
+      const ids = customerIds?.filter((id) => id && id.trim()) ?? [];
+      filter.userId = ids.length > 0 ? { $in: ids } : { $in: [] };
     }
 
     const resolvedFilter = await addInstanceIdFilter(context, filter);

@@ -178,12 +178,14 @@ export const ONE_FIT_CREDIT_CONSUMPTION = gql`
     $endDate: Date!
     $providerId: String
     $userId: String
+    $companyId: String
   ) {
     oneFitCreditConsumption(
       startDate: $startDate
       endDate: $endDate
       providerId: $providerId
       userId: $userId
+      companyId: $companyId
     ) {
       rows {
         year

@@ -5,6 +5,7 @@ import { Input, RecordTable, RecordTableInlineCell } from 'erxes-ui';
 import { ONE_FIT_CREDIT_CONSUMPTION } from '~/modules/booking/graphql/bookingQueries';
 import { CreditConsumptionRow } from '~/modules/booking/types/booking';
 import { FilterField } from '~/components/shared/FilterField';
+import { SelectCompany } from '~/modules/credit/components/SelectCompany';
 
 function startOfMonth(date: Date): string {
   const y = date.getFullYear();
@@ -24,11 +25,13 @@ export function CreditConsumptionReport() {
   const now = useMemo(() => new Date(), []);
   const [startDate, setStartDate] = useState(startOfMonth(now));
   const [endDate, setEndDate] = useState(endOfMonth(now));
+  const [companyId, setCompanyId] = useState<string>('');
 
   const { data, loading } = useQuery(ONE_FIT_CREDIT_CONSUMPTION, {
     variables: {
       startDate: startDate || undefined,
       endDate: endDate || undefined,
+      companyId: companyId || undefined,
     },
     skip: !startDate || !endDate,
   });
@@ -126,6 +129,12 @@ export function CreditConsumptionReport() {
             type="date"
             value={endDate}
             onChange={(event) => setEndDate(event.target.value || '')}
+          />
+        </FilterField>
+        <FilterField label="Company" optional>
+          <SelectCompany
+            value={companyId}
+            onValueChange={(value) => setCompanyId(value ?? '')}
           />
         </FilterField>
       </div>
