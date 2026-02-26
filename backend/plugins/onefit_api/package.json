@@ -9,7 +9,8 @@
     "start": "node -r tsconfig-paths/register dist/src/main.js",
     "import:category": "tsx scripts/import-category.ts",
     "import:providers": "tsx scripts/import-providers.ts",
-    "import:partner-activities": "tsx scripts/import-partner-activities.ts"
+    "import:partner-activities": "tsx scripts/import-partner-activities.ts",
+    "update:activity-type-prices": "tsx scripts/update-activity-type-prices.ts"
   },
   "keywords": [],
   "author": "",
