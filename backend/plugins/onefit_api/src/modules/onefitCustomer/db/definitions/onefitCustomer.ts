@@ -6,6 +6,101 @@ export const onefitCustomerSchema = new Schema(
   {
     _id: mongooseStringRandomId,
 
+    // Basic customer profile fields (aligned with core contacts where needed)
+    state: {
+      type: String,
+      label: 'State',
+      default: 'customer',
+    },
+    createdAt: {
+      type: Date,
+      label: 'Created at',
+    },
+    updatedAt: {
+      type: Date,
+      label: 'Modified at',
+    },
+    avatar: {
+      type: String,
+      optional: true,
+      label: 'Avatar',
+    },
+    firstName: {
+      type: String,
+      optional: true,
+      label: 'First name',
+    },
+    lastName: {
+      type: String,
+      optional: true,
+      label: 'Last name',
+    },
+    middleName: {
+      type: String,
+      optional: true,
+      label: 'Middle name',
+    },
+    birthDate: {
+      type: Date,
+      optional: true,
+      label: 'Date of birth',
+    },
+    primaryEmail: {
+      type: String,
+      optional: true,
+      label: 'Primary Email',
+    },
+    emails: {
+      type: [String],
+      optional: true,
+      label: 'Emails',
+    },
+    primaryPhone: {
+      type: String,
+      optional: true,
+      label: 'Primary Phone',
+    },
+    phones: {
+      type: [String],
+      optional: true,
+      label: 'Phones',
+    },
+    code: {
+      type: String,
+      optional: true,
+      label: 'Code',
+    },
+    // Onefit2 specific identity fields for easier traceability
+    username: {
+      type: String,
+      optional: true,
+      label: 'Username',
+      index: true,
+    },
+    gender: {
+      type: String,
+      optional: true,
+      label: 'Gender',
+    },
+    crmId: {
+      type: Number,
+      optional: true,
+      label: 'CRM ID',
+      index: true,
+    },
+    onefit2UserId: {
+      type: String,
+      optional: true,
+      label: 'Onefit2 User ID',
+      index: true,
+    },
+    status: {
+      type: String,
+      optional: true,
+      label: 'Status',
+      index: true,
+    },
+
     // Membership information
     membershipPlanId: {
       type: String,

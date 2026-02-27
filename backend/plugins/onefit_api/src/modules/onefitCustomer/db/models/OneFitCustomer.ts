@@ -100,9 +100,10 @@ export const loadOneFitCustomerClass = (models: IModels) => {
       earnedAmount: number,
     ) {
       return await (this as any).findOneAndUpdate(
-        { _id: customerId, __t: 'OneFitCustomer' },
+        { _id: customerId },
         {
           $set: {
+            __t: 'OneFitCustomer',
             currentCreditBalance: balance,
           },
           $inc: {
