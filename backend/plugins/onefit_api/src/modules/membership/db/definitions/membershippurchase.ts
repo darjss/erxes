@@ -8,6 +8,13 @@ export const membershipPurchaseSchema = new Schema(
     createdAt: { type: Date, label: 'Created at', index: true },
     modifiedAt: { type: Date, label: 'Modified at' },
 
+    externalHistoryId: {
+      type: String,
+      optional: true,
+      index: true,
+      label: 'Onefit2 SubscriptionHistory ID',
+    },
+
     userId: {
       type: String,
       required: true,
