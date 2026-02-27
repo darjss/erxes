@@ -251,14 +251,14 @@ async function importOnefit2SubscriptionHistory(
               history.startDate && history.startDate instanceof Date
                 ? history.startDate
                 : history.startDate
-                ? new Date(history.startDate)
-                : undefined;
+                  ? new Date(history.startDate)
+                  : undefined;
             const end =
               history.endDate && history.endDate instanceof Date
                 ? history.endDate
                 : history.endDate
-                ? new Date(history.endDate)
-                : undefined;
+                  ? new Date(history.endDate)
+                  : undefined;
 
             const now = new Date();
 
