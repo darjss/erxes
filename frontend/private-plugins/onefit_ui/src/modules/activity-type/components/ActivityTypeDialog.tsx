@@ -28,6 +28,7 @@ import { SelectProviderSearchable } from '~/modules/provider/components/SelectPr
 import { SelectProviderImage } from './SelectProviderImage';
 import { ONE_FIT_ACTIVITY_CATEGORIES } from '~/modules/category/graphql/categoryQueries';
 import { getLocalizedString as getCategoryLocalizedString } from '~/modules/category/utils/localization';
+import { useOneFitMode } from '~/modules/config/hooks/useOneFitMode';
 
 const baseActivityTypeSchema = z.object({
   name: z.object({
@@ -154,6 +155,7 @@ const ActivityTypeForm = ({
   activityTypeId,
   onClose,
 }: ActivityTypeFormProps) => {
+  const { isSlaveMode } = useOneFitMode();
   const isCreate = mode === 'create';
   const [selectedLanguage, setSelectedLanguage] = useState<'en' | 'mn'>('en');
 
@@ -490,6 +492,7 @@ const ActivityTypeForm = ({
                             e.target.value ? parseFloat(e.target.value) : 0,
                           )
                         }
+                        disabled={isSlaveMode}
                       />
                     </Form.Control>
                     <Form.Message />
@@ -515,6 +518,7 @@ const ActivityTypeForm = ({
                             e.target.value ? parseFloat(e.target.value) : 0,
                           )
                         }
+                        disabled={isSlaveMode}
                       />
                     </Form.Control>
                     <Form.Message />
