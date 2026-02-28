@@ -8,47 +8,63 @@ import { getMasterClient } from '~/utils/masterClient';
 import { getSubdomain } from 'erxes-api-shared/utils';
 
 /**
- * List of config queries that should be handled locally in slave mode
- * instead of being proxied to master
+ * Operations that are proxied to master in slave mode.
+ * Only booking, schedule, activity type, providers, and account statement.
  */
-const CONFIG_QUERIES = [
-  'oneFitMode',
-  'oneFitMasterUrl',
-  'oneFitSystemConfigs',
-  'oneFitSystemConfigsCount',
-  'oneFitSystemConfig',
-  'oneFitSystemConfigByKey',
-  'oneFitAllSystemConfigs',
+const PROXY_TO_MASTER_OPERATIONS = [
+  // Booking
+  'oneFitBookings',
+  'oneFitBookingsCount',
+  'oneFitBooking',
+  'oneFitBookingByBookingId',
+  'cpOneFitBookings',
+  'cpOneFitBookingsCount',
+  'cpOneFitBooking',
+  'cpOneFitBookingByBookingId',
+  'cpOneFitBookingCreate',
+  'cpOneFitBookingCancel',
+  // Schedule
+  'oneFitScheduleTemplates',
+  'oneFitScheduleTemplatesCount',
+  'oneFitScheduleTemplate',
+  'oneFitScheduleTemplateByProviderAndMonth',
+  'oneFitScheduleCoverageSummary',
+  'oneFitScheduleExceptions',
+  'oneFitScheduleExceptionsCount',
+  'oneFitScheduleException',
+  'oneFitMonthAvailability',
+  'oneFitScheduleTemplateCreate',
+  'oneFitScheduleTemplateUpdate',
+  'oneFitScheduleTemplateCopyPreviousMonth',
+  'oneFitScheduleTemplatesRemove',
+  'oneFitScheduleExceptionCreate',
+  'oneFitScheduleExceptionRemove',
+  'oneFitScheduleExceptionsRemove',
+  // Activity type
+  'oneFitActivityTypes',
+  'oneFitActivityTypesCount',
+  'oneFitActivityType',
+  'oneFitActivityTypesWithAvailability',
+  'oneFitActivityTypeCreate',
+  'oneFitActivityTypeUpdate',
+  'oneFitActivityTypesRemove',
+  // Providers, cities, districts
+  'oneFitProviders',
+  'oneFitProvidersCount',
+  'oneFitProvider',
+  'oneFitCities',
+  'oneFitDistricts',
+  'oneFitCitiesAdmin',
+  'oneFitDistrictsAdmin',
+  'oneFitProviderCreate',
+  'oneFitProviderUpdate',
+  'oneFitProvidersRemove',
+  // Account statement
+  'oneFitAccountStatement',
+  'oneFitCreditConsumption',
 ];
 
-/**
- * Detects if a GraphQL query contains any config-related queries
- * by parsing the query string and checking against the config query list
- */
-const isConfigQuery = (query: string, operationName?: string): boolean => {
-  // Check operation name first if present
-  if (operationName && CONFIG_QUERIES.includes(operationName)) {
-    return true;
-  }
-
-  // Check for direct field matches in the query string
-  // Match the query name as a standalone field (not part of another word)
-  for (const configQuery of CONFIG_QUERIES) {
-    // Use word boundary to ensure we match the exact field name
-    // This handles cases like: query { oneFitMode } or { oneFitMode }
-    const regex = new RegExp(`\\b${configQuery}\\b`, 'i');
-    if (regex.test(query)) {
-      return true;
-    }
-  }
-
-  return false;
-};
-
-/**
- * Operations that must never run locally in slave mode.
- * Config mutations should only be executed on master.
- */
+/** Operations that must never run locally in slave mode; these return 403. */
 const BLOCKED_IN_SLAVE = [
   'oneFitSystemConfigCreate',
   'oneFitSystemConfigUpdate',
@@ -105,15 +121,15 @@ const BLOCKED_IN_SLAVE = [
   'oneFitCustomers',
 ];
 
-const isBlockedOperation = (
+const isOperationInList = (
   query: string,
   operationName: string | undefined,
-  blocklist: string[],
+  list: string[],
 ): boolean => {
-  if (operationName && blocklist.includes(operationName)) {
+  if (operationName && list.includes(operationName)) {
     return true;
   }
-  for (const op of blocklist) {
+  for (const op of list) {
     const regex = new RegExp(`\\b${op}\\b`, 'i');
     if (regex.test(query)) {
       return true;
@@ -123,9 +139,9 @@ const isBlockedOperation = (
 };
 
 /**
- * Middleware that intercepts GraphQL requests in slave mode
- * and forwards them to the master instance
- * Config queries are handled locally instead of being proxied
+ * Middleware that intercepts GraphQL requests in slave mode.
+ * Blocked operations return 403. Whitelisted operations are proxied to master.
+ * All other operations (config, introspection, etc.) run locally.
  */
 export const graphqlProxyMiddleware = async (
   req: Request,
@@ -150,13 +166,8 @@ export const graphqlProxyMiddleware = async (
       return next();
     }
 
-    // Check if this is a config query - if so, handle it locally
-    if (isConfigQuery(query, operationName)) {
-      return next();
-    }
-
-    // Block config mutations in slave - must use master for config changes
-    if (isBlockedOperation(query, operationName, BLOCKED_IN_SLAVE)) {
+    // Blocked operations: return 403, do not proxy and do not run locally
+    if (isOperationInList(query, operationName, BLOCKED_IN_SLAVE)) {
       return res.json({
         data: null,
         errors: [
@@ -166,6 +177,11 @@ export const graphqlProxyMiddleware = async (
           },
         ],
       });
+    }
+
+    // Only proxy whitelisted operations; everything else runs locally
+    if (!isOperationInList(query, operationName, PROXY_TO_MASTER_OPERATIONS)) {
+      return next();
     }
 
     const masterClient = getMasterClient();
@@ -198,7 +214,7 @@ export const graphqlProxyMiddleware = async (
     if (cookies.length > 0) {
       headers.cookie = cookies.join('; ');
     }
-    console.log('headers', headers);
+
     // Add instanceId header so master knows which slave is making the request
     if (instanceId) {
       headers['x-onefit-instance-id'] = instanceId;
