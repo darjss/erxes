@@ -7,7 +7,7 @@ import { AgentPendingForm } from './AgentPendingForm';
 import { useMemo } from 'react';
 import { AgentDeploySuccess } from './AgentDeploySuccess';
 
-export const AgentScreen = () => {
+export const AgentDeployScreen = () => {
   const { agent, loading } = useAgent();
 
   const isAgentCreatedFiveMinutesAgo = useMemo(() => {
