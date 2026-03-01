@@ -111,16 +111,16 @@ async function createBookingLogic(
   }
 
   // Check for booking conflicts (same user, same time slot)
-  const existingBooking = await models.Booking.findOne({
-    userId,
-    bookingDate: bookingDatePure,
-    startTime,
-    status: { $ne: BookingStatus.CANCELLED },
-  });
+  // const existingBooking = await models.Booking.findOne({
+  //   userId,
+  //   bookingDate: bookingDatePure,
+  //   startTime,
+  //   status: { $ne: BookingStatus.CANCELLED },
+  // });
 
-  if (existingBooking) {
-    throw new Error('User already has a booking for this time slot');
-  }
+  // if (existingBooking) {
+  //   throw new Error('User already has a booking for this time slot');
+  // }
 
   // Check single-person limit: in any 30-day window, user cannot exceed activityType.singlePersonLimit bookings for this activity
   const singlePersonLimit = activityType.singlePersonLimit ?? 5;
@@ -158,8 +158,9 @@ async function createBookingLogic(
   }
 
   // Check membership is not on hold (booking not allowed during hold)
-  const oneFitCustomerForHold =
-    await models.OneFitCustomer.getOneFitCustomer(userId);
+  const oneFitCustomerForHold = await models.OneFitCustomer.getOneFitCustomer(
+    userId,
+  );
   if (oneFitCustomerForHold?.isMembershipOnHold) {
     const holdEndAt = oneFitCustomerForHold.membershipHoldEndAt
       ? new Date(oneFitCustomerForHold.membershipHoldEndAt)
