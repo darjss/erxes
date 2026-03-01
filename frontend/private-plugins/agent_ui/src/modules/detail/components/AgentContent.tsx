@@ -8,17 +8,17 @@ export const AgentContent = ({ selectedId }: { selectedId: string | null }) => {
   const { updateFile, loading: saving } = useUpdateAgentFile(
     selectedId ?? undefined,
   );
-  const [selectedFile, setSelectedFile] = useState<string>(
-    files[0]?.fileName ?? '',
-  );
-  const [content, setContent] = useState<string>(files[0]?.content ?? '');
+  const [selectedFile, setSelectedFile] = useState<string>('');
+  const [content, setContent] = useState<string>('');
 
   useEffect(() => {
+    if (!files.length) return;
     const file = files.find((f) => f.fileName === selectedFile);
-    setContent(file?.content ?? '');
-    if (!selectedFile) {
-      setSelectedFile(files[0]?.fileName ?? '');
-      setContent(files[0]?.content ?? '');
+    if (file) {
+      setContent(file.content ?? '');
+    } else {
+      setSelectedFile(files[0].fileName);
+      setContent(files[0].content ?? '');
     }
   }, [selectedFile, files]);
 
@@ -34,7 +34,7 @@ export const AgentContent = ({ selectedId }: { selectedId: string | null }) => {
             type="single"
             variant="outline"
             size="lg"
-            defaultValue={files[0].fileName}
+            defaultValue={files[0]?.fileName}
             value={selectedFile}
             onValueChange={(value) => {
               if (!value) {
