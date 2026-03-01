@@ -36,10 +36,6 @@ export const types = `
   input AddAgentInput {
     agentId: String!
     botName: String!
-    emoji: String
-    theme: String
-    soulMd: String
-    mentionPatterns: [String]
   }
 
   input UpdateAgentFileInput {

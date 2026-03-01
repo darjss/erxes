@@ -6,7 +6,7 @@ export interface AgentFile {
   content: string;
 }
 
-export const useAgentDetails = (agentId?: string) => {
+export const useAgentDetails = (agentId: string | null) => {
   const { data, loading, refetch } = useQuery(GET_AGENT_DETAILS, {
     variables: { agentId },
     skip: !agentId,
