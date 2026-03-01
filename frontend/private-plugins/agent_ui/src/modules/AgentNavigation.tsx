@@ -3,12 +3,6 @@ import { NavigationMenuLinkItem } from 'erxes-ui';
 
 export const AgentNavigation = () => {
   return (
-    <>
-      <NavigationMenuLinkItem
-        name="ai agent"
-        icon={IconSparkles}
-        path="agent"
-      />
-    </>
+    <NavigationMenuLinkItem name="ai agent" icon={IconSparkles} path="agent" />
   );
 };

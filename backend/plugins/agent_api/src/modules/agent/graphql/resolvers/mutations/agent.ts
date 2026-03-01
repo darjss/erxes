@@ -1,9 +1,11 @@
 import { IContext } from '~/connectionResolvers';
 import { SERVER_STATUSES } from '~/modules/agent/constants';
 import {
+  addAgent,
   approveServer,
   deployServer,
   destroyServer,
+  updateAgentFile,
 } from '~/modules/agent/utils';
 
 export const agentMutations = {
@@ -91,6 +93,64 @@ export const agentMutations = {
       await models.AgentServer.deleteOne({});
 
       return agent;
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      throw new Error(message);
+    }
+  },
+
+  addAgent: async (
+    _root: undefined,
+    {
+      input,
+    }: {
+      input: {
+        agentId: string;
+        botName: string;
+        emoji?: string;
+        theme?: string;
+        soulMd?: string;
+        mentionPatterns?: string[];
+      };
+    },
+    { models }: IContext,
+  ) => {
+    const server = await models.AgentServer.findOne({}).lean();
+
+    if (!server) {
+      throw new Error('Agent server not found');
+    }
+
+    try {
+      await addAgent(server.name, input);
+      return true;
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      throw new Error(message);
+    }
+  },
+
+  updateAgentFile: async (
+    _root: undefined,
+    {
+      input,
+    }: { input: { filename: string; content: string; agentId?: string } },
+    { models }: IContext,
+  ) => {
+    const server = await models.AgentServer.findOne({}).lean();
+
+    if (!server) {
+      throw new Error('Agent server not found');
+    }
+
+    try {
+      await updateAgentFile(
+        server.name,
+        input.filename,
+        input.content,
+        input.agentId,
+      );
+      return true;
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       throw new Error(message);

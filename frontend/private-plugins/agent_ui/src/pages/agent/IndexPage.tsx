@@ -2,7 +2,7 @@ import { IconSparkles } from '@tabler/icons-react';
 import { Breadcrumb, Button, Card, Separator } from 'erxes-ui';
 import { Link } from 'react-router-dom';
 import { PageHeader } from 'ui-modules';
-import { AgentScreen } from '~/modules/agent/components/AgentScreen';
+import { AgentScreen } from '~/modules/deploy/components/AgentScreen';
 
 export const IndexPage = () => {
   return (
