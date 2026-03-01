@@ -30,21 +30,6 @@ export const APPROVE_AGENT = gql`
   }
 `;
 
-export const DESTROY_AGENT = gql`
-  mutation DestroyAgent {
-    destroyAgent {
-      _id
-      name
-      url
-      token
-      agentId
-      serverId
-      createdAt
-      updatedAt
-    }
-  }
-`;
-
 export const UPDATE_AGENT_FILE = gql`
   mutation UpdateAgentFile($input: UpdateAgentFileInput!) {
     updateAgentFile(input: $input)
