@@ -36,8 +36,7 @@ export interface IOneFitCustomer extends ICustomer {
 }
 
 export interface IOneFitCustomerDocument
-  extends ICustomerDocument,
-    IOneFitCustomer {
+  extends ICustomerDocument, IOneFitCustomer {
   _id: string;
   createdAt: Date;
   updatedAt: Date;
