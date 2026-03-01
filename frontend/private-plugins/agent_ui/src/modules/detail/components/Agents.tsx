@@ -18,7 +18,7 @@ export const Agents = ({
     identity: null,
   };
 
-  if (!loading && agents.length === 0) {
+  if (!loading) {
     return (
       <div className="h-full w-full flex flex-col gap-4 justify-center items-center text-accent-foreground p-4">
         <div className="border border-dashed p-6 bg-sidebar rounded-xl">
