@@ -70,12 +70,16 @@ export const onefitCustomerSchema = new Schema(
       optional: true,
       label: 'Code',
     },
+    searchText: {
+      type: String,
+      optional: true,
+      label: 'Search value',
+    },
     // Onefit2 specific identity fields for easier traceability
     username: {
       type: String,
       optional: true,
       label: 'Username',
-      index: true,
     },
     gender: {
       type: String,
@@ -98,7 +102,6 @@ export const onefitCustomerSchema = new Schema(
       type: String,
       optional: true,
       label: 'Status',
-      index: true,
     },
 
     // Membership information
