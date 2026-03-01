@@ -44,3 +44,9 @@ export const DESTROY_AGENT = gql`
     }
   }
 `;
+
+export const UPDATE_AGENT_FILE = gql`
+  mutation UpdateAgentFile($input: UpdateAgentFileInput!) {
+    updateAgentFile(input: $input)
+  }
+`;

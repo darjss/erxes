@@ -1,4 +1,4 @@
-import { useAgent } from '../hooks/useAgent';
+import { useAgent } from '../../main/hooks/useAgent';
 
 export const AgentDeployingScreen = () => {
   const { agent } = useAgent();

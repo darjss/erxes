@@ -1,6 +1,6 @@
 import { Skeleton } from 'erxes-ui';
 import { SERVER_STATUSES } from '../constants';
-import { useAgent } from '../hooks/useAgent';
+import { useAgent } from '../../main/hooks/useAgent';
 import { AgentDeployForm } from './AgentDeployForm';
 import { AgentDeployingScreen } from './AgentDeployingScreen';
 import { AgentPendingForm } from './AgentPendingForm';

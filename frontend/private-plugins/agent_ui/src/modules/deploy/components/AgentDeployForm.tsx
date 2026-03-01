@@ -2,7 +2,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Button, Form, Input, useToast } from 'erxes-ui';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
-import { useAgent } from '../hooks/useAgent';
+import { useAgent } from '../../main/hooks/useAgent';
 import { useAgentDeploy } from '../hooks/useAgentDeploy';
 
 const nameRegex = /^[a-z]+$/;

@@ -1,4 +1,3 @@
-
 import { SettingsNavigationMenuLinkItem, Sidebar } from 'erxes-ui';
 
 export const AgentSettingsNavigation = () => {
@@ -8,11 +7,10 @@ export const AgentSettingsNavigation = () => {
       <Sidebar.GroupContent className="pt-1">
         <Sidebar.Menu>
           <SettingsNavigationMenuLinkItem
-            pathPrefix={"agent" + '/' + "agent"}
+            pathPrefix={'agent' + '/' + 'agent'}
             path="agent"
             name="agent"
           />
-          
         </Sidebar.Menu>
       </Sidebar.GroupContent>
     </Sidebar.Group>

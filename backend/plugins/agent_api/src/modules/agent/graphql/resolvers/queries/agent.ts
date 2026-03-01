@@ -1,4 +1,5 @@
 import { IContext } from '~/connectionResolvers';
+import { getAgentDetails, listAgents } from '~/modules/agent/utils';
 
 export const agentQueries = {
   getAgent: async (
@@ -13,5 +14,33 @@ export const agentQueries = {
     }
 
     return agent;
+  },
+
+  getAgentsList: async (
+    _root: undefined,
+    _args: undefined,
+    { models }: IContext,
+  ) => {
+    const server = await models.AgentServer.findOne({}).lean();
+
+    if (!server) {
+      throw new Error('Agent server not found');
+    }
+
+    return listAgents(server.name);
+  },
+
+  getAgentDetails: async (
+    _root: undefined,
+    { agentId }: { agentId?: string },
+    { models }: IContext,
+  ) => {
+    const server = await models.AgentServer.findOne({}).lean();
+
+    if (!server) {
+      throw new Error('Agent server not found');
+    }
+
+    return getAgentDetails(server.name, agentId);
   },
 };

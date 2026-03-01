@@ -124,12 +124,87 @@ export const destroyServer = async (agent: IAgentServerDocument) => {
   return response.json();
 };
 
-// // agents.delete("/:serverName", async c => {
-//   const { serverName } = c.req.param();
-//   try {
-//     await destroyServer(serverName);
-//     return c.json({ success: true });
-//   } catch (err: any) {
-//     return c.json({ error: err.message }, 500);
-//   }
-// });
+export interface AgentItem {
+  agentId: string;
+  botName: string;
+  emoji?: string;
+  theme?: string;
+  soulMd?: string;
+  mentionPatterns?: string[];
+}
+
+export interface AgentFile {
+  fileName: string;
+  content: string;
+}
+
+export const listAgents = async (serverName: string): Promise<AgentItem[]> => {
+  const DEPLOYER = getEnv({ name: 'DEPLOYER_URL' });
+  const response = await fetch(`${DEPLOYER}/agents/${serverName}/list`);
+
+  if (!response.ok) {
+    const message = await response.text();
+    throw new Error(`Failed to list agents: ${message}`);
+  }
+
+  const data = (await response.json()) as { agents: AgentItem[] };
+  return data.agents;
+};
+
+export const getAgentDetails = async (
+  serverName: string,
+  agentId?: string,
+): Promise<AgentFile[]> => {
+  const DEPLOYER = getEnv({ name: 'DEPLOYER_URL' });
+  const url = new URL(`${DEPLOYER}/agents/${serverName}/get-agent-details`);
+  if (agentId) url.searchParams.set('agentId', agentId);
+
+  const response = await fetch(url.toString());
+
+  if (!response.ok) {
+    const message = await response.text();
+    throw new Error(`Failed to get agent details: ${message}`);
+  }
+
+  const data = (await response.json()) as { files: AgentFile[] };
+  return data.files;
+};
+
+export const addAgent = async (
+  serverName: string,
+  agent: AgentItem,
+): Promise<void> => {
+  const DEPLOYER = getEnv({ name: 'DEPLOYER_URL' });
+  const response = await fetch(`${DEPLOYER}/agents/${serverName}/addagent`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(agent),
+  });
+
+  if (!response.ok) {
+    const message = await response.text();
+    throw new Error(`Failed to add agent: ${message}`);
+  }
+};
+
+export const updateAgentFile = async (
+  serverName: string,
+  filename: string,
+  content: string,
+  agentId?: string,
+): Promise<void> => {
+  const DEPLOYER = getEnv({ name: 'DEPLOYER_URL' });
+  const response = await fetch(
+    `${DEPLOYER}/agents/${serverName}/update-agent-file`,
+    {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ filename, content, agentId }),
+    },
+  );
+
+  if (!response.ok) {
+    const message = await response.text();
+    throw new Error(`Failed to update agent file: ${message}`);
+  }
+};
