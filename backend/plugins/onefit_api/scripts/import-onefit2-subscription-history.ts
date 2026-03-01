@@ -12,6 +12,7 @@ interface ExternalDate {
 }
 
 interface ExternalSubscriptionHistory {
+  expirableFitPoint: any;
   _id: string;
   name?: string;
   nameEn?: string;
@@ -32,6 +33,21 @@ interface ExternalSubscriptionHistory {
   crm_deal_id?: number;
   multipleActivitiesPerDay?: boolean;
   comment?: string;
+}
+
+/** Onefit2 Reservation: valid only when status === 0. Credits come from linked Activity. */
+interface ExternalReservation {
+  _id: string;
+  status?: number;
+  _p_activity?: string;
+  _p_subscriptionHistory?: string;
+  _p_member?: string;
+}
+
+/** Onefit2 Activity: holds credit cost per reservation. */
+interface ExternalActivity {
+  _id: string;
+  fitPointPrice?: number;
 }
 
 function extractIdFromPointer(pointer?: string): string | undefined {
@@ -142,6 +158,42 @@ async function importOnefit2SubscriptionHistory(
       allHistoryIds.push(history._id);
     }
 
+    // Build usedPersistentFitPoint from Reservations (status=0) and their Activity credits
+    const reservationCollection = externalDb.collection('Reservation');
+    const activityCollection = externalDb.collection('Activity');
+    const reservations = (await reservationCollection
+      .find({ status: 0 })
+      .toArray()) as unknown as ExternalReservation[];
+    const activityIds = [
+      ...new Set(
+        reservations
+          .map((r) => extractIdFromPointer(r._p_activity))
+          .filter((id): id is string => !!id),
+      ),
+    ];
+    const activityDocs = (await activityCollection
+      .find({ _id: { $in: activityIds } } as any)
+      .toArray()) as unknown as ExternalActivity[];
+    const activityCreditById = new Map<string, number>();
+    for (const a of activityDocs) {
+      const credit = typeof a.fitPointPrice === 'number' ? a.fitPointPrice : 0;
+      activityCreditById.set(a._id, credit);
+    }
+    const usedPersistentFitPointByHistoryId = new Map<string, number>();
+    for (const r of reservations) {
+      const historyId = extractIdFromPointer(r._p_subscriptionHistory);
+      const activityId = extractIdFromPointer(r._p_activity);
+      if (!historyId || !activityId) continue;
+      const credit = activityCreditById.get(activityId) ?? 0;
+      usedPersistentFitPointByHistoryId.set(
+        historyId,
+        (usedPersistentFitPointByHistoryId.get(historyId) ?? 0) + credit,
+      );
+    }
+    process.stdout.write(
+      `Computed usedPersistentFitPoint from ${reservations.length} reservations (status=0) and ${activityDocs.length} activities\n`,
+    );
+
     await connect();
     process.stdout.write('Connected to local MongoDB\n');
 
@@ -251,14 +303,14 @@ async function importOnefit2SubscriptionHistory(
               history.startDate && history.startDate instanceof Date
                 ? history.startDate
                 : history.startDate
-                  ? new Date(history.startDate)
-                  : undefined;
+                ? new Date(history.startDate)
+                : undefined;
             const end =
               history.endDate && history.endDate instanceof Date
                 ? history.endDate
                 : history.endDate
-                  ? new Date(history.endDate)
-                  : undefined;
+                ? new Date(history.endDate)
+                : undefined;
 
             const now = new Date();
 
@@ -285,11 +337,20 @@ async function importOnefit2SubscriptionHistory(
               typeof history.persistentFitPoint === 'number'
                 ? history.persistentFitPoint
                 : 0;
-            const usedPersistent =
-              typeof history.usedPersistentFitPoint === 'number'
-                ? history.usedPersistentFitPoint
+            const expirableFitPoint =
+              typeof history.expirableFitPoint === 'number'
+                ? history.expirableFitPoint
                 : 0;
-            const creditDelta = persistent - usedPersistent;
+
+            // Use reservation-based used credits (status=0 reservations → Activity credits) when available
+            const usedPersistent = usedPersistentFitPointByHistoryId.has(
+              historyId,
+            )
+              ? usedPersistentFitPointByHistoryId.get(historyId)!
+              : typeof history.usedPersistentFitPoint === 'number'
+              ? history.usedPersistentFitPoint
+              : 0;
+            const creditDelta = persistent + expirableFitPoint - usedPersistent;
 
             if (isActiveNow && creditDelta > 0) {
               totalCreditDeltaForUser += creditDelta;

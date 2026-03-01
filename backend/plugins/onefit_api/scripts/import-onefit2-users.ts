@@ -187,6 +187,19 @@ async function importOnefit2Users(externalUri: string): Promise<void> {
       const createdAt = toDate(externalUser._created_at) || new Date();
       const updatedAt = toDate(externalUser._updated_at) || new Date();
 
+      const searchValue =
+        [
+          nameParts.firstName,
+          nameParts.lastName,
+          email,
+          phone,
+          externalUser.username,
+        ]
+          .filter(Boolean)
+          .map((s) => String(s).trim())
+          .join(' ')
+          .trim() || undefined;
+
       const customerPayload: any = {
         _id: userId,
 
@@ -204,6 +217,7 @@ async function importOnefit2Users(externalUri: string): Promise<void> {
         emails: email ? [email] : [],
         primaryPhone: phone,
         phones: phone ? [phone] : [],
+        searchText: searchValue,
         createdAt,
         updatedAt,
       };

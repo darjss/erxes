@@ -2,6 +2,8 @@ import { Document } from 'mongoose';
 import { ICustomer, ICustomerDocument } from 'erxes-api-shared/core-types';
 
 export interface IOneFitCustomer extends ICustomer {
+  searchText?: string;
+
   // Membership information
   membershipPlanId?: string;
   membershipExpiresAt?: Date;
