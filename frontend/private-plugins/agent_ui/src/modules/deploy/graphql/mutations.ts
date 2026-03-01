@@ -35,3 +35,18 @@ export const UPDATE_AGENT_FILE = gql`
     updateAgentFile(input: $input)
   }
 `;
+
+export const DESTROY_AGENT = gql`
+  mutation DestroyAgent {
+    destroyAgent {
+      _id
+      name
+      url
+      token
+      agentId
+      serverId
+      createdAt
+      updatedAt
+    }
+  }
+`;

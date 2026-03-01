@@ -140,6 +140,7 @@ export interface AgentFile {
 
 export const listAgents = async (serverName: string): Promise<AgentItem[]> => {
   const DEPLOYER = getEnv({ name: 'DEPLOYER_URL' });
+
   const response = await fetch(`${DEPLOYER}/agents/${serverName}/list`);
 
   if (!response.ok) {
@@ -148,6 +149,8 @@ export const listAgents = async (serverName: string): Promise<AgentItem[]> => {
   }
 
   const data = (await response.json()) as { agents: AgentItem[] };
+
+  console.log('data', data);
   return data.agents;
 };
 

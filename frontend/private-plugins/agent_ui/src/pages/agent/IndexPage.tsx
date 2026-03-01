@@ -26,11 +26,7 @@ export const IndexPage = () => {
         </PageHeader.Start>
       </PageHeader>
 
-      <div className="flex flex-1 overflow-auto p-4">
-        <div className="flex flex-col flex-auto justify-center items-center min-h-0 w-full">
-          <AgentMain />
-        </div>
-      </div>
+      <AgentMain />
     </div>
   );
 };

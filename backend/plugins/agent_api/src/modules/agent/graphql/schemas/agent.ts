@@ -29,12 +29,8 @@ export const types = `
   }
 
   type AgentItem {
-    agentId: String
-    botName: String
-    emoji: String
-    theme: String
-    soulMd: String
-    mentionPatterns: [String]
+    id: String
+    identity: JSON
   }
 
   input AddAgentInput {
