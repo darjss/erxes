@@ -1,18 +1,12 @@
-import { Resizable, useIsMobile } from 'erxes-ui';
-import { useParams } from 'react-router-dom';
+import { Resizable } from 'erxes-ui';
+
 import { Agents } from './Agents';
+import { AgentContent } from './AgentContent';
+import { useState } from 'react';
 
 export const AgentDetailsLayout = () => {
-  const isMobile = useIsMobile();
-  const { id } = useParams();
+  const [selectedId, setSelectedId] = useState<string | null>('main');
 
-  if (isMobile) {
-    return (
-      <div className="flex flex-1 flex-col overflow-hidden">
-        {id ? <Agents /> : <div />}
-      </div>
-    );
-  }
   return (
     <Resizable.PanelGroup
       direction="horizontal"
@@ -23,11 +17,11 @@ export const AgentDetailsLayout = () => {
         defaultSize={20}
         className="hidden sm:flex min-w-80 max-w-lg"
       >
-        <Agents />
+        <Agents selectedId={selectedId} setSelectedId={setSelectedId} />
       </Resizable.Panel>
       <Resizable.Handle />
       <Resizable.Panel minSize={20} defaultSize={70}>
-        <div />
+        <AgentContent selectedId={selectedId} />
       </Resizable.Panel>
     </Resizable.PanelGroup>
   );

@@ -1,17 +1,15 @@
 import { AgentDeployScreen } from '../deploy/components/AgentDeployScreen';
 import { SERVER_STATUSES } from '../deploy/constants';
 import { useAgent } from './hooks/useAgent';
-import { Card, Skeleton } from 'erxes-ui';
+import { Card, Spinner } from 'erxes-ui';
 import { AgentDetailsLayout } from '../detail/components/AgentDetailsLayout';
 
 export const AgentMain = () => {
   const { agent, loading } = useAgent();
 
   if (loading) {
-    return <Skeleton className="h-52 w-full rounded-md" />;
+    return <Spinner />;
   }
-
-  console.log(agent);
 
   if (!agent || agent.status !== SERVER_STATUSES.APPROVED) {
     return (

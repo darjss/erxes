@@ -4,6 +4,7 @@ export const GET_AGENTS_LIST = gql`
   query GetAgentsList {
     getAgentsList {
       id
+      identity
     }
   }
 `;

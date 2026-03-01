@@ -2,14 +2,19 @@ import { IconSparkles } from '@tabler/icons-react';
 import { useAgentsList } from '../hooks/useAgentsList';
 import { ScrollArea, Spinner } from 'erxes-ui';
 import { AgentItem } from './AgentItem';
-import { useState } from 'react';
+import { AddAgentTrigger } from './AddAgent';
 
-export const Agents = () => {
+export const Agents = ({
+  selectedId,
+  setSelectedId,
+}: {
+  selectedId: string | null;
+  setSelectedId: (id: string | null) => void;
+}) => {
   const { agents, loading } = useAgentsList();
-  const [selectedId, setSelectedId] = useState<string | null>(null);
 
   const mainAgent = {
-    id: 'main (default)',
+    id: 'main',
     identity: null,
   };
 
@@ -47,6 +52,7 @@ export const Agents = () => {
                 setSelectedId={setSelectedId}
               />
             ))}
+            <AddAgentTrigger />
           </div>
         </ScrollArea.Viewport>
       )}
