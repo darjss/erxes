@@ -292,7 +292,7 @@ async function cancelBookingLogic(
     throw new Error('Booking already cancelled');
   }
 
-  if (!skipDateTimeCheck) {
+  if (!skipDateTimeCheck || true) {
     const activityType = await models.ActivityType.findById(
       booking.activityTypeId,
     );
@@ -303,9 +303,11 @@ async function cancelBookingLogic(
 
     const now = new Date();
     const bookingDateTime = new Date(booking.bookingDate);
-    const [hours, minutes] = booking.startTime.split(':').map(Number);
+    const [hours, minutes] = booking.endTime.split(':').map(Number);
+    console.log('bookingDateTime', bookingDateTime);
     bookingDateTime.setHours(hours, minutes, 0, 0);
-
+    console.log('bookingDateTime after set = ', bookingDateTime);
+    console.log('now', now);
     const hoursUntilBooking =
       (bookingDateTime.getTime() - now.getTime()) / (1000 * 60 * 60);
     if (hoursUntilBooking > 24) {
@@ -318,11 +320,11 @@ async function cancelBookingLogic(
       hoursUntilBooking < cancellationDeadlineHours
     ) {
       throw new Error(
-        `Cancellation must be made at least ${cancellationDeadlineHours} hours before the activity start`,
+        `Cancellation must be made at least ${cancellationDeadlineHours} hours before the activity end`,
       );
     }
   }
-
+  throw new Error('error message');
   // Find original credit transaction for this booking
   const creditTransactions =
     await models.CreditTransaction.getTransactionsByBooking(booking._id);

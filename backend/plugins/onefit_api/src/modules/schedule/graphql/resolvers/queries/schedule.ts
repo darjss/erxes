@@ -10,7 +10,7 @@ import {
   generateExceptionFilter,
 } from '../utils/filters';
 import { DayOfWeek } from '@/schedule/@types/schedule';
-import { BookingStatus } from '@/booking/@types/booking';
+import { BookingStatus, IBooking } from '@/booking/@types/booking';
 import { IModels } from '~/connectionResolvers';
 
 export interface IScheduleTemplateQueryParams extends ICursorPaginateParams {
@@ -238,13 +238,16 @@ export const scheduleQueries = {
       status: { $ne: BookingStatus.CANCELLED },
     });
 
-    // Group bookings by date
-    const bookingsByDate = new Map<number, number>();
-    for (const booking of bookings) {
+    // Group bookings by date and startTime (each time slot counted separately)
+    const bookingsByDateAndTime = new Map<string, number>();
+    for (const booking of bookings as IBooking[]) {
       const bookingDate = new Date(booking.bookingDate);
       const dateKey = bookingDate.getTime();
-      bookingsByDate.set(dateKey, (bookingsByDate.get(dateKey) || 0) + 1);
+      const startTime = booking.startTime ?? '';
+      const key = `${dateKey}-${startTime}`;
+      bookingsByDateAndTime.set(key, (bookingsByDateAndTime.get(key) || 0) + 1);
     }
+
     // Process each day in the month
     for (let day = 1; day <= daysInMonth; day++) {
       const currentDate = new Date(year, month - 1, day);
@@ -301,13 +304,12 @@ export const scheduleQueries = {
       const dayOfWeek = getDayOfWeek(currentDate);
 
       // Find matching daily schedule
-      const dailySchedule = scheduleTemplate.dailySchedules.find(
+      const dailySchedules = scheduleTemplate.dailySchedules.filter(
         (schedule) =>
           schedule.dayOfWeek === dayOfWeek &&
           schedule.activityTypeId === activityTypeId,
       );
-
-      if (!dailySchedule) {
+      if (dailySchedules.length === 0) {
         days.push({
           date: currentDate,
           isFull: true,
@@ -319,30 +321,32 @@ export const scheduleQueries = {
         } as (typeof days)[number]);
         continue;
       }
+      for (const dailySchedule of dailySchedules) {
+        // Count existing bookings for this date and startTime (time slot)
+        const slotKey = `${dateKey}-${dailySchedule.startTime}`;
+        const bookedSeats = bookingsByDateAndTime.get(slotKey) || 0;
+        const totalSeats = dailySchedule.dailyLimit;
+        const seatsLeft = Math.max(0, totalSeats - bookedSeats);
+        const isFull = seatsLeft <= 0;
 
-      // Count existing bookings for this date
-      const bookedSeats = bookingsByDate.get(dateKey) || 0;
-      const totalSeats = dailySchedule.dailyLimit;
-      const seatsLeft = Math.max(0, totalSeats - bookedSeats);
-      const isFull = seatsLeft <= 0;
-
-      days.push({
-        date: currentDate,
-        isFull,
-        seatsLeft,
-        totalSeats,
-        bookedSeats,
-        hasSchedule: true,
-        isBlockedByException: false,
-        schedule: {
-          dayOfWeek,
-          activityTypeId,
-          genderRestriction: dailySchedule.genderRestriction,
-          startTime: dailySchedule.startTime,
-          endTime: dailySchedule.endTime,
-          dailyLimit: dailySchedule.dailyLimit,
-        },
-      } as (typeof days)[number]);
+        days.push({
+          date: currentDate,
+          isFull,
+          seatsLeft,
+          totalSeats,
+          bookedSeats,
+          hasSchedule: true,
+          isBlockedByException: false,
+          schedule: {
+            dayOfWeek,
+            activityTypeId,
+            genderRestriction: dailySchedule.genderRestriction,
+            startTime: dailySchedule.startTime,
+            endTime: dailySchedule.endTime,
+            dailyLimit: dailySchedule.dailyLimit,
+          },
+        } as (typeof days)[number]);
+      }
     }
 
     // If lastDays is provided, return only days between currentDate and currentDate + lastDays
