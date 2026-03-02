@@ -438,9 +438,8 @@ export const scheduleQueries = {
       activityTypesFilter._id = activityTypeId;
     }
 
-    const activityTypes = await models.ActivityType.find(
-      activityTypesFilter,
-    ).lean();
+    const activityTypes =
+      await models.ActivityType.find(activityTypesFilter).lean();
 
     const activityTypesById = new Map<string, (typeof activityTypes)[number]>();
     for (const at of activityTypes) {
