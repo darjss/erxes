@@ -23,6 +23,7 @@ const PROXY_TO_MASTER_OPERATIONS = [
   'cpOneFitBookingByBookingId',
   'cpOneFitBookingCreate',
   'cpOneFitBookingCancel',
+  'oneFitBookingMarkAttendance',
   // Schedule
   'oneFitScheduleTemplates',
   'oneFitScheduleTemplatesCount',
