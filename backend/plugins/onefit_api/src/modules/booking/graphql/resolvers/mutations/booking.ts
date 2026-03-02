@@ -111,16 +111,16 @@ async function createBookingLogic(
   }
 
   // Check for booking conflicts (same user, same time slot)
-  const existingBooking = await models.Booking.findOne({
-    userId,
-    bookingDate: bookingDatePure,
-    startTime,
-    status: { $ne: BookingStatus.CANCELLED },
-  });
+  // const existingBooking = await models.Booking.findOne({
+  //   userId,
+  //   bookingDate: bookingDatePure,
+  //   startTime,
+  //   status: { $ne: BookingStatus.CANCELLED },
+  // });
 
-  if (existingBooking) {
-    throw new Error('User already has a booking for this time slot');
-  }
+  // if (existingBooking) {
+  //   throw new Error('User already has a booking for this time slot');
+  // }
 
   // Check single-person limit: in any 30-day window, user cannot exceed activityType.singlePersonLimit bookings for this activity
   const singlePersonLimit = activityType.singlePersonLimit ?? 5;
@@ -284,27 +284,48 @@ async function cancelBookingLogic(
 ) {
   const booking = await models.Booking.findOne({ _id: bookingId });
   if (!booking) {
-    throw new Error('Booking not found');
+    throw new Error('Захиалга олдсонгүй');
   }
 
   if (booking.status === BookingStatus.CANCELLED) {
-    throw new Error('Booking already cancelled');
+    throw new Error('Захиалга аль хэдийн цуцлагдсан');
   }
 
   if (!skipDateTimeCheck) {
-    // Check 24-hour cancellation policy
+    const activityType = await models.ActivityType.findById(
+      booking.activityTypeId,
+    );
+    const rawDeadline = activityType?.cancellationDeadline ?? 0;
     const now = new Date();
     const bookingDateTime = new Date(booking.bookingDate);
-    const [hours, minutes] = booking.startTime.split(':').map(Number);
+    const [hours, minutes] = booking.endTime.split(':').map(Number);
     bookingDateTime.setHours(hours, minutes, 0, 0);
-
     const hoursUntilBooking =
       (bookingDateTime.getTime() - now.getTime()) / (1000 * 60 * 60);
-    if (hoursUntilBooking < 24) {
-      throw new Error('Cancellation must be made at least 24 hours in advance');
+
+    if (hoursUntilBooking > 24) {
+      throw new Error(
+        'Цуцлалтыг үйл ажиллагаа дуусахын 24 цагийн дотор хийх боломжтой',
+      );
+    }
+
+    if (rawDeadline >= 0) {
+      // Positive: must cancel at least N hours before activity end
+      if (hoursUntilBooking < rawDeadline) {
+        throw new Error(
+          `Цуцлалтыг үйл ажиллагаа дуусахад дор хаяж ${rawDeadline} цаг үлдэхээс өмнө хийх ёстой`,
+        );
+      }
+    } else {
+      if (hoursUntilBooking < rawDeadline) {
+        throw new Error(
+          `Цуцлалтыг үйл ажиллагаа дуусахаас ${Math.abs(
+            rawDeadline,
+          )} цагийн өмнө хийх боломжтой`,
+        );
+      }
     }
   }
-
   // Find original credit transaction for this booking
   const creditTransactions =
     await models.CreditTransaction.getTransactionsByBooking(booking._id);

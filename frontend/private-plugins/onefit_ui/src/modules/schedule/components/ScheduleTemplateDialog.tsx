@@ -197,17 +197,17 @@ const ScheduleTemplateForm = ({
   const onSubmit = (
     data: CreateScheduleTemplateFormData | EditScheduleTemplateFormData,
   ) => {
-    const duplicates = getDuplicateDayActivityPairs(data.dailySchedules);
-    if (duplicates.length > 0) {
-      const list = duplicates
-        .map((p) => `${p.dayOfWeek} / ${p.activityTypeId}`)
-        .join(', ');
-      form.setError('dailySchedules', {
-        type: 'manual',
-        message: `Each combination of day and activity type must be unique. Duplicates: ${list}`,
-      });
-      return;
-    }
+    // const duplicates = getDuplicateDayActivityPairs(data.dailySchedules);
+    // if (duplicates.length > 0) {
+    //   const list = duplicates
+    //     .map((p) => `${p.dayOfWeek} / ${p.activityTypeId}`)
+    //     .join(', ');
+    //   form.setError('dailySchedules', {
+    //     type: 'manual',
+    //     message: `Each combination of day and activity type must be unique. Duplicates: ${list}`,
+    //   });
+    //   return;
+    // }
     form.clearErrors('dailySchedules');
     const dailySchedulesForApi = expandDailyScheduleRowsToApi(
       data.dailySchedules,
