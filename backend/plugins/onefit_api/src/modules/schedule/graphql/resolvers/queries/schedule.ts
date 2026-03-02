@@ -195,7 +195,6 @@ export const scheduleQueries = {
         year,
         month,
       );
-
     // Get all days in the month
     const daysInMonth = new Date(year, month, 0).getDate();
     const days: Array<{
@@ -439,10 +438,7 @@ export const scheduleQueries = {
       activityTypesFilter,
     ).lean();
 
-    const activityTypesById = new Map<
-      string,
-      (typeof activityTypes)[number]
-    >();
+    const activityTypesById = new Map<string, (typeof activityTypes)[number]>();
     for (const at of activityTypes) {
       activityTypesById.set(at._id.toString(), at);
     }
@@ -465,9 +461,7 @@ export const scheduleQueries = {
     }> = [];
 
     for (const pid of providerIds) {
-      const providerTemplates = templates.filter(
-        (t) => t.providerId === pid,
-      );
+      const providerTemplates = templates.filter((t) => t.providerId === pid);
       const provider = providersById.get(pid) || null;
       const providerIsActive = Boolean(provider?.isActive);
       const providerStatus = (provider?.status as string | undefined) ?? null;
