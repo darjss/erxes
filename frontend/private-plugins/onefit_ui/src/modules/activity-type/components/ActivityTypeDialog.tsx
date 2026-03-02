@@ -58,7 +58,7 @@ const baseActivityTypeSchema = z.object({
   isActive: z.boolean().optional(),
   cancellationDeadline: z
     .number()
-    .min(0, { message: 'Cancellation deadline must be 0 or greater' })
+    .min(-24, { message: 'Cancellation deadline must be -24 or greater' })
     .optional(),
   singlePersonLimit: z
     .number()
@@ -655,7 +655,7 @@ const ActivityTypeForm = ({
                     <Input
                       {...field}
                       type="number"
-                      min="0"
+                      min="-24"
                       step="0.5"
                       placeholder="Hours before activity start when cancellation is allowed"
                       value={field.value || ''}

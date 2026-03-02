@@ -292,7 +292,7 @@ async function cancelBookingLogic(
     throw new Error('Захиалга аль хэдийн цуцлагдсан');
   }
 
-  if (!skipDateTimeCheck || true) {
+  if (!skipDateTimeCheck) {
     const activityType = await models.ActivityType.findById(
       booking.activityTypeId,
     );
@@ -318,8 +318,7 @@ async function cancelBookingLogic(
         );
       }
     } else {
-      // Negative: cancellation allowed in a window from |N| hours before to |N| hours after end
-      if (hoursUntilBooking > rawDeadline) {
+      if (hoursUntilBooking < rawDeadline) {
         throw new Error(
           `Цуцлалтыг үйл ажиллагаа дуусахаас ${Math.abs(
             rawDeadline,
@@ -328,7 +327,6 @@ async function cancelBookingLogic(
       }
     }
   }
-  throw new Error('error message');
   // Find original credit transaction for this booking
   const creditTransactions =
     await models.CreditTransaction.getTransactionsByBooking(booking._id);
