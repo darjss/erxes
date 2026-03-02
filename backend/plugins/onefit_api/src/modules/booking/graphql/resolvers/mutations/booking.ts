@@ -293,7 +293,14 @@ async function cancelBookingLogic(
   }
 
   if (!skipDateTimeCheck) {
-    // Check 24-hour cancellation policy
+    const activityType = await models.ActivityType.findById(
+      booking.activityTypeId,
+    );
+    const cancellationDeadlineHours =
+      (activityType?.cancellationDeadline ?? 0) >= 0
+        ? activityType?.cancellationDeadline ?? 0
+        : 0;
+
     const now = new Date();
     const bookingDateTime = new Date(booking.bookingDate);
     const [hours, minutes] = booking.startTime.split(':').map(Number);
@@ -301,8 +308,18 @@ async function cancelBookingLogic(
 
     const hoursUntilBooking =
       (bookingDateTime.getTime() - now.getTime()) / (1000 * 60 * 60);
-    if (hoursUntilBooking < 24) {
-      throw new Error('Cancellation must be made at least 24 hours in advance');
+    if (hoursUntilBooking > 24) {
+      throw new Error(
+        'Cancellation is only allowed within 24 hours before the activity start',
+      );
+    }
+    if (
+      cancellationDeadlineHours > 0 &&
+      hoursUntilBooking < cancellationDeadlineHours
+    ) {
+      throw new Error(
+        `Cancellation must be made at least ${cancellationDeadlineHours} hours before the activity start`,
+      );
     }
   }
 
