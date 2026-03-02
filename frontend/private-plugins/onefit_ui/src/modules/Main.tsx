@@ -127,13 +127,18 @@ const OneFitMain = () => {
           <Route path="/customers/:id" element={<OneFitCustomerDetailPage />} />
         )}
         <Route path="/providers" element={<ProvidersPage />} />
+
+        <Route
+          path="/providers/account-statement"
+          element={<AccountStatementPage />}
+        />
+
         {!isSlaveMode && (
           <Route
-            path="/providers/account-statement"
-            element={<AccountStatementPage />}
+            path="/credit-consumption"
+            element={<CreditConsumptionPage />}
           />
         )}
-        <Route path="/credit-consumption" element={<CreditConsumptionPage />} />
         {!isSlaveMode && <Route path="/banners" element={<BannersPage />} />}
         {!isSlaveMode && (
           <Route path="/promo-codes" element={<PromoCodesPage />} />
