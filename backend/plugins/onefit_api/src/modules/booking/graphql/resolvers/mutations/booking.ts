@@ -285,43 +285,47 @@ async function cancelBookingLogic(
 ) {
   const booking = await models.Booking.findOne({ _id: bookingId });
   if (!booking) {
-    throw new Error('Booking not found');
+    throw new Error('Захиалга олдсонгүй');
   }
 
   if (booking.status === BookingStatus.CANCELLED) {
-    throw new Error('Booking already cancelled');
+    throw new Error('Захиалга аль хэдийн цуцлагдсан');
   }
 
   if (!skipDateTimeCheck || true) {
     const activityType = await models.ActivityType.findById(
       booking.activityTypeId,
     );
-    const cancellationDeadlineHours =
-      (activityType?.cancellationDeadline ?? 0) >= 0
-        ? activityType?.cancellationDeadline ?? 0
-        : 0;
-
+    const rawDeadline = activityType?.cancellationDeadline ?? 0;
     const now = new Date();
     const bookingDateTime = new Date(booking.bookingDate);
     const [hours, minutes] = booking.endTime.split(':').map(Number);
-    console.log('bookingDateTime', bookingDateTime);
     bookingDateTime.setHours(hours, minutes, 0, 0);
-    console.log('bookingDateTime after set = ', bookingDateTime);
-    console.log('now', now);
     const hoursUntilBooking =
       (bookingDateTime.getTime() - now.getTime()) / (1000 * 60 * 60);
+
     if (hoursUntilBooking > 24) {
       throw new Error(
-        'Cancellation is only allowed within 24 hours before the activity start',
+        'Цуцлалтыг үйл ажиллагаа дуусахын 24 цагийн дотор хийх боломжтой',
       );
     }
-    if (
-      cancellationDeadlineHours > 0 &&
-      hoursUntilBooking < cancellationDeadlineHours
-    ) {
-      throw new Error(
-        `Cancellation must be made at least ${cancellationDeadlineHours} hours before the activity end`,
-      );
+
+    if (rawDeadline >= 0) {
+      // Positive: must cancel at least N hours before activity end
+      if (hoursUntilBooking < rawDeadline) {
+        throw new Error(
+          `Цуцлалтыг үйл ажиллагаа дуусахад дор хаяж ${rawDeadline} цаг үлдэхээс өмнө хийх ёстой`,
+        );
+      }
+    } else {
+      // Negative: cancellation allowed in a window from |N| hours before to |N| hours after end
+      if (hoursUntilBooking > rawDeadline) {
+        throw new Error(
+          `Цуцлалтыг үйл ажиллагаа дуусахаас ${Math.abs(
+            rawDeadline,
+          )} цагийн өмнө хийх боломжтой`,
+        );
+      }
     }
   }
   throw new Error('error message');
