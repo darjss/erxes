@@ -34,7 +34,6 @@ async function migrate() {
   if (totalToUpdate === 0) {
     console.log('Nothing to update.');
     process.exit(0);
-    return;
   }
 
   const result = await ActivityTypes.updateMany(query, [
