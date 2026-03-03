@@ -308,9 +308,9 @@ async function ensureOneFitCustomerForUserId(
   userId: string,
 ): Promise<unknown | null> {
   let customer = await models.OneFitCustomer.findOne({ _id: userId });
-  // if (customer) {
-  //   return customer;
-  // }
+  if (customer) {
+    return customer;
+  }
 
   // Try upgrading an existing core customer document in the same collection to OneFitCustomer
   await models.OneFitCustomer.findOneAndUpdate(
@@ -727,6 +727,7 @@ async function importOnefit2SubscriptionHistory(
     const creditTransactionsToInsert: any[] = [];
 
     const importedHistoryIds = new Set<string>();
+    const activeImportedHistoryIds = new Set<string>();
 
     for (const [userId, histories] of historiesByUserId) {
       processedUserIds += 1;
@@ -772,6 +773,9 @@ async function importOnefit2SubscriptionHistory(
             }
 
             importedHistoryIds.add(history._id);
+            if (result.isActiveNow) {
+              activeImportedHistoryIds.add(history._id);
+            }
 
             runningBalance = result.newRunningBalance;
             if (result.creditTransactions?.length) {
@@ -849,7 +853,9 @@ async function importOnefit2SubscriptionHistory(
     const activityTypeIdCache = new Map<string, string>();
 
     for (const r of reservations) {
-      if (!importedHistoryIds.has(r.historyId)) {
+      // Only create bookings for reservations whose subscription history
+      // is currently active (isActiveNow === true).
+      if (!activeImportedHistoryIds.has(r.historyId)) {
         continue;
       }
 
@@ -902,7 +908,15 @@ async function importOnefit2SubscriptionHistory(
           ? activity.price
           : 0;
 
+      const bookingEndDateTime = new Date(bookingDateRaw);
+      const [endHour, endMinute] = endTime.split(':').map(Number);
+      bookingEndDateTime.setHours(endHour || 0, endMinute || 0, 0, 0);
+
+      const now = new Date();
+      const isPast = bookingEndDateTime < now;
+
       bookingsToInsert.push({
+        _id: String(r.reservationId),
         userId: r.memberId,
         providerId,
         activityTypeId,
@@ -914,8 +928,9 @@ async function importOnefit2SubscriptionHistory(
             ? activity.fitPointPrice
             : 0,
         price,
-        status: 'confirmed',
-        attendanceStatus: 'pending',
+        status: isPast ? 'completed' : 'confirmed',
+        attendanceStatus: isPast ? 'attended' : 'pending',
+        attendedAt: isPast ? bookingEndDateTime : undefined,
         bookingId: r.reservationId,
         createdAt: new Date(),
         modifiedAt: new Date(),
