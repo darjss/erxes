@@ -7,9 +7,9 @@ import {
 } from '@/membership/@types/credittransaction';
 import { loadClasses, IModels } from '../src/connectionResolvers';
 
-interface ExternalDate {
-  $date: string;
-}
+// ---------------------------------------------------------------------------
+// Types (external Onefit2 shapes)
+// ---------------------------------------------------------------------------
 
 interface ExternalSubscriptionHistory {
   expirableFitPoint: any;
@@ -68,12 +68,74 @@ interface SubscriptionDateFilter {
   fromDate?: Date;
 }
 
+interface ImportStats {
+  processedUserIds: number;
+  customersNotFound: number;
+  createdCpUsers: number;
+  existingCpUsers: number;
+  createdMembershipPurchases: number;
+  skippedMembershipPurchases: number;
+  membershipPurchaseErrors: number;
+  createdCreditTransactions: number;
+  creditTransactionErrors: number;
+}
+
+// ---------------------------------------------------------------------------
+// Pure helpers
+// ---------------------------------------------------------------------------
+
+function asNumber(value: unknown, fallback = 0): number {
+  return typeof value === 'number' && !Number.isNaN(value) ? value : fallback;
+}
+
+function toDate(value?: Date | string): Date | undefined {
+  if (!value) {
+    return undefined;
+  }
+
+  if (value instanceof Date) {
+    return value;
+  }
+
+  const parsed = new Date(value);
+
+  return Number.isNaN(parsed.getTime()) ? undefined : parsed;
+}
+
+function isRangeActiveAt(start: Date, end: Date, at: Date): boolean {
+  return start <= at && end >= at;
+}
+
+function getHistoryCreditDelta(
+  history: ExternalSubscriptionHistory,
+  usedPersistentFitPointByHistoryId: Map<string, number>,
+): number {
+  const historyId = history._id;
+
+  const persistent =
+    typeof history.persistentFitPoint === 'number'
+      ? history.persistentFitPoint
+      : 0;
+  const expirableFitPoint =
+    typeof history.expirableFitPoint === 'number'
+      ? history.expirableFitPoint
+      : 0;
+
+  const usedPersistent = usedPersistentFitPointByHistoryId.has(historyId)
+    ? usedPersistentFitPointByHistoryId.get(historyId)!
+    : typeof history.usedPersistentFitPoint === 'number'
+      ? history.usedPersistentFitPoint
+      : 0;
+
+  return persistent + expirableFitPoint - usedPersistent;
+}
+
 function passesDateFilter(
   history: ExternalSubscriptionHistory,
   filter?: SubscriptionDateFilter,
 ): boolean {
-  const start = history.startDate ? new Date(history.startDate) : undefined;
-  const end = history.endDate ? new Date(history.endDate) : undefined;
+  const start = toDate(history.startDate);
+  const end = toDate(history.endDate);
 
   if (!start || !end) {
     return false;
@@ -87,6 +149,348 @@ function passesDateFilter(
   }
 
   return true;
+}
+
+function groupHistoriesByUserId(
+  docs: ExternalSubscriptionHistory[],
+  dateFilter?: SubscriptionDateFilter,
+): { historiesByUserId: Map<string, ExternalSubscriptionHistory[]>; allHistoryIds: string[] } {
+  const historiesByUserId = new Map<string, ExternalSubscriptionHistory[]>();
+  const allHistoryIds: string[] = [];
+
+  for (const history of docs) {
+    if (!passesDateFilter(history, dateFilter)) continue;
+
+    const memberId = extractIdFromPointer(history._p_member);
+    if (!memberId) continue;
+
+    if (!historiesByUserId.has(memberId)) {
+      historiesByUserId.set(memberId, []);
+    }
+    historiesByUserId.get(memberId)!.push(history);
+    allHistoryIds.push(history._id);
+  }
+
+  return { historiesByUserId, allHistoryIds };
+}
+
+async function buildUsedPersistentFitPointByHistoryId(
+  externalDb: mongoose.mongo.Db,
+): Promise<Map<string, number>> {
+  const reservationCollection = externalDb.collection('Reservation');
+  const activityCollection = externalDb.collection('Activity');
+
+  const reservations = (await reservationCollection
+    .find({ status: 0 })
+    .toArray()) as unknown as ExternalReservation[];
+
+  const activityIds = [
+    ...new Set(
+      reservations
+        .map((r) => extractIdFromPointer(r._p_activity))
+        .filter((id): id is string => !!id),
+    ),
+  ];
+
+  const activityDocs = (await activityCollection
+    .find({ _id: { $in: activityIds } } as any)
+    .toArray()) as unknown as ExternalActivity[];
+
+  const activityCreditById = new Map<string, number>();
+  for (const a of activityDocs) {
+    activityCreditById.set(a._id, asNumber(a.fitPointPrice));
+  }
+
+  const usedByHistoryId = new Map<string, number>();
+  for (const r of reservations) {
+    const historyId = extractIdFromPointer(r._p_subscriptionHistory);
+    const activityId = extractIdFromPointer(r._p_activity);
+    if (!historyId || !activityId) continue;
+
+    const credit = activityCreditById.get(activityId) ?? 0;
+    usedByHistoryId.set(
+      historyId,
+      (usedByHistoryId.get(historyId) ?? 0) + credit,
+    );
+  }
+
+  process.stdout.write(
+    `Computed usedPersistentFitPoint from ${reservations.length} reservations (status=0) and ${activityDocs.length} activities\n`,
+  );
+
+  return usedByHistoryId;
+}
+
+async function loadExistingHistoryIds(
+  models: IModels,
+  historyIds: string[],
+): Promise<Set<string>> {
+  const existing = new Set<string>();
+  if (historyIds.length === 0) return existing;
+
+  const purchases = await models.MembershipPurchase.find(
+    { externalHistoryId: { $in: historyIds } },
+    { externalHistoryId: 1 },
+  ).lean();
+
+  for (const p of purchases) {
+    const row = p as Record<string, unknown>;
+    if (row.externalHistoryId) {
+      existing.add(String(row.externalHistoryId));
+    }
+  }
+
+  process.stdout.write(
+    `Existing membership purchases with externalHistoryId: ${existing.size}\n`,
+  );
+  return existing;
+}
+
+async function insertBatched<T extends Record<string, unknown>>(
+  collection: mongoose.mongo.Collection,
+  items: T[],
+  batchSize: number,
+  label: string,
+): Promise<{ inserted: number; errors: number }> {
+  let inserted = 0;
+  let errors = 0;
+
+  if (items.length === 0) {
+    return { inserted: 0, errors: 0 };
+  }
+
+  process.stdout.write(
+    `Bulk inserting ${items.length} ${label} (batch size ${batchSize})...\n`,
+  );
+
+  for (let i = 0; i < items.length; i += batchSize) {
+    const batch = items.slice(i, i + batchSize);
+    try {
+      await collection.insertMany(batch, { ordered: false });
+      inserted += batch.length;
+      process.stdout.write(
+        `  Inserted ${Math.min(i + batchSize, items.length)} / ${items.length}\n`,
+      );
+    } catch (err: unknown) {
+      const e = err as { writeErrors?: unknown[]; insertedIds?: Record<string, unknown> };
+      if (e.writeErrors) {
+        const batchInserted = e.insertedIds
+          ? Object.keys(e.insertedIds).length
+          : 0;
+        inserted += batchInserted;
+        errors += e.writeErrors.length;
+        process.stderr.write(
+          `  Batch partial success: ${batchInserted} inserted, ${e.writeErrors.length} errors (e.g. duplicates)\n`,
+        );
+      } else {
+        errors += 1;
+        throw err;
+      }
+    }
+  }
+
+  return { inserted, errors };
+}
+
+interface ProcessedHistoryResult {
+  skip: true;
+  skipCount: number;
+}
+interface ProcessedHistorySuccess {
+  skip: false;
+  purchase: Record<string, unknown>;
+  creditTransaction?: Record<string, unknown>;
+  creditDelta: number;
+  isActiveNow: boolean;
+  purchasedAt: Date;
+  expiresAt: Date | undefined;
+  subscriptionId: string;
+  newRunningBalance: number;
+}
+
+type ClientPortalUserOutcome = 'created' | 'existing' | 'skipped';
+
+async function ensureClientPortalUser(
+  CPUserModel: mongoose.Model<unknown>,
+  clientPortalId: string,
+  customer: {
+    _id: unknown;
+    primaryEmail?: string;
+    emails?: string[];
+    primaryPhone?: string;
+    phones?: string[];
+    firstName?: string;
+    lastName?: string;
+  },
+): Promise<ClientPortalUserOutcome> {
+  const customerId = String(customer._id);
+  const email =
+    customer.primaryEmail ?? (customer.emails && customer.emails[0]);
+  const phone =
+    customer.primaryPhone ?? (customer.phones && customer.phones[0]);
+
+  if (!email && !phone) {
+    return 'skipped';
+  }
+
+  let cpUser = await CPUserModel.findOne({
+    clientPortalId,
+    erxesCustomerId: customerId,
+  }).lean();
+
+  if (!cpUser && email) {
+    cpUser = await CPUserModel.findOne({
+      clientPortalId,
+      email,
+    }).lean();
+  }
+  if (!cpUser && phone) {
+    cpUser = await CPUserModel.findOne({
+      clientPortalId,
+      phone,
+    }).lean();
+  }
+
+  if (cpUser) {
+    return 'existing';
+  }
+
+  const now = new Date();
+  await CPUserModel.create({
+    type: 'customer',
+    clientPortalId,
+    erxesCustomerId: customerId,
+    email,
+    phone,
+    username: email ?? phone ?? customerId,
+    firstName: customer.firstName,
+    lastName: customer.lastName,
+    isVerified: true,
+    isEmailVerified: !!email,
+    isPhoneVerified: !!phone,
+    createdAt: now,
+    updatedAt: now,
+  });
+
+  return 'created';
+}
+
+function processOneHistory(
+  history: ExternalSubscriptionHistory,
+  customerId: string,
+  existingHistoryIds: Set<string>,
+  usedPersistentFitPointByHistoryId: Map<string, number>,
+  runningBalance: number,
+  now: Date,
+): ProcessedHistoryResult | ProcessedHistorySuccess {
+  const historyId = history._id;
+
+  if (history.status !== 1) {
+    return { skip: true, skipCount: 1 };
+  }
+  if (existingHistoryIds.has(historyId)) {
+    return { skip: true, skipCount: 1 };
+  }
+
+  const subscriptionId = extractIdFromPointer(history._p_subscription);
+  if (!subscriptionId) {
+    return { skip: true, skipCount: 1 };
+  }
+
+  const start = toDate(history.startDate);
+  const end = toDate(history.endDate);
+  if (!start || !end) {
+    return { skip: true, skipCount: 1 };
+  }
+
+  const isActiveNow = isRangeActiveAt(start, end, now);
+  if (!isActiveNow && end < now) {
+    return { skip: true, skipCount: 1 };
+  }
+
+  const amount = asNumber(history.price);
+  const purchasedAt =
+    toDate(history._created_at) ?? toDate(history.startDate) ?? now;
+  const expiresAt = toDate(history.endDate);
+
+  const creditDelta = getHistoryCreditDelta(
+    history,
+    usedPersistentFitPointByHistoryId,
+  );
+
+  const purchase: Record<string, unknown> = {
+    _id: historyId,
+    userId: customerId,
+    planId: subscriptionId,
+    status: 'paid',
+    activatedAt: isActiveNow ? purchasedAt : undefined,
+    purchasedAt,
+    expiresAt,
+    amount,
+    externalHistoryId: historyId,
+    createdAt: new Date(),
+  };
+
+  let creditTransaction: Record<string, unknown> | undefined;
+  let newRunningBalance = runningBalance;
+
+  if (isActiveNow && creditDelta > 0) {
+    newRunningBalance = runningBalance + creditDelta;
+    creditTransaction = {
+      _id: `${historyId}-${customerId}-${purchasedAt.getTime()}`,
+      userId: customerId,
+      amount: creditDelta,
+      transactionType: CreditTransactionType.PURCHASE,
+      source: CreditSource.INDIVIDUAL,
+      description: 'Imported credits from Onefit2 subscription',
+      balanceAfter: newRunningBalance,
+      createdAt: purchasedAt,
+    };
+  }
+
+  return {
+    skip: false,
+    purchase,
+    creditTransaction,
+    creditDelta,
+    isActiveNow,
+    purchasedAt,
+    expiresAt: expiresAt ?? undefined,
+    subscriptionId,
+    newRunningBalance,
+  };
+}
+
+function printImportSummary(stats: ImportStats): void {
+  process.stdout.write(
+    '\n=== Onefit2 Subscription History Import Summary ===\n',
+  );
+  process.stdout.write(
+    `User ids with history processed: ${stats.processedUserIds}\n`,
+  );
+  process.stdout.write(
+    `Customers not found (run user import first): ${stats.customersNotFound}\n`,
+  );
+  process.stdout.write(`Client portal users created: ${stats.createdCpUsers}\n`);
+  process.stdout.write(
+    `Existing client portal users matched: ${stats.existingCpUsers}\n`,
+  );
+  process.stdout.write(
+    `Membership purchases created: ${stats.createdMembershipPurchases}\n`,
+  );
+  process.stdout.write(
+    `Membership purchases skipped (already existed or invalid): ${stats.skippedMembershipPurchases}\n`,
+  );
+  process.stdout.write(
+    `Membership purchases errors: ${stats.membershipPurchaseErrors}\n`,
+  );
+  process.stdout.write(
+    `Credit transactions created: ${stats.createdCreditTransactions}\n`,
+  );
+  process.stdout.write(
+    `Credit transactions errors: ${stats.creditTransactionErrors}\n`,
+  );
+  process.stdout.write('Import completed.\n');
 }
 
 const BATCH_SIZE = 5000;
@@ -136,63 +540,13 @@ async function importOnefit2SubscriptionHistory(
       );
     }
 
-    const historiesByUserId = new Map<string, ExternalSubscriptionHistory[]>();
-    const allHistoryIds: string[] = [];
-
-    for (const history of subscriptionHistoryDocs) {
-      if (!passesDateFilter(history, dateFilter)) {
-        continue;
-      }
-
-      const memberId = extractIdFromPointer(history._p_member);
-
-      if (!memberId) {
-        continue;
-      }
-
-      if (!historiesByUserId.has(memberId)) {
-        historiesByUserId.set(memberId, []);
-      }
-
-      historiesByUserId.get(memberId)!.push(history);
-      allHistoryIds.push(history._id);
-    }
-
-    // Build usedPersistentFitPoint from Reservations (status=0) and their Activity credits
-    const reservationCollection = externalDb.collection('Reservation');
-    const activityCollection = externalDb.collection('Activity');
-    const reservations = (await reservationCollection
-      .find({ status: 0 })
-      .toArray()) as unknown as ExternalReservation[];
-    const activityIds = [
-      ...new Set(
-        reservations
-          .map((r) => extractIdFromPointer(r._p_activity))
-          .filter((id): id is string => !!id),
-      ),
-    ];
-    const activityDocs = (await activityCollection
-      .find({ _id: { $in: activityIds } } as any)
-      .toArray()) as unknown as ExternalActivity[];
-    const activityCreditById = new Map<string, number>();
-    for (const a of activityDocs) {
-      const credit = typeof a.fitPointPrice === 'number' ? a.fitPointPrice : 0;
-      activityCreditById.set(a._id, credit);
-    }
-    const usedPersistentFitPointByHistoryId = new Map<string, number>();
-    for (const r of reservations) {
-      const historyId = extractIdFromPointer(r._p_subscriptionHistory);
-      const activityId = extractIdFromPointer(r._p_activity);
-      if (!historyId || !activityId) continue;
-      const credit = activityCreditById.get(activityId) ?? 0;
-      usedPersistentFitPointByHistoryId.set(
-        historyId,
-        (usedPersistentFitPointByHistoryId.get(historyId) ?? 0) + credit,
-      );
-    }
-    process.stdout.write(
-      `Computed usedPersistentFitPoint from ${reservations.length} reservations (status=0) and ${activityDocs.length} activities\n`,
+    const { historiesByUserId, allHistoryIds } = groupHistoriesByUserId(
+      subscriptionHistoryDocs,
+      dateFilter,
     );
+
+    const usedPersistentFitPointByHistoryId =
+      await buildUsedPersistentFitPointByHistoryId(externalDb);
 
     await connect();
     process.stdout.write('Connected to local MongoDB\n');
@@ -200,25 +554,10 @@ async function importOnefit2SubscriptionHistory(
     const db: mongoose.Connection = mongoose.connection;
     const models: IModels = loadClasses(db);
 
-    const existingHistoryIds = new Set<string>();
-
-    if (allHistoryIds.length > 0) {
-      const existingPurchases = await models.MembershipPurchase.find(
-        { externalHistoryId: { $in: allHistoryIds } },
-        { externalHistoryId: 1 },
-      ).lean();
-
-      for (const purchase of existingPurchases) {
-        const row = purchase as Record<string, unknown>;
-        if (row.externalHistoryId) {
-          existingHistoryIds.add(String(row.externalHistoryId));
-        }
-      }
-
-      process.stdout.write(
-        `Existing membership purchases with externalHistoryId: ${existingHistoryIds.size}\n`,
-      );
-    }
+    const existingHistoryIds = await loadExistingHistoryIds(
+      models,
+      allHistoryIds,
+    );
 
     const clientPortal = await db.collection('client_portals').findOne({});
 
@@ -264,142 +603,54 @@ async function importOnefit2SubscriptionHistory(
       }
 
       const customerId = String(customer._id);
-      const email =
-        customer.primaryEmail || (customer.emails && customer.emails[0]);
-      const phone =
-        customer.primaryPhone || (customer.phones && customer.phones[0]);
 
       let currentCreditBalance = 0;
       let totalCreditDeltaForUser = 0;
-      let runningBalance = currentCreditBalance;
+      let runningBalance = 0;
       let latestMembershipPlanId: string | undefined;
       let latestMembershipExpiresAt: Date | undefined;
+      const now = new Date();
 
       try {
         for (const history of histories) {
           try {
-            const historyId = history._id;
-
-            if (history.status !== 1) {
-              skippedMembershipPurchases += 1;
-              continue;
-            }
-
-            if (existingHistoryIds.has(historyId)) {
-              skippedMembershipPurchases += 1;
-              continue;
-            }
-
-            const subscriptionId = extractIdFromPointer(
-              history._p_subscription,
+            const result = processOneHistory(
+              history,
+              customerId,
+              existingHistoryIds,
+              usedPersistentFitPointByHistoryId,
+              runningBalance,
+              now,
             );
 
-            if (!subscriptionId) {
-              skippedMembershipPurchases += 1;
+            if (result.skip) {
+              skippedMembershipPurchases += result.skipCount;
               continue;
             }
 
-            const start =
-              history.startDate && history.startDate instanceof Date
-                ? history.startDate
-                : history.startDate
-                  ? new Date(history.startDate)
-                  : undefined;
-            const end =
-              history.endDate && history.endDate instanceof Date
-                ? history.endDate
-                : history.endDate
-                  ? new Date(history.endDate)
-                  : undefined;
-
-            const now = new Date();
-
-            if (!start || !end) {
-              skippedMembershipPurchases += 1;
-              continue;
-            }
-
-            const isActiveNow = start <= now && end >= now;
-
-            // Skip fully expired histories (past-only); import active and future
-            if (!isActiveNow && end < now) {
-              skippedMembershipPurchases += 1;
-              continue;
-            }
-
-            const amount =
-              typeof history.price === 'number' ? history.price : 0;
-            const purchasedAt =
-              history._created_at || history.startDate || new Date();
-            const expiresAt = history.endDate;
-
-            const persistent =
-              typeof history.persistentFitPoint === 'number'
-                ? history.persistentFitPoint
-                : 0;
-            const expirableFitPoint =
-              typeof history.expirableFitPoint === 'number'
-                ? history.expirableFitPoint
-                : 0;
-
-            // Use reservation-based used credits (status=0 reservations → Activity credits) when available
-            const usedPersistent = usedPersistentFitPointByHistoryId.has(
-              historyId,
-            )
-              ? usedPersistentFitPointByHistoryId.get(historyId)!
-              : typeof history.usedPersistentFitPoint === 'number'
-                ? history.usedPersistentFitPoint
-                : 0;
-            const creditDelta = persistent + expirableFitPoint - usedPersistent;
-
-            if (isActiveNow && creditDelta > 0) {
-              totalCreditDeltaForUser += creditDelta;
-              runningBalance += creditDelta;
-
-              creditTransactionsToInsert.push({
-                _id: `${historyId}-${customerId}-${purchasedAt.getTime()}`,
-                userId: customerId,
-                amount: creditDelta,
-                transactionType: CreditTransactionType.PURCHASE,
-                source: CreditSource.INDIVIDUAL,
-                description: 'Imported credits from Onefit2 subscription',
-                balanceAfter: runningBalance,
-                createdAt: purchasedAt,
-              });
+            runningBalance = result.newRunningBalance;
+            if (result.creditTransaction) {
+              totalCreditDeltaForUser += result.creditDelta;
+              creditTransactionsToInsert.push(result.creditTransaction);
             }
 
             if (
-              isActiveNow &&
-              expiresAt &&
+              result.isActiveNow &&
+              result.expiresAt &&
               (!latestMembershipExpiresAt ||
-                expiresAt.getTime() > latestMembershipExpiresAt.getTime())
+                result.expiresAt.getTime() >
+                  latestMembershipExpiresAt.getTime())
             ) {
-              latestMembershipPlanId = subscriptionId;
-              latestMembershipExpiresAt = expiresAt;
+              latestMembershipPlanId = result.subscriptionId;
+              latestMembershipExpiresAt = result.expiresAt;
             }
 
-            const purchasePayload: any = {
-              _id: historyId,
-              userId: customerId,
-              planId: subscriptionId,
-              status: 'paid',
-              activatedAt: isActiveNow ? purchasedAt : undefined,
-              purchasedAt,
-              expiresAt,
-              amount,
-              externalHistoryId: historyId,
-            };
-
-            purchasesToInsert.push({
-              ...purchasePayload,
-              createdAt: new Date(),
-            });
-          } catch (error: any) {
+            purchasesToInsert.push(result.purchase);
+          } catch (err: unknown) {
+            const error = err as { message?: string };
             membershipPurchaseErrors += 1;
             process.stderr.write(
-              `Error creating membership purchase for history ${
-                history._id
-              } and user ${userId}: ${error.message || error}\n`,
+              `Error creating membership purchase for history ${history._id} and user ${userId}: ${error.message ?? error}\n`,
             );
           }
         }
@@ -422,163 +673,51 @@ async function importOnefit2SubscriptionHistory(
           );
         }
 
-        if (!email && !phone) {
-          continue;
-        }
-
-        const cpUserByCustomer = await CPUserModel.findOne({
+        const cpOutcome = await ensureClientPortalUser(
+          CPUserModel as unknown as mongoose.Model<unknown>,
           clientPortalId,
-          erxesCustomerId: customerId,
-        }).lean();
-
-        let cpUser = cpUserByCustomer;
-
-        if (!cpUser && email) {
-          cpUser = await CPUserModel.findOne({
-            clientPortalId,
-            email,
-          }).lean();
-        }
-
-        if (!cpUser && phone) {
-          cpUser = await CPUserModel.findOne({
-            clientPortalId,
-            phone,
-          }).lean();
-        }
-
-        if (cpUser) {
+          customer,
+        );
+        if (cpOutcome === 'existing') {
           existingCpUsers += 1;
-          continue;
+        } else if (cpOutcome === 'created') {
+          createdCpUsers += 1;
         }
-
-        const now = new Date();
-
-        await CPUserModel.create({
-          type: 'customer',
-          clientPortalId,
-          erxesCustomerId: customerId,
-          email,
-          phone,
-          username: email || phone || customerId,
-          firstName: customer.firstName,
-          lastName: customer.lastName,
-          isVerified: true,
-          isEmailVerified: !!email,
-          isPhoneVerified: !!phone,
-          createdAt: now,
-          updatedAt: now,
-        });
-
-        createdCpUsers += 1;
-      } catch (error: any) {
+      } catch (err: unknown) {
+        const error = err as { message?: string };
         process.stderr.write(
-          `Error processing user ${userId}: ${error.message || error}\n`,
+          `Error processing user ${userId}: ${error.message ?? error}\n`,
         );
       }
     }
 
-    const purchasesCollection = models.MembershipPurchase.collection;
+    const purchaseResult = await insertBatched(
+      models.MembershipPurchase.collection,
+      purchasesToInsert,
+      BATCH_SIZE,
+      'membership purchases',
+    );
 
-    if (purchasesToInsert.length > 0) {
-      process.stdout.write(
-        `Bulk inserting ${purchasesToInsert.length} membership purchases (batch size ${BATCH_SIZE})...\n`,
-      );
-      for (let i = 0; i < purchasesToInsert.length; i += BATCH_SIZE) {
-        const batch = purchasesToInsert.slice(i, i + BATCH_SIZE);
-        try {
-          await purchasesCollection.insertMany(batch, { ordered: false });
-          createdMembershipPurchases += batch.length;
-          process.stdout.write(
-            `  Inserted ${Math.min(
-              i + BATCH_SIZE,
-              purchasesToInsert.length,
-            )} / ${purchasesToInsert.length}\n`,
-          );
-        } catch (error: any) {
-          if (error.writeErrors) {
-            const inserted = error.insertedIds
-              ? Object.keys(error.insertedIds).length
-              : 0;
-            createdMembershipPurchases += inserted;
-            membershipPurchaseErrors += error.writeErrors.length;
-            process.stderr.write(
-              `  Batch insert partial success: ${inserted} inserted, ${error.writeErrors.length} errors (e.g. duplicates)\n`,
-            );
-          } else {
-            membershipPurchaseErrors += 1;
-            throw error;
-          }
-        }
-      }
-    }
+    const creditResult = await insertBatched(
+      models.CreditTransaction.collection,
+      creditTransactionsToInsert,
+      BATCH_SIZE,
+      'credit transactions',
+    );
 
-    const creditTransactionsCollection = models.CreditTransaction.collection;
+    const stats: ImportStats = {
+      processedUserIds,
+      customersNotFound,
+      createdCpUsers,
+      existingCpUsers,
+      createdMembershipPurchases: purchaseResult.inserted,
+      skippedMembershipPurchases,
+      membershipPurchaseErrors: membershipPurchaseErrors + purchaseResult.errors,
+      createdCreditTransactions: creditResult.inserted,
+      creditTransactionErrors: creditTransactionErrors + creditResult.errors,
+    };
 
-    if (creditTransactionsToInsert.length > 0) {
-      process.stdout.write(
-        `Bulk inserting ${creditTransactionsToInsert.length} credit transactions (batch size ${BATCH_SIZE})...\n`,
-      );
-      for (let i = 0; i < creditTransactionsToInsert.length; i += BATCH_SIZE) {
-        const batch = creditTransactionsToInsert.slice(i, i + BATCH_SIZE);
-        try {
-          await creditTransactionsCollection.insertMany(batch, {
-            ordered: false,
-          });
-          createdCreditTransactions += batch.length;
-          process.stdout.write(
-            `  Inserted ${Math.min(
-              i + BATCH_SIZE,
-              creditTransactionsToInsert.length,
-            )} / ${creditTransactionsToInsert.length}\n`,
-          );
-        } catch (error: any) {
-          if (error.writeErrors) {
-            const inserted = error.insertedIds
-              ? Object.keys(error.insertedIds).length
-              : 0;
-            createdCreditTransactions += inserted;
-            creditTransactionErrors += error.writeErrors.length;
-            process.stderr.write(
-              `  Credit batch partial success: ${inserted} inserted, ${error.writeErrors.length} errors (e.g. duplicates)\n`,
-            );
-          } else {
-            creditTransactionErrors += 1;
-            throw error;
-          }
-        }
-      }
-    }
-
-    process.stdout.write(
-      '\n=== Onefit2 Subscription History Import Summary ===\n',
-    );
-    process.stdout.write(
-      `User ids with history processed: ${processedUserIds}\n`,
-    );
-    process.stdout.write(
-      `Customers not found (run user import first): ${customersNotFound}\n`,
-    );
-    process.stdout.write(`Client portal users created: ${createdCpUsers}\n`);
-    process.stdout.write(
-      `Existing client portal users matched: ${existingCpUsers}\n`,
-    );
-    process.stdout.write(
-      `Membership purchases created: ${createdMembershipPurchases}\n`,
-    );
-    process.stdout.write(
-      `Membership purchases skipped (already existed or invalid): ${skippedMembershipPurchases}\n`,
-    );
-    process.stdout.write(
-      `Membership purchases errors: ${membershipPurchaseErrors}\n`,
-    );
-    process.stdout.write(
-      `Credit transactions created: ${createdCreditTransactions}\n`,
-    );
-    process.stdout.write(
-      `Credit transactions errors: ${creditTransactionErrors}\n`,
-    );
-    process.stdout.write('Import completed.\n');
+    printImportSummary(stats);
   } finally {
     await externalConnection.close();
     await closeMongooose();
