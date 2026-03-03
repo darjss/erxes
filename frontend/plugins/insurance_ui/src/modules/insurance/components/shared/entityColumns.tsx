@@ -97,7 +97,9 @@ export const createTextColumn = <T,>(
   header: () => <RecordTable.InlineHead icon={icon} label={label} />,
   cell: ({ cell }) => (
     <RecordTableInlineCell>
-      <TextOverflowTooltip value={(cell.getValue() as string) || defaultValue} />
+      <TextOverflowTooltip
+        value={(cell.getValue() as string) || defaultValue}
+      />
     </RecordTableInlineCell>
   ),
 });

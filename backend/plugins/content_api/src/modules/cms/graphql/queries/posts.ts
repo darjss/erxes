@@ -56,7 +56,7 @@ class PostQueryResolver extends BaseQueryResolver {
   async cmsPostList(_parent: any, args: any, context: IContext): Promise<any> {
     const { language, clientPortalId } = args;
     const { models } = context;
-  
+
     const queryBuilder = getQueryBuilder('post', models);
     const query = await queryBuilder.buildQuery({ ...args, clientPortalId });
     const { dateField, dateFrom, dateTo } = args;
@@ -80,13 +80,12 @@ class PostQueryResolver extends BaseQueryResolver {
     const { list, totalCount, pageInfo } = await this.getListWithTranslations(
       models.Posts,
       query,
-      { ...args, clientPortalId, language},
+      { ...args, clientPortalId, language },
       FIELD_MAPPINGS.POST,
     );
-  
+
     return { posts: list, totalCount, pageInfo };
   }
-  
 
   async cmsTranslations(
     _parent: any,
@@ -134,7 +133,11 @@ class PostQueryResolver extends BaseQueryResolver {
     return { posts: list, totalCount, pageInfo };
   }
 
-  async cpPostListWithPagination(_parent: any, args: any, context: IContext): Promise<any> {
+  async cpPostListWithPagination(
+    _parent: any,
+    args: any,
+    context: IContext,
+  ): Promise<any> {
     const { language } = args;
     const { models, clientPortal } = context;
     const clientPortalId = clientPortal._id;
@@ -208,7 +211,11 @@ export const postQueries: Record<string, Resolver> = {
     return new PostQueryResolver(context).cpPost(_parent, args, context);
   },
   cpPostListWithPagination: (_parent: any, args: any, context: IContext) => {
-    return new PostQueryResolver(context).cpPostListWithPagination(_parent, args, context);
+    return new PostQueryResolver(context).cpPostListWithPagination(
+      _parent,
+      args,
+      context,
+    );
   },
 };
 
@@ -224,6 +231,6 @@ postQueries.cpPost.wrapperConfig = {
   forClientPortal: true,
 };
 
-postQueries.cpPostListWithPagination.wrapperConfig={
+postQueries.cpPostListWithPagination.wrapperConfig = {
   forClientPortal: true,
-}
+};

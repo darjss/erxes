@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from 'react-router-dom';
 
 import {
   IconBrandDiscordFilled,
@@ -91,10 +91,12 @@ export const Widgets = () => {
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.6 }}
           className="w-full cursor-pointer rounded-xl border border-foreground/10 bg-background p-12 text-center hover:bg-muted transition"
-          onClick={() => navigate("/agent")}
+          onClick={() => navigate('/agent')}
         >
           <h2 className="text-xl font-semibold">Go to Agents</h2>
-          <p className="text-muted-foreground mt-2">Click here to create a new agent</p>
+          <p className="text-muted-foreground mt-2">
+            Click here to create a new agent
+          </p>
         </motion.div>
 
         <SocialSection />
@@ -102,6 +104,5 @@ export const Widgets = () => {
     </div>
   );
 };
-
 
 export default Widgets;
