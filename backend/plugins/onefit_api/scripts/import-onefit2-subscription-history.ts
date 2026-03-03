@@ -151,8 +151,8 @@ function getHistoryCreditDelta(
   const usedPersistent = usedPersistentFitPointByHistoryId.has(historyId)
     ? usedPersistentFitPointByHistoryId.get(historyId)!
     : typeof history.usedPersistentFitPoint === 'number'
-    ? history.usedPersistentFitPoint
-    : 0;
+      ? history.usedPersistentFitPoint
+      : 0;
 
   return persistent + expirableFitPoint - usedPersistent;
 }
