@@ -342,7 +342,7 @@ interface ProcessedHistoryResult {
 interface ProcessedHistorySuccess {
   skip: false;
   purchase: Record<string, unknown>;
-  creditTransaction?: Record<string, unknown>;
+  creditTransactions?: Record<string, unknown>[];
   creditDelta: number;
   isActiveNow: boolean;
   purchasedAt: Date;
@@ -476,13 +476,13 @@ function processOneHistory(
     createdAt: new Date(),
   };
 
-  let creditTransaction: Record<string, unknown> | undefined;
+  const creditTransactions: Record<string, unknown>[] = [];
   let newRunningBalance = runningBalance;
 
   if (creditDelta > 0) {
     if (isActiveNow) {
       newRunningBalance = runningBalance + creditDelta;
-      creditTransaction = {
+      creditTransactions.push({
         _id: `${historyId}-${customerId}-${purchasedAt.getTime()}`,
         userId: customerId,
         amount: creditDelta,
@@ -491,9 +491,12 @@ function processOneHistory(
         description: 'Imported credits from Onefit2 subscription',
         balanceAfter: newRunningBalance,
         createdAt: purchasedAt,
-      };
+      });
     } else if (isExpired) {
-      creditTransaction = {
+      // For expired subscriptions: record both a purchase and a matching usage
+      // so that history shows credits granted and fully used, without
+      // affecting the customer's current balance.
+      const purchaseTx = {
         _id: `${historyId}-${customerId}-${purchasedAt.getTime()}`,
         userId: customerId,
         amount: creditDelta,
@@ -501,16 +504,29 @@ function processOneHistory(
         source: CreditSource.INDIVIDUAL,
         description:
           'Imported credits from Onefit2 subscription (expired, history only)',
-        balanceAfter: runningBalance + creditDelta,
+        balanceAfter: runningBalance,
         createdAt: purchasedAt,
       };
+      const usageTx = {
+        _id: `${historyId}-${customerId}-${purchasedAt.getTime()}-usage`,
+        userId: customerId,
+        amount: -creditDelta,
+        transactionType: CreditTransactionType.USAGE,
+        source: CreditSource.INDIVIDUAL,
+        description:
+          'Imported credit usage for expired Onefit2 subscription (history only)',
+        balanceAfter: runningBalance,
+        createdAt: purchasedAt,
+      };
+
+      creditTransactions.push(purchaseTx, usageTx);
     }
   }
 
   return {
     skip: false,
     purchase,
-    creditTransaction,
+    creditTransactions: creditTransactions.length ? creditTransactions : undefined,
     creditDelta,
     isActiveNow,
     purchasedAt,
@@ -700,9 +716,9 @@ async function importOnefit2SubscriptionHistory(
             }
 
             runningBalance = result.newRunningBalance;
-            if (result.creditTransaction) {
-              creditTransactionsToInsert.push(result.creditTransaction);
-              if (result.isActiveNow) {
+            if (result.creditTransactions?.length) {
+              creditTransactionsToInsert.push(...result.creditTransactions);
+              if (result.isActiveNow && result.creditDelta > 0) {
                 totalCreditDeltaForUser += result.creditDelta;
               }
             }
