@@ -68,6 +68,11 @@ interface SubscriptionDateFilter {
   fromDate?: Date;
 }
 
+interface ImportOptions {
+  /** If true, import expired (past) subscription history as well as active/future. Default: false (only active and future). */
+  includeExpired?: boolean;
+}
+
 interface ImportStats {
   processedUserIds: number;
   customersNotFound: number;
@@ -124,8 +129,8 @@ function getHistoryCreditDelta(
   const usedPersistent = usedPersistentFitPointByHistoryId.has(historyId)
     ? usedPersistentFitPointByHistoryId.get(historyId)!
     : typeof history.usedPersistentFitPoint === 'number'
-      ? history.usedPersistentFitPoint
-      : 0;
+    ? history.usedPersistentFitPoint
+    : 0;
 
   return persistent + expirableFitPoint - usedPersistent;
 }
@@ -154,7 +159,10 @@ function passesDateFilter(
 function groupHistoriesByUserId(
   docs: ExternalSubscriptionHistory[],
   dateFilter?: SubscriptionDateFilter,
-): { historiesByUserId: Map<string, ExternalSubscriptionHistory[]>; allHistoryIds: string[] } {
+): {
+  historiesByUserId: Map<string, ExternalSubscriptionHistory[]>;
+  allHistoryIds: string[];
+} {
   const historiesByUserId = new Map<string, ExternalSubscriptionHistory[]>();
   const allHistoryIds: string[] = [];
 
@@ -269,10 +277,15 @@ async function insertBatched<T extends Record<string, unknown>>(
       await collection.insertMany(batch, { ordered: false });
       inserted += batch.length;
       process.stdout.write(
-        `  Inserted ${Math.min(i + batchSize, items.length)} / ${items.length}\n`,
+        `  Inserted ${Math.min(i + batchSize, items.length)} / ${
+          items.length
+        }\n`,
       );
     } catch (err: unknown) {
-      const e = err as { writeErrors?: unknown[]; insertedIds?: Record<string, unknown> };
+      const e = err as {
+        writeErrors?: unknown[];
+        insertedIds?: Record<string, unknown>;
+      };
       if (e.writeErrors) {
         const batchInserted = e.insertedIds
           ? Object.keys(e.insertedIds).length
@@ -382,6 +395,7 @@ function processOneHistory(
   usedPersistentFitPointByHistoryId: Map<string, number>,
   runningBalance: number,
   now: Date,
+  options: { includeExpired?: boolean } = {},
 ): ProcessedHistoryResult | ProcessedHistorySuccess {
   const historyId = history._id;
 
@@ -404,7 +418,8 @@ function processOneHistory(
   }
 
   const isActiveNow = isRangeActiveAt(start, end, now);
-  if (!isActiveNow && end < now) {
+  const isExpired = end < now;
+  if (!options.includeExpired && !isActiveNow && isExpired) {
     return { skip: true, skipCount: 1 };
   }
 
@@ -423,7 +438,8 @@ function processOneHistory(
     userId: customerId,
     planId: subscriptionId,
     status: 'paid',
-    activatedAt: isActiveNow ? purchasedAt : undefined,
+    activatedAt:
+      isActiveNow || isExpired ? purchasedAt : undefined,
     purchasedAt,
     expiresAt,
     amount,
@@ -434,18 +450,31 @@ function processOneHistory(
   let creditTransaction: Record<string, unknown> | undefined;
   let newRunningBalance = runningBalance;
 
-  if (isActiveNow && creditDelta > 0) {
-    newRunningBalance = runningBalance + creditDelta;
-    creditTransaction = {
-      _id: `${historyId}-${customerId}-${purchasedAt.getTime()}`,
-      userId: customerId,
-      amount: creditDelta,
-      transactionType: CreditTransactionType.PURCHASE,
-      source: CreditSource.INDIVIDUAL,
-      description: 'Imported credits from Onefit2 subscription',
-      balanceAfter: newRunningBalance,
-      createdAt: purchasedAt,
-    };
+  if (creditDelta > 0) {
+    if (isActiveNow) {
+      newRunningBalance = runningBalance + creditDelta;
+      creditTransaction = {
+        _id: `${historyId}-${customerId}-${purchasedAt.getTime()}`,
+        userId: customerId,
+        amount: creditDelta,
+        transactionType: CreditTransactionType.PURCHASE,
+        source: CreditSource.INDIVIDUAL,
+        description: 'Imported credits from Onefit2 subscription',
+        balanceAfter: newRunningBalance,
+        createdAt: purchasedAt,
+      };
+    } else if (isExpired) {
+      creditTransaction = {
+        _id: `${historyId}-${customerId}-${purchasedAt.getTime()}`,
+        userId: customerId,
+        amount: creditDelta,
+        transactionType: CreditTransactionType.PURCHASE,
+        source: CreditSource.INDIVIDUAL,
+        description: 'Imported credits from Onefit2 subscription (expired, history only)',
+        balanceAfter: runningBalance + creditDelta,
+        createdAt: purchasedAt,
+      };
+    }
   }
 
   return {
@@ -471,7 +500,9 @@ function printImportSummary(stats: ImportStats): void {
   process.stdout.write(
     `Customers not found (run user import first): ${stats.customersNotFound}\n`,
   );
-  process.stdout.write(`Client portal users created: ${stats.createdCpUsers}\n`);
+  process.stdout.write(
+    `Client portal users created: ${stats.createdCpUsers}\n`,
+  );
   process.stdout.write(
     `Existing client portal users matched: ${stats.existingCpUsers}\n`,
   );
@@ -498,8 +529,16 @@ const BATCH_SIZE = 5000;
 async function importOnefit2SubscriptionHistory(
   externalUri: string,
   dateFilter?: SubscriptionDateFilter,
+  importOptions?: ImportOptions,
 ): Promise<void> {
+  const includeExpired = importOptions?.includeExpired ?? false;
+
   process.stdout.write('Starting import of Onefit2 subscription history...\n');
+  if (includeExpired) {
+    process.stdout.write(
+      'Including old (expired) purchase history (SUBSCRIPTION_INCLUDE_EXPIRED=true).\n',
+    );
+  }
 
   if (!externalUri) {
     throw new Error(
@@ -621,6 +660,7 @@ async function importOnefit2SubscriptionHistory(
               usedPersistentFitPointByHistoryId,
               runningBalance,
               now,
+              { includeExpired },
             );
 
             if (result.skip) {
@@ -630,8 +670,10 @@ async function importOnefit2SubscriptionHistory(
 
             runningBalance = result.newRunningBalance;
             if (result.creditTransaction) {
-              totalCreditDeltaForUser += result.creditDelta;
               creditTransactionsToInsert.push(result.creditTransaction);
+              if (result.isActiveNow) {
+                totalCreditDeltaForUser += result.creditDelta;
+              }
             }
 
             if (
@@ -650,7 +692,9 @@ async function importOnefit2SubscriptionHistory(
             const error = err as { message?: string };
             membershipPurchaseErrors += 1;
             process.stderr.write(
-              `Error creating membership purchase for history ${history._id} and user ${userId}: ${error.message ?? error}\n`,
+              `Error creating membership purchase for history ${
+                history._id
+              } and user ${userId}: ${error.message ?? error}\n`,
             );
           }
         }
@@ -712,7 +756,8 @@ async function importOnefit2SubscriptionHistory(
       existingCpUsers,
       createdMembershipPurchases: purchaseResult.inserted,
       skippedMembershipPurchases,
-      membershipPurchaseErrors: membershipPurchaseErrors + purchaseResult.errors,
+      membershipPurchaseErrors:
+        membershipPurchaseErrors + purchaseResult.errors,
       createdCreditTransactions: creditResult.inserted,
       creditTransactionErrors: creditTransactionErrors + creditResult.errors,
     };
@@ -734,24 +779,31 @@ async function main() {
   const dateFilter: SubscriptionDateFilter = {};
 
   const monthsBackRaw = process.env.SUBSCRIPTION_MONTHS_BACK?.trim();
-  const monthsBack = monthsBackRaw ? Number(monthsBackRaw) : 2;
+  const monthsBack = monthsBackRaw ? Number(monthsBackRaw) : 1200;
   if (!Number.isNaN(monthsBack) && monthsBack > 0) {
     const fromDate = new Date();
     fromDate.setMonth(fromDate.getMonth() - monthsBack);
     dateFilter.fromDate = fromDate;
   }
 
+  const includeExpired = true;
+  const importOptions: ImportOptions | undefined = includeExpired
+    ? { includeExpired: true }
+    : undefined;
+
   try {
     await importOnefit2SubscriptionHistory(
       externalUri,
       Object.keys(dateFilter).length > 0 ? dateFilter : undefined,
+      importOptions,
     );
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const err = error as { message?: string; stack?: string };
     process.stderr.write(
-      `Onefit2 subscription history import failed: ${error.message || error}\n`,
+      `Onefit2 subscription history import failed: ${err.message ?? error}\n`,
     );
-    if (error.stack) {
-      process.stderr.write(`${error.stack}\n`);
+    if (err.stack) {
+      process.stderr.write(`${err.stack}\n`);
     }
     process.exit(1);
   }
@@ -762,5 +814,7 @@ if (require.main === module) {
 }
 
 // Run user import first: pnpm tsx scripts/import-onefit2-users.ts
-// Optional: SUBSCRIPTION_ACTIVE_NOW=true = only subscriptions active on current date
-// Example: ONEFIT2_MONGO_URL=... SUBSCRIPTION_ACTIVE_NOW=true pnpm tsx scripts/import-onefit2-subscription-history.ts
+// Optional env:
+//   SUBSCRIPTION_MONTHS_BACK=N = only subscriptions with startDate within N months (default: 2)
+//   SUBSCRIPTION_INCLUDE_EXPIRED=true or IMPORT_OLD_PURCHASE_HISTORY=true = include expired (old) purchase history
+// Example: ONEFIT2_MONGO_URL=... SUBSCRIPTION_INCLUDE_EXPIRED=true pnpm tsx scripts/import-onefit2-subscription-history.ts
