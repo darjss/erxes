@@ -44,10 +44,17 @@ interface ExternalReservation {
   _p_member?: string;
 }
 
-/** Onefit2 Activity: holds credit cost per reservation. */
+/** Onefit2 Activity: holds credit cost per reservation and scheduling info. */
 interface ExternalActivity {
   _id: string;
   fitPointPrice?: number;
+  date?: Date | string;
+  startTime?: number;
+  endTime?: number;
+  price?: number;
+  status?: number;
+  _p_partner?: string;
+  _p_activitySubType?: string;
 }
 
 function extractIdFromPointer(pointer?: string): string | undefined {
@@ -91,6 +98,21 @@ interface ImportStats {
 
 function asNumber(value: unknown, fallback = 0): number {
   return typeof value === 'number' && !Number.isNaN(value) ? value : fallback;
+}
+
+function minutesToTimeString(minutes: number): string {
+  if (!Number.isFinite(minutes) || minutes < 0) {
+    return '00:00';
+  }
+
+  const clamped = Math.max(0, Math.min(24 * 60 - 1, Math.floor(minutes)));
+  const hours = Math.floor(clamped / 60);
+  const mins = clamped % 60;
+
+  const hh = hours.toString().padStart(2, '0');
+  const mm = mins.toString().padStart(2, '0');
+
+  return `${hh}:${mm}`;
 }
 
 function toDate(value?: Date | string): Date | undefined {
@@ -182,9 +204,22 @@ function groupHistoriesByUserId(
   return { historiesByUserId, allHistoryIds };
 }
 
-async function buildUsedPersistentFitPointByHistoryId(
+interface ReservationWithActivityIds {
+  reservationId: string;
+  memberId: string;
+  historyId: string;
+  activityId: string;
+}
+
+interface UsedPersistentFitPointContext {
+  usedByHistoryId: Map<string, number>;
+  reservations: ReservationWithActivityIds[];
+  activities: ExternalActivity[];
+}
+
+async function buildUsedPersistentFitPointContext(
   externalDb: mongoose.mongo.Db,
-): Promise<Map<string, number>> {
+): Promise<UsedPersistentFitPointContext> {
   const reservationCollection = externalDb.collection('Reservation');
   const activityCollection = externalDb.collection('Activity');
 
@@ -210,23 +245,37 @@ async function buildUsedPersistentFitPointByHistoryId(
   }
 
   const usedByHistoryId = new Map<string, number>();
+  const reservationsWithActivityIds: ReservationWithActivityIds[] = [];
+
   for (const r of reservations) {
     const historyId = extractIdFromPointer(r._p_subscriptionHistory);
     const activityId = extractIdFromPointer(r._p_activity);
-    if (!historyId || !activityId) continue;
+    const memberId = extractIdFromPointer(r._p_member);
+    if (!historyId || !activityId || !memberId) continue;
 
     const credit = activityCreditById.get(activityId) ?? 0;
     usedByHistoryId.set(
       historyId,
       (usedByHistoryId.get(historyId) ?? 0) + credit,
     );
+
+    reservationsWithActivityIds.push({
+      reservationId: r._id,
+      memberId,
+      historyId,
+      activityId,
+    });
   }
 
   process.stdout.write(
     `Computed usedPersistentFitPoint from ${reservations.length} reservations (status=0) and ${activityDocs.length} activities\n`,
   );
 
-  return usedByHistoryId;
+  return {
+    usedByHistoryId,
+    reservations: reservationsWithActivityIds,
+    activities: activityDocs,
+  };
 }
 
 async function loadExistingHistoryIds(
@@ -526,7 +575,9 @@ function processOneHistory(
   return {
     skip: false,
     purchase,
-    creditTransactions: creditTransactions.length ? creditTransactions : undefined,
+    creditTransactions: creditTransactions.length
+      ? creditTransactions
+      : undefined,
     creditDelta,
     isActiveNow,
     purchasedAt,
@@ -630,8 +681,11 @@ async function importOnefit2SubscriptionHistory(
       dateFilter,
     );
 
-    const usedPersistentFitPointByHistoryId =
-      await buildUsedPersistentFitPointByHistoryId(externalDb);
+    const {
+      usedByHistoryId: usedPersistentFitPointByHistoryId,
+      reservations,
+      activities,
+    } = await buildUsedPersistentFitPointContext(externalDb);
 
     await connect();
     process.stdout.write('Connected to local MongoDB\n');
@@ -671,6 +725,8 @@ async function importOnefit2SubscriptionHistory(
 
     const purchasesToInsert: any[] = [];
     const creditTransactionsToInsert: any[] = [];
+
+    const importedHistoryIds = new Set<string>();
 
     for (const [userId, histories] of historiesByUserId) {
       processedUserIds += 1;
@@ -714,6 +770,8 @@ async function importOnefit2SubscriptionHistory(
               skippedMembershipPurchases += result.skipCount;
               continue;
             }
+
+            importedHistoryIds.add(history._id);
 
             runningBalance = result.newRunningBalance;
             if (result.creditTransactions?.length) {
@@ -782,6 +840,88 @@ async function importOnefit2SubscriptionHistory(
       }
     }
 
+    const activityById = new Map<string, ExternalActivity>();
+    for (const activity of activities) {
+      activityById.set(activity._id, activity);
+    }
+
+    const bookingsToInsert: any[] = [];
+    const activityTypeIdCache = new Map<string, string>();
+
+    for (const r of reservations) {
+      if (!importedHistoryIds.has(r.historyId)) {
+        continue;
+      }
+
+      const activity = activityById.get(r.activityId);
+      if (!activity) {
+        continue;
+      }
+
+      const providerId = extractIdFromPointer(activity._p_partner);
+      const categoryId = extractIdFromPointer(activity._p_activitySubType);
+
+      if (!providerId || !categoryId) {
+        continue;
+      }
+
+      const cacheKey = `${providerId}:${categoryId}`;
+      let activityTypeId = activityTypeIdCache.get(cacheKey);
+
+      if (!activityTypeId) {
+        const activityType = await models.ActivityType.findOne({
+          providerId,
+          categoryIds: { $all: [categoryId] },
+        }).lean();
+
+        if (!activityType) {
+          continue;
+        }
+
+        activityTypeId = String(activityType._id);
+        activityTypeIdCache.set(cacheKey, activityTypeId);
+      }
+
+      const bookingDateRaw = toDate(activity.date);
+      if (!bookingDateRaw) {
+        continue;
+      }
+
+      const startMinutes =
+        typeof activity.startTime === 'number' ? activity.startTime : 0;
+      const endMinutes =
+        typeof activity.endTime === 'number'
+          ? activity.endTime
+          : startMinutes + 60;
+
+      const startTime = minutesToTimeString(startMinutes);
+      const endTime = minutesToTimeString(endMinutes);
+
+      const price =
+        typeof activity.price === 'number' && !Number.isNaN(activity.price)
+          ? activity.price
+          : 0;
+
+      bookingsToInsert.push({
+        userId: r.memberId,
+        providerId,
+        activityTypeId,
+        bookingDate: bookingDateRaw,
+        startTime,
+        endTime,
+        creditCost:
+          typeof activity.fitPointPrice === 'number'
+            ? activity.fitPointPrice
+            : 0,
+        price,
+        status: 'confirmed',
+        attendanceStatus: 'pending',
+        bookingId: r.reservationId,
+        createdAt: new Date(),
+        modifiedAt: new Date(),
+      });
+    }
+
     const purchaseResult = await insertBatched(
       models.MembershipPurchase.collection,
       purchasesToInsert,
@@ -794,6 +934,13 @@ async function importOnefit2SubscriptionHistory(
       creditTransactionsToInsert,
       BATCH_SIZE,
       'credit transactions',
+    );
+
+    const bookingResult = await insertBatched(
+      models.Booking.collection,
+      bookingsToInsert,
+      BATCH_SIZE,
+      'bookings',
     );
 
     const stats: ImportStats = {
@@ -833,8 +980,11 @@ async function main() {
     dateFilter.fromDate = fromDate;
   }
 
-  const includeExpired = true;
-  const importOptions: ImportOptions | undefined = includeExpired
+  const includeExpiredFlag =
+    process.env.SUBSCRIPTION_INCLUDE_EXPIRED === 'true' ||
+    process.env.IMPORT_OLD_PURCHASE_HISTORY === 'true';
+
+  const importOptions: ImportOptions | undefined = includeExpiredFlag
     ? { includeExpired: true }
     : undefined;
 
