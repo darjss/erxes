@@ -254,6 +254,36 @@ async function loadExistingHistoryIds(
   return existing;
 }
 
+async function ensureOneFitCustomerForUserId(
+  models: IModels,
+  userId: string,
+): Promise<unknown | null> {
+  let customer = await models.OneFitCustomer.findOne({ _id: userId });
+  // if (customer) {
+  //   return customer;
+  // }
+
+  // Try upgrading an existing core customer document in the same collection to OneFitCustomer
+  await models.OneFitCustomer.findOneAndUpdate(
+    { _id: userId },
+    {
+      $set: {
+        __t: 'OneFitCustomer',
+        membershipStatus: 'none',
+        currentCreditBalance: 0,
+        totalCreditsEarned: 0,
+        totalCreditsUsed: 0,
+        totalBookings: 0,
+      },
+    },
+    { upsert: false, new: true },
+  );
+
+  customer = await models.OneFitCustomer.findOne({ _id: userId });
+
+  return customer;
+}
+
 async function insertBatched<T extends Record<string, unknown>>(
   collection: mongoose.mongo.Collection,
   items: T[],
@@ -438,8 +468,7 @@ function processOneHistory(
     userId: customerId,
     planId: subscriptionId,
     status: 'paid',
-    activatedAt:
-      isActiveNow || isExpired ? purchasedAt : undefined,
+    activatedAt: isActiveNow || isExpired ? purchasedAt : undefined,
     purchasedAt,
     expiresAt,
     amount,
@@ -470,7 +499,8 @@ function processOneHistory(
         amount: creditDelta,
         transactionType: CreditTransactionType.PURCHASE,
         source: CreditSource.INDIVIDUAL,
-        description: 'Imported credits from Onefit2 subscription (expired, history only)',
+        description:
+          'Imported credits from Onefit2 subscription (expired, history only)',
         balanceAfter: runningBalance + creditDelta,
         createdAt: purchasedAt,
       };
@@ -629,12 +659,13 @@ async function importOnefit2SubscriptionHistory(
     for (const [userId, histories] of historiesByUserId) {
       processedUserIds += 1;
 
-      let customer = await models.OneFitCustomer.findOne({ _id: userId });
-      if (!customer) {
-        customer = await models.OneFitCustomer.findOne({
-          onefit2UserId: userId,
-        });
-      }
+      let customer =
+        (await models.OneFitCustomer.findOne({ _id: userId })) ??
+        (await models.OneFitCustomer.findOne({ onefit2UserId: userId }));
+
+      customer = (await ensureOneFitCustomerForUserId(models, userId)) as
+        | typeof customer
+        | null;
 
       if (!customer) {
         customersNotFound += 1;
