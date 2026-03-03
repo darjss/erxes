@@ -93,9 +93,7 @@ export const TicketSubmissionItem = ({
         <TicketStatusInlineValue status={ticket.status} />
         <div className="text-base font-semibold flex-1 shrink-0 truncate flex m-0 justify-between">
           {ticket.name || 'Untitled ticket'}
-          {!open && (
-            <TicketDateDisplay value={ticket?.createdAt || undefined} />
-          )}
+          {!open && <TicketDateDisplay value={ticket?.createdAt || undefined} />}
         </div>
         <div className="flex-none shrink-0">
           {open ? (
@@ -121,7 +119,7 @@ export const TicketSubmissionItem = ({
               placeholder="Close date"
             />
           </div>
-          <div className="flex justify-between items-center">
+          <div className='flex justify-between items-center'>
             <div className="text-sm text-muted-foreground px-1">
               {parseTicketDescription(ticket.description)}
             </div>

@@ -12,9 +12,7 @@ interface VendorUsersRecordTableProps {
   vendorId?: string;
 }
 
-export const VendorUsersRecordTable = ({
-  vendorId,
-}: VendorUsersRecordTableProps) => {
+export const VendorUsersRecordTable = ({ vendorId }: VendorUsersRecordTableProps) => {
   const { vendorUsers, loading, refetch } = useVendorUsers(vendorId);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingUser, setEditingUser] = useState<VendorUser | undefined>();
@@ -35,7 +33,7 @@ export const VendorUsersRecordTable = ({
 
   const columns = useMemo(
     () => createVendorUsersColumns(handleEdit, refetch),
-    [refetch],
+    [refetch]
   );
 
   return (

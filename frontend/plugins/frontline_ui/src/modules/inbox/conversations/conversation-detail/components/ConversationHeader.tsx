@@ -68,7 +68,7 @@ const AssignConversation = () => {
           variant: 'destructive',
         });
       },
-      refetchQueries: ['ConversationDetail', 'Conversations'],
+      refetchQueries: ['ConversationDetail', 'Conversations']
     });
   };
 
@@ -97,7 +97,7 @@ export const ConversationTags = () => {
   };
 
   return (
-    <div className="flex-none max-w-lg overflow-x-hidden">
+    <div className='flex-none max-w-lg overflow-x-hidden'>
       <SelectTags.ConversationDetail
         tagType="frontline:conversation"
         mode="multiple"
