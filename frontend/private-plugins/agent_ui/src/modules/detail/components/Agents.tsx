@@ -12,11 +12,6 @@ export const Agents = ({
 }) => {
   const { agents, loading } = useAgentsList();
 
-  const mainAgent = {
-    id: 'main',
-    identity: null,
-  };
-
   return (
     <ScrollArea.Root className="w-full h-full overflow-hidden relative bg-sidebar">
       {loading ? (
@@ -24,12 +19,6 @@ export const Agents = ({
       ) : (
         <ScrollArea.Viewport className="[&>div]:block!">
           <div className="py-3 px-4 flex flex-col gap-2 w-full overflow-hidden">
-            <AgentItem
-              key={mainAgent.id}
-              {...mainAgent}
-              selectedId={selectedId}
-              setSelectedId={setSelectedId}
-            />
             {agents.map((agent) => (
               <AgentItem
                 key={agent.id}
