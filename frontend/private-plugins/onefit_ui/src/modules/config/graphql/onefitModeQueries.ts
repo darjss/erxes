@@ -11,3 +11,9 @@ export const ONE_FIT_MASTER_URL = gql`
     oneFitMasterUrl
   }
 `;
+
+export const ONE_FIT_INSTANCE_ID = gql`
+  query OneFitInstanceId {
+    oneFitInstanceId
+  }
+`;

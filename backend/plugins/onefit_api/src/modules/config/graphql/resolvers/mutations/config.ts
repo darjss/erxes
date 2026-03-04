@@ -18,6 +18,14 @@ export const configMutations = {
     return await models.SystemConfig.updateConfig(key, value);
   },
 
+  async oneFitSystemConfigUpdate(
+    _root: undefined,
+    { key, value }: { key: string; value: any },
+    { models }: IContext,
+  ) {
+    return await models.SystemConfig.updateConfig(key, value);
+  },
+
   async systemConfigsRemove(
     _root: undefined,
     { keys }: { keys: string[] },

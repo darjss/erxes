@@ -4,7 +4,6 @@ import {
   getEnv,
   sendTRPCMessage,
 } from 'erxes-api-shared/utils';
-import { getSaasOrganizationIdBySubdomain } from 'erxes-api-shared/utils';
 import resolvers from '~/apollo/resolvers';
 import { typeDefs } from '~/apollo/typeDefs';
 import { generateModels } from '~/connectionResolvers';
@@ -14,7 +13,6 @@ import {
   getOneFitInstanceId,
   getOneFitSecret,
   getOneFitMasterUrl,
-  validateSlaveConfig,
   isSlaveMode,
 } from '~/constants/mode';
 import { getMasterClient } from '~/utils/masterClient';
@@ -25,8 +23,6 @@ import {
   activateMembershipPurchase,
   isCreditOnlyPlan,
 } from '@/membership/graphql/resolvers/utils/membershipPurchase';
-
-validateSlaveConfig();
 
 const DOMAIN = getEnv({ name: 'DOMAIN' });
 const ALLOWED_ORIGINS = getEnv({ name: 'ALLOWED_ORIGINS' });
@@ -98,16 +94,11 @@ startPlugin({
     const VERSION = getEnv({ name: 'VERSION', defaultValue: 'os' });
     let instanceId: string | undefined;
 
-    // In SaaS version, use organization ID as instanceId
+    // Prefer instanceId from config when set (saved in OneFit settings)
+
     if (VERSION === 'saas') {
-      try {
-        instanceId = await getSaasOrganizationIdBySubdomain(subdomain);
-      } catch (error) {
-        console.error('Failed to get organization ID for SaaS:', error);
-      }
+      instanceId = await getOneFitInstanceId(subdomain);
     } else {
-      // In slave mode, use environment variable
-      // In master mode, use instanceId from header if present (from slave request)
       instanceId = isSlaveMode()
         ? await getOneFitInstanceId(subdomain)
         : instanceIdFromHeader;

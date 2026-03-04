@@ -101,4 +101,12 @@ export const configQueries = {
   ) {
     return context.masterUrl;
   },
+
+  async oneFitInstanceId(
+    _root: undefined,
+    _params: undefined,
+    context: IContext,
+  ) {
+    return context.instanceId;
+  },
 };

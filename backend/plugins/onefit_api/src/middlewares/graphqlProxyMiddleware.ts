@@ -63,6 +63,11 @@ const PROXY_TO_MASTER_OPERATIONS = [
   // Account statement
   'oneFitAccountStatement',
   'oneFitCreditConsumption',
+
+  //Categories
+  'oneFitActivityCategories',
+  'oneFitActivityCategoriesCount',
+  'oneFitActivityCategory',
 ];
 
 /** Operations that must never run locally in slave mode; these return 403. */
@@ -185,9 +190,22 @@ export const graphqlProxyMiddleware = async (
       return next();
     }
 
-    const masterClient = getMasterClient();
     const subdomain = getSubdomain(req);
     const instanceId = await getOneFitInstanceId(subdomain);
+
+    if (!instanceId) {
+      return res.status(503).json({
+        data: null,
+        errors: [
+          {
+            message: 'SLAVE_MODE_INSTANCE_ID_REQUIRED',
+            extensions: { code: 'SERVICE_UNAVAILABLE' },
+          },
+        ],
+      });
+    }
+
+    const masterClient = getMasterClient();
 
     // Forward headers for authentication and context
     const headers: Record<string, string> = {};

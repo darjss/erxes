@@ -71,11 +71,16 @@ router.post('/upload-file', async (req: Request, res: Response) => {
     }
 
     try {
-      // If in slave mode, forward to master
+      // If in slave mode, forward to master (only when instanceId is set)
       if (isSlaveMode()) {
+        const instanceId = await getOneFitInstanceId(subdomain);
+        if (!instanceId) {
+          return res.status(503).send(
+            filterXSS('Instance ID is required to upload in slave mode'),
+          );
+        }
         try {
           const masterClient = getMasterClient();
-          const instanceId = await getOneFitInstanceId(subdomain);
           const onefitSecret = getOneFitSecret();
 
           // Build headers for master request
@@ -83,9 +88,7 @@ router.post('/upload-file', async (req: Request, res: Response) => {
           if (subdomain) {
             headers['x-subdomain'] = subdomain;
           }
-          if (instanceId) {
-            headers['x-onefit-instance-id'] = instanceId;
-          }
+          headers['x-onefit-instance-id'] = instanceId;
           if (req.headers.authorization) {
             headers['authorization'] = req.headers.authorization as string;
           }
