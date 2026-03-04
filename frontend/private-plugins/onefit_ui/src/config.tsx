@@ -2,9 +2,9 @@ import { IUIConfig } from 'erxes-ui';
 import { Suspense, lazy } from 'react';
 import { IconActivity, IconUser } from '@tabler/icons-react';
 
-const OneFitNavigation = lazy(() =>
-  import('./modules/OneFitNavigation').then((module) => ({
-    default: module.OneFitNavigation,
+const OneFitNavigationWithGuard = lazy(() =>
+  import('./modules/OneFitNavigationWithGuard').then((module) => ({
+    default: module.OneFitNavigationWithGuard,
   })),
 );
 
@@ -43,7 +43,7 @@ export const CONFIG: IUIConfig = {
     icon: IconActivity,
     content: () => (
       <Suspense fallback={<div />}>
-        <OneFitNavigation />
+        <OneFitNavigationWithGuard />
       </Suspense>
     ),
   },

@@ -24,7 +24,10 @@ export function useInstanceIdConfig() {
     ONE_FIT_SYSTEM_CONFIG_UPDATE,
     {
       refetchQueries: [
-        { query: ONE_FIT_SYSTEM_CONFIG_BY_KEY, variables: { key: INSTANCE_ID_KEY } },
+        {
+          query: ONE_FIT_SYSTEM_CONFIG_BY_KEY,
+          variables: { key: INSTANCE_ID_KEY },
+        },
       ],
       onCompleted: () => {
         toast({

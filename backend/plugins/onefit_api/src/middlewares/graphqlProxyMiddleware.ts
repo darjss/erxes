@@ -72,9 +72,6 @@ const PROXY_TO_MASTER_OPERATIONS = [
 
 /** Operations that must never run locally in slave mode; these return 403. */
 const BLOCKED_IN_SLAVE = [
-  'oneFitSystemConfigCreate',
-  'oneFitSystemConfigUpdate',
-  'oneFitSystemConfigsRemove',
   'oneFitSystemConfigUpdateSelectedPayments',
   'oneFitCreditTransactionsRemove',
   'oneFitCreditTransactionCreate',

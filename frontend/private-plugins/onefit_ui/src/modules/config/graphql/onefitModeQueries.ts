@@ -12,8 +12,8 @@ export const ONE_FIT_MASTER_URL = gql`
   }
 `;
 
-export const ONE_FIT_INSTANCE_ID = gql`
-  query OneFitInstanceId {
-    oneFitInstanceId
+export const ONE_FIT_SUGGESTED_INSTANCE_ID = gql`
+  query OneFitSuggestedInstanceId {
+    oneFitSuggestedInstanceId
   }
 `;

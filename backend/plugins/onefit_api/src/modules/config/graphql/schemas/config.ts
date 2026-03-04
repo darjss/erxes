@@ -31,6 +31,7 @@ export const queries = `
   oneFitMode: String
   oneFitMasterUrl: String
   oneFitInstanceId: String
+  oneFitSuggestedInstanceId: String
 `;
 
 const configInput = `

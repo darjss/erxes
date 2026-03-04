@@ -1,5 +1,10 @@
 import { ICursorPaginateParams } from 'erxes-api-shared/core-types';
-import { cursorPaginate, escapeRegExp } from 'erxes-api-shared/utils';
+import {
+  cursorPaginate,
+  escapeRegExp,
+  getEnv,
+  getSaasOrganizationIdBySubdomain,
+} from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 
 export interface IConfigQueryParams extends ICursorPaginateParams {
@@ -108,5 +113,21 @@ export const configQueries = {
     context: IContext,
   ) {
     return context.instanceId;
+  },
+
+  async oneFitSuggestedInstanceId(
+    _root: undefined,
+    _params: undefined,
+    context: IContext,
+  ): Promise<string | null> {
+    const VERSION = getEnv({ name: 'VERSION', defaultValue: 'os' });
+    if (VERSION !== 'saas') {
+      return null;
+    }
+    try {
+      return await getSaasOrganizationIdBySubdomain(context.subdomain);
+    } catch {
+      return null;
+    }
   },
 };

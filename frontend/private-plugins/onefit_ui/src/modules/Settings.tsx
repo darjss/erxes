@@ -1,10 +1,14 @@
 import { useState, useEffect } from 'react';
+import { useAtomValue } from 'jotai';
+import { currentOrganizationState } from 'ui-modules';
 import { PaymentSelection } from '@/config/components/PaymentSelection';
 import { useInstanceIdConfig } from '@/config/hooks/useInstanceIdConfig';
-import { useOneFitInstanceId } from '@/config/hooks/useOneFitInstanceId';
+import { useOneFitSuggestedInstanceId } from '@/config/hooks/useOneFitSuggestedInstanceId';
 import { Button, Input } from 'erxes-ui';
 
 const OneFitSettings = () => {
+  const organization = useAtomValue(currentOrganizationState);
+  const isSaas = organization?.type === 'saas';
   const {
     instanceId: savedInstanceId,
     loading: configLoading,
@@ -12,17 +16,26 @@ const OneFitSettings = () => {
     updateInstanceId,
     updateLoading,
   } = useInstanceIdConfig();
+  const {
+    suggestedInstanceId,
+    loading: suggestedLoading,
+  } = useOneFitSuggestedInstanceId();
   const [inputValue, setInputValue] = useState('');
 
   useEffect(() => {
-    setInputValue(savedInstanceId);
-  }, [savedInstanceId]);
+    if (isSaas && suggestedInstanceId) {
+      setInputValue(suggestedInstanceId);
+    } else {
+      setInputValue(savedInstanceId);
+    }
+  }, [savedInstanceId, isSaas, suggestedInstanceId]);
 
   const handleSave = () => {
     updateInstanceId(inputValue);
   };
 
   const hasChange = inputValue !== savedInstanceId;
+  const saasReadOnly = isSaas;
 
   return (
     <div className="container mx-auto py-6">
@@ -49,17 +62,37 @@ const OneFitSettings = () => {
             </div>
           ) : (
             <div className="space-y-3">
-              <Input
-                type="text"
-                value={inputValue}
-                onChange={(e) => setInputValue(e.target.value)}
-                placeholder="Enter instance ID"
-                className="w-full"
-              />
+              {isSaas && (
+                <p className="text-sm text-muted-foreground">
+                  In SAAS mode, the Instance ID is your organization ID and cannot
+                  be changed.
+                </p>
+              )}
+              <div className="flex gap-2">
+                <Input
+                  type="text"
+                  value={inputValue}
+                  onChange={(e) =>
+                    !saasReadOnly && setInputValue(e.target.value)
+                  }
+                  placeholder={
+                    isSaas && !suggestedInstanceId
+                      ? 'Loading organization ID...'
+                      : 'Enter instance ID'
+                  }
+                  className="w-full"
+                  readOnly={saasReadOnly}
+                  disabled={saasReadOnly}
+                />
+              </div>
               <div className="flex justify-end">
                 <Button
                   onClick={handleSave}
-                  disabled={updateLoading || !hasChange}
+                  disabled={
+                    updateLoading ||
+                    !hasChange ||
+                    (isSaas && (suggestedLoading || !suggestedInstanceId))
+                  }
                   variant="default"
                 >
                   {updateLoading ? 'Saving...' : 'Save'}
