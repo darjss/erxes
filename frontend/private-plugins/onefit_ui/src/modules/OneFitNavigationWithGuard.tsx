@@ -1,9 +1,11 @@
 import { NavigationMenuLinkItem } from 'erxes-ui';
 import { IconActivity, IconSettings } from '@tabler/icons-react';
 import { useOneFitInstanceId } from '@/config/hooks/useOneFitInstanceId';
+import { useOneFitMode } from '@/config/hooks/useOneFitMode';
 import { OneFitNavigation } from './OneFitNavigation';
 
 export function OneFitNavigationWithGuard() {
+  const { isSlaveMode } = useOneFitMode();
   const { instanceId, loading } = useOneFitInstanceId();
 
   if (loading) {
@@ -17,7 +19,8 @@ export function OneFitNavigationWithGuard() {
     );
   }
 
-  if (!instanceId || instanceId.trim() === '') {
+  const missingInstanceId = !instanceId || instanceId.trim() === '';
+  if (isSlaveMode && missingInstanceId) {
     return (
       <>
         <NavigationMenuLinkItem

@@ -101,7 +101,9 @@ const OneFitMain = () => {
 
   const hasInstanceId = Boolean(instanceId) && String(instanceId).trim() !== '';
 
-  if (loading) {
+  const requireInstanceId = isSlaveMode && !hasInstanceId;
+
+  if (isSlaveMode && loading) {
     return (
       <div className="flex items-center justify-center min-h-[40vh]">
         <Spinner />
@@ -109,7 +111,7 @@ const OneFitMain = () => {
     );
   }
 
-  if (!hasInstanceId) {
+  if (requireInstanceId) {
     return <OneFitOnboardingPage />;
   }
 
