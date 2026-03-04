@@ -16,10 +16,8 @@ const OneFitSettings = () => {
     updateInstanceId,
     updateLoading,
   } = useInstanceIdConfig();
-  const {
-    suggestedInstanceId,
-    loading: suggestedLoading,
-  } = useOneFitSuggestedInstanceId();
+  const { suggestedInstanceId, loading: suggestedLoading } =
+    useOneFitSuggestedInstanceId();
   const [inputValue, setInputValue] = useState('');
 
   useEffect(() => {
@@ -64,8 +62,8 @@ const OneFitSettings = () => {
             <div className="space-y-3">
               {isSaas && (
                 <p className="text-sm text-muted-foreground">
-                  In SAAS mode, the Instance ID is your organization ID and cannot
-                  be changed.
+                  In SAAS mode, the Instance ID is your organization ID and
+                  cannot be changed.
                 </p>
               )}
               <div className="flex gap-2">

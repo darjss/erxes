@@ -39,7 +39,9 @@ export const configMutations = {
     { paymentIds }: { paymentIds: string[] },
     { models }: IContext,
   ) {
-    return await models.SystemConfig.updateConfig('selectedPayments', paymentIds);
+    return await models.SystemConfig.updateConfig(
+      'selectedPayments',
+      paymentIds,
+    );
   },
 };
-

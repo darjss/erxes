@@ -75,9 +75,9 @@ router.post('/upload-file', async (req: Request, res: Response) => {
       if (isSlaveMode()) {
         const instanceId = await getOneFitInstanceId(subdomain);
         if (!instanceId) {
-          return res.status(503).send(
-            filterXSS('Instance ID is required to upload in slave mode'),
-          );
+          return res
+            .status(503)
+            .send(filterXSS('Instance ID is required to upload in slave mode'));
         }
         try {
           const masterClient = getMasterClient();

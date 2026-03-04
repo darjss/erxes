@@ -99,8 +99,7 @@ const OneFitMain = () => {
   const { isSlaveMode } = useOneFitMode();
   const { instanceId, loading } = useOneFitInstanceId();
 
-  const hasInstanceId =
-    Boolean(instanceId) && String(instanceId).trim() !== '';
+  const hasInstanceId = Boolean(instanceId) && String(instanceId).trim() !== '';
 
   if (loading) {
     return (

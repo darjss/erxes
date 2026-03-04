@@ -23,4 +23,3 @@ export const ONE_FIT_SYSTEM_CONFIG_UPDATE = gql`
     }
   }
 `;
-
