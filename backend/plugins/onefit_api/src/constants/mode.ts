@@ -2,6 +2,7 @@ import {
   getEnv,
   getSaasOrganizationIdBySubdomain,
 } from 'erxes-api-shared/utils';
+import { generateModels } from '~/connectionResolvers';
 
 export type OneFitMode = 'master' | 'slave';
 
@@ -20,16 +21,9 @@ export const getOneFitMasterUrl = (): string | undefined => {
 export const getOneFitInstanceId = async (
   subdomain: string,
 ): Promise<string | undefined> => {
-  const VERSION = getEnv({ name: 'VERSION', defaultValue: 'os' });
-
-  if (VERSION === 'saas') {
-    try {
-      return await getSaasOrganizationIdBySubdomain(subdomain);
-    } catch (error) {
-      console.error('Failed to get organization ID for SaaS:', error);
-    }
-  }
-  return getEnv({ name: 'ONEFIT_INSTANCE_ID' });
+  const models = await generateModels(subdomain);
+  const configInstance = await models.SystemConfig.getConfig('instanceId');
+  return configInstance?.value;
 };
 
 export const isSlaveMode = (): boolean => {
@@ -41,30 +35,4 @@ export const isMasterMode = (): boolean => {
 };
 export const getOneFitSecret = (): string | undefined => {
   return getEnv({ name: 'ONEFIT_AUTH_TOKEN' });
-};
-
-export const validateSlaveConfig = (): void => {
-  const VERSION = getEnv({ name: 'VERSION', defaultValue: 'os' });
-
-  // Skip validation in SaaS mode as instanceId will be organization ID
-  if (VERSION === 'saas') {
-    return;
-  }
-
-  if (isSlaveMode()) {
-    const masterUrl = getOneFitMasterUrl();
-    const instanceId = getOneFitInstanceId('');
-
-    if (!masterUrl) {
-      throw new Error(
-        'ONEFIT_MASTER_URL environment variable is required in slave mode',
-      );
-    }
-
-    if (!instanceId) {
-      throw new Error(
-        'ONEFIT_INSTANCE_ID environment variable is required in slave mode',
-      );
-    }
-  }
 };

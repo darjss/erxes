@@ -1,6 +1,9 @@
 import { lazy, Suspense } from 'react';
 import { Route, Routes } from 'react-router';
+import { Spinner } from 'erxes-ui';
+import { useOneFitInstanceId } from '@/config/hooks/useOneFitInstanceId';
 import { useOneFitMode } from './config/hooks/useOneFitMode';
+import { OneFitOnboardingPage } from '~/pages/OneFitOnboardingPage';
 
 const IndexPage = lazy(() =>
   import('~/pages/IndexPage').then((module) => ({
@@ -94,6 +97,21 @@ const CreditConsumptionPage = lazy(() =>
 
 const OneFitMain = () => {
   const { isSlaveMode } = useOneFitMode();
+  const { instanceId, loading } = useOneFitInstanceId();
+
+  const hasInstanceId = Boolean(instanceId) && String(instanceId).trim() !== '';
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[40vh]">
+        <Spinner />
+      </div>
+    );
+  }
+
+  if (!hasInstanceId) {
+    return <OneFitOnboardingPage />;
+  }
 
   return (
     <Suspense fallback={<div />}>

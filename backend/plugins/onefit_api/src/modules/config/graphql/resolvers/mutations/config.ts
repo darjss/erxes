@@ -18,6 +18,14 @@ export const configMutations = {
     return await models.SystemConfig.updateConfig(key, value);
   },
 
+  async oneFitSystemConfigUpdate(
+    _root: undefined,
+    { key, value }: { key: string; value: any },
+    { models }: IContext,
+  ) {
+    return await models.SystemConfig.updateConfig(key, value);
+  },
+
   async systemConfigsRemove(
     _root: undefined,
     { keys }: { keys: string[] },
@@ -31,7 +39,9 @@ export const configMutations = {
     { paymentIds }: { paymentIds: string[] },
     { models }: IContext,
   ) {
-    return await models.SystemConfig.updateConfig('selectedPayments', paymentIds);
+    return await models.SystemConfig.updateConfig(
+      'selectedPayments',
+      paymentIds,
+    );
   },
 };
-

@@ -30,6 +30,8 @@ export const queries = `
   oneFitAllSystemConfigs: [OneFitSystemConfig]
   oneFitMode: String
   oneFitMasterUrl: String
+  oneFitInstanceId: String
+  oneFitSuggestedInstanceId: String
 `;
 
 const configInput = `
