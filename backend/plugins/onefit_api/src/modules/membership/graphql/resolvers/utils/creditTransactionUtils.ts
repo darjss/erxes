@@ -2,7 +2,7 @@ import { IModels } from '~/connectionResolvers';
 import { CreditTransactionType } from '@/membership/@types/credittransaction';
 import { ICreditTransactionDocument } from '@/membership/@types/credittransaction';
 
-function computeEarnedAndUsedFromTransactions(
+export function computeEarnedAndUsedFromTransactions(
   transactions: ICreditTransactionDocument[],
 ): { totalCreditsEarned: number; totalCreditsUsed: number } {
   let totalCreditsEarned = 0;
