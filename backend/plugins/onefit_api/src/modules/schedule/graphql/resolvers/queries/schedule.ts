@@ -378,6 +378,163 @@ export const scheduleQueries = {
     };
   },
 
+  async oneFitDaySlots(
+    _root: undefined,
+    {
+      providerId,
+      currentDate: currentDateParam,
+    }: { providerId: string; currentDate: Date },
+    context: IContext,
+  ) {
+    const { models } = context;
+    const currentDate = getPureDate(new Date(currentDateParam));
+    const year = currentDate.getFullYear();
+    const month = currentDate.getMonth() + 1;
+
+    if (context.instanceId) {
+      const provider = await models.Provider.findOne({ _id: providerId });
+      if (!provider || provider.instanceId !== context.instanceId) {
+        return [];
+      }
+    }
+
+    const scheduleTemplate =
+      await models.ScheduleTemplate.findByProviderAndMonth(
+        providerId,
+        year,
+        month,
+      );
+
+    const dateKey = currentDate.getTime();
+    const startOfDay = new Date(currentDate);
+    const endOfDay = new Date(currentDate);
+    endOfDay.setHours(23, 59, 59, 999);
+
+    const exceptions = await models.ScheduleException.find({
+      providerId,
+      date: { $gte: startOfDay, $lte: endOfDay },
+    });
+
+    const bookings = await models.Booking.find({
+      providerId,
+      bookingDate: { $gte: startOfDay, $lte: endOfDay },
+      status: { $ne: BookingStatus.CANCELLED },
+    });
+    const bookingsBySlotKey = new Map<string, number>();
+    for (const booking of bookings as IBooking[]) {
+      const bookingDatePure = new Date(booking.bookingDate);
+      const at = booking.activityTypeId ?? '';
+      const key = `${bookingDatePure.getTime()}-${at}-${
+        booking.startTime ?? ''
+      }`;
+      bookingsBySlotKey.set(key, (bookingsBySlotKey.get(key) || 0) + 1);
+    }
+
+    const days: Array<{
+      date: Date;
+      isFull: boolean;
+      seatsLeft: number;
+      totalSeats: number;
+      bookedSeats: number;
+      hasSchedule: boolean;
+      isBlockedByException: boolean;
+      schedule?: {
+        dayOfWeek: DayOfWeek;
+        activityTypeId: string;
+        genderRestriction: string;
+        startTime: string;
+        endTime: string;
+        dailyLimit: number;
+      };
+    }> = [];
+
+    const dayOfWeek = getDayOfWeek(currentDate);
+
+    const isDateBlockedForActivityType = (atId: string): boolean =>
+      exceptions.some(
+        (ex) =>
+          getPureDate(ex.date).getTime() === dateKey &&
+          (ex.activityTypeId == null || ex.activityTypeId === atId),
+      );
+
+    if (!scheduleTemplate) {
+      days.push({
+        date: currentDate,
+        isFull: true,
+        seatsLeft: 0,
+        totalSeats: 0,
+        bookedSeats: 0,
+        hasSchedule: false,
+        isBlockedByException: false,
+      } as (typeof days)[number]);
+      return days;
+    }
+
+    const dailySchedules = scheduleTemplate.dailySchedules.filter(
+      (schedule) => schedule.dayOfWeek === dayOfWeek,
+    );
+
+    if (dailySchedules.length === 0) {
+      days.push({
+        date: currentDate,
+        isFull: true,
+        seatsLeft: 0,
+        totalSeats: 0,
+        bookedSeats: 0,
+        hasSchedule: false,
+        isBlockedByException: false,
+      } as (typeof days)[number]);
+      return days;
+    }
+    for (const dailySchedule of dailySchedules) {
+      const atId = dailySchedule.activityTypeId;
+      const isBlocked = isDateBlockedForActivityType(atId);
+      if (isBlocked) {
+        days.push({
+          date: currentDate,
+          isFull: true,
+          seatsLeft: 0,
+          totalSeats: dailySchedule.dailyLimit,
+          bookedSeats: 0,
+          hasSchedule: true,
+          isBlockedByException: true,
+          schedule: {
+            dayOfWeek,
+            activityTypeId: atId,
+            genderRestriction: dailySchedule.genderRestriction,
+            startTime: dailySchedule.startTime,
+            endTime: dailySchedule.endTime,
+            dailyLimit: dailySchedule.dailyLimit,
+          },
+        } as (typeof days)[number]);
+        continue;
+      }
+      const slotKey = `${dateKey}-${atId}-${dailySchedule.startTime}`;
+      const bookedSeats = bookingsBySlotKey.get(slotKey) || 0;
+      const totalSeats = dailySchedule.dailyLimit;
+      const seatsLeft = Math.max(0, totalSeats - bookedSeats);
+      days.push({
+        date: currentDate,
+        isFull: seatsLeft <= 0,
+        seatsLeft,
+        totalSeats,
+        bookedSeats,
+        hasSchedule: true,
+        isBlockedByException: false,
+        schedule: {
+          dayOfWeek,
+          activityTypeId: atId,
+          genderRestriction: dailySchedule.genderRestriction,
+          startTime: dailySchedule.startTime,
+          endTime: dailySchedule.endTime,
+          dailyLimit: dailySchedule.dailyLimit,
+        },
+      } as (typeof days)[number]);
+    }
+
+    return days;
+  },
+
   async oneFitScheduleCoverageSummary(
     _root: undefined,
     params: {
