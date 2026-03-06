@@ -34,6 +34,7 @@ const PROXY_TO_MASTER_OPERATIONS = [
   'oneFitScheduleExceptionsCount',
   'oneFitScheduleException',
   'oneFitMonthAvailability',
+  'oneFitDayAvailability',
   'oneFitScheduleTemplateCreate',
   'oneFitScheduleTemplateUpdate',
   'oneFitScheduleTemplateCopyPreviousMonth',

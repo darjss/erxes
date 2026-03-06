@@ -126,6 +126,7 @@ export const queries = `
   oneFitScheduleExceptionsCount(${exceptionQueryParams}): Int
   oneFitScheduleException(_id: String): OneFitScheduleException
   oneFitMonthAvailability(providerId: String!, activityTypeId: String!, year: Int!, month: Int!, lastDays: Int): OneFitMonthAvailability
+  oneFitDayAvailability(providerId: String!, date: Date!): [OneFitDayAvailability!]!
 `;
 
 const scheduleTemplateInput = `
