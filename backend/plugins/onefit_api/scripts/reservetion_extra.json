@@ -1,0 +1,2258 @@
+[
+  {
+    "_id": "VwAvi0CCj9",
+    "_p_activity": "Activity$LhEABly0b5",
+    "_p_member": "_User$SaLnphXim8",
+    "status": 2,
+    "_p_subscriptionHistory": "SubscriptionHistory$GkYbItxIGP",
+    "_wperm": [
+      "SaLnphXim8",
+      "role:admin",
+      "role:partnerAdmin",
+      "role:partnerUser"
+    ],
+    "_rperm": ["SaLnphXim8", "*"],
+    "_acl": {
+      "SaLnphXim8": {
+        "w": true,
+        "r": true
+      },
+      "role:admin": {
+        "w": true
+      },
+      "role:partnerAdmin": {
+        "w": true
+      },
+      "role:partnerUser": {
+        "w": true
+      },
+      "*": {
+        "r": true
+      }
+    },
+    "_created_at": "2026-03-04T15:37:20.350Z",
+    "_updated_at": "2026-03-05T11:35:49.646Z",
+    "cancelledAt": "2026-03-05T11:35:49.710Z",
+    "_p_cancelledBy": "_User$SaLnphXim8",
+    "match": []
+  },
+  {
+    "_id": "Dnqisq84H8",
+    "_p_activity": "Activity$yLNeCd3Gkk",
+    "_p_member": "_User$Pnvzcxhyfq",
+    "status": 1,
+    "_p_subscriptionHistory": "SubscriptionHistory$vdpSWrmw0c",
+    "_wperm": [
+      "Pnvzcxhyfq",
+      "role:admin",
+      "role:partnerAdmin",
+      "role:partnerUser"
+    ],
+    "_rperm": ["Pnvzcxhyfq", "*"],
+    "_acl": {
+      "Pnvzcxhyfq": {
+        "w": true,
+        "r": true
+      },
+      "role:admin": {
+        "w": true
+      },
+      "role:partnerAdmin": {
+        "w": true
+      },
+      "role:partnerUser": {
+        "w": true
+      },
+      "*": {
+        "r": true
+      }
+    },
+    "_created_at": "2026-03-04T23:11:10.058Z",
+    "_updated_at": "2026-03-06T02:31:46.622Z",
+    "cancelledAt": "2026-03-06T02:31:46.635Z",
+    "description": "update",
+    "_p_cancelledBy": "_User$UQoPBdJTNg",
+    "match": []
+  },
+  {
+    "_id": "ZoDwZ3yPBo",
+    "_p_activity": "Activity$DoBUNsxHA2",
+    "_p_member": "_User$i0h71QsqXQ",
+    "status": 1,
+    "_p_subscriptionHistory": "SubscriptionHistory$UrigqOpScp",
+    "_wperm": [
+      "i0h71QsqXQ",
+      "role:admin",
+      "role:partnerAdmin",
+      "role:partnerUser"
+    ],
+    "_rperm": ["i0h71QsqXQ", "*"],
+    "_acl": {
+      "i0h71QsqXQ": {
+        "w": true,
+        "r": true
+      },
+      "role:admin": {
+        "w": true
+      },
+      "role:partnerAdmin": {
+        "w": true
+      },
+      "role:partnerUser": {
+        "w": true
+      },
+      "*": {
+        "r": true
+      }
+    },
+    "_created_at": "2026-03-05T00:11:55.588Z",
+    "_updated_at": "2026-03-05T08:50:45.664Z",
+    "cancelledAt": "2026-03-05T08:50:45.676Z",
+    "description": "aldaa",
+    "_p_cancelledBy": "_User$UQoPBdJTNg",
+    "match": []
+  },
+  {
+    "_id": "8iJFkP2y90",
+    "_p_activity": "Activity$Qh6vzjrtuN",
+    "_p_member": "_User$y59Y6qCwGx",
+    "status": 0,
+    "_p_subscriptionHistory": "SubscriptionHistory$0fCEe52bvG",
+    "_wperm": [
+      "y59Y6qCwGx",
+      "role:admin",
+      "role:partnerAdmin",
+      "role:partnerUser"
+    ],
+    "_rperm": ["y59Y6qCwGx", "*"],
+    "_acl": {
+      "y59Y6qCwGx": {
+        "w": true,
+        "r": true
+      },
+      "role:admin": {
+        "w": true
+      },
+      "role:partnerAdmin": {
+        "w": true
+      },
+      "role:partnerUser": {
+        "w": true
+      },
+      "*": {
+        "r": true
+      }
+    },
+    "_created_at": "2026-03-05T02:00:41.971Z",
+    "_updated_at": "2026-03-05T02:00:41.971Z",
+    "match": []
+  },
+  {
+    "_id": "3TxNrOYQWX",
+    "_p_activity": "Activity$DoBUNsxHA2",
+    "_p_member": "_User$tzDbeQJQ7x",
+    "status": 1,
+    "_p_subscriptionHistory": "SubscriptionHistory$0Kwk1B1zf5",
+    "_wperm": [
+      "tzDbeQJQ7x",
+      "role:admin",
+      "role:partnerAdmin",
+      "role:partnerUser"
+    ],
+    "_rperm": ["tzDbeQJQ7x", "*"],
+    "_acl": {
+      "tzDbeQJQ7x": {
+        "w": true,
+        "r": true
+      },
+      "role:admin": {
+        "w": true
+      },
+      "role:partnerAdmin": {
+        "w": true
+      },
+      "role:partnerUser": {
+        "w": true
+      },
+      "*": {
+        "r": true
+      }
+    },
+    "_created_at": "2026-03-05T02:11:21.667Z",
+    "_updated_at": "2026-03-05T08:50:39.197Z",
+    "cancelledAt": "2026-03-05T08:50:39.218Z",
+    "description": "aldaa",
+    "_p_cancelledBy": "_User$UQoPBdJTNg",
+    "match": []
+  },
+  {
+    "_id": "6mLgUyWo6r",
+    "_p_activity": "Activity$BZn57dPm3l",
+    "_p_member": "_User$AF1E7gXMZM",
+    "status": 0,
+    "_p_subscriptionHistory": "SubscriptionHistory$d8ctxRQUxu",
+    "_wperm": [
+      "AF1E7gXMZM",
+      "role:admin",
+      "role:partnerAdmin",
+      "role:partnerUser"
+    ],
+    "_rperm": ["AF1E7gXMZM", "*"],
+    "_acl": {
+      "AF1E7gXMZM": {
+        "w": true,
+        "r": true
+      },
+      "role:admin": {
+        "w": true
+      },
+      "role:partnerAdmin": {
+        "w": true
+      },
+      "role:partnerUser": {
+        "w": true
+      },
+      "*": {
+        "r": true
+      }
+    },
+    "_created_at": "2026-03-05T02:36:39.180Z",
+    "_updated_at": "2026-03-05T02:36:39.180Z",
+    "match": []
+  },
+  {
+    "_id": "mda4pJlCRK",
+    "_p_activity": "Activity$BZn57dPm3l",
+    "_p_member": "_User$PyHByhG4y5",
+    "status": 0,
+    "_p_subscriptionHistory": "SubscriptionHistory$kYvZqDHe28",
+    "_wperm": [
+      "PyHByhG4y5",
+      "role:admin",
+      "role:partnerAdmin",
+      "role:partnerUser"
+    ],
+    "_rperm": ["PyHByhG4y5", "*"],
+    "_acl": {
+      "PyHByhG4y5": {
+        "w": true,
+        "r": true
+      },
+      "role:admin": {
+        "w": true
+      },
+      "role:partnerAdmin": {
+        "w": true
+      },
+      "role:partnerUser": {
+        "w": true
+      },
+      "*": {
+        "r": true
+      }
+    },
+    "_created_at": "2026-03-05T02:52:20.809Z",
+    "_updated_at": "2026-03-05T02:52:20.809Z",
+    "match": []
+  },
+  {
+    "_id": "dMhKnlKLcI",
+    "_p_activity": "Activity$Qh6vzjrtuN",
+    "_p_member": "_User$kxHgzAucbj",
+    "status": 2,
+    "_p_subscriptionHistory": "SubscriptionHistory$lprhlhgufv",
+    "_wperm": [
+      "kxHgzAucbj",
+      "role:admin",
+      "role:partnerAdmin",
+      "role:partnerUser"
+    ],
+    "_rperm": ["kxHgzAucbj", "*"],
+    "_acl": {
+      "kxHgzAucbj": {
+        "w": true,
+        "r": true
+      },
+      "role:admin": {
+        "w": true
+      },
+      "role:partnerAdmin": {
+        "w": true
+      },
+      "role:partnerUser": {
+        "w": true
+      },
+      "*": {
+        "r": true
+      }
+    },
+    "_created_at": "2026-03-05T03:02:06.942Z",
+    "_updated_at": "2026-03-05T03:06:17.075Z",
+    "cancelledAt": "2026-03-05T03:06:17.083Z",
+    "_p_cancelledBy": "_User$kxHgzAucbj",
+    "match": []
+  },
+  {
+    "_id": "uDRImsGtGJ",
+    "_p_activity": "Activity$AYr1QMG0G1",
+    "_p_member": "_User$FQRlTqDgtH",
+    "status": 0,
+    "_p_subscriptionHistory": "SubscriptionHistory$gjBEFEtPQi",
+    "_wperm": [
+      "FQRlTqDgtH",
+      "role:admin",
+      "role:partnerAdmin",
+      "role:partnerUser"
+    ],
+    "_rperm": ["FQRlTqDgtH", "*"],
+    "_acl": {
+      "FQRlTqDgtH": {
+        "w": true,
+        "r": true
+      },
+      "role:admin": {
+        "w": true
+      },
+      "role:partnerAdmin": {
+        "w": true
+      },
+      "role:partnerUser": {
+        "w": true
+      },
+      "*": {
+        "r": true
+      }
+    },
+    "_created_at": "2026-03-05T03:03:33.011Z",
+    "_updated_at": "2026-03-05T03:03:33.011Z",
+    "match": []
+  },
+  {
+    "_id": "GvUvaDLyUq",
+    "_p_activity": "Activity$bZlMd5DS29",
+    "_p_member": "_User$x1B2Q0jfZP",
+    "status": 2,
+    "_p_subscriptionHistory": "SubscriptionHistory$ggjSGzhCwG",
+    "_wperm": [
+      "x1B2Q0jfZP",
+      "role:admin",
+      "role:partnerAdmin",
+      "role:partnerUser"
+    ],
+    "_rperm": ["x1B2Q0jfZP", "*"],
+    "_acl": {
+      "x1B2Q0jfZP": {
+        "w": true,
+        "r": true
+      },
+      "role:admin": {
+        "w": true
+      },
+      "role:partnerAdmin": {
+        "w": true
+      },
+      "role:partnerUser": {
+        "w": true
+      },
+      "*": {
+        "r": true
+      }
+    },
+    "_created_at": "2026-03-05T03:05:55.046Z",
+    "_updated_at": "2026-03-05T03:50:24.280Z",
+    "cancelledAt": "2026-03-05T03:50:24.287Z",
+    "_p_cancelledBy": "_User$x1B2Q0jfZP",
+    "match": []
+  },
+  {
+    "_id": "jVU08gBzMC",
+    "_p_activity": "Activity$r1O7ZPAonj",
+    "_p_member": "_User$x1B2Q0jfZP",
+    "status": 2,
+    "_p_subscriptionHistory": "SubscriptionHistory$ggjSGzhCwG",
+    "_wperm": [
+      "x1B2Q0jfZP",
+      "role:admin",
+      "role:partnerAdmin",
+      "role:partnerUser"
+    ],
+    "_rperm": ["x1B2Q0jfZP", "*"],
+    "_acl": {
+      "x1B2Q0jfZP": {
+        "w": true,
+        "r": true
+      },
+      "role:admin": {
+        "w": true
+      },
+      "role:partnerAdmin": {
+        "w": true
+      },
+      "role:partnerUser": {
+        "w": true
+      },
+      "*": {
+        "r": true
+      }
+    },
+    "_created_at": "2026-03-05T03:05:59.404Z",
+    "_updated_at": "2026-03-05T03:50:18.007Z",
+    "cancelledAt": "2026-03-05T03:50:18.014Z",
+    "_p_cancelledBy": "_User$x1B2Q0jfZP",
+    "match": []
+  },
+  {
+    "_id": "GlGzWiFCHl",
+    "_p_activity": "Activity$r1O7ZPAonj",
+    "_p_member": "_User$kxHgzAucbj",
+    "status": 2,
+    "_p_subscriptionHistory": "SubscriptionHistory$lprhlhgufv",
+    "_wperm": [
+      "kxHgzAucbj",
+      "role:admin",
+      "role:partnerAdmin",
+      "role:partnerUser"
+    ],
+    "_rperm": ["kxHgzAucbj", "*"],
+    "_acl": {
+      "kxHgzAucbj": {
+        "w": true,
+        "r": true
+      },
+      "role:admin": {
+        "w": true
+      },
+      "role:partnerAdmin": {
+        "w": true
+      },
+      "role:partnerUser": {
+        "w": true
+      },
+      "*": {
+        "r": true
+      }
+    },
+    "_created_at": "2026-03-05T03:06:54.321Z",
+    "_updated_at": "2026-03-05T03:24:00.370Z",
+    "cancelledAt": "2026-03-05T03:24:00.381Z",
+    "_p_cancelledBy": "_User$kxHgzAucbj",
+    "match": []
+  },
+  {
+    "_id": "rvV1kSTLhV",
+    "_p_activity": "Activity$IyPesIKUHC",
+    "_p_member": "_User$FQRlTqDgtH",
+    "status": 0,
+    "_p_subscriptionHistory": "SubscriptionHistory$gjBEFEtPQi",
+    "_wperm": [
+      "FQRlTqDgtH",
+      "role:admin",
+      "role:partnerAdmin",
+      "role:partnerUser"
+    ],
+    "_rperm": ["FQRlTqDgtH", "*"],
+    "_acl": {
+      "FQRlTqDgtH": {
+        "w": true,
+        "r": true
+      },
+      "role:admin": {
+        "w": true
+      },
+      "role:partnerAdmin": {
+        "w": true
+      },
+      "role:partnerUser": {
+        "w": true
+      },
+      "*": {
+        "r": true
+      }
+    },
+    "_created_at": "2026-03-05T03:07:41.762Z",
+    "_updated_at": "2026-03-05T03:07:41.762Z",
+    "match": []
+  },
+  {
+    "_id": "kHiaOtGt7D",
+    "_p_activity": "Activity$r1O7ZPAonj",
+    "_p_member": "_User$IRdT3EdHuO",
+    "status": 2,
+    "_p_subscriptionHistory": "SubscriptionHistory$LuAktyivG7",
+    "_wperm": [
+      "IRdT3EdHuO",
+      "role:admin",
+      "role:partnerAdmin",
+      "role:partnerUser"
+    ],
+    "_rperm": ["IRdT3EdHuO", "*"],
+    "_acl": {
+      "IRdT3EdHuO": {
+        "w": true,
+        "r": true
+      },
+      "role:admin": {
+        "w": true
+      },
+      "role:partnerAdmin": {
+        "w": true
+      },
+      "role:partnerUser": {
+        "w": true
+      },
+      "*": {
+        "r": true
+      }
+    },
+    "_created_at": "2026-03-05T03:07:47.125Z",
+    "_updated_at": "2026-03-05T03:29:07.202Z",
+    "cancelledAt": "2026-03-05T03:29:07.208Z",
+    "_p_cancelledBy": "_User$IRdT3EdHuO",
+    "match": []
+  },
+  {
+    "_id": "qeG4KdMxPA",
+    "_p_activity": "Activity$r1O7ZPAonj",
+    "_p_member": "_User$ubxcZPRFzx",
+    "status": 2,
+    "_p_subscriptionHistory": "SubscriptionHistory$LPU4hqgIQ0",
+    "_wperm": [
+      "ubxcZPRFzx",
+      "role:admin",
+      "role:partnerAdmin",
+      "role:partnerUser"
+    ],
+    "_rperm": ["ubxcZPRFzx", "*"],
+    "_acl": {
+      "ubxcZPRFzx": {
+        "w": true,
+        "r": true
+      },
+      "role:admin": {
+        "w": true
+      },
+      "role:partnerAdmin": {
+        "w": true
+      },
+      "role:partnerUser": {
+        "w": true
+      },
+      "*": {
+        "r": true
+      }
+    },
+    "_created_at": "2026-03-05T03:08:19.276Z",
+    "_updated_at": "2026-03-05T03:50:49.368Z",
+    "cancelledAt": "2026-03-05T03:50:49.374Z",
+    "_p_cancelledBy": "_User$ubxcZPRFzx",
+    "match": []
+  },
+  {
+    "_id": "uMQSuk3Ec8",
+    "_p_activity": "Activity$Qh6vzjrtuN",
+    "_p_member": "_User$IRdT3EdHuO",
+    "status": 0,
+    "_p_subscriptionHistory": "SubscriptionHistory$LuAktyivG7",
+    "_wperm": [
+      "IRdT3EdHuO",
+      "role:admin",
+      "role:partnerAdmin",
+      "role:partnerUser"
+    ],
+    "_rperm": ["IRdT3EdHuO", "*"],
+    "_acl": {
+      "IRdT3EdHuO": {
+        "w": true,
+        "r": true
+      },
+      "role:admin": {
+        "w": true
+      },
+      "role:partnerAdmin": {
+        "w": true
+      },
+      "role:partnerUser": {
+        "w": true
+      },
+      "*": {
+        "r": true
+      }
+    },
+    "_created_at": "2026-03-05T03:28:44.027Z",
+    "_updated_at": "2026-03-05T03:28:44.027Z",
+    "match": []
+  },
+  {
+    "_id": "p5StTii1gm",
+    "_p_activity": "Activity$zbOMfnMJWE",
+    "_p_member": "_User$YqmSmIQDRt",
+    "status": 2,
+    "_p_subscriptionHistory": "SubscriptionHistory$rV6c8PA4Cw",
+    "_wperm": [
+      "YqmSmIQDRt",
+      "role:admin",
+      "role:partnerAdmin",
+      "role:partnerUser"
+    ],
+    "_rperm": ["YqmSmIQDRt", "*"],
+    "_acl": {
+      "YqmSmIQDRt": {
+        "w": true,
+        "r": true
+      },
+      "role:admin": {
+        "w": true
+      },
+      "role:partnerAdmin": {
+        "w": true
+      },
+      "role:partnerUser": {
+        "w": true
+      },
+      "*": {
+        "r": true
+      }
+    },
+    "_created_at": "2026-03-05T03:47:36.032Z",
+    "_updated_at": "2026-03-05T04:02:56.561Z",
+    "cancelledAt": "2026-03-05T04:02:56.568Z",
+    "_p_cancelledBy": "_User$YqmSmIQDRt",
+    "match": []
+  },
+  {
+    "_id": "iKzmS9E0WK",
+    "_p_activity": "Activity$Qh6vzjrtuN",
+    "_p_member": "_User$re6E0F62cR",
+    "status": 0,
+    "_p_subscriptionHistory": "SubscriptionHistory$ERC8MREoA2",
+    "_wperm": [
+      "re6E0F62cR",
+      "role:admin",
+      "role:partnerAdmin",
+      "role:partnerUser"
+    ],
+    "_rperm": ["re6E0F62cR", "*"],
+    "_acl": {
+      "re6E0F62cR": {
+        "w": true,
+        "r": true
+      },
+      "role:admin": {
+        "w": true
+      },
+      "role:partnerAdmin": {
+        "w": true
+      },
+      "role:partnerUser": {
+        "w": true
+      },
+      "*": {
+        "r": true
+      }
+    },
+    "_created_at": "2026-03-05T03:50:17.810Z",
+    "_updated_at": "2026-03-05T03:50:17.810Z",
+    "match": []
+  },
+  {
+    "_id": "YEUrEuqgBD",
+    "_p_activity": "Activity$Qh6vzjrtuN",
+    "_p_member": "_User$x1B2Q0jfZP",
+    "status": 0,
+    "_p_subscriptionHistory": "SubscriptionHistory$ggjSGzhCwG",
+    "_wperm": [
+      "x1B2Q0jfZP",
+      "role:admin",
+      "role:partnerAdmin",
+      "role:partnerUser"
+    ],
+    "_rperm": ["x1B2Q0jfZP", "*"],
+    "_acl": {
+      "x1B2Q0jfZP": {
+        "w": true,
+        "r": true
+      },
+      "role:admin": {
+        "w": true
+      },
+      "role:partnerAdmin": {
+        "w": true
+      },
+      "role:partnerUser": {
+        "w": true
+      },
+      "*": {
+        "r": true
+      }
+    },
+    "_created_at": "2026-03-05T03:50:38.695Z",
+    "_updated_at": "2026-03-05T03:50:38.695Z",
+    "match": []
+  },
+  {
+    "_id": "alzAjy9LBT",
+    "_p_activity": "Activity$Qh6vzjrtuN",
+    "_p_member": "_User$ubxcZPRFzx",
+    "status": 0,
+    "_p_subscriptionHistory": "SubscriptionHistory$LPU4hqgIQ0",
+    "_wperm": [
+      "ubxcZPRFzx",
+      "role:admin",
+      "role:partnerAdmin",
+      "role:partnerUser"
+    ],
+    "_rperm": ["ubxcZPRFzx", "*"],
+    "_acl": {
+      "ubxcZPRFzx": {
+        "w": true,
+        "r": true
+      },
+      "role:admin": {
+        "w": true
+      },
+      "role:partnerAdmin": {
+        "w": true
+      },
+      "role:partnerUser": {
+        "w": true
+      },
+      "*": {
+        "r": true
+      }
+    },
+    "_created_at": "2026-03-05T03:51:14.956Z",
+    "_updated_at": "2026-03-05T03:51:14.956Z",
+    "match": []
+  },
+  {
+    "_id": "g0Mu0P99Aq",
+    "_p_activity": "Activity$zbOMfnMJWE",
+    "_p_member": "_User$VIZh8sL3Aj",
+    "status": 0,
+    "_p_subscriptionHistory": "SubscriptionHistory$MN7nJBYrIm",
+    "_wperm": [
+      "VIZh8sL3Aj",
+      "role:admin",
+      "role:partnerAdmin",
+      "role:partnerUser"
+    ],
+    "_rperm": ["VIZh8sL3Aj", "*"],
+    "_acl": {
+      "VIZh8sL3Aj": {
+        "w": true,
+        "r": true
+      },
+      "role:admin": {
+        "w": true
+      },
+      "role:partnerAdmin": {
+        "w": true
+      },
+      "role:partnerUser": {
+        "w": true
+      },
+      "*": {
+        "r": true
+      }
+    },
+    "_created_at": "2026-03-05T03:57:52.804Z",
+    "_updated_at": "2026-03-05T03:57:52.804Z",
+    "match": []
+  },
+  {
+    "_id": "ShtyA0oB4D",
+    "_p_activity": "Activity$E9A2zSNSH8",
+    "_p_member": "_User$UEY3FyINYW",
+    "status": 0,
+    "_p_subscriptionHistory": "SubscriptionHistory$whi7fYDa5T",
+    "_wperm": [
+      "UEY3FyINYW",
+      "role:admin",
+      "role:partnerAdmin",
+      "role:partnerUser"
+    ],
+    "_rperm": ["UEY3FyINYW", "*"],
+    "_acl": {
+      "UEY3FyINYW": {
+        "w": true,
+        "r": true
+      },
+      "role:admin": {
+        "w": true
+      },
+      "role:partnerAdmin": {
+        "w": true
+      },
+      "role:partnerUser": {
+        "w": true
+      },
+      "*": {
+        "r": true
+      }
+    },
+    "_created_at": "2026-03-05T03:58:01.460Z",
+    "_updated_at": "2026-03-05T03:58:01.460Z",
+    "match": []
+  },
+  {
+    "_id": "PUab1TVSbq",
+    "_p_activity": "Activity$mtzjxleDld",
+    "_p_member": "_User$YqmSmIQDRt",
+    "status": 2,
+    "_p_subscriptionHistory": "SubscriptionHistory$rV6c8PA4Cw",
+    "_wperm": [
+      "YqmSmIQDRt",
+      "role:admin",
+      "role:partnerAdmin",
+      "role:partnerUser"
+    ],
+    "_rperm": ["YqmSmIQDRt", "*"],
+    "_acl": {
+      "YqmSmIQDRt": {
+        "w": true,
+        "r": true
+      },
+      "role:admin": {
+        "w": true
+      },
+      "role:partnerAdmin": {
+        "w": true
+      },
+      "role:partnerUser": {
+        "w": true
+      },
+      "*": {
+        "r": true
+      }
+    },
+    "_created_at": "2026-03-05T04:03:15.923Z",
+    "_updated_at": "2026-03-05T04:03:33.287Z",
+    "cancelledAt": "2026-03-05T04:03:33.297Z",
+    "_p_cancelledBy": "_User$YqmSmIQDRt",
+    "match": []
+  },
+  {
+    "_id": "Fz3hrBL2Fg",
+    "_p_activity": "Activity$r1O7ZPAonj",
+    "_p_member": "_User$mF99BzA8qm",
+    "status": 0,
+    "_p_subscriptionHistory": "SubscriptionHistory$AcdOM0Hfko",
+    "_wperm": [
+      "mF99BzA8qm",
+      "role:admin",
+      "role:partnerAdmin",
+      "role:partnerUser"
+    ],
+    "_rperm": ["mF99BzA8qm", "*"],
+    "_acl": {
+      "mF99BzA8qm": {
+        "w": true,
+        "r": true
+      },
+      "role:admin": {
+        "w": true
+      },
+      "role:partnerAdmin": {
+        "w": true
+      },
+      "role:partnerUser": {
+        "w": true
+      },
+      "*": {
+        "r": true
+      }
+    },
+    "_created_at": "2026-03-05T04:06:42.111Z",
+    "_updated_at": "2026-03-05T04:06:42.111Z",
+    "match": []
+  },
+  {
+    "_id": "E5IkgyNznv",
+    "_p_activity": "Activity$GWCnUBuLXW",
+    "_p_member": "_User$FQRlTqDgtH",
+    "status": 0,
+    "_p_subscriptionHistory": "SubscriptionHistory$gjBEFEtPQi",
+    "_wperm": [
+      "FQRlTqDgtH",
+      "role:admin",
+      "role:partnerAdmin",
+      "role:partnerUser"
+    ],
+    "_rperm": ["FQRlTqDgtH", "*"],
+    "_acl": {
+      "FQRlTqDgtH": {
+        "w": true,
+        "r": true
+      },
+      "role:admin": {
+        "w": true
+      },
+      "role:partnerAdmin": {
+        "w": true
+      },
+      "role:partnerUser": {
+        "w": true
+      },
+      "*": {
+        "r": true
+      }
+    },
+    "_created_at": "2026-03-05T04:30:30.350Z",
+    "_updated_at": "2026-03-05T04:30:30.350Z",
+    "match": []
+  },
+  {
+    "_id": "DqHOH2ZGfG",
+    "_p_activity": "Activity$4nCDWGZuEh",
+    "_p_member": "_User$iT2apIJEGh",
+    "status": 0,
+    "_p_subscriptionHistory": "SubscriptionHistory$O5TSLz6Hra",
+    "_wperm": [
+      "iT2apIJEGh",
+      "role:admin",
+      "role:partnerAdmin",
+      "role:partnerUser"
+    ],
+    "_rperm": ["iT2apIJEGh", "*"],
+    "_acl": {
+      "iT2apIJEGh": {
+        "w": true,
+        "r": true
+      },
+      "role:admin": {
+        "w": true
+      },
+      "role:partnerAdmin": {
+        "w": true
+      },
+      "role:partnerUser": {
+        "w": true
+      },
+      "*": {
+        "r": true
+      }
+    },
+    "_created_at": "2026-03-05T04:31:03.271Z",
+    "_updated_at": "2026-03-05T04:31:03.271Z",
+    "match": []
+  },
+  {
+    "_id": "vlUEcYIgyy",
+    "_p_activity": "Activity$QEAlTgYIkE",
+    "_p_member": "_User$dpScUvzn4q",
+    "status": 0,
+    "_p_subscriptionHistory": "SubscriptionHistory$sSEnC8sJN6",
+    "_wperm": [
+      "dpScUvzn4q",
+      "role:admin",
+      "role:partnerAdmin",
+      "role:partnerUser"
+    ],
+    "_rperm": ["dpScUvzn4q", "*"],
+    "_acl": {
+      "dpScUvzn4q": {
+        "w": true,
+        "r": true
+      },
+      "role:admin": {
+        "w": true
+      },
+      "role:partnerAdmin": {
+        "w": true
+      },
+      "role:partnerUser": {
+        "w": true
+      },
+      "*": {
+        "r": true
+      }
+    },
+    "_created_at": "2026-03-05T04:32:00.422Z",
+    "_updated_at": "2026-03-05T04:32:00.422Z",
+    "match": []
+  },
+  {
+    "_id": "cH5MFIYTFL",
+    "_p_activity": "Activity$Qh6vzjrtuN",
+    "_p_member": "_User$89xwznYfXv",
+    "status": 0,
+    "_p_subscriptionHistory": "SubscriptionHistory$NgmunTasyo",
+    "_wperm": [
+      "89xwznYfXv",
+      "role:admin",
+      "role:partnerAdmin",
+      "role:partnerUser"
+    ],
+    "_rperm": ["89xwznYfXv", "*"],
+    "_acl": {
+      "89xwznYfXv": {
+        "w": true,
+        "r": true
+      },
+      "role:admin": {
+        "w": true
+      },
+      "role:partnerAdmin": {
+        "w": true
+      },
+      "role:partnerUser": {
+        "w": true
+      },
+      "*": {
+        "r": true
+      }
+    },
+    "_created_at": "2026-03-05T03:55:50.420Z",
+    "_updated_at": "2026-03-05T03:55:50.420Z",
+    "match": []
+  },
+  {
+    "_id": "CmUCCob8Bn",
+    "_p_activity": "Activity$bZlMd5DS29",
+    "_p_member": "_User$BGURn7rHGN",
+    "status": 0,
+    "_p_subscriptionHistory": "SubscriptionHistory$MJG9GF2hmV",
+    "_wperm": [
+      "BGURn7rHGN",
+      "role:admin",
+      "role:partnerAdmin",
+      "role:partnerUser"
+    ],
+    "_rperm": ["BGURn7rHGN", "*"],
+    "_acl": {
+      "BGURn7rHGN": {
+        "w": true,
+        "r": true
+      },
+      "role:admin": {
+        "w": true
+      },
+      "role:partnerAdmin": {
+        "w": true
+      },
+      "role:partnerUser": {
+        "w": true
+      },
+      "*": {
+        "r": true
+      }
+    },
+    "_created_at": "2026-03-05T03:56:07.480Z",
+    "_updated_at": "2026-03-05T03:56:07.480Z",
+    "match": []
+  },
+  {
+    "_id": "TRlIa08rJR",
+    "_p_activity": "Activity$Qh6vzjrtuN",
+    "_p_member": "_User$o5i0cb4NCP",
+    "status": 0,
+    "_p_subscriptionHistory": "SubscriptionHistory$8eH0ZxPRZ9",
+    "_wperm": [
+      "o5i0cb4NCP",
+      "role:admin",
+      "role:partnerAdmin",
+      "role:partnerUser"
+    ],
+    "_rperm": ["o5i0cb4NCP", "*"],
+    "_acl": {
+      "o5i0cb4NCP": {
+        "w": true,
+        "r": true
+      },
+      "role:admin": {
+        "w": true
+      },
+      "role:partnerAdmin": {
+        "w": true
+      },
+      "role:partnerUser": {
+        "w": true
+      },
+      "*": {
+        "r": true
+      }
+    },
+    "_created_at": "2026-03-05T03:56:38.040Z",
+    "_updated_at": "2026-03-05T03:56:38.040Z",
+    "match": []
+  },
+  {
+    "_id": "CxKZZUm2QN",
+    "_p_activity": "Activity$zbOMfnMJWE",
+    "_p_member": "_User$34IH1OARFJ",
+    "status": 2,
+    "_p_subscriptionHistory": "SubscriptionHistory$wF5DZoDAyD",
+    "_wperm": [
+      "34IH1OARFJ",
+      "role:admin",
+      "role:partnerAdmin",
+      "role:partnerUser"
+    ],
+    "_rperm": ["34IH1OARFJ", "*"],
+    "_acl": {
+      "34IH1OARFJ": {
+        "w": true,
+        "r": true
+      },
+      "role:admin": {
+        "w": true
+      },
+      "role:partnerAdmin": {
+        "w": true
+      },
+      "role:partnerUser": {
+        "w": true
+      },
+      "*": {
+        "r": true
+      }
+    },
+    "_created_at": "2026-03-05T03:57:17.803Z",
+    "_updated_at": "2026-03-05T04:34:46.945Z",
+    "cancelledAt": "2026-03-05T04:34:46.953Z",
+    "_p_cancelledBy": "_User$34IH1OARFJ",
+    "match": []
+  },
+  {
+    "_id": "rCNhHzQog8",
+    "_p_activity": "Activity$E9A2zSNSH8",
+    "_p_member": "_User$N6gbh0Cgn7",
+    "status": 0,
+    "_p_subscriptionHistory": "SubscriptionHistory$yZQknH3gAi",
+    "_wperm": [
+      "N6gbh0Cgn7",
+      "role:admin",
+      "role:partnerAdmin",
+      "role:partnerUser"
+    ],
+    "_rperm": ["N6gbh0Cgn7", "*"],
+    "_acl": {
+      "N6gbh0Cgn7": {
+        "w": true,
+        "r": true
+      },
+      "role:admin": {
+        "w": true
+      },
+      "role:partnerAdmin": {
+        "w": true
+      },
+      "role:partnerUser": {
+        "w": true
+      },
+      "*": {
+        "r": true
+      }
+    },
+    "_created_at": "2026-03-05T04:03:38.548Z",
+    "_updated_at": "2026-03-05T04:03:38.548Z",
+    "match": []
+  },
+  {
+    "_id": "ZzlRRREuw6",
+    "_p_activity": "Activity$r1O7ZPAonj",
+    "_p_member": "_User$34IH1OARFJ",
+    "status": 0,
+    "_p_subscriptionHistory": "SubscriptionHistory$wF5DZoDAyD",
+    "_wperm": [
+      "34IH1OARFJ",
+      "role:admin",
+      "role:partnerAdmin",
+      "role:partnerUser"
+    ],
+    "_rperm": ["34IH1OARFJ", "*"],
+    "_acl": {
+      "34IH1OARFJ": {
+        "w": true,
+        "r": true
+      },
+      "role:admin": {
+        "w": true
+      },
+      "role:partnerAdmin": {
+        "w": true
+      },
+      "role:partnerUser": {
+        "w": true
+      },
+      "*": {
+        "r": true
+      }
+    },
+    "_created_at": "2026-03-05T04:06:06.677Z",
+    "_updated_at": "2026-03-05T04:06:06.677Z",
+    "match": []
+  },
+  {
+    "_id": "uFDhdJgG7J",
+    "_p_activity": "Activity$r1O7ZPAonj",
+    "_p_member": "_User$6JFIIvhDER",
+    "status": 0,
+    "_p_subscriptionHistory": "SubscriptionHistory$TT8V8JUyZn",
+    "_wperm": [
+      "6JFIIvhDER",
+      "role:admin",
+      "role:partnerAdmin",
+      "role:partnerUser"
+    ],
+    "_rperm": ["6JFIIvhDER", "*"],
+    "_acl": {
+      "6JFIIvhDER": {
+        "w": true,
+        "r": true
+      },
+      "role:admin": {
+        "w": true
+      },
+      "role:partnerAdmin": {
+        "w": true
+      },
+      "role:partnerUser": {
+        "w": true
+      },
+      "*": {
+        "r": true
+      }
+    },
+    "_created_at": "2026-03-05T04:06:37.042Z",
+    "_updated_at": "2026-03-05T04:06:37.042Z",
+    "match": []
+  },
+  {
+    "_id": "rJCywJwtwB",
+    "_p_activity": "Activity$r1O7ZPAonj",
+    "_p_member": "_User$3NFzF0phX6",
+    "status": 0,
+    "_p_subscriptionHistory": "SubscriptionHistory$XxOKpU79EQ",
+    "_wperm": [
+      "3NFzF0phX6",
+      "role:admin",
+      "role:partnerAdmin",
+      "role:partnerUser"
+    ],
+    "_rperm": ["3NFzF0phX6", "*"],
+    "_acl": {
+      "3NFzF0phX6": {
+        "w": true,
+        "r": true
+      },
+      "role:admin": {
+        "w": true
+      },
+      "role:partnerAdmin": {
+        "w": true
+      },
+      "role:partnerUser": {
+        "w": true
+      },
+      "*": {
+        "r": true
+      }
+    },
+    "_created_at": "2026-03-05T04:06:38.097Z",
+    "_updated_at": "2026-03-05T04:06:38.097Z",
+    "match": []
+  },
+  {
+    "_id": "ZxbMufp4OK",
+    "_p_activity": "Activity$IkF4aYW7wQ",
+    "_p_member": "_User$dpScUvzn4q",
+    "status": 0,
+    "_p_subscriptionHistory": "SubscriptionHistory$sSEnC8sJN6",
+    "_wperm": [
+      "dpScUvzn4q",
+      "role:admin",
+      "role:partnerAdmin",
+      "role:partnerUser"
+    ],
+    "_rperm": ["dpScUvzn4q", "*"],
+    "_acl": {
+      "dpScUvzn4q": {
+        "w": true,
+        "r": true
+      },
+      "role:admin": {
+        "w": true
+      },
+      "role:partnerAdmin": {
+        "w": true
+      },
+      "role:partnerUser": {
+        "w": true
+      },
+      "*": {
+        "r": true
+      }
+    },
+    "_created_at": "2026-03-05T04:31:44.651Z",
+    "_updated_at": "2026-03-05T04:31:44.651Z",
+    "match": []
+  },
+  {
+    "_id": "bo2pDy37AK",
+    "_p_activity": "Activity$hWyt1TZaE0",
+    "_p_member": "_User$dpScUvzn4q",
+    "status": 0,
+    "_p_subscriptionHistory": "SubscriptionHistory$sSEnC8sJN6",
+    "_wperm": [
+      "dpScUvzn4q",
+      "role:admin",
+      "role:partnerAdmin",
+      "role:partnerUser"
+    ],
+    "_rperm": ["dpScUvzn4q", "*"],
+    "_acl": {
+      "dpScUvzn4q": {
+        "w": true,
+        "r": true
+      },
+      "role:admin": {
+        "w": true
+      },
+      "role:partnerAdmin": {
+        "w": true
+      },
+      "role:partnerUser": {
+        "w": true
+      },
+      "*": {
+        "r": true
+      }
+    },
+    "_created_at": "2026-03-05T04:32:23.571Z",
+    "_updated_at": "2026-03-05T04:32:23.571Z",
+    "match": []
+  },
+  {
+    "_id": "r3didUug1J",
+    "_p_activity": "Activity$xLcw9DPY1f",
+    "_p_member": "_User$YqmSmIQDRt",
+    "status": 2,
+    "_p_subscriptionHistory": "SubscriptionHistory$rV6c8PA4Cw",
+    "_wperm": [
+      "YqmSmIQDRt",
+      "role:admin",
+      "role:partnerAdmin",
+      "role:partnerUser"
+    ],
+    "_rperm": ["YqmSmIQDRt", "*"],
+    "_acl": {
+      "YqmSmIQDRt": {
+        "w": true,
+        "r": true
+      },
+      "role:admin": {
+        "w": true
+      },
+      "role:partnerAdmin": {
+        "w": true
+      },
+      "role:partnerUser": {
+        "w": true
+      },
+      "*": {
+        "r": true
+      }
+    },
+    "_created_at": "2026-03-05T04:33:30.976Z",
+    "_updated_at": "2026-03-05T04:34:15.309Z",
+    "cancelledAt": "2026-03-05T04:34:15.406Z",
+    "_p_cancelledBy": "_User$YqmSmIQDRt",
+    "match": []
+  },
+  {
+    "_id": "QVmTLaEwkz",
+    "_p_activity": "Activity$4nCDWGZuEh",
+    "_p_member": "_User$1tVQFboRHI",
+    "status": 0,
+    "_p_subscriptionHistory": "SubscriptionHistory$5ZfF4LCpz4",
+    "_wperm": [
+      "1tVQFboRHI",
+      "role:admin",
+      "role:partnerAdmin",
+      "role:partnerUser"
+    ],
+    "_rperm": ["1tVQFboRHI", "*"],
+    "_acl": {
+      "1tVQFboRHI": {
+        "w": true,
+        "r": true
+      },
+      "role:admin": {
+        "w": true
+      },
+      "role:partnerAdmin": {
+        "w": true
+      },
+      "role:partnerUser": {
+        "w": true
+      },
+      "*": {
+        "r": true
+      }
+    },
+    "_created_at": "2026-03-05T04:39:53.695Z",
+    "_updated_at": "2026-03-05T04:39:53.695Z",
+    "match": []
+  },
+  {
+    "_id": "rO9Kwv0dS9",
+    "_p_activity": "Activity$1QFEgpq18z",
+    "_p_member": "_User$1tVQFboRHI",
+    "status": 0,
+    "_p_subscriptionHistory": "SubscriptionHistory$5ZfF4LCpz4",
+    "_wperm": [
+      "1tVQFboRHI",
+      "role:admin",
+      "role:partnerAdmin",
+      "role:partnerUser"
+    ],
+    "_rperm": ["1tVQFboRHI", "*"],
+    "_acl": {
+      "1tVQFboRHI": {
+        "w": true,
+        "r": true
+      },
+      "role:admin": {
+        "w": true
+      },
+      "role:partnerAdmin": {
+        "w": true
+      },
+      "role:partnerUser": {
+        "w": true
+      },
+      "*": {
+        "r": true
+      }
+    },
+    "_created_at": "2026-03-05T04:40:10.016Z",
+    "_updated_at": "2026-03-05T04:40:10.016Z",
+    "match": []
+  },
+  {
+    "_id": "0DIq5yZJfO",
+    "_p_activity": "Activity$rUaxmbc6ud",
+    "_p_member": "_User$p2oFgGWU5o",
+    "status": 0,
+    "_p_subscriptionHistory": "SubscriptionHistory$iipKAh8UWE",
+    "_wperm": [
+      "p2oFgGWU5o",
+      "role:admin",
+      "role:partnerAdmin",
+      "role:partnerUser"
+    ],
+    "_rperm": ["p2oFgGWU5o", "*"],
+    "_acl": {
+      "p2oFgGWU5o": {
+        "w": true,
+        "r": true
+      },
+      "role:admin": {
+        "w": true
+      },
+      "role:partnerAdmin": {
+        "w": true
+      },
+      "role:partnerUser": {
+        "w": true
+      },
+      "*": {
+        "r": true
+      }
+    },
+    "_created_at": "2026-03-05T04:48:26.856Z",
+    "_updated_at": "2026-03-05T04:48:26.856Z",
+    "match": []
+  },
+  {
+    "_id": "BE4ieD7L2i",
+    "_p_activity": "Activity$9awzVovjfB",
+    "_p_member": "_User$YqmSmIQDRt",
+    "status": 2,
+    "_p_subscriptionHistory": "SubscriptionHistory$rV6c8PA4Cw",
+    "_wperm": [
+      "YqmSmIQDRt",
+      "role:admin",
+      "role:partnerAdmin",
+      "role:partnerUser"
+    ],
+    "_rperm": ["YqmSmIQDRt", "*"],
+    "_acl": {
+      "YqmSmIQDRt": {
+        "w": true,
+        "r": true
+      },
+      "role:admin": {
+        "w": true
+      },
+      "role:partnerAdmin": {
+        "w": true
+      },
+      "role:partnerUser": {
+        "w": true
+      },
+      "*": {
+        "r": true
+      }
+    },
+    "_created_at": "2026-03-05T04:48:56.916Z",
+    "_updated_at": "2026-03-05T04:49:15.189Z",
+    "cancelledAt": "2026-03-05T04:49:15.200Z",
+    "_p_cancelledBy": "_User$YqmSmIQDRt",
+    "match": []
+  },
+  {
+    "_id": "mQAmuBe5L1",
+    "_p_activity": "Activity$GDDkV26MmW",
+    "_p_member": "_User$Rh8fd59ere",
+    "status": 0,
+    "_p_subscriptionHistory": "SubscriptionHistory$nM0bLpacbM",
+    "_wperm": [
+      "Rh8fd59ere",
+      "role:admin",
+      "role:partnerAdmin",
+      "role:partnerUser"
+    ],
+    "_rperm": ["Rh8fd59ere", "*"],
+    "_acl": {
+      "Rh8fd59ere": {
+        "w": true,
+        "r": true
+      },
+      "role:admin": {
+        "w": true
+      },
+      "role:partnerAdmin": {
+        "w": true
+      },
+      "role:partnerUser": {
+        "w": true
+      },
+      "*": {
+        "r": true
+      }
+    },
+    "_created_at": "2026-03-05T04:49:27.994Z",
+    "_updated_at": "2026-03-05T04:49:27.994Z",
+    "match": []
+  },
+  {
+    "_id": "b1xxn4DSCr",
+    "_p_activity": "Activity$mJz6p7gqVh",
+    "_p_member": "_User$zddJKnJWdF",
+    "status": 0,
+    "_p_subscriptionHistory": "SubscriptionHistory$lR3WT20B8D",
+    "_wperm": [
+      "zddJKnJWdF",
+      "role:admin",
+      "role:partnerAdmin",
+      "role:partnerUser"
+    ],
+    "_rperm": ["zddJKnJWdF", "*"],
+    "_acl": {
+      "zddJKnJWdF": {
+        "w": true,
+        "r": true
+      },
+      "role:admin": {
+        "w": true
+      },
+      "role:partnerAdmin": {
+        "w": true
+      },
+      "role:partnerUser": {
+        "w": true
+      },
+      "*": {
+        "r": true
+      }
+    },
+    "_created_at": "2026-03-05T04:56:14.466Z",
+    "_updated_at": "2026-03-05T04:56:14.466Z",
+    "match": []
+  },
+  {
+    "_id": "VO6UOmGjnn",
+    "_p_activity": "Activity$6y31RAZwe6",
+    "_p_member": "_User$YqmSmIQDRt",
+    "status": 2,
+    "_p_subscriptionHistory": "SubscriptionHistory$rV6c8PA4Cw",
+    "_wperm": [
+      "YqmSmIQDRt",
+      "role:admin",
+      "role:partnerAdmin",
+      "role:partnerUser"
+    ],
+    "_rperm": ["YqmSmIQDRt", "*"],
+    "_acl": {
+      "YqmSmIQDRt": {
+        "w": true,
+        "r": true
+      },
+      "role:admin": {
+        "w": true
+      },
+      "role:partnerAdmin": {
+        "w": true
+      },
+      "role:partnerUser": {
+        "w": true
+      },
+      "*": {
+        "r": true
+      }
+    },
+    "_created_at": "2026-03-05T05:01:49.462Z",
+    "_updated_at": "2026-03-05T05:02:10.533Z",
+    "cancelledAt": "2026-03-05T05:02:10.605Z",
+    "_p_cancelledBy": "_User$YqmSmIQDRt",
+    "match": []
+  },
+  {
+    "_id": "LqE9eLu6bL",
+    "_p_activity": "Activity$DH6GkBkl9U",
+    "_p_member": "_User$YqmSmIQDRt",
+    "status": 2,
+    "_p_subscriptionHistory": "SubscriptionHistory$rV6c8PA4Cw",
+    "_wperm": [
+      "YqmSmIQDRt",
+      "role:admin",
+      "role:partnerAdmin",
+      "role:partnerUser"
+    ],
+    "_rperm": ["YqmSmIQDRt", "*"],
+    "_acl": {
+      "YqmSmIQDRt": {
+        "w": true,
+        "r": true
+      },
+      "role:admin": {
+        "w": true
+      },
+      "role:partnerAdmin": {
+        "w": true
+      },
+      "role:partnerUser": {
+        "w": true
+      },
+      "*": {
+        "r": true
+      }
+    },
+    "_created_at": "2026-03-05T05:11:25.121Z",
+    "_updated_at": "2026-03-05T05:11:45.310Z",
+    "cancelledAt": "2026-03-05T05:11:45.323Z",
+    "_p_cancelledBy": "_User$YqmSmIQDRt",
+    "match": []
+  },
+  {
+    "_id": "uZzN4zbNeq",
+    "_p_activity": "Activity$lMPc3k4lIx",
+    "_p_member": "_User$0pYSmqgqil",
+    "status": 0,
+    "_p_subscriptionHistory": "SubscriptionHistory$I6HGMtZeso",
+    "_wperm": [
+      "0pYSmqgqil",
+      "role:admin",
+      "role:partnerAdmin",
+      "role:partnerUser"
+    ],
+    "_rperm": ["0pYSmqgqil", "*"],
+    "_acl": {
+      "0pYSmqgqil": {
+        "w": true,
+        "r": true
+      },
+      "role:admin": {
+        "w": true
+      },
+      "role:partnerAdmin": {
+        "w": true
+      },
+      "role:partnerUser": {
+        "w": true
+      },
+      "*": {
+        "r": true
+      }
+    },
+    "_created_at": "2026-03-05T06:59:30.087Z",
+    "_updated_at": "2026-03-05T06:59:30.087Z",
+    "match": []
+  },
+  {
+    "_id": "LGoD7Qs6Gs",
+    "_p_activity": "Activity$GmS0nFiBMl",
+    "_p_member": "_User$0pYSmqgqil",
+    "status": 0,
+    "_p_subscriptionHistory": "SubscriptionHistory$I6HGMtZeso",
+    "_wperm": [
+      "0pYSmqgqil",
+      "role:admin",
+      "role:partnerAdmin",
+      "role:partnerUser"
+    ],
+    "_rperm": ["0pYSmqgqil", "*"],
+    "_acl": {
+      "0pYSmqgqil": {
+        "w": true,
+        "r": true
+      },
+      "role:admin": {
+        "w": true
+      },
+      "role:partnerAdmin": {
+        "w": true
+      },
+      "role:partnerUser": {
+        "w": true
+      },
+      "*": {
+        "r": true
+      }
+    },
+    "_created_at": "2026-03-05T06:59:56.893Z",
+    "_updated_at": "2026-03-05T06:59:56.893Z",
+    "match": []
+  },
+  {
+    "_id": "QVG8WXNU01",
+    "_p_activity": "Activity$GmS0nFiBMl",
+    "_p_member": "_User$Fh6S1ATSny",
+    "status": 0,
+    "_p_subscriptionHistory": "SubscriptionHistory$0AjEHgrhWQ",
+    "_wperm": [
+      "Fh6S1ATSny",
+      "role:admin",
+      "role:partnerAdmin",
+      "role:partnerUser"
+    ],
+    "_rperm": ["Fh6S1ATSny", "*"],
+    "_acl": {
+      "Fh6S1ATSny": {
+        "w": true,
+        "r": true
+      },
+      "role:admin": {
+        "w": true
+      },
+      "role:partnerAdmin": {
+        "w": true
+      },
+      "role:partnerUser": {
+        "w": true
+      },
+      "*": {
+        "r": true
+      }
+    },
+    "_created_at": "2026-03-05T07:00:23.421Z",
+    "_updated_at": "2026-03-05T07:00:23.421Z",
+    "match": []
+  },
+  {
+    "_id": "APSE16jfTN",
+    "_p_activity": "Activity$FzMTfABfNh",
+    "_p_member": "_User$Fh6S1ATSny",
+    "status": 0,
+    "_p_subscriptionHistory": "SubscriptionHistory$0AjEHgrhWQ",
+    "_wperm": [
+      "Fh6S1ATSny",
+      "role:admin",
+      "role:partnerAdmin",
+      "role:partnerUser"
+    ],
+    "_rperm": ["Fh6S1ATSny", "*"],
+    "_acl": {
+      "Fh6S1ATSny": {
+        "w": true,
+        "r": true
+      },
+      "role:admin": {
+        "w": true
+      },
+      "role:partnerAdmin": {
+        "w": true
+      },
+      "role:partnerUser": {
+        "w": true
+      },
+      "*": {
+        "r": true
+      }
+    },
+    "_created_at": "2026-03-05T07:00:42.423Z",
+    "_updated_at": "2026-03-05T07:00:42.423Z",
+    "match": []
+  },
+  {
+    "_id": "y063Xhnztp",
+    "_p_activity": "Activity$lMPc3k4lIx",
+    "_p_member": "_User$Fh6S1ATSny",
+    "status": 0,
+    "_p_subscriptionHistory": "SubscriptionHistory$0AjEHgrhWQ",
+    "_wperm": [
+      "Fh6S1ATSny",
+      "role:admin",
+      "role:partnerAdmin",
+      "role:partnerUser"
+    ],
+    "_rperm": ["Fh6S1ATSny", "*"],
+    "_acl": {
+      "Fh6S1ATSny": {
+        "w": true,
+        "r": true
+      },
+      "role:admin": {
+        "w": true
+      },
+      "role:partnerAdmin": {
+        "w": true
+      },
+      "role:partnerUser": {
+        "w": true
+      },
+      "*": {
+        "r": true
+      }
+    },
+    "_created_at": "2026-03-05T07:00:52.814Z",
+    "_updated_at": "2026-03-05T07:00:52.814Z",
+    "match": []
+  },
+  {
+    "_id": "qmnj0jMsPJ",
+    "_p_activity": "Activity$PVNH3AZjWa",
+    "_p_member": "_User$Fh6S1ATSny",
+    "status": 0,
+    "_p_subscriptionHistory": "SubscriptionHistory$0AjEHgrhWQ",
+    "_wperm": [
+      "Fh6S1ATSny",
+      "role:admin",
+      "role:partnerAdmin",
+      "role:partnerUser"
+    ],
+    "_rperm": ["Fh6S1ATSny", "*"],
+    "_acl": {
+      "Fh6S1ATSny": {
+        "w": true,
+        "r": true
+      },
+      "role:admin": {
+        "w": true
+      },
+      "role:partnerAdmin": {
+        "w": true
+      },
+      "role:partnerUser": {
+        "w": true
+      },
+      "*": {
+        "r": true
+      }
+    },
+    "_created_at": "2026-03-05T07:01:07.375Z",
+    "_updated_at": "2026-03-05T07:01:07.375Z",
+    "match": []
+  },
+  {
+    "_id": "PGNnYM5oXJ",
+    "_p_activity": "Activity$dqACbOESJE",
+    "_p_member": "_User$YqmSmIQDRt",
+    "status": 2,
+    "_p_subscriptionHistory": "SubscriptionHistory$rV6c8PA4Cw",
+    "_wperm": [
+      "YqmSmIQDRt",
+      "role:admin",
+      "role:partnerAdmin",
+      "role:partnerUser"
+    ],
+    "_rperm": ["YqmSmIQDRt", "*"],
+    "_acl": {
+      "YqmSmIQDRt": {
+        "w": true,
+        "r": true
+      },
+      "role:admin": {
+        "w": true
+      },
+      "role:partnerAdmin": {
+        "w": true
+      },
+      "role:partnerUser": {
+        "w": true
+      },
+      "*": {
+        "r": true
+      }
+    },
+    "_created_at": "2026-03-05T07:31:40.404Z",
+    "_updated_at": "2026-03-05T07:32:02.563Z",
+    "cancelledAt": "2026-03-05T07:32:02.578Z",
+    "_p_cancelledBy": "_User$YqmSmIQDRt",
+    "match": []
+  },
+  {
+    "_id": "idazq1pldn",
+    "_p_activity": "Activity$dqACbOESJE",
+    "_p_member": "_User$YqmSmIQDRt",
+    "status": 2,
+    "_p_subscriptionHistory": "SubscriptionHistory$rV6c8PA4Cw",
+    "_wperm": [
+      "YqmSmIQDRt",
+      "role:admin",
+      "role:partnerAdmin",
+      "role:partnerUser"
+    ],
+    "_rperm": ["YqmSmIQDRt", "*"],
+    "_acl": {
+      "YqmSmIQDRt": {
+        "w": true,
+        "r": true
+      },
+      "role:admin": {
+        "w": true
+      },
+      "role:partnerAdmin": {
+        "w": true
+      },
+      "role:partnerUser": {
+        "w": true
+      },
+      "*": {
+        "r": true
+      }
+    },
+    "_created_at": "2026-03-05T09:29:52.509Z",
+    "_updated_at": "2026-03-05T09:30:15.130Z",
+    "cancelledAt": "2026-03-05T09:30:15.146Z",
+    "_p_cancelledBy": "_User$YqmSmIQDRt",
+    "match": []
+  },
+  {
+    "_id": "WmqduBKJSc",
+    "_p_activity": "Activity$BZn57dPm3l",
+    "_p_member": "_User$YqmSmIQDRt",
+    "status": 2,
+    "_p_subscriptionHistory": "SubscriptionHistory$rV6c8PA4Cw",
+    "_wperm": [
+      "YqmSmIQDRt",
+      "role:admin",
+      "role:partnerAdmin",
+      "role:partnerUser"
+    ],
+    "_rperm": ["YqmSmIQDRt", "*"],
+    "_acl": {
+      "YqmSmIQDRt": {
+        "w": true,
+        "r": true
+      },
+      "role:admin": {
+        "w": true
+      },
+      "role:partnerAdmin": {
+        "w": true
+      },
+      "role:partnerUser": {
+        "w": true
+      },
+      "*": {
+        "r": true
+      }
+    },
+    "_created_at": "2026-03-05T09:30:22.368Z",
+    "_updated_at": "2026-03-05T09:30:28.315Z",
+    "cancelledAt": "2026-03-05T09:30:28.331Z",
+    "_p_cancelledBy": "_User$YqmSmIQDRt",
+    "match": []
+  },
+  {
+    "_id": "16nOBSJQgS",
+    "_p_activity": "Activity$LhEABly0b5",
+    "_p_member": "_User$TlwaTlw9W0",
+    "status": 0,
+    "_p_subscriptionHistory": "SubscriptionHistory$yXvru0HjjO",
+    "_wperm": [
+      "TlwaTlw9W0",
+      "role:admin",
+      "role:partnerAdmin",
+      "role:partnerUser"
+    ],
+    "_rperm": ["TlwaTlw9W0", "*"],
+    "_acl": {
+      "TlwaTlw9W0": {
+        "w": true,
+        "r": true
+      },
+      "role:admin": {
+        "w": true
+      },
+      "role:partnerAdmin": {
+        "w": true
+      },
+      "role:partnerUser": {
+        "w": true
+      },
+      "*": {
+        "r": true
+      }
+    },
+    "_created_at": "2026-03-05T10:09:29.944Z",
+    "_updated_at": "2026-03-05T10:09:29.944Z",
+    "match": []
+  },
+  {
+    "_id": "rsyBRcOtu4",
+    "_p_activity": "Activity$spyJaFSWZK",
+    "_p_member": "_User$RRTFqo7C9o",
+    "status": 0,
+    "_p_subscriptionHistory": "SubscriptionHistory$9ukV5y7qhD",
+    "_wperm": [
+      "RRTFqo7C9o",
+      "role:admin",
+      "role:partnerAdmin",
+      "role:partnerUser"
+    ],
+    "_rperm": ["RRTFqo7C9o", "*"],
+    "_acl": {
+      "RRTFqo7C9o": {
+        "w": true,
+        "r": true
+      },
+      "role:admin": {
+        "w": true
+      },
+      "role:partnerAdmin": {
+        "w": true
+      },
+      "role:partnerUser": {
+        "w": true
+      },
+      "*": {
+        "r": true
+      }
+    },
+    "_created_at": "2026-03-05T10:30:09.510Z",
+    "_updated_at": "2026-03-05T10:30:09.510Z",
+    "match": []
+  },
+  {
+    "_id": "fNMvCyxoRQ",
+    "_p_activity": "Activity$DoBUNsxHA2",
+    "_p_member": "_User$i0h71QsqXQ",
+    "status": 0,
+    "_p_subscriptionHistory": "SubscriptionHistory$UrigqOpScp",
+    "_wperm": [
+      "i0h71QsqXQ",
+      "role:admin",
+      "role:partnerAdmin",
+      "role:partnerUser"
+    ],
+    "_rperm": ["i0h71QsqXQ", "*"],
+    "_acl": {
+      "i0h71QsqXQ": {
+        "w": true,
+        "r": true
+      },
+      "role:admin": {
+        "w": true
+      },
+      "role:partnerAdmin": {
+        "w": true
+      },
+      "role:partnerUser": {
+        "w": true
+      },
+      "*": {
+        "r": true
+      }
+    },
+    "_created_at": "2026-03-05T10:32:09.260Z",
+    "_updated_at": "2026-03-05T10:32:09.260Z",
+    "match": []
+  },
+  {
+    "_id": "HNNE5X9whc",
+    "_p_activity": "Activity$hxJNDznJWO",
+    "_p_member": "_User$YqmSmIQDRt",
+    "status": 2,
+    "_p_subscriptionHistory": "SubscriptionHistory$rV6c8PA4Cw",
+    "_wperm": [
+      "YqmSmIQDRt",
+      "role:admin",
+      "role:partnerAdmin",
+      "role:partnerUser"
+    ],
+    "_rperm": ["YqmSmIQDRt", "*"],
+    "_acl": {
+      "YqmSmIQDRt": {
+        "w": true,
+        "r": true
+      },
+      "role:admin": {
+        "w": true
+      },
+      "role:partnerAdmin": {
+        "w": true
+      },
+      "role:partnerUser": {
+        "w": true
+      },
+      "*": {
+        "r": true
+      }
+    },
+    "_created_at": "2026-03-05T10:59:47.032Z",
+    "_updated_at": "2026-03-05T11:00:07.297Z",
+    "cancelledAt": "2026-03-05T11:00:12.380Z",
+    "_p_cancelledBy": "_User$YqmSmIQDRt",
+    "match": []
+  },
+  {
+    "_id": "nzGOpOeCqw",
+    "_p_activity": "Activity$tfJQVLxDPi",
+    "_p_member": "_User$YqmSmIQDRt",
+    "status": 2,
+    "_p_subscriptionHistory": "SubscriptionHistory$rV6c8PA4Cw",
+    "_wperm": [
+      "YqmSmIQDRt",
+      "role:admin",
+      "role:partnerAdmin",
+      "role:partnerUser"
+    ],
+    "_rperm": ["YqmSmIQDRt", "*"],
+    "_acl": {
+      "YqmSmIQDRt": {
+        "w": true,
+        "r": true
+      },
+      "role:admin": {
+        "w": true
+      },
+      "role:partnerAdmin": {
+        "w": true
+      },
+      "role:partnerUser": {
+        "w": true
+      },
+      "*": {
+        "r": true
+      }
+    },
+    "_created_at": "2026-03-05T11:19:43.421Z",
+    "_updated_at": "2026-03-05T11:20:14.513Z",
+    "cancelledAt": "2026-03-05T11:20:14.522Z",
+    "_p_cancelledBy": "_User$YqmSmIQDRt",
+    "match": []
+  },
+  {
+    "_id": "LEHvYu02ZH",
+    "_p_activity": "Activity$95FQFuZo7M",
+    "_p_member": "_User$GeK36FsEWW",
+    "status": 2,
+    "_p_subscriptionHistory": "SubscriptionHistory$0HSqhwMPwC",
+    "_wperm": [
+      "GeK36FsEWW",
+      "role:admin",
+      "role:partnerAdmin",
+      "role:partnerUser"
+    ],
+    "_rperm": ["GeK36FsEWW", "*"],
+    "_acl": {
+      "GeK36FsEWW": {
+        "w": true,
+        "r": true
+      },
+      "role:admin": {
+        "w": true
+      },
+      "role:partnerAdmin": {
+        "w": true
+      },
+      "role:partnerUser": {
+        "w": true
+      },
+      "*": {
+        "r": true
+      }
+    },
+    "_created_at": "2026-03-05T11:47:16.335Z",
+    "_updated_at": "2026-03-05T11:48:19.506Z",
+    "cancelledAt": "2026-03-05T11:48:19.526Z",
+    "_p_cancelledBy": "_User$GeK36FsEWW",
+    "match": []
+  },
+  {
+    "_id": "JADIFkkVtD",
+    "_p_activity": "Activity$di6EjrQ48B",
+    "_p_member": "_User$GeK36FsEWW",
+    "status": 2,
+    "_p_subscriptionHistory": "SubscriptionHistory$0HSqhwMPwC",
+    "_wperm": [
+      "GeK36FsEWW",
+      "role:admin",
+      "role:partnerAdmin",
+      "role:partnerUser"
+    ],
+    "_rperm": ["GeK36FsEWW", "*"],
+    "_acl": {
+      "GeK36FsEWW": {
+        "w": true,
+        "r": true
+      },
+      "role:admin": {
+        "w": true
+      },
+      "role:partnerAdmin": {
+        "w": true
+      },
+      "role:partnerUser": {
+        "w": true
+      },
+      "*": {
+        "r": true
+      }
+    },
+    "_created_at": "2026-03-05T11:48:38.353Z",
+    "_updated_at": "2026-03-05T11:49:36.348Z",
+    "cancelledAt": "2026-03-05T11:49:36.363Z",
+    "_p_cancelledBy": "_User$GeK36FsEWW",
+    "match": []
+  },
+  {
+    "_id": "KG4ANhFv2u",
+    "_p_activity": "Activity$Gyrx9wFxr7",
+    "_p_member": "_User$YqmSmIQDRt",
+    "status": 0,
+    "_p_subscriptionHistory": "SubscriptionHistory$rV6c8PA4Cw",
+    "_wperm": [
+      "YqmSmIQDRt",
+      "role:admin",
+      "role:partnerAdmin",
+      "role:partnerUser"
+    ],
+    "_rperm": ["YqmSmIQDRt", "*"],
+    "_acl": {
+      "YqmSmIQDRt": {
+        "w": true,
+        "r": true
+      },
+      "role:admin": {
+        "w": true
+      },
+      "role:partnerAdmin": {
+        "w": true
+      },
+      "role:partnerUser": {
+        "w": true
+      },
+      "*": {
+        "r": true
+      }
+    },
+    "_created_at": "2026-03-05T14:42:31.545Z",
+    "_updated_at": "2026-03-05T14:42:31.545Z",
+    "match": []
+  }
+]
