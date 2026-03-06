@@ -231,7 +231,12 @@ async function run(): Promise<void> {
   const now = new Date();
   const bookingsToInsert: Record<string, unknown>[] = [];
   /** For non-cancelled bookings: used to build USAGE credit transactions. */
-  const usageRows: { userId: string; bookingId: string; creditCost: number; bookingDate: Date }[] = [];
+  const usageRows: {
+    userId: string;
+    bookingId: string;
+    creditCost: number;
+    bookingDate: Date;
+  }[] = [];
   let skippedNoActivity = 0;
   let skippedNoCustomer = 0;
   let skippedDuplicate = 0;
@@ -322,14 +327,14 @@ async function run(): Promise<void> {
     const status = isCancelled
       ? BookingStatus.CANCELLED
       : isPast
-      ? BookingStatus.COMPLETED
-      : BookingStatus.CONFIRMED;
+        ? BookingStatus.COMPLETED
+        : BookingStatus.CONFIRMED;
 
     const attendanceStatus = isCancelled
       ? AttendanceStatus.PENDING
       : isPast
-      ? AttendanceStatus.ATTENDED
-      : AttendanceStatus.PENDING;
+        ? AttendanceStatus.ATTENDED
+        : AttendanceStatus.PENDING;
 
     bookingsToInsert.push({
       _id: reservationId,
