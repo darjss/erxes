@@ -58,13 +58,14 @@ async function runDryRun(models: IModels): Promise<void> {
         continue;
       }
 
-      const balance =
-        await models.CreditTransaction.getUserBalance(userId);
+      const balance = await models.CreditTransaction.getUserBalance(userId);
       const transactions = await models.CreditTransaction.find({
         userId,
       });
-      const { totalCreditsEarned: computedEarned, totalCreditsUsed: computedUsed } =
-        computeEarnedAndUsedFromTransactions(transactions);
+      const {
+        totalCreditsEarned: computedEarned,
+        totalCreditsUsed: computedUsed,
+      } = computeEarnedAndUsedFromTransactions(transactions);
 
       const currentBalance = oneFitCustomer.currentCreditBalance ?? 0;
       const currentEarned = oneFitCustomer.totalCreditsEarned ?? 0;
@@ -111,11 +112,14 @@ async function runDryRun(models: IModels): Promise<void> {
             (d) =>
               `  ${d.userId}: balance ${d.currentCreditBalance} -> ${d.computedBalance}, earned ${d.totalCreditsEarned} -> ${d.computedEarned}, used ${d.totalCreditsUsed} -> ${d.computedUsed}`,
           )
-          .join('\n') + '\n',
+          .join('\n') +
+        '\n',
     );
   }
 
-  process.stdout.write('No changes applied. Run without --dry-run to update.\n');
+  process.stdout.write(
+    'No changes applied. Run without --dry-run to update.\n',
+  );
 }
 
 async function run(): Promise<void> {

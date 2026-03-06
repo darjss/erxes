@@ -27,7 +27,10 @@ export function computeEarnedAndUsedFromTransactions(
     }
   }
 
-  return { totalCreditsEarned, totalCreditsUsed: Math.max(0, totalCreditsUsed) };
+  return {
+    totalCreditsEarned,
+    totalCreditsUsed: Math.max(0, totalCreditsUsed),
+  };
 }
 
 export async function recomputeOneFitCustomerCreditFields(
