@@ -378,13 +378,16 @@ export const scheduleQueries = {
     };
   },
 
-  async oneFitDayAvailability(
+  async oneFitDaySlots(
     _root: undefined,
-    { providerId, date }: { providerId: string; date: Date },
+    {
+      providerId,
+      currentDate: currentDateParam,
+    }: { providerId: string; currentDate: Date },
     context: IContext,
   ) {
     const { models } = context;
-    const currentDate = getPureDate(new Date(date));
+    const currentDate = getPureDate(new Date(currentDateParam));
     const year = currentDate.getFullYear();
     const month = currentDate.getMonth() + 1;
 
@@ -417,12 +420,13 @@ export const scheduleQueries = {
       bookingDate: { $gte: startOfDay, $lte: endOfDay },
       status: { $ne: BookingStatus.CANCELLED },
     });
-
     const bookingsBySlotKey = new Map<string, number>();
     for (const booking of bookings as IBooking[]) {
-      const bookingDate = new Date(booking.bookingDate);
+      const bookingDatePure = new Date(booking.bookingDate);
       const at = booking.activityTypeId ?? '';
-      const key = `${bookingDate.getTime()}-${at}-${booking.startTime ?? ''}`;
+      const key = `${bookingDatePure.getTime()}-${at}-${
+        booking.startTime ?? ''
+      }`;
       bookingsBySlotKey.set(key, (bookingsBySlotKey.get(key) || 0) + 1);
     }
 
@@ -482,7 +486,6 @@ export const scheduleQueries = {
       } as (typeof days)[number]);
       return days;
     }
-
     for (const dailySchedule of dailySchedules) {
       const atId = dailySchedule.activityTypeId;
       const isBlocked = isDateBlockedForActivityType(atId);
@@ -592,8 +595,9 @@ export const scheduleQueries = {
       activityTypesFilter._id = activityTypeId;
     }
 
-    const activityTypes =
-      await models.ActivityType.find(activityTypesFilter).lean();
+    const activityTypes = await models.ActivityType.find(
+      activityTypesFilter,
+    ).lean();
 
     const activityTypesById = new Map<string, (typeof activityTypes)[number]>();
     for (const at of activityTypes) {
