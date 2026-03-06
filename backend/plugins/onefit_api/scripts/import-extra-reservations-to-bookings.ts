@@ -10,10 +10,9 @@
  * - ONEFIT2_MONGO_URL: Onefit2 MongoDB (to fetch Activity documents for date/time/credit)
  *
  * Usage:
- *   pnpm tsx backend/plugins/onefit_api/scripts/import-extra-reservations-to-bookings.ts
+ *   pnpm tsx backend/plugins/onefit_api/scripts/import-extra-reservations-to-bookings.ts [reservetion_extra.json]
  *
- * Optional:
- *   EXTRA_RESERVATIONS_JSON=/path/to/reservetion_extra.json  (default: script dir / reservetion_extra.json)
+ * Optional: pass JSON file path as first argument, or set EXTRA_RESERVATIONS_JSON, or use default scripts/reservetion_extra.json
  */
 
 import mongoose from 'mongoose';
@@ -22,6 +21,10 @@ import * as path from 'path';
 import { connect, closeMongooose } from 'erxes-api-shared/utils';
 import { loadClasses, IModels } from '../src/connectionResolvers';
 import { BookingStatus, AttendanceStatus } from '@/booking/@types/booking';
+import {
+  CreditTransactionType,
+  CreditSource,
+} from '@/membership/@types/credittransaction';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -155,12 +158,13 @@ const BATCH_SIZE = 5000;
 
 async function run(): Promise<void> {
   const jsonPath =
+    process.argv[2]?.trim() ||
     process.env.EXTRA_RESERVATIONS_JSON ||
     path.join(__dirname, 'reservetion_extra.json');
 
   if (!fs.existsSync(jsonPath)) {
     throw new Error(
-      `Extra reservations file not found: ${jsonPath}. Set EXTRA_RESERVATIONS_JSON or place reservetion_extra.json in scripts folder.`,
+      `Extra reservations file not found: ${jsonPath}. Pass path as first argument or set EXTRA_RESERVATIONS_JSON.`,
     );
   }
 
@@ -226,12 +230,20 @@ async function run(): Promise<void> {
   const activityTypeIdCache = new Map<string, string>();
   const now = new Date();
   const bookingsToInsert: Record<string, unknown>[] = [];
+  /** For non-cancelled bookings: used to build USAGE credit transactions. */
+  const usageRows: { userId: string; bookingId: string; creditCost: number; bookingDate: Date }[] = [];
   let skippedNoActivity = 0;
   let skippedNoCustomer = 0;
   let skippedDuplicate = 0;
   let skippedNoProviderOrCategory = 0;
+  let skippedStatusNotZero = 0;
 
   for (const r of extraReservations) {
+    if (r.status !== 0) {
+      skippedStatusNotZero += 1;
+      continue;
+    }
+
     const reservationId = r._id;
     if (existingBookingIds.has(reservationId)) {
       skippedDuplicate += 1;
@@ -303,8 +315,7 @@ async function run(): Promise<void> {
     const isPast = bookingEndDateTime < now;
 
     const isCancelled =
-      r.status === 2 ||
-      (r.cancelledAt != null && String(r.cancelledAt).length > 0);
+      r.cancelledAt != null && String(r.cancelledAt).length > 0;
     const cancelledAt = r.cancelledAt ? toDate(r.cancelledAt) : undefined;
     const cancelledBy = extractIdFromPointer(r._p_cancelledBy);
 
@@ -340,10 +351,19 @@ async function run(): Promise<void> {
       createdAt: now,
       modifiedAt: now,
     });
+
+    if (!isCancelled && creditCost > 0) {
+      usageRows.push({
+        userId,
+        bookingId: reservationId,
+        creditCost,
+        bookingDate: bookingDateRaw,
+      });
+    }
   }
 
   process.stdout.write(
-    `Skipped: no activity ${skippedNoActivity}, no customer ${skippedNoCustomer}, duplicate ${skippedDuplicate}, no provider/category ${skippedNoProviderOrCategory}.\n`,
+    `Skipped: status≠0 ${skippedStatusNotZero}, no activity ${skippedNoActivity}, no customer ${skippedNoCustomer}, duplicate ${skippedDuplicate}, no provider/category ${skippedNoProviderOrCategory}.\n`,
   );
   process.stdout.write(`Bookings to insert: ${bookingsToInsert.length}.\n`);
 
@@ -354,8 +374,44 @@ async function run(): Promise<void> {
     'bookings',
   );
 
+  // Build USAGE credit transactions for non-cancelled bookings (per-user running balance)
+  const creditTransactionsToInsert: Record<string, unknown>[] = [];
+  const userIds = [...new Set(usageRows.map((u) => u.userId))];
+  for (const uid of userIds) {
+    const userRows = usageRows.filter((u) => u.userId === uid);
+    userRows.sort((a, b) => a.bookingDate.getTime() - b.bookingDate.getTime());
+    let balance = await models.CreditTransaction.getUserBalance(uid);
+    for (const row of userRows) {
+      balance -= row.creditCost;
+      creditTransactionsToInsert.push({
+        _id: `extra-usage-${row.bookingId}`,
+        userId: uid,
+        amount: -row.creditCost,
+        transactionType: CreditTransactionType.USAGE,
+        source: CreditSource.INDIVIDUAL,
+        bookingId: row.bookingId,
+        description: 'Imported booking (extra reservation)',
+        balanceAfter: balance,
+        createdAt: now,
+      });
+    }
+  }
+
+  let creditResult = { inserted: 0, errors: 0 };
+  if (creditTransactionsToInsert.length > 0) {
+    process.stdout.write(
+      `Credit transactions to insert: ${creditTransactionsToInsert.length}.\n`,
+    );
+    creditResult = await insertBatched(
+      models.CreditTransaction.collection,
+      creditTransactionsToInsert,
+      BATCH_SIZE,
+      'credit transactions',
+    );
+  }
+
   process.stdout.write(
-    `\n=== Extra reservations import summary ===\nInserted: ${result.inserted}, Errors: ${result.errors}\nDone.\n`,
+    `\n=== Extra reservations import summary ===\nBookings inserted: ${result.inserted}, Errors: ${result.errors}\nCredit transactions inserted: ${creditResult.inserted}, Errors: ${creditResult.errors}\nDone.\n`,
   );
 
   await closeMongooose();
