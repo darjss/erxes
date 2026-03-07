@@ -1,4 +1,4 @@
-import { MutationFunctionOptions, useMutation } from '@apollo/client';
+import { MutationFunctionOptions, useApolloClient, useMutation } from '@apollo/client';
 import { toast } from 'erxes-ui';
 import {
   ONE_FIT_BOOKING_CREATE,
@@ -100,5 +100,44 @@ export function useMarkAttendance() {
   };
 
   return { markAttendance, loading };
+}
+
+export function useMarkAttendanceBulk() {
+  const client = useApolloClient();
+  const [markAttendanceMutation, { loading }] = useMutation(
+    ONE_FIT_BOOKING_MARK_ATTENDANCE,
+    { refetchQueries: [] },
+  );
+
+  const markAttendanceBulk = async (bookingIds: string[]) => {
+    if (bookingIds.length === 0) return;
+    try {
+      for (const _id of bookingIds) {
+        await markAttendanceMutation({
+          variables: {
+            _id,
+            attendanceStatus: AttendanceStatus.ATTENDED,
+          },
+        });
+      }
+      await client.refetchQueries({ include: [ONE_FIT_BOOKINGS] });
+      const count = bookingIds.length;
+      toast({
+        title: 'Success',
+        description:
+          count === 1
+            ? '1 booking marked as attended.'
+            : `${count} bookings marked as attended.`,
+      });
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: error instanceof Error ? error.message : 'Failed to mark attendance',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  return { markAttendanceBulk, loading };
 }
 

@@ -53,6 +53,16 @@ const getAttendanceBadgeVariant = (status: AttendanceStatus) => {
   }
 };
 
+const getDisplayName = (user: OneFitCustomer | undefined): string => {
+  if (!user) return '-';
+  return (
+    [user.firstName, user.lastName].filter(Boolean).join(' ').trim() ||
+    user.primaryEmail ||
+    user.primaryPhone ||
+    'Unnamed user'
+  );
+};
+
 export const BookingsList = ({ filters }: BookingsListProps) => {
   const { bookings, handleFetchMore, loading, pageInfo } = useBookings(filters);
   const [selectedBooking, setSelectedBooking] = useState<string | null>(null);
@@ -91,9 +101,23 @@ export const BookingsList = ({ filters }: BookingsListProps) => {
         return (
           <RecordTableInlineCell>
             <OneFitCustomersInline
-              customers={user ? [user] : []}
+              customers={[user]}
               placeholder="Unnamed user"
             />
+          </RecordTableInlineCell>
+        );
+      },
+    },
+    {
+      accessorKey: 'user',
+      id: 'name',
+      header: 'Name',
+      cell: ({ row }) => {
+        const booking = row.original;
+        const name = getDisplayName(booking.user);
+        return (
+          <RecordTableInlineCell className="text-xs font-medium truncate" title={name}>
+            {name}
           </RecordTableInlineCell>
         );
       },

@@ -16,6 +16,7 @@ import { ScanBookingQrDialog } from '~/modules/booking/components/ScanBookingQrD
 import { ConfirmBookingAttendanceDialog } from '~/modules/booking/components/ConfirmBookingAttendanceDialog';
 import { SelectCustomerBookingDialog } from '~/modules/booking/components/SelectCustomerBookingDialog';
 import { ONE_FIT_BOOKINGS } from '~/modules/booking/graphql/bookingQueries';
+import { useMarkAttendanceBulk } from '~/modules/booking/hooks/useBookingMutations';
 import { toast } from 'erxes-ui';
 import { useOneFitMode } from '~/modules/config/hooks/useOneFitMode';
 
@@ -23,6 +24,8 @@ type BookingsView = 'list' | 'calendar';
 
 export function BookingsPage() {
   const { isSlaveMode } = useOneFitMode();
+  const { markAttendanceBulk, loading: markAllLoading } =
+    useMarkAttendanceBulk();
   const [view, setView] = useState<BookingsView>('list');
   const [filters, setFilters] = useState<BookingFilters>({});
   const [scanDialogOpen, setScanDialogOpen] = useState(false);
@@ -42,7 +45,7 @@ export function BookingsPage() {
           setConfirmDialogOpen(false);
           toast({
             title: 'No bookings',
-            description: 'No bookings found for this customer.',
+            description: 'No bookings found for this member.',
           });
           return;
         }
@@ -83,6 +86,12 @@ export function BookingsPage() {
     setConfirmDialogOpen(true);
   }
 
+  async function handleMarkAllBookings(bookingIds: string[]) {
+    await markAttendanceBulk(bookingIds);
+    setPickerOpen(false);
+    setPickerBookings([]);
+  }
+
   function ListOrCalendarComponent({ filters: f }: { filters: BookingFilters }) {
     if (view === 'calendar') return <BookingsCalendar filters={f} />;
     return <BookingsList filters={f} />;
@@ -104,7 +113,7 @@ export function BookingsPage() {
               onClick={() => setScanDialogOpen(true)}
             >
               <IconQrcode className="h-4 w-4 mr-2" />
-              Scan QR Code
+              Member check-in
             </Button>
           </div>
         }
@@ -147,8 +156,13 @@ export function BookingsPage() {
       <SelectCustomerBookingDialog
         bookings={pickerBookings}
         open={pickerOpen}
-        onOpenChange={setPickerOpen}
+        onOpenChange={(open) => {
+          setPickerOpen(open);
+          if (!open) setPickerBookings([]);
+        }}
         onSelectBooking={handleSelectBooking}
+        onMarkAll={handleMarkAllBookings}
+        markAllLoading={markAllLoading}
       />
     </>
   );

@@ -131,7 +131,7 @@ export function ConfirmBookingAttendanceDialog({
       }`.trim() ||
       bookingData.user.primaryEmail ||
       bookingData.user.primaryPhone ||
-      'Unnamed customer'
+      'Unnamed member'
     : '-';
 
   const providerName = bookingData.provider
@@ -171,7 +171,7 @@ export function ConfirmBookingAttendanceDialog({
           <div className="flex flex-col gap-3 text-sm">
             <div>
               <span className="text-muted-foreground font-medium">
-                Customer:
+                Member:
               </span>
               <div className="mt-1">
                 {bookingData.user ? (
@@ -187,7 +187,7 @@ export function ConfirmBookingAttendanceDialog({
                         updatedAt: '',
                       },
                     ]}
-                    placeholder="Unnamed customer"
+                    placeholder="Unnamed member"
                   />
                 ) : (
                   <span className="text-muted-foreground">-</span>

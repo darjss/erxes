@@ -1,9 +1,18 @@
+import { useLazyQuery } from '@apollo/client';
 import { Button, Dialog, Input } from 'erxes-ui';
 import { ChangeEvent, useEffect, useRef, useState } from 'react';
 import { decodeQrFromImage } from '~/modules/booking/utils/decodeQrApi';
+import { ONE_FIT_CUSTOMERS } from '~/modules/onefitCustomer/graphql/onefitCustomerQueries';
+import { OneFitCustomer } from '~/modules/onefitCustomer/types/onefitCustomer';
 
 const DECODE_THROTTLE_MS = 400;
+const SEARCH_LIMIT = 10;
 const QRCODE_RAPTOR_URL = 'https://qrcoderaptor.com/';
+
+function getMemberDisplayName(c: OneFitCustomer): string {
+  const name = [c.firstName, c.lastName].filter(Boolean).join(' ').trim();
+  return name || c.primaryEmail || c.primaryPhone || 'Unnamed member';
+}
 
 interface ScanBookingQrDialogProps {
   open: boolean;
@@ -19,7 +28,8 @@ export function ScanBookingQrDialog({
   const [mode, setMode] = useState<'camera' | 'file' | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [fileLoading, setFileLoading] = useState(false);
-  const [manualCustomerId, setManualCustomerId] = useState('');
+  const [memberCode, setMemberCode] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const animationFrameRef = useRef<number | null>(null);
@@ -27,12 +37,23 @@ export function ScanBookingQrDialog({
   const lastDecodeTimeRef = useRef<number>(0);
   const decodeInProgressRef = useRef<boolean>(false);
 
+  const [searchMembers, { data: searchData, loading: searchLoading }] =
+    useLazyQuery(ONE_FIT_CUSTOMERS, {
+      variables: {
+        searchValue: searchQuery.trim() || undefined,
+        limit: SEARCH_LIMIT,
+      },
+      fetchPolicy: 'network-only',
+    });
+  const searchResults = (searchData?.oneFitCustomers?.list ?? []) as OneFitCustomer[];
+
   useEffect(() => {
     if (!open) {
       stopScanning();
       setMode(null);
       setError(null);
-      setManualCustomerId('');
+      setMemberCode('');
+      setSearchQuery('');
       return;
     }
     setError(null);
@@ -228,19 +249,36 @@ export function ScanBookingQrDialog({
     stopScanning();
     setMode(null);
     setError(null);
-    setManualCustomerId('');
+    setMemberCode('');
+    setSearchQuery('');
     onOpenChange(false);
   }
 
-  function handleManualLookup() {
-    const id = manualCustomerId.trim();
+  function handleSearchMembers() {
+    const q = searchQuery.trim();
+    if (!q) {
+      setError('Please enter a name or email to search');
+      return;
+    }
+    setError(null);
+    searchMembers();
+  }
+
+  function handleSelectMember(customer: OneFitCustomer) {
+    onScanSuccess(customer._id);
+    setSearchQuery('');
+    onOpenChange(false);
+  }
+
+  function handleCheckInWithCode() {
+    const id = memberCode.trim();
     if (!id) {
-      setError('Please enter a customer ID');
+      setError('Please enter a member code');
       return;
     }
     setError(null);
     onScanSuccess(id);
-    setManualCustomerId('');
+    setMemberCode('');
     onOpenChange(false);
   }
 
@@ -248,9 +286,10 @@ export function ScanBookingQrDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <Dialog.Content className="max-w-md">
         <Dialog.Header>
-          <Dialog.Title>Scan Customer ID</Dialog.Title>
+          <Dialog.Title>Member check-in</Dialog.Title>
           <Dialog.Description>
-            Scan a customer QR or enter customer ID to mark booking attendance
+            Scan the member&apos;s QR code from their app, or upload a photo of
+            the QR. You can also look up a member by name or email.
           </Dialog.Description>
         </Dialog.Header>
 
@@ -263,7 +302,7 @@ export function ScanBookingQrDialog({
                   onClick={handleCameraScan}
                   className="w-full"
                 >
-                  Scan with Camera
+                  Scan with camera
                 </Button>
                 <label className="w-full cursor-pointer">
                   <input
@@ -279,14 +318,65 @@ export function ScanBookingQrDialog({
                     className="w-full pointer-events-none"
                     disabled={fileLoading}
                   >
-                    {fileLoading ? 'Decoding...' : 'Upload Image'}
+                    {fileLoading ? 'Decoding...' : 'Upload image'}
                   </Button>
                 </label>
               </div>
 
               <div className="border-t pt-4 flex flex-col gap-2">
-                <p className="text-sm text-muted-foreground">
-                  If the QR reader doesn&apos;t work, decode your QR code at{' '}
+                <p className="text-sm font-medium text-muted-foreground">
+                  Look up by name or email
+                </p>
+                <div className="flex gap-2">
+                  <Input
+                    type="text"
+                    placeholder="Search by name or email"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        handleSearchMembers();
+                      }
+                    }}
+                    className="flex-1"
+                  />
+                  <Button
+                    type="button"
+                    onClick={handleSearchMembers}
+                    disabled={!searchQuery.trim() || searchLoading}
+                  >
+                    {searchLoading ? 'Searching...' : 'Search'}
+                  </Button>
+                </div>
+                {searchResults.length > 0 && (
+                  <ul className="border rounded-md divide-y max-h-48 overflow-auto">
+                    {searchResults.map((c) => (
+                      <li key={c._id}>
+                        <button
+                          type="button"
+                          onClick={() => handleSelectMember(c)}
+                          className="w-full px-3 py-2 text-left text-sm hover:bg-muted/50 focus:outline-none focus:ring-2 focus:ring-ring rounded-none first:rounded-t-md last:rounded-b-md"
+                        >
+                          {getMemberDisplayName(c)}
+                          {c.primaryEmail && (
+                            <span className="text-muted-foreground block text-xs truncate">
+                              {c.primaryEmail}
+                            </span>
+                          )}
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+
+              <div className="border-t pt-4 flex flex-col gap-2">
+                <p className="text-sm font-medium text-muted-foreground">
+                  Member code (from QR)
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  If you decoded the QR elsewhere (e.g.{' '}
                   <a
                     href={QRCODE_RAPTOR_URL}
                     target="_blank"
@@ -294,29 +384,29 @@ export function ScanBookingQrDialog({
                     className="text-primary underline hover:no-underline"
                   >
                     QRCodeRaptor
-                  </a>{' '}
-                  (qrcoderaptor.com), then paste the customer ID below.
+                  </a>
+                  ), paste that code here.
                 </p>
                 <div className="flex gap-2">
                   <Input
                     type="text"
-                    placeholder="Enter customer ID"
-                    value={manualCustomerId}
-                    onChange={(e) => setManualCustomerId(e.target.value)}
+                    placeholder="Paste member code"
+                    value={memberCode}
+                    onChange={(e) => setMemberCode(e.target.value)}
                     onKeyDown={(e) => {
                       if (e.key === 'Enter') {
                         e.preventDefault();
-                        handleManualLookup();
+                        handleCheckInWithCode();
                       }
                     }}
                     className="flex-1"
                   />
                   <Button
                     type="button"
-                    onClick={handleManualLookup}
-                    disabled={!manualCustomerId.trim()}
+                    onClick={handleCheckInWithCode}
+                    disabled={!memberCode.trim()}
                   >
-                    Look up
+                    Check in with code
                   </Button>
                 </div>
               </div>
