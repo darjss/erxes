@@ -19,7 +19,7 @@ export const types = `
     userId: String
     providerId: String
     activityTypeId: String
-    user: Customer
+    user: OneFitCustomer
     provider: OneFitProvider
     activityType: OneFitActivityType
     bookingDate: Date
@@ -66,7 +66,7 @@ export const types = `
     year: Int
     month: Int
     userId: String
-    user: Customer
+    user: OneFitCustomer
     totalCreditsConsumed: Float
     bookingCount: Int
   }
