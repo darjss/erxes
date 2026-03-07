@@ -19,7 +19,7 @@ export function ScanBookingQrDialog({
   const [mode, setMode] = useState<'camera' | 'file' | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [fileLoading, setFileLoading] = useState(false);
-  const [manualCustomerId, setManualCustomerId] = useState('');
+  const [memberCode, setMemberCode] = useState('');
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const animationFrameRef = useRef<number | null>(null);
@@ -32,7 +32,7 @@ export function ScanBookingQrDialog({
       stopScanning();
       setMode(null);
       setError(null);
-      setManualCustomerId('');
+      setMemberCode('');
       return;
     }
     setError(null);
@@ -149,20 +149,18 @@ export function ScanBookingQrDialog({
         animationFrameRef.current = requestAnimationFrame(scanFrame);
       } catch (err: unknown) {
         const message =
-          err instanceof Error ? err.message : 'Failed to start camera';
+          err instanceof Error ? err.message : 'Камер асааж чадсангүй';
         if (
           err instanceof Error &&
           (err.name === 'NotAllowedError' ||
             err.name === 'PermissionDeniedError')
         ) {
-          setError(
-            'Camera permission denied. Please allow camera access and try again.',
-          );
+          setError('Камерын зөвшөөрөл олгогдоогүй. Дахин оролдоно уу.');
         } else if (
           err instanceof Error &&
           (err.name === 'NotFoundError' || err.name === 'DevicesNotFoundError')
         ) {
-          setError('No camera found. Please connect a camera and try again.');
+          setError('Камер олдсонгүй. Камер холбоод дахин оролдоно уу.');
         } else {
           setError(message);
         }
@@ -212,11 +210,11 @@ export function ScanBookingQrDialog({
         onScanSuccess(result.value);
         onOpenChange(false);
       } else {
-        setError(result.error || 'No QR code found in the image');
+        setError(result.error || 'Зурган дээр QR код олдсонгүй');
       }
     } catch (err: unknown) {
       const message =
-        err instanceof Error ? err.message : 'Failed to scan QR code from file';
+        err instanceof Error ? err.message : 'Файлаас QR код уншиж чадсангүй';
       setError(message);
     } finally {
       setFileLoading(false);
@@ -228,19 +226,19 @@ export function ScanBookingQrDialog({
     stopScanning();
     setMode(null);
     setError(null);
-    setManualCustomerId('');
+    setMemberCode('');
     onOpenChange(false);
   }
 
-  function handleManualLookup() {
-    const id = manualCustomerId.trim();
+  function handleCheckInWithCode() {
+    const id = memberCode.trim();
     if (!id) {
-      setError('Please enter a customer ID');
+      setError('Гишүүний код оруулна уу');
       return;
     }
     setError(null);
     onScanSuccess(id);
-    setManualCustomerId('');
+    setMemberCode('');
     onOpenChange(false);
   }
 
@@ -248,9 +246,10 @@ export function ScanBookingQrDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <Dialog.Content className="max-w-md">
         <Dialog.Header>
-          <Dialog.Title>Scan Customer ID</Dialog.Title>
+          <Dialog.Title>Гишүүн ирц бүртгэх</Dialog.Title>
           <Dialog.Description>
-            Scan a customer QR or enter customer ID to mark booking attendance
+            Гишүүний QR кодыг апп-аас уншуулна уу, эсвэл QR-ын зургийг оруулна
+            уу.
           </Dialog.Description>
         </Dialog.Header>
 
@@ -263,7 +262,7 @@ export function ScanBookingQrDialog({
                   onClick={handleCameraScan}
                   className="w-full"
                 >
-                  Scan with Camera
+                  Камероор уншуулах
                 </Button>
                 <label className="w-full cursor-pointer">
                   <input
@@ -279,14 +278,19 @@ export function ScanBookingQrDialog({
                     className="w-full pointer-events-none"
                     disabled={fileLoading}
                   >
-                    {fileLoading ? 'Decoding...' : 'Upload Image'}
+                    {fileLoading
+                      ? 'Тайлан декод хийж байна...'
+                      : 'Зургаа оруулах'}
                   </Button>
                 </label>
               </div>
 
               <div className="border-t pt-4 flex flex-col gap-2">
-                <p className="text-sm text-muted-foreground">
-                  If the QR reader doesn&apos;t work, decode your QR code at{' '}
+                <p className="text-sm font-medium text-muted-foreground">
+                  Гишүүний код (QR-аас)
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  Хэрэв та QR кодыг өөр газар (жишээ нь{' '}
                   <a
                     href={QRCODE_RAPTOR_URL}
                     target="_blank"
@@ -294,29 +298,29 @@ export function ScanBookingQrDialog({
                     className="text-primary underline hover:no-underline"
                   >
                     QRCodeRaptor
-                  </a>{' '}
-                  (qrcoderaptor.com), then paste the customer ID below.
+                  </a>
+                  ) тайлсан бол энд тэр кодыг оруулна уу.
                 </p>
                 <div className="flex gap-2">
                   <Input
                     type="text"
-                    placeholder="Enter customer ID"
-                    value={manualCustomerId}
-                    onChange={(e) => setManualCustomerId(e.target.value)}
+                    placeholder="Гишүүний кодыг оруулна уу"
+                    value={memberCode}
+                    onChange={(e) => setMemberCode(e.target.value)}
                     onKeyDown={(e) => {
                       if (e.key === 'Enter') {
                         e.preventDefault();
-                        handleManualLookup();
+                        handleCheckInWithCode();
                       }
                     }}
                     className="flex-1"
                   />
                   <Button
                     type="button"
-                    onClick={handleManualLookup}
-                    disabled={!manualCustomerId.trim()}
+                    onClick={handleCheckInWithCode}
+                    disabled={!memberCode.trim()}
                   >
-                    Look up
+                    Кодоор ирц бүртгэх
                   </Button>
                 </div>
               </div>
@@ -344,7 +348,7 @@ export function ScanBookingQrDialog({
                 }}
                 className="w-full"
               >
-                Cancel Scanning
+                Уншуулахыг цуцлах
               </Button>
             </div>
           )}
@@ -363,7 +367,7 @@ export function ScanBookingQrDialog({
             onClick={handleClose}
             className="w-full"
           >
-            Close
+            Хаах
           </Button>
         </Dialog.Footer>
       </Dialog.Content>

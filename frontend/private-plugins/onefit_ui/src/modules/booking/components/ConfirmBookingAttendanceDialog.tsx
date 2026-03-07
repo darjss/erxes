@@ -1,10 +1,12 @@
 import { Alert, Badge, Button, Dialog, Spinner } from 'erxes-ui';
+import { IconAlertCircle, IconCircleCheck } from '@tabler/icons-react';
+import { startOfDay } from 'date-fns';
+import { useEffect, useState } from 'react';
+import { getLocalizedString } from '~/modules/activity-type/utils/localization';
+import { OneFitCustomersInline } from '~/modules/onefitCustomer/components/OneFitCustomersInline';
 import { useMarkAttendance } from '../hooks/useBookingMutations';
 import { OneFitBooking } from '../types/booking';
 import { AttendanceStatus } from '../types/booking';
-import { startOfDay } from 'date-fns';
-import { getLocalizedString } from '~/modules/activity-type/utils/localization';
-import { OneFitCustomersInline } from '~/modules/onefitCustomer/components/OneFitCustomersInline';
 
 interface ConfirmBookingAttendanceDialogProps {
   booking: OneFitBooking | null;
@@ -24,6 +26,13 @@ export function ConfirmBookingAttendanceDialog({
   onClose,
 }: ConfirmBookingAttendanceDialogProps) {
   const { markAttendance, loading } = useMarkAttendance();
+  const [result, setResult] = useState<null | 'success' | { error: string }>(
+    null,
+  );
+
+  useEffect(() => {
+    if (!open) setResult(null);
+  }, [open]);
 
   if (!open) {
     return null;
@@ -34,16 +43,16 @@ export function ConfirmBookingAttendanceDialog({
       <Dialog open={open} onOpenChange={onOpenChange}>
         <Dialog.Content className="max-w-md">
           <Dialog.Header>
-            <Dialog.Title>Error</Dialog.Title>
+            <Dialog.Title>Алдаа</Dialog.Title>
             <Dialog.Description>
-              Failed to load booking information
+              Захиалгийн мэдээллийг ачааллахад амжилтгүй
             </Dialog.Description>
           </Dialog.Header>
           <div className="flex flex-col gap-4 py-4">
             <Alert variant="destructive">
-              <Alert.Title>Error</Alert.Title>
+              <Alert.Title>Алдаа</Alert.Title>
               <Alert.Description>
-                {bookingError.message || 'Booking not found'}
+                {bookingError.message || 'Захиалга олдсонгүй'}
               </Alert.Description>
             </Alert>
           </div>
@@ -54,7 +63,7 @@ export function ConfirmBookingAttendanceDialog({
               onClick={onClose}
               className="w-full"
             >
-              Close
+              Хаах
             </Button>
           </Dialog.Footer>
         </Dialog.Content>
@@ -67,9 +76,9 @@ export function ConfirmBookingAttendanceDialog({
       <Dialog open={open} onOpenChange={onOpenChange}>
         <Dialog.Content className="max-w-md">
           <Dialog.Header>
-            <Dialog.Title>Confirm Booking Attendance</Dialog.Title>
+            <Dialog.Title>Захиалгын ирцийг баталгаажуулах</Dialog.Title>
             <Dialog.Description>
-              Loading booking information...
+              Захиалгийн мэдээллийг ачаалж байна...
             </Dialog.Description>
           </Dialog.Header>
           <div className="flex items-center justify-center py-8">
@@ -82,7 +91,7 @@ export function ConfirmBookingAttendanceDialog({
               onClick={onClose}
               className="w-full"
             >
-              Cancel
+              Цуцлах
             </Button>
           </Dialog.Footer>
         </Dialog.Content>
@@ -95,9 +104,9 @@ export function ConfirmBookingAttendanceDialog({
       <Dialog open={open} onOpenChange={onOpenChange}>
         <Dialog.Content className="max-w-md">
           <Dialog.Header>
-            <Dialog.Title>Confirm Booking Attendance</Dialog.Title>
+            <Dialog.Title>Захиалгын ирцийг баталгаажуулах</Dialog.Title>
             <Dialog.Description>
-              Loading booking information...
+              Захиалгийн мэдээллийг ачаалж байна...
             </Dialog.Description>
           </Dialog.Header>
           <div className="flex items-center justify-center py-8">
@@ -110,7 +119,7 @@ export function ConfirmBookingAttendanceDialog({
               onClick={onClose}
               className="w-full"
             >
-              Cancel
+              Цуцлах
             </Button>
           </Dialog.Footer>
         </Dialog.Content>
@@ -131,7 +140,7 @@ export function ConfirmBookingAttendanceDialog({
       }`.trim() ||
       bookingData.user.primaryEmail ||
       bookingData.user.primaryPhone ||
-      'Unnamed customer'
+      'Нэргүй гишүүн'
     : '-';
 
   const providerName = bookingData.provider
@@ -142,37 +151,117 @@ export function ConfirmBookingAttendanceDialog({
     ? getLocalizedString(bookingData.activityType.name, 'en')
     : '-';
 
-  function handleMarkAttendance() {
-    markAttendance(bookingData._id, AttendanceStatus.ATTENDED);
-    onClose();
+  async function handleMarkAttendance() {
+    try {
+      await markAttendance(bookingData._id, AttendanceStatus.ATTENDED, {
+        skipToast: true,
+      });
+      setResult('success');
+    } catch (err) {
+      setResult({
+        error:
+          err instanceof Error ? err.message : 'Ирцийг тэмдэглэж чадсангүй',
+      });
+    }
+  }
+
+  if (result === 'success') {
+    return (
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <Dialog.Content className="max-w-md">
+          <Dialog.Header>
+            <div className="flex items-center gap-3 text-green-600 dark:text-green-500">
+              <IconCircleCheck className="h-10 w-10 shrink-0" />
+              <div>
+                <Dialog.Title className="text-green-700 dark:text-green-400">
+                  Амжилттай
+                </Dialog.Title>
+                <Dialog.Description>
+                  Захиалга ирсэн гэж тэмдэглэгдлээ.
+                </Dialog.Description>
+              </div>
+            </div>
+          </Dialog.Header>
+          <div className="rounded-lg border bg-muted/30 p-4 text-sm">
+            <div className="font-medium">{customerName}</div>
+            <div className="mt-1 text-muted-foreground">
+              {providerName} · {activityTypeName}
+            </div>
+            <div className="mt-1 text-muted-foreground">
+              {bookingDate.toLocaleDateString()} {bookingData.startTime} –{' '}
+              {bookingData.endTime}
+            </div>
+          </div>
+          <Dialog.Footer>
+            <Button type="button" onClick={onClose} className="w-full">
+              Хаах
+            </Button>
+          </Dialog.Footer>
+        </Dialog.Content>
+      </Dialog>
+    );
+  }
+
+  if (result && result !== 'success') {
+    return (
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <Dialog.Content className="max-w-md">
+          <Dialog.Header>
+            <div className="flex items-center gap-3 text-destructive">
+              <IconAlertCircle className="h-10 w-10 shrink-0" />
+              <div>
+                <Dialog.Title>Алдаа гарлаа</Dialog.Title>
+                <Dialog.Description>
+                  Ирцийг тэмдэглэхэд асуудал гарсан. Дахин оролдоно уу.
+                </Dialog.Description>
+              </div>
+            </div>
+          </Dialog.Header>
+          <div className="rounded-lg border border-destructive/30 bg-destructive/10 p-4 text-sm text-destructive">
+            {result.error}
+          </div>
+          <Dialog.Footer className="flex gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setResult(null)}
+              className="flex-1"
+            >
+              Дахин оролдох
+            </Button>
+            <Button type="button" onClick={onClose} className="flex-1">
+              Хаах
+            </Button>
+          </Dialog.Footer>
+        </Dialog.Content>
+      </Dialog>
+    );
   }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <Dialog.Content className="max-w-md">
         <Dialog.Header>
-          <Dialog.Title>Confirm Booking Attendance</Dialog.Title>
+          <Dialog.Title>Захиалгын ирцийг баталгаажуулах</Dialog.Title>
           <Dialog.Description>
-            Review booking details before marking as attended
+            Ирсэн гэж тэмдэглэхээс өмнө захиалгын дэлгэрэнгүйг шалгана уу
           </Dialog.Description>
         </Dialog.Header>
 
         <div className="flex flex-col gap-4 py-4">
           {isDateDifferent && (
             <Alert variant="warning" className="mb-2">
-              <Alert.Title>Warning</Alert.Title>
+              <Alert.Title>Анхааруулга</Alert.Title>
               <Alert.Description>
-                Booking date is different from today. Please verify before
-                marking attendance.
+                Захиалгын огноо өнөөдрөөс өөр. Ирцийг тэмдэглэхээс өмнө шалгана
+                уу.
               </Alert.Description>
             </Alert>
           )}
 
           <div className="flex flex-col gap-3 text-sm">
             <div>
-              <span className="text-muted-foreground font-medium">
-                Customer:
-              </span>
+              <span className="text-muted-foreground font-medium">Гишүүн:</span>
               <div className="mt-1">
                 {bookingData.user ? (
                   <OneFitCustomersInline
@@ -187,7 +276,7 @@ export function ConfirmBookingAttendanceDialog({
                         updatedAt: '',
                       },
                     ]}
-                    placeholder="Unnamed customer"
+                    placeholder="Нэргүй гишүүн"
                   />
                 ) : (
                   <span className="text-muted-foreground">-</span>
@@ -197,21 +286,21 @@ export function ConfirmBookingAttendanceDialog({
 
             <div>
               <span className="text-muted-foreground font-medium">
-                Provider:
+                Үйлчилгээ үзүүлэгч:
               </span>
               <div className="mt-1 font-medium">{providerName}</div>
             </div>
 
             <div>
               <span className="text-muted-foreground font-medium">
-                Activity Type:
+                Үйл ажиллагааны төрөл:
               </span>
               <div className="mt-1 font-medium">{activityTypeName}</div>
             </div>
 
             <div>
               <span className="text-muted-foreground font-medium">
-                Booking Date:
+                Захиалгын огноо:
               </span>
               <div className="mt-1 font-medium">
                 {bookingDate.toLocaleDateString()} {bookingData.startTime} -{' '}
@@ -220,7 +309,7 @@ export function ConfirmBookingAttendanceDialog({
             </div>
 
             <div>
-              <span className="text-muted-foreground font-medium">Status:</span>
+              <span className="text-muted-foreground font-medium">Төлөв:</span>
               <div className="mt-1">
                 <Badge variant="secondary">{bookingData.status}</Badge>
               </div>
@@ -228,7 +317,7 @@ export function ConfirmBookingAttendanceDialog({
 
             <div>
               <span className="text-muted-foreground font-medium">
-                Attendance Status:
+                Ирцийн төлөв:
               </span>
               <div className="mt-1">
                 <Badge variant="secondary">
@@ -247,7 +336,7 @@ export function ConfirmBookingAttendanceDialog({
             disabled={loading}
             className="flex-1"
           >
-            Cancel
+            Цуцлах
           </Button>
           <Button
             type="button"
@@ -256,7 +345,7 @@ export function ConfirmBookingAttendanceDialog({
             className="flex-1"
           >
             <Spinner show={loading} />
-            Mark as Attended
+            Ирсэн гэж тэмдэглэх
           </Button>
         </Dialog.Footer>
       </Dialog.Content>

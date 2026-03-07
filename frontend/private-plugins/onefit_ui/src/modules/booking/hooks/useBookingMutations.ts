@@ -1,4 +1,8 @@
-import { MutationFunctionOptions, useMutation } from '@apollo/client';
+import {
+  MutationFunctionOptions,
+  useApolloClient,
+  useMutation,
+} from '@apollo/client';
 import { toast } from 'erxes-ui';
 import {
   ONE_FIT_BOOKING_CREATE,
@@ -76,7 +80,9 @@ export function useMarkAttendance() {
   const markAttendance = (
     bookingId: string,
     attendanceStatus: AttendanceStatus,
+    options?: { skipToast?: boolean },
   ) => {
+    const skipToast = options?.skipToast ?? false;
     return markAttendanceMutation({
       variables: {
         _id: bookingId,
@@ -84,17 +90,21 @@ export function useMarkAttendance() {
       },
       refetchQueries: [{ query: ONE_FIT_BOOKINGS }],
       onCompleted: () => {
-        toast({
-          title: 'Success',
-          description: 'Attendance marked successfully',
-        });
+        if (!skipToast) {
+          toast({
+            title: 'Success',
+            description: 'Attendance marked successfully',
+          });
+        }
       },
       onError: (error) => {
-        toast({
-          title: 'Error',
-          description: error.message,
-          variant: 'destructive',
-        });
+        if (!skipToast) {
+          toast({
+            title: 'Error',
+            description: error.message,
+            variant: 'destructive',
+          });
+        }
       },
     });
   };
@@ -102,3 +112,57 @@ export function useMarkAttendance() {
   return { markAttendance, loading };
 }
 
+export type MarkAttendanceBulkResult =
+  | { success: true; count: number }
+  | { success: false; error: string };
+
+export function useMarkAttendanceBulk() {
+  const client = useApolloClient();
+  const [markAttendanceMutation, { loading }] = useMutation(
+    ONE_FIT_BOOKING_MARK_ATTENDANCE,
+    { refetchQueries: [] },
+  );
+
+  const markAttendanceBulk = async (
+    bookingIds: string[],
+    options?: { skipToast?: boolean },
+  ): Promise<MarkAttendanceBulkResult | undefined> => {
+    if (bookingIds.length === 0) return undefined;
+    const skipToast = options?.skipToast ?? false;
+    try {
+      for (const _id of bookingIds) {
+        await markAttendanceMutation({
+          variables: {
+            _id,
+            attendanceStatus: AttendanceStatus.ATTENDED,
+          },
+        });
+      }
+      await client.refetchQueries({ include: [ONE_FIT_BOOKINGS] });
+      const count = bookingIds.length;
+      if (!skipToast) {
+        toast({
+          title: 'Амжилттай',
+          description:
+            count === 1
+              ? '1 захиалга ирсэн гэж тэмдэглэгдлээ.'
+              : `${count} захиалга ирсэн гэж тэмдэглэгдлээ.`,
+        });
+      }
+      return { success: true, count };
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : 'Ирцийг тэмдэглэж чадсангүй';
+      if (!skipToast) {
+        toast({
+          title: 'Алдаа',
+          description: errorMessage,
+          variant: 'destructive',
+        });
+      }
+      return { success: false, error: errorMessage };
+    }
+  };
+
+  return { markAttendanceBulk, loading };
+}

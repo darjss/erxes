@@ -37,6 +37,37 @@ export const types = `
     oneFitTotalBookings: Int
   }
 
+  # Parallel type for use in booking/credit consumption (OneFit-specific customer view)
+  type OneFitCustomer {
+    _id: String
+    primaryEmail: String
+    primaryPhone: String
+    firstName: String
+    lastName: String
+
+    # Membership information
+    oneFitMembershipPlanId: String
+    oneFitMembershipExpiresAt: Date
+    oneFitMembershipStatus: OneFitMembershipStatus
+
+    # Membership hold
+    oneFitIsMembershipOnHold: Boolean
+    oneFitMembershipHoldStartAt: Date
+    oneFitMembershipHoldEndAt: Date
+    oneFitMembershipHoldEndedAt: Date
+
+    # Credit information
+    oneFitCurrentCreditBalance: Float
+    oneFitTotalCreditsEarned: Float
+    oneFitTotalCreditsUsed: Float
+
+    # Booking preferences and history
+    oneFitPreferredActivityTypes: [String]
+    oneFitBookingPreferences: OneFitBookingPreferences
+    oneFitLastBookingDate: Date
+    oneFitTotalBookings: Int
+  }
+
   type OneFitCustomerListResponse {
     list: [Customer]
     pageInfo: PageInfo

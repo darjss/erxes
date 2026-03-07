@@ -100,4 +100,35 @@ export default {
       return customer.totalBookings || 0;
     },
   },
+
+  OneFitCustomer: {
+    oneFitMembershipPlanId: (customer: IOneFitCustomerDocument) =>
+      customer?.membershipPlanId ?? null,
+    oneFitMembershipExpiresAt: (customer: IOneFitCustomerDocument) =>
+      customer?.membershipExpiresAt ?? null,
+    oneFitMembershipStatus: (customer: IOneFitCustomerDocument) =>
+      customer?.membershipStatus ?? 'none',
+    oneFitIsMembershipOnHold: (customer: IOneFitCustomerDocument) =>
+      !!customer?.isMembershipOnHold,
+    oneFitMembershipHoldStartAt: (customer: IOneFitCustomerDocument) =>
+      customer?.membershipHoldStartAt ?? null,
+    oneFitMembershipHoldEndAt: (customer: IOneFitCustomerDocument) =>
+      customer?.membershipHoldEndAt ?? null,
+    oneFitMembershipHoldEndedAt: (customer: IOneFitCustomerDocument) =>
+      customer?.membershipHoldEndedAt ?? null,
+    oneFitCurrentCreditBalance: (customer: IOneFitCustomerDocument) =>
+      customer?.currentCreditBalance ?? 0,
+    oneFitTotalCreditsEarned: (customer: IOneFitCustomerDocument) =>
+      customer?.totalCreditsEarned ?? 0,
+    oneFitTotalCreditsUsed: (customer: IOneFitCustomerDocument) =>
+      customer?.totalCreditsUsed ?? 0,
+    oneFitPreferredActivityTypes: (customer: IOneFitCustomerDocument) =>
+      customer?.preferredActivityTypes ?? [],
+    oneFitBookingPreferences: (customer: IOneFitCustomerDocument) =>
+      customer?.bookingPreferences ?? null,
+    oneFitLastBookingDate: (customer: IOneFitCustomerDocument) =>
+      customer?.lastBookingDate ?? null,
+    oneFitTotalBookings: (customer: IOneFitCustomerDocument) =>
+      customer?.totalBookings ?? 0,
+  },
 };

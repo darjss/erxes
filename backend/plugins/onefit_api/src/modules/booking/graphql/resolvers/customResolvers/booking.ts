@@ -39,4 +39,3 @@ const bookingCustomResolvers = {
 };
 
 export default bookingCustomResolvers;
-

@@ -13,9 +13,14 @@ import {
 } from '~/modules/booking/types/booking';
 import { OneFitListPageLayout } from '~/components/OneFitListPageLayout';
 import { ScanBookingQrDialog } from '~/modules/booking/components/ScanBookingQrDialog';
+import { BulkAttendanceResultDialog } from '~/modules/booking/components/BulkAttendanceResultDialog';
 import { ConfirmBookingAttendanceDialog } from '~/modules/booking/components/ConfirmBookingAttendanceDialog';
 import { SelectCustomerBookingDialog } from '~/modules/booking/components/SelectCustomerBookingDialog';
 import { ONE_FIT_BOOKINGS } from '~/modules/booking/graphql/bookingQueries';
+import {
+  useMarkAttendanceBulk,
+  MarkAttendanceBulkResult,
+} from '~/modules/booking/hooks/useBookingMutations';
 import { toast } from 'erxes-ui';
 import { useOneFitMode } from '~/modules/config/hooks/useOneFitMode';
 
@@ -23,6 +28,8 @@ type BookingsView = 'list' | 'calendar';
 
 export function BookingsPage() {
   const { isSlaveMode } = useOneFitMode();
+  const { markAttendanceBulk, loading: markAllLoading } =
+    useMarkAttendanceBulk();
   const [view, setView] = useState<BookingsView>('list');
   const [filters, setFilters] = useState<BookingFilters>({});
   const [scanDialogOpen, setScanDialogOpen] = useState(false);
@@ -32,6 +39,10 @@ export function BookingsPage() {
     null,
   );
   const [pickerBookings, setPickerBookings] = useState<OneFitBooking[]>([]);
+  const [bulkResult, setBulkResult] = useState<MarkAttendanceBulkResult | null>(
+    null,
+  );
+  const [bulkResultDialogOpen, setBulkResultDialogOpen] = useState(false);
 
   const [fetchBookingsByCustomer, { loading: bookingsLoading }] = useLazyQuery(
     ONE_FIT_BOOKINGS,
@@ -41,8 +52,8 @@ export function BookingsPage() {
         if (list.length === 0) {
           setConfirmDialogOpen(false);
           toast({
-            title: 'No bookings',
-            description: 'No bookings found for this customer.',
+            title: 'Захиалга байхгүй',
+            description: 'Энэ гишүүнд захиалга олдсонгүй.',
           });
           return;
         }
@@ -83,7 +94,26 @@ export function BookingsPage() {
     setConfirmDialogOpen(true);
   }
 
-  function ListOrCalendarComponent({ filters: f }: { filters: BookingFilters }) {
+  async function handleMarkAllBookings(bookingIds: string[]) {
+    const result = await markAttendanceBulk(bookingIds, { skipToast: true });
+    setPickerOpen(false);
+    setPickerBookings([]);
+    if (result) {
+      setBulkResult(result);
+      setBulkResultDialogOpen(true);
+    }
+  }
+
+  function handleBulkResultDialogClose() {
+    setBulkResultDialogOpen(false);
+    setBulkResult(null);
+  }
+
+  function ListOrCalendarComponent({
+    filters: f,
+  }: {
+    filters: BookingFilters;
+  }) {
     if (view === 'calendar') return <BookingsCalendar filters={f} />;
     return <BookingsList filters={f} />;
   }
@@ -104,7 +134,7 @@ export function BookingsPage() {
               onClick={() => setScanDialogOpen(true)}
             >
               <IconQrcode className="h-4 w-4 mr-2" />
-              Scan QR Code
+              Гишүүн ирц бүртгэх
             </Button>
           </div>
         }
@@ -147,8 +177,20 @@ export function BookingsPage() {
       <SelectCustomerBookingDialog
         bookings={pickerBookings}
         open={pickerOpen}
-        onOpenChange={setPickerOpen}
+        onOpenChange={(open) => {
+          setPickerOpen(open);
+          if (!open) setPickerBookings([]);
+        }}
         onSelectBooking={handleSelectBooking}
+        onMarkAll={handleMarkAllBookings}
+        markAllLoading={markAllLoading}
+      />
+
+      <BulkAttendanceResultDialog
+        result={bulkResult}
+        open={bulkResultDialogOpen}
+        onOpenChange={setBulkResultDialogOpen}
+        onClose={handleBulkResultDialogClose}
       />
     </>
   );
