@@ -13,10 +13,14 @@ import {
 } from '~/modules/booking/types/booking';
 import { OneFitListPageLayout } from '~/components/OneFitListPageLayout';
 import { ScanBookingQrDialog } from '~/modules/booking/components/ScanBookingQrDialog';
+import { BulkAttendanceResultDialog } from '~/modules/booking/components/BulkAttendanceResultDialog';
 import { ConfirmBookingAttendanceDialog } from '~/modules/booking/components/ConfirmBookingAttendanceDialog';
 import { SelectCustomerBookingDialog } from '~/modules/booking/components/SelectCustomerBookingDialog';
 import { ONE_FIT_BOOKINGS } from '~/modules/booking/graphql/bookingQueries';
-import { useMarkAttendanceBulk } from '~/modules/booking/hooks/useBookingMutations';
+import {
+  useMarkAttendanceBulk,
+  MarkAttendanceBulkResult,
+} from '~/modules/booking/hooks/useBookingMutations';
 import { toast } from 'erxes-ui';
 import { useOneFitMode } from '~/modules/config/hooks/useOneFitMode';
 
@@ -35,6 +39,9 @@ export function BookingsPage() {
     null,
   );
   const [pickerBookings, setPickerBookings] = useState<OneFitBooking[]>([]);
+  const [bulkResult, setBulkResult] =
+    useState<MarkAttendanceBulkResult | null>(null);
+  const [bulkResultDialogOpen, setBulkResultDialogOpen] = useState(false);
 
   const [fetchBookingsByCustomer, { loading: bookingsLoading }] = useLazyQuery(
     ONE_FIT_BOOKINGS,
@@ -87,9 +94,18 @@ export function BookingsPage() {
   }
 
   async function handleMarkAllBookings(bookingIds: string[]) {
-    await markAttendanceBulk(bookingIds);
+    const result = await markAttendanceBulk(bookingIds, { skipToast: true });
     setPickerOpen(false);
     setPickerBookings([]);
+    if (result) {
+      setBulkResult(result);
+      setBulkResultDialogOpen(true);
+    }
+  }
+
+  function handleBulkResultDialogClose() {
+    setBulkResultDialogOpen(false);
+    setBulkResult(null);
   }
 
   function ListOrCalendarComponent({ filters: f }: { filters: BookingFilters }) {
@@ -163,6 +179,13 @@ export function BookingsPage() {
         onSelectBooking={handleSelectBooking}
         onMarkAll={handleMarkAllBookings}
         markAllLoading={markAllLoading}
+      />
+
+      <BulkAttendanceResultDialog
+        result={bulkResult}
+        open={bulkResultDialogOpen}
+        onOpenChange={setBulkResultDialogOpen}
+        onClose={handleBulkResultDialogClose}
       />
     </>
   );

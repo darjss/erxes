@@ -76,7 +76,9 @@ export function useMarkAttendance() {
   const markAttendance = (
     bookingId: string,
     attendanceStatus: AttendanceStatus,
+    options?: { skipToast?: boolean },
   ) => {
+    const skipToast = options?.skipToast ?? false;
     return markAttendanceMutation({
       variables: {
         _id: bookingId,
@@ -84,23 +86,31 @@ export function useMarkAttendance() {
       },
       refetchQueries: [{ query: ONE_FIT_BOOKINGS }],
       onCompleted: () => {
-        toast({
-          title: 'Success',
-          description: 'Attendance marked successfully',
-        });
+        if (!skipToast) {
+          toast({
+            title: 'Success',
+            description: 'Attendance marked successfully',
+          });
+        }
       },
       onError: (error) => {
-        toast({
-          title: 'Error',
-          description: error.message,
-          variant: 'destructive',
-        });
+        if (!skipToast) {
+          toast({
+            title: 'Error',
+            description: error.message,
+            variant: 'destructive',
+          });
+        }
       },
     });
   };
 
   return { markAttendance, loading };
 }
+
+export type MarkAttendanceBulkResult =
+  | { success: true; count: number }
+  | { success: false; error: string };
 
 export function useMarkAttendanceBulk() {
   const client = useApolloClient();
@@ -109,8 +119,12 @@ export function useMarkAttendanceBulk() {
     { refetchQueries: [] },
   );
 
-  const markAttendanceBulk = async (bookingIds: string[]) => {
-    if (bookingIds.length === 0) return;
+  const markAttendanceBulk = async (
+    bookingIds: string[],
+    options?: { skipToast?: boolean },
+  ): Promise<MarkAttendanceBulkResult | undefined> => {
+    if (bookingIds.length === 0) return undefined;
+    const skipToast = options?.skipToast ?? false;
     try {
       for (const _id of bookingIds) {
         await markAttendanceMutation({
@@ -122,19 +136,27 @@ export function useMarkAttendanceBulk() {
       }
       await client.refetchQueries({ include: [ONE_FIT_BOOKINGS] });
       const count = bookingIds.length;
-      toast({
-        title: 'Амжилттай',
-        description:
-          count === 1
-            ? '1 захиалга ирсэн гэж тэмдэглэгдлээ.'
-            : `${count} захиалга ирсэн гэж тэмдэглэгдлээ.`,
-      });
+      if (!skipToast) {
+        toast({
+          title: 'Амжилттай',
+          description:
+            count === 1
+              ? '1 захиалга ирсэн гэж тэмдэглэгдлээ.'
+              : `${count} захиалга ирсэн гэж тэмдэглэгдлээ.`,
+        });
+      }
+      return { success: true, count };
     } catch (error) {
-      toast({
-        title: 'Алдаа',
-        description: error instanceof Error ? error.message : 'Ирцийг тэмдэглэж чадсангүй',
-        variant: 'destructive',
-      });
+      const errorMessage =
+        error instanceof Error ? error.message : 'Ирцийг тэмдэглэж чадсангүй';
+      if (!skipToast) {
+        toast({
+          title: 'Алдаа',
+          description: errorMessage,
+          variant: 'destructive',
+        });
+      }
+      return { success: false, error: errorMessage };
     }
   };
 

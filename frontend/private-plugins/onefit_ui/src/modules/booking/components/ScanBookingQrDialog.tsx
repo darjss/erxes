@@ -1,18 +1,9 @@
-import { useLazyQuery } from '@apollo/client';
 import { Button, Dialog, Input } from 'erxes-ui';
 import { ChangeEvent, useEffect, useRef, useState } from 'react';
 import { decodeQrFromImage } from '~/modules/booking/utils/decodeQrApi';
-import { ONE_FIT_CUSTOMERS } from '~/modules/onefitCustomer/graphql/onefitCustomerQueries';
-import { OneFitCustomer } from '~/modules/onefitCustomer/types/onefitCustomer';
 
 const DECODE_THROTTLE_MS = 400;
-const SEARCH_LIMIT = 10;
 const QRCODE_RAPTOR_URL = 'https://qrcoderaptor.com/';
-
-function getMemberDisplayName(c: OneFitCustomer): string {
-  const name = [c.firstName, c.lastName].filter(Boolean).join(' ').trim();
-  return name || c.primaryEmail || c.primaryPhone || 'Нэргүй гишүүн';
-}
 
 interface ScanBookingQrDialogProps {
   open: boolean;
@@ -29,7 +20,6 @@ export function ScanBookingQrDialog({
   const [error, setError] = useState<string | null>(null);
   const [fileLoading, setFileLoading] = useState(false);
   const [memberCode, setMemberCode] = useState('');
-  const [searchQuery, setSearchQuery] = useState('');
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const animationFrameRef = useRef<number | null>(null);
@@ -37,23 +27,12 @@ export function ScanBookingQrDialog({
   const lastDecodeTimeRef = useRef<number>(0);
   const decodeInProgressRef = useRef<boolean>(false);
 
-  const [searchMembers, { data: searchData, loading: searchLoading }] =
-    useLazyQuery(ONE_FIT_CUSTOMERS, {
-      variables: {
-        searchValue: searchQuery.trim() || undefined,
-        limit: SEARCH_LIMIT,
-      },
-      fetchPolicy: 'network-only',
-    });
-  const searchResults = (searchData?.oneFitCustomers?.list ?? []) as OneFitCustomer[];
-
   useEffect(() => {
     if (!open) {
       stopScanning();
       setMode(null);
       setError(null);
       setMemberCode('');
-      setSearchQuery('');
       return;
     }
     setError(null);
@@ -250,23 +229,6 @@ export function ScanBookingQrDialog({
     setMode(null);
     setError(null);
     setMemberCode('');
-    setSearchQuery('');
-    onOpenChange(false);
-  }
-
-  function handleSearchMembers() {
-    const q = searchQuery.trim();
-    if (!q) {
-      setError('Хайлт хийхийн тулд нэр эсвэл и-мэйл оруулна уу');
-      return;
-    }
-    setError(null);
-    searchMembers();
-  }
-
-  function handleSelectMember(customer: OneFitCustomer) {
-    onScanSuccess(customer._id);
-    setSearchQuery('');
     onOpenChange(false);
   }
 
@@ -289,7 +251,6 @@ export function ScanBookingQrDialog({
           <Dialog.Title>Гишүүн ирц бүртгэх</Dialog.Title>
           <Dialog.Description>
             Гишүүний QR кодыг апп-аас уншуулна уу, эсвэл QR-ын зургийг оруулна уу.
-            Нэр эсвэл и-мэйлээр гишүүн хайж болно.
           </Dialog.Description>
         </Dialog.Header>
 
@@ -321,54 +282,6 @@ export function ScanBookingQrDialog({
                     {fileLoading ? 'Тайлан декод хийж байна...' : 'Зургаа оруулах'}
                   </Button>
                 </label>
-              </div>
-
-              <div className="border-t pt-4 flex flex-col gap-2">
-                <p className="text-sm font-medium text-muted-foreground">
-                  Нэр эсвэл и-мэйлээр хайх
-                </p>
-                <div className="flex gap-2">
-                  <Input
-                    type="text"
-                    placeholder="Нэр эсвэл и-мэйлээр хайх"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') {
-                        e.preventDefault();
-                        handleSearchMembers();
-                      }
-                    }}
-                    className="flex-1"
-                  />
-                  <Button
-                    type="button"
-                    onClick={handleSearchMembers}
-                    disabled={!searchQuery.trim() || searchLoading}
-                  >
-                    {searchLoading ? 'Хайж байна...' : 'Хайх'}
-                  </Button>
-                </div>
-                {searchResults.length > 0 && (
-                  <ul className="border rounded-md divide-y max-h-48 overflow-auto">
-                    {searchResults.map((c) => (
-                      <li key={c._id}>
-                        <button
-                          type="button"
-                          onClick={() => handleSelectMember(c)}
-                          className="w-full px-3 py-2 text-left text-sm hover:bg-muted/50 focus:outline-none focus:ring-2 focus:ring-ring rounded-none first:rounded-t-md last:rounded-b-md"
-                        >
-                          {getMemberDisplayName(c)}
-                          {c.primaryEmail && (
-                            <span className="text-muted-foreground block text-xs truncate">
-                              {c.primaryEmail}
-                            </span>
-                          )}
-                        </button>
-                      </li>
-                    ))}
-                  </ul>
-                )}
               </div>
 
               <div className="border-t pt-4 flex flex-col gap-2">

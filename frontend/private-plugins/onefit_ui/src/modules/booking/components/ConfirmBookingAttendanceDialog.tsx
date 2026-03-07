@@ -1,10 +1,12 @@
 import { Alert, Badge, Button, Dialog, Spinner } from 'erxes-ui';
+import { IconAlertCircle, IconCircleCheck } from '@tabler/icons-react';
+import { startOfDay } from 'date-fns';
+import { useEffect, useState } from 'react';
+import { getLocalizedString } from '~/modules/activity-type/utils/localization';
+import { OneFitCustomersInline } from '~/modules/onefitCustomer/components/OneFitCustomersInline';
 import { useMarkAttendance } from '../hooks/useBookingMutations';
 import { OneFitBooking } from '../types/booking';
 import { AttendanceStatus } from '../types/booking';
-import { startOfDay } from 'date-fns';
-import { getLocalizedString } from '~/modules/activity-type/utils/localization';
-import { OneFitCustomersInline } from '~/modules/onefitCustomer/components/OneFitCustomersInline';
 
 interface ConfirmBookingAttendanceDialogProps {
   booking: OneFitBooking | null;
@@ -24,6 +26,13 @@ export function ConfirmBookingAttendanceDialog({
   onClose,
 }: ConfirmBookingAttendanceDialogProps) {
   const { markAttendance, loading } = useMarkAttendance();
+  const [result, setResult] = useState<null | 'success' | { error: string }>(
+    null,
+  );
+
+  useEffect(() => {
+    if (!open) setResult(null);
+  }, [open]);
 
   if (!open) {
     return null;
@@ -142,9 +151,98 @@ export function ConfirmBookingAttendanceDialog({
     ? getLocalizedString(bookingData.activityType.name, 'en')
     : '-';
 
-  function handleMarkAttendance() {
-    markAttendance(bookingData._id, AttendanceStatus.ATTENDED);
-    onClose();
+  async function handleMarkAttendance() {
+    try {
+      await markAttendance(bookingData._id, AttendanceStatus.ATTENDED, {
+        skipToast: true,
+      });
+      setResult('success');
+    } catch (err) {
+      setResult({
+        error: err instanceof Error ? err.message : 'Ирцийг тэмдэглэж чадсангүй',
+      });
+    }
+  }
+
+  if (result === 'success') {
+    return (
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <Dialog.Content className="max-w-md">
+          <Dialog.Header>
+            <div className="flex items-center gap-3 text-green-600 dark:text-green-500">
+              <IconCircleCheck className="h-10 w-10 shrink-0" />
+              <div>
+                <Dialog.Title className="text-green-700 dark:text-green-400">
+                  Амжилттай
+                </Dialog.Title>
+                <Dialog.Description>
+                  Захиалга ирсэн гэж тэмдэглэгдлээ.
+                </Dialog.Description>
+              </div>
+            </div>
+          </Dialog.Header>
+          <div className="rounded-lg border bg-muted/30 p-4 text-sm">
+            <div className="font-medium">{customerName}</div>
+            <div className="mt-1 text-muted-foreground">
+              {providerName} · {activityTypeName}
+            </div>
+            <div className="mt-1 text-muted-foreground">
+              {bookingDate.toLocaleDateString()} {bookingData.startTime} –{' '}
+              {bookingData.endTime}
+            </div>
+          </div>
+          <Dialog.Footer>
+            <Button
+              type="button"
+              onClick={onClose}
+              className="w-full"
+            >
+              Хаах
+            </Button>
+          </Dialog.Footer>
+        </Dialog.Content>
+      </Dialog>
+    );
+  }
+
+  if (result && result !== 'success') {
+    return (
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <Dialog.Content className="max-w-md">
+          <Dialog.Header>
+            <div className="flex items-center gap-3 text-destructive">
+              <IconAlertCircle className="h-10 w-10 shrink-0" />
+              <div>
+                <Dialog.Title>Алдаа гарлаа</Dialog.Title>
+                <Dialog.Description>
+                  Ирцийг тэмдэглэхэд асуудал гарсан. Дахин оролдоно уу.
+                </Dialog.Description>
+              </div>
+            </div>
+          </Dialog.Header>
+          <div className="rounded-lg border border-destructive/30 bg-destructive/10 p-4 text-sm text-destructive">
+            {result.error}
+          </div>
+          <Dialog.Footer className="flex gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setResult(null)}
+              className="flex-1"
+            >
+              Дахин оролдох
+            </Button>
+            <Button
+              type="button"
+              onClick={onClose}
+              className="flex-1"
+            >
+              Хаах
+            </Button>
+          </Dialog.Footer>
+        </Dialog.Content>
+      </Dialog>
+    );
   }
 
   return (
