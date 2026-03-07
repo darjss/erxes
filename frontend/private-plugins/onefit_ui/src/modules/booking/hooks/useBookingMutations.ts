@@ -1,4 +1,8 @@
-import { MutationFunctionOptions, useApolloClient, useMutation } from '@apollo/client';
+import {
+  MutationFunctionOptions,
+  useApolloClient,
+  useMutation,
+} from '@apollo/client';
 import { toast } from 'erxes-ui';
 import {
   ONE_FIT_BOOKING_CREATE,
@@ -162,4 +166,3 @@ export function useMarkAttendanceBulk() {
 
   return { markAttendanceBulk, loading };
 }
-

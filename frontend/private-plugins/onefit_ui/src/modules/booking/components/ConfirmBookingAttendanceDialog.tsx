@@ -159,7 +159,8 @@ export function ConfirmBookingAttendanceDialog({
       setResult('success');
     } catch (err) {
       setResult({
-        error: err instanceof Error ? err.message : 'Ирцийг тэмдэглэж чадсангүй',
+        error:
+          err instanceof Error ? err.message : 'Ирцийг тэмдэглэж чадсангүй',
       });
     }
   }
@@ -192,11 +193,7 @@ export function ConfirmBookingAttendanceDialog({
             </div>
           </div>
           <Dialog.Footer>
-            <Button
-              type="button"
-              onClick={onClose}
-              className="w-full"
-            >
+            <Button type="button" onClick={onClose} className="w-full">
               Хаах
             </Button>
           </Dialog.Footer>
@@ -232,11 +229,7 @@ export function ConfirmBookingAttendanceDialog({
             >
               Дахин оролдох
             </Button>
-            <Button
-              type="button"
-              onClick={onClose}
-              className="flex-1"
-            >
+            <Button type="button" onClick={onClose} className="flex-1">
               Хаах
             </Button>
           </Dialog.Footer>
@@ -260,16 +253,15 @@ export function ConfirmBookingAttendanceDialog({
             <Alert variant="warning" className="mb-2">
               <Alert.Title>Анхааруулга</Alert.Title>
               <Alert.Description>
-                Захиалгын огноо өнөөдрөөс өөр. Ирцийг тэмдэглэхээс өмнө шалгана уу.
+                Захиалгын огноо өнөөдрөөс өөр. Ирцийг тэмдэглэхээс өмнө шалгана
+                уу.
               </Alert.Description>
             </Alert>
           )}
 
           <div className="flex flex-col gap-3 text-sm">
             <div>
-              <span className="text-muted-foreground font-medium">
-                Гишүүн:
-              </span>
+              <span className="text-muted-foreground font-medium">Гишүүн:</span>
               <div className="mt-1">
                 {bookingData.user ? (
                   <OneFitCustomersInline

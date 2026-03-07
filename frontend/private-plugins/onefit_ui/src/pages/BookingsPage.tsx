@@ -39,8 +39,9 @@ export function BookingsPage() {
     null,
   );
   const [pickerBookings, setPickerBookings] = useState<OneFitBooking[]>([]);
-  const [bulkResult, setBulkResult] =
-    useState<MarkAttendanceBulkResult | null>(null);
+  const [bulkResult, setBulkResult] = useState<MarkAttendanceBulkResult | null>(
+    null,
+  );
   const [bulkResultDialogOpen, setBulkResultDialogOpen] = useState(false);
 
   const [fetchBookingsByCustomer, { loading: bookingsLoading }] = useLazyQuery(
@@ -108,7 +109,11 @@ export function BookingsPage() {
     setBulkResult(null);
   }
 
-  function ListOrCalendarComponent({ filters: f }: { filters: BookingFilters }) {
+  function ListOrCalendarComponent({
+    filters: f,
+  }: {
+    filters: BookingFilters;
+  }) {
     if (view === 'calendar') return <BookingsCalendar filters={f} />;
     return <BookingsList filters={f} />;
   }

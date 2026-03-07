@@ -46,8 +46,7 @@ export function SelectCustomerBookingDialog({
       day: 'numeric',
       year: 'numeric',
     });
-  const timeLabel = (b: OneFitBooking) =>
-    `${b.startTime} - ${b.endTime}`;
+  const timeLabel = (b: OneFitBooking) => `${b.startTime} - ${b.endTime}`;
   const count = bookings.length;
 
   return (

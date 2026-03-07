@@ -116,7 +116,10 @@ export const BookingsList = ({ filters }: BookingsListProps) => {
         const booking = row.original;
         const name = getDisplayName(booking.user);
         return (
-          <RecordTableInlineCell className="text-xs font-medium truncate" title={name}>
+          <RecordTableInlineCell
+            className="text-xs font-medium truncate"
+            title={name}
+          >
             {name}
           </RecordTableInlineCell>
         );

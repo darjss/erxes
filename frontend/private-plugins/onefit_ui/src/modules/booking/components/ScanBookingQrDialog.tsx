@@ -155,9 +155,7 @@ export function ScanBookingQrDialog({
           (err.name === 'NotAllowedError' ||
             err.name === 'PermissionDeniedError')
         ) {
-          setError(
-            'Камерын зөвшөөрөл олгогдоогүй. Дахин оролдоно уу.',
-          );
+          setError('Камерын зөвшөөрөл олгогдоогүй. Дахин оролдоно уу.');
         } else if (
           err instanceof Error &&
           (err.name === 'NotFoundError' || err.name === 'DevicesNotFoundError')
@@ -250,7 +248,8 @@ export function ScanBookingQrDialog({
         <Dialog.Header>
           <Dialog.Title>Гишүүн ирц бүртгэх</Dialog.Title>
           <Dialog.Description>
-            Гишүүний QR кодыг апп-аас уншуулна уу, эсвэл QR-ын зургийг оруулна уу.
+            Гишүүний QR кодыг апп-аас уншуулна уу, эсвэл QR-ын зургийг оруулна
+            уу.
           </Dialog.Description>
         </Dialog.Header>
 
@@ -279,7 +278,9 @@ export function ScanBookingQrDialog({
                     className="w-full pointer-events-none"
                     disabled={fileLoading}
                   >
-                    {fileLoading ? 'Тайлан декод хийж байна...' : 'Зургаа оруулах'}
+                    {fileLoading
+                      ? 'Тайлан декод хийж байна...'
+                      : 'Зургаа оруулах'}
                   </Button>
                 </label>
               </div>
