@@ -123,16 +123,16 @@ export function useMarkAttendanceBulk() {
       await client.refetchQueries({ include: [ONE_FIT_BOOKINGS] });
       const count = bookingIds.length;
       toast({
-        title: 'Success',
+        title: 'Амжилттай',
         description:
           count === 1
-            ? '1 booking marked as attended.'
-            : `${count} bookings marked as attended.`,
+            ? '1 захиалга ирсэн гэж тэмдэглэгдлээ.'
+            : `${count} захиалга ирсэн гэж тэмдэглэгдлээ.`,
       });
     } catch (error) {
       toast({
-        title: 'Error',
-        description: error instanceof Error ? error.message : 'Failed to mark attendance',
+        title: 'Алдаа',
+        description: error instanceof Error ? error.message : 'Ирцийг тэмдэглэж чадсангүй',
         variant: 'destructive',
       });
     }

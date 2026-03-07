@@ -54,10 +54,9 @@ export function SelectCustomerBookingDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <Dialog.Content className="max-w-md">
         <Dialog.Header>
-          <Dialog.Title>This member has multiple bookings</Dialog.Title>
+          <Dialog.Title>Энэ гишүүнд олон захиалга байна</Dialog.Title>
           <Dialog.Description>
-            Mark all as attended in one go, or choose one booking to mark
-            individually.
+            Бүгдийг нэг дор ирсэн гэж тэмдэглэх эсвэл нэг захиалгыг сонгоно уу.
           </Dialog.Description>
         </Dialog.Header>
 
@@ -71,13 +70,13 @@ export function SelectCustomerBookingDialog({
             >
               <Spinner show={markAllLoading} />
               {count === 1
-                ? 'Mark as attended'
-                : `Mark all ${count} as attended`}
+                ? 'Ирсэн гэж тэмдэглэх'
+                : `Бүгдийг ${count} ирсэн гэж тэмдэглэх`}
             </Button>
           )}
 
           <p className="text-sm text-muted-foreground pt-1">
-            Or select one:
+            Эсвэл нэгийг сонгох:
           </p>
           {bookings.map((booking) => (
             <button
@@ -104,7 +103,7 @@ export function SelectCustomerBookingDialog({
             className="w-full"
             disabled={markAllLoading}
           >
-            Cancel
+            Цуцлах
           </Button>
         </Dialog.Footer>
       </Dialog.Content>

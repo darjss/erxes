@@ -44,8 +44,8 @@ export function BookingsPage() {
         if (list.length === 0) {
           setConfirmDialogOpen(false);
           toast({
-            title: 'No bookings',
-            description: 'No bookings found for this member.',
+            title: 'Захиалга байхгүй',
+            description: 'Энэ гишүүнд захиалга олдсонгүй.',
           });
           return;
         }
@@ -113,7 +113,7 @@ export function BookingsPage() {
               onClick={() => setScanDialogOpen(true)}
             >
               <IconQrcode className="h-4 w-4 mr-2" />
-              Member check-in
+              Гишүүн ирц бүртгэх
             </Button>
           </div>
         }

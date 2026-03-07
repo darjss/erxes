@@ -11,7 +11,7 @@ const QRCODE_RAPTOR_URL = 'https://qrcoderaptor.com/';
 
 function getMemberDisplayName(c: OneFitCustomer): string {
   const name = [c.firstName, c.lastName].filter(Boolean).join(' ').trim();
-  return name || c.primaryEmail || c.primaryPhone || 'Unnamed member';
+  return name || c.primaryEmail || c.primaryPhone || 'Нэргүй гишүүн';
 }
 
 interface ScanBookingQrDialogProps {
@@ -170,20 +170,20 @@ export function ScanBookingQrDialog({
         animationFrameRef.current = requestAnimationFrame(scanFrame);
       } catch (err: unknown) {
         const message =
-          err instanceof Error ? err.message : 'Failed to start camera';
+          err instanceof Error ? err.message : 'Камер асааж чадсангүй';
         if (
           err instanceof Error &&
           (err.name === 'NotAllowedError' ||
             err.name === 'PermissionDeniedError')
         ) {
           setError(
-            'Camera permission denied. Please allow camera access and try again.',
+            'Камерын зөвшөөрөл олгогдоогүй. Дахин оролдоно уу.',
           );
         } else if (
           err instanceof Error &&
           (err.name === 'NotFoundError' || err.name === 'DevicesNotFoundError')
         ) {
-          setError('No camera found. Please connect a camera and try again.');
+          setError('Камер олдсонгүй. Камер холбоод дахин оролдоно уу.');
         } else {
           setError(message);
         }
@@ -233,11 +233,11 @@ export function ScanBookingQrDialog({
         onScanSuccess(result.value);
         onOpenChange(false);
       } else {
-        setError(result.error || 'No QR code found in the image');
+        setError(result.error || 'Зурган дээр QR код олдсонгүй');
       }
     } catch (err: unknown) {
       const message =
-        err instanceof Error ? err.message : 'Failed to scan QR code from file';
+        err instanceof Error ? err.message : 'Файлаас QR код уншиж чадсангүй';
       setError(message);
     } finally {
       setFileLoading(false);
@@ -257,7 +257,7 @@ export function ScanBookingQrDialog({
   function handleSearchMembers() {
     const q = searchQuery.trim();
     if (!q) {
-      setError('Please enter a name or email to search');
+      setError('Хайлт хийхийн тулд нэр эсвэл и-мэйл оруулна уу');
       return;
     }
     setError(null);
@@ -273,7 +273,7 @@ export function ScanBookingQrDialog({
   function handleCheckInWithCode() {
     const id = memberCode.trim();
     if (!id) {
-      setError('Please enter a member code');
+      setError('Гишүүний код оруулна уу');
       return;
     }
     setError(null);
@@ -286,10 +286,10 @@ export function ScanBookingQrDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <Dialog.Content className="max-w-md">
         <Dialog.Header>
-          <Dialog.Title>Member check-in</Dialog.Title>
+          <Dialog.Title>Гишүүн ирц бүртгэх</Dialog.Title>
           <Dialog.Description>
-            Scan the member&apos;s QR code from their app, or upload a photo of
-            the QR. You can also look up a member by name or email.
+            Гишүүний QR кодыг апп-аас уншуулна уу, эсвэл QR-ын зургийг оруулна уу.
+            Нэр эсвэл и-мэйлээр гишүүн хайж болно.
           </Dialog.Description>
         </Dialog.Header>
 
@@ -302,7 +302,7 @@ export function ScanBookingQrDialog({
                   onClick={handleCameraScan}
                   className="w-full"
                 >
-                  Scan with camera
+                  Камероор уншуулах
                 </Button>
                 <label className="w-full cursor-pointer">
                   <input
@@ -318,19 +318,19 @@ export function ScanBookingQrDialog({
                     className="w-full pointer-events-none"
                     disabled={fileLoading}
                   >
-                    {fileLoading ? 'Decoding...' : 'Upload image'}
+                    {fileLoading ? 'Тайлан декод хийж байна...' : 'Зургаа оруулах'}
                   </Button>
                 </label>
               </div>
 
               <div className="border-t pt-4 flex flex-col gap-2">
                 <p className="text-sm font-medium text-muted-foreground">
-                  Look up by name or email
+                  Нэр эсвэл и-мэйлээр хайх
                 </p>
                 <div className="flex gap-2">
                   <Input
                     type="text"
-                    placeholder="Search by name or email"
+                    placeholder="Нэр эсвэл и-мэйлээр хайх"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     onKeyDown={(e) => {
@@ -346,7 +346,7 @@ export function ScanBookingQrDialog({
                     onClick={handleSearchMembers}
                     disabled={!searchQuery.trim() || searchLoading}
                   >
-                    {searchLoading ? 'Searching...' : 'Search'}
+                    {searchLoading ? 'Хайж байна...' : 'Хайх'}
                   </Button>
                 </div>
                 {searchResults.length > 0 && (
@@ -373,10 +373,10 @@ export function ScanBookingQrDialog({
 
               <div className="border-t pt-4 flex flex-col gap-2">
                 <p className="text-sm font-medium text-muted-foreground">
-                  Member code (from QR)
+                  Гишүүний код (QR-аас)
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  If you decoded the QR elsewhere (e.g.{' '}
+                  Хэрэв та QR кодыг өөр газар (жишээ нь{' '}
                   <a
                     href={QRCODE_RAPTOR_URL}
                     target="_blank"
@@ -385,12 +385,12 @@ export function ScanBookingQrDialog({
                   >
                     QRCodeRaptor
                   </a>
-                  ), paste that code here.
+                  ) тайлсан бол энд тэр кодыг оруулна уу.
                 </p>
                 <div className="flex gap-2">
                   <Input
                     type="text"
-                    placeholder="Paste member code"
+                    placeholder="Гишүүний кодыг оруулна уу"
                     value={memberCode}
                     onChange={(e) => setMemberCode(e.target.value)}
                     onKeyDown={(e) => {
@@ -406,7 +406,7 @@ export function ScanBookingQrDialog({
                     onClick={handleCheckInWithCode}
                     disabled={!memberCode.trim()}
                   >
-                    Check in with code
+                    Кодоор ирц бүртгэх
                   </Button>
                 </div>
               </div>
@@ -434,7 +434,7 @@ export function ScanBookingQrDialog({
                 }}
                 className="w-full"
               >
-                Cancel Scanning
+                Уншуулахыг цуцлах
               </Button>
             </div>
           )}
@@ -453,7 +453,7 @@ export function ScanBookingQrDialog({
             onClick={handleClose}
             className="w-full"
           >
-            Close
+            Хаах
           </Button>
         </Dialog.Footer>
       </Dialog.Content>
