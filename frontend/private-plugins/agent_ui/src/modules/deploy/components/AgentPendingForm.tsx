@@ -52,6 +52,10 @@ export const AgentPendingForm = () => {
 
   return (
     <div className="flex flex-col gap-5">
+      <p className="text-sm text-muted-foreground">
+        The Discord bot will send you an approve token — this may take 5–10
+        minutes. Paste it below to continue.
+      </p>
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
