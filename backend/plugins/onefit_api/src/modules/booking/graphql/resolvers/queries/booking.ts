@@ -88,7 +88,7 @@ export const bookingQueries: Record<string, Resolver> = {
       model: models.Booking,
       params: {
         ...params,
-        orderBy: { createdAt: -1 },
+        orderBy: { bookingDate: -1 },
       },
       query: filter,
     });
