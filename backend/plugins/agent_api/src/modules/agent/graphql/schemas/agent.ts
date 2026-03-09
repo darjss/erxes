@@ -43,12 +43,27 @@ export const types = `
     content: String!
     agentId: String
   }
+
+  input UpdateDiscordSettingsInput {
+    botToken: String!
+    dmPolicy: String
+  }
+
+  input AddDiscordGuildInput {
+    guildId: String!
+  }
+
+  type DiscordGuild {
+    guildId: String
+    requireMention: Boolean
+  }
 `;
 
 export const queries = `
   getAgent: Agent
   getAgentsList: [AgentItem]
   getAgentDetails(agentId: String): [AgentFile]
+  getDiscordGuilds: [DiscordGuild]
 `;
 
 export const mutations = `
@@ -57,4 +72,7 @@ export const mutations = `
   approveAgent(input: ApproveAgentInput!): Agent
   addAgent(input: AddAgentInput!): Boolean
   updateAgentFile(input: UpdateAgentFileInput!): Boolean
+  fixAndRestartAgent: Boolean
+  updateDiscordSettings(input: UpdateDiscordSettingsInput!): Boolean
+  addDiscordGuild(input: AddDiscordGuildInput!): Boolean
 `;

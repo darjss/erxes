@@ -190,6 +190,85 @@ export const addAgent = async (
   }
 };
 
+export const updateDiscordSettings = async (
+  serverName: string,
+  botToken: string,
+  dmPolicy?: 'pairing' | 'open',
+): Promise<void> => {
+  const DEPLOYER = getEnv({ name: 'DEPLOYER_URL' });
+  const response = await fetch(`${DEPLOYER}/tools/${serverName}/discord`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ botToken, dmPolicy }),
+  });
+
+  if (!response.ok) {
+    const message = await response.text();
+    throw new Error(`Failed to update Discord settings: ${message}`);
+  }
+};
+
+export const addDiscordGuild = async (
+  serverName: string,
+  guildId: string,
+): Promise<void> => {
+  const DEPLOYER = getEnv({ name: 'DEPLOYER_URL' });
+  const response = await fetch(
+    `${DEPLOYER}/tools/${serverName}/adddiscordguild`,
+    {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ guildId }),
+    },
+  );
+
+  if (!response.ok) {
+    const message = await response.text();
+    throw new Error(`Failed to add Discord guild: ${message}`);
+  }
+};
+
+export const listDiscordGuilds = async (
+  serverName: string,
+): Promise<{ guildId: string; requireMention: boolean }[]> => {
+  const DEPLOYER = getEnv({ name: 'DEPLOYER_URL' });
+  const response = await fetch(
+    `${DEPLOYER}/tools/${serverName}/discordguilds`,
+  );
+
+  if (!response.ok) {
+    const message = await response.text();
+    throw new Error(`Failed to list Discord guilds: ${message}`);
+  }
+
+  const data = (await response.json()) as {
+    guilds: Record<string, { requireMention: boolean }>;
+  };
+
+  return Object.entries(data.guilds).map(([guildId, opts]) => ({
+    guildId,
+    requireMention: opts.requireMention,
+  }));
+};
+
+export const fixAndRestartServer = async (
+  serverName: string,
+): Promise<void> => {
+  const DEPLOYER = getEnv({ name: 'DEPLOYER_URL' });
+  const response = await fetch(
+    `${DEPLOYER}/agents/${serverName}/fix-restart`,
+    {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+    },
+  );
+
+  if (!response.ok) {
+    const message = await response.text();
+    throw new Error(`Failed to fix and restart server: ${message}`);
+  }
+};
+
 export const updateAgentFile = async (
   serverName: string,
   filename: string,
