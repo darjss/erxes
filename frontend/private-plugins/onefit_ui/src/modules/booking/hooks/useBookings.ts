@@ -17,6 +17,7 @@ const BOOKINGS_PER_PAGE = 20;
 
 interface UseBookingsOptions {
   sessionKey?: string;
+  orderBy?: Record<string, 'asc' | 'desc' | 1 | -1>;
 }
 
 export const useBookings = (
@@ -35,6 +36,7 @@ export const useBookings = (
       variables: {
         ...filters,
         cursor,
+        orderBy: options?.orderBy,
       },
     },
   );
@@ -64,6 +66,7 @@ export const useBookings = (
             : pageInfo?.startCursor,
         limit: BOOKINGS_PER_PAGE,
         direction,
+        orderBy: options?.orderBy,
       },
       updateQuery: (prev, { fetchMoreResult }) => {
         if (!fetchMoreResult) return prev;
@@ -82,8 +85,9 @@ export const useBookings = (
     return refetch({
       ...filters,
       cursor,
+      orderBy: options?.orderBy,
     });
-  }, [refetch, filters, cursor]);
+  }, [refetch, filters, cursor, options?.orderBy]);
 
   return {
     bookings,

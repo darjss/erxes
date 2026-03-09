@@ -50,7 +50,7 @@ export function BookingsPage() {
     null,
   );
   const [bulkResultDialogOpen, setBulkResultDialogOpen] = useState(false);
-  const [language, setLanguage] = useState<ActivityLanguage>('en');
+  const [language, setLanguage] = useState<ActivityLanguage>('mn');
 
   const [fetchBookingsByCustomer, { loading: bookingsLoading }] = useLazyQuery(
     ONE_FIT_BOOKINGS,

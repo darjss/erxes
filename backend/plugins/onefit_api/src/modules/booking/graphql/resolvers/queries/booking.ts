@@ -83,12 +83,16 @@ export const bookingQueries: Record<string, Resolver> = {
     const { models, clientPortal, cpUser } = context;
     const filter = await generateFilter(params, context, clientPortal, cpUser);
 
-    // Order by createdAt only (newest first)
+    const orderBy: IBookingQueryParams['orderBy'] =
+      params.orderBy && Object.keys(params.orderBy).length > 0
+        ? params.orderBy
+        : { bookingDate: 'desc' };
+
     return await cursorPaginate({
       model: models.Booking,
       params: {
         ...params,
-        orderBy: { bookingDate: -1 },
+        orderBy,
       },
       query: filter,
     });
@@ -181,11 +185,16 @@ export const bookingQueries: Record<string, Resolver> = {
       cpUser,
     );
 
+    const orderBy: IBookingQueryParams['orderBy'] =
+      params.orderBy && Object.keys(params.orderBy).length > 0
+        ? params.orderBy
+        : { createdAt: 'desc' };
+
     return await cursorPaginate({
       model: models.Booking,
       params: {
         ...params,
-        orderBy: { createdAt: -1 },
+        orderBy,
       },
       query: filter,
     });
