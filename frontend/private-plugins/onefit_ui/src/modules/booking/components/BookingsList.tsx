@@ -17,12 +17,16 @@ import { CancelBookingDialog } from './CancelBookingDialog';
 import { MarkAttendanceDialog } from './MarkAttendanceDialog';
 import { useState } from 'react';
 import { OneFitCustomersInline } from '~/modules/onefitCustomer/components/OneFitCustomersInline';
-import { getLocalizedString } from '~/modules/activity-type/utils/localization';
+import {
+  ActivityLanguage,
+  getLocalizedString,
+} from '~/modules/activity-type/utils/localization';
 import { OneFitCustomer } from '@/credit/types/credit';
 import { useOneFitMode } from '~/modules/config/hooks/useOneFitMode';
 
 interface BookingsListProps {
   filters?: BookingFilters;
+  preferredLanguage?: ActivityLanguage;
 }
 
 const getStatusBadgeVariant = (status: BookingStatus) => {
@@ -63,7 +67,10 @@ const getDisplayName = (user: OneFitCustomer | undefined): string => {
   );
 };
 
-export const BookingsList = ({ filters }: BookingsListProps) => {
+export const BookingsList = ({
+  filters,
+  preferredLanguage = 'en',
+}: BookingsListProps) => {
   const { bookings, handleFetchMore, loading, pageInfo } = useBookings(filters);
   const [selectedBooking, setSelectedBooking] = useState<string | null>(null);
   const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
@@ -76,7 +83,7 @@ export const BookingsList = ({ filters }: BookingsListProps) => {
     {
       accessorKey: 'bookingId',
       header: 'Booking ID',
-      cell: ({ row }) => {
+      cell: ({ row }: { row: { original: any } }) => {
         const booking = row.original;
         return (
           <RecordTableInlineCell className="text-xs font-medium font-mono">
@@ -88,7 +95,7 @@ export const BookingsList = ({ filters }: BookingsListProps) => {
     {
       accessorKey: 'user',
       header: 'User',
-      cell: ({ row }) => {
+      cell: ({ row }: { row: { original: any } }) => {
         const booking = row.original;
         const user: OneFitCustomer | undefined = booking.user;
         if (!user) {
@@ -112,7 +119,7 @@ export const BookingsList = ({ filters }: BookingsListProps) => {
       accessorKey: 'user',
       id: 'name',
       header: 'Name',
-      cell: ({ row }) => {
+      cell: ({ row }: { row: { original: any } }) => {
         const booking = row.original;
         const name = getDisplayName(booking.user);
         return (
@@ -128,11 +135,11 @@ export const BookingsList = ({ filters }: BookingsListProps) => {
     {
       accessorKey: 'provider',
       header: 'Provider',
-      cell: ({ row }) => {
+      cell: ({ row }: { row: { original: any } }) => {
         const booking = row.original;
         const provider = booking.provider;
         const providerName = provider?.businessName
-          ? getLocalizedString(provider.businessName, 'en')
+          ? getLocalizedString(provider.businessName, preferredLanguage)
           : '-';
         return (
           <RecordTableInlineCell className="text-xs font-medium">
@@ -148,7 +155,7 @@ export const BookingsList = ({ filters }: BookingsListProps) => {
         const booking = row.original;
         const activityType = booking.activityType;
         const name = activityType?.name
-          ? getLocalizedString(activityType.name, 'en')
+          ? getLocalizedString(activityType.name, preferredLanguage)
           : '-';
         return (
           <RecordTableInlineCell className="text-xs font-medium">
@@ -241,7 +248,7 @@ export const BookingsList = ({ filters }: BookingsListProps) => {
           {
             id: 'actions',
             header: 'Actions',
-            cell: ({ row }) => {
+            cell: ({ row }: { row: { original: any } }) => {
               const booking = row.original;
               const isCancelled = booking.status === BookingStatus.CANCELLED;
               const isCompleted = booking.status === BookingStatus.COMPLETED;

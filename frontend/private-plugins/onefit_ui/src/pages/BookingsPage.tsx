@@ -12,6 +12,7 @@ import {
   BookingStatus,
 } from '~/modules/booking/types/booking';
 import { OneFitListPageLayout } from '~/components/OneFitListPageLayout';
+import { ActivityLanguage } from '~/modules/activity-type/utils/localization';
 import { ScanBookingQrDialog } from '~/modules/booking/components/ScanBookingQrDialog';
 import { BulkAttendanceResultDialog } from '~/modules/booking/components/BulkAttendanceResultDialog';
 import { ConfirmBookingAttendanceDialog } from '~/modules/booking/components/ConfirmBookingAttendanceDialog';
@@ -43,6 +44,7 @@ export function BookingsPage() {
     null,
   );
   const [bulkResultDialogOpen, setBulkResultDialogOpen] = useState(false);
+  const [language, setLanguage] = useState<ActivityLanguage>('en');
 
   const [fetchBookingsByCustomer, { loading: bookingsLoading }] = useLazyQuery(
     ONE_FIT_BOOKINGS,
@@ -113,9 +115,10 @@ export function BookingsPage() {
     filters: f,
   }: {
     filters: BookingFilters;
+    language: ActivityLanguage;
   }) {
     if (view === 'calendar') return <BookingsCalendar filters={f} />;
-    return <BookingsList filters={f} />;
+    return <BookingsList filters={f} preferredLanguage={language} />;
   }
 
   return (
@@ -138,24 +141,47 @@ export function BookingsPage() {
             </Button>
           </div>
         }
-        listComponent={ListOrCalendarComponent}
+        listComponent={({ filters }) => (
+          <ListOrCalendarComponent filters={filters} language={language} />
+        )}
         headerActions={
-          <ToggleGroup
-            type="single"
-            value={view}
-            onValueChange={(v) => v && setView(v as BookingsView)}
-            variant="outline"
-            size="sm"
-          >
-            <ToggleGroup.Item value="list" aria-label="List view">
-              <IconList className="h-4 w-4 mr-1.5" />
-              List
-            </ToggleGroup.Item>
-            <ToggleGroup.Item value="calendar" aria-label="Calendar view">
-              <IconCalendarMonth className="h-4 w-4 mr-1.5" />
-              Calendar
-            </ToggleGroup.Item>
-          </ToggleGroup>
+          <div className="flex items-center gap-2">
+            <ToggleGroup
+              type="single"
+              value={view}
+              onValueChange={(v) => v && setView(v as BookingsView)}
+              variant="outline"
+              size="sm"
+            >
+              <ToggleGroup.Item value="list" aria-label="List view">
+                <IconList className="h-4 w-4 mr-1.5" />
+                List
+              </ToggleGroup.Item>
+              <ToggleGroup.Item value="calendar" aria-label="Calendar view">
+                <IconCalendarMonth className="h-4 w-4 mr-1.5" />
+                Calendar
+              </ToggleGroup.Item>
+            </ToggleGroup>
+
+            <ToggleGroup
+              type="single"
+              value={language}
+              onValueChange={(value) => {
+                if (value === 'en' || value === 'mn') {
+                  setLanguage(value);
+                }
+              }}
+              variant="outline"
+              size="sm"
+            >
+              <ToggleGroup.Item value="en" aria-label="English">
+                EN
+              </ToggleGroup.Item>
+              <ToggleGroup.Item value="mn" aria-label="Mongolian">
+                MN
+              </ToggleGroup.Item>
+            </ToggleGroup>
+          </div>
         }
       />
 
