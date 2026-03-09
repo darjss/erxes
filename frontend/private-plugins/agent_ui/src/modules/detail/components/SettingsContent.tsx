@@ -8,7 +8,7 @@ import { GET_DISCORD_GUILDS } from '../graphql/queries';
 
 const TABS = [
   { value: 'discord', label: 'Discord' },
-  { value: 'restart-openclaw', label: 'Restart OpenClaw' },
+  { value: 'restart-openclaw', label: 'Restart AI BOT' },
 ];
 
 export const SettingsContent = ({
@@ -35,7 +35,7 @@ export const SettingsContent = ({
   const handleRestart = () => {
     restart({
       onCompleted: () =>
-        toast({ variant: 'success', title: 'OpenClaw restarted successfully' }),
+        toast({ variant: 'success', title: 'AI BOT restarted successfully' }),
       onError: (error) =>
         toast({
           title: 'Restart failed',
@@ -165,7 +165,9 @@ export const SettingsContent = ({
                         key={guild.guildId}
                         className="flex items-center justify-between rounded-md border px-3 py-2 text-sm"
                       >
-                        <span className="font-mono text-xs">{guild.guildId}</span>
+                        <span className="font-mono text-xs">
+                          {guild.guildId}
+                        </span>
                       </div>
                     ))}
                   </div>
@@ -178,7 +180,7 @@ export const SettingsContent = ({
       {activeTab === 'restart-openclaw' && (
         <div className="flex flex-1 items-center justify-center">
           <Button disabled={restarting} onClick={handleRestart}>
-            {restarting ? 'Restarting...' : 'Restart OpenClaw'}
+            {restarting ? 'Restarting...' : 'Restart AI BOT'}
           </Button>
         </div>
       )}

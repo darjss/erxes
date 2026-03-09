@@ -5,6 +5,7 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { useAgentApprove } from '../hooks/useAgentApprove';
 import { useAgentDestroy } from '../hooks/useAgentDestroy';
+import { useFixAndRestart } from '../../detail/hooks/useFixAndRestart';
 import { DestroyServerDialog } from './DestroyServerDialog';
 
 const approveFormSchema = z.object({
@@ -13,10 +14,18 @@ const approveFormSchema = z.object({
 
 type ApproveFormValues = z.infer<typeof approveFormSchema>;
 
-export const AgentPendingForm = () => {
+const AGENT_CREATING_THRESHOLD_MS = 8 * 60 * 1000;
+
+interface AgentPendingFormProps {
+  createdAt?: string;
+}
+
+export const AgentPendingForm = ({ createdAt }: AgentPendingFormProps) => {
   const [destroyOpen, setDestroyOpen] = useState(false);
   const { approveAgent, loading } = useAgentApprove();
   const { destroyAgent, loading: destroyLoading } = useAgentDestroy();
+  const { restart: fixRestartAgent, loading: fixRestartLoading } =
+    useFixAndRestart();
   const { toast } = useToast();
 
   const form = useForm<ApproveFormValues>({
@@ -50,6 +59,35 @@ export const AgentPendingForm = () => {
     }
   };
 
+  const onCheck = async () => {
+    if (createdAt) {
+      const elapsed = Date.now() - new Date(createdAt).getTime();
+      if (elapsed < AGENT_CREATING_THRESHOLD_MS) {
+        toast({
+          title: 'Your agent is creating...',
+          description: 'Please wait a few more minutes before checking.',
+        });
+        return;
+      }
+    }
+
+    await fixRestartAgent({
+      onCompleted: () => {
+        toast({
+          title: 'Success',
+          description: 'Send message to your agent again!.',
+        });
+      },
+      onError: (err) => {
+        toast({
+          variant: 'destructive',
+          title: 'Fix restart failed',
+          description: err.message,
+        });
+      },
+    });
+  };
+
   return (
     <div className="flex flex-col gap-5">
       <p className="text-sm text-muted-foreground">
@@ -79,13 +117,22 @@ export const AgentPendingForm = () => {
         </form>
       </Form>
       <Button
+        variant="outline"
+        type="button"
+        onClick={onCheck}
+        disabled={fixRestartLoading}
+        className="w-full"
+      >
+        {fixRestartLoading ? 'Checking...' : 'Check'}
+      </Button>
+      <Button
         variant="destructive"
         type="button"
         onClick={() => setDestroyOpen(true)}
         disabled={destroyLoading}
         className="w-full"
       >
-        Destroy server
+        Destroy server & start from beginnig
       </Button>
       <DestroyServerDialog
         open={destroyOpen}
