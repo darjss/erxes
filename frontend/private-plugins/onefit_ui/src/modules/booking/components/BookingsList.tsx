@@ -44,6 +44,28 @@ const getStatusBadgeVariant = (status: BookingStatus) => {
   }
 };
 
+const getStatusLabel = (
+  status: BookingStatus,
+  language: ActivityLanguage,
+): string => {
+  const labels: Record<ActivityLanguage, Record<BookingStatus, string>> = {
+    en: {
+      [BookingStatus.CONFIRMED]: 'Confirmed',
+      [BookingStatus.CANCELLED]: 'Cancelled',
+      [BookingStatus.COMPLETED]: 'Completed',
+      [BookingStatus.NO_SHOW]: 'No show',
+    },
+    mn: {
+      [BookingStatus.CONFIRMED]: 'Баталгаажсан',
+      [BookingStatus.CANCELLED]: 'Цуцлагдсан',
+      [BookingStatus.COMPLETED]: 'Дууссан',
+      [BookingStatus.NO_SHOW]: 'Ирээгүй',
+    },
+  };
+
+  return labels[language]?.[status] ?? status;
+};
+
 const getAttendanceBadgeVariant = (status: AttendanceStatus) => {
   switch (status) {
     case AttendanceStatus.ATTENDED:
@@ -55,6 +77,26 @@ const getAttendanceBadgeVariant = (status: AttendanceStatus) => {
     default:
       return 'secondary';
   }
+};
+
+const getAttendanceLabel = (
+  status: AttendanceStatus,
+  language: ActivityLanguage,
+): string => {
+  const labels: Record<ActivityLanguage, Record<AttendanceStatus, string>> = {
+    en: {
+      [AttendanceStatus.PENDING]: 'Pending',
+      [AttendanceStatus.ATTENDED]: 'Attended',
+      [AttendanceStatus.NO_SHOW]: 'No show',
+    },
+    mn: {
+      [AttendanceStatus.PENDING]: 'Хүлээгдэж буй',
+      [AttendanceStatus.ATTENDED]: 'Ирсэн',
+      [AttendanceStatus.NO_SHOW]: 'Ирээгүй',
+    },
+  };
+
+  return labels[language]?.[status] ?? status;
 };
 
 const getDisplayName = (user: OneFitCustomer | undefined): string => {
@@ -203,13 +245,14 @@ export const BookingsList = ({
       header: 'Status',
       cell: ({ cell }) => {
         const status = cell.getValue() as BookingStatus;
+        const label = getStatusLabel(status, preferredLanguage);
         return (
           <RecordTableInlineCell>
             <Badge
               variant={getStatusBadgeVariant(status)}
               className="capitalize"
             >
-              {status}
+              {label}
             </Badge>
           </RecordTableInlineCell>
         );
@@ -220,13 +263,14 @@ export const BookingsList = ({
       header: 'Attendance',
       cell: ({ cell }) => {
         const status = cell.getValue() as AttendanceStatus;
+        const label = getAttendanceLabel(status, preferredLanguage);
         return (
           <RecordTableInlineCell>
             <Badge
               variant={getAttendanceBadgeVariant(status)}
               className="capitalize"
             >
-              {status}
+              {label}
             </Badge>
           </RecordTableInlineCell>
         );
