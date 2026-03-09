@@ -1,9 +1,15 @@
 import { useState } from 'react';
 import { useLazyQuery } from '@apollo/client';
 import { Button, ToggleGroup } from 'erxes-ui';
-import { IconCalendarMonth, IconQrcode, IconList } from '@tabler/icons-react';
+import {
+  IconCalendarMonth,
+  IconQrcode,
+  IconList,
+  IconTimeline,
+} from '@tabler/icons-react';
 import { BookingsList } from '~/modules/booking/components/BookingsList';
 import { BookingsCalendar } from '~/modules/booking/components/BookingsCalendar';
+import { BookingsLog } from '~/modules/booking/components/BookingsLog';
 import { CreateBookingDialog } from '~/modules/booking/components/CreateBookingDialog';
 import { BookingFiltersComponent } from '~/modules/booking/components/BookingFilters';
 import {
@@ -25,7 +31,7 @@ import {
 import { toast } from 'erxes-ui';
 import { useOneFitMode } from '~/modules/config/hooks/useOneFitMode';
 
-type BookingsView = 'list' | 'calendar';
+type BookingsView = 'list' | 'calendar' | 'log';
 
 export function BookingsPage() {
   const { isSlaveMode } = useOneFitMode();
@@ -111,13 +117,20 @@ export function BookingsPage() {
     setBulkResult(null);
   }
 
-  function ListOrCalendarComponent({
+  function ViewComponent({
     filters: f,
   }: {
     filters: BookingFilters;
     language: ActivityLanguage;
   }) {
-    if (view === 'calendar') return <BookingsCalendar filters={f} />;
+    if (view === 'calendar') {
+      return <BookingsCalendar filters={f} />;
+    }
+
+    if (view === 'log') {
+      return <BookingsLog filters={f} preferredLanguage={language} />;
+    }
+
     return <BookingsList filters={f} preferredLanguage={language} />;
   }
 
@@ -142,7 +155,7 @@ export function BookingsPage() {
           </div>
         }
         listComponent={({ filters }) => (
-          <ListOrCalendarComponent filters={filters} language={language} />
+          <ViewComponent filters={filters} language={language} />
         )}
         headerActions={
           <div className="flex items-center gap-2">
@@ -160,6 +173,10 @@ export function BookingsPage() {
               <ToggleGroup.Item value="calendar" aria-label="Calendar view">
                 <IconCalendarMonth className="h-4 w-4 mr-1.5" />
                 Calendar
+              </ToggleGroup.Item>
+              <ToggleGroup.Item value="log" aria-label="Attendance log view">
+                <IconTimeline className="h-4 w-4 mr-1.5" />
+                Log
               </ToggleGroup.Item>
             </ToggleGroup>
 
