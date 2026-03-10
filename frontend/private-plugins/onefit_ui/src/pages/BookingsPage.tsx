@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useLazyQuery } from '@apollo/client';
+import { useApolloClient, useLazyQuery } from '@apollo/client';
 import { Button, ToggleGroup } from 'erxes-ui';
 import {
   IconCalendarMonth,
@@ -35,6 +35,7 @@ type BookingsView = 'list' | 'calendar' | 'log';
 
 export function BookingsPage() {
   const { isSlaveMode } = useOneFitMode();
+  const client = useApolloClient();
   const { markAttendanceBulk, loading: markAllLoading } =
     useMarkAttendanceBulk();
   const [view, setView] = useState<BookingsView>('list');
@@ -87,6 +88,10 @@ export function BookingsPage() {
         status: BookingStatus.CONFIRMED,
         limit: 10,
       },
+    });
+
+    client.refetchQueries({
+      include: [ONE_FIT_BOOKINGS],
     });
   }
 

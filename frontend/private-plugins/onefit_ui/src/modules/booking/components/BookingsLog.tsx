@@ -4,11 +4,10 @@ import {
   EnumCursorDirection,
   RelativeDateDisplay,
 } from 'erxes-ui';
+import moment from 'moment';
+import 'moment/locale/mn';
 import { useBookings } from '../hooks/useBookings';
-import {
-  AttendanceStatus,
-  BookingFilters,
-} from '../types/booking';
+import { AttendanceStatus, BookingFilters } from '../types/booking';
 import { BOOKINGS_LOG_CURSOR_SESSION_KEY } from '../constants/bookingCursorSessionKey';
 import {
   ActivityLanguage,
@@ -92,7 +91,9 @@ export function BookingsLog({
         )}
 
         {bookings?.map((booking: any) => {
-          const name = getDisplayName(booking.user as OneFitCustomer | undefined);
+          const name = getDisplayName(
+            booking.user as OneFitCustomer | undefined,
+          );
           const provider = booking.provider;
           const providerName = provider?.businessName
             ? getLocalizedString(provider.businessName, preferredLanguage)
@@ -122,19 +123,16 @@ export function BookingsLog({
                 <div className="flex items-baseline justify-between gap-2">
                   <div className="text-xs font-semibold">{name}</div>
                   <div className="text-[11px]">
-                    <RelativeDateDisplay
-                      value={booking.attendedAt || booking.bookingDate}
-                      asChild
-                    >
-                      <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-primary">
-                        <RelativeDateDisplay.Value
-                          value={booking.attendedAt || booking.bookingDate}
-                        />
-                        <span className="text-[9px] font-medium normal-case text-primary/80">
-                          QR уншуулсан цаг
-                        </span>
+                    <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-semibold tracking-wide text-primary">
+                      <span>
+                        {moment(booking.attendedAt || booking.bookingDate)
+                          .locale('mn')
+                          .fromNow()}
                       </span>
-                    </RelativeDateDisplay>
+                      <span className="text-[9px] font-medium normal-case text-primary/80">
+                        QR уншуулсан цаг
+                      </span>
+                    </span>
                   </div>
                 </div>
                 <div className="mt-0.5 text-[11px] text-muted-foreground">
@@ -165,7 +163,9 @@ export function BookingsLog({
                 </div>
                 <div className="mt-1 flex items-center gap-2">
                   <Badge
-                    variant={getAttendanceBadgeVariant(booking.attendanceStatus)}
+                    variant={getAttendanceBadgeVariant(
+                      booking.attendanceStatus,
+                    )}
                     className="px-1.5 py-0 text-[10px] uppercase tracking-wide"
                   >
                     {getAttendanceLabel(
@@ -216,4 +216,3 @@ export function BookingsLog({
     </div>
   );
 }
-
