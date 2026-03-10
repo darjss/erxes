@@ -2,10 +2,12 @@ import {
   Badge,
   Button,
   EnumCursorDirection,
+  readImage,
   RelativeDateDisplay,
 } from 'erxes-ui';
 import moment from 'moment';
 import 'moment/locale/mn';
+import { useEffect } from 'react';
 import { useBookings } from '../hooks/useBookings';
 import { AttendanceStatus, BookingFilters } from '../types/booking';
 import { BOOKINGS_LOG_CURSOR_SESSION_KEY } from '../constants/bookingCursorSessionKey';
@@ -71,7 +73,7 @@ export function BookingsLog({
     attendanceStatus: AttendanceStatus.ATTENDED,
   };
 
-  const { bookings, loading, pageInfo, handleFetchMore } = useBookings(
+  const { bookings, loading, pageInfo, handleFetchMore, refetch } = useBookings(
     mergedFilters,
     {
       sessionKey: BOOKINGS_LOG_CURSOR_SESSION_KEY,
@@ -80,6 +82,14 @@ export function BookingsLog({
   );
 
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
+
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      refetch();
+    }, 2000);
+
+    return () => clearInterval(intervalId);
+  }, [refetch]);
 
   return (
     <div className="flex h-full flex-col">
@@ -104,6 +114,10 @@ export function BookingsLog({
             : '-';
           const activityImage = activityType?.image;
 
+          const attendedAt = booking.attendedAt || booking.bookingDate;
+          const isRecentlyAttended =
+            moment().diff(moment(attendedAt), 'seconds') < 60;
+
           const initials = name
             .split(' ')
             .filter(Boolean)
@@ -123,13 +137,25 @@ export function BookingsLog({
                 <div className="flex items-baseline justify-between gap-2">
                   <div className="text-xs font-semibold">{name}</div>
                   <div className="text-[11px]">
-                    <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-semibold tracking-wide text-primary">
+                    <span
+                      className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold tracking-wide ${
+                        isRecentlyAttended
+                          ? 'bg-primary text-primary-foreground animate-pulse'
+                          : 'bg-primary/10 text-primary'
+                      }`}
+                    >
                       <span>
-                        {moment(booking.attendedAt || booking.bookingDate)
+                        {moment(attendedAt)
                           .locale('mn')
                           .fromNow()}
                       </span>
-                      <span className="text-[9px] font-medium normal-case text-primary/80">
+                      <span
+                        className={`text-[9px] font-medium normal-case ${
+                          isRecentlyAttended
+                            ? 'text-primary-foreground/90'
+                            : 'text-primary/80'
+                        }`}
+                      >
                         QR уншуулсан цаг
                       </span>
                     </span>
@@ -143,17 +169,17 @@ export function BookingsLog({
                 <div className="text-[11px] text-muted-foreground">
                   Booked for {booking.startTime} - {booking.endTime}
                 </div>
-                <div className="mt-0.5 flex items-center gap-2 text-[11px] text-muted-foreground">
+                <div className="mt-1 flex items-center gap-3 text-[11px] text-muted-foreground">
                   {activityImage && (
                     <img
-                      src={activityImage}
+                      src={readImage(activityImage)}
                       alt={activityName}
-                      className="h-6 w-6 flex-shrink-0 rounded object-cover"
+                      className="h-9 w-9 flex-shrink-0 rounded-md object-cover"
                       loading="lazy"
                     />
                   )}
                   <div className="flex flex-col">
-                    <span className="text-xs font-semibold text-primary">
+                    <span className="text-sm font-semibold text-primary leading-snug">
                       {activityName}
                     </span>
                     <span className="text-[11px] text-muted-foreground">

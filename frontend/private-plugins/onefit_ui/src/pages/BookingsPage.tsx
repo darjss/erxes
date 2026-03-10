@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useApolloClient, useLazyQuery } from '@apollo/client';
+import { useSearchParams } from 'react-router-dom';
 import { Button, ToggleGroup } from 'erxes-ui';
 import {
   IconCalendarMonth,
@@ -31,14 +32,32 @@ import {
 import { toast } from 'erxes-ui';
 import { useOneFitMode } from '~/modules/config/hooks/useOneFitMode';
 
-type BookingsView = 'list' | 'calendar' | 'log';
+const BOOKINGS_VIEWS = ['list', 'calendar', 'log'] as const;
+type BookingsView = (typeof BOOKINGS_VIEWS)[number];
+
+function parseViewFromSearchParams(searchParams: URLSearchParams): BookingsView {
+  const viewParam = searchParams.get('view');
+  if (viewParam === 'list' || viewParam === 'calendar' || viewParam === 'log') {
+    return viewParam;
+  }
+  return 'list';
+}
 
 export function BookingsPage() {
   const { isSlaveMode } = useOneFitMode();
   const client = useApolloClient();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { markAttendanceBulk, loading: markAllLoading } =
     useMarkAttendanceBulk();
-  const [view, setView] = useState<BookingsView>('list');
+
+  const view = parseViewFromSearchParams(searchParams);
+  const setView = (newView: BookingsView) => {
+    setSearchParams((prev) => {
+      const next = new URLSearchParams(prev);
+      next.set('view', newView);
+      return next;
+    });
+  };
   const [filters, setFilters] = useState<BookingFilters>({});
   const [scanDialogOpen, setScanDialogOpen] = useState(false);
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
