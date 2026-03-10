@@ -31,6 +31,7 @@ export interface OneFitBooking {
       en: string;
       mn: string;
     };
+    coverImages?: string[];
   };
   activityType?: {
     _id: string;
@@ -38,6 +39,7 @@ export interface OneFitBooking {
       en: string;
       mn: string;
     };
+    image?: string;
   };
   bookingDate: string;
   startTime: string;

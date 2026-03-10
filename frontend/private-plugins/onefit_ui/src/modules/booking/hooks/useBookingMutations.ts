@@ -8,6 +8,7 @@ import {
   ONE_FIT_BOOKING_CREATE,
   ONE_FIT_BOOKING_CANCEL,
   ONE_FIT_BOOKING_MARK_ATTENDANCE,
+  ONE_FIT_BOOKINGS_MARK_ATTENDANCE,
 } from '../graphql/bookingMutations';
 import { ONE_FIT_BOOKINGS } from '../graphql/bookingQueries';
 import { AttendanceStatus } from '../types/booking';
@@ -118,8 +119,8 @@ export type MarkAttendanceBulkResult =
 
 export function useMarkAttendanceBulk() {
   const client = useApolloClient();
-  const [markAttendanceMutation, { loading }] = useMutation(
-    ONE_FIT_BOOKING_MARK_ATTENDANCE,
+  const [markAttendancesMutation, { loading }] = useMutation(
+    ONE_FIT_BOOKINGS_MARK_ATTENDANCE,
     { refetchQueries: [] },
   );
 
@@ -130,16 +131,15 @@ export function useMarkAttendanceBulk() {
     if (bookingIds.length === 0) return undefined;
     const skipToast = options?.skipToast ?? false;
     try {
-      for (const _id of bookingIds) {
-        await markAttendanceMutation({
-          variables: {
-            _id,
-            attendanceStatus: AttendanceStatus.ATTENDED,
-          },
-        });
-      }
+      const result = await markAttendancesMutation({
+        variables: {
+          ids: bookingIds,
+          attendanceStatus: AttendanceStatus.ATTENDED,
+        },
+      });
+      const updated = result.data?.oneFitBookingsMarkAttendance ?? [];
       await client.refetchQueries({ include: [ONE_FIT_BOOKINGS] });
-      const count = bookingIds.length;
+      const count = updated.length || bookingIds.length;
       if (!skipToast) {
         toast({
           title: 'Амжилттай',

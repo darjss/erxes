@@ -12,6 +12,7 @@ export const ONE_FIT_BOOKINGS = gql`
     $status: OneFitBookingStatus
     $attendanceStatus: OneFitAttendanceStatus
     ${GQL_CURSOR_PARAM_DEFS}
+    $orderBy: JSON
   ) {
     oneFitBookings(
       userId: $userId
@@ -22,6 +23,7 @@ export const ONE_FIT_BOOKINGS = gql`
       endDate: $endDate
       status: $status
       attendanceStatus: $attendanceStatus
+      orderBy: $orderBy
       ${GQL_CURSOR_PARAMS}
     ) {
       list {
@@ -51,6 +53,7 @@ export const ONE_FIT_BOOKINGS = gql`
             en
             mn
           }
+          image
         }
         bookingDate
         startTime
@@ -155,6 +158,7 @@ export const ONE_FIT_BOOKING_BY_BOOKING_ID = gql`
           en
           mn
         }
+        image
       }
       bookingDate
       startTime

@@ -139,10 +139,16 @@ const markAttendanceInput = `
   attendanceStatus: OneFitAttendanceStatus!
 `;
 
+const markAttendancesInput = `
+  ids: [String!]!
+  attendanceStatus: OneFitAttendanceStatus!
+`;
+
 export const mutations = `
   oneFitBookingCreate(${bookingInput}): OneFitBooking
   oneFitBookingCancel(${cancelBookingInput}): OneFitBooking
   oneFitBookingMarkAttendance(${markAttendanceInput}): OneFitBooking
+  oneFitBookingsMarkAttendance(${markAttendancesInput}): [OneFitBooking]
   oneFitBookingsRemove(ids: [String]!): JSON
   cpOneFitBookingCreate(${cpBookingInput}): OneFitBooking
   cpOneFitBookingCancel(${cancelBookingInput}): OneFitBooking

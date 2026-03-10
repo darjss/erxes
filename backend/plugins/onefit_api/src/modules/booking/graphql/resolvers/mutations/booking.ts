@@ -507,6 +507,59 @@ export const bookingMutations: Record<string, Resolver> = {
     return await models.Booking.markAttendance(_id, attendanceStatus, markedBy);
   },
 
+  async oneFitBookingsMarkAttendance(
+    _root: undefined,
+    {
+      ids,
+      attendanceStatus,
+    }: { ids: string[]; attendanceStatus: AttendanceStatus },
+    { models, user, instanceId }: IContext,
+  ) {
+    if (!ids.length) {
+      return [];
+    }
+
+    const bookings = await models.Booking.find({ _id: { $in: ids } });
+
+    if (!bookings.length) {
+      return [];
+    }
+
+    if (instanceId) {
+      const providerIds = Array.from(
+        new Set(bookings.map((booking) => booking.providerId)),
+      );
+
+      const providers = await models.Provider.find({
+        _id: { $in: providerIds },
+      }).lean();
+
+      const allowedProviderIds = new Set(
+        providers
+          .filter((provider) => provider.instanceId === instanceId)
+          .map((provider) => provider._id),
+      );
+
+      const hasForbiddenBooking = bookings.some(
+        (booking) => !allowedProviderIds.has(booking.providerId),
+      );
+
+      if (hasForbiddenBooking) {
+        throw new Error('You do not have permission to modify some bookings');
+      }
+    }
+
+    const markedBy = user?._id || '';
+
+    const updatedBookings = await Promise.all(
+      bookings.map((booking) =>
+        models.Booking.markAttendance(booking._id, attendanceStatus, markedBy),
+      ),
+    );
+
+    return updatedBookings;
+  },
+
   async oneFitBookingsRemove(
     _root: undefined,
     { ids }: { ids: string[] },
