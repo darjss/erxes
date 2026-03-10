@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useApolloClient, useLazyQuery } from '@apollo/client';
 import { useSearchParams } from 'react-router-dom';
-import { Button, ToggleGroup } from 'erxes-ui';
+import { Button, Dialog, ToggleGroup } from 'erxes-ui';
 import {
   IconCalendarMonth,
   IconQrcode,
@@ -35,12 +35,14 @@ import { useOneFitMode } from '~/modules/config/hooks/useOneFitMode';
 const BOOKINGS_VIEWS = ['list', 'calendar', 'log'] as const;
 type BookingsView = (typeof BOOKINGS_VIEWS)[number];
 
-function parseViewFromSearchParams(searchParams: URLSearchParams): BookingsView {
+function parseViewFromSearchParams(
+  searchParams: URLSearchParams,
+): BookingsView {
   const viewParam = searchParams.get('view');
   if (viewParam === 'list' || viewParam === 'calendar' || viewParam === 'log') {
     return viewParam;
   }
-  return 'list';
+  return 'log';
 }
 
 export function BookingsPage() {
@@ -50,6 +52,8 @@ export function BookingsPage() {
   const { markAttendanceBulk, loading: markAllLoading } =
     useMarkAttendanceBulk();
 
+  const [viewSelectorOpen, setViewSelectorOpen] = useState(false);
+
   const view = parseViewFromSearchParams(searchParams);
   const setView = (newView: BookingsView) => {
     setSearchParams((prev) => {
@@ -58,6 +62,13 @@ export function BookingsPage() {
       return next;
     });
   };
+
+  useEffect(() => {
+    const hasViewParam = searchParams.get('view');
+    if (!hasViewParam) {
+      setViewSelectorOpen(true);
+    }
+  }, [searchParams]);
   const [filters, setFilters] = useState<BookingFilters>({});
   const [scanDialogOpen, setScanDialogOpen] = useState(false);
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
@@ -141,6 +152,11 @@ export function BookingsPage() {
     setBulkResult(null);
   }
 
+  function handleInitialViewSelect(nextView: BookingsView) {
+    setView(nextView);
+    setViewSelectorOpen(false);
+  }
+
   function ViewComponent({
     filters: f,
   }: {
@@ -192,15 +208,15 @@ export function BookingsPage() {
             >
               <ToggleGroup.Item value="list" aria-label="List view">
                 <IconList className="h-4 w-4 mr-1.5" />
-                List
+                Жагсаалт
               </ToggleGroup.Item>
               <ToggleGroup.Item value="calendar" aria-label="Calendar view">
                 <IconCalendarMonth className="h-4 w-4 mr-1.5" />
-                Calendar
+                Календар
               </ToggleGroup.Item>
               <ToggleGroup.Item value="log" aria-label="Attendance log view">
                 <IconTimeline className="h-4 w-4 mr-1.5" />
-                Log
+                Ирцийн лог
               </ToggleGroup.Item>
             </ToggleGroup>
 
@@ -246,11 +262,11 @@ export function BookingsPage() {
         open={pickerOpen}
         onOpenChange={(open) => {
           setPickerOpen(open);
-          if (!open) setPickerBookings([]);
+          if (!open) {
+            setPickerBookings([]);
+          }
         }}
         onSelectBooking={handleSelectBooking}
-        onMarkAll={handleMarkAllBookings}
-        markAllLoading={markAllLoading}
       />
 
       <BulkAttendanceResultDialog
@@ -259,6 +275,46 @@ export function BookingsPage() {
         onOpenChange={setBulkResultDialogOpen}
         onClose={handleBulkResultDialogClose}
       />
+
+      <Dialog open={viewSelectorOpen} onOpenChange={setViewSelectorOpen}>
+        <Dialog.Content className="max-w-sm">
+          <Dialog.Header>
+            <Dialog.Title>Харах төрлөө сонгох</Dialog.Title>
+            <Dialog.Description>
+              Захиалгуудыг хэрхэн харахаа сонгоно уу.
+            </Dialog.Description>
+          </Dialog.Header>
+          <div className="flex flex-col gap-2 py-4">
+            <Button
+              type="button"
+              variant={view === 'log' ? 'default' : 'outline'}
+              onClick={() => handleInitialViewSelect('log')}
+              className="w-full justify-start"
+            >
+              <IconTimeline className="mr-2 h-4 w-4" />
+              Ирцийн лог
+            </Button>
+            <Button
+              type="button"
+              variant={view === 'list' ? 'default' : 'outline'}
+              onClick={() => handleInitialViewSelect('list')}
+              className="w-full justify-start"
+            >
+              <IconList className="mr-2 h-4 w-4" />
+              Жагсаалт
+            </Button>
+            <Button
+              type="button"
+              variant={view === 'calendar' ? 'default' : 'outline'}
+              onClick={() => handleInitialViewSelect('calendar')}
+              className="w-full justify-start"
+            >
+              <IconCalendarMonth className="mr-2 h-4 w-4" />
+              Календар
+            </Button>
+          </div>
+        </Dialog.Content>
+      </Dialog>
     </>
   );
 }

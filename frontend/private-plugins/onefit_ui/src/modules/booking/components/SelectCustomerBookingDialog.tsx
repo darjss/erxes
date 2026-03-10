@@ -1,6 +1,8 @@
-import { Button, Dialog, Spinner } from 'erxes-ui';
+import { Button, Dialog, Spinner, Checkbox } from 'erxes-ui';
+import { readImage } from 'erxes-ui';
 import { getLocalizedString } from '~/modules/activity-type/utils/localization';
 import { OneFitBooking } from '../types/booking';
+import { useState } from 'react';
 
 interface SelectCustomerBookingDialogProps {
   bookings: OneFitBooking[];
@@ -19,6 +21,10 @@ export function SelectCustomerBookingDialog({
   onMarkAll,
   markAllLoading = false,
 }: SelectCustomerBookingDialogProps) {
+  const [selectedBookingId, setSelectedBookingId] = useState<string | null>(
+    null,
+  );
+
   if (!open) {
     return null;
   }
@@ -31,6 +37,7 @@ export function SelectCustomerBookingDialog({
   }
 
   function handleSelect(booking: OneFitBooking) {
+    setSelectedBookingId(booking._id);
     onSelectBooking(booking);
     onOpenChange(false);
   }
@@ -39,6 +46,7 @@ export function SelectCustomerBookingDialog({
     b.provider ? getLocalizedString(b.provider.businessName, 'en') : '-';
   const activityName = (b: OneFitBooking) =>
     b.activityType ? getLocalizedString(b.activityType.name, 'en') : '-';
+  const activityImage = (b: OneFitBooking) => b.activityType?.image;
   const dateLabel = (b: OneFitBooking) =>
     new Date(b.bookingDate).toLocaleDateString(undefined, {
       weekday: 'short',
@@ -55,7 +63,9 @@ export function SelectCustomerBookingDialog({
         <Dialog.Header>
           <Dialog.Title>Энэ гишүүнд олон захиалга байна</Dialog.Title>
           <Dialog.Description>
-            Бүгдийг нэг дор ирсэн гэж тэмдэглэх эсвэл нэг захиалгыг сонгоно уу.
+            {onMarkAll
+              ? 'Бүгдийг нэг дор ирсэн гэж тэмдэглэх эсвэл нэг захиалгыг сонгоно уу.'
+              : 'Нэг захиалгыг сонгож, ирцийг баталгаажуулна уу.'}
           </Dialog.Description>
         </Dialog.Header>
 
@@ -75,7 +85,7 @@ export function SelectCustomerBookingDialog({
           )}
 
           <p className="text-sm text-muted-foreground pt-1">
-            Эсвэл нэгийг сонгох:
+            Нэг захиалгыг чекбоксоор сонгож, дараа нь баталгаажуулна уу.
           </p>
           {bookings.map((booking) => (
             <button
@@ -83,13 +93,30 @@ export function SelectCustomerBookingDialog({
               type="button"
               onClick={() => handleSelect(booking)}
               disabled={markAllLoading}
-              className="flex flex-col gap-1 rounded-lg border p-3 text-left transition-colors hover:bg-muted/50 focus:outline-none focus:ring-2 focus:ring-ring disabled:opacity-50"
+              className="flex items-start gap-3 rounded-lg border p-3 text-left transition-colors hover:bg-muted/50 focus:outline-none focus:ring-2 focus:ring-ring disabled:opacity-50"
             >
-              <span className="font-medium">{providerName(booking)}</span>
-              <span className="text-sm text-muted-foreground">
-                {activityName(booking)} · {dateLabel(booking)} ·{' '}
-                {timeLabel(booking)}
-              </span>
+              <Checkbox
+                checked={selectedBookingId === booking._id}
+                className="mt-1"
+              />
+              {activityImage(booking) ? (
+                <img
+                  src={readImage(activityImage(booking), 80)}
+                  alt={activityName(booking)}
+                  className="h-12 w-12 rounded-md object-cover"
+                />
+              ) : (
+                <div className="h-12 w-12 rounded-md bg-muted flex items-center justify-center text-xs text-muted-foreground">
+                  {providerName(booking).charAt(0)}
+                </div>
+              )}
+              <div className="flex flex-col gap-1">
+                <span className="font-medium">{providerName(booking)}</span>
+                <span className="text-sm text-muted-foreground">
+                  {activityName(booking)} · {dateLabel(booking)} ·{' '}
+                  {timeLabel(booking)}
+                </span>
+              </div>
             </button>
           ))}
         </div>
