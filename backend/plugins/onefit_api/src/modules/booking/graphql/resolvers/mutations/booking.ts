@@ -553,11 +553,7 @@ export const bookingMutations: Record<string, Resolver> = {
 
     const updatedBookings = await Promise.all(
       bookings.map((booking) =>
-        models.Booking.markAttendance(
-          booking._id,
-          attendanceStatus,
-          markedBy,
-        ),
+        models.Booking.markAttendance(booking._id, attendanceStatus, markedBy),
       ),
     );
 

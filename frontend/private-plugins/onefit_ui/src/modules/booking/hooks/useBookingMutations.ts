@@ -137,8 +137,7 @@ export function useMarkAttendanceBulk() {
           attendanceStatus: AttendanceStatus.ATTENDED,
         },
       });
-      const updated =
-        result.data?.oneFitBookingsMarkAttendance ?? [];
+      const updated = result.data?.oneFitBookingsMarkAttendance ?? [];
       await client.refetchQueries({ include: [ONE_FIT_BOOKINGS] });
       const count = updated.length || bookingIds.length;
       if (!skipToast) {
