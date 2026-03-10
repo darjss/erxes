@@ -21,9 +21,7 @@ export function SelectCustomerBookingDialog({
   onMarkAll,
   markAllLoading = false,
 }: SelectCustomerBookingDialogProps) {
-  const [selectedBookingId, setSelectedBookingId] = useState<string | null>(
-    null,
-  );
+  const [selectedBookingIds, setSelectedBookingIds] = useState<string[]>([]);
 
   if (!open) {
     return null;
@@ -37,7 +35,23 @@ export function SelectCustomerBookingDialog({
   }
 
   function handleSelect(booking: OneFitBooking) {
-    setSelectedBookingId(booking._id);
+    setSelectedBookingIds((current) =>
+      current.includes(booking._id)
+        ? current.filter((id) => id !== booking._id)
+        : [...current, booking._id],
+    );
+  }
+
+  function handleConfirmSelection() {
+    if (selectedBookingIds.length === 0) {
+      return;
+    }
+
+    const booking = bookings.find((b) => b._id === selectedBookingIds[0]);
+    if (!booking) {
+      return;
+    }
+
     onSelectBooking(booking);
     onOpenChange(false);
   }
@@ -96,7 +110,8 @@ export function SelectCustomerBookingDialog({
               className="flex items-start gap-3 rounded-lg border p-3 text-left transition-colors hover:bg-muted/50 focus:outline-none focus:ring-2 focus:ring-ring disabled:opacity-50"
             >
               <Checkbox
-                checked={selectedBookingId === booking._id}
+                checked={selectedBookingIds.includes(booking._id)}
+                onCheckedChange={() => handleSelect(booking)}
                 className="mt-1"
               />
               {activityImage(booking) ? (
@@ -111,9 +126,11 @@ export function SelectCustomerBookingDialog({
                 </div>
               )}
               <div className="flex flex-col gap-1">
-                <span className="font-medium">{providerName(booking)}</span>
-                <span className="text-sm text-muted-foreground">
-                  {activityName(booking)} · {dateLabel(booking)} ·{' '}
+                <span className="text-sm font-semibold">
+                  {activityName(booking)}
+                </span>
+                <span className="text-xs text-muted-foreground">
+                  {providerName(booking)} · {dateLabel(booking)} ·{' '}
                   {timeLabel(booking)}
                 </span>
               </div>
@@ -122,6 +139,14 @@ export function SelectCustomerBookingDialog({
         </div>
 
         <Dialog.Footer>
+          <Button
+            type="button"
+            onClick={handleConfirmSelection}
+            className="w-full"
+            disabled={selectedBookingIds.length === 0 || markAllLoading}
+          >
+            Сонголтыг баталгаажуулах
+          </Button>
           <Button
             type="button"
             variant="outline"
