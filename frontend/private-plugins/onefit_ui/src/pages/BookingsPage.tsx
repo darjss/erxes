@@ -53,6 +53,10 @@ export function BookingsPage() {
     useMarkAttendanceBulk();
 
   const [viewSelectorOpen, setViewSelectorOpen] = useState(false);
+  const [scannedCustomerId, setScannedCustomerId] = useState<string | null>(
+    null,
+  );
+  const [noBookingDialogOpen, setNoBookingDialogOpen] = useState(false);
 
   const view = parseViewFromSearchParams(searchParams);
   const setView = (newView: BookingsView) => {
@@ -94,6 +98,7 @@ export function BookingsPage() {
             title: 'Захиалга байхгүй',
             description: 'Энэ гишүүнд захиалга олдсонгүй.',
           });
+          setNoBookingDialogOpen(true);
           return;
         }
         setConfirmDialogOpen(false);
@@ -105,6 +110,7 @@ export function BookingsPage() {
 
   function handleScanSuccess(customerId: string) {
     setScanDialogOpen(false);
+    setScannedCustomerId(customerId);
     setConfirmBooking(null);
     setConfirmDialogOpen(true);
     fetchBookingsByCustomer({
@@ -271,6 +277,47 @@ export function BookingsPage() {
         onOpenChange={setBulkResultDialogOpen}
         onClose={handleBulkResultDialogClose}
       />
+
+      <Dialog
+        open={noBookingDialogOpen}
+        onOpenChange={(open) => {
+          setNoBookingDialogOpen(open);
+          if (!open) {
+            setScannedCustomerId(null);
+          }
+        }}
+      >
+        <Dialog.Content className="max-w-sm">
+          <Dialog.Header>
+            <Dialog.Title>Захиалга олдсонгүй</Dialog.Title>
+            <Dialog.Description>
+              Энэ гишүүний идэвхтэй захиалга олдсонгүй.
+            </Dialog.Description>
+          </Dialog.Header>
+          <div className="py-4 text-sm">
+            {scannedCustomerId && (
+              <p className="mb-2">
+                <span className="font-medium">Гишүүний код: </span>
+                {scannedCustomerId}
+              </p>
+            )}
+            <p className="text-muted-foreground">
+              QR кодыг зөв уншсан эсэхийг шалгана уу эсвэл өөр огнооны
+              захиалгуудыг шалгана уу.
+            </p>
+          </div>
+          <Dialog.Footer>
+            <Button
+              type="button"
+              variant="outline"
+              className="w-full"
+              onClick={() => setNoBookingDialogOpen(false)}
+            >
+              Хаах
+            </Button>
+          </Dialog.Footer>
+        </Dialog.Content>
+      </Dialog>
 
       <Dialog open={viewSelectorOpen} onOpenChange={setViewSelectorOpen}>
         <Dialog.Content className="max-w-sm">
