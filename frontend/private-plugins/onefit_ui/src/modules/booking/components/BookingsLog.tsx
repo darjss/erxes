@@ -83,13 +83,13 @@ export function BookingsLog({
 
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
 
-  useEffect(() => {
-    const intervalId = setInterval(() => {
-      refetch();
-    }, 2000);
+  // useEffect(() => {
+  //   const intervalId = setInterval(() => {
+  //     refetch();
+  //   }, 2000);
 
-    return () => clearInterval(intervalId);
-  }, [refetch]);
+  //   return () => clearInterval(intervalId);
+  // }, [refetch]);
 
   return (
     <div className="flex h-full flex-col">
@@ -144,11 +144,7 @@ export function BookingsLog({
                           : 'bg-primary/10 text-primary'
                       }`}
                     >
-                      <span>
-                        {moment(attendedAt)
-                          .locale('mn')
-                          .fromNow()}
-                      </span>
+                      <span>{moment(attendedAt).locale('mn').fromNow()}</span>
                       <span
                         className={`text-[9px] font-medium normal-case ${
                           isRecentlyAttended

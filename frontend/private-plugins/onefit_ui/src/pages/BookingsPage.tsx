@@ -96,11 +96,6 @@ export function BookingsPage() {
           });
           return;
         }
-        if (list.length === 1) {
-          setConfirmBooking(list[0]);
-          setConfirmDialogOpen(true);
-          return;
-        }
         setConfirmDialogOpen(false);
         setPickerBookings(list);
         setPickerOpen(true);
@@ -267,6 +262,7 @@ export function BookingsPage() {
           }
         }}
         onSelectBooking={handleSelectBooking}
+        onConfirmSelection={handleMarkAllBookings}
       />
 
       <BulkAttendanceResultDialog
