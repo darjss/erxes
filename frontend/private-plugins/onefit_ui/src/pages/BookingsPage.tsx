@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useApolloClient, useLazyQuery } from '@apollo/client';
+import { useApolloClient, useLazyQuery, useQuery } from '@apollo/client';
 import { useSearchParams } from 'react-router-dom';
 import { Button, Dialog, ToggleGroup } from 'erxes-ui';
 import {
@@ -31,6 +31,7 @@ import {
 } from '~/modules/booking/hooks/useBookingMutations';
 import { toast } from 'erxes-ui';
 import { useOneFitMode } from '~/modules/config/hooks/useOneFitMode';
+import { ONE_FIT_CUSTOMER } from '~/modules/onefitCustomer/graphql/onefitCustomerQueries';
 
 const BOOKINGS_VIEWS = ['list', 'calendar', 'log'] as const;
 type BookingsView = (typeof BOOKINGS_VIEWS)[number];
@@ -107,6 +108,11 @@ export function BookingsPage() {
       },
     },
   );
+
+  const { data: scannedCustomerData } = useQuery(ONE_FIT_CUSTOMER, {
+    skip: !scannedCustomerId,
+    variables: { _id: scannedCustomerId || '' },
+  });
 
   function handleScanSuccess(customerId: string) {
     setScanDialogOpen(false);
@@ -295,9 +301,35 @@ export function BookingsPage() {
             </Dialog.Description>
           </Dialog.Header>
           <div className="py-4 text-sm">
+            {scannedCustomerData?.oneFitCustomer && (
+              <div className="mb-3">
+                <p className="text-xs font-medium text-muted-foreground">
+                  Гишүүн
+                </p>
+                <p className="text-sm font-semibold">
+                  {[
+                    scannedCustomerData.oneFitCustomer.firstName,
+                    scannedCustomerData.oneFitCustomer.lastName,
+                  ]
+                    .filter(Boolean)
+                    .join(' ') ||
+                    scannedCustomerData.oneFitCustomer.primaryEmail ||
+                    scannedCustomerData.oneFitCustomer.primaryPhone}
+                </p>
+                {(scannedCustomerData.oneFitCustomer.primaryEmail ||
+                  scannedCustomerData.oneFitCustomer.primaryPhone) && (
+                  <p className="text-xs text-muted-foreground">
+                    {scannedCustomerData.oneFitCustomer.primaryEmail ||
+                      scannedCustomerData.oneFitCustomer.primaryPhone}
+                  </p>
+                )}
+              </div>
+            )}
             {scannedCustomerId && (
-              <p className="mb-2">
-                <span className="font-medium">Гишүүний код: </span>
+              <p className="mb-2 text-xs text-muted-foreground">
+                <span className="font-medium text-foreground">
+                  Гишүүний код:
+                </span>{' '}
                 {scannedCustomerId}
               </p>
             )}
