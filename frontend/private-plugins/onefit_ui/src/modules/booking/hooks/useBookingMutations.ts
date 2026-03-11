@@ -139,7 +139,7 @@ export function useMarkAttendanceBulk() {
       });
       const updated = result.data?.oneFitBookingsMarkAttendance ?? [];
       await client.refetchQueries({ include: [ONE_FIT_BOOKINGS] });
-      const count = updated.length || bookingIds.length;
+      const count = updated.length || 0;
       if (!skipToast) {
         toast({
           title: 'Амжилттай',
