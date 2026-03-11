@@ -1,12 +1,19 @@
 import { useState, useMemo } from 'react';
 import { useQuery } from '@apollo/client';
-import { ColumnDef } from '@tanstack/table-core';
-import { Button, Input, RecordTable, RecordTableInlineCell } from 'erxes-ui';
+import { ColumnDef, Cell } from '@tanstack/table-core';
+import {
+  Button,
+  Input,
+  RecordTable,
+  RecordTableInlineCell,
+  useQueryState,
+} from 'erxes-ui';
 import { ONE_FIT_ACCOUNT_STATEMENT } from '../graphql/accountStatementQueries';
 import { SelectProviderSearchable } from './SelectProviderSearchable';
 import { getLocalizedString } from '~/modules/activity-type/utils/localization';
 import { FilterField } from '~/components/shared/FilterField';
 import { AccountStatementRowDetailsDialog } from './AccountStatementRowDetailsDialog';
+import { useOneFitMode } from '~/modules/config/hooks/useOneFitMode';
 
 function startOfMonth(date: Date): string {
   const y = date.getFullYear();
@@ -47,7 +54,9 @@ export function AccountStatementReport() {
     null,
   );
   const [detailsOpen, setDetailsOpen] = useState(false);
-
+  const [, setAccountStatementId] = useQueryState<string>('accountStatementId');
+  const { mode } = useOneFitMode();
+  const isMasterMode = mode === 'master';
   const { data, loading } = useQuery(ONE_FIT_ACCOUNT_STATEMENT, {
     variables: {
       startDate: startDate || undefined,
@@ -66,7 +75,7 @@ export function AccountStatementReport() {
     {
       accessorKey: 'year',
       header: 'Year',
-      cell: ({ cell }) => (
+      cell: ({ cell }: { cell: Cell<AccountStatementRow, unknown> }) => (
         <RecordTableInlineCell className="text-xs font-medium">
           {cell.getValue() as number}
         </RecordTableInlineCell>
@@ -75,7 +84,7 @@ export function AccountStatementReport() {
     {
       accessorKey: 'month',
       header: 'Month',
-      cell: ({ row }) => {
+      cell: ({ row }: { row: { original: AccountStatementRow } }) => {
         const y = row.original.year;
         const m = String(row.original.month).padStart(2, '0');
         return (
@@ -88,7 +97,7 @@ export function AccountStatementReport() {
     {
       accessorKey: 'provider',
       header: 'Provider',
-      cell: ({ row }) => {
+      cell: ({ row }: { row: { original: AccountStatementRow } }) => {
         const provider = row.original.provider;
         const name = provider?.businessName
           ? getLocalizedString(provider.businessName, 'en')
@@ -100,28 +109,32 @@ export function AccountStatementReport() {
         );
       },
     },
-    {
-      accessorKey: 'creditsEarnedCompleted',
-      header: 'Credits (completed)',
-      cell: ({ cell }) => (
-        <RecordTableInlineCell className="text-xs font-medium">
-          {(cell.getValue() as number).toFixed(2)}
-        </RecordTableInlineCell>
-      ),
-    },
-    {
-      accessorKey: 'creditsEarnedNoShow',
-      header: 'Credits (no-show)',
-      cell: ({ cell }) => (
-        <RecordTableInlineCell className="text-xs font-medium">
-          {(cell.getValue() as number).toFixed(2)}
-        </RecordTableInlineCell>
-      ),
-    },
+    ...(isMasterMode
+      ? [
+          {
+            accessorKey: 'creditsEarnedCompleted',
+            header: 'Credits (completed)',
+            cell: ({ cell }: { cell: Cell<AccountStatementRow, unknown> }) => (
+              <RecordTableInlineCell className="text-xs font-medium">
+                {(cell.getValue() as number).toFixed(2)}
+              </RecordTableInlineCell>
+            ),
+          },
+          {
+            accessorKey: 'creditsEarnedNoShow',
+            header: 'Credits (no-show)',
+            cell: ({ cell }: { cell: Cell<AccountStatementRow, unknown> }) => (
+              <RecordTableInlineCell className="text-xs font-medium">
+                {(cell.getValue() as number).toFixed(2)}
+              </RecordTableInlineCell>
+            ),
+          },
+        ]
+      : []),
     {
       accessorKey: 'bookingCountCompleted',
       header: 'Bookings (completed)',
-      cell: ({ cell }) => (
+      cell: ({ cell }: { cell: Cell<AccountStatementRow, unknown> }) => (
         <RecordTableInlineCell className="text-xs font-medium">
           {cell.getValue() as number}
         </RecordTableInlineCell>
@@ -130,7 +143,7 @@ export function AccountStatementReport() {
     {
       accessorKey: 'bookingCountNoShow',
       header: 'Bookings (no-show)',
-      cell: ({ cell }) => (
+      cell: ({ cell }: { cell: Cell<AccountStatementRow, unknown> }) => (
         <RecordTableInlineCell className="text-xs font-medium">
           {cell.getValue() as number}
         </RecordTableInlineCell>
@@ -139,7 +152,7 @@ export function AccountStatementReport() {
     {
       accessorKey: 'amountEarnedCompleted',
       header: 'Amount (completed)',
-      cell: ({ cell }) => (
+      cell: ({ cell }: { cell: Cell<AccountStatementRow, unknown> }) => (
         <RecordTableInlineCell className="text-xs font-medium">
           {(cell.getValue() as number).toFixed(2)}
         </RecordTableInlineCell>
@@ -148,7 +161,7 @@ export function AccountStatementReport() {
     {
       accessorKey: 'amountEarnedNoShow',
       header: 'Amount (no-show)',
-      cell: ({ cell }) => (
+      cell: ({ cell }: { cell: Cell<AccountStatementRow, unknown> }) => (
         <RecordTableInlineCell className="text-xs font-medium">
           {(cell.getValue() as number).toFixed(2)}
         </RecordTableInlineCell>
@@ -157,14 +170,20 @@ export function AccountStatementReport() {
     {
       id: 'details',
       header: '',
-      cell: ({ row }) => (
+      cell: ({ row }: { row: { original: AccountStatementRow } }) => (
         <RecordTableInlineCell>
           <Button
             variant="ghost"
             size="sm"
             onClick={() => {
-              setDetailsRow(row.original);
-              setDetailsOpen(true);
+              try {
+                const encodedData = encodeURIComponent(
+                  JSON.stringify(row.original),
+                );
+                setAccountStatementId(encodedData);
+              } catch (error) {
+                console.error('Error encoding account statement data:', error);
+              }
             }}
           >
             View bookings
