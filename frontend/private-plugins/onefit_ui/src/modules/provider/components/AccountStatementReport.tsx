@@ -65,7 +65,6 @@ export function AccountStatementReport() {
     },
     skip: !startDate || !endDate,
   });
-
   const result = data?.oneFitAccountStatement;
   const rows: AccountStatementRow[] = result?.rows ?? [];
   const totalCreditsEarned = result?.totalCreditsEarned ?? 0;
