@@ -1,11 +1,20 @@
-import { useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { useQuery } from '@apollo/client';
 import { ColumnDef } from '@tanstack/table-core';
-import { Input, RecordTable, RecordTableInlineCell } from 'erxes-ui';
+import { IconDownload } from '@tabler/icons-react';
+import { Button, Input, RecordTable, RecordTableInlineCell } from 'erxes-ui';
 import { ONE_FIT_CREDIT_CONSUMPTION } from '~/modules/booking/graphql/bookingQueries';
 import { CreditConsumptionRow } from '~/modules/booking/types/booking';
 import { FilterField } from '~/components/shared/FilterField';
 import { SelectCompany } from '~/modules/credit/components/SelectCompany';
+
+function escapeCsvValue(value: string | number): string {
+  const s = String(value ?? '');
+  if (/[",\r\n]/.test(s)) {
+    return `"${s.replace(/"/g, '""')}"`;
+  }
+  return s;
+}
 
 function startOfMonth(date: Date): string {
   const y = date.getFullYear();
@@ -40,6 +49,57 @@ export function CreditConsumptionReport() {
   const rows: CreditConsumptionRow[] = result?.rows ?? [];
   const totalCreditsConsumed = result?.totalCreditsConsumed ?? 0;
   const totalBookings = result?.totalBookings ?? 0;
+
+  const handleExport = useCallback(() => {
+    const headers = [
+      'Year',
+      'Month',
+      'Customer',
+      'Phone',
+      'Current credit balance',
+      'Credits consumed',
+      'Bookings',
+      'Avg credits / booking',
+    ];
+    const dataRows = rows.map((row) => {
+      const user = row.user;
+      const fullName =
+        user && (user.firstName || user.lastName)
+          ? [user.firstName, user.lastName].filter(Boolean).join(' ')
+          : '';
+      const customerLabel =
+        fullName || user?.primaryEmail || user?.primaryPhone || row.userId;
+      const balance =
+        typeof user?.currentCreditBalance === 'number'
+          ? user.currentCreditBalance.toFixed(2)
+          : '';
+      const avg =
+        row.bookingCount > 0
+          ? (row.totalCreditsConsumed / row.bookingCount).toFixed(2)
+          : '';
+      return [
+        row.year,
+        row.month,
+        customerLabel,
+        user?.primaryPhone ?? '',
+        balance,
+        row.totalCreditsConsumed.toFixed(2),
+        row.bookingCount,
+        avg,
+      ];
+    });
+    const csvContent = [
+      headers.map(escapeCsvValue).join(','),
+      ...dataRows.map((r) => r.map(escapeCsvValue).join(',')),
+    ].join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `credit-consumption-${startDate}-${endDate}.csv`;
+    link.click();
+    URL.revokeObjectURL(url);
+  }, [rows, startDate, endDate]);
 
   const columns: ColumnDef<CreditConsumptionRow>[] = [
     {
@@ -160,6 +220,16 @@ export function CreditConsumptionReport() {
             onValueChange={(value) => setCompanyId(value ?? '')}
           />
         </FilterField>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={handleExport}
+          disabled={loading || rows.length === 0}
+          className="gap-2"
+        >
+          <IconDownload className="size-4" />
+          Export CSV
+        </Button>
       </div>
 
       <div className="rounded-md border">
