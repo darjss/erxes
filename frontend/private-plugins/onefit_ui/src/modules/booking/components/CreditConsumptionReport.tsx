@@ -232,18 +232,20 @@ export function CreditConsumptionReport() {
         </Button>
       </div>
 
-      <div className="rounded-md border">
-        <RecordTable.Provider columns={columns} data={rows} className="m-0">
-          <RecordTable>
-            <RecordTable.Header />
-            <RecordTable.Body>
-              {loading && <RecordTable.RowSkeleton rows={10} />}
-              {!loading && <RecordTable.RowList />}
-            </RecordTable.Body>
-          </RecordTable>
-        </RecordTable.Provider>
+      <div className="rounded-md border flex flex-col max-h-[70vh]">
+        <div className="overflow-auto min-h-0 flex-1">
+          <RecordTable.Provider columns={columns} data={rows} className="m-0 min-w-max">
+            <RecordTable>
+              <RecordTable.Header />
+              <RecordTable.Body>
+                {loading && <RecordTable.RowSkeleton rows={10} />}
+                {!loading && <RecordTable.RowList />}
+              </RecordTable.Body>
+            </RecordTable>
+          </RecordTable.Provider>
+        </div>
         {!loading && rows.length > 0 && (
-          <div className="border-t bg-muted/30 px-4 py-2 text-sm font-medium space-y-1">
+          <div className="border-t bg-muted/30 px-4 py-2 text-sm font-medium space-y-1 shrink-0">
             <div>Total credits consumed: {totalCreditsConsumed.toFixed(2)}</div>
             <div>Total bookings: {totalBookings}</div>
           </div>
