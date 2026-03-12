@@ -17,6 +17,7 @@ import {
 import { ONE_FIT_MEMBERSHIP_HOLD_CANCEL } from '../graphql/onefitCustomerMutations';
 import { ONE_FIT_CUSTOMER } from '../graphql/onefitCustomerQueries';
 import { StartMembershipHoldDialog } from './StartMembershipHoldDialog';
+import { UpdateMembershipDialog } from './UpdateMembershipDialog';
 
 function formatDate(dateString?: string | null) {
   if (!dateString) return '-';
@@ -57,6 +58,8 @@ export function OneFitCustomerDetailContent({
   refetch,
 }: OneFitCustomerDetailContentProps) {
   const [startHoldDialogOpen, setStartHoldDialogOpen] = useState(false);
+  const [updateExpirationDialogOpen, setUpdateExpirationDialogOpen] =
+    useState(false);
   const customerId = oneFitCustomer?._id;
 
   const [cancelHold, { loading: cancellingHold }] = useMutation(
@@ -153,8 +156,19 @@ export function OneFitCustomerDetailContent({
                   <Label className="text-xs text-accent-foreground">
                     Expiration Date
                   </Label>
-                  <div className="text-sm text-foreground">
-                    {formatDate(oneFitMembershipExpiresAt)}
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm text-foreground">
+                      {formatDate(oneFitMembershipExpiresAt)}
+                    </span>
+                    {customerId && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setUpdateExpirationDialogOpen(true)}
+                      >
+                        Modify
+                      </Button>
+                    )}
                   </div>
                 </div>
               </div>
@@ -268,12 +282,22 @@ export function OneFitCustomerDetailContent({
       </Collapsible>
 
       {customerId && (
-        <StartMembershipHoldDialog
-          customerId={customerId}
-          open={startHoldDialogOpen}
-          onOpenChange={setStartHoldDialogOpen}
-          onSuccess={refetch}
-        />
+        <>
+          <StartMembershipHoldDialog
+            customerId={customerId}
+            open={startHoldDialogOpen}
+            onOpenChange={setStartHoldDialogOpen}
+            onSuccess={refetch}
+          />
+          <UpdateMembershipDialog
+            customerId={customerId}
+            open={updateExpirationDialogOpen}
+            onOpenChange={setUpdateExpirationDialogOpen}
+            initialMembershipPlanId={oneFitMembershipPlanId}
+            initialExpiresAt={oneFitMembershipExpiresAt}
+            onSuccess={refetch}
+          />
+        </>
       )}
 
       {/* Credits Section */}
