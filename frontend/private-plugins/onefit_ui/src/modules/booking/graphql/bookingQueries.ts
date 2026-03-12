@@ -195,13 +195,7 @@ export const ONE_FIT_CREDIT_CONSUMPTION = gql`
         year
         month
         userId
-        user {
-          _id
-          firstName
-          lastName
-          primaryEmail
-          primaryPhone
-        }
+        user
         totalCreditsConsumed
         bookingCount
       }
