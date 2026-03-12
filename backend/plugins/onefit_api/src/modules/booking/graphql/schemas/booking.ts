@@ -66,7 +66,7 @@ export const types = `
     year: Int
     month: Int
     userId: String
-    user: OneFitCustomer
+    user: JSON
     totalCreditsConsumed: Float
     bookingCount: Int
   }
