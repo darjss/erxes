@@ -1,14 +1,19 @@
+import { useEffect } from 'react';
+import { useQuery } from '@apollo/client';
 import {
   Button,
   Dialog,
   Form,
   Input,
+  Select,
   Spinner,
   toast,
 } from 'erxes-ui';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { ONE_FIT_ACTIVE_MEMBERSHIP_PLANS } from '~/modules/membership/graphql/membershipPlanQueries';
+import { OneFitMembershipPlan } from '~/modules/membership/types/membership';
 import { useOneFitCustomerMutations } from '../hooks/useOneFitCustomerMutations';
 
 const updateMembershipSchema = z.object({
@@ -18,16 +23,31 @@ const updateMembershipSchema = z.object({
 
 type UpdateMembershipFormData = z.infer<typeof updateMembershipSchema>;
 
+function toDateTimeLocalValue(isoDate?: string | null): string {
+  if (!isoDate) return '';
+  try {
+    return new Date(isoDate).toISOString().slice(0, 16);
+  } catch {
+    return '';
+  }
+}
+
 interface UpdateMembershipDialogProps {
   customerId: string;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  initialMembershipPlanId?: string;
+  initialExpiresAt?: string | null;
+  onSuccess?: () => void;
 }
 
 export const UpdateMembershipDialog = ({
   customerId,
   open,
   onOpenChange,
+  initialMembershipPlanId = '',
+  initialExpiresAt,
+  onSuccess,
 }: UpdateMembershipDialogProps) => {
   const form = useForm<UpdateMembershipFormData>({
     resolver: zodResolver(updateMembershipSchema),
@@ -36,6 +56,19 @@ export const UpdateMembershipDialog = ({
       expiresAt: '',
     },
   });
+
+  useEffect(() => {
+    if (open) {
+      form.reset({
+        membershipPlanId: initialMembershipPlanId || '',
+        expiresAt: toDateTimeLocalValue(initialExpiresAt),
+      });
+    }
+  }, [open, initialMembershipPlanId, initialExpiresAt, form]);
+
+  const { data: membershipPlansData } = useQuery(ONE_FIT_ACTIVE_MEMBERSHIP_PLANS);
+  const membershipPlans: OneFitMembershipPlan[] =
+    membershipPlansData?.oneFitActiveMembershipPlans ?? [];
 
   const { handleUpdateMembership, updatingMembership } =
     useOneFitCustomerMutations();
@@ -53,6 +86,7 @@ export const UpdateMembershipDialog = ({
       });
       onOpenChange(false);
       form.reset();
+      onSuccess?.();
     } catch (error: any) {
       toast({
         title: 'Error',
@@ -81,9 +115,27 @@ export const UpdateMembershipDialog = ({
               name="membershipPlanId"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>Membership Plan ID</Form.Label>
+                  <Form.Label>Membership Plan</Form.Label>
                   <Form.Control>
-                    <Input {...field} placeholder="Enter membership plan ID" />
+                    <Select
+                      value={field.value}
+                      onValueChange={field.onChange}
+                      disabled={membershipPlans.length === 0}
+                    >
+                      <Select.Trigger>
+                        <Select.Value placeholder="Select membership plan" />
+                      </Select.Trigger>
+                      <Select.Content>
+                        {membershipPlans.map((plan) => (
+                          <Select.Item key={plan._id} value={plan._id}>
+                            {plan.name}
+                            {plan.duration != null
+                              ? ` (${plan.duration} days)`
+                              : ''}
+                          </Select.Item>
+                        ))}
+                      </Select.Content>
+                    </Select>
                   </Form.Control>
                   <Form.Message />
                 </Form.Item>
