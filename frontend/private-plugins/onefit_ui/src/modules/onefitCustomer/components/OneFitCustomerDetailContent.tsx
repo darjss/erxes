@@ -9,13 +9,14 @@ import {
 } from 'erxes-ui';
 import { format } from 'date-fns';
 import { useState } from 'react';
-import { useMutation } from '@apollo/client';
+import { useMutation, useQuery } from '@apollo/client';
 import {
   OneFitCustomer,
   OneFitMembershipStatus,
 } from '../types/onefitCustomer';
 import { ONE_FIT_MEMBERSHIP_HOLD_CANCEL } from '../graphql/onefitCustomerMutations';
 import { ONE_FIT_CUSTOMER } from '../graphql/onefitCustomerQueries';
+import { ONE_FIT_MEMBERSHIP_PLAN } from '~/modules/membership/graphql/membershipPlanQueries';
 import { StartMembershipHoldDialog } from './StartMembershipHoldDialog';
 import { UpdateMembershipDialog } from './UpdateMembershipDialog';
 
@@ -116,6 +117,13 @@ export function OneFitCustomerDetailContent({
     oneFitTotalBookings,
   } = oneFitCustomer || {};
 
+  const { data: membershipPlanData } = useQuery(ONE_FIT_MEMBERSHIP_PLAN, {
+    variables: { _id: oneFitMembershipPlanId || '' },
+    skip: !oneFitMembershipPlanId,
+  });
+
+  const membershipPlanName = membershipPlanData?.oneFitMembershipPlan?.name;
+
   return (
     <div className="space-y-2">
       {/* Membership Section */}
@@ -146,10 +154,10 @@ export function OneFitCustomerDetailContent({
                 </div>
                 <div className="space-y-1">
                   <Label className="text-xs text-accent-foreground">
-                    Membership Plan ID
+                    Membership Plan
                   </Label>
                   <div className="text-sm text-foreground">
-                    {oneFitMembershipPlanId || '-'}
+                    {membershipPlanName || oneFitMembershipPlanId || '-'}
                   </div>
                 </div>
                 <div className="space-y-1">
