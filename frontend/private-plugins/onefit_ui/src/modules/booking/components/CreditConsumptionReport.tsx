@@ -82,6 +82,29 @@ export function CreditConsumptionReport() {
       },
     },
     {
+      id: 'phone',
+      header: 'Phone',
+      cell: ({ row }) => (
+        <RecordTableInlineCell className="text-xs font-medium">
+          {row.original.user?.primaryPhone ?? '—'}
+        </RecordTableInlineCell>
+      ),
+    },
+    {
+      id: 'currentCreditBalance',
+      header: 'Current credit balance',
+      cell: ({ row }) => {
+        const balance = row.original.user?.currentCreditBalance;
+        const value =
+          typeof balance === 'number' ? balance.toFixed(2) : '—';
+        return (
+          <RecordTableInlineCell className="text-xs font-medium">
+            {value}
+          </RecordTableInlineCell>
+        );
+      },
+    },
+    {
       accessorKey: 'totalCreditsConsumed',
       header: 'Credits consumed',
       cell: ({ cell }) => (

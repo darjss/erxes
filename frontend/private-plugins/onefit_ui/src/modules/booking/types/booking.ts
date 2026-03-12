@@ -85,6 +85,7 @@ export interface CreditConsumptionRowUser {
   lastName?: string;
   primaryEmail?: string;
   primaryPhone?: string;
+  currentCreditBalance?: number;
   [key: string]: unknown;
 }
 
