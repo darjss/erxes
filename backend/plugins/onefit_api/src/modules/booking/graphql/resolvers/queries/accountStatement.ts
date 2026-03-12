@@ -227,7 +227,7 @@ export const accountStatementQueries: Record<string, Resolver> = {
       month: a._id.month,
       userId: a._id.userId,
       user: a._id.userId
-        ? userMap.get(a._id.userId?.toString?.() ?? a._id.userId) ?? null
+        ? (userMap.get(a._id.userId?.toString?.() ?? a._id.userId) ?? null)
         : null,
       totalCreditsConsumed: a.totalCreditsConsumed,
       bookingCount: a.bookingCount,

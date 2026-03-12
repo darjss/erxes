@@ -155,8 +155,7 @@ export function CreditConsumptionReport() {
       header: 'Current credit balance',
       cell: ({ row }) => {
         const balance = row.original.user?.currentCreditBalance;
-        const value =
-          typeof balance === 'number' ? balance.toFixed(2) : '—';
+        const value = typeof balance === 'number' ? balance.toFixed(2) : '—';
         return (
           <RecordTableInlineCell className="text-xs font-medium">
             {value}
@@ -234,7 +233,11 @@ export function CreditConsumptionReport() {
 
       <div className="rounded-md border flex flex-col max-h-[70vh]">
         <div className="overflow-auto min-h-0 flex-1">
-          <RecordTable.Provider columns={columns} data={rows} className="m-0 min-w-max">
+          <RecordTable.Provider
+            columns={columns}
+            data={rows}
+            className="m-0 min-w-max"
+          >
             <RecordTable>
               <RecordTable.Header />
               <RecordTable.Body>

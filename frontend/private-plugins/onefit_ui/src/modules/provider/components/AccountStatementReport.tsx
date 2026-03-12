@@ -220,7 +220,11 @@ export function AccountStatementReport() {
 
       <div className="rounded-md border flex flex-col max-h-[70vh]">
         <div className="overflow-auto min-h-0 flex-1">
-          <RecordTable.Provider columns={columns} data={rows} className="m-0 min-w-max">
+          <RecordTable.Provider
+            columns={columns}
+            data={rows}
+            className="m-0 min-w-max"
+          >
             <RecordTable>
               <RecordTable.Header />
               <RecordTable.Body>
