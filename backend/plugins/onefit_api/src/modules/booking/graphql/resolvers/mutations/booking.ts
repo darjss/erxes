@@ -51,9 +51,9 @@ async function createBookingLogic(
   const [hours, minutes] = startTime.split(':').map(Number);
   bookingDateTime.setHours(hours, minutes, 0, 0);
 
-  if (bookingDateTime <= now) {
-    throw new Error('Booking date must be in the future');
-  }
+  // if (bookingDateTime <= now) {
+  //   throw new Error('Booking date must be in the future');
+  // }
 
   // Check schedule exception (blocked dates)
   const scheduleException =
@@ -158,8 +158,9 @@ async function createBookingLogic(
   }
 
   // Check membership is not on hold (booking not allowed during hold)
-  const oneFitCustomerForHold =
-    await models.OneFitCustomer.getOneFitCustomer(userId);
+  const oneFitCustomerForHold = await models.OneFitCustomer.getOneFitCustomer(
+    userId,
+  );
   if (oneFitCustomerForHold?.isMembershipOnHold) {
     const holdEndAt = oneFitCustomerForHold.membershipHoldEndAt
       ? new Date(oneFitCustomerForHold.membershipHoldEndAt)
