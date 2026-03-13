@@ -51,9 +51,9 @@ async function createBookingLogic(
   const [hours, minutes] = startTime.split(':').map(Number);
   bookingDateTime.setHours(hours, minutes, 0, 0);
 
-  if (bookingDateTime <= now) {
-    throw new Error('Booking date must be in the future');
-  }
+  // if (bookingDateTime <= now) {
+  //   throw new Error('Booking date must be in the future');
+  // }
 
   // Check schedule exception (blocked dates)
   const scheduleException =
