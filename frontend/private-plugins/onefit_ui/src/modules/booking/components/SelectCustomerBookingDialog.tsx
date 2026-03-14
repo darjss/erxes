@@ -108,84 +108,84 @@ export function SelectCustomerBookingDialog({
 
           <div className="flex flex-col gap-3 py-4 flex-1 min-h-0 overflow-y-auto">
             {customerName && (
-            <div className="rounded-lg border bg-muted/40 px-3 py-2">
-              <p className="text-xs font-medium text-muted-foreground">
-                Гишүүн
-              </p>
-              <p className="text-sm font-semibold">{customerName}</p>
-              {(customer?.primaryEmail || customer?.primaryPhone) && (
-                <p className="text-xs text-muted-foreground">
-                  {customer.primaryEmail || customer.primaryPhone}
+              <div className="rounded-lg border bg-muted/40 px-3 py-2">
+                <p className="text-xs font-medium text-muted-foreground">
+                  Гишүүн
                 </p>
-              )}
-            </div>
-          )}
-          {onMarkAll && (
-            <Button
-              type="button"
-              onClick={handleMarkAll}
-              disabled={markAllLoading}
-              className="w-full"
-            >
-              <Spinner show={markAllLoading} />
-              {count === 1
-                ? 'Ирсэн гэж тэмдэглэх'
-                : `Бүгдийг ${count} ирсэн гэж тэмдэглэх`}
-            </Button>
-          )}
-
-          <p className="text-sm text-muted-foreground pt-1">
-            Нэг захиалгыг чекбоксоор сонгож, дараа нь баталгаажуулна уу.
-          </p>
-          {bookings.map((booking) => (
-            <button
-              key={booking._id}
-              type="button"
-              onClick={() => handleSelect(booking)}
-              disabled={markAllLoading}
-              className={`flex items-start gap-3 rounded-lg border p-3 text-left transition-colors hover:bg-muted/50 focus:outline-none disabled:opacity-50 ${
-                selectedBookingIds.includes(booking._id)
-                  ? 'border-primary bg-primary/5'
-                  : 'border-border'
-              }`}
-            >
-              <Checkbox
-                checked={selectedBookingIds.includes(booking._id)}
-                onCheckedChange={() => handleSelect(booking)}
-                className="mt-1"
-              />
-              {activityImage(booking) ? (
-                <img
-                  src={readImage(activityImage(booking), 80)}
-                  alt={activityName(booking)}
-                  className="h-12 w-12 rounded-md object-cover"
-                />
-              ) : (
-                <div className="h-12 w-12 rounded-md bg-muted flex items-center justify-center text-xs text-muted-foreground">
-                  {providerName(booking).charAt(0)}
-                </div>
-              )}
-              <div className="flex flex-col gap-1">
-                <span className="text-sm font-semibold">
-                  {activityName(booking)}
-                </span>
-                <div className="flex items-center justify-between gap-2">
-                  <span className="text-xs text-muted-foreground">
-                    {providerName(booking)} · {dateLabel(booking)} ·{' '}
-                    {timeLabel(booking)}
-                  </span>
-                  <Badge
-                    variant={
-                      isToday(booking.bookingDate) ? 'success' : 'secondary'
-                    }
-                    className="text-[10px] px-1.5 py-0"
-                  >
-                    {isToday(booking.bookingDate) ? 'Өнөөдөр' : 'Өнөөдөр биш'}
-                  </Badge>
-                </div>
+                <p className="text-sm font-semibold">{customerName}</p>
+                {(customer?.primaryEmail || customer?.primaryPhone) && (
+                  <p className="text-xs text-muted-foreground">
+                    {customer.primaryEmail || customer.primaryPhone}
+                  </p>
+                )}
               </div>
-            </button>
-          ))}
+            )}
+            {onMarkAll && (
+              <Button
+                type="button"
+                onClick={handleMarkAll}
+                disabled={markAllLoading}
+                className="w-full"
+              >
+                <Spinner show={markAllLoading} />
+                {count === 1
+                  ? 'Ирсэн гэж тэмдэглэх'
+                  : `Бүгдийг ${count} ирсэн гэж тэмдэглэх`}
+              </Button>
+            )}
+
+            <p className="text-sm text-muted-foreground pt-1">
+              Нэг захиалгыг чекбоксоор сонгож, дараа нь баталгаажуулна уу.
+            </p>
+            {bookings.map((booking) => (
+              <button
+                key={booking._id}
+                type="button"
+                onClick={() => handleSelect(booking)}
+                disabled={markAllLoading}
+                className={`flex items-start gap-3 rounded-lg border p-3 text-left transition-colors hover:bg-muted/50 focus:outline-none disabled:opacity-50 ${
+                  selectedBookingIds.includes(booking._id)
+                    ? 'border-primary bg-primary/5'
+                    : 'border-border'
+                }`}
+              >
+                <Checkbox
+                  checked={selectedBookingIds.includes(booking._id)}
+                  onCheckedChange={() => handleSelect(booking)}
+                  className="mt-1"
+                />
+                {activityImage(booking) ? (
+                  <img
+                    src={readImage(activityImage(booking), 80)}
+                    alt={activityName(booking)}
+                    className="h-12 w-12 rounded-md object-cover"
+                  />
+                ) : (
+                  <div className="h-12 w-12 rounded-md bg-muted flex items-center justify-center text-xs text-muted-foreground">
+                    {providerName(booking).charAt(0)}
+                  </div>
+                )}
+                <div className="flex flex-col gap-1">
+                  <span className="text-sm font-semibold">
+                    {activityName(booking)}
+                  </span>
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-xs text-muted-foreground">
+                      {providerName(booking)} · {dateLabel(booking)} ·{' '}
+                      {timeLabel(booking)}
+                    </span>
+                    <Badge
+                      variant={
+                        isToday(booking.bookingDate) ? 'success' : 'secondary'
+                      }
+                      className="text-[10px] px-1.5 py-0"
+                    >
+                      {isToday(booking.bookingDate) ? 'Өнөөдөр' : 'Өнөөдөр биш'}
+                    </Badge>
+                  </div>
+                </div>
+              </button>
+            ))}
           </div>
 
           <Dialog.Footer className="flex-shrink-0">
