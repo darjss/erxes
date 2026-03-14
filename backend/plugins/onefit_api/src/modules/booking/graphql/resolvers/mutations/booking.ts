@@ -158,14 +158,25 @@ async function createBookingLogic(
   }
 
   // Check membership is not on hold (booking not allowed during hold)
-  const oneFitCustomerForHold =
-    await models.OneFitCustomer.getOneFitCustomer(userId);
+  const oneFitCustomerForHold = await models.OneFitCustomer.getOneFitCustomer(
+    userId,
+  );
   if (oneFitCustomerForHold?.isMembershipOnHold) {
     const holdEndAt = oneFitCustomerForHold.membershipHoldEndAt
       ? new Date(oneFitCustomerForHold.membershipHoldEndAt)
       : null;
     if (!holdEndAt || now <= holdEndAt) {
       throw new Error('Booking is not allowed while membership is on hold');
+    }
+  }
+
+  // Check membership has not expired (must be active now)
+  if (oneFitCustomerForHold?.membershipExpiresAt) {
+    const expiresAt = new Date(oneFitCustomerForHold.membershipExpiresAt);
+    if (now > expiresAt) {
+      throw new Error(
+        'Membership has expired. Renew membership to create a booking.',
+      );
     }
   }
 
