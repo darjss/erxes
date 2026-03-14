@@ -169,6 +169,16 @@ async function createBookingLogic(
     }
   }
 
+  // Check membership has not expired (must be active now)
+  if (oneFitCustomerForHold?.membershipExpiresAt) {
+    const expiresAt = new Date(oneFitCustomerForHold.membershipExpiresAt);
+    if (now > expiresAt) {
+      throw new Error(
+        'Membership has expired. Renew membership to create a booking.',
+      );
+    }
+  }
+
   // Check user credit balance
   const totalBalance = await models.CreditTransaction.getUserBalance(userId);
   if (totalBalance < activityType.creditCost) {
