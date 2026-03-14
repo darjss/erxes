@@ -95,18 +95,19 @@ export function SelectCustomerBookingDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <Dialog.Content className="max-w-md">
-        <Dialog.Header>
-          <Dialog.Title>Энэ гишүүнд олон захиалга байна</Dialog.Title>
-          <Dialog.Description>
-            {onMarkAll
-              ? 'Бүгдийг нэг дор ирсэн гэж тэмдэглэх эсвэл нэг захиалгыг сонгоно уу.'
-              : 'Нэг захиалгыг сонгож, ирцийг баталгаажуулна уу.'}
-          </Dialog.Description>
-        </Dialog.Header>
+      <Dialog.Content className="max-w-md max-h-[90vh] sm:max-h-[85vh] flex flex-col overflow-hidden">
+        <div className="flex flex-col min-h-0 flex-1 gap-4">
+          <Dialog.Header className="flex-shrink-0">
+            <Dialog.Title>Энэ гишүүнд олон захиалга байна</Dialog.Title>
+            <Dialog.Description>
+              {onMarkAll
+                ? 'Бүгдийг нэг дор ирсэн гэж тэмдэглэх эсвэл нэг захиалгыг сонгоно уу.'
+                : 'Нэг захиалгыг сонгож, ирцийг баталгаажуулна уу.'}
+            </Dialog.Description>
+          </Dialog.Header>
 
-        <div className="flex flex-col gap-3 py-4">
-          {customerName && (
+          <div className="flex flex-col gap-3 py-4 flex-1 min-h-0 overflow-y-auto">
+            {customerName && (
             <div className="rounded-lg border bg-muted/40 px-3 py-2">
               <p className="text-xs font-medium text-muted-foreground">
                 Гишүүн
@@ -185,27 +186,28 @@ export function SelectCustomerBookingDialog({
               </div>
             </button>
           ))}
-        </div>
+          </div>
 
-        <Dialog.Footer>
-          <Button
-            type="button"
-            onClick={handleConfirmSelection}
-            className="w-full"
-            disabled={selectedBookingIds.length === 0 || markAllLoading}
-          >
-            Сонголтыг баталгаажуулах
-          </Button>
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => onOpenChange(false)}
-            className="w-full"
-            disabled={markAllLoading}
-          >
-            Цуцлах
-          </Button>
-        </Dialog.Footer>
+          <Dialog.Footer className="flex-shrink-0">
+            <Button
+              type="button"
+              onClick={handleConfirmSelection}
+              className="w-full"
+              disabled={selectedBookingIds.length === 0 || markAllLoading}
+            >
+              Сонголтыг баталгаажуулах
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => onOpenChange(false)}
+              className="w-full"
+              disabled={markAllLoading}
+            >
+              Цуцлах
+            </Button>
+          </Dialog.Footer>
+        </div>
       </Dialog.Content>
     </Dialog>
   );
