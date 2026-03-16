@@ -4,7 +4,31 @@ import {
   makeAttachmentArrayFromUrls,
   normalizeAttachment,
 } from '../../../formHelpers';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+
+interface InlineContent {
+  text?: string;
+  styles?: {
+    bold?: boolean;
+    italic?: boolean;
+    underline?: boolean;
+    strike?: boolean;
+    code?: boolean;
+  };
+}
+
+interface BlockContent {
+  type?: string;
+  content?: InlineContent[];
+  props?: {
+    level?: number;
+  };
+}
+
+interface CustomField {
+  field: string;
+  value: unknown;
+}
 
 interface PostFormData {
   title: string;
@@ -18,9 +42,10 @@ interface PostFormData {
   featured?: boolean;
   seoTitle?: string;
   seoDescription?: string;
-  thumbnail?: any | null;
+  thumbnail?: string | null;
   gallery?: string[];
   video?: string | null;
+  videoUrl?: string;
   audio?: string | null;
   documents?: string[];
   attachments?: string[];
@@ -28,24 +53,82 @@ interface PostFormData {
   scheduledDate?: Date | null;
   autoArchiveDate?: Date | null;
   enableAutoArchive?: boolean;
-  customFieldsData?: { field: string; value: any }[];
+  customFieldsData?: CustomField[];
 }
 
 interface UsePostSubmissionProps {
   websiteId: string;
-  editingPost?: any;
-  selectedLanguage: string;
-  defaultLanguage: string;
-  translations: Record<string, any>;
-  defaultLangData: {
-    title: string;
-    content: string;
-    description: string;
-    customFieldsData: any[];
-  } | null;
+  editingPost?: { _id?: string };
   onClose?: () => void;
-  currentPath?: string;
 }
+
+const blocksToHtml = (raw: string): string => {
+  try {
+    const blocks = JSON.parse(raw) as BlockContent[];
+
+    if (!Array.isArray(blocks)) {
+      return raw;
+    }
+
+    return blocks
+      .map((block) => {
+        const inlines = block.content ?? [];
+
+        const html = inlines
+          .map((inline) => {
+            let text = inline.text ?? '';
+
+            if (inline.styles?.bold) text = `<strong>${text}</strong>`;
+            if (inline.styles?.italic) text = `<em>${text}</em>`;
+            if (inline.styles?.underline) text = `<u>${text}</u>`;
+            if (inline.styles?.strike) text = `<s>${text}</s>`;
+            if (inline.styles?.code) text = `<code>${text}</code>`;
+
+            return text;
+          })
+          .join('');
+
+        if (block.type === 'heading') {
+          const level = block.props?.level ?? 1;
+          return `<h${level}>${html}</h${level}>`;
+        }
+
+        if (block.type === 'codeBlock') {
+          return `<pre><code>${html}</code></pre>`;
+        }
+
+        return `<p>${html}</p>`;
+      })
+      .join('');
+  } catch {
+    return raw;
+  }
+};
+
+const extractText = (html: string): string => {
+  return html.replace(/<[^>]*>/g, '').trim();
+};
+
+const generateSlug = (title: string): string => {
+  const baseSlug = title
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+
+  const timestamp = Date.now().toString(36).slice(-6);
+
+  return `${baseSlug || 'post'}-${timestamp}`;
+};
+
+const redirectToPosts = (
+  websiteId: string,
+  searchParams: URLSearchParams,
+  navigate: (url: string) => void,
+) => {
+  const typeCode = searchParams.get('type');
+  const typeParam = typeCode && typeCode !== 'post' ? `?type=${typeCode}` : '';
+  navigate(`/content/cms/${websiteId}/posts${typeParam}`);
+};
 
 export const usePostSubmission = ({
   websiteId,
@@ -53,6 +136,8 @@ export const usePostSubmission = ({
   onClose,
 }: UsePostSubmissionProps) => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+
   const { createPost, editPost, creating, saving } = usePostMutations({
     websiteId,
   });
@@ -67,101 +152,84 @@ export const usePostSubmission = ({
       return;
     }
 
-    const extractText = (html: string) => {
-      const tmp = document.createElement('div');
-      tmp.innerHTML = html || '';
-      return (tmp.textContent || tmp.innerText || '').trim();
-    };
+    const rawContent = data.content ?? '';
+
+    const contentHtml = rawContent.trimStart().startsWith('[')
+      ? blocksToHtml(rawContent)
+      : rawContent;
 
     const computedTitle =
-      (data.title && data.title.trim()) ||
-      (data.seoTitle && data.seoTitle.trim()) ||
-      extractText(data.content || '')
-        .split('\n')[0]
-        .slice(0, 80) ||
+      data.title?.trim() ||
+      data.seoTitle?.trim() ||
+      extractText(contentHtml).split('\n')[0].slice(0, 80) ||
       'Untitled';
 
-    const generateSlug = (title: string) => {
-      const baseSlug = title
-        .toLowerCase()
-        .replace(/[^a-z0-9]+/g, '-')
-        .replace(/^-+|-+$/g, '');
-
-      const timestamp = Date.now().toString(36).slice(-6);
-      const finalSlug = baseSlug || 'post';
-      return `${finalSlug}-${timestamp}`;
-    };
-
-    const combinedImages = [...(data.gallery || [])];
-    const imagesPayload = makeAttachmentArrayFromUrls(combinedImages);
-    const videoPayload = normalizeAttachment(data.video || undefined);
-    const audioPayload = normalizeAttachment(data.audio || undefined);
-    const documentsPayload = makeAttachmentArrayFromUrls(data.documents || []);
+    const imagesPayload = makeAttachmentArrayFromUrls(data.gallery ?? []);
+    const videoPayload = normalizeAttachment(data.video ?? undefined);
+    const audioPayload = normalizeAttachment(data.audio ?? undefined);
+    const documentsPayload = makeAttachmentArrayFromUrls(data.documents ?? []);
     const attachmentsPayload = makeAttachmentArrayFromUrls(
-      data.attachments || [],
+      data.attachments ?? [],
     );
-    const pdfPayload = normalizeAttachment(data.pdf || undefined);
+    const pdfPayload = normalizeAttachment(data.pdf ?? undefined);
 
-    const input: any = {
+    const filteredCustomFields = data.customFieldsData?.filter(
+      (item) =>
+        item.value !== '' && item.value !== null && item.value !== undefined,
+    );
+
+    const input = {
       clientPortalId: websiteId,
       title: computedTitle,
       slug: editingPost?._id ? data.slug : generateSlug(computedTitle),
-      content: data.content,
+      content: contentHtml,
       type: data.type,
-      status: data.status || 'draft',
+      status: data.status ?? 'draft',
       categoryIds: data.categoryIds,
       tagIds: data.tagIds,
       featured: data.featured,
-      scheduledDate: data.scheduledDate || undefined,
+      scheduledDate: data.scheduledDate ?? undefined,
       autoArchiveDate: data.enableAutoArchive
         ? data.autoArchiveDate
         : undefined,
       excerpt:
-        (data.description && data.description.trim()) ||
-        extractText(data.content || '').slice(0, 200),
-      thumbnail: normalizeAttachment(data.thumbnail || undefined),
+        data.description?.trim() === '' ? null : data.description?.trim(),
+      thumbnail: normalizeAttachment(data.thumbnail ?? undefined),
       images: imagesPayload.length ? imagesPayload : undefined,
       video: videoPayload,
+      videoUrl: data.videoUrl,
       audio: audioPayload,
       documents: documentsPayload.length ? documentsPayload : undefined,
       attachments: attachmentsPayload.length ? attachmentsPayload : undefined,
       pdfAttachment: pdfPayload ? { pdf: pdfPayload } : undefined,
-      customFieldsData: (() => {
-        if (!data.customFieldsData || data.customFieldsData.length === 0) {
-          return undefined;
-        }
-        const filtered = data.customFieldsData.filter(
-          (item) =>
-            item.value !== '' &&
-            item.value !== null &&
-            item.value !== undefined,
-        );
-        return filtered.length > 0 ? filtered : undefined;
-      })(),
+      customFieldsData:
+        filteredCustomFields && filteredCustomFields.length > 0
+          ? filteredCustomFields
+          : undefined,
     };
 
     try {
       if (editingPost?._id) {
         await editPost(editingPost._id, input);
         toast({ title: 'Saved', description: 'Post saved successfully' });
-        if (onClose) {
-          onClose();
-        } else {
-          navigate(`/content/cms/${websiteId}/posts`);
-        }
       } else {
         await createPost(input);
         toast({ title: 'Saved', description: 'Post created successfully' });
-        if (onClose) {
-          onClose();
-        } else {
-          navigate(`/content/cms/${websiteId}/posts`);
-        }
       }
-    } catch (error: any) {
+
+      if (onClose) {
+        onClose();
+        return;
+      }
+
+      redirectToPosts(websiteId, searchParams, navigate);
+    } catch (error: unknown) {
+      const message =
+        error instanceof Error ? error.message : 'Failed to save post';
+
       toast({
         title: 'Error',
-        description: error?.message || 'Failed to save post',
+        description: message,
         variant: 'destructive',
       });
     }

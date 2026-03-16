@@ -1,5 +1,6 @@
-import { z } from 'zod';
+import { IAttachment } from 'erxes-ui';
 import { addTicketSchema } from './validations';
+import { z } from 'zod';
 
 export interface ITicket {
   _id: string;
@@ -23,9 +24,10 @@ export interface ITicket {
   isSubscribed?: boolean;
   propertiesData?: Record<string, any>;
   state?: string;
+  attachments?: IAttachment[];
 }
 
 export type TAddTicket = z.infer<typeof addTicketSchema>;
 
-export * from './ticketHotkeyScope';
 export * from './validations';
+export * from './ticketHotkeyScope';
