@@ -122,7 +122,7 @@ async function createBookingLogic(
   //   throw new Error('User already has a booking for this time slot');
   // }
 
-  // Check single-person limit: in any 30-day window, user cannot exceed activityType.singlePersonLimit bookings for this activity
+  // Check single-person limit per activityType: in any 30-day window, user cannot exceed activityType.singlePersonLimit bookings for this activity
   const singlePersonLimit = activityType.singlePersonLimit ?? 5;
   const MS_PER_DAY = 24 * 60 * 60 * 1000;
   const rangeStart = new Date(bookingDatePure.getTime() - 29 * MS_PER_DAY);
@@ -154,6 +154,39 @@ async function createBookingLogic(
   if (maxCountInAnyWindow >= singlePersonLimit) {
     throw new Error(
       `You have reached the maximum number of bookings (${singlePersonLimit}) for this activity in a 30-day period.`,
+    );
+  }
+
+  // Check single-person limit per provider: in any 30-day window, user cannot exceed 5 bookings for this provider
+  const singleProviderLimit = 5;
+  const existingProviderInRange = await models.Booking.find(
+    {
+      userId,
+      providerId,
+      status: { $ne: BookingStatus.CANCELLED },
+      bookingDate: { $gte: rangeStart, $lt: rangeEnd },
+    },
+    { bookingDate: 1 },
+  ).lean();
+
+  let maxProviderCountInAnyWindow = 0;
+  for (let offset = 0; offset < 30; offset++) {
+    const windowStartMs =
+      bookingDatePure.getTime() - (29 - offset) * MS_PER_DAY;
+    const windowEndMs = windowStartMs + 30 * MS_PER_DAY;
+    const count = existingProviderInRange.filter(
+      (b) =>
+        b.bookingDate.getTime() >= windowStartMs &&
+        b.bookingDate.getTime() < windowEndMs,
+    ).length;
+    if (count > maxProviderCountInAnyWindow) {
+      maxProviderCountInAnyWindow = count;
+    }
+  }
+
+  if (maxProviderCountInAnyWindow >= singleProviderLimit) {
+    throw new Error(
+      `You have reached the maximum number of bookings (${singleProviderLimit}) for this provider in a 30-day period.`,
     );
   }
 
