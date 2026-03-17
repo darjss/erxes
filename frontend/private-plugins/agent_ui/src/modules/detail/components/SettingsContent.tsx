@@ -5,6 +5,8 @@ import { useQuery } from '@apollo/client';
 import { useFixAndRestart } from '../hooks/useFixAndRestart';
 import { useDiscordSettings } from '../hooks/useDiscordSettings';
 import { GET_DISCORD_GUILDS } from '../graphql/queries';
+import { DestroyServerDialog } from '../../deploy/components/DestroyServerDialog';
+import { useAgentDestroy } from '../../deploy/hooks/useAgentDestroy';
 
 const TABS = [
   { value: 'discord', label: 'Discord' },
@@ -17,7 +19,9 @@ export const SettingsContent = ({
   selectedId: string | null;
 }) => {
   const [activeTab, setActiveTab] = useState<string>(TABS[0].value);
+  const [destroyOpen, setDestroyOpen] = useState(false);
   const { restart, loading: restarting } = useFixAndRestart();
+  const { destroyAgent, loading: destroyLoading } = useAgentDestroy();
   const {
     updateDiscordSettings,
     updatingDiscord,
@@ -31,6 +35,10 @@ export const SettingsContent = ({
 
   const [botToken, setBotToken] = useState('');
   const [guildId, setGuildId] = useState('');
+
+  const onDestroy = async () => {
+    await destroyAgent();
+  };
 
   const handleRestart = () => {
     restart({
@@ -184,6 +192,13 @@ export const SettingsContent = ({
           </Button>
         </div>
       )}
+
+      <DestroyServerDialog
+        open={destroyOpen}
+        onOpenChange={setDestroyOpen}
+        onConfirm={onDestroy}
+        loading={destroyLoading}
+      />
     </div>
   );
 };
