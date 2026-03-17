@@ -10,7 +10,7 @@ import { useAgentDestroy } from '../../deploy/hooks/useAgentDestroy';
 
 const TABS = [
   { value: 'discord', label: 'Discord' },
-  { value: 'restart-openclaw', label: 'Restart AI BOT' },
+  { value: 'restart-openclaw', label: 'Restart & Destroy' },
 ];
 
 export const SettingsContent = ({
@@ -186,9 +186,16 @@ export const SettingsContent = ({
       )}
 
       {activeTab === 'restart-openclaw' && (
-        <div className="flex flex-1 items-center justify-center">
+        <div className="flex flex-1 items-center justify-center gap-4">
           <Button disabled={restarting} onClick={handleRestart}>
             {restarting ? 'Restarting...' : 'Restart AI BOT'}
+          </Button>
+          <Button
+            variant="destructive"
+            disabled={destroyLoading}
+            onClick={() => setDestroyOpen(true)}
+          >
+            {destroyLoading ? 'Destroying...' : 'Destroy'}
           </Button>
         </div>
       )}
