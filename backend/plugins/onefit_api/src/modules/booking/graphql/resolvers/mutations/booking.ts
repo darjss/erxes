@@ -11,6 +11,7 @@ import {
 } from '@/membership/@types/credittransaction';
 import { DayOfWeek } from '@/schedule/@types/schedule';
 import { Resolver } from 'erxes-api-shared/core-types';
+import { ProviderStatus } from '@/provider/@types/provider';
 import { getLocalizedString } from '@/activity-type/utils/localization';
 
 function getDayOfWeek(date: Date): DayOfWeek {
@@ -44,6 +45,11 @@ async function createBookingLogic(
   }
 
   const providerId = activityType.providerId;
+  const provider = await models.Provider.findOne({ _id: providerId });
+
+  if (!provider || !provider.isActive) {
+    throw new Error('Provider not available for booking');
+  }
   const bookingDatePure = getPureDate(bookingDate);
   // Validate booking date is in the future
   const now = new Date();
