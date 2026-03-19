@@ -1,6 +1,7 @@
 import { IContext } from '~/connectionResolvers';
 import {
   IBooking,
+  IBookingDocument,
   AttendanceStatus,
   BookingStatus,
 } from '@/booking/@types/booking';
@@ -197,8 +198,9 @@ async function createBookingLogic(
   }
 
   // Check membership is not on hold (booking not allowed during hold)
-  const oneFitCustomerForHold =
-    await models.OneFitCustomer.getOneFitCustomer(userId);
+  const oneFitCustomerForHold = await models.OneFitCustomer.getOneFitCustomer(
+    userId,
+  );
   if (oneFitCustomerForHold?.isMembershipOnHold) {
     const holdEndAt = oneFitCustomerForHold.membershipHoldEndAt
       ? new Date(oneFitCustomerForHold.membershipHoldEndAt)
@@ -476,6 +478,125 @@ async function cancelBookingLogic(
   return await models.Booking.cancelBooking(bookingId, cancelledBy, reason);
 }
 
+async function sendBookingCancelledCpNotification(
+  subdomain: string,
+  clientPortalId: string,
+  cpUserIds: string[],
+  booking: IBookingDocument,
+): Promise<void> {
+  const cancellationReason = booking.cancellationReason || undefined;
+  const reasonText = cancellationReason ? ` Reason: ${cancellationReason}` : '';
+
+  // Create (or upsert) cp notification + send push (if firebase configured)
+  await sendTRPCMessage({
+    subdomain,
+    pluginName: 'core',
+    method: 'mutation',
+    module: 'cpNotifications',
+    action: 'create',
+    input: {
+      cpUserIds,
+      clientPortalId,
+      data: {
+        title: 'Захиалга цуцлагдлаа',
+        message: `Таны захиалга (${booking.bookingId}) цуцлагдлаа.${reasonText}`,
+        type: 'warning',
+        kind: 'user',
+        contentType: 'onefit:booking',
+        contentTypeId: String(booking._id),
+        action: 'bookingCancelled',
+        metadata: {
+          bookingId: booking.bookingId,
+          cancellationReason: cancellationReason ?? null,
+        },
+      },
+    },
+    defaultValue: null,
+  });
+}
+
+async function findCpUsersByCustomerId(
+  subdomain: string,
+  customerId: string,
+): Promise<Array<{ cpUserId: string; clientPortalId: string }>> {
+  const listResult = await sendTRPCMessage({
+    subdomain,
+    pluginName: 'core',
+    method: 'query',
+    module: 'cpUsers',
+    action: 'list',
+    input: {
+      erxesCustomerId: customerId,
+      limit: 1000,
+      skip: 0,
+    },
+    defaultValue: { list: [] as Array<any>, totalCount: 0 },
+  });
+
+  const fromList = Array.isArray(listResult?.list) ? listResult.list : [];
+
+  // booking.userId might also be cpUserId (when cpUser is not linked to erxes customer)
+  if (fromList.length === 0) {
+    const byId = await sendTRPCMessage({
+      subdomain,
+      pluginName: 'core',
+      method: 'query',
+      module: 'cpUsers',
+      action: 'get',
+      input: {
+        id: customerId,
+      },
+      defaultValue: null,
+    });
+
+    if (byId?._id && byId?.clientPortalId) {
+      return [
+        {
+          cpUserId: String(byId._id),
+          clientPortalId: String(byId.clientPortalId),
+        },
+      ];
+    }
+
+    return [];
+  }
+
+  const byId = new Map<string, string>();
+  for (const cpUser of fromList) {
+    if (!cpUser?._id || !cpUser?.clientPortalId) continue;
+    byId.set(String(cpUser._id), String(cpUser.clientPortalId));
+  }
+
+  return Array.from(byId.entries()).map(([cpUserId, clientPortalId]) => ({
+    cpUserId,
+    clientPortalId,
+  }));
+}
+
+async function notifyBookingCancelledViaClientPortal(
+  subdomain: string,
+  booking: IBookingDocument,
+): Promise<void> {
+  const cpUsers = await findCpUsersByCustomerId(subdomain, booking.userId);
+  if (cpUsers.length === 0) return;
+
+  const byPortalId = new Map<string, string[]>();
+  for (const { cpUserId, clientPortalId } of cpUsers) {
+    const list = byPortalId.get(clientPortalId) || [];
+    list.push(cpUserId);
+    byPortalId.set(clientPortalId, list);
+  }
+
+  for (const [clientPortalId, cpUserIds] of byPortalId.entries()) {
+    await sendBookingCancelledCpNotification(
+      subdomain,
+      clientPortalId,
+      cpUserIds,
+      booking,
+    );
+  }
+}
+
 export const bookingMutations: Record<string, Resolver> = {
   async oneFitBookingCreate(
     _root: undefined,
@@ -515,7 +636,7 @@ export const bookingMutations: Record<string, Resolver> = {
     }
 
     const cancelledBy = user?._id || booking.userId;
-    return cancelBookingLogic(
+    const cancelledBooking = await cancelBookingLogic(
       _id,
       cancelledBy,
       reason,
@@ -525,6 +646,8 @@ export const bookingMutations: Record<string, Resolver> = {
       } as IContext,
       true,
     );
+    await notifyBookingCancelledViaClientPortal(subdomain, cancelledBooking);
+    return cancelledBooking;
   },
 
   async oneFitBookingMarkAttendance(
@@ -672,10 +795,19 @@ export const bookingMutations: Record<string, Resolver> = {
       throw new Error('Cannot cancel a booking that was marked as no-show');
     }
 
-    return cancelBookingLogic(_id, userId, reason, {
+    const cancelledBooking = await cancelBookingLogic(_id, userId, reason, {
       models,
       subdomain,
     } as IContext);
+
+    await sendBookingCancelledCpNotification(
+      subdomain,
+      cpUser.clientPortalId,
+      [cpUser._id],
+      cancelledBooking,
+    );
+
+    return cancelledBooking;
   },
 };
 
