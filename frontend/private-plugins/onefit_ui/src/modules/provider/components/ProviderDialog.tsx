@@ -73,6 +73,11 @@ const baseProviderSchema = z.object({
   categoryIds: z
     .array(z.string())
     .min(1, { message: 'At least one category is required' }),
+  singleProviderLimit: z.coerce
+    .number()
+    .int()
+    .min(0, { message: 'Limit must be 0 or greater' })
+    .optional(),
   isActive: z.boolean().optional(),
   icon: z.string().optional(),
   coverImages: z.array(z.string()).optional(),
@@ -264,6 +269,7 @@ const ProviderForm = ({
       },
       facilities: [],
       categoryIds: [],
+      singleProviderLimit: 5,
       isActive: true,
       icon: '',
       coverImages: [],
@@ -296,6 +302,7 @@ const ProviderForm = ({
         },
         facilities: provider.facilities || [],
         categoryIds: provider.categoryIds || [],
+        singleProviderLimit: provider.singleProviderLimit ?? 5,
         isActive: provider.isActive,
         icon: provider.icon || '',
         coverImages: provider.coverImages || [],
@@ -360,6 +367,7 @@ const ProviderForm = ({
               ? createData.facilities
               : undefined,
           categoryIds: createData.categoryIds,
+          singleProviderLimit: createData.singleProviderLimit,
           isActive:
             createData.isActive !== undefined ? createData.isActive : true,
           icon: createData.icon || undefined,
@@ -391,6 +399,7 @@ const ProviderForm = ({
               ? editData.facilities
               : undefined,
           categoryIds: editData.categoryIds,
+          singleProviderLimit: editData.singleProviderLimit,
           isActive: editData.isActive,
           icon: editData.icon || undefined,
           coverImages:
@@ -841,6 +850,28 @@ const ProviderForm = ({
                   </Form.Item>
                 );
               }}
+            />
+            <Form.Field
+              control={form.control}
+              name="singleProviderLimit"
+              render={({ field }) => (
+                <Form.Item>
+                  <Form.Label>Provider booking limit (30 days)</Form.Label>
+                  <Form.Control>
+                    <Input
+                      type="number"
+                      min={0}
+                      placeholder="Default: 5"
+                      value={field.value ?? ''}
+                      onChange={field.onChange}
+                      onBlur={field.onBlur}
+                      ref={field.ref}
+                      disabled={isRejected}
+                    />
+                  </Form.Control>
+                  <Form.Message />
+                </Form.Item>
+              )}
             />
             <Form.Field
               control={form.control}

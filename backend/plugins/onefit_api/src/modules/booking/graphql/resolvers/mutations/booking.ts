@@ -172,7 +172,7 @@ async function createBookingLogic(
     }
 
     // Check single-person limit per provider only within [expiresAt - 30 days, expiresAt]
-    const singleProviderLimit = 5;
+    const singleProviderLimit = provider.singleProviderLimit ?? 5;
     const existingProviderCountInRange = await models.Booking.countDocuments({
       userId,
       providerId,
