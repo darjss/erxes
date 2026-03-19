@@ -132,9 +132,8 @@ async function createBookingLogic(
   const MS_PER_DAY = 24 * 60 * 60 * 1000;
 
   // Check membership is not on hold (booking not allowed during hold)
-  const oneFitCustomerForHold = await models.OneFitCustomer.getOneFitCustomer(
-    userId,
-  );
+  const oneFitCustomerForHold =
+    await models.OneFitCustomer.getOneFitCustomer(userId);
   if (oneFitCustomerForHold?.isMembershipOnHold) {
     const holdEndAt = oneFitCustomerForHold.membershipHoldEndAt
       ? new Date(oneFitCustomerForHold.membershipHoldEndAt)
