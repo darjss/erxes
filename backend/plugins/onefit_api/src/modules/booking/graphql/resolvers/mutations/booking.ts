@@ -129,73 +129,7 @@ async function createBookingLogic(
   //   throw new Error('User already has a booking for this time slot');
   // }
 
-  // Check single-person limit per activityType: in any 30-day window, user cannot exceed activityType.singlePersonLimit bookings for this activity
-  const singlePersonLimit = activityType.singlePersonLimit ?? 5;
   const MS_PER_DAY = 24 * 60 * 60 * 1000;
-  const rangeStart = new Date(bookingDatePure.getTime() - 29 * MS_PER_DAY);
-  const rangeEnd = new Date(bookingDatePure.getTime() + 30 * MS_PER_DAY);
-  const existingInRange = await models.Booking.find(
-    {
-      userId,
-      activityTypeId,
-      status: { $ne: BookingStatus.CANCELLED },
-      bookingDate: { $gte: rangeStart, $lt: rangeEnd },
-    },
-    { bookingDate: 1 },
-  ).lean();
-
-  let maxCountInAnyWindow = 0;
-  for (let offset = 0; offset < 30; offset++) {
-    const windowStartMs =
-      bookingDatePure.getTime() - (29 - offset) * MS_PER_DAY;
-    const windowEndMs = windowStartMs + 30 * MS_PER_DAY;
-    const count = existingInRange.filter(
-      (b) =>
-        b.bookingDate.getTime() >= windowStartMs &&
-        b.bookingDate.getTime() < windowEndMs,
-    ).length;
-    if (count > maxCountInAnyWindow) {
-      maxCountInAnyWindow = count;
-    }
-  }
-  if (maxCountInAnyWindow >= singlePersonLimit) {
-    throw new Error(
-      `You have reached the maximum number of bookings (${singlePersonLimit}) for this activity in a 30-day period.`,
-    );
-  }
-
-  // Check single-person limit per provider: in any 30-day window, user cannot exceed 5 bookings for this provider
-  const singleProviderLimit = 5;
-  const existingProviderInRange = await models.Booking.find(
-    {
-      userId,
-      providerId,
-      status: { $ne: BookingStatus.CANCELLED },
-      bookingDate: { $gte: rangeStart, $lt: rangeEnd },
-    },
-    { bookingDate: 1 },
-  ).lean();
-
-  let maxProviderCountInAnyWindow = 0;
-  for (let offset = 0; offset < 30; offset++) {
-    const windowStartMs =
-      bookingDatePure.getTime() - (29 - offset) * MS_PER_DAY;
-    const windowEndMs = windowStartMs + 30 * MS_PER_DAY;
-    const count = existingProviderInRange.filter(
-      (b) =>
-        b.bookingDate.getTime() >= windowStartMs &&
-        b.bookingDate.getTime() < windowEndMs,
-    ).length;
-    if (count > maxProviderCountInAnyWindow) {
-      maxProviderCountInAnyWindow = count;
-    }
-  }
-
-  if (maxProviderCountInAnyWindow >= singleProviderLimit) {
-    throw new Error(
-      `You have reached the maximum number of bookings (${singleProviderLimit}) for this provider in a 30-day period.`,
-    );
-  }
 
   // Check membership is not on hold (booking not allowed during hold)
   const oneFitCustomerForHold = await models.OneFitCustomer.getOneFitCustomer(
@@ -218,7 +152,44 @@ async function createBookingLogic(
         'Membership has expired. Renew membership to create a booking.',
       );
     }
+
+    // Check single-person limit per activityType only within [expiresAt - 30 days, expiresAt]
+    const singlePersonLimit = activityType.singlePersonLimit ?? 5;
+    const expiresAtPure = getPureDate(expiresAt);
+    const rangeStart = new Date(expiresAtPure.getTime() - 30 * MS_PER_DAY);
+    const rangeEndExclusive = new Date(expiresAtPure.getTime() + MS_PER_DAY);
+
+    const existingCountInRange = await models.Booking.countDocuments({
+      userId,
+      activityTypeId,
+      status: { $ne: BookingStatus.CANCELLED },
+      bookingDate: { $gte: rangeStart, $lt: rangeEndExclusive },
+    });
+
+    if (existingCountInRange >= singlePersonLimit) {
+      throw new Error(
+        `You have reached the maximum number of bookings (${singlePersonLimit}) for this activity in the 30 days before your membership expires.`,
+      );
+    }
+
+    // Check single-person limit per provider only within [expiresAt - 30 days, expiresAt]
+    const singleProviderLimit = 5;
+    const existingProviderCountInRange = await models.Booking.countDocuments({
+      userId,
+      providerId,
+      status: { $ne: BookingStatus.CANCELLED },
+      bookingDate: { $gte: rangeStart, $lt: rangeEndExclusive },
+    });
+
+    if (existingProviderCountInRange >= singleProviderLimit) {
+      throw new Error(
+        `You have reached the maximum number of bookings (${singleProviderLimit}) for this provider in the 30 days before your membership expires.`,
+      );
+    }
   }
+
+  // Check single-person limit per provider: in any 30-day window, user cannot exceed 5 bookings for this provider
+  // Note: provider limit is validated against membership expiry window above when membershipExpiresAt exists.
 
   // Check user credit balance
   const totalBalance = await models.CreditTransaction.getUserBalance(userId);
