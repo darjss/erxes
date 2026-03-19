@@ -160,34 +160,40 @@ providerSchema.pre('save', function (next) {
   if (this.location?.coordinates?.lat && this.location?.coordinates?.lng) {
     this.location.geoPoint = {
       type: 'Point',
-      coordinates: [this.location.coordinates.lng, this.location.coordinates.lat],
+      coordinates: [
+        this.location.coordinates.lng,
+        this.location.coordinates.lat,
+      ],
     };
   }
   next();
 });
 
 // Pre-update hook for findOneAndUpdate
-providerSchema.pre(['findOneAndUpdate', 'updateOne', 'updateMany'], function (next) {
-  const update = this.getUpdate() as any;
-  const location = update.$set?.location || update.location;
-  
-  if (location?.coordinates?.lat && location?.coordinates?.lng) {
-    if (!update.$set) {
-      update.$set = {};
+providerSchema.pre(
+  ['findOneAndUpdate', 'updateOne', 'updateMany'],
+  function (next) {
+    const update = this.getUpdate() as any;
+    const location = update.$set?.location || update.location;
+
+    if (location?.coordinates?.lat && location?.coordinates?.lng) {
+      if (!update.$set) {
+        update.$set = {};
+      }
+      if (!update.$set.location) {
+        update.$set.location = {};
+      }
+      if (!update.$set.location.geoPoint) {
+        update.$set.location.geoPoint = {
+          type: 'Point',
+          coordinates: [location.coordinates.lng, location.coordinates.lat],
+        };
+      }
     }
-    if (!update.$set.location) {
-      update.$set.location = {};
-    }
-    if (!update.$set.location.geoPoint) {
-      update.$set.location.geoPoint = {
-        type: 'Point',
-        coordinates: [location.coordinates.lng, location.coordinates.lat],
-      };
-    }
-  }
-  
-  next();
-});
+
+    next();
+  },
+);
 
 providerSchema.index({ status: 1 });
 providerSchema.index({ categoryIds: 1 });
