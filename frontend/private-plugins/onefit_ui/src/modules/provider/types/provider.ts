@@ -47,6 +47,7 @@ export interface OneFitProvider {
   facilities?: string[];
   categoryIds: string[];
   categories?: OneFitActivityCategory[];
+  singleProviderLimit?: number;
   status: string;
   rejectionReason?: string;
   approvedAt?: string;

@@ -8,6 +8,7 @@ export const ONE_FIT_PROVIDER_CREATE = gql`
     $contactInfo: OneFitContactInfoInput!
     $facilities: [String]
     $categoryIds: [String]!
+    $singleProviderLimit: Int
     $isActive: Boolean
     $icon: String
     $coverImages: [String]
@@ -19,6 +20,7 @@ export const ONE_FIT_PROVIDER_CREATE = gql`
       contactInfo: $contactInfo
       facilities: $facilities
       categoryIds: $categoryIds
+      singleProviderLimit: $singleProviderLimit
       isActive: $isActive
       icon: $icon
       coverImages: $coverImages
@@ -59,6 +61,7 @@ export const ONE_FIT_PROVIDER_CREATE = gql`
       }
       facilities
       categoryIds
+      singleProviderLimit
       status
       isActive
       icon
@@ -76,6 +79,7 @@ export const ONE_FIT_PROVIDER_UPDATE = gql`
     $contactInfo: OneFitContactInfoInput!
     $facilities: [String]
     $categoryIds: [String]!
+    $singleProviderLimit: Int
     $isActive: Boolean
     $icon: String
     $coverImages: [String]
@@ -88,6 +92,7 @@ export const ONE_FIT_PROVIDER_UPDATE = gql`
       contactInfo: $contactInfo
       facilities: $facilities
       categoryIds: $categoryIds
+      singleProviderLimit: $singleProviderLimit
       isActive: $isActive
       icon: $icon
       coverImages: $coverImages
@@ -127,6 +132,7 @@ export const ONE_FIT_PROVIDER_UPDATE = gql`
       }
       facilities
       categoryIds
+      singleProviderLimit
       status
       isActive
       icon

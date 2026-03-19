@@ -128,6 +128,12 @@ export const providerSchema = new Schema(
     },
     facilities: { type: [String], label: 'Facilities' },
     categoryIds: { type: [String], required: true, label: 'Category IDs' },
+    singleProviderLimit: {
+      type: Number,
+      label: 'Single Provider Limit',
+      default: 5,
+      min: 0,
+    },
     status: {
       type: String,
       enum: Object.values(ProviderStatus),
