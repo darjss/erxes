@@ -1,5 +1,5 @@
 export const types = `
-  type Invoice {
+  type BlockInvoice {
     _id: String
     amount: Float
     date: Date
@@ -15,8 +15,8 @@ export const types = `
 `;
 
 export const queries = `
-  blockGetInvoice(_id: String!): Invoice
-  blockGetInvoices(itemId:String!): [Invoice]
+  blockGetInvoice(_id: String!): BlockInvoice
+  blockGetInvoices(itemId:String!): [BlockInvoice]
 `;
 
 export const mutations = `
