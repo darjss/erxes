@@ -19,6 +19,7 @@ export const activitySchema = new Schema(
       required: true,
     },
     field: { type: String, label: 'Field', required: true },
+    fieldType: { type: String, label: 'Field Type', required: true },
     metadata: { type: metadataSchema, label: 'Metadata' },
     createdBy: { type: String, label: 'Created By' },
   },

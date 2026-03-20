@@ -9,6 +9,7 @@ export interface IBlockActivity {
   action: string;
   contentId: string;
   field: string;
+  fieldType: string;
   metadata: IBlockActivityMetaData;
   createdBy: string;
 }

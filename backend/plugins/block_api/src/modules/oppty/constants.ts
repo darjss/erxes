@@ -24,9 +24,7 @@ export const OPPTY_CUSTOMER_SOURCES = {
 } as const;
 
 export const OPPTY_FIELDS = {
-  customer: 'CUSTOMER',
-  number: 'NUMBER',
-  customerSource: 'CUSTOMER_SOURCE',
+  priority: 'PRIORITY',
   assignedUserId: 'ASSIGNED_USER',
   blocks: 'BLOCK',
   status: 'STATUS',

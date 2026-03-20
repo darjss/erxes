@@ -84,7 +84,7 @@ export const unitMutations = {
   blockUpdateUnit: async (
     _parent: undefined,
     { _id, input }: { _id: string; input: IUnitInput },
-    { models }: IContext,
+    { models, user }: IContext,
   ) => {
     const { useProjectPrice, ...rest } = input;
 
@@ -118,7 +118,7 @@ export const unitMutations = {
       }
     }
 
-    return models.Unit.updateUnit(_id, rest);
+    return models.Unit.updateUnit(_id, rest, user?._id || '');
   },
 
   blockRemoveUnit: async (

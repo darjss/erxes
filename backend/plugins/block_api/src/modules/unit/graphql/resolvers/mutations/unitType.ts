@@ -13,10 +13,8 @@ export const unitTypesMutations = {
   blockUpdateUnitType: async (
     _parent: undefined,
     { _id, input }: { _id: string; input: IUnitType },
-    { models }: IContext,
+    { models, user }: IContext,
   ) => {
-    return models.UnitType.findOneAndUpdate({ _id }, input, {
-      new: true,
-    });
+    return models.UnitType.updateUnitType(_id, input, user?._id || '');
   },
 };

@@ -11,6 +11,7 @@ export const types = `
       action: String  
       contentId: String
       field: String
+      fieldType: String
       metadata:BlockActivityMetadata
       createdBy: String
 

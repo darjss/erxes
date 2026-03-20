@@ -14,17 +14,25 @@ export const projectMutations = {
   blockUpdateProjectGeneralInfo: async (
     _parent: undefined,
     { _id, input }: { _id: string; input: IProject },
-    { models }: IContext,
+    { models, user }: IContext,
   ) => {
-    return models.Project.updateProject({ _id, input });
+    return models.Project.updateProject({ 
+      _id, 
+      input, 
+      userId: user?._id || ''
+    });
   },
 
   blockPublishProject: async (
     _parent: undefined,
     { _id, isPublished }: { _id: string; isPublished: boolean },
-    { models }: IContext,
+    { models, user }: IContext,
   ) => {
-    return models.Project.updateProject({ _id, input: { isPublished } });
+    return models.Project.updateProject({ 
+      _id, 
+      input: { isPublished }, 
+      userId: user?._id || ''
+    });
   },
 
   blockRemoveProject: async (

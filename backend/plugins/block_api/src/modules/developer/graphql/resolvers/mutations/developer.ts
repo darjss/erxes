@@ -6,7 +6,7 @@ export const developerMutations = {
   updateDeveloperInfo: async (
     _root: undefined,
     { input }: { input: IBlockDeveloperDocument },
-    { models }: IContext,
+    { models, user }: IContext,
   ) => {
     const existingDeveloper = await models.Developer.findOne({});
 
@@ -14,9 +14,10 @@ export const developerMutations = {
       return models.Developer.createDeveloper(input);
     }
 
-    return models.Developer.updateDeveloper(existingDeveloper._id, input);
-  },
 
+    return models.Developer.updateDeveloper(existingDeveloper._id, input, user._id);
+  },
+  
   updateDeveloperVerificationStatus: async (
     _root: undefined,
     _params: undefined,

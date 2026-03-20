@@ -92,7 +92,7 @@ export const loadClasses = (
 
   models.Project = db.model<IProjectDocument, IProjectModel>(
     'block_projects',
-    loadProjectClass(models),
+    loadProjectClass(models, subdomain),
   );
 
   models.ProjectPaymentPlan = db.model<
@@ -112,12 +112,12 @@ export const loadClasses = (
 
   models.Unit = db.model<IUnitDocument, IUnitModel>(
     'block_units',
-    loadUnitClass(models),
+    loadUnitClass(models, subdomain),
   );
 
   models.UnitType = db.model<IUnitTypeDocument, IUnitTypeModel>(
     'block_unit_types',
-    loadUnitTypeClass(models),
+    loadUnitTypeClass(models, subdomain),
   );
 
   models.BlockDocument = db.model<IBlockDocumentDocument, IBlockDocumentModel>(
@@ -132,7 +132,7 @@ export const loadClasses = (
 
   models.Developer = db.model<IBlockDeveloperDocument, IBlockDeveloperModel>(
     'block_developers',
-    loadBlockDeveloperClass(models),
+    loadBlockDeveloperClass(models, subdomain),
   );
 
   models.Contract = db.model<IContractDocument, IContractModel>(
