@@ -1,5 +1,4 @@
 import { IBlockDeveloperDocument } from '@/developer/db/@types/developer';
-import { requireLogin } from 'erxes-api-shared/core-modules';
 import { IContext } from '~/connectionResolvers';
 
 export const developerMutations = {
@@ -44,4 +43,3 @@ export const developerMutations = {
   },
 };
 
-requireLogin(developerMutations, 'updateDeveloperInfo');

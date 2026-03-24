@@ -1,6 +1,5 @@
 import { IContext } from '~/connectionResolvers';
 import { IProjectPaymentPlan } from '@/project/@types/payment';
-import { requireLogin } from 'erxes-api-shared/core-modules';
 
 export const paymentMutations = {
   blockCreateProjectPaymentPlan: async (
@@ -20,5 +19,3 @@ export const paymentMutations = {
   },
 };
 
-requireLogin(paymentMutations, 'blockCreateProjectPaymentPlan');
-requireLogin(paymentMutations, 'blockUpdateProjectPaymentPlan');

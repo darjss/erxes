@@ -1,6 +1,5 @@
 import { IContext } from '~/connectionResolvers';
 import { IProject } from '@/project/@types/project';
-import { requireLogin } from 'erxes-api-shared/core-modules';
 
 export const projectMutations = {
   blockCreateProject: async (
@@ -16,10 +15,10 @@ export const projectMutations = {
     { _id, input }: { _id: string; input: IProject },
     { models, user }: IContext,
   ) => {
-    return models.Project.updateProject({ 
-      _id, 
-      input, 
-      userId: user?._id || ''
+    return models.Project.updateProject({
+      _id,
+      input,
+      userId: user?._id || '',
     });
   },
 
@@ -28,10 +27,10 @@ export const projectMutations = {
     { _id, isPublished }: { _id: string; isPublished: boolean },
     { models, user }: IContext,
   ) => {
-    return models.Project.updateProject({ 
-      _id, 
-      input: { isPublished }, 
-      userId: user?._id || ''
+    return models.Project.updateProject({
+      _id,
+      input: { isPublished },
+      userId: user?._id || '',
     });
   },
 
@@ -43,8 +42,3 @@ export const projectMutations = {
     return models.Project.removeProject(_id);
   },
 };
-
-requireLogin(projectMutations, 'blockCreateProject');
-requireLogin(projectMutations, 'blockUpdateProjectGeneralInfo');
-requireLogin(projectMutations, 'blockPublishProject');
-requireLogin(projectMutations, 'blockRemoveProject');

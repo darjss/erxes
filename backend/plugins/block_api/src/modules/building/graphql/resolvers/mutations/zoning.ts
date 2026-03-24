@@ -1,6 +1,5 @@
 import { IContext } from '~/connectionResolvers';
 import { IZoning } from '@/building/@types/zoning';
-import { requireLogin } from 'erxes-api-shared/core-modules';
 
 export const zoningMutations = {
   blockCreateBuildingZoning: async (
@@ -57,7 +56,3 @@ export const zoningMutations = {
   },
 };
 
-requireLogin(zoningMutations, 'blockCreateBuildingZoning');
-requireLogin(zoningMutations, 'blockUpdateBuildingZoning');
-requireLogin(zoningMutations, 'blockDeleteBuildingZoning');
-requireLogin(zoningMutations, 'blockDupplicateBuildingZoning');

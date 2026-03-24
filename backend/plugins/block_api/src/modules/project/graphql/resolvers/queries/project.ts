@@ -1,4 +1,3 @@
-import { requireLogin } from 'erxes-api-shared/core-modules';
 import isNil from 'lodash/isNil';
 import { FilterQuery } from 'mongoose';
 import { IContext } from '~/connectionResolvers';
@@ -86,5 +85,3 @@ export const projectQueries = {
   },
 };
 
-requireLogin(projectQueries, 'blockGetProject');
-requireLogin(projectQueries, 'blockGetProjects');

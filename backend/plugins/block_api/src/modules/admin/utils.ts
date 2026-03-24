@@ -78,6 +78,8 @@ const sendMessage = ({ subdomain, path, payload }: SendMessagePayload) => {
         'X-Signature': `sha256=${signature}`,
       },
       body,
+    }).catch((e) => {
+      console.error(`Failed to send message to block-admin: ${e}`);
     });
   } catch (e) {
     console.error(`Failed to send message to block-admin: ${e}`);

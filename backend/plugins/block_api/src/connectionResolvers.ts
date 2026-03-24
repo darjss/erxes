@@ -58,6 +58,8 @@ import {
   IBlockActivityModel,
   loadBlockActivityClass,
 } from '~/modules/activity/db/models/Activity';
+import { INoteDocument } from '~/modules/note/types';
+import { INoteModel, loadNoteClass } from '~/modules/note/db/models/Note';
 import { IOpptyDocument } from './modules/oppty/@types/oppty';
 
 export interface IModels {
@@ -74,6 +76,7 @@ export interface IModels {
   Contract: IContractModel;
   ProjectMember: IProjectMemberModel;
   BlockActivity: IBlockActivityModel;
+  BlockNote: INoteModel;
   Offer: IOfferModel;
   Invoice: IInvoiceModel;
   Oppty: IOpptyModel;
@@ -148,6 +151,11 @@ export const loadClasses = (
   models.BlockActivity = db.model<IBlockActivityDocument, IBlockActivityModel>(
     'block_activities',
     loadBlockActivityClass(models),
+  );
+
+  models.BlockNote = db.model<INoteDocument, INoteModel>(
+    'block_notes',
+    loadNoteClass(models),
   );
 
   models.UnitLead = db.model<IUnitLeadDocument, IUnitLeadModel>(

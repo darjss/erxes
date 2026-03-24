@@ -1,5 +1,4 @@
 import { IContext } from '~/connectionResolvers';
-import { requireLogin } from 'erxes-api-shared/core-modules';
 
 export const buildingQueries = {
   blockGetBuildings: async (
@@ -18,5 +17,3 @@ export const buildingQueries = {
   },
 };
 
-requireLogin(buildingQueries, 'blockGetBuildings');
-requireLogin(buildingQueries, 'blockGetBuilding');

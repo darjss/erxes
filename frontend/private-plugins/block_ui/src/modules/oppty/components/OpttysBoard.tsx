@@ -1,15 +1,15 @@
 import {
   Board,
   BoardColumnProps,
+  BoardItemProps,
   EnumCursorDirection,
   Skeleton,
+  SkeletonArray,
+  Spinner,
 } from 'erxes-ui';
-import { useAtom, useAtomValue, useSetAtom } from 'jotai';
+import { atom, useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { IOppty } from '@/oppty/types/opptyTypes';
 import type { DragEndEvent } from '@dnd-kit/core';
-import { allOpptysMapState } from '@/oppty/states/allOpptysMapState';
-import { fetchedOpptysState } from '@/oppty/states/fetchedOpptysState';
-import { opptyCountByProjectAtom } from '@/oppty/states/opptyCountByProjectAtom';
 
 import { useEffect } from 'react';
 import { OpptysBoardCard } from '@/oppty/components/OpptysBoardCard';
@@ -18,74 +18,43 @@ import { useOpptys } from '@/oppty/hooks/useGetOpptys';
 import { clsx } from 'clsx';
 import { useInView } from 'react-intersection-observer';
 import { useUpdateOppty } from '@/oppty/hooks/useUpdateOppty';
+import { useBlockStatusesByType } from '@/status/hooks/useGetBlockStatuses';
 
-const columns = [
-  {
-    id: 'new_lead_unassigned',
-    name: 'Шинэ',
-    type: 'new',
-    color: 'blue',
-  },
-  {
-    id: 'assigned_in_contact',
-    name: 'Холбогдсон',
-    type: 'in-progress',
-    color: 'green',
-  },
+import { allOpptysMapState } from '@/oppty/states/allOpptysMapState';
 
-  {
-    id: 'qualified_lead',
-    name: 'Баталгаажсан',
-    type: 'in-progress',
-    color: 'yellow',
-  },
-  {
-    id: 'unit_shortlist_created',
-    name: 'Үл хөдлөх сонгох',
-    type: 'in-progress',
-    color: 'yellow',
-  },
-  {
-    id: 'property_viewing',
-    name: 'Үл хөдлөх үзсэн',
-    type: 'in-progress',
-    color: 'yellow',
-  },
-  {
-    id: 'unit_selected',
-    name: 'Үл хөдлөх сонгосон',
-    type: 'done',
-    color: 'green',
-  },
-  { id: 'negotiation', name: 'Хэлэлцээр', type: 'completed', color: 'green' },
-  {
-    id: 'reservation',
-    name: 'Захиалсан',
-    type: 'cancelled',
-    color: 'red',
-  },
-  {
-    id: 'contract_drafting_signing',
-    name: 'Гэрээний драфт',
-    type: 'completed',
-    color: 'green',
-  },
-  {
-    id: 'closed_successful',
-    name: 'Гэрээ хийгдсэн',
-    type: 'completed',
-    color: 'green',
-  },
-  {
-    id: 'closed_unsuccessful',
-    name: 'Гэрээ хийгдээгүй',
-    type: 'completed',
-    color: 'green',
-  },
-];
+const fetchedOpptysState = atom<BoardItemProps[]>([]);
+const opptyCountByProjectAtom = atom<Record<string, number>>({});
 
 export const OpptysBoard = ({ projectId }: { projectId: string }) => {
-  const allOpptysMap = useAtomValue(allOpptysMapState);
+  const { statuses, loading: columnsLoading } = useBlockStatusesByType({ projectId });
+
+  const columns = (statuses || []).map((status) => ({
+    id: status._id,
+    name: status.name,
+    color: status.color,
+  }));
+
+  if (columnsLoading) return <Spinner />;
+
+  if (columns.length === 0) {
+    return (
+      <div className="flex items-center justify-center h-96 text-muted-foreground">
+        No statuses configured for this project. Add statuses in project settings.
+      </div>
+    );
+  }
+
+  return <OpptysBoardInner projectId={projectId} columns={columns} />;
+};
+
+const OpptysBoardInner = ({
+  projectId,
+  columns,
+}: {
+  projectId: string;
+  columns: { id: string; name: string; color: string }[];
+}) => {
+  const [allOpptysMap, setAllOpptysMap] = useAtom(allOpptysMapState);
   const { updateOppty } = useUpdateOppty();
 
   const [opptys, setOpptys] = useAtom(fetchedOpptysState);
@@ -116,6 +85,11 @@ export const OpptysBoard = ({ projectId }: { projectId: string }) => {
         },
       },
     });
+
+    setAllOpptysMap((prev) => ({
+      ...prev,
+      [activeItem._id]: { ...activeItem, status: overColumn },
+    }));
 
     setOpptys((prev) =>
       prev.map((oppty) => {
@@ -165,7 +139,7 @@ export const OpptysBoardCards = ({
   );
 
   const boardCards = opptyCards
-    .filter((oppty) => oppty.column === column.id)
+    .filter((oppty) => oppty && oppty.column === column.id)
     .sort((a, b) => {
       if (a.sort && b.sort) {
         return b.sort.toString().localeCompare(a.sort.toString());
@@ -187,30 +161,36 @@ export const OpptysBoardCards = ({
   useEffect(() => {
     if (opptys) {
       setOpptyCards((prev) => {
-        const previousopptys = prev.filter(
-          (optty) => !opptys.some((t) => t._id === optty.id),
-        );
-        return [
-          ...previousopptys,
-          ...opptys.map((oppty) => ({
+        const newCards = opptys
+          .filter((oppty) => oppty && oppty._id)
+          .map((oppty) => ({
             id: oppty._id,
             column: oppty.status,
             sort: oppty.updatedAt,
-          })),
-        ];
+          }));
+        const newCardIds = new Set(newCards.map((c) => c.id));
+        const otherColumns = prev.filter(
+          (card) => card.column !== column.id && !newCardIds.has(card.id),
+        );
+        return [...otherColumns, ...newCards];
       });
       setAllOpptysMap((prev) => {
-        const newOpptys = opptys.reduce((acc, oppty) => {
-          acc[oppty._id] = oppty;
-          return acc;
-        }, {} as Record<string, IOppty>);
+        const newOpptys = opptys.reduce(
+          (acc, oppty) => {
+            if (oppty && oppty._id) {
+              acc[oppty._id] = oppty;
+            }
+            return acc;
+          },
+          {} as Record<string, IOppty>,
+        );
         return { ...prev, ...newOpptys };
       });
     }
   }, [opptys, setOpptyCards, setAllOpptysMap, column.id]);
 
   useEffect(() => {
-    if (totalCount) {
+    if (totalCount !== undefined) {
       setOpptyCountByProject((prev) => ({
         ...prev,
         [column.id]: totalCount || 0,
@@ -233,16 +213,23 @@ export const OpptysBoardCards = ({
         </h4>
       </Board.Header>
       <Board.Cards id={column.id} items={boardCards.map((oppty) => oppty.id)}>
-        {boardCards.map((oppty) => (
-          <Board.Card
-            key={oppty.id}
-            id={oppty.id}
-            name={oppty.name || `Oppty ${oppty.id}`}
-            column={column.id}
-          >
-            <OpptysBoardCard id={oppty.id} column={column.id} />
-          </Board.Card>
-        ))}
+        {loading ? (
+          <SkeletonArray
+            className="p-24 w-full rounded shadow-xs opacity-80"
+            count={10}
+          />
+        ) : (
+          boardCards.map((oppty) => (
+            <Board.Card
+              key={oppty.id}
+              id={oppty.id}
+              name={oppty.name || `Oppty ${oppty.id}`}
+              column={column.id}
+            >
+              <OpptysBoardCard id={oppty.id} column={column.id} />
+            </Board.Card>
+          ))
+        )}
         <OpptysCardsFetchMore
           totalCount={opptyCountByProject[column.id] || 0}
           currentLength={boardCards.length}

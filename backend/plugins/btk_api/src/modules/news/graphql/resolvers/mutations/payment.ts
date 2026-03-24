@@ -1,6 +1,5 @@
 import { IContext } from '~/connectionResolvers';
 import { INewsPaymentPlan } from '~/modules/news/@types/payment';
-import { requireLogin } from 'erxes-api-shared/core-modules';
 
 export const paymentMutations = {
   btkCreateNewsPaymentPlan: async (
@@ -20,5 +19,3 @@ export const paymentMutations = {
   },
 };
 
-requireLogin(paymentMutations, 'btkCreateNewsPaymentPlan');
-requireLogin(paymentMutations, 'btkUpdateNewsPaymentPlan');

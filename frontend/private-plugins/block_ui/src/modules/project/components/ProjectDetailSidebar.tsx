@@ -25,7 +25,7 @@ export const ProjectDetailSidebar = () => {
     PROJECT_TABS.UNITS,
   ];
 
-  const settings = [PROJECT_TABS.MEMBERS, PROJECT_TABS.INSIDER];
+  const settings = [PROJECT_TABS.MEMBERS, PROJECT_TABS.INSIDER, PROJECT_TABS.STATUS];
 
   return (
     <Sidebar

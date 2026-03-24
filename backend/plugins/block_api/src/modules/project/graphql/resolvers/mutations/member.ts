@@ -1,5 +1,4 @@
 import { IContext } from '~/connectionResolvers';
-import { requireLogin } from 'erxes-api-shared/core-modules';
 
 export const projectMemberMutations = {
   blockAddProjectMembers: async (
@@ -32,6 +31,3 @@ export const projectMemberMutations = {
   },
 };
 
-requireLogin(projectMemberMutations, 'blockAddProjectMembers');
-requireLogin(projectMemberMutations, 'blockUpdateProjectMember');
-requireLogin(projectMemberMutations, 'blockDeleteProjectMember');

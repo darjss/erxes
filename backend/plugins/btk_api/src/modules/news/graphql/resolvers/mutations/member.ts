@@ -1,5 +1,4 @@
 import { IContext } from '~/connectionResolvers';
-import { requireLogin } from 'erxes-api-shared/core-modules';
 
 export const newsMemberMutations = {
   btkAddNewsMembers: async (
@@ -32,6 +31,3 @@ export const newsMemberMutations = {
   },
 };
 
-requireLogin(newsMemberMutations, 'btkAddNewsMembers');
-requireLogin(newsMemberMutations, 'btkUpdateNewsMember');
-requireLogin(newsMemberMutations, 'btkDeleteNewsMember');

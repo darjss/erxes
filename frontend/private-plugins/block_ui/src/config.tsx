@@ -23,6 +23,7 @@ export const CONFIG: IUIConfig = {
       name: 'block',
       icon: IconBlocks,
       path: 'block',
+      hasRelationWidget: true,
     },
   ],
   navigationGroup: {
@@ -38,5 +39,13 @@ export const CONFIG: IUIConfig = {
         <BlockProjectsNavigation />
       </Suspense>
     ),
+  },
+  widgets: {
+    relationWidgets: [
+      {
+        name: 'oppty',
+        icon: IconBlocks,
+      },
+    ],
   },
 };

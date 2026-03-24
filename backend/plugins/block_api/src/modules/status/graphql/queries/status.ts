@@ -16,4 +16,12 @@ export const statusQueries = {
   ) => {
     return models.Status.getStatuses(projectId, type);
   },
+
+  getBlockStatusTypes: async (
+    _root: undefined,
+    { projectId }: { projectId: string },
+    { models }: IContext,
+  ) => {
+    return models.Status.getStatusTypes(projectId);
+  },
 };

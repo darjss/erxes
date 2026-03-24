@@ -5,7 +5,7 @@ export const types = `
     projectId: String!
     description: String
     color: String
-    order: Int
+    order: Float
     type: String
     createdAt: Date
     updatedAt: Date
@@ -18,17 +18,19 @@ export const types = `
     description: String
     color: String
     type: String
-    order: Int
+    order: Float
   }
 `;
 
 export const queries = `
   getBlockStatus(_id: String!): BlockStatus
   getBlockStatuses(projectId: String!, type: String): [BlockStatus]
+  getBlockStatusTypes(projectId: String!): [BlockStatus]
 `;
 
 export const mutations = `
   createBlockStatus(input: BlockStatusInput!): BlockStatus
   updateBlockStatus(_id: String!, input: BlockStatusInput!): BlockStatus
+  updateBlockStatusOrder(_id: String!, order: Float!): BlockStatus
   removeBlockStatus(_id: String!): BlockStatus
 `;

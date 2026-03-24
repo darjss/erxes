@@ -13,7 +13,14 @@ export const OPPTY_LIST_CHANGED = gql`
         description
         customerId
         unitTypes
+        unit
         units
+        propertyRows {
+          buildingId
+          zoningId
+          unitId
+          isMain
+        }
         assignedUserId
         status
         labelIds
@@ -22,6 +29,7 @@ export const OPPTY_LIST_CHANGED = gql`
         startDate
         targetDate
         customerSource
+        propertiesData
         createdAt
         updatedAt
       }

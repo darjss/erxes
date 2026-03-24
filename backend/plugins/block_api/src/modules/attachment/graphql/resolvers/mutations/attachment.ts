@@ -1,6 +1,5 @@
 import { IContext } from '~/connectionResolvers';
 import { IBlockAttachment } from '@/attachment/@types/attachment';
-import { requireLogin } from 'erxes-api-shared/core-modules';
 
 export const attachmentMutations = {
   blockCreateAttachment: async (
@@ -28,6 +27,3 @@ export const attachmentMutations = {
   },
 };
 
-requireLogin(attachmentMutations, 'blockCreateAttachment');
-requireLogin(attachmentMutations, 'blockUpdateAttachment');
-requireLogin(attachmentMutations, 'blockDeleteAttachment');

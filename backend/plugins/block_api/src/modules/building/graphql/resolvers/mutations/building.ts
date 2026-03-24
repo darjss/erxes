@@ -1,5 +1,4 @@
 import { IContext } from '~/connectionResolvers';
-import { requireLogin } from 'erxes-api-shared/core-modules';
 
 export const buildingMutations = {
   blockCreateBuilding: async (
@@ -49,7 +48,3 @@ export const buildingMutations = {
   },
 };
 
-requireLogin(buildingMutations, 'blockCreateBuilding');
-requireLogin(buildingMutations, 'blockUpdateBuilding');
-requireLogin(buildingMutations, 'blockDeleteBuilding');
-requireLogin(buildingMutations, 'blockDupplicateBuilding');

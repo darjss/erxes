@@ -1,6 +1,5 @@
 import { IContext } from '~/connectionResolvers';
 import { IBtkDocumentDocument } from '@/document/@types/document';
-import { requireLogin } from 'erxes-api-shared/core-modules';
 
 export const documentMutations = {
   btkCreateDocument: async (
@@ -28,6 +27,3 @@ export const documentMutations = {
   },
 };
 
-requireLogin(documentMutations, 'btkCreateDocument');
-requireLogin(documentMutations, 'btkUpdateDocument');
-requireLogin(documentMutations, 'btkDeleteDocument');

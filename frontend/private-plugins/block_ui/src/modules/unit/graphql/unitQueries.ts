@@ -27,6 +27,7 @@ export const BLOCK_GET_UNIT = gql`
         _id
         name
         size
+        price
       }
       updatedAt
       zoning

@@ -1,5 +1,4 @@
 import { IContext } from '~/connectionResolvers';
-import { requireLogin } from 'erxes-api-shared/core-modules';
 
 export const offerQueries = {
   blockGetOffer: async (
@@ -19,5 +18,3 @@ export const offerQueries = {
   },
 };
 
-requireLogin(offerQueries, 'blockGetOffer');
-requireLogin(offerQueries, 'blockGetOffers');

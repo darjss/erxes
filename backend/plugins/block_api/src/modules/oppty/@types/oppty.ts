@@ -1,4 +1,5 @@
 import { OPPTY_STATUSES } from '@/oppty/constants';
+import { IPropertyField } from 'erxes-api-shared/core-types';
 import { Document } from 'mongoose';
 
 export enum FIELD {
@@ -21,6 +22,13 @@ export enum FIELD {
   END_DATE = 'END_DATE',
 }
 
+export interface IPropertyRow {
+  buildingId?: string;
+  zoningId?: string;
+  unitId?: string;
+  isMain?: boolean;
+}
+
 export interface IOppty {
   number: string;
   description: string;
@@ -28,6 +36,7 @@ export interface IOppty {
   unitTypes?: string[];
   units?: string[];
   unit?: string;
+  propertyRows?: IPropertyRow[];
   assignedUserId?: string;
   blocks?: string[];
   status: string;
@@ -37,9 +46,11 @@ export interface IOppty {
   startDate?: Date;
   targetDate?: Date;
   customerSource?: string;
+  propertiesData?: IPropertyField;
 }
 
 export interface IOpptyFilter {
+  searchValue?: string;
   number?: string;
   description?: string;
   customerId?: string;
@@ -47,8 +58,10 @@ export interface IOpptyFilter {
   unit?: string;
   assignedUserId?: string;
   status?: string;
+  priority?: string;
   startDate?: Date;
   targetDate?: Date;
+  dateFilters?: string;
   customerSource?: string;
   labelId?: string;
   tagId?: string;
@@ -66,6 +79,7 @@ export interface IOpptyInput {
   unitTypes?: string[];
   units?: string[];
   unit?: string;
+  propertyRows?: IPropertyRow[];
   assignedUserId?: string;
   blocks?: string[];
   status: string;
@@ -75,4 +89,5 @@ export interface IOpptyInput {
   startDate?: Date;
   targetDate?: Date;
   customerSource?: string;
+  propertiesData?: IPropertyField;
 }

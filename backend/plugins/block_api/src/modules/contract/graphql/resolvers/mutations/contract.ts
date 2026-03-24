@@ -1,6 +1,5 @@
 import { IContext } from '~/connectionResolvers';
 import { IContract } from '@/contract/@types/contract';
-import { requireLogin } from 'erxes-api-shared/core-modules';
 
 export const contractMutations = {
   blockCreateContract: async (
@@ -19,5 +18,3 @@ export const contractMutations = {
   },
 };
 
-requireLogin(contractMutations, 'blockCreateContract');
-requireLogin(contractMutations, 'blockUpdateContract');

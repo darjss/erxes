@@ -1,6 +1,5 @@
 import { IContext } from '~/connectionResolvers';
 import { IBlockDocumentDocument } from '@/document/@types/document';
-import { requireLogin } from 'erxes-api-shared/core-modules';
 
 export const documentMutations = {
   blockCreateDocument: async (
@@ -48,6 +47,3 @@ export const documentMutations = {
   },
 };
 
-requireLogin(documentMutations, 'blockCreateDocument');
-requireLogin(documentMutations, 'blockUpdateDocument');
-requireLogin(documentMutations, 'blockDeleteDocument');

@@ -53,7 +53,7 @@ export const InfoCardContent = ({
   return (
     <div
       className={cn(
-        'flex flex-col gap-3 bg-background rounded-lg p-3 shadow-sm flex-auto',
+        'flex flex-col bg-background rounded-lg p-3 shadow-sm flex-auto',
         className,
       )}
     >

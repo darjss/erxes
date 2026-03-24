@@ -1,17 +1,27 @@
 import { OPPTY_STATUSES } from '../constants/oppty';
 
 export interface IOpptyFilter {
+  searchValue?: string;
   number?: string;
   description?: string;
   customerId?: string;
   unitType?: string;
   unit?: string;
-  block?: string;
   assignedUserId?: string;
   status?: string;
-  labelIds?: string[];
-  tagIds?: string[];
-  projectId?: string;
+  priority?: string;
+  startDate?: Date;
+  targetDate?: Date;
+  customerSource?: string;
+  labelId?: string;
+  tagId?: string;
+}
+
+export interface IPropertyRow {
+  buildingId?: string;
+  zoningId?: string;
+  unitId?: string;
+  isMain?: boolean;
 }
 
 export interface IOpptyInput {
@@ -19,7 +29,9 @@ export interface IOpptyInput {
   description: string;
   customerId: string;
   unitTypes?: string[];
+  unit?: string;
   units?: string[];
+  propertyRows?: IPropertyRow[];
   blocks?: string[];
   assignedUserId?: string;
   status: (typeof OPPTY_STATUSES)[keyof typeof OPPTY_STATUSES];
@@ -29,6 +41,7 @@ export interface IOpptyInput {
   startDate?: Date;
   targetDate?: Date;
   customerSource: string;
+  propertiesData?: any;
 }
 
 export interface IOppty extends IOpptyInput {

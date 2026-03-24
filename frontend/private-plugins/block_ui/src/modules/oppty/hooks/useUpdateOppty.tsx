@@ -1,22 +1,31 @@
-import { useMutation, MutationHookOptions } from '@apollo/client';
+import { useMutation } from '@apollo/client';
 import { UPDATE_OPPTY_MUTATION } from '@/oppty/graphql/mutations/updateOppty';
-import { useToast } from 'erxes-ui';
+import { GET_OPPTY } from '@/oppty/graphql/queries/getOppty';
+import { toast } from 'erxes-ui';
 
-export const useUpdateOppty = () => {
-  const { toast } = useToast();
-  const [_updateOppty, { loading, error }] = useMutation(UPDATE_OPPTY_MUTATION);
-  const updateOppty = (options: MutationHookOptions) => {
-    return _updateOppty({
-      ...options,
-      onError: (error) => {
-        toast({
-          title: 'Error',
-          description: error.message,
-          variant: 'destructive',
-        });
-      },
-    });
-  };
+export const useUpdateOppty = ({ _id }: { _id?: string } = {}) => {
+  const [updateOppty, { loading }] = useMutation(UPDATE_OPPTY_MUTATION, {
+    refetchQueries: [
+      'BlockGetOpptys',
+      ...(_id
+        ? [{ query: GET_OPPTY, variables: { _id } }]
+        : []),
+    ],
+    onCompleted: () => {
+      toast({
+        title: 'Success',
+        description: 'Opportunity updated successfully',
+        variant: 'success',
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: 'Error',
+        description: error.message,
+        variant: 'destructive',
+      });
+    },
+  });
 
-  return { updateOppty, loading, error };
+  return { updateOppty, loading };
 };
