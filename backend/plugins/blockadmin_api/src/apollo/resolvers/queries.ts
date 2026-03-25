@@ -1,3 +1,4 @@
+import { agencyQueries } from '@/agency/graphql/resolvers/queries/agency';
 import { attachmentQueries } from '@/attachment/graphql/resolvers/queries/attachment';
 import { buildingQueries } from '@/building/graphql/resolvers/queries/building';
 import { zoningQueries } from '@/building/graphql/resolvers/queries/zoning';
@@ -16,6 +17,7 @@ import { cpBlockQueries } from '~/modules/clientportal/graphql/resolvers/queries
 import { formQueries } from '~/modules/form/graphql/queries';
 
 export const queries = {
+  ...agencyQueries,
   ...projectQueries,
   ...buildingQueries,
   ...zoningQueries,

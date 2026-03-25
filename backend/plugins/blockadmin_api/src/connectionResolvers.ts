@@ -1,3 +1,8 @@
+import { IBlockAgencyDocument } from '@/agency/@types/agency';
+import {
+  IBlockAgencyModel,
+  loadBlockAgencyClass,
+} from '@/agency/db/models/Agency';
 import { IBlockAttachmentDocument } from '@/attachment/@types/attachment';
 import {
   IBlockAttachmentModel,
@@ -58,6 +63,7 @@ import { IUnitTypeDocument } from './modules/unit/@types/unitType';
 import { IUnitTypeModel, loadUnitTypeClass } from './modules/unit/db/models/UnitType';
 
 export interface IModels {
+  Agency: IBlockAgencyModel;
   Project: IProjectModel;
   ProjectPaymentPlan: IProjectPaymentPlanModel;
   Building: IBuildingModel;
@@ -82,6 +88,11 @@ export interface IContext extends IMainContext {
 
 export const loadClasses = (db: mongoose.Connection): IModels => {
   const models = {} as IModels;
+
+  models.Agency = db.model<IBlockAgencyDocument, IBlockAgencyModel>(
+    'block_admin_agencies',
+    loadBlockAgencyClass(models),
+  );
 
   models.Project = db.model<IProjectDocument, IProjectModel>(
     'block_admin_projects',

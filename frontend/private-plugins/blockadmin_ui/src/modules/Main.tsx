@@ -38,6 +38,18 @@ const SubmissionsPage = lazy(() =>
   })),
 );
 
+const AgenciesPage = lazy(() =>
+  import('~/pages/AgenciesPage').then((module) => ({
+    default: module.AgenciesPage,
+  })),
+);
+
+const AgencyDetailPage = lazy(() =>
+  import('~/pages/AgencyDetailPage').then((module) => ({
+    default: module.AgencyDetailPage,
+  })),
+);
+
 const Main = () => {
   return (
     <Suspense fallback={<div />}>
@@ -47,6 +59,9 @@ const Main = () => {
 
         <Route path="/developers" element={<DevelopersPage />} />
         <Route path="/developers/:id" element={<DeveloperDetail />} />
+
+        <Route path="/agencies" element={<AgenciesPage />} />
+        <Route path="/agencies/:id" element={<AgencyDetailPage />} />
 
         <Route path="/form">
           <Route index element={<Navigate to="submissions" replace />} />

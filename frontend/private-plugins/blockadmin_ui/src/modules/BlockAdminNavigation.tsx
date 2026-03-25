@@ -1,4 +1,5 @@
 import {
+  IconBriefcase,
   IconBuildingCommunity,
   IconCrane,
   IconListCheck,
@@ -19,6 +20,12 @@ export const BlockNavigation = () => {
         icon={IconBuildingCommunity}
         pathPrefix="blockadmin"
         path="projects"
+      />
+      <NavigationMenuLinkItem
+        name="Agencies"
+        icon={IconBriefcase}
+        pathPrefix="blockadmin"
+        path="agencies"
       />
       <NavigationMenuLinkItem
         name="Form"

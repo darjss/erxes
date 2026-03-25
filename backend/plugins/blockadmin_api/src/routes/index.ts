@@ -1,3 +1,4 @@
+import { router as agencyRoutes } from '@/agency/routes';
 import { router as attachmentRoutes } from '@/attachment/routes';
 import { router as buildingRoutes } from '@/building/routes';
 import { router as developerRoutes } from '@/developer/routes';
@@ -16,6 +17,7 @@ router.use(
   '/webhook',
   [validationMiddleware, contextMiddleware, modifierMiddleware],
   [
+    agencyRoutes,
     attachmentRoutes,
     buildingRoutes,
     developerRoutes,

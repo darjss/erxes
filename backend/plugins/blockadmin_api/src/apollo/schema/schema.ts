@@ -41,6 +41,11 @@ import {
 } from '@/attachment/graphql/schemas/attachment';
 
 import {
+  mutations as AgencyMutations,
+  queries as AgencyQueries,
+  types as AgencyTypes,
+} from '@/agency/graphql/schemas/agency';
+import {
   mutations as DeveloperMutations,
   queries as DeveloperQueries,
   types as DeveloperTypes,
@@ -94,6 +99,7 @@ export const types = `
   ${UnitTypeTypes}
   ${ZoningTypes}
   ${AttachmentTypes}
+  ${AgencyTypes}
   ${DeveloperTypes}
   ${ProjectMemberTypes}
   ${UnitLeadTypes}
@@ -114,6 +120,7 @@ export const queries = `
   ${UnitTypeQueries}
   ${ZoningQueries}
   ${AttachmentQueries}
+  ${AgencyQueries}
   ${DeveloperQueries}
   ${ProjectMemberQueries}
   ${UnitLeadQueries}
@@ -127,6 +134,7 @@ export const queries = `
 
 export const mutations = `
   ${SubmissionMutations}
+  ${AgencyMutations}
   ${DeveloperMutations}
   ${UnitMutations}
   ${ProjectMutations}
