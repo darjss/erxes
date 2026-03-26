@@ -42,7 +42,7 @@ const RegistrationsPage = lazy(() =>
 );
 
 const RegistrationSchemasPage = lazy(() =>
-  import('~/pages/RegistrationSchemasBuilderPage').then((module) => ({
+  import('../pages/RegistrationSchemasBuilderPage').then((module) => ({
     default: module.RegistrationSchemasBuilderPage,
   })),
 );
@@ -78,7 +78,7 @@ const MtoMain = () => {
         {!isSlaveMode && <Route path="/banners" element={<BannersPage />} />}
         <Route path="/registration" element={<RegistrationIndexPage />} />
         <Route path="/registrations" element={<RegistrationsPage />} />
-        <Route path="/registration-schemas" element={<RegistrationSchemasPage />} />
+        <Route path="/fillform" element={<RegistrationSchemasPage />} />
       </Routes>
     </Suspense>
   );

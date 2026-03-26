@@ -34,9 +34,9 @@ export function IndexPage() {
               </Button>
               {!isSlaveMode && (
                 <Button asChild>
-                  <Link to="/mto/registration-schemas">
+                  <Link to="/mto/fillform">
                     <IconForms />
-                    Registration Schemas
+                    FillForm
                   </Link>
                 </Button>
               )}

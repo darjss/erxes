@@ -4,7 +4,6 @@ import {
   IconTags,
   IconBuildingStore,
   IconPhoto,
-  IconClipboardList,
   IconList,
   IconForms,
 } from '@tabler/icons-react';
@@ -36,12 +35,6 @@ export const MtoNavigation = () => {
         path="providers"
       />
       <NavigationMenuLinkItem
-        name="Registration"
-        icon={IconClipboardList}
-        pathPrefix="mto"
-        path="registration"
-      />
-      <NavigationMenuLinkItem
         name="Registrations"
         icon={IconList}
         pathPrefix="mto"
@@ -49,10 +42,10 @@ export const MtoNavigation = () => {
       />
       {!isSlaveMode && (
         <NavigationMenuLinkItem
-          name="Registration Schemas"
+          name="FillForm"
           icon={IconForms}
           pathPrefix="mto"
-          path="registration-schemas"
+          path="fillform"
         />
       )}
       {!isSlaveMode && (

@@ -1,5 +1,5 @@
 import { useQuery } from '@apollo/client';
-import { Button, Spinner } from 'erxes-ui';
+import { Button, Dialog, Spinner } from 'erxes-ui';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { MtoPageLayout } from '~/components/MtoPageLayout';
@@ -14,6 +14,8 @@ export function RegistrationIndexPage() {
   const [sheetOpen, setSheetOpen] = useState(false);
   const [selectedTypeId, setSelectedTypeId] = useState<string | null>(null);
   const [selectedTitle, setSelectedTitle] = useState<string | undefined>();
+  const [chooserOpen, setChooserOpen] = useState(false);
+  const [pendingTypeId, setPendingTypeId] = useState<string | null>(null);
 
   function openSheet(row: {
     membershipTypeId: string;
@@ -52,6 +54,24 @@ export function RegistrationIndexPage() {
   }
 
   const list = data?.mtoRegistrationMembershipSummaries ?? [];
+  const fillFormTypes = list.slice(0, 6);
+
+  function handleContinueToForm() {
+    if (!pendingTypeId) {
+      return;
+    }
+
+    const target = fillFormTypes.find(
+      (item: { membershipTypeId: string }) => item.membershipTypeId === pendingTypeId,
+    );
+
+    if (!target) {
+      return;
+    }
+
+    setChooserOpen(false);
+    openSheet(target);
+  }
 
   return (
     <MtoPageLayout pageName="Гишүүнчлэлийн бүртгэл">
@@ -61,38 +81,78 @@ export function RegistrationIndexPage() {
         </Button>
         {!isSlaveMode && (
           <Button variant="outline" size="sm" asChild>
-            <Link to="/mto/registration-schemas">Schema CRUD</Link>
+            <Link to="/mto/fillform">FillForm</Link>
           </Button>
         )}
       </div>
       <p className="text-muted-foreground text-sm mb-6 max-w-2xl">
-        Өөрийн үйл ажиллагааны төрлийг сонгон маягтыг бөглөнө үү. Маягт хажуугийн цонхонд нээгдэнэ.
+        Эхлээд FillForm-ын төрлөө сонгоод Continue дарж маягтаа бөглөнө үү.
       </p>
-      <ul className="flex flex-col gap-3 max-w-xl">
-        {list.map(
-          (row: {
-            membershipTypeId: string;
-            title: string;
-            schemaVersion: string;
-          }) => (
-            <li key={row.membershipTypeId}>
-              <Button
-                type="button"
-                variant="outline"
-                className="w-full justify-start h-auto py-3"
-                onClick={() => openSheet(row)}
-              >
-                <span className="flex flex-col items-start gap-0.5">
-                  <span className="font-medium">{row.title}</span>
-                  <span className="text-xs text-muted-foreground font-normal">
-                    Хувилбар: {row.schemaVersion}
+      <Button
+        type="button"
+        onClick={() => {
+          setPendingTypeId(fillFormTypes[0]?.membershipTypeId ?? null);
+          setChooserOpen(true);
+        }}
+        disabled={!fillFormTypes.length}
+      >
+        FillForm сонгох
+      </Button>
+
+      <Dialog open={chooserOpen} onOpenChange={setChooserOpen}>
+        <Dialog.Content>
+          <Dialog.Header>
+            <Dialog.Title>FillForm төрлөө сонгоно уу</Dialog.Title>
+            <Dialog.Description>
+              Дараах {fillFormTypes.length} төрлөөс нэгийг сонгоод Continue дарна уу.
+            </Dialog.Description>
+          </Dialog.Header>
+
+          <div className="space-y-2 py-3">
+            {fillFormTypes.map(
+              (row: {
+                membershipTypeId: string;
+                title: string;
+                schemaVersion: string;
+              }) => (
+                <Button
+                  key={row.membershipTypeId}
+                  type="button"
+                  variant={
+                    pendingTypeId === row.membershipTypeId ? 'default' : 'outline'
+                  }
+                  className="w-full justify-start h-auto py-3"
+                  onClick={() => setPendingTypeId(row.membershipTypeId)}
+                >
+                  <span className="flex flex-col items-start gap-0.5">
+                    <span className="font-medium">{row.title}</span>
+                    <span className="text-xs text-muted-foreground font-normal">
+                      Хувилбар: {row.schemaVersion}
+                    </span>
                   </span>
-                </span>
-              </Button>
-            </li>
-          ),
-        )}
-      </ul>
+                </Button>
+              ),
+            )}
+          </div>
+
+          <Dialog.Footer>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setChooserOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              onClick={handleContinueToForm}
+              disabled={!pendingTypeId}
+            >
+              Continue
+            </Button>
+          </Dialog.Footer>
+        </Dialog.Content>
+      </Dialog>
 
       <RegistrationFormSheet
         open={sheetOpen}
