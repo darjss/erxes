@@ -1,4 +1,5 @@
 import { RegistrationFormDefinition } from '@/registration/@types/registrationForm';
+import { IModels } from '~/connectionResolvers';
 import { localCommunityForm } from './definitions/local-community';
 import { tourGuideForm } from './definitions/tour-guide';
 import { tourOperatorForm } from './definitions/tour-operator';
@@ -6,7 +7,7 @@ import { tourismServiceOrgForm } from './definitions/tourism-service-org';
 import { touristTransportDriverForm } from './definitions/tourist-transport-driver';
 import { travelAgentForm } from './definitions/travel-agent';
 
-const ALL_FORMS: RegistrationFormDefinition[] = [
+const DEFAULT_FORMS: RegistrationFormDefinition[] = [
   tourOperatorForm,
   localCommunityForm,
   tourGuideForm,
@@ -30,19 +31,36 @@ function compareSchemaVersion(a: string, b: string): number {
 
 export function listRegistrationMembershipTypeIds(): string[] {
   const ids = new Set<string>();
-  for (const f of ALL_FORMS) {
+  for (const f of DEFAULT_FORMS) {
     ids.add(f.membershipTypeId);
   }
   return [...ids];
 }
 
-export function getRegistrationFormDefinition(
+export async function ensureDefaultRegistrationFormSchemas(
+  models: IModels,
+): Promise<void> {
+  for (const form of DEFAULT_FORMS) {
+    await models.RegistrationFormSchema.updateOne(
+      {
+        membershipTypeId: form.membershipTypeId,
+        schemaVersion: form.schemaVersion,
+      },
+      { $setOnInsert: form },
+      { upsert: true },
+    );
+  }
+}
+
+export async function getRegistrationFormDefinition(
+  models: IModels,
   membershipTypeId: string,
   version?: string,
-): RegistrationFormDefinition | null {
-  const candidates = ALL_FORMS.filter(
-    (f) => f.membershipTypeId === membershipTypeId,
-  );
+): Promise<RegistrationFormDefinition | null> {
+  await ensureDefaultRegistrationFormSchemas(models);
+  const candidates = await models.RegistrationFormSchema.find({
+    membershipTypeId,
+  }).lean();
   if (candidates.length === 0) {
     return null;
   }
@@ -54,6 +72,14 @@ export function getRegistrationFormDefinition(
   )[0];
 }
 
-export function getAllRegistrationFormDefinitions(): RegistrationFormDefinition[] {
-  return [...ALL_FORMS];
+export async function getAllRegistrationFormDefinitions(
+  models: IModels,
+): Promise<RegistrationFormDefinition[]> {
+  await ensureDefaultRegistrationFormSchemas(models);
+  const docs = await models.RegistrationFormSchema.find({}).lean();
+  return docs as unknown as RegistrationFormDefinition[];
+}
+
+export function getDefaultRegistrationFormDefinitions(): RegistrationFormDefinition[] {
+  return [...DEFAULT_FORMS];
 }

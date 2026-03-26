@@ -5,9 +5,11 @@ import { Link } from 'react-router-dom';
 import { MtoPageLayout } from '~/components/MtoPageLayout';
 import { MTO_REGISTRATION_MEMBERSHIP_SUMMARIES } from '@/registration/graphql/registrationQueries';
 import { RegistrationFormSheet } from '@/registration/components/RegistrationFormSheet';
+import { useMtoMode } from '~/modules/config/hooks/useMtoMode';
 
 export function RegistrationIndexPage() {
   const { data, loading, error } = useQuery(MTO_REGISTRATION_MEMBERSHIP_SUMMARIES);
+  const { isSlaveMode } = useMtoMode();
 
   const [sheetOpen, setSheetOpen] = useState(false);
   const [selectedTypeId, setSelectedTypeId] = useState<string | null>(null);
@@ -57,6 +59,11 @@ export function RegistrationIndexPage() {
         <Button variant="secondary" size="sm" asChild>
           <Link to="/mto/registrations">Илгээсэн бүртгэлүүдийг харах</Link>
         </Button>
+        {!isSlaveMode && (
+          <Button variant="outline" size="sm" asChild>
+            <Link to="/mto/registration-schemas">Schema CRUD</Link>
+          </Button>
+        )}
       </div>
       <p className="text-muted-foreground text-sm mb-6 max-w-2xl">
         Өөрийн үйл ажиллагааны төрлийг сонгон маягтыг бөглөнө үү. Маягт хажуугийн цонхонд нээгдэнэ.

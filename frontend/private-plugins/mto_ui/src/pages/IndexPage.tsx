@@ -3,6 +3,7 @@ import {
   IconTags,
   IconPhoto,
   IconClipboardList,
+  IconForms,
 } from '@tabler/icons-react';
 import { Button } from 'erxes-ui';
 import { Link } from 'react-router-dom';
@@ -31,6 +32,14 @@ export function IndexPage() {
                   Registration
                 </Link>
               </Button>
+              {!isSlaveMode && (
+                <Button asChild>
+                  <Link to="/mto/registration-schemas">
+                    <IconForms />
+                    Registration Schemas
+                  </Link>
+                </Button>
+              )}
               {!isSlaveMode && (
                 <Button asChild>
                   <Link to="/mto/categories">

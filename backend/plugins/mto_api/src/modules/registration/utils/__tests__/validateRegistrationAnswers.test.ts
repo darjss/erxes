@@ -1,9 +1,17 @@
 import { validateRegistrationAnswers } from '@/registration/utils/validateRegistrationAnswers';
-import { getRegistrationFormDefinition } from '@/registration/schemas/registry';
+import { getDefaultRegistrationFormDefinitions } from '@/registration/schemas/registry';
+
+function getDefaultDefinition(membershipTypeId: string, schemaVersion: string) {
+  return getDefaultRegistrationFormDefinitions().find(
+    (d) =>
+      d.membershipTypeId === membershipTypeId &&
+      d.schemaVersion === schemaVersion,
+  );
+}
 
 describe('validateRegistrationAnswers', () => {
   it('rejects unknown keys', () => {
-    const def = getRegistrationFormDefinition('tour_guide', '2026-03-26');
+    const def = getDefaultDefinition('tour_guide', '2026-03-26');
     expect(def).toBeTruthy();
     const result = validateRegistrationAnswers(def!, {
       unknown_field: 'x',
@@ -14,14 +22,14 @@ describe('validateRegistrationAnswers', () => {
   });
 
   it('accepts minimal valid tour_guide answers', () => {
-    const def = getRegistrationFormDefinition('tour_guide', '2026-03-26');
+    const def = getDefaultDefinition('tour_guide', '2026-03-26');
     expect(def).toBeTruthy();
     const result = validateRegistrationAnswers(def!, minimalValidGuideAnswers());
     expect(result.valid).toBe(true);
   });
 
   it('requires acknowledgment boolean to be true when set', () => {
-    const def = getRegistrationFormDefinition('local_community', '2026-03-26');
+    const def = getDefaultDefinition('local_community', '2026-03-26');
     expect(def).toBeTruthy();
     const base = minimalValidLocalCommunityAnswers();
     const result = validateRegistrationAnswers(def!, {

@@ -25,6 +25,18 @@ export const types = `
     pageInfo: PageInfo
     totalCount: Int
   }
+
+  type MtoRegistrationFormSchema {
+    _id: String
+    createdAt: Date
+    modifiedAt: Date
+    membershipTypeId: String!
+    schemaVersion: String!
+    title: String!
+    description: String
+    sections: JSON!
+    applicationsCount: Int!
+  }
 `;
 
 const registrationListParams = `
@@ -38,6 +50,8 @@ export const queries = `
   mtoRegistrationApplications(${registrationListParams} ${GQL_CURSOR_PARAM_DEFS}): MtoRegistrationApplicationListResponse
   mtoRegistrationApplicationsCount(${registrationListParams}): Int
   mtoRegistrationApplication(_id: String!): MtoRegistrationApplication
+  mtoRegistrationFormSchemas(membershipTypeId: String): [MtoRegistrationFormSchema!]!
+  mtoRegistrationFormSchema(membershipTypeId: String!, schemaVersion: String!): MtoRegistrationFormSchema
 `;
 
 export const mutations = `
@@ -51,4 +65,14 @@ export const mutations = `
     answers: JSON
     status: String
   ): MtoRegistrationApplication
+  mtoRegistrationFormSchemaCreate(
+    definition: JSON!
+  ): MtoRegistrationFormSchema
+  mtoRegistrationFormSchemaUpdate(
+    _id: String!
+    definition: JSON!
+  ): MtoRegistrationFormSchema
+  mtoRegistrationFormSchemaRemove(
+    _id: String!
+  ): JSON
 `;

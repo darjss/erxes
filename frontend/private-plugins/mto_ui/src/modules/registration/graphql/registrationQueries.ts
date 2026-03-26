@@ -84,3 +84,19 @@ export const MTO_REGISTRATION_APPLICATION = gql`
     }
   }
 `;
+
+export const MTO_REGISTRATION_FORM_SCHEMAS = gql`
+  query MtoRegistrationFormSchemas($membershipTypeId: String) {
+    mtoRegistrationFormSchemas(membershipTypeId: $membershipTypeId) {
+      _id
+      createdAt
+      modifiedAt
+      membershipTypeId
+      schemaVersion
+      title
+      description
+      sections
+      applicationsCount
+    }
+  }
+`;

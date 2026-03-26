@@ -7,6 +7,7 @@ import { bannerQueries } from '@/banner/graphql/resolvers/queries/banner';
 import { registrationQueries } from '@/registration/graphql/resolvers/queries/registration';
 
 import { registrationApplicationsQueries } from '@/registration/graphql/resolvers/queries/registrationApplications';
+import { registrationFormSchemaQueries } from '@/registration/graphql/resolvers/queries/registrationFormSchemas';
 
 export const queries = {
   ...providerQueries,
@@ -14,4 +15,5 @@ export const queries = {
   ...bannerQueries,
   ...registrationQueries,
   ...registrationApplicationsQueries,
+  ...registrationFormSchemaQueries,
 };

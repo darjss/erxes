@@ -57,11 +57,13 @@ export const registrationApplicationsQueries: Record<string, Resolver> = {
       query: filter,
     });
 
-    const list = result.list.map((doc) =>
-      mapRegistrationApplicationGql(doc as unknown as Record<string, unknown>) as Record<
-        string,
-        unknown
-      >,
+    const list = await Promise.all(
+      result.list.map((doc) =>
+        mapRegistrationApplicationGql(
+          models,
+          doc as unknown as Record<string, unknown>,
+        ) as Promise<Record<string, unknown>>,
+      ),
     );
 
     return {
@@ -109,7 +111,7 @@ export const registrationApplicationsQueries: Record<string, Resolver> = {
       return null;
     }
 
-    return mapRegistrationApplicationGql(doc as Record<string, unknown>);
+    return mapRegistrationApplicationGql(models, doc as Record<string, unknown>);
   },
 };
 

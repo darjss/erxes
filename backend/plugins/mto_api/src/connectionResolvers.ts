@@ -28,12 +28,18 @@ import {
   IRegistrationApplicationModel,
   loadRegistrationApplicationClass,
 } from '@/registration/db/models/RegistrationApplication';
+import { IRegistrationFormSchemaDocument } from '@/registration/@types/registrationFormSchema';
+import {
+  IRegistrationFormSchemaModel,
+  loadRegistrationFormSchemaClass,
+} from '@/registration/db/models/RegistrationFormSchema';
 
 export interface IModels {
   Provider: IProviderModel;
   SystemConfig: ISystemConfigModel;
   Banner: IBannerModel;
   RegistrationApplication: IRegistrationApplicationModel;
+  RegistrationFormSchema: IRegistrationFormSchemaModel;
 }
 
 export interface IContext extends IMainContext {
@@ -70,6 +76,11 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
     'mto_registration_applications',
     loadRegistrationApplicationClass(models),
   );
+
+  models.RegistrationFormSchema = db.model<
+    IRegistrationFormSchemaDocument,
+    IRegistrationFormSchemaModel
+  >('mto_registration_form_schemas', loadRegistrationFormSchemaClass(models));
 
   return models;
 };

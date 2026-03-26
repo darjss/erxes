@@ -44,10 +44,12 @@ export const registrationMutations: Record<string, Resolver> = {
     const { models, subdomain, instanceId } = context;
 
     const definition = getRegistrationFormDefinition(
+      models,
       membershipTypeId,
       schemaVersion,
     );
-    if (!definition) {
+    const resolvedDefinition = await definition;
+    if (!resolvedDefinition) {
       throw new Error('Registration form definition not found');
     }
 
@@ -56,7 +58,7 @@ export const registrationMutations: Record<string, Resolver> = {
         ? (answers as Record<string, unknown>)
         : {};
 
-    const validation = validateRegistrationAnswers(definition, parsed);
+    const validation = validateRegistrationAnswers(resolvedDefinition, parsed);
     if (!validation.valid) {
       throw new Error(validation.errors.join('; '));
     }
@@ -69,7 +71,7 @@ export const registrationMutations: Record<string, Resolver> = {
       subdomain,
       instanceId,
     });
-    return mapRegistrationApplicationGql(toPlainRegistrationDoc(created));
+    return mapRegistrationApplicationGql(models, toPlainRegistrationDoc(created));
   },
 
   async mtoRegistrationApplicationUpdate(
@@ -97,10 +99,12 @@ export const registrationMutations: Record<string, Resolver> = {
     }
 
     const definition = getRegistrationFormDefinition(
+      models,
       existing.membershipTypeId,
       existing.schemaVersion,
     );
-    if (!definition) {
+    const resolvedDefinition = await definition;
+    if (!resolvedDefinition) {
       throw new Error('Registration form definition not found');
     }
 
@@ -110,7 +114,7 @@ export const registrationMutations: Record<string, Resolver> = {
         typeof answers === 'object' && !Array.isArray(answers)
           ? (answers as Record<string, unknown>)
           : {};
-      const validation = validateRegistrationAnswers(definition, parsed);
+      const validation = validateRegistrationAnswers(resolvedDefinition, parsed);
       if (!validation.valid) {
         throw new Error(validation.errors.join('; '));
       }
@@ -142,7 +146,7 @@ export const registrationMutations: Record<string, Resolver> = {
       throw new Error('Application not found');
     }
 
-    return mapRegistrationApplicationGql(toPlainRegistrationDoc(updated));
+    return mapRegistrationApplicationGql(models, toPlainRegistrationDoc(updated));
   },
 };
 
