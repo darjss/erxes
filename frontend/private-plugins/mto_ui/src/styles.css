@@ -1,0 +1,18 @@
+@import 'tailwindcss' prefix(mto) source('../src');
+
+@plugin 'tailwindcss-animate';
+
+@theme {
+  --color-primary: var(--primary);
+}
+
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--border, currentcolor);
+  }
+}
+
