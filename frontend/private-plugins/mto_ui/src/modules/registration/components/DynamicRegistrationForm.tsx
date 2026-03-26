@@ -10,13 +10,19 @@ import {
   cn,
 } from 'erxes-ui';
 import { useForm } from 'react-hook-form';
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useMutation } from '@apollo/client';
 import { toast } from 'erxes-ui';
 import { MtoUpload } from '~/components/onefit-upload';
 import { useUploadConfig } from '@/config/hooks/useUploadConfig';
-import { MTO_REGISTRATION_SUBMIT } from '@/registration/graphql/registrationMutations';
-import { defaultValuesFromDefinition } from '@/registration/utils/defaultValues';
+import {
+  MTO_REGISTRATION_APPLICATION_UPDATE,
+  MTO_REGISTRATION_SUBMIT,
+} from '@/registration/graphql/registrationMutations';
+import {
+  defaultValuesFromDefinition,
+  mergeInitialAnswers,
+} from '@/registration/utils/defaultValues';
 import { isAnswerEmpty } from '@/registration/utils/isAnswerEmpty';
 import {
   RegistrationField,
@@ -30,6 +36,14 @@ interface DynamicRegistrationFormProps {
   formClassName?: string;
   /** Hide the top description block (e.g. when the Sheet header already shows it). */
   hideDescription?: boolean;
+  /** Pre-fill field values (e.g. edit existing application). */
+  initialAnswers?: Record<string, unknown>;
+  /** When set, persist with update mutation instead of new submission. */
+  editApplicationId?: string;
+  /** Workflow status; required when `editApplicationId` is set. */
+  registrationStatus?: string;
+  /** Overrides default submit button label. */
+  submitLabel?: string;
 }
 
 function toggleInList(list: string[], value: string): string[] {
@@ -213,17 +227,39 @@ export function DynamicRegistrationForm({
   onSubmitted,
   formClassName,
   hideDescription,
+  initialAnswers,
+  editApplicationId,
+  registrationStatus,
+  submitLabel,
 }: DynamicRegistrationFormProps) {
   const { uploadUrl } = useUploadConfig();
   const form = useForm<Record<string, unknown>>({
     defaultValues: {},
   });
 
-  useEffect(() => {
-    form.reset(defaultValuesFromDefinition(definition));
-  }, [definition, form]);
+  const answersKey = useMemo(
+    () => (initialAnswers ? JSON.stringify(initialAnswers) : ''),
+    [initialAnswers],
+  );
 
-  const [submitMutation, { loading }] = useMutation(MTO_REGISTRATION_SUBMIT);
+  useEffect(() => {
+    if (editApplicationId) {
+      form.reset(
+        mergeInitialAnswers(definition, initialAnswers ?? {}),
+      );
+    } else {
+      form.reset(defaultValuesFromDefinition(definition));
+    }
+  }, [definition, form, editApplicationId, answersKey]);
+
+  const [submitMutation, { loading: createLoading }] = useMutation(
+    MTO_REGISTRATION_SUBMIT,
+  );
+  const [updateMutation, { loading: updateLoading }] = useMutation(
+    MTO_REGISTRATION_APPLICATION_UPDATE,
+  );
+
+  const loading = editApplicationId ? updateLoading : createLoading;
 
   async function onSubmit(values: Record<string, unknown>) {
     for (const section of definition.sections) {
@@ -241,17 +277,31 @@ export function DynamicRegistrationForm({
     }
 
     try {
-      await submitMutation({
-        variables: {
-          membershipTypeId: definition.membershipTypeId,
-          schemaVersion: definition.schemaVersion,
-          answers: values,
-        },
-      });
-      toast({
-        title: 'Амжилттай',
-        description: 'Бүртгэл амжилттай илгээгдлээ',
-      });
+      if (editApplicationId) {
+        await updateMutation({
+          variables: {
+            _id: editApplicationId,
+            answers: values,
+            status: registrationStatus,
+          },
+        });
+        toast({
+          title: 'Амжилттай',
+          description: 'Өөрчлөлт хадгалагдлаа',
+        });
+      } else {
+        await submitMutation({
+          variables: {
+            membershipTypeId: definition.membershipTypeId,
+            schemaVersion: definition.schemaVersion,
+            answers: values,
+          },
+        });
+        toast({
+          title: 'Амжилттай',
+          description: 'Бүртгэл амжилттай илгээгдлээ',
+        });
+      }
       onSubmitted?.();
     } catch (e: unknown) {
       const message =
@@ -319,7 +369,8 @@ export function DynamicRegistrationForm({
         <div className="flex justify-end gap-2 pt-4">
           <Button type="submit" disabled={loading}>
             <Spinner show={loading} />
-            Илгээх
+            {submitLabel ??
+              (editApplicationId ? 'Хадгалах' : 'Илгээх')}
           </Button>
         </div>
       </form>

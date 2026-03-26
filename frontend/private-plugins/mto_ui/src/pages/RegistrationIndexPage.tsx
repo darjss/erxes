@@ -1,6 +1,7 @@
 import { useQuery } from '@apollo/client';
 import { Button, Spinner } from 'erxes-ui';
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { MtoPageLayout } from '~/components/MtoPageLayout';
 import { MTO_REGISTRATION_MEMBERSHIP_SUMMARIES } from '@/registration/graphql/registrationQueries';
 import { RegistrationFormSheet } from '@/registration/components/RegistrationFormSheet';
@@ -52,6 +53,11 @@ export function RegistrationIndexPage() {
 
   return (
     <MtoPageLayout pageName="Гишүүнчлэлийн бүртгэл">
+      <div className="flex flex-wrap items-center gap-2 mb-4">
+        <Button variant="secondary" size="sm" asChild>
+          <Link to="/mto/registrations">Илгээсэн бүртгэлүүдийг харах</Link>
+        </Button>
+      </div>
       <p className="text-muted-foreground text-sm mb-6 max-w-2xl">
         Өөрийн үйл ажиллагааны төрлийг сонгон маягтыг бөглөнө үү. Маягт хажуугийн цонхонд нээгдэнэ.
       </p>

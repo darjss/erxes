@@ -5,6 +5,7 @@ import {
   IconBuildingStore,
   IconPhoto,
   IconClipboardList,
+  IconList,
 } from '@tabler/icons-react';
 import { useMtoMode } from './config/hooks/useMtoMode';
 
@@ -38,6 +39,12 @@ export const MtoNavigation = () => {
         icon={IconClipboardList}
         pathPrefix="mto"
         path="registration"
+      />
+      <NavigationMenuLinkItem
+        name="Registrations"
+        icon={IconList}
+        pathPrefix="mto"
+        path="registrations"
       />
       {!isSlaveMode && (
         <NavigationMenuLinkItem

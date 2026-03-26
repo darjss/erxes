@@ -6,9 +6,12 @@ import { bannerQueries } from '@/banner/graphql/resolvers/queries/banner';
 
 import { registrationQueries } from '@/registration/graphql/resolvers/queries/registration';
 
+import { registrationApplicationsQueries } from '@/registration/graphql/resolvers/queries/registrationApplications';
+
 export const queries = {
   ...providerQueries,
   ...configQueries,
   ...bannerQueries,
   ...registrationQueries,
+  ...registrationApplicationsQueries,
 };

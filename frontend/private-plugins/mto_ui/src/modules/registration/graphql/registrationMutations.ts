@@ -19,3 +19,21 @@ export const MTO_REGISTRATION_SUBMIT = gql`
     }
   }
 `;
+
+export const MTO_REGISTRATION_APPLICATION_UPDATE = gql`
+  mutation MtoRegistrationApplicationUpdate(
+    $_id: String!
+    $answers: JSON
+    $status: String
+  ) {
+    mtoRegistrationApplicationUpdate(_id: $_id, answers: $answers, status: $status) {
+      _id
+      status
+      membershipTypeId
+      membershipTypeTitle
+      schemaVersion
+      answers
+      modifiedAt
+    }
+  }
+`;

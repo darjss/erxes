@@ -29,3 +29,19 @@ export function defaultValuesFromDefinition(
   }
   return out;
 }
+
+export function mergeInitialAnswers(
+  definition: RegistrationFormDefinition,
+  initialAnswers?: Record<string, unknown>,
+): Record<string, unknown> {
+  const base = defaultValuesFromDefinition(definition);
+  if (!initialAnswers) return base;
+  for (const section of definition.sections) {
+    for (const field of section.fields) {
+      if (Object.prototype.hasOwnProperty.call(initialAnswers, field.id)) {
+        base[field.id] = initialAnswers[field.id];
+      }
+    }
+  }
+  return base;
+}

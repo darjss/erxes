@@ -35,6 +35,12 @@ const RegistrationIndexPage = lazy(() =>
   })),
 );
 
+const RegistrationsPage = lazy(() =>
+  import('~/pages/RegistrationsPage').then((module) => ({
+    default: module.RegistrationsPage,
+  })),
+);
+
 const MtoMain = () => {
   const { isSlaveMode } = useMtoMode();
   const { instanceId, loading } = useMtoInstanceId();
@@ -65,6 +71,7 @@ const MtoMain = () => {
         <Route path="/providers" element={<ProvidersPage />} />
         {!isSlaveMode && <Route path="/banners" element={<BannersPage />} />}
         <Route path="/registration" element={<RegistrationIndexPage />} />
+        <Route path="/registrations" element={<RegistrationsPage />} />
       </Routes>
     </Suspense>
   );

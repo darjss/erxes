@@ -12,6 +12,14 @@ export interface IRegistrationApplicationModel
   createApplication(
     doc: IRegistrationApplication,
   ): Promise<IRegistrationApplicationDocument>;
+  updateApplicationById(
+    _id: string,
+    subdomain: string,
+    patch: {
+      answers?: Record<string, unknown>;
+      status?: RegistrationApplicationStatus;
+    },
+  ): Promise<IRegistrationApplicationDocument | null>;
 }
 
 export const loadRegistrationApplicationClass = (models: IModels) => {
@@ -23,6 +31,35 @@ export const loadRegistrationApplicationClass = (models: IModels) => {
         ...doc,
         createdAt: new Date(),
       });
+    }
+
+    public static async updateApplicationById(
+      _id: string,
+      subdomain: string,
+      patch: {
+        answers?: Record<string, unknown>;
+        status?: RegistrationApplicationStatus;
+      },
+    ) {
+      const hasAnswers = patch.answers !== undefined;
+      const hasStatus = patch.status !== undefined;
+      if (!hasAnswers && !hasStatus) {
+        throw new Error('Nothing to update');
+      }
+
+      const $set: Record<string, unknown> = { modifiedAt: new Date() };
+      if (hasAnswers) {
+        $set.answers = patch.answers;
+      }
+      if (hasStatus) {
+        $set.status = patch.status;
+      }
+
+      return models.RegistrationApplication.findOneAndUpdate(
+        { _id, subdomain },
+        { $set },
+        { new: true },
+      );
     }
   }
 
