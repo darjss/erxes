@@ -132,8 +132,9 @@ async function createBookingLogic(
   const MS_PER_DAY = 24 * 60 * 60 * 1000;
 
   // Check membership is not on hold (booking not allowed during hold)
-  const oneFitCustomerForHold =
-    await models.OneFitCustomer.getOneFitCustomer(userId);
+  const oneFitCustomerForHold = await models.OneFitCustomer.getOneFitCustomer(
+    userId,
+  );
   if (oneFitCustomerForHold?.isMembershipOnHold) {
     const holdEndAt = oneFitCustomerForHold.membershipHoldEndAt
       ? new Date(oneFitCustomerForHold.membershipHoldEndAt)
@@ -324,11 +325,11 @@ async function cancelBookingLogic(
     const hoursUntilBooking =
       (bookingDateTime.getTime() - now.getTime()) / (1000 * 60 * 60);
 
-    if (hoursUntilBooking > 24) {
-      throw new Error(
-        'Цуцлалтыг үйл ажиллагаа дуусахын 24 цагийн дотор хийх боломжтой',
-      );
-    }
+    // if (hoursUntilBooking > 24) {
+    //   throw new Error(
+    //     'Цуцлалтыг үйл ажиллагаа дуусахын 24 цагийн дотор хийх боломжтой',
+    //   );
+    // }
 
     if (rawDeadline >= 0) {
       // Positive: must cancel at least N hours before activity end
