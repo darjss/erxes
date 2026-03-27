@@ -35,6 +35,40 @@ export interface OneFitActivityCategory {
   name: MultilingualString;
 }
 
+export interface OneFitProviderReviewSummary {
+  averageRating: number;
+  reviewCount: number;
+}
+
+export interface OneFitProviderReviewUser {
+  _id: string;
+  firstName?: string;
+  lastName?: string;
+  primaryEmail?: string;
+}
+
+export interface OneFitProviderReview {
+  _id: string;
+  providerId: string;
+  userId: string;
+  rating: number;
+  comment?: string;
+  createdAt?: string;
+  modifiedAt?: string;
+  user?: OneFitProviderReviewUser | null;
+}
+
+export interface OneFitProviderReviewListResponse {
+  list: OneFitProviderReview[];
+  pageInfo: {
+    hasNextPage: boolean;
+    hasPreviousPage: boolean;
+    startCursor?: string;
+    endCursor?: string;
+  };
+  totalCount: number;
+}
+
 export interface OneFitProvider {
   _id: string;
   createdAt: string;
@@ -56,6 +90,7 @@ export interface OneFitProvider {
   isActive: boolean;
   icon?: string;
   coverImages?: string[];
+  reviewSummary?: OneFitProviderReviewSummary;
 }
 
 export interface OneFitProviderListResponse {

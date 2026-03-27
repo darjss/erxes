@@ -324,11 +324,11 @@ async function cancelBookingLogic(
     const hoursUntilBooking =
       (bookingDateTime.getTime() - now.getTime()) / (1000 * 60 * 60);
 
-    if (hoursUntilBooking > 24) {
-      throw new Error(
-        'Цуцлалтыг үйл ажиллагаа дуусахын 24 цагийн дотор хийх боломжтой',
-      );
-    }
+    // if (hoursUntilBooking > 24) {
+    //   throw new Error(
+    //     'Цуцлалтыг үйл ажиллагаа дуусахын 24 цагийн дотор хийх боломжтой',
+    //   );
+    // }
 
     if (rawDeadline >= 0) {
       // Positive: must cancel at least N hours before activity end
@@ -448,6 +448,8 @@ async function cancelBookingLogic(
   return await models.Booking.cancelBooking(bookingId, cancelledBy, reason);
 }
 
+const CP_NOTIFICATIONS_CREATE_FAILED = Symbol('cpNotificationsCreateFailed');
+
 async function sendBookingCancelledCpNotification(
   subdomain: string,
   clientPortalId: string,
@@ -458,7 +460,7 @@ async function sendBookingCancelledCpNotification(
   const reasonText = cancellationReason ? ` Reason: ${cancellationReason}` : '';
 
   // Create (or upsert) cp notification + send push (if firebase configured)
-  await sendTRPCMessage({
+  const result = await sendTRPCMessage({
     subdomain,
     pluginName: 'core',
     method: 'mutation',
@@ -481,8 +483,17 @@ async function sendBookingCancelledCpNotification(
         },
       },
     },
-    defaultValue: null,
+    defaultValue: CP_NOTIFICATIONS_CREATE_FAILED,
   });
+
+  if (result === CP_NOTIFICATIONS_CREATE_FAILED) {
+    // Mirrors sendTRPCMessage silent catch; surfaces failures for ops/debugging
+    console.warn(
+      `[onefit] cpNotifications.create failed (subdomain=${subdomain}, booking._id=${String(
+        booking._id,
+      )}, clientPortalId=${clientPortalId})`,
+    );
+  }
 }
 
 async function findCpUsersByCustomerId(
@@ -505,8 +516,29 @@ async function findCpUsersByCustomerId(
 
   const fromList = Array.isArray(listResult?.list) ? listResult.list : [];
 
-  // booking.userId might also be cpUserId (when cpUser is not linked to erxes customer)
+  // booking.userId is usually erxes customer id; may also be cpUser._id when unlinked
   if (fromList.length === 0) {
+    const byErxesCustomerId = await sendTRPCMessage({
+      subdomain,
+      pluginName: 'core',
+      method: 'query',
+      module: 'cpUsers',
+      action: 'get',
+      input: {
+        erxesCustomerId: customerId,
+      },
+      defaultValue: null,
+    });
+
+    if (byErxesCustomerId?._id && byErxesCustomerId?.clientPortalId) {
+      return [
+        {
+          cpUserId: String(byErxesCustomerId._id),
+          clientPortalId: String(byErxesCustomerId.clientPortalId),
+        },
+      ];
+    }
+
     const byId = await sendTRPCMessage({
       subdomain,
       pluginName: 'core',
@@ -770,12 +802,8 @@ export const bookingMutations: Record<string, Resolver> = {
       subdomain,
     } as IContext);
 
-    await sendBookingCancelledCpNotification(
-      subdomain,
-      cpUser.clientPortalId,
-      [cpUser._id],
-      cancelledBooking,
-    );
+    // Staff cancel (oneFitBookingCancel) still notifies via notifyBookingCancelledViaClientPortal.
+    // Skip CP push/in-app here: the canceller is the same user and already sees the UI result.
 
     return cancelledBooking;
   },

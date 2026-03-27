@@ -4,6 +4,11 @@ import {
   mutations as CategoryMutations,
 } from '@/category/graphql/schemas/category';
 import {
+  providerReviewTypes,
+  providerReviewQueries,
+  providerReviewMutations,
+} from '@/provider/graphql/schemas/providerReview';
+import {
   types as ProviderTypes,
   queries as ProviderQueries,
   mutations as ProviderMutations,
@@ -59,6 +64,7 @@ import { TypeExtensions } from './extensions';
 export const types = `
   ${TypeExtensions}
   ${CategoryTypes}
+  ${providerReviewTypes}
   ${ProviderTypes}
   ${ScheduleTypes}
   ${MembershipTypes}
@@ -73,6 +79,7 @@ export const types = `
 
 export const queries = `
   ${CategoryQueries}
+  ${providerReviewQueries}
   ${ProviderQueries}
   ${ScheduleQueries}
   ${MembershipQueries}
@@ -87,6 +94,7 @@ export const queries = `
 
 export const mutations = `
   ${CategoryMutations}
+  ${providerReviewMutations}
   ${ProviderMutations}
   ${ScheduleMutations}
   ${MembershipMutations}

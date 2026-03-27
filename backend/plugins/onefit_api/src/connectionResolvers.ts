@@ -28,6 +28,11 @@ import {
   IProviderModel,
   loadProviderClass,
 } from '@/provider/db/models/Provider';
+import { IProviderReviewDocument } from '@/provider/@types/providerReview';
+import {
+  IProviderReviewModel,
+  loadProviderReviewClass,
+} from '@/provider/db/models/ProviderReview';
 import { ICityModel, loadCityClass } from '@/provider/db/models/City';
 import {
   IDistrictModel,
@@ -109,6 +114,7 @@ export interface IModels {
   ActivityCategory: IActivityCategoryModel;
   ActivityType: IActivityTypeModel;
   Provider: IProviderModel;
+  ProviderReview: IProviderReviewModel;
   City: ICityModel;
   District: IDistrictModel;
   ScheduleTemplate: IScheduleTemplateModel;
@@ -149,6 +155,11 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
     'onefit_providers',
     loadProviderClass(models),
   );
+
+  models.ProviderReview = db.model<
+    IProviderReviewDocument,
+    IProviderReviewModel
+  >('onefit_provider_reviews', loadProviderReviewClass(models));
 
   models.City = db.model<ICityDocument, ICityModel>(
     'onefit_cities',
