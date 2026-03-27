@@ -38,15 +38,11 @@ function RatingStars({ rating }: { rating: number }) {
   );
 }
 
-export function ProviderReviewsSection({ providerId }: ProviderReviewsSectionProps) {
-  const {
-    summary,
-    reviews,
-    totalCount,
-    pageInfo,
-    loading,
-    handleFetchMore,
-  } = useProviderReviews(providerId);
+export function ProviderReviewsSection({
+  providerId,
+}: ProviderReviewsSectionProps) {
+  const { summary, reviews, totalCount, pageInfo, loading, handleFetchMore } =
+    useProviderReviews(providerId);
 
   return (
     <div className="border-t border-border pt-6 space-y-4">
@@ -54,7 +50,9 @@ export function ProviderReviewsSection({ providerId }: ProviderReviewsSectionPro
         <Label className="text-base font-semibold">Customer reviews</Label>
         {summary != null && summary.reviewCount > 0 && (
           <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
-            <RatingStars rating={Math.min(5, Math.max(0, summary.averageRating))} />
+            <RatingStars
+              rating={Math.min(5, Math.max(0, summary.averageRating))}
+            />
             <span>
               {summary.averageRating.toFixed(1)} · {summary.reviewCount}{' '}
               {summary.reviewCount === 1 ? 'review' : 'reviews'}
@@ -118,8 +116,7 @@ export function ProviderReviewsSection({ providerId }: ProviderReviewsSectionPro
 
       {totalCount != null && totalCount > 0 && !pageInfo?.hasNextPage ? (
         <p className="text-xs text-muted-foreground">
-          Showing all {totalCount}{' '}
-          {totalCount === 1 ? 'review' : 'reviews'}.
+          Showing all {totalCount} {totalCount === 1 ? 'review' : 'reviews'}.
         </p>
       ) : null}
     </div>

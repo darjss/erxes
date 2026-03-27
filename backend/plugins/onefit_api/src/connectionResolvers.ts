@@ -28,9 +28,7 @@ import {
   IProviderModel,
   loadProviderClass,
 } from '@/provider/db/models/Provider';
-import {
-  IProviderReviewDocument,
-} from '@/provider/@types/providerReview';
+import { IProviderReviewDocument } from '@/provider/@types/providerReview';
 import {
   IProviderReviewModel,
   loadProviderReviewClass,

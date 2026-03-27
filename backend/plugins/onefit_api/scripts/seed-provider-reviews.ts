@@ -63,11 +63,16 @@ async function resolveProviderId(
   if (approved) {
     return String(approved._id);
   }
-  const fallback = await models.Provider.findOne({}).sort({ createdAt: -1 }).lean();
+  const fallback = await models.Provider.findOne({})
+    .sort({ createdAt: -1 })
+    .lean();
   return fallback ? String(fallback._id) : null;
 }
 
-async function resolveUserIds(models: IModels, count: number): Promise<string[]> {
+async function resolveUserIds(
+  models: IModels,
+  count: number,
+): Promise<string[]> {
   const rows = await models.OneFitCustomer.find({})
     .limit(count)
     .select({ _id: 1 })

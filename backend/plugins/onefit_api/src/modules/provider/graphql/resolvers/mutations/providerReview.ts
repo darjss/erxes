@@ -108,7 +108,10 @@ export const providerReviewMutations: Record<string, Resolver> = {
     }
 
     const userId = cpUser.erxesCustomerId || cpUser._id;
-    const removed = await models.ProviderReview.removeProviderReview(_id, userId);
+    const removed = await models.ProviderReview.removeProviderReview(
+      _id,
+      userId,
+    );
 
     if (!removed) {
       throw new Error('Review not found or access denied');

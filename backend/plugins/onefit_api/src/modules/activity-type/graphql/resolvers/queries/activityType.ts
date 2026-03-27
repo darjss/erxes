@@ -282,9 +282,12 @@ export const activityTypeQueries = {
     if (params.isActive !== undefined) {
       baseFilter.isActive = params.isActive;
       if (params.isActive === true) {
-        const activeProviderIds = await context.models.Provider.distinct('_id', {
-          isActive: true,
-        });
+        const activeProviderIds = await context.models.Provider.distinct(
+          '_id',
+          {
+            isActive: true,
+          },
+        );
         if (activeProviderIds.length === 0) {
           return {
             list: [],

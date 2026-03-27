@@ -8,9 +8,7 @@ import { IModels } from '~/connectionResolvers';
 import { providerReviewSchema } from '../definitions/providerReview';
 
 export interface IProviderReviewModel extends Model<IProviderReviewDocument> {
-  createProviderReview(
-    doc: IProviderReview,
-  ): Promise<IProviderReviewDocument>;
+  createProviderReview(doc: IProviderReview): Promise<IProviderReviewDocument>;
   updateProviderReview(
     _id: string,
     userId: string,
