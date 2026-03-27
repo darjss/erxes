@@ -1,16 +1,16 @@
 import { IContext } from '~/connectionResolvers';
 
 export const invoiceQueries = {
-  blockGetInvoice: async (
-    _root,
+  blockAdminGetInvoice: async (
+    _root: undefined,
     { _id }: { _id: string },
     { models }: IContext,
   ) => {
     return await models.Invoice.findOne({ _id });
   },
 
-  blockGetInvoices: async (
-    _root,
+  blockAdminGetInvoices: async (
+    _root: undefined,
     { itemId }: { itemId: string },
     { models }: IContext,
   ) => {

@@ -1,5 +1,5 @@
 export const types = `
-  type Invoice {
+  type BlockAdminInvoice {
     _id: String
     amount: Float
     date: Date
@@ -15,6 +15,6 @@ export const types = `
 `;
 
 export const queries = `
-  blockGetInvoice(_id: String!): Invoice
-  blockGetInvoices(itemId:String!): [Invoice]
+  blockAdminGetInvoice(_id: String!): BlockAdminInvoice
+  blockAdminGetInvoices(itemId:String!): [BlockAdminInvoice]
 `;
