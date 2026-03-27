@@ -1,5 +1,4 @@
 import { IContext } from '~/connectionResolvers';
-import { requireLogin } from 'erxes-api-shared/core-modules';
 
 export const documentQueries = {
   blockGetDocument: async (
@@ -18,6 +17,3 @@ export const documentQueries = {
     return models.BlockDocument.find({ itemType, itemId });
   },
 };
-
-requireLogin(documentQueries, 'blockGetDocument');
-requireLogin(documentQueries, 'blockGetDocuments');

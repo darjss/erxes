@@ -1,4 +1,3 @@
-import { requireLogin } from 'erxes-api-shared/core-modules';
 import { IContext } from '~/connectionResolvers';
 
 export const offerQueries = {
@@ -24,6 +23,3 @@ export const offerQueries = {
     return models.Offer.find({ unit });
   },
 };
-
-requireLogin(offerQueries, 'blockGetOffer');
-requireLogin(offerQueries, 'blockGetOffers');

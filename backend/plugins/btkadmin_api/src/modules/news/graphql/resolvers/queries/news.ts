@@ -1,4 +1,3 @@
-import { requireLogin } from 'erxes-api-shared/core-modules';
 import { IContext } from '~/connectionResolvers';
 import { INewsQueryParams } from '~/modules/news/@types/news';
 import { generateFilter } from '~/modules/news/utils';
@@ -28,6 +27,3 @@ export const newsQueries = {
     return await models.News.find(filter).lean();
   },
 };
-
-requireLogin(newsQueries, 'btkAdminGetNews');
-requireLogin(newsQueries, 'btkAdminGetAllNews');

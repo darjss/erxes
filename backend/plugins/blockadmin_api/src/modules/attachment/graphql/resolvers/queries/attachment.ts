@@ -1,5 +1,4 @@
 import { IContext } from '~/connectionResolvers';
-import { requireLogin } from 'erxes-api-shared/core-modules';
 
 export const attachmentQueries = {
   blockGetAttachment: async (
@@ -18,6 +17,3 @@ export const attachmentQueries = {
     return models.BlockAttachment.find({ itemType, itemId });
   },
 };
-
-requireLogin(attachmentQueries, 'blockGetAttachment');
-requireLogin(attachmentQueries, 'blockGetAttachments');
