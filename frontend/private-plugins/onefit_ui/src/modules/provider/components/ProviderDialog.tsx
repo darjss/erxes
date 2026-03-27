@@ -30,6 +30,7 @@ import { getImageReadUrl, extractImageKey } from '../utils/imageUtils';
 import { OneFitUpload } from '~/components/onefit-upload';
 import { ONE_FIT_ACTIVITY_CATEGORIES } from '~/modules/category/graphql/categoryQueries';
 import { getLocalizedString as getCategoryLocalizedString } from '~/modules/category/utils/localization';
+import { ProviderReviewsSection } from '~/modules/provider/components/ProviderReviewsSection';
 
 const baseProviderSchema = z.object({
   businessName: z.object({
@@ -1027,6 +1028,9 @@ const ProviderForm = ({
                 </Form.Item>
               )}
             />
+            {!isCreate && providerId ? (
+              <ProviderReviewsSection providerId={providerId} />
+            ) : null}
           </div>
         </Sheet.Content>
         <Sheet.Footer>
