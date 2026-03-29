@@ -1,6 +1,6 @@
 import { capitalize } from 'lodash';
 
-export const ORDER_GAP = 100;
+export const ORDER_GAP = 1000;
 
 export const DEFAULT_STATUS_TYPES = {
   LEAD: 'lead',
@@ -70,37 +70,31 @@ export const DEFAULT_STATUSES = {
 export const DEFAULT_STATUS_TYPE_VALUES = {
   [DEFAULT_STATUS_TYPES.LEAD]: {
     color: '#FF6B6B',
-    order: 0,
     type: '',
     name: capitalize(DEFAULT_STATUS_TYPES.LEAD),
   },
   [DEFAULT_STATUS_TYPES.QUALIFIED]: {
     color: '#4ECDC4',
-    order: 0,
     type: '',
     name: capitalize(DEFAULT_STATUS_TYPES.QUALIFIED),
   },
   [DEFAULT_STATUS_TYPES.MATCHING]: {
     color: '#45B7D1',
-    order: 0,
     type: '',
     name: capitalize(DEFAULT_STATUS_TYPES.MATCHING),
   },
   [DEFAULT_STATUS_TYPES.NEGOTIATION]: {
     color: '#96CEB4',
-    order: 0,
     type: '',
     name: capitalize(DEFAULT_STATUS_TYPES.NEGOTIATION),
   },
   [DEFAULT_STATUS_TYPES.CLOSED_WON]: {
     color: '#FFEAA7',
-    order: 0,
     type: '',
     name: capitalize(DEFAULT_STATUS_TYPES.CLOSED_WON),
   },
   [DEFAULT_STATUS_TYPES.CLOSED_LOST]: {
     color: '#DDA0DD',
-    order: 0,
     type: '',
     name: capitalize(DEFAULT_STATUS_TYPES.CLOSED_LOST),
   },

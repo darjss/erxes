@@ -26,15 +26,17 @@ interface IOpptyChanged {
 export const useOpptysVariables = (
   variables?: QueryHookOptions<ICursorListResponse<IOppty>>['variables'],
 ) => {
-  const { searchValue, assignedUserId, priority, customerSource, startDate, targetDate } =
+  const { searchValue, assignedUserId, priority, customerSource, unitType, tenureType, startDate, targetDate } =
     useNonNullMultiQueryState<{
       searchValue: string;
       assignedUserId: string;
       priority: string;
       customerSource: string;
+      unitType: string;
+      tenureType: string;
       startDate: string;
       targetDate: string;
-    }>(['searchValue', 'assignedUserId', 'priority', 'customerSource', 'startDate', 'targetDate']);
+    }>(['searchValue', 'assignedUserId', 'priority', 'customerSource', 'unitType', 'tenureType', 'startDate', 'targetDate']);
 
   const dateFilters: Record<string, any> = {};
 
@@ -60,6 +62,8 @@ export const useOpptysVariables = (
     assignedUserId,
     priority,
     customerSource,
+    unitType,
+    tenureType,
     dateFilters: JSON.stringify(dateFilters),
     ...variables,
   };

@@ -10,7 +10,7 @@ export const types = `
     createdAt: Date
     updatedAt: Date
   }
-  
+
   input BlockStatusInput {
     _id: String
     name: String!
@@ -18,7 +18,6 @@ export const types = `
     description: String
     color: String
     type: String
-    order: Float
   }
 `;
 

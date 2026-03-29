@@ -13,6 +13,8 @@ export const addOpptySchema = z.object({
   status: z.string().min(1, 'Status is required'),
   customerSource: z.string().min(1, 'Customer source is required'),
   assignedUserId: z.string().optional(),
+  unitType: z.string().optional(),
+  tenureType: z.string().optional(),
   unitRows: z.array(unitRowSchema).default([]),
   labelIds: z.array(z.string()).optional(),
   tagIds: z.array(z.string()).optional(),

@@ -34,13 +34,16 @@ export const loadBlockStatusClass = (models: IModels) => {
 
       return status;
     }
+
     public static async getStatusTypes(projectId: string) {
       const project = await models.Project.getProject(projectId);
 
       const existing = await models.Status.find({
         projectId: project._id,
         type: '',
-      }).sort({ order: 1 }).lean();
+      })
+        .sort({ order: 1 })
+        .lean();
 
       if (existing.length > 0) {
         return existing;
@@ -51,16 +54,15 @@ export const loadBlockStatusClass = (models: IModels) => {
       return models.Status.find({
         projectId: project._id,
         type: '',
-      }).sort({ order: 1 }).lean();
+      })
+        .sort({ order: 1 })
+        .lean();
     }
-
 
     public static async getStatuses(projectId: string, type?: string) {
       const project = await models.Project.getProject(projectId);
 
-      const query: any = {
-        projectId: project._id,
-      };
+      const query: any = { projectId: project._id };
 
       if (type) {
         query.type = type;
@@ -68,13 +70,17 @@ export const loadBlockStatusClass = (models: IModels) => {
         query.type = { $ne: '' };
       }
 
-      const statuses = await models.Status.find(query).sort({ order: 1 }).lean();
+      const statuses = await models.Status.find(query)
+        .sort({ order: 1 })
+        .lean();
 
-      if (!statuses?.length) {
-        throw new Error(`No statuses found for project ${project.name}`);
+      if (statuses.length > 0) {
+        return statuses;
       }
 
-      return statuses;
+      await this.generateDefaultStatus(project._id);
+
+      return models.Status.find(query).sort({ order: 1 }).lean();
     }
 
     public static async createStatus(input: IStatus) {
@@ -84,7 +90,7 @@ export const loadBlockStatusClass = (models: IModels) => {
 
       const project = await models.Project.getProject(projectId);
 
-      const order = await this.generateOrder({ projectId, type });
+      const order = await this.generateOrder(project._id, type);
 
       const status = await models.Status.create({
         ...input,
@@ -94,7 +100,7 @@ export const loadBlockStatusClass = (models: IModels) => {
 
       return status;
     }
-
+    
     public static async updateStatus(_id: string, input: IStatus) {
       await models.Status.validateStatus(input);
 
@@ -136,8 +142,9 @@ export const loadBlockStatusClass = (models: IModels) => {
       return status;
     }
 
-   public static async generateDefaultStatus(projectId: string) {
+    public static async generateDefaultStatus(projectId: string) {
       const statuses: IStatus[] = [];
+      let order = ORDER_GAP;
 
       for (const STATUS_TYPE_KEY in DEFAULT_STATUS_TYPES) {
         const STATUS_TYPE = DEFAULT_STATUS_TYPES[STATUS_TYPE_KEY];
@@ -145,47 +152,66 @@ export const loadBlockStatusClass = (models: IModels) => {
         statuses.push({
           projectId,
           ...DEFAULT_STATUS_TYPE_VALUES[STATUS_TYPE],
+          order,
         });
-      }
+        order += ORDER_GAP;
 
-      for (const STATUS_TYPE_KEY in DEFAULT_STATUSES) {
-        const STATUSES = DEFAULT_STATUSES[STATUS_TYPE_KEY];
+        const CHILDREN = DEFAULT_STATUSES[STATUS_TYPE];
 
-        const order = await this.generateOrder({
-          projectId,
-          type: STATUS_TYPE_KEY,
-        });
-
-        for (const STATUS_KEY in STATUSES) {
-          const STATUS = STATUSES[STATUS_KEY];
-
+        for (const CHILD_KEY in CHILDREN) {
           statuses.push({
             projectId,
+            ...CHILDREN[CHILD_KEY],
             order,
-            ...STATUS,
           });
+          order += ORDER_GAP;
         }
       }
 
-      if (statuses?.length) {
+      if (statuses.length) {
         await models.Status.insertMany(statuses);
       }
     }
 
-    public static async generateOrder({
-      projectId,
-      type,
-    }: {
-      projectId: string;
-      type: string;
-    }) {
-      const query = { projectId, type };
+    private static async generateOrder(projectId: string, type: string) {
+      const lastOfType = await models.Status.findOne({
+        projectId,
+        type,
+      }).sort({ order: -1 });
 
-      const status = await models.Status.findOne(query).sort({
-        order: -1,
-      });
+      if (!lastOfType) {
+        const typeHeader = await models.Status.findOne({
+          projectId,
+          type: '',
+          name: { $regex: new RegExp(`^${type}$`, 'i') },
+        });
 
-      return (status?.order || 0) + ORDER_GAP;
+        const headerOrder = typeHeader?.order ?? 0;
+
+        const nextAfterHeader = await models.Status.findOne({
+          projectId,
+          order: { $gt: headerOrder },
+          _id: { $ne: typeHeader?._id },
+        }).sort({ order: 1 });
+
+        if (nextAfterHeader) {
+          return (headerOrder + nextAfterHeader.order) / 2;
+        }
+
+        return headerOrder + ORDER_GAP;
+      }
+
+      const nextAfter = await models.Status.findOne({
+        projectId,
+        order: { $gt: lastOfType.order },
+        type: { $ne: type },
+      }).sort({ order: 1 });
+
+      if (nextAfter) {
+        return (lastOfType.order + nextAfter.order) / 2;
+      }
+
+      return lastOfType.order + ORDER_GAP;
     }
 
     public static async validateStatus(status: IStatus) {

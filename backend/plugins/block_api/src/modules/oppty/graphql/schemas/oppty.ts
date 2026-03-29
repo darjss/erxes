@@ -41,7 +41,8 @@ export const types = `
     number: String
     description: String
     customerId: String
-    unitTypes: [String]
+    unitType: String
+    tenureType: String
     unit: String
     units: [String]
     propertyRows: [PropertyRow]
@@ -63,7 +64,8 @@ export const types = `
     number: String
     description: String
     customerId: String
-    unitTypes: [String]
+    unitType: String
+    tenureType: String
     units: [String]
     unit: String
     propertyRows: [PropertyRowInput]
@@ -88,6 +90,7 @@ export const types = `
     description: String
     customerId: String
     unitType: String
+    tenureType: String
     unit: String
     assignedUserId: String
     status: String

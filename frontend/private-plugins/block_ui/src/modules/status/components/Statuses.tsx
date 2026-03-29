@@ -12,13 +12,15 @@ export const Statuses = ({ projectId }: { projectId: string }) => {
         {loading ? (
           <Skeleton className="h-32 w-full rounded" />
         ) : (
-          statusTypes.map((statusType) => (
+          statusTypes.map((statusType, index) => (
             <StatusGroup
               key={statusType._id}
               statusType={statusType.name.toLowerCase()}
               statusTypeLabel={statusType.name}
               statusTypeColor={statusType.color}
               projectId={projectId}
+              lowerBound={statusType.order}
+              upperBound={statusTypes[index + 1]?.order}
             />
           ))
         )}

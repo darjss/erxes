@@ -26,6 +26,8 @@ import { ValueOf } from 'type-fest';
 import { FieldsInDetail, RelationWidgetSideTabs } from 'ui-modules';
 import { useOpptyCustomFieldEdit } from '@/oppty/hooks/useOpptyCustomFieldEdit';
 import { ActivityList } from '@/activity/components/ActivityList';
+import { UNIT_AREA_TYPE, UNIT_MARKET_TYPE } from '@/unit/constants/unit';
+import { useUnitTypes } from '@/unit/hooks/useUnitTypes';
 
 export const OPPTY_TABS = {
   GENERAL: 'general',
@@ -183,6 +185,8 @@ const OpptyDetail = ({ opptyId }: { opptyId: string }) => {
     projectId: oppty?.projectId || '',
   });
 
+  const { unitTypes } = useUnitTypes({ project: oppty?.projectId || '' });
+
   if (loading) return <Spinner />;
   if (!oppty) return <div>Opportunity not found</div>;
 
@@ -226,6 +230,21 @@ const OpptyDetail = ({ opptyId }: { opptyId: string }) => {
                   </Badge>
                 </Table.Cell>
               </Table.Row>
+              {renderTableRow(
+                'Unit Type',
+                unitTypes?.find((t) => t._id === oppty.unitType)?.name || oppty.unitType || null,
+              )}
+              {oppty.tenureType && (() => {
+                const [areaType, ...tenureTypes] = oppty.tenureType.split(':');
+                const parts: string[] = [];
+                if (areaType) {
+                  parts.push(UNIT_AREA_TYPE[areaType as keyof typeof UNIT_AREA_TYPE]?.mn || areaType);
+                }
+                tenureTypes.forEach((t) => {
+                  parts.push(UNIT_MARKET_TYPE[t as keyof typeof UNIT_MARKET_TYPE]?.mn || t);
+                });
+                return renderTableRow('Tenure Type', parts.join(' · '));
+              })()}
               {renderTableRow('Start Date', formatDate(oppty.startDate))}
               {renderTableRow('Target Date', formatDate(oppty.targetDate))}
               {renderTableRow('Created At', formatDate(oppty.createdAt))}

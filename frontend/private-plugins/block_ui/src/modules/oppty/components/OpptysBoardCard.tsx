@@ -5,9 +5,10 @@ import { format } from 'date-fns';
 import { useAtomValue, atom } from 'jotai';
 import { allOpptysMapState } from '@/oppty/states/allOpptysMapState';
 import { MembersInline, useCustomerDetail } from 'ui-modules';
-import { useBuildings } from '@/building/hooks/useBuildings';
 import { useQueryState } from 'erxes-ui';
 import { SelectCustomerSource } from '@/oppty/components/SelectCustomerSource';
+import { useUnitTypes } from '@/unit/hooks/useUnitTypes';
+import { UNIT_AREA_TYPE, UNIT_MARKET_TYPE } from '@/unit/constants/unit';
 
 export const opptyBoardItemAtom = atom(
   (get) => (id: string) => get(allOpptysMapState)[id],
@@ -34,15 +35,11 @@ export const OpptysBoardCard = ({ id, column }: BoardCardProps) => {
     startDate,
     targetDate,
     projectId,
+    unitType,
+    tenureType,
   } = oppty;
 
   const rows = propertyRows || [];
-  const rowsWithUnit = rows.filter((r) => r.unitId);
-  const rowCount = rows.length;
-
-  const { buildings = [] } = useBuildings({
-    projectId: projectId || '',
-  });
 
   const { customerDetail, loading: customerLoading } = useCustomerDetail(
     { variables: { _id: customerId }, skip: !customerId },
@@ -55,10 +52,23 @@ export const OpptysBoardCard = ({ id, column }: BoardCardProps) => {
         .join(' ') || customerDetail.primaryPhone || 'Unnamed'
     : '';
 
-  const firstRow = rows[0];
-  const firstBuilding = firstRow
-    ? buildings.find((b) => b._id === firstRow.buildingId)
-    : null;
+  const { unitTypes } = useUnitTypes({ project: projectId || '' });
+  const unitTypeName = unitTypes?.find((t) => t._id === unitType)?.name;
+
+  const tenureLabel = (() => {
+    if (!tenureType) return '';
+    const [areaType, ...marketTypes] = tenureType.split(':');
+    if (marketTypes.length > 0) {
+      return marketTypes
+        .map((t) => UNIT_MARKET_TYPE[t as keyof typeof UNIT_MARKET_TYPE]?.mn || t)
+        .join(' · ');
+    }
+    return UNIT_AREA_TYPE[areaType as keyof typeof UNIT_AREA_TYPE]?.mn || areaType;
+  })();
+
+  const uniqueBuildings = new Set(rows.map((r) => r.buildingId).filter(Boolean));
+  const uniqueZonings = new Set(rows.map((r) => r.zoningId).filter(Boolean));
+  const uniqueUnits = new Set(rows.map((r) => r.unitId).filter(Boolean));
 
   return (
     <div onClick={() => setActiveOpptyId(_id)}>
@@ -94,27 +104,49 @@ export const OpptysBoardCard = ({ id, column }: BoardCardProps) => {
           </div>
         )}
         <div className="flex flex-wrap gap-1 mt-1">
-          {firstBuilding && (
+          {unitTypeName && (
             <Button
               variant="secondary"
               size="sm"
               className="h-6 text-xs pointer-events-none"
             >
-              {firstBuilding.name}
-              {rowCount > 1 && (
-                <span className="text-muted-foreground ml-0.5">
-                  +{rowCount - 1}
-                </span>
-              )}
+              {unitTypeName}
             </Button>
           )}
-          {rowsWithUnit.length > 0 && (
+          {tenureLabel && (
+            <Button
+              variant="secondary"
+              size="sm"
+              className="h-6 text-xs pointer-events-none truncate max-w-full"
+            >
+              <span className="truncate">{tenureLabel}</span>
+            </Button>
+          )}
+          {uniqueBuildings.size > 0 && (
             <Button
               variant="secondary"
               size="sm"
               className="h-6 text-xs pointer-events-none"
             >
-              {rowsWithUnit.length} unit{rowsWithUnit.length > 1 ? 's' : ''}
+              {uniqueBuildings.size} building{uniqueBuildings.size > 1 ? 's' : ''}
+            </Button>
+          )}
+          {uniqueZonings.size > 0 && (
+            <Button
+              variant="secondary"
+              size="sm"
+              className="h-6 text-xs pointer-events-none"
+            >
+              {uniqueZonings.size} zone{uniqueZonings.size > 1 ? 's' : ''}
+            </Button>
+          )}
+          {uniqueUnits.size > 0 && (
+            <Button
+              variant="secondary"
+              size="sm"
+              className="h-6 text-xs pointer-events-none"
+            >
+              {uniqueUnits.size} unit{uniqueUnits.size > 1 ? 's' : ''}
             </Button>
           )}
         </div>

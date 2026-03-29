@@ -363,18 +363,21 @@ export const StatusGroup = ({
   statusTypeLabel,
   statusTypeColor,
   projectId,
+  lowerBound,
+  upperBound,
 }: {
   statusType: string;
   statusTypeLabel?: string;
   statusTypeColor?: string;
   projectId: string;
+  lowerBound: number;
+  upperBound?: number;
 }) => {
   const { statuses = [], loading } = useBlockStatusesByType({
     projectId,
     type: statusType,
   });
   const { changeOrder } = useUpdateBlockStatusOrder();
-  const { toast } = useToast();
   const [addingStatus, setAddingStatus] = useAtom(addingStatusState);
   const editingStatusId = useAtomValue(editingStatusState);
   const [_statuses, _setStatuses] = useState(statuses);
@@ -395,9 +398,9 @@ export const StatusGroup = ({
 
     const newOrder = arrayMove(_statuses, oldIndex, newIndex);
 
-    const prev = newOrder[newIndex - 1]?.order ?? 0;
-    const next = newOrder[newIndex + 1]?.order ?? prev + 200;
-    const order = Math.floor((prev + next) / 2);
+    const prev = newOrder[newIndex - 1]?.order ?? lowerBound;
+    const next = newOrder[newIndex + 1]?.order ?? (upperBound ?? prev + 2000);
+    const order = (prev + next) / 2;
 
     newOrder[newIndex] = { ...newOrder[newIndex], order };
     _setStatuses(newOrder);

@@ -18,6 +18,8 @@ import { SelectCustomer, SelectMember } from 'ui-modules';
 import { IconPlus } from '@tabler/icons-react';
 import { UnitSelectRow } from './UnitSelectRow';
 import { useParams } from 'react-router-dom';
+import { SelectTenureType } from '@/unit/components/SelectTenureType';
+import { SelectUnitType } from '@/unit/components/SelectUnitType';
 
 export const OpptyForm = ({
   defaultValues,
@@ -44,6 +46,8 @@ export const OpptyForm = ({
       status: '',
       customerSource: '',
       assignedUserId: undefined,
+      unitType: '',
+      tenureType: '',
       unitRows: [{ buildingId: '', zoningId: '', unitId: '' }],
       labelIds: [],
       tagIds: [],
@@ -174,6 +178,49 @@ export const OpptyForm = ({
                           />
                         </Form.Item>
                       )}
+                    />
+
+                    <Form.Field
+                      name="unitType"
+                      control={form.control}
+                      render={({ field }) => (
+                        <Form.Item>
+                          <Form.Label>Unit Type</Form.Label>
+                          <SelectUnitType
+                            inForm
+                            value={field.value || ''}
+                            onValueChange={field.onChange}
+                          />
+                          <Form.Message />
+                        </Form.Item>
+                      )}
+                    />
+
+                    <Form.Field
+                      name="tenureType"
+                      control={form.control}
+                      render={({ field }) => {
+                        const parseTenure = (val: string) => {
+                          if (!val) return { areaType: '', tenureTypes: [] as string[] };
+                          const [areaType, ...tenureTypes] = val.split(':');
+                          return { areaType, tenureTypes };
+                        };
+                        const { areaType, tenureTypes } = parseTenure(field.value || '');
+                        return (
+                          <Form.Item>
+                            <Form.Label>Tenure Type</Form.Label>
+                            <SelectTenureType
+                              inForm
+                              value={{ areaType, tenureTypes }}
+                              onValueChange={(a, t) => {
+                                if (!a) { field.onChange(''); return; }
+                                field.onChange(t.length ? [a, ...t].join(':') : a);
+                              }}
+                            />
+                            <Form.Message />
+                          </Form.Item>
+                        );
+                      }}
                     />
 
                     <Form.Field

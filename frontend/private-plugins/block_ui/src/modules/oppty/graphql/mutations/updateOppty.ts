@@ -7,7 +7,8 @@ export const UPDATE_OPPTY_MUTATION = gql`
       number
       description
       customerId
-      unitTypes
+      unitType
+      tenureType
       unit
       units
       propertyRows {
