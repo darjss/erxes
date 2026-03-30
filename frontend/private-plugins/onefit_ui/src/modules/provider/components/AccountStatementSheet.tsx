@@ -134,6 +134,14 @@ export const AccountStatementSheet = () => {
       ),
     [bookings],
   );
+  const totalPrice = useMemo(
+    () =>
+      bookings.reduce(
+        (sum: number, b: OneFitBooking) => sum + (b.price ?? 0),
+        0,
+      ),
+    [bookings],
+  );
 
   const providerName = rowData?.provider?.businessName
     ? getLocalizedString(rowData.provider.businessName, 'en')
@@ -269,6 +277,7 @@ export const AccountStatementSheet = () => {
                   {!loading && bookings.length > 0 && (
                     <div className="border-t bg-muted/30 px-4 py-2 text-sm font-medium space-y-1 mt-2 flex-shrink-0">
                       <div>Total credits: {totalCredits.toFixed(2)}</div>
+                      <div>Total amount: {totalPrice.toFixed(2)}</div>
                     </div>
                   )}
 

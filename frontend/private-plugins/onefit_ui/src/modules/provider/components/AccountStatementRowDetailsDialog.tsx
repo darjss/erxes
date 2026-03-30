@@ -325,6 +325,7 @@ export function AccountStatementRowDetailsDialog({
         {!loading && bookings.length > 0 && (
           <div className="flex-shrink-0 border-t bg-muted/30 px-6 py-2 text-sm font-medium space-y-1">
             <div>Total credits: {totalCredits.toFixed(2)}</div>
+            asd
             <div>Total amount: {totalPrice.toFixed(2)}</div>
           </div>
         )}
