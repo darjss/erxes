@@ -10,14 +10,22 @@ import { UpdateBookingPreferencesDialog } from '~/modules/onefitCustomer/compone
 import { CreateMembershipPurchaseDialog } from '~/modules/membership-purchase/components/CreateMembershipPurchaseDialog';
 import { useState } from 'react';
 
-function getCustomerDisplayName(customer: {
-  firstName?: string;
-  lastName?: string;
-  primaryEmail?: string;
-  primaryPhone?: string;
-} | null | undefined) {
+function getCustomerDisplayName(
+  customer:
+    | {
+        firstName?: string;
+        lastName?: string;
+        primaryEmail?: string;
+        primaryPhone?: string;
+      }
+    | null
+    | undefined,
+) {
   if (!customer) return 'Customer';
-  const name = [customer.firstName, customer.lastName].filter(Boolean).join(' ').trim();
+  const name = [customer.firstName, customer.lastName]
+    .filter(Boolean)
+    .join(' ')
+    .trim();
   if (name) return name;
   return customer.primaryEmail || customer.primaryPhone || 'Customer';
 }
@@ -90,7 +98,7 @@ export function OneFitCustomerDetailPage() {
         ) : null
       }
     >
-      <div className="flex flex-col gap-4 p-6">
+      <div className="flex w-full min-w-0 flex-col gap-4 p-6">
         <Button asChild variant="ghost" size="sm" className="w-fit">
           <Link to="/onefit/customers">
             <IconArrowLeft />
@@ -99,12 +107,15 @@ export function OneFitCustomerDetailPage() {
         </Button>
         {loading && !oneFitCustomer ? (
           <Spinner containerClassName="py-20" />
-        ) : (
+        ) : id ? (
           <OneFitCustomerDetailContent
+            customerId={id}
             oneFitCustomer={oneFitCustomer}
             loading={loading}
             refetch={refetch}
           />
+        ) : (
+          <Spinner containerClassName="py-20" />
         )}
       </div>
       {id && (
