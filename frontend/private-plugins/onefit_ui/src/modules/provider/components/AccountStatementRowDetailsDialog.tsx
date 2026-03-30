@@ -12,6 +12,7 @@ import {
 import { useMemo } from 'react';
 import { ONE_FIT_BOOKINGS } from '~/modules/booking/graphql/bookingQueries';
 import { getLocalizedString } from '~/modules/activity-type/utils/localization';
+import { useOneFitMode } from '~/modules/config/hooks/useOneFitMode';
 import { OneFitCustomersInline } from '~/modules/onefitCustomer/components/OneFitCustomersInline';
 import type { OneFitCustomer } from '~/modules/onefitCustomer/types/onefitCustomer';
 import { format, parseISO } from 'date-fns';
@@ -81,6 +82,8 @@ export function AccountStatementRowDetailsDialog({
   open,
   onOpenChange,
 }: AccountStatementRowDetailsDialogProps) {
+  const { mode } = useOneFitMode();
+  const isMasterMode = mode === 'master';
   const { year, month, providerId } = row ?? {
     year: 0,
     month: 0,
@@ -173,14 +176,9 @@ export function AccountStatementRowDetailsDialog({
       ),
     [bookings],
   );
-  const totalPrice = useMemo(
-    () =>
-      bookings.reduce(
-        (sum: number, b: OneFitBooking) => sum + (b.price ?? 0),
-        0,
-      ),
-    [bookings],
-  );
+  const totalPriceCompleted = row?.amountEarnedCompleted ?? 0;
+  const totalPriceNoShow = row?.amountEarnedNoShow ?? 0;
+  const totalPrice = totalPriceCompleted + totalPriceNoShow;
   const providerName = row?.provider?.businessName
     ? getLocalizedString(row.provider.businessName, 'en')
     : providerId || '—';
@@ -250,15 +248,19 @@ export function AccountStatementRowDetailsDialog({
         </RecordTableInlineCell>
       ),
     },
-    {
-      accessorKey: 'creditCost',
-      header: 'Credits',
-      cell: ({ cell }) => (
-        <RecordTableInlineCell className="text-xs">
-          {(cell.getValue() as number)?.toFixed(2) ?? '—'}
-        </RecordTableInlineCell>
-      ),
-    },
+    ...(isMasterMode
+      ? [
+          {
+            accessorKey: 'creditCost',
+            header: 'Credits',
+            cell: ({ cell }: { cell: any }) => (
+              <RecordTableInlineCell className="text-xs">
+                {(cell.getValue() as number)?.toFixed(2) ?? '—'}
+              </RecordTableInlineCell>
+            ),
+          },
+        ]
+      : []),
     {
       accessorKey: 'price',
       header: 'Amount',
@@ -324,9 +326,18 @@ export function AccountStatementRowDetailsDialog({
         </div>
         {!loading && bookings.length > 0 && (
           <div className="flex-shrink-0 border-t bg-muted/30 px-6 py-2 text-sm font-medium space-y-1">
-            <div>Total credits: {totalCredits.toFixed(2)}</div>
-            asd
-            <div>Total amount: {totalPrice.toFixed(2)}</div>
+            {isMasterMode && <div>Total credits: {totalCredits.toFixed(2)}</div>}
+            <div>
+              Total amount (completed): {totalPriceCompleted.toFixed(2)}
+            </div>
+            {isMasterMode && (
+              <>
+                <div>
+                  Total amount (no-show): {totalPriceNoShow.toFixed(2)}
+                </div>
+                <div>Total amount: {totalPrice.toFixed(2)}</div>
+              </>
+            )}
           </div>
         )}
         <Dialog.Footer>

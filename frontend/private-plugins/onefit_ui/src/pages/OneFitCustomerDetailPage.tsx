@@ -90,7 +90,7 @@ export function OneFitCustomerDetailPage() {
         ) : null
       }
     >
-      <div className="flex flex-col gap-4 p-6">
+      <div className="flex w-full min-w-0 flex-col gap-4 p-6">
         <Button asChild variant="ghost" size="sm" className="w-fit">
           <Link to="/onefit/customers">
             <IconArrowLeft />
@@ -99,12 +99,15 @@ export function OneFitCustomerDetailPage() {
         </Button>
         {loading && !oneFitCustomer ? (
           <Spinner containerClassName="py-20" />
-        ) : (
+        ) : id ? (
           <OneFitCustomerDetailContent
+            customerId={id}
             oneFitCustomer={oneFitCustomer}
             loading={loading}
             refetch={refetch}
           />
+        ) : (
+          <Spinner containerClassName="py-20" />
         )}
       </div>
       {id && (

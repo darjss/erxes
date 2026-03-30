@@ -11,11 +11,12 @@ import {
   BookingFilters,
   BookingStatus,
   AttendanceStatus,
+  type OneFitBooking,
 } from '../types/booking';
 import { BOOKINGS_CURSOR_SESSION_KEY } from '../constants/bookingCursorSessionKey';
 import { CancelBookingDialog } from './CancelBookingDialog';
 import { MarkAttendanceDialog } from './MarkAttendanceDialog';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { OneFitCustomersInline } from '~/modules/onefitCustomer/components/OneFitCustomersInline';
 import {
   ActivityLanguage,
@@ -27,6 +28,14 @@ import { useOneFitMode } from '~/modules/config/hooks/useOneFitMode';
 interface BookingsListProps {
   filters?: BookingFilters;
   preferredLanguage?: ActivityLanguage;
+  excludeCancelled?: boolean;
+  sessionKey?: string;
+  /** Customer detail: hide user columns, credit summary bar, Credit Cost column after activity */
+  customerDetailView?: boolean;
+  creditSummary?: {
+    totalCreditsUsed?: number | null;
+    currentCreditBalance?: number | null;
+  };
 }
 
 const getStatusBadgeVariant = (status: BookingStatus) => {
@@ -112,14 +121,52 @@ const getDisplayName = (user: OneFitCustomer | undefined): string => {
 export const BookingsList = ({
   filters,
   preferredLanguage = 'en',
+  excludeCancelled = false,
+  sessionKey,
+  customerDetailView = false,
+  creditSummary,
 }: BookingsListProps) => {
-  const { bookings, handleFetchMore, loading, pageInfo } = useBookings(filters);
+  const { bookings, handleFetchMore, loading, pageInfo } = useBookings(filters, {
+    sessionKey,
+  });
   const [selectedBooking, setSelectedBooking] = useState<string | null>(null);
   const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
   const [attendanceDialogOpen, setAttendanceDialogOpen] = useState(false);
   const { isSlaveMode } = useOneFitMode();
 
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
+  const visibleBookings = excludeCancelled
+    ? (bookings || []).filter(
+        (booking: OneFitBooking) =>
+          booking.status !== BookingStatus.CANCELLED,
+      )
+    : bookings || [];
+
+  const creditsOnThisPage = useMemo(
+    () =>
+      visibleBookings.reduce(
+        (sum: number, b: OneFitBooking) =>
+          sum + (Number(b.creditCost) || 0),
+        0,
+      ),
+    [visibleBookings],
+  );
+
+  const creditCostColumn: ColumnDef<any> = {
+    accessorKey: 'creditCost',
+    id: 'creditCost',
+    header: 'Credit Cost',
+    cell: ({ row }: { row: { original: OneFitBooking } }) => {
+      const value = row.original.creditCost;
+      const display =
+        value === null || value === undefined ? '—' : Number(value);
+      return (
+        <RecordTableInlineCell className="text-xs font-medium tabular-nums text-foreground">
+          {display}
+        </RecordTableInlineCell>
+      );
+    },
+  };
 
   const columns: ColumnDef<any>[] = [
     {
@@ -134,46 +181,50 @@ export const BookingsList = ({
         );
       },
     },
-    {
-      accessorKey: 'user',
-      header: 'User',
-      cell: ({ row }: { row: { original: any } }) => {
-        const booking = row.original;
-        const user: OneFitCustomer | undefined = booking.user;
-        if (!user) {
-          return (
-            <RecordTableInlineCell className="text-xs font-medium text-muted-foreground">
-              -
-            </RecordTableInlineCell>
-          );
-        }
-        return (
-          <RecordTableInlineCell>
-            <OneFitCustomersInline
-              customers={[user]}
-              placeholder="Unnamed user"
-            />
-          </RecordTableInlineCell>
-        );
-      },
-    },
-    {
-      accessorKey: 'user',
-      id: 'name',
-      header: 'Name',
-      cell: ({ row }: { row: { original: any } }) => {
-        const booking = row.original;
-        const name = getDisplayName(booking.user);
-        return (
-          <RecordTableInlineCell
-            className="text-xs font-medium truncate"
-            title={name}
-          >
-            {name}
-          </RecordTableInlineCell>
-        );
-      },
-    },
+    ...(customerDetailView
+      ? []
+      : [
+          {
+            accessorKey: 'user',
+            header: 'User',
+            cell: ({ row }: { row: { original: any } }) => {
+              const booking = row.original;
+              const user: OneFitCustomer | undefined = booking.user;
+              if (!user) {
+                return (
+                  <RecordTableInlineCell className="text-xs font-medium text-muted-foreground">
+                    -
+                  </RecordTableInlineCell>
+                );
+              }
+              return (
+                <RecordTableInlineCell>
+                  <OneFitCustomersInline
+                    customers={[user]}
+                    placeholder="Unnamed user"
+                  />
+                </RecordTableInlineCell>
+              );
+            },
+          } as ColumnDef<any>,
+          {
+            accessorKey: 'user',
+            id: 'name',
+            header: 'Name',
+            cell: ({ row }: { row: { original: any } }) => {
+              const booking = row.original;
+              const name = getDisplayName(booking.user);
+              return (
+                <RecordTableInlineCell
+                  className="text-xs font-medium truncate"
+                  title={name}
+                >
+                  {name}
+                </RecordTableInlineCell>
+              );
+            },
+          } as ColumnDef<any>,
+        ]),
     {
       accessorKey: 'provider',
       header: 'Provider',
@@ -206,6 +257,7 @@ export const BookingsList = ({
         );
       },
     },
+    ...(customerDetailView ? [creditCostColumn] : []),
     {
       accessorKey: 'bookingDate',
       header: 'Date & Time',
@@ -276,17 +328,7 @@ export const BookingsList = ({
         );
       },
     },
-    {
-      accessorKey: 'creditCost',
-      header: 'Credit Cost',
-      cell: ({ cell }) => {
-        return (
-          <RecordTableInlineCell className="text-xs font-medium">
-            {cell.getValue() as number}
-          </RecordTableInlineCell>
-        );
-      },
-    },
+    ...(!customerDetailView ? [creditCostColumn] : []),
     ...(!isSlaveMode
       ? [
           {
@@ -335,16 +377,38 @@ export const BookingsList = ({
 
   return (
     <>
+      {customerDetailView ? (
+        <div className="mx-3 mt-3 flex flex-wrap items-center gap-x-6 gap-y-1 rounded-md border border-border bg-muted/30 px-3 py-2 text-sm">
+          <span className="text-muted-foreground">
+            Total credits used (account):{' '}
+            <span className="font-medium tabular-nums text-foreground">
+              {creditSummary?.totalCreditsUsed ?? '—'}
+            </span>
+          </span>
+          <span className="text-muted-foreground">
+            Current balance:{' '}
+            <span className="font-medium tabular-nums text-foreground">
+              {creditSummary?.currentCreditBalance ?? '—'}
+            </span>
+          </span>
+          <span className="text-muted-foreground">
+            Credits on this page:{' '}
+            <span className="font-medium tabular-nums text-foreground">
+              {creditsOnThisPage}
+            </span>
+          </span>
+        </div>
+      ) : null}
       <RecordTable.Provider
         columns={columns}
-        data={bookings || []}
+        data={visibleBookings}
         className="m-3"
       >
         <RecordTable.CursorProvider
           hasPreviousPage={hasPreviousPage}
           hasNextPage={hasNextPage}
-          dataLength={bookings?.length}
-          sessionKey={BOOKINGS_CURSOR_SESSION_KEY}
+          dataLength={visibleBookings.length}
+          sessionKey={sessionKey || BOOKINGS_CURSOR_SESSION_KEY}
         >
           <RecordTable>
             <RecordTable.Header />

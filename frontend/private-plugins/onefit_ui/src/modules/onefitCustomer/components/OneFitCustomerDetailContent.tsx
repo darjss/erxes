@@ -3,12 +3,15 @@ import {
   Button,
   Collapsible,
   Label,
+  ScrollArea,
   Separator,
   Spinner,
+  cn,
   toast,
 } from 'erxes-ui';
 import { format } from 'date-fns';
-import { useState } from 'react';
+import { type ReactNode, useState } from 'react';
+import { BookingsList } from '~/modules/booking/components/BookingsList';
 import { useMutation, useQuery } from '@apollo/client';
 import {
   OneFitCustomer,
@@ -47,21 +50,60 @@ function getMembershipStatusBadge(status?: OneFitMembershipStatus) {
   );
 }
 
+const tabTriggerBaseClass =
+  'inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 relative after:absolute after:inset-x-0 after:bottom-0 after:-mb-1 after:h-0.5 hover:bg-accent';
+
+function TabTriggerButton({
+  active,
+  children,
+  onClick,
+}: {
+  active: boolean;
+  children: ReactNode;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      role="tab"
+      aria-selected={active}
+      className={cn(
+        tabTriggerBaseClass,
+        active
+          ? 'bg-transparent text-primary shadow-none after:bg-primary hover:bg-accent hover:text-primary'
+          : 'text-accent-foreground',
+      )}
+      onClick={onClick}
+    >
+      {children}
+    </button>
+  );
+}
+
 export interface OneFitCustomerDetailContentProps {
   oneFitCustomer: OneFitCustomer | null | undefined;
   loading: boolean;
   refetch?: () => void;
+  /** Known id (e.g. route param) when the customer document is still loading */
+  customerId?: string;
+  /** Scroll the bookings table in narrow side panels */
+  bookingsScrollable?: boolean;
 }
 
 export function OneFitCustomerDetailContent({
   oneFitCustomer,
   loading,
   refetch,
+  customerId: customerIdProp,
+  bookingsScrollable = false,
 }: OneFitCustomerDetailContentProps) {
   const [startHoldDialogOpen, setStartHoldDialogOpen] = useState(false);
   const [updateExpirationDialogOpen, setUpdateExpirationDialogOpen] =
     useState(false);
-  const customerId = oneFitCustomer?._id;
+  const [activeTab, setActiveTab] = useState<'customer' | 'bookings'>(
+    'customer',
+  );
+  const resolvedCustomerId = customerIdProp ?? oneFitCustomer?._id;
 
   const [cancelHold, { loading: cancellingHold }] = useMutation(
     ONE_FIT_MEMBERSHIP_HOLD_CANCEL,
@@ -80,15 +122,15 @@ export function OneFitCustomerDetailContent({
           variant: 'destructive',
         });
       },
-      refetchQueries: customerId
-        ? [{ query: ONE_FIT_CUSTOMER, variables: { _id: customerId } }]
+      refetchQueries: resolvedCustomerId
+        ? [{ query: ONE_FIT_CUSTOMER, variables: { _id: resolvedCustomerId } }]
         : [],
     },
   );
 
   const handleCancelHold = () => {
     if (
-      !customerId ||
+      !resolvedCustomerId ||
       !oneFitCustomer?.oneFitIsMembershipOnHold ||
       !window.confirm(
         'Cancel hold? Membership will resume and expiry will be extended by the number of days held.',
@@ -96,7 +138,7 @@ export function OneFitCustomerDetailContent({
     ) {
       return;
     }
-    cancelHold({ variables: { userId: customerId } });
+    cancelHold({ variables: { userId: resolvedCustomerId } });
   };
   const {
     primaryEmail,
@@ -124,7 +166,31 @@ export function OneFitCustomerDetailContent({
 
   const membershipPlanName = membershipPlanData?.oneFitMembershipPlan?.name;
 
-  return (
+  const customerBookingsListProps = resolvedCustomerId
+    ? {
+        filters: { userId: resolvedCustomerId },
+        excludeCancelled: true as const,
+        sessionKey: `onefit-customer-bookings-${resolvedCustomerId}`,
+        customerDetailView: true as const,
+        creditSummary: {
+          totalCreditsUsed: oneFitTotalCreditsUsed,
+          currentCreditBalance: oneFitCurrentCreditBalance,
+        },
+      }
+    : null;
+
+  const bookingsPanel =
+    resolvedCustomerId && customerBookingsListProps ? (
+      bookingsScrollable ? (
+        <ScrollArea className="h-[min(70vh,32rem)] pr-2">
+          <BookingsList {...customerBookingsListProps} />
+        </ScrollArea>
+      ) : (
+        <BookingsList {...customerBookingsListProps} />
+      )
+    ) : null;
+
+  const customerSections = (
     <div className="space-y-2">
       {/* Membership Section */}
       <Collapsible className="group/collapsible-menu bg-background" defaultOpen>
@@ -168,7 +234,7 @@ export function OneFitCustomerDetailContent({
                     <span className="text-sm text-foreground">
                       {formatDate(oneFitMembershipExpiresAt)}
                     </span>
-                    {customerId && (
+                    {resolvedCustomerId && (
                       <Button
                         variant="outline"
                         size="sm"
@@ -254,7 +320,7 @@ export function OneFitCustomerDetailContent({
                       No hold history
                     </div>
                   )}
-                {!loading && customerId && (
+                {!loading && resolvedCustomerId && (
                   <div className="flex flex-wrap gap-2 pt-2 border-t">
                     {oneFitIsMembershipOnHold ? (
                       <Button
@@ -288,25 +354,6 @@ export function OneFitCustomerDetailContent({
         </div>
         <Separator />
       </Collapsible>
-
-      {customerId && (
-        <>
-          <StartMembershipHoldDialog
-            customerId={customerId}
-            open={startHoldDialogOpen}
-            onOpenChange={setStartHoldDialogOpen}
-            onSuccess={refetch}
-          />
-          <UpdateMembershipDialog
-            customerId={customerId}
-            open={updateExpirationDialogOpen}
-            onOpenChange={setUpdateExpirationDialogOpen}
-            initialMembershipPlanId={oneFitMembershipPlanId}
-            initialExpiresAt={oneFitMembershipExpiresAt}
-            onSuccess={refetch}
-          />
-        </>
-      )}
 
       {/* Credits Section */}
       <Collapsible className="group/collapsible-menu bg-background" defaultOpen>
@@ -517,5 +564,52 @@ export function OneFitCustomerDetailContent({
         <Separator />
       </Collapsible>
     </div>
+  );
+
+  return (
+    <>
+      {resolvedCustomerId ? (
+        <div className="flex w-full min-h-0 flex-col gap-4">
+          <div
+            role="tablist"
+            className="flex w-full min-w-0 flex-wrap shrink-0 gap-2 border-b border-border bg-transparent px-0 py-1 text-accent-foreground"
+          >
+            <TabTriggerButton
+              active={activeTab === 'customer'}
+              onClick={() => setActiveTab('customer')}
+            >
+              Customer
+            </TabTriggerButton>
+            <TabTriggerButton
+              active={activeTab === 'bookings'}
+              onClick={() => setActiveTab('bookings')}
+            >
+              Bookings
+            </TabTriggerButton>
+          </div>
+          {activeTab === 'customer' ? customerSections : bookingsPanel}
+        </div>
+      ) : (
+        customerSections
+      )}
+      {resolvedCustomerId ? (
+        <>
+          <StartMembershipHoldDialog
+            customerId={resolvedCustomerId}
+            open={startHoldDialogOpen}
+            onOpenChange={setStartHoldDialogOpen}
+            onSuccess={refetch}
+          />
+          <UpdateMembershipDialog
+            customerId={resolvedCustomerId}
+            open={updateExpirationDialogOpen}
+            onOpenChange={setUpdateExpirationDialogOpen}
+            initialMembershipPlanId={oneFitMembershipPlanId}
+            initialExpiresAt={oneFitMembershipExpiresAt}
+            onSuccess={refetch}
+          />
+        </>
+      ) : null}
+    </>
   );
 }
