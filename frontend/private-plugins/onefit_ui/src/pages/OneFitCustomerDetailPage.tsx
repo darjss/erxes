@@ -10,14 +10,22 @@ import { UpdateBookingPreferencesDialog } from '~/modules/onefitCustomer/compone
 import { CreateMembershipPurchaseDialog } from '~/modules/membership-purchase/components/CreateMembershipPurchaseDialog';
 import { useState } from 'react';
 
-function getCustomerDisplayName(customer: {
-  firstName?: string;
-  lastName?: string;
-  primaryEmail?: string;
-  primaryPhone?: string;
-} | null | undefined) {
+function getCustomerDisplayName(
+  customer:
+    | {
+        firstName?: string;
+        lastName?: string;
+        primaryEmail?: string;
+        primaryPhone?: string;
+      }
+    | null
+    | undefined,
+) {
   if (!customer) return 'Customer';
-  const name = [customer.firstName, customer.lastName].filter(Boolean).join(' ').trim();
+  const name = [customer.firstName, customer.lastName]
+    .filter(Boolean)
+    .join(' ')
+    .trim();
   if (name) return name;
   return customer.primaryEmail || customer.primaryPhone || 'Customer';
 }

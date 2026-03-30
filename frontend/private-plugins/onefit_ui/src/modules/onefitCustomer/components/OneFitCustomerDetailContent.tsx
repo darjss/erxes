@@ -329,9 +329,7 @@ export function OneFitCustomerDetailContent({
                         onClick={handleCancelHold}
                         disabled={cancellingHold}
                       >
-                        {cancellingHold ? (
-                          <Spinner className="size-3" />
-                        ) : null}
+                        {cancellingHold ? <Spinner className="size-3" /> : null}
                         Cancel hold
                       </Button>
                     ) : (
@@ -340,7 +338,8 @@ export function OneFitCustomerDetailContent({
                         size="sm"
                         onClick={() => setStartHoldDialogOpen(true)}
                         disabled={
-                          oneFitMembershipStatus !== OneFitMembershipStatus.ACTIVE
+                          oneFitMembershipStatus !==
+                          OneFitMembershipStatus.ACTIVE
                         }
                       >
                         Start hold
@@ -462,7 +461,8 @@ export function OneFitCustomerDetailContent({
                       Booking Preferences
                     </Label>
                     {oneFitBookingPreferences.preferredTimeSlots &&
-                      oneFitBookingPreferences.preferredTimeSlots.length > 0 && (
+                      oneFitBookingPreferences.preferredTimeSlots.length >
+                        0 && (
                         <div className="space-y-1">
                           <div className="text-xs text-accent-foreground">
                             Preferred Time Slots:

@@ -126,9 +126,12 @@ export const BookingsList = ({
   customerDetailView = false,
   creditSummary,
 }: BookingsListProps) => {
-  const { bookings, handleFetchMore, loading, pageInfo } = useBookings(filters, {
-    sessionKey,
-  });
+  const { bookings, handleFetchMore, loading, pageInfo } = useBookings(
+    filters,
+    {
+      sessionKey,
+    },
+  );
   const [selectedBooking, setSelectedBooking] = useState<string | null>(null);
   const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
   const [attendanceDialogOpen, setAttendanceDialogOpen] = useState(false);
@@ -137,16 +140,14 @@ export const BookingsList = ({
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
   const visibleBookings = excludeCancelled
     ? (bookings || []).filter(
-        (booking: OneFitBooking) =>
-          booking.status !== BookingStatus.CANCELLED,
+        (booking: OneFitBooking) => booking.status !== BookingStatus.CANCELLED,
       )
     : bookings || [];
 
   const creditsOnThisPage = useMemo(
     () =>
       visibleBookings.reduce(
-        (sum: number, b: OneFitBooking) =>
-          sum + (Number(b.creditCost) || 0),
+        (sum: number, b: OneFitBooking) => sum + (Number(b.creditCost) || 0),
         0,
       ),
     [visibleBookings],
