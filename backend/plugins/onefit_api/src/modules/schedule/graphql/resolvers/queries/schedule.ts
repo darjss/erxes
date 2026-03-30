@@ -369,7 +369,9 @@ export const scheduleQueries = {
       }
     }
 
-    let monthsToBuild: Array<{ year: number; month: number }> = [{ year, month }];
+    let monthsToBuild: Array<{ year: number; month: number }> = [
+      { year, month },
+    ];
     let windowStart: Date | null = null;
     let windowEnd: Date | null = null;
 
@@ -639,9 +641,8 @@ export const scheduleQueries = {
       activityTypesFilter._id = activityTypeId;
     }
 
-    const activityTypes = await models.ActivityType.find(
-      activityTypesFilter,
-    ).lean();
+    const activityTypes =
+      await models.ActivityType.find(activityTypesFilter).lean();
 
     const activityTypesById = new Map<string, (typeof activityTypes)[number]>();
     for (const at of activityTypes) {

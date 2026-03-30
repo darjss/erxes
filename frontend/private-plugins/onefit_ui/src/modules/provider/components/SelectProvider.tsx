@@ -1,11 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useDebounce } from 'use-debounce';
-import {
-  Checkbox,
-  Command,
-  Combobox,
-  EnumCursorDirection,
-} from 'erxes-ui';
+import { Checkbox, Command, Combobox, EnumCursorDirection } from 'erxes-ui';
 import { useProviders } from '../hooks/useProviders';
 import { OneFitProvider } from '../types/provider';
 import { getLocalizedString } from '~/modules/activity-type/utils/localization';
@@ -78,9 +73,7 @@ export const SelectProvider = ({
   }
 
   const hasNoResults =
-    !loading &&
-    (providersData?.length || 0) === 0 &&
-    selected.length === 0;
+    !loading && (providersData?.length || 0) === 0 && selected.length === 0;
 
   if (hasNoResults) {
     return (
@@ -122,16 +115,13 @@ export const SelectProvider = ({
             <div className="space-y-2 px-1">
               {selected.map((id) => {
                 const fromList = providersData?.find(
-                (p: OneFitProvider) => p._id === id,
-              );
+                  (p: OneFitProvider) => p._id === id,
+                );
                 const label = fromList
                   ? getLocalizedString(fromList.businessName, 'en')
                   : labelById[id] || id;
                 return (
-                  <div
-                    key={id}
-                    className="flex items-center space-x-2 py-1"
-                  >
+                  <div key={id} className="flex items-center space-x-2 py-1">
                     <Checkbox
                       id={`selected-provider-${id}`}
                       checked
