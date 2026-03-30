@@ -44,7 +44,7 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
-      - name: Build loyalty UI
+      - name: Build onefit UI
         run: |
           export NX_DAEMON=false
           pnpm nx build onefit_ui
@@ -59,7 +59,7 @@ jobs:
           fi
           aws configure set default.s3.max_concurrent_requests 50
           aws configure set default.s3.multipart_chunksize 16MB
-          aws s3 cp dist/frontend/plugins/loyalty_ui s3://erxes-next/$FOLDER/loyalty_ui/ \
+          aws s3 cp dist/frontend/plugins/onefit_ui s3://erxes-next/$FOLDER/onefit_ui/ \
             --recursive \
             --no-progress \
             --endpoint-url https://7c8392aff8ac4518aa06dfa4b6337ef2.r2.cloudflarestorage.com
