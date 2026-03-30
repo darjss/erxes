@@ -40,6 +40,186 @@ function getDayOfWeek(date: Date): DayOfWeek {
   return days[date.getDay()];
 }
 
+type MonthAvailabilityDay = {
+  date: Date;
+  isFull: boolean;
+  seatsLeft: number;
+  totalSeats: number;
+  bookedSeats: number;
+  hasSchedule: boolean;
+  isBlockedByException: boolean;
+  schedule?: {
+    dayOfWeek: DayOfWeek;
+    activityTypeId: string;
+    genderRestriction: string;
+    startTime: string;
+    endTime: string;
+    dailyLimit: number;
+  };
+};
+
+function enumerateCalendarMonthsOverlappingRange(
+  rangeStart: Date,
+  rangeEnd: Date,
+): Array<{ year: number; month: number }> {
+  const months: Array<{ year: number; month: number }> = [];
+  const cursor = new Date(rangeStart.getFullYear(), rangeStart.getMonth(), 1);
+  const endMonth = new Date(rangeEnd.getFullYear(), rangeEnd.getMonth(), 1);
+
+  while (cursor <= endMonth) {
+    months.push({
+      year: cursor.getFullYear(),
+      month: cursor.getMonth() + 1,
+    });
+    cursor.setMonth(cursor.getMonth() + 1);
+  }
+
+  return months;
+}
+
+async function buildMonthAvailabilityDaysForCalendarMonth(
+  models: IModels,
+  providerId: string,
+  activityTypeId: string,
+  year: number,
+  month: number,
+): Promise<MonthAvailabilityDay[]> {
+  const scheduleTemplate = await models.ScheduleTemplate.findByProviderAndMonth(
+    providerId,
+    year,
+    month,
+  );
+
+  const daysInMonth = new Date(year, month, 0).getDate();
+  const days: MonthAvailabilityDay[] = [];
+
+  const monthStart = new Date(year, month - 1, 1);
+  const monthEnd = new Date(year, month, 0, 23, 59, 59, 999);
+  const exceptions = await models.ScheduleException.find({
+    providerId,
+    date: { $gte: monthStart, $lte: monthEnd },
+    $or: [
+      { activityTypeId: activityTypeId },
+      { activityTypeId: { $exists: false } },
+    ],
+  });
+  const exceptionDates = new Set(
+    exceptions.map((ex) => getPureDate(ex.date).getTime()),
+  );
+
+  const bookings = await models.Booking.find({
+    providerId,
+    activityTypeId,
+    bookingDate: { $gte: monthStart, $lte: monthEnd },
+    status: { $ne: BookingStatus.CANCELLED },
+  });
+
+  const bookingsByDateAndTime = new Map<string, number>();
+  for (const booking of bookings as IBooking[]) {
+    const bookingDate = new Date(booking.bookingDate);
+    const dateKey = bookingDate.getTime();
+    const startTime = booking.startTime ?? '';
+    const key = `${dateKey}-${startTime}`;
+    bookingsByDateAndTime.set(key, (bookingsByDateAndTime.get(key) || 0) + 1);
+  }
+
+  for (let day = 1; day <= daysInMonth; day++) {
+    const currentDate = new Date(year, month - 1, day);
+    const dateKey = currentDate.getTime();
+    const isBlocked = exceptionDates.has(dateKey);
+
+    if (isBlocked) {
+      const dayOfWeek = getDayOfWeek(currentDate);
+      const dailySchedule = scheduleTemplate?.dailySchedules.find(
+        (schedule) =>
+          schedule.dayOfWeek === dayOfWeek &&
+          schedule.activityTypeId === activityTypeId,
+      );
+
+      days.push({
+        date: currentDate,
+        isFull: true,
+        seatsLeft: 0,
+        totalSeats: dailySchedule?.dailyLimit || 0,
+        bookedSeats: 0,
+        hasSchedule: !!scheduleTemplate && !!dailySchedule,
+        isBlockedByException: true,
+        schedule: dailySchedule
+          ? {
+              dayOfWeek,
+              activityTypeId,
+              genderRestriction: dailySchedule.genderRestriction,
+              startTime: dailySchedule.startTime,
+              endTime: dailySchedule.endTime,
+              dailyLimit: dailySchedule.dailyLimit,
+            }
+          : undefined,
+      });
+      continue;
+    }
+
+    if (!scheduleTemplate) {
+      days.push({
+        date: currentDate,
+        isFull: true,
+        seatsLeft: 0,
+        totalSeats: 0,
+        bookedSeats: 0,
+        hasSchedule: false,
+        isBlockedByException: false,
+      });
+      continue;
+    }
+
+    const dayOfWeek = getDayOfWeek(currentDate);
+
+    const dailySchedules = scheduleTemplate.dailySchedules.filter(
+      (schedule) =>
+        schedule.dayOfWeek === dayOfWeek &&
+        schedule.activityTypeId === activityTypeId,
+    );
+    if (dailySchedules.length === 0) {
+      days.push({
+        date: currentDate,
+        isFull: true,
+        seatsLeft: 0,
+        totalSeats: 0,
+        bookedSeats: 0,
+        hasSchedule: false,
+        isBlockedByException: false,
+      });
+      continue;
+    }
+    for (const dailySchedule of dailySchedules) {
+      const slotKey = `${dateKey}-${dailySchedule.startTime}`;
+      const bookedSeats = bookingsByDateAndTime.get(slotKey) || 0;
+      const totalSeats = dailySchedule.dailyLimit;
+      const seatsLeft = Math.max(0, totalSeats - bookedSeats);
+      const isFull = seatsLeft <= 0;
+
+      days.push({
+        date: currentDate,
+        isFull,
+        seatsLeft,
+        totalSeats,
+        bookedSeats,
+        hasSchedule: true,
+        isBlockedByException: false,
+        schedule: {
+          dayOfWeek,
+          activityTypeId,
+          genderRestriction: dailySchedule.genderRestriction,
+          startTime: dailySchedule.startTime,
+          endTime: dailySchedule.endTime,
+          dailyLimit: dailySchedule.dailyLimit,
+        },
+      });
+    }
+  }
+
+  return days;
+}
+
 export const scheduleQueries = {
   async oneFitScheduleTemplates(
     _root: undefined,
@@ -188,173 +368,14 @@ export const scheduleQueries = {
         };
       }
     }
-    // Get schedule template for the month/year
-    const scheduleTemplate =
-      await models.ScheduleTemplate.findByProviderAndMonth(
-        providerId,
-        year,
-        month,
-      );
-    // Get all days in the month
-    const daysInMonth = new Date(year, month, 0).getDate();
-    const days: Array<{
-      date: Date;
-      isFull: boolean;
-      seatsLeft: number;
-      totalSeats: number;
-      bookedSeats: number;
-      hasSchedule: boolean;
-      isBlockedByException: boolean;
-      schedule?: {
-        dayOfWeek: DayOfWeek;
-        activityTypeId: string;
-        genderRestriction: string;
-        startTime: string;
-        endTime: string;
-        dailyLimit: number;
-      };
-    }> = [];
 
-    // Get all exceptions for this month
-    const startDate = new Date(year, month - 1, 1);
-    const endDate = new Date(year, month, 0, 23, 59, 59, 999);
-    const exceptions = await models.ScheduleException.find({
-      providerId,
-      date: { $gte: startDate, $lte: endDate },
-      $or: [
-        { activityTypeId: activityTypeId },
-        { activityTypeId: { $exists: false } },
-      ],
-    });
-    const exceptionDates = new Set(
-      exceptions.map((ex) => getPureDate(ex.date).getTime()),
-    );
-
-    // Get all bookings for this month (excluding cancelled)
-    const bookings = await models.Booking.find({
-      providerId,
-      activityTypeId,
-      bookingDate: { $gte: startDate, $lte: endDate },
-      status: { $ne: BookingStatus.CANCELLED },
-    });
-
-    // Group bookings by date and startTime (each time slot counted separately)
-    const bookingsByDateAndTime = new Map<string, number>();
-    for (const booking of bookings as IBooking[]) {
-      const bookingDate = new Date(booking.bookingDate);
-      const dateKey = bookingDate.getTime();
-      const startTime = booking.startTime ?? '';
-      const key = `${dateKey}-${startTime}`;
-      bookingsByDateAndTime.set(key, (bookingsByDateAndTime.get(key) || 0) + 1);
-    }
-
-    // Process each day in the month
-    for (let day = 1; day <= daysInMonth; day++) {
-      const currentDate = new Date(year, month - 1, day);
-      const dateKey = currentDate.getTime();
-      const isBlocked = exceptionDates.has(dateKey);
-
-      // Check if there's an exception for this date
-      if (isBlocked) {
-        // Find the daily schedule to get totalSeats
-        const dayOfWeek = getDayOfWeek(currentDate);
-        const dailySchedule = scheduleTemplate?.dailySchedules.find(
-          (schedule) =>
-            schedule.dayOfWeek === dayOfWeek &&
-            schedule.activityTypeId === activityTypeId,
-        );
-
-        days.push({
-          date: currentDate,
-          isFull: true,
-          seatsLeft: 0,
-          totalSeats: dailySchedule?.dailyLimit || 0,
-          bookedSeats: 0,
-          hasSchedule: !!scheduleTemplate && !!dailySchedule,
-          isBlockedByException: true,
-          schedule: dailySchedule
-            ? {
-                dayOfWeek,
-                activityTypeId,
-                genderRestriction: dailySchedule.genderRestriction,
-                startTime: dailySchedule.startTime,
-                endTime: dailySchedule.endTime,
-                dailyLimit: dailySchedule.dailyLimit,
-              }
-            : undefined,
-        } as (typeof days)[number]);
-        continue;
-      }
-
-      // Check if schedule template exists
-      if (!scheduleTemplate) {
-        days.push({
-          date: currentDate,
-          isFull: true,
-          seatsLeft: 0,
-          totalSeats: 0,
-          bookedSeats: 0,
-          hasSchedule: false,
-          isBlockedByException: false,
-        } as (typeof days)[number]);
-        continue;
-      }
-
-      // Get day of week for the current date
-      const dayOfWeek = getDayOfWeek(currentDate);
-
-      // Find matching daily schedule
-      const dailySchedules = scheduleTemplate.dailySchedules.filter(
-        (schedule) =>
-          schedule.dayOfWeek === dayOfWeek &&
-          schedule.activityTypeId === activityTypeId,
-      );
-      if (dailySchedules.length === 0) {
-        days.push({
-          date: currentDate,
-          isFull: true,
-          seatsLeft: 0,
-          totalSeats: 0,
-          bookedSeats: 0,
-          hasSchedule: false,
-          isBlockedByException: false,
-        } as (typeof days)[number]);
-        continue;
-      }
-      for (const dailySchedule of dailySchedules) {
-        // Count existing bookings for this date and startTime (time slot)
-        const slotKey = `${dateKey}-${dailySchedule.startTime}`;
-        const bookedSeats = bookingsByDateAndTime.get(slotKey) || 0;
-        const totalSeats = dailySchedule.dailyLimit;
-        const seatsLeft = Math.max(0, totalSeats - bookedSeats);
-        const isFull = seatsLeft <= 0;
-
-        days.push({
-          date: currentDate,
-          isFull,
-          seatsLeft,
-          totalSeats,
-          bookedSeats,
-          hasSchedule: true,
-          isBlockedByException: false,
-          schedule: {
-            dayOfWeek,
-            activityTypeId,
-            genderRestriction: dailySchedule.genderRestriction,
-            startTime: dailySchedule.startTime,
-            endTime: dailySchedule.endTime,
-            dailyLimit: dailySchedule.dailyLimit,
-          },
-        } as (typeof days)[number]);
-      }
-    }
-
-    // If lastDays is provided, return only days between currentDate and currentDate + lastDays
-    let resultDays = days;
+    let monthsToBuild: Array<{ year: number; month: number }> = [{ year, month }];
+    let windowStart: Date | null = null;
+    let windowEnd: Date | null = null;
 
     if (lastDays && lastDays > 0) {
       const now = new Date();
-      const startDate = new Date(
+      windowStart = new Date(
         now.getFullYear(),
         now.getMonth(),
         now.getDate(),
@@ -363,11 +384,34 @@ export const scheduleQueries = {
         0,
         0,
       );
-      const endDate = new Date(startDate);
-      endDate.setDate(endDate.getDate() + lastDays);
+      windowEnd = new Date(windowStart);
+      windowEnd.setDate(windowEnd.getDate() + lastDays);
 
-      resultDays = days.filter(
-        (dayInfo) => dayInfo.date >= startDate && dayInfo.date <= endDate,
+      monthsToBuild = enumerateCalendarMonthsOverlappingRange(
+        windowStart,
+        windowEnd,
+      );
+    }
+
+    const mergedDays: MonthAvailabilityDay[] = [];
+    for (const ym of monthsToBuild) {
+      const chunk = await buildMonthAvailabilityDaysForCalendarMonth(
+        models,
+        providerId,
+        activityTypeId,
+        ym.year,
+        ym.month,
+      );
+      mergedDays.push(...chunk);
+    }
+
+    mergedDays.sort((a, b) => a.date.getTime() - b.date.getTime());
+
+    let resultDays = mergedDays;
+
+    if (lastDays && lastDays > 0 && windowStart && windowEnd) {
+      resultDays = mergedDays.filter(
+        (dayInfo) => dayInfo.date >= windowStart && dayInfo.date <= windowEnd,
       );
     }
 
@@ -595,8 +639,9 @@ export const scheduleQueries = {
       activityTypesFilter._id = activityTypeId;
     }
 
-    const activityTypes =
-      await models.ActivityType.find(activityTypesFilter).lean();
+    const activityTypes = await models.ActivityType.find(
+      activityTypesFilter,
+    ).lean();
 
     const activityTypesById = new Map<string, (typeof activityTypes)[number]>();
     for (const at of activityTypes) {
