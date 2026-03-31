@@ -103,8 +103,10 @@ export function CreditConsumptionReport() {
 
   const columns: ColumnDef<CreditConsumptionRow>[] = [
     {
+      id: 'year',
       accessorKey: 'year',
       header: 'Year',
+      size: 80,
       cell: ({ cell }) => (
         <RecordTableInlineCell className="text-xs font-medium">
           {cell.getValue() as number}
@@ -112,8 +114,10 @@ export function CreditConsumptionReport() {
       ),
     },
     {
+      id: 'month',
       accessorKey: 'month',
       header: 'Month',
+      size: 90,
       cell: ({ row }) => {
         const y = row.original.year;
         const m = String(row.original.month).padStart(2, '0');
@@ -125,8 +129,10 @@ export function CreditConsumptionReport() {
       },
     },
     {
+      id: 'user',
       accessorKey: 'user',
       header: 'Customer',
+      size: 220,
       cell: ({ row }) => {
         const user = row.original.user;
         const fullName =
@@ -144,6 +150,7 @@ export function CreditConsumptionReport() {
     {
       id: 'phone',
       header: 'Phone',
+      size: 160,
       cell: ({ row }) => (
         <RecordTableInlineCell className="text-xs font-medium">
           {row.original.user?.primaryPhone ?? '—'}
@@ -153,6 +160,7 @@ export function CreditConsumptionReport() {
     {
       id: 'currentCreditBalance',
       header: 'Current credit balance',
+      size: 180,
       cell: ({ row }) => {
         const balance = row.original.user?.currentCreditBalance;
         const value = typeof balance === 'number' ? balance.toFixed(2) : '—';
@@ -164,8 +172,10 @@ export function CreditConsumptionReport() {
       },
     },
     {
+      id: 'totalCreditsConsumed',
       accessorKey: 'totalCreditsConsumed',
       header: 'Credits consumed',
+      size: 160,
       cell: ({ cell }) => (
         <RecordTableInlineCell className="text-xs font-medium">
           {(cell.getValue() as number).toFixed(2)}
@@ -173,8 +183,10 @@ export function CreditConsumptionReport() {
       ),
     },
     {
+      id: 'bookingCount',
       accessorKey: 'bookingCount',
       header: 'Bookings',
+      size: 120,
       cell: ({ cell }) => (
         <RecordTableInlineCell className="text-xs font-medium">
           {cell.getValue() as number}
@@ -184,6 +196,7 @@ export function CreditConsumptionReport() {
     {
       id: 'averageCreditsPerBooking',
       header: 'Avg credits / booking',
+      size: 170,
       cell: ({ row }) => {
         const { totalCreditsConsumed: credits, bookingCount } = row.original;
         const avg = bookingCount > 0 ? credits / bookingCount : 0;
@@ -232,11 +245,11 @@ export function CreditConsumptionReport() {
       </div>
 
       <div className="rounded-md border flex flex-col max-h-[70vh]">
-        <div className="overflow-auto min-h-0 flex-1">
+        <div className="overflow-x-auto overflow-y-auto min-h-0 flex-1">
           <RecordTable.Provider
             columns={columns}
             data={rows}
-            className="m-0 min-w-max"
+            className="m-0 overflow-x-auto"
           >
             <RecordTable>
               <RecordTable.Header />

@@ -1,5 +1,6 @@
 import { categoryQueries } from '@/category/graphql/resolvers/queries/category';
 import { providerQueries } from '@/provider/graphql/resolvers/queries/provider';
+import { providerReviewQueries } from '@/provider/graphql/resolvers/queries/providerReview';
 import { scheduleQueries } from '@/schedule/graphql/resolvers/queries/schedule';
 import { membershipQueries } from '@/membership/graphql/resolvers/queries/membership';
 import { creditTransactionQueries } from '@/membership/graphql/resolvers/queries/credittransaction';
@@ -14,6 +15,7 @@ import { promoCodeQueries } from '@/promoCode/graphql/resolvers/queries/promoCod
 export const queries = {
   ...categoryQueries,
   ...providerQueries,
+  ...providerReviewQueries,
   ...scheduleQueries,
   ...membershipQueries,
   ...creditTransactionQueries,

@@ -1,5 +1,4 @@
 import { IContext } from '~/connectionResolvers';
-import { requireLogin } from 'erxes-api-shared/core-modules';
 
 export const paymentQueries = {
   btkAdminGetNewsPaymentPlan: async (
@@ -18,6 +17,3 @@ export const paymentQueries = {
     return models.NewsPaymentPlan.find({ news });
   },
 };
-
-requireLogin(paymentQueries, 'btkAdminGetNewsPaymentPlan');
-requireLogin(paymentQueries, 'btkAdminGetNewsPaymentPlans');

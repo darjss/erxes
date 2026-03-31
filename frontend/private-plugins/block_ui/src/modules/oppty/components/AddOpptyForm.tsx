@@ -20,6 +20,8 @@ import { OPPTY_CUSTOMER_SOURCES } from '@/oppty/constants/oppty';
 import { useBlockStatusesByType } from '@/status/hooks/useGetBlockStatuses';
 import { IconMinus, IconPlus } from '@tabler/icons-react';
 import { UnitSelectRow } from './UnitSelectRow';
+import { SelectTenureType } from '@/unit/components/SelectTenureType';
+import { SelectUnitType } from '@/unit/components/SelectUnitType';
 
 export const AddOpptyForm = ({ onClose }: { onClose: () => void }) => {
   const { projectId } = useParams<{ projectId?: string }>();
@@ -37,6 +39,8 @@ export const AddOpptyForm = ({ onClose }: { onClose: () => void }) => {
       status: '',
       customerSource: '',
       assignedUserId: currentUser?._id || undefined,
+      unitType: '',
+      tenureType: '',
       unitRows: [{ buildingId: '', zoningId: '', unitId: '' }],
       labelIds: [],
       tagIds: [],
@@ -69,6 +73,8 @@ export const AddOpptyForm = ({ onClose }: { onClose: () => void }) => {
           status: data.status,
           customerSource: data.customerSource,
           assignedUserId: data.assignedUserId,
+          unitType: data.unitType || undefined,
+          tenureType: data.tenureType || undefined,
           propertyRows,
           labelIds: data.labelIds,
           tagIds: data.tagIds,
@@ -196,6 +202,49 @@ export const AddOpptyForm = ({ onClose }: { onClose: () => void }) => {
                     />
                   </Form.Item>
                 )}
+              />
+
+              <Form.Field
+                name="unitType"
+                control={form.control}
+                render={({ field }) => (
+                  <Form.Item>
+                    <Form.Label>Unit Type</Form.Label>
+                    <SelectUnitType
+                      inForm
+                      value={field.value || ''}
+                      onValueChange={field.onChange}
+                    />
+                    <Form.Message />
+                  </Form.Item>
+                )}
+              />
+
+              <Form.Field
+                name="tenureType"
+                control={form.control}
+                render={({ field }) => {
+                  const parseTenure = (val: string) => {
+                    if (!val) return { areaType: '', tenureTypes: [] as string[] };
+                    const [areaType, ...tenureTypes] = val.split(':');
+                    return { areaType, tenureTypes };
+                  };
+                  const { areaType, tenureTypes } = parseTenure(field.value || '');
+                  return (
+                    <Form.Item>
+                      <Form.Label>Tenure Type</Form.Label>
+                      <SelectTenureType
+                        inForm
+                        value={{ areaType, tenureTypes }}
+                        onValueChange={(a, t) => {
+                          if (!a) { field.onChange(''); return; }
+                          field.onChange(t.length ? [a, ...t].join(':') : a);
+                        }}
+                      />
+                      <Form.Message />
+                    </Form.Item>
+                  );
+                }}
               />
 
 </div>

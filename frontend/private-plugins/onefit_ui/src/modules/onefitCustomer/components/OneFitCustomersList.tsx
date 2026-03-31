@@ -315,7 +315,7 @@ export const OneFitCustomersList = ({ filters }: OneFitCustomersListProps) => {
         </RecordTable.Provider>
       </div>
       <Sheet open={detailSheetOpen} onOpenChange={closeDetailSheet}>
-        <Sheet.View className="sm:max-w-xl">
+        <Sheet.View className="w-full sm:max-w-[min(56rem,calc(100vw-2rem))]">
           <Sheet.Header>
             <Sheet.Title>{detailCustomerName}</Sheet.Title>
             <Sheet.Close />
@@ -370,9 +370,11 @@ export const OneFitCustomersList = ({ filters }: OneFitCustomersListProps) => {
                     <Spinner containerClassName="py-20" />
                   ) : (
                     <OneFitCustomerDetailContent
+                      customerId={selectedCustomer}
                       oneFitCustomer={detailCustomer}
                       loading={detailLoading}
                       refetch={refetchDetail}
+                      bookingsScrollable
                     />
                   )}
                 </div>

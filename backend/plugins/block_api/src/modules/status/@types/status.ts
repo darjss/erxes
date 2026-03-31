@@ -4,7 +4,7 @@ export interface IStatus {
   description?: string;
   color?: string;
   type: string;
-  order: number;
+  order?: number;
 }
 
 export interface IStatusDocument extends IStatus, Document {

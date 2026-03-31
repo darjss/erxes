@@ -5,6 +5,8 @@ import {
   IconCalendarClock,
   IconCalendarTime,
   IconPhone,
+  IconCategory,
+  IconKey,
 } from '@tabler/icons-react';
 
 import {
@@ -16,6 +18,8 @@ import {
 import { SelectMember } from 'ui-modules';
 import { SelectOpptyPriority } from './SelectPriority';
 import { SelectCustomerSource } from './SelectCustomerSource';
+import { SelectUnitTypeFilter } from './SelectUnitTypeFilter';
+import { SelectTenureTypeFilter } from './SelectTenureTypeFilter';
 
 const OpptysFilterPopover = () => {
   const [queries] = useMultiQueryState<{
@@ -23,6 +27,8 @@ const OpptysFilterPopover = () => {
     assignedUserId: string;
     priority: string;
     customerSource: string;
+    unitType: string;
+    tenureType: string;
     startDate: string;
     targetDate: string;
   }>([
@@ -30,6 +36,8 @@ const OpptysFilterPopover = () => {
     'assignedUserId',
     'priority',
     'customerSource',
+    'unitType',
+    'tenureType',
     'startDate',
     'targetDate',
   ]);
@@ -67,6 +75,14 @@ const OpptysFilterPopover = () => {
                   <IconPhone />
                   Customer Source
                 </Filter.Item>
+                <Filter.Item value="unitType">
+                  <IconCategory />
+                  Unit Type
+                </Filter.Item>
+                <Filter.Item value="tenureType">
+                  <IconKey />
+                  Tenure Type
+                </Filter.Item>
                 <Command.Separator className="my-1" />
                 <Filter.Item value="startDate">
                   <IconCalendarClock />
@@ -82,6 +98,8 @@ const OpptysFilterPopover = () => {
           <SelectMember.FilterView queryKey="assignedUserId" />
           <SelectOpptyPriority.FilterView />
           <SelectCustomerSource.FilterView />
+          <SelectUnitTypeFilter.FilterView />
+          <SelectTenureTypeFilter.FilterView />
           <Filter.View filterKey="startDate">
             <Filter.DateView filterKey="startDate" />
           </Filter.View>
@@ -127,6 +145,20 @@ export const OpptysFilter = () => {
             Source
           </Filter.BarName>
           <SelectCustomerSource.FilterBar />
+        </Filter.BarItem>
+        <Filter.BarItem queryKey="unitType">
+          <Filter.BarName>
+            <IconCategory />
+            Unit Type
+          </Filter.BarName>
+          <SelectUnitTypeFilter.FilterBar />
+        </Filter.BarItem>
+        <Filter.BarItem queryKey="tenureType">
+          <Filter.BarName>
+            <IconKey />
+            Tenure Type
+          </Filter.BarName>
+          <SelectTenureTypeFilter.FilterBar />
         </Filter.BarItem>
         <Filter.BarItem queryKey="startDate">
           <Filter.BarName>

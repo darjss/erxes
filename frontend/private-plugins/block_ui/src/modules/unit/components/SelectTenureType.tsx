@@ -18,7 +18,7 @@ export const SelectTenureType = ({
   const Control = inForm ? Form.Control : React.Fragment;
 
   const handleAreaType = (type: string) => {
-    onValueChange?.(type, tenureTypes || []);
+    onValueChange?.(type, []);
   };
 
   const handleOnValueChange = (type: string) => {

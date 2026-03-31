@@ -12,7 +12,7 @@ export const statusSchema = new Schema(
       required: true,
       index: true,
     },
-    order: { type: Number, label: 'Order', required: true, index: true },
+    order: { type: Number, label: 'Order', index: true },
   },
   {
     timestamps: true,

@@ -23,4 +23,3 @@ export const offerQueries = {
     return models.Offer.find({ unit });
   },
 };
-

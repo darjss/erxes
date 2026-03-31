@@ -17,4 +17,3 @@ export const documentQueries = {
     return models.BlockDocument.find({ itemType, itemId });
   },
 };
-

@@ -2,7 +2,7 @@ import { IContext } from '~/connectionResolvers';
 
 export const invoiceQueries = {
   blockAdminGetInvoice: async (
-    _root,
+    _root: undefined,
     { _id }: { _id: string },
     { models }: IContext,
   ) => {
@@ -10,7 +10,7 @@ export const invoiceQueries = {
   },
 
   blockAdminGetInvoices: async (
-    _root,
+    _root: undefined,
     { itemId }: { itemId: string },
     { models }: IContext,
   ) => {

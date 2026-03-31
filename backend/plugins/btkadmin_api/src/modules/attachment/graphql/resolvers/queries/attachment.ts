@@ -1,5 +1,4 @@
 import { IContext } from '~/connectionResolvers';
-import { requireLogin } from 'erxes-api-shared/core-modules';
 
 export const attachmentQueries = {
   btkAdminGetAttachment: async (
@@ -18,6 +17,3 @@ export const attachmentQueries = {
     return models.BtkAttachment.find({ itemType, itemId });
   },
 };
-
-requireLogin(attachmentQueries, 'btkAdminGetAttachment');
-requireLogin(attachmentQueries, 'btkAdminGetAttachments');

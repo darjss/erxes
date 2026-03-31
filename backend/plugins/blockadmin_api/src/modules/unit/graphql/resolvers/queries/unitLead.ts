@@ -9,4 +9,3 @@ export const unitLeadQueries = {
     return models.UnitLead.find({ unit });
   },
 };
-

@@ -7,7 +7,8 @@ export const GET_OPPTY = gql`
       number
       description
       customerId
-      unitTypes
+      unitType
+      tenureType
       unit
       units
       propertyRows {

@@ -6,6 +6,7 @@ export interface IOpptyFilter {
   description?: string;
   customerId?: string;
   unitType?: string;
+  tenureType?: string;
   unit?: string;
   assignedUserId?: string;
   status?: string;
@@ -28,7 +29,8 @@ export interface IOpptyInput {
   number?: string;
   description: string;
   customerId: string;
-  unitTypes?: string[];
+  unitType?: string;
+  tenureType?: string;
   unit?: string;
   units?: string[];
   propertyRows?: IPropertyRow[];

@@ -11,6 +11,7 @@ import { useMemo } from 'react';
 import { ColumnDef } from '@tanstack/table-core';
 import { ONE_FIT_BOOKINGS } from '~/modules/booking/graphql/bookingQueries';
 import { getLocalizedString } from '~/modules/activity-type/utils/localization';
+import { useOneFitMode } from '~/modules/config/hooks/useOneFitMode';
 import { OneFitCustomersInline } from '~/modules/onefitCustomer/components/OneFitCustomersInline';
 import type { OneFitCustomer } from '~/modules/onefitCustomer/types/onefitCustomer';
 import { format, parseISO } from 'date-fns';
@@ -69,6 +70,8 @@ function getStatusLabel(status: BookingStatus): string {
 
 export const AccountStatementSheet = () => {
   const [open, setOpen] = useQueryState<string>('accountStatementId');
+  const { mode } = useOneFitMode();
+  const isMasterMode = mode === 'master';
 
   const rowData = useMemo(() => {
     if (!open) return null;
@@ -134,6 +137,9 @@ export const AccountStatementSheet = () => {
       ),
     [bookings],
   );
+  const totalPriceCompleted = rowData?.amountEarnedCompleted ?? 0;
+  const totalPriceNoShow = rowData?.amountEarnedNoShow ?? 0;
+  const totalPrice = totalPriceCompleted + totalPriceNoShow;
 
   const providerName = rowData?.provider?.businessName
     ? getLocalizedString(rowData.provider.businessName, 'en')
@@ -205,15 +211,19 @@ export const AccountStatementSheet = () => {
         </RecordTableInlineCell>
       ),
     },
-    {
-      accessorKey: 'creditCost',
-      header: 'CREDITS',
-      cell: ({ cell }) => (
-        <RecordTableInlineCell className="text-xs">
-          {(cell.getValue() as number)?.toFixed(2) ?? '—'}
-        </RecordTableInlineCell>
-      ),
-    },
+    ...(isMasterMode
+      ? [
+          {
+            accessorKey: 'creditCost',
+            header: 'CREDITS',
+            cell: ({ cell }: { cell: any }) => (
+              <RecordTableInlineCell className="text-xs">
+                {(cell.getValue() as number)?.toFixed(2) ?? '—'}
+              </RecordTableInlineCell>
+            ),
+          },
+        ]
+      : []),
     {
       accessorKey: 'price',
       header: 'AMOUNT',
@@ -268,7 +278,22 @@ export const AccountStatementSheet = () => {
 
                   {!loading && bookings.length > 0 && (
                     <div className="border-t bg-muted/30 px-4 py-2 text-sm font-medium space-y-1 mt-2 flex-shrink-0">
-                      <div>Total credits: {totalCredits.toFixed(2)}</div>
+                      {isMasterMode && (
+                        <div>Total credits: {totalCredits.toFixed(2)}</div>
+                      )}
+                      <div>
+                        Total amount (completed):{' '}
+                        {totalPriceCompleted.toFixed(2)}
+                      </div>
+                      {isMasterMode && (
+                        <>
+                          <div>
+                            Total amount (no-show):{' '}
+                            {totalPriceNoShow.toFixed(2)}
+                          </div>
+                          <div>Total amount: {totalPrice.toFixed(2)}</div>
+                        </>
+                      )}
                     </div>
                   )}
 

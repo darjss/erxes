@@ -9,7 +9,8 @@ export const GET_OPPTYS = gql`
         number
         description
         customerId
-        unitTypes
+        unitType
+        tenureType
         unit
         units
         propertyRows {

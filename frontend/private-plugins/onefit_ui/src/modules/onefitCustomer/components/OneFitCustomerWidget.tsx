@@ -16,7 +16,10 @@ export const OneFitCustomerWidget = ({
   scope: string;
 }) => {
   return (
-    <SideMenu.Content value="onefitcustomer" className="bg-sidebar">
+    <SideMenu.Content
+      value="onefitcustomer"
+      className="bg-sidebar data-[state=active]:w-[min(44rem,calc(100vw-4rem))]"
+    >
       <OneFitCustomerWidgetHeader />
       <OneFitCustomerWidgetContent customerIds={customerIds} scope={scope} />
     </SideMenu.Content>
@@ -146,10 +149,14 @@ const OneFitCustomerWidgetDetail = ({
   });
 
   return (
-    <OneFitCustomerDetailContent
-      oneFitCustomer={oneFitCustomer}
-      loading={loading}
-      refetch={refetch}
-    />
+    <div className="flex min-h-0 flex-1 flex-col overflow-hidden p-2">
+      <OneFitCustomerDetailContent
+        customerId={customerId}
+        oneFitCustomer={oneFitCustomer}
+        loading={loading}
+        refetch={refetch}
+        bookingsScrollable
+      />
+    </div>
   );
 };

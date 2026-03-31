@@ -4,7 +4,8 @@ export const opptySchema = new Schema({
   number: { type: String, label: 'Number' },
   description: { type: String, required: true, label: 'Description' },
   customerId: { type: String, required: true, label: 'Customer ID' },
-  unitTypes: { type: [Schema.Types.ObjectId], label: 'Unit Types' },
+  unitType: { type: Schema.Types.ObjectId, label: 'Unit Type' },
+  tenureType: { type: String, label: 'Tenure Type' },
   units: { type: [Schema.Types.ObjectId], label: 'Units' },
   unit: { type: Schema.Types.ObjectId, required: false },
   propertyRows: {

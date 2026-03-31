@@ -72,8 +72,10 @@ export function AccountStatementReport() {
 
   const columns: ColumnDef<AccountStatementRow>[] = [
     {
+      id: 'year',
       accessorKey: 'year',
       header: 'Year',
+      size: 80,
       cell: ({ cell }: { cell: Cell<AccountStatementRow, unknown> }) => (
         <RecordTableInlineCell className="text-xs font-medium">
           {cell.getValue() as number}
@@ -81,8 +83,10 @@ export function AccountStatementReport() {
       ),
     },
     {
+      id: 'month',
       accessorKey: 'month',
       header: 'Month',
+      size: 90,
       cell: ({ row }: { row: { original: AccountStatementRow } }) => {
         const y = row.original.year;
         const m = String(row.original.month).padStart(2, '0');
@@ -94,8 +98,10 @@ export function AccountStatementReport() {
       },
     },
     {
+      id: 'provider',
       accessorKey: 'provider',
       header: 'Provider',
+      size: 220,
       cell: ({ row }: { row: { original: AccountStatementRow } }) => {
         const provider = row.original.provider;
         const name = provider?.businessName
@@ -111,8 +117,10 @@ export function AccountStatementReport() {
     ...(isMasterMode
       ? [
           {
+            id: 'creditsEarnedCompleted',
             accessorKey: 'creditsEarnedCompleted',
             header: 'Credits (completed)',
+            size: 180,
             cell: ({ cell }: { cell: Cell<AccountStatementRow, unknown> }) => (
               <RecordTableInlineCell className="text-xs font-medium">
                 {(cell.getValue() as number).toFixed(2)}
@@ -120,8 +128,10 @@ export function AccountStatementReport() {
             ),
           },
           {
+            id: 'creditsEarnedNoShow',
             accessorKey: 'creditsEarnedNoShow',
             header: 'Credits (no-show)',
+            size: 180,
             cell: ({ cell }: { cell: Cell<AccountStatementRow, unknown> }) => (
               <RecordTableInlineCell className="text-xs font-medium">
                 {(cell.getValue() as number).toFixed(2)}
@@ -131,8 +141,10 @@ export function AccountStatementReport() {
         ]
       : []),
     {
+      id: 'bookingCountCompleted',
       accessorKey: 'bookingCountCompleted',
       header: 'Bookings (completed)',
+      size: 50,
       cell: ({ cell }: { cell: Cell<AccountStatementRow, unknown> }) => (
         <RecordTableInlineCell className="text-xs font-medium">
           {cell.getValue() as number}
@@ -140,8 +152,10 @@ export function AccountStatementReport() {
       ),
     },
     {
+      id: 'bookingCountNoShow',
       accessorKey: 'bookingCountNoShow',
       header: 'Bookings (no-show)',
+      size: 50,
       cell: ({ cell }: { cell: Cell<AccountStatementRow, unknown> }) => (
         <RecordTableInlineCell className="text-xs font-medium">
           {cell.getValue() as number}
@@ -149,8 +163,10 @@ export function AccountStatementReport() {
       ),
     },
     {
+      id: 'amountEarnedCompleted',
       accessorKey: 'amountEarnedCompleted',
       header: 'Amount (completed)',
+      size: 200,
       cell: ({ cell }: { cell: Cell<AccountStatementRow, unknown> }) => (
         <RecordTableInlineCell className="text-xs font-medium">
           {(cell.getValue() as number).toFixed(2)}
@@ -158,8 +174,10 @@ export function AccountStatementReport() {
       ),
     },
     {
+      id: 'amountEarnedNoShow',
       accessorKey: 'amountEarnedNoShow',
       header: 'Amount (no-show)',
+      size: 200,
       cell: ({ cell }: { cell: Cell<AccountStatementRow, unknown> }) => (
         <RecordTableInlineCell className="text-xs font-medium">
           {(cell.getValue() as number).toFixed(2)}
@@ -169,6 +187,7 @@ export function AccountStatementReport() {
     {
       id: 'details',
       header: '',
+      size: 160,
       cell: ({ row }: { row: { original: AccountStatementRow } }) => (
         <RecordTableInlineCell>
           <Button
@@ -219,11 +238,11 @@ export function AccountStatementReport() {
       </div>
 
       <div className="rounded-md border flex flex-col max-h-[70vh]">
-        <div className="overflow-auto min-h-0 flex-1">
+        <div className="overflow-x-auto overflow-y-auto min-h-0 flex-1">
           <RecordTable.Provider
             columns={columns}
             data={rows}
-            className="m-0 min-w-max"
+            className="m-0 overflow-x-auto"
           >
             <RecordTable>
               <RecordTable.Header />
@@ -247,7 +266,7 @@ export function AccountStatementReport() {
           No completed or no-show bookings in the selected date range.
         </p>
       )}
-
+      {/* 
       <AccountStatementRowDetailsDialog
         row={detailsRow}
         open={detailsOpen}
@@ -255,7 +274,7 @@ export function AccountStatementReport() {
           setDetailsOpen(open);
           if (!open) setDetailsRow(null);
         }}
-      />
+      /> */}
     </div>
   );
 }
