@@ -6,12 +6,11 @@ import {
   IOpptyInput,
 } from '@/oppty/@types/oppty';
 import { opptySchema } from '@/oppty/db/definitions/oppty';
-import { DEFAULT_STATUS_TYPES } from '@/status/constants';
 import { graphqlPubsub } from 'erxes-api-shared/utils';
 import { Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
 import { BLOCK_MODULES } from '~/constants';
-import { IUnit } from '~/modules/unit/@types/unit';
+import { STATUS_VALIDATION } from '../../utils/validation';
 
 export interface IOpptyModel extends Model<IOpptyDocument> {
   getOppty(_id: string): Promise<IOpptyDocument>;
@@ -70,31 +69,8 @@ export const loadOpptyClass = (models: IModels, subdomain: string) => {
       input: IOpptyInput,
       userId: string,
     ) {
-      await this.validateOppty({ _id, ...input });
-
-      if (input?.status) {
-        const status = await models.Status.getStatus(input.status);
-
-        if (input?.unit && status?.type === DEFAULT_STATUS_TYPES.NEGOTIATION) {
-          const statusIds = await models.Status.find({
-            type: DEFAULT_STATUS_TYPES.NEGOTIATION,
-          }).distinct('_id');
-
-          const exists = await models.Oppty.exists({
-            unit: input.unit,
-            status: { $in: statusIds },
-          });
-
-          if (exists) {
-            throw new Error('Unit is already reserved');
-          }
-
-          await models.Unit.updateUnit(input.unit, {
-            status: 'onHold',
-          } as IUnit);
-        }
-      }
-
+      await this.validateOppty(_id, input);
+      
       const oppty = await models.Oppty.getOppty(_id);
 
       const updatedOppty = await models.Oppty.findOneAndUpdate(
@@ -131,25 +107,27 @@ export const loadOpptyClass = (models: IModels, subdomain: string) => {
       return models.Oppty.findOneAndDelete({ _id });
     }
 
-    public static async validateOppty(input: Partial<IOpptyDocument>) {
-      const oppty = await models.Oppty.findOne({ _id: input._id });
+    public static async validateOppty(_id: string, input: Partial<IOpptyDocument>) {
+      const { status } = input || {}; // status that the oppty is being updated to
+      
+      if (!status) return // if status is not being updated, no validation is needed
 
-      const hasUnit =
-        oppty?.unit ||
-        (oppty?.propertyRows || []).some((row) => row.unitId && row.isMain);
+      const oppty = await models.Oppty.getOppty(_id);
 
-      if (
-        [
-          DEFAULT_STATUS_TYPES.NEGOTIATION,
-          DEFAULT_STATUS_TYPES.CLOSED_WON,
-          DEFAULT_STATUS_TYPES.CLOSED_LOST,
-        ].includes(input.status || '') &&
-        !hasUnit
-      ) {
-        throw new Error('Unit is required');
+      // validates based on status type
+      const { type } = await models.Status.findOne({ _id: status }) || {};
+
+      if (!type) {
+        throw new Error('The status has an invalid type');
       }
 
-      return oppty;
+      // this function calculate the sum of numbers
+      const validation = STATUS_VALIDATION[type];
+
+      // if there is no validation then it means the status type has no specific validation requirements
+      if (!validation) return
+
+      await validation(status, oppty, models);
     }
   }
 

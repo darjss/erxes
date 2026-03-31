@@ -5,8 +5,9 @@ export const ORDER_GAP = 1000;
 export const DEFAULT_STATUS_TYPES = {
   LEAD: 'lead',
   QUALIFIED: 'qualified',
-  MATCHING: 'matching',
+  SITE_VISIT: 'site_visit',
   NEGOTIATION: 'negotiation',
+  RESERVED: 'reserved',
   CLOSED_WON: 'closed_won',
   CLOSED_LOST: 'closed_lost',
 };
@@ -27,16 +28,11 @@ export const DEFAULT_STATUSES = {
       type: DEFAULT_STATUS_TYPES.QUALIFIED,
     },
   },
-  [DEFAULT_STATUS_TYPES.MATCHING]: {
-    SUGGESTED: {
-      name: 'Suggested',
+  [DEFAULT_STATUS_TYPES.SITE_VISIT]: {
+    SITE_VISIT: {
+      name: 'Site Visit',
       color: '#96CEB4',
-      type: DEFAULT_STATUS_TYPES.MATCHING,
-    },
-    VIEWED: {
-      name: 'Viewed',
-      color: '#FFEAA7',
-      type: DEFAULT_STATUS_TYPES.MATCHING,
+      type: DEFAULT_STATUS_TYPES.SITE_VISIT,
     },
   },
   [DEFAULT_STATUS_TYPES.NEGOTIATION]: {
@@ -45,10 +41,12 @@ export const DEFAULT_STATUSES = {
       color: '#DDA0DD',
       type: DEFAULT_STATUS_TYPES.NEGOTIATION,
     },
+  },
+  [DEFAULT_STATUS_TYPES.RESERVED]: {
     RESERVED: {
       name: 'Reserved',
       color: '#FF6B6B',
-      type: DEFAULT_STATUS_TYPES.NEGOTIATION,
+      type: DEFAULT_STATUS_TYPES.RESERVED,
     },
   },
   [DEFAULT_STATUS_TYPES.CLOSED_WON]: {
@@ -78,15 +76,20 @@ export const DEFAULT_STATUS_TYPE_VALUES = {
     type: '',
     name: capitalize(DEFAULT_STATUS_TYPES.QUALIFIED),
   },
-  [DEFAULT_STATUS_TYPES.MATCHING]: {
+  [DEFAULT_STATUS_TYPES.SITE_VISIT]: {
     color: '#45B7D1',
     type: '',
-    name: capitalize(DEFAULT_STATUS_TYPES.MATCHING),
+    name: capitalize(DEFAULT_STATUS_TYPES.SITE_VISIT),
   },
   [DEFAULT_STATUS_TYPES.NEGOTIATION]: {
     color: '#96CEB4',
     type: '',
     name: capitalize(DEFAULT_STATUS_TYPES.NEGOTIATION),
+  },
+  [DEFAULT_STATUS_TYPES.RESERVED]: {
+    color: '#FF6B6B',
+    type: '',
+    name: capitalize(DEFAULT_STATUS_TYPES.RESERVED),
   },
   [DEFAULT_STATUS_TYPES.CLOSED_WON]: {
     color: '#FFEAA7',
