@@ -1,8 +1,10 @@
 import { OPPTY_FIELDS } from '@/oppty/constants';
-import { isAfter, subMinutes } from 'date-fns';
-import { difference, toString } from 'lodash';
+import { DEVELOPER_FIELDS } from '@/developer/constants';
+import { PROJECT_FIELDS } from '@/project/constants';
+import { UNIT_FIELDS, UNIT_TYPE_FIELDS } from '@/unit/constants';
+import { subMinutes, isAfter } from 'date-fns';
 import { generateModels } from '~/connectionResolvers';
-import { validator } from './validator';
+import { BLOCK_MODULES } from '~/constants';
 
 enum Action {
   CREATED = 'CREATED',
@@ -11,18 +13,23 @@ enum Action {
 }
 
 const MODULE_FIELDS: Record<string, Record<string, string>> = {
-  oppty: OPPTY_FIELDS,
+  [BLOCK_MODULES.OPPTY]: OPPTY_FIELDS,
+  [BLOCK_MODULES.DEVELOPER]: DEVELOPER_FIELDS,
+  [BLOCK_MODULES.PROJECT]: PROJECT_FIELDS,
+  [BLOCK_MODULES.UNIT]: UNIT_FIELDS,
+  [BLOCK_MODULES.UNIT_TYPE]: UNIT_TYPE_FIELDS,
 };
+
+const getModule = (contentType: string, field: string): string | null =>
+  MODULE_FIELDS[contentType]?.[field] ?? null;
 
 export const createActivity = async <T>({
   subdomain,
-
   oldDoc,
   newDoc,
-
   userId,
   contentId,
-  module,
+  module: contentType,
 }: {
   subdomain: string;
   oldDoc?: T;
@@ -37,15 +44,13 @@ export const createActivity = async <T>({
     action: Action,
     newValue: any,
     previousValue: any,
-    field: string,
+    module: string,
   ) => {
-    const lastActivity = await models.BlockActivity.findOne({ contentId }).sort(
-      {
-        createdAt: -1,
-      },
-    );
+    const lastActivity = await models.BlockActivity.findOne({ contentId }).sort({
+      createdAt: -1,
+    });
 
-    if (lastActivity?.field === field && lastActivity?.action === action) {
+    if (lastActivity?.module === module && lastActivity?.action === action) {
       const thirtyMinutesAgo = subMinutes(new Date(), 30);
       const isRecent = isAfter(
         new Date(lastActivity.createdAt),
@@ -54,7 +59,7 @@ export const createActivity = async <T>({
 
       if (
         isRecent &&
-        toString(newValue) === toString(lastActivity.metadata.previousValue)
+        toStr(newValue) === toStr(lastActivity.metadata.previousValue)
       ) {
         return models.BlockActivity.removeActivity(lastActivity._id);
       }
@@ -63,10 +68,10 @@ export const createActivity = async <T>({
         _id: lastActivity._id,
         contentId,
         action,
-        field,
+        module,
         metadata: {
-          newValue: toString(newValue),
-          previousValue: toString(lastActivity.metadata.previousValue),
+          newValue: toStr(newValue),
+          previousValue: toStr(lastActivity.metadata.previousValue),
         },
         createdBy: userId,
       });
@@ -75,56 +80,39 @@ export const createActivity = async <T>({
     return models.BlockActivity.createActivity({
       contentId,
       action,
-      field,
+      module,
       metadata: {
-        newValue: toString(newValue),
-        previousValue: toString(previousValue),
+        newValue: toStr(newValue),
+        previousValue: toStr(previousValue),
       },
       createdBy: userId,
     });
   };
 
   for (const [field, newValue] of Object.entries(newDoc)) {
-    const MODULE_FIELD = MODULE_FIELDS?.[module]?.[field];
+    const oldValue = oldDoc?.[field as keyof T];
+    const module = getModule(contentType, field);
 
-    if (!MODULE_FIELD) continue;
-
-    const oldValue = oldDoc?.[field];
-
-    if (oldValue === newValue) continue;
-
-    if (validator('array', oldValue, newValue)) {
-      const added = difference(newValue, oldValue);
-      const removed = difference(oldValue, newValue);
-
-      if (added.length || removed.length) {
-        await logActivity(
-          Action.CHANGED,
-          added.length ? added.join(',') : null,
-          removed.length ? removed.join(',') : null,
-          MODULE_FIELD,
-        );
-      }
-
-      continue;
-    }
+    if (!module) continue;
 
     let action: Action | null = null;
 
-    if ((oldValue && newValue) && (oldValue !== newValue)) {
+    if (['startDate', 'targetDate'].includes(field)) {
+      if (!oldValue && newValue) action = Action.CREATED;
+      else if (newValue !== oldValue)
+        action = newValue ? Action.CHANGED : Action.REMOVED;
+    } else if (newValue !== oldValue) {
       action = Action.CHANGED;
     }
 
-    if (!oldValue && newValue) {
-      action = Action.CREATED;
-    }
-
-    if (oldValue && !newValue) {
-      action = Action.REMOVED;
-    }
-
     if (action) {
-      await logActivity(action, newValue, oldValue, MODULE_FIELD);
+      await logActivity(action, newValue, oldValue, module);
     }
   }
 };
+
+export function toStr(val: any): string {
+  if (val === null || val === undefined) return '';
+  if (typeof val === 'object') return JSON.stringify(val);
+  return String(val);
+}

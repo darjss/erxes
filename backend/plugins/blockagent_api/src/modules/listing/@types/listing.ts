@@ -1,16 +1,12 @@
 import { Document } from 'mongoose';
 
-export interface ILocation {
-  type: 'Point';
-  coordinates: [number, number];
-}
-
 export interface IBlockListingLocation {
   city: string;
   district: string;
   subDistrict: string;
   short?: string;
-  geoPoint: ILocation;
+  lat?: number;
+  lng?: number;
 }
 
 export interface IBlockListingPricing {
@@ -37,10 +33,18 @@ export interface IBlockListing {
   pricing: IBlockListingPricing;
   specs: IBlockListingSpecs;
   mediaAttachments?: string[];
+  viewCount?: number;
 }
 
 export interface IBlockListingDocument extends IBlockListing, Document<string> {
   _id: string;
   createdAt: Date;
   updatedAt: Date;
+}
+
+export interface ListingQueryParams {
+  searchValue?: string;
+  status?: string;
+  city?: string;
+  district?: string;
 }

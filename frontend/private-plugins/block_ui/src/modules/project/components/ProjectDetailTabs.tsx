@@ -99,6 +99,12 @@ const ProjectDetailUnitTypes = lazy(() =>
   })),
 );
 
+const ProjectDetailStatuses = lazy(() =>
+  import('./ProjectDetailStatuses').then((module) => ({
+    default: module.ProjectDetailStatuses,
+  })),
+);
+
 export const ProjectDetailTabs = () => {
   const [activeTab] = useQueryState('activeTab', {
     defaultValue: 'general',
@@ -125,6 +131,7 @@ export const ProjectDetailTabs = () => {
       {activeTab === PROJECT_TABS.SEO && <ProjectDetailSeo />}
       {activeTab === PROJECT_TABS.POLICIES && <ProjectDetailPolicies />}
       {activeTab === PROJECT_TABS.UNIT_TYPES && <ProjectDetailUnitTypes />}
+      {activeTab === PROJECT_TABS.STATUS && <ProjectDetailStatuses />}
     </Suspense>
   );
 };

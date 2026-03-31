@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import { IUserDocument } from 'erxes-api-shared/core-types';
 
 export interface IBlock {
   subdomain: string;
@@ -7,6 +8,7 @@ export interface IBlock {
 
 export interface IRequest<T, E = {}> extends Request {
   subdomain?: string;
+  user?: IUserDocument;
   body: {
     payload: {
       entityId: string;

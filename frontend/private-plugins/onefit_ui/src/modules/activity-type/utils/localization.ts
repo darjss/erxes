@@ -3,13 +3,15 @@ import {
   MultilingualStringOptional,
 } from '../types/activityType';
 
+export type ActivityLanguage = 'en' | 'mn';
+
 /**
  * Get localized string with fallback logic
  * Priority: preferredLang → 'en' → 'mn' → first available → empty string
  */
 export function getLocalizedString(
   localized: MultilingualString | MultilingualStringOptional | undefined,
-  preferredLang?: 'en' | 'mn',
+  preferredLang?: ActivityLanguage,
 ): string {
   if (!localized || typeof localized !== 'object') {
     return '';

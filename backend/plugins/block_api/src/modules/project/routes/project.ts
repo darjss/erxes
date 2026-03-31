@@ -19,7 +19,11 @@ router.post(
 
       const { isPublished } = data || {};
 
-      models.Project.updateProject({ _id: entityId, input: { isPublished } });
+      models.Project.updateProject({ 
+        _id: entityId, 
+        input: { isPublished }, 
+        userId: req.user?._id || ''
+      });
 
       return res.status(200).json({
         success: true,

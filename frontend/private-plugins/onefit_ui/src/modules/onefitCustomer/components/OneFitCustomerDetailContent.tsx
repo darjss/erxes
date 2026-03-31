@@ -9,14 +9,16 @@ import {
 } from 'erxes-ui';
 import { format } from 'date-fns';
 import { useState } from 'react';
-import { useMutation } from '@apollo/client';
+import { useMutation, useQuery } from '@apollo/client';
 import {
   OneFitCustomer,
   OneFitMembershipStatus,
 } from '../types/onefitCustomer';
 import { ONE_FIT_MEMBERSHIP_HOLD_CANCEL } from '../graphql/onefitCustomerMutations';
 import { ONE_FIT_CUSTOMER } from '../graphql/onefitCustomerQueries';
+import { ONE_FIT_MEMBERSHIP_PLAN } from '~/modules/membership/graphql/membershipPlanQueries';
 import { StartMembershipHoldDialog } from './StartMembershipHoldDialog';
+import { UpdateMembershipDialog } from './UpdateMembershipDialog';
 
 function formatDate(dateString?: string | null) {
   if (!dateString) return '-';
@@ -57,6 +59,8 @@ export function OneFitCustomerDetailContent({
   refetch,
 }: OneFitCustomerDetailContentProps) {
   const [startHoldDialogOpen, setStartHoldDialogOpen] = useState(false);
+  const [updateExpirationDialogOpen, setUpdateExpirationDialogOpen] =
+    useState(false);
   const customerId = oneFitCustomer?._id;
 
   const [cancelHold, { loading: cancellingHold }] = useMutation(
@@ -113,6 +117,13 @@ export function OneFitCustomerDetailContent({
     oneFitTotalBookings,
   } = oneFitCustomer || {};
 
+  const { data: membershipPlanData } = useQuery(ONE_FIT_MEMBERSHIP_PLAN, {
+    variables: { _id: oneFitMembershipPlanId || '' },
+    skip: !oneFitMembershipPlanId,
+  });
+
+  const membershipPlanName = membershipPlanData?.oneFitMembershipPlan?.name;
+
   return (
     <div className="space-y-2">
       {/* Membership Section */}
@@ -143,18 +154,29 @@ export function OneFitCustomerDetailContent({
                 </div>
                 <div className="space-y-1">
                   <Label className="text-xs text-accent-foreground">
-                    Membership Plan ID
+                    Membership Plan
                   </Label>
                   <div className="text-sm text-foreground">
-                    {oneFitMembershipPlanId || '-'}
+                    {membershipPlanName || oneFitMembershipPlanId || '-'}
                   </div>
                 </div>
                 <div className="space-y-1">
                   <Label className="text-xs text-accent-foreground">
                     Expiration Date
                   </Label>
-                  <div className="text-sm text-foreground">
-                    {formatDate(oneFitMembershipExpiresAt)}
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm text-foreground">
+                      {formatDate(oneFitMembershipExpiresAt)}
+                    </span>
+                    {customerId && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setUpdateExpirationDialogOpen(true)}
+                      >
+                        Modify
+                      </Button>
+                    )}
                   </div>
                 </div>
               </div>
@@ -268,12 +290,22 @@ export function OneFitCustomerDetailContent({
       </Collapsible>
 
       {customerId && (
-        <StartMembershipHoldDialog
-          customerId={customerId}
-          open={startHoldDialogOpen}
-          onOpenChange={setStartHoldDialogOpen}
-          onSuccess={refetch}
-        />
+        <>
+          <StartMembershipHoldDialog
+            customerId={customerId}
+            open={startHoldDialogOpen}
+            onOpenChange={setStartHoldDialogOpen}
+            onSuccess={refetch}
+          />
+          <UpdateMembershipDialog
+            customerId={customerId}
+            open={updateExpirationDialogOpen}
+            onOpenChange={setUpdateExpirationDialogOpen}
+            initialMembershipPlanId={oneFitMembershipPlanId}
+            initialExpiresAt={oneFitMembershipExpiresAt}
+            onSuccess={refetch}
+          />
+        </>
       )}
 
       {/* Credits Section */}

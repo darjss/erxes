@@ -1,9 +1,27 @@
 import { IContext } from '~/connectionResolvers';
 import { IOpptyDocument, IOpptyFilter } from '@/oppty/@types/oppty';
-import { FilterQuery } from 'mongoose';
+import { FilterQuery, Types } from 'mongoose';
 import { cursorPaginate } from 'erxes-api-shared/utils';
 
 export const opptyQueries = {
+  blockGetOppty: async (
+    _parent: undefined,
+    { _id }: { _id: string },
+    { models }: IContext,
+  ) => {
+    return models.Oppty.getOppty(_id);
+  },
+
+  blockGetOpptyUnitRows: async (
+    _parent: undefined,
+    { _id }: { _id: string },
+    { models }: IContext,
+  ) => {
+    const oppty = await models.Oppty.getOppty(_id);
+
+    return oppty.propertyRows || [];
+  },
+
   blockGetOpptys: async (
     _parent: undefined,
     { projectId, filter }: { projectId: string; filter: IOpptyFilter },
@@ -12,6 +30,15 @@ export const opptyQueries = {
     const filterQuery: FilterQuery<IOpptyDocument> = {};
 
     filterQuery.projectId = projectId;
+
+    if (filter?.searchValue) {
+      const searchRegex = { $regex: filter.searchValue, $options: 'i' };
+
+      filterQuery.$or = [
+        { number: searchRegex },
+        { description: searchRegex },
+      ];
+    }
 
     if (filter?.number) {
       filterQuery.number = filter.number;
@@ -41,11 +68,37 @@ export const opptyQueries = {
       filterQuery.status = filter.status;
     }
 
-    if (filter?.startDate) {
+    if (filter?.priority) {
+      filterQuery.priority = filter.priority;
+    }
+
+    if (filter?.dateFilters) {
+      const dateFilter = JSON.parse(filter.dateFilters);
+
+      for (const key in dateFilter) {
+        if (Object.hasOwn(dateFilter, key)) {
+          const { gte, lte } = dateFilter[key];
+
+          if (!filterQuery[key]) {
+            filterQuery[key] = {};
+          }
+
+          if (gte) {
+            filterQuery[key].$gte = new Date(gte);
+          }
+
+          if (lte) {
+            filterQuery[key].$lte = new Date(lte);
+          }
+        }
+      }
+    }
+
+    if (filter?.startDate && !filter?.dateFilters) {
       filterQuery.startDate = { $gte: filter.startDate };
     }
 
-    if (filter?.targetDate) {
+    if (filter?.targetDate && !filter?.dateFilters) {
       filterQuery.targetDate = { $gte: filter.targetDate };
     }
 

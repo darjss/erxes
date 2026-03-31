@@ -14,12 +14,24 @@ const ListingPage = lazy(() =>
   })),
 );
 
+const ListingIndexPage = lazy(() =>
+  import('~/pages/blockagent/ListingIndexPage').then((module) => ({
+    default: module.ListingIndexPage,
+  })),
+);
+
 const BlockagentMain = () => {
   return (
     <Suspense fallback={<div />}>
       <Routes>
         <Route path={AgencyPaths.PROFILE} element={<IndexPage />} />
-        <Route path={AgencyPaths.LISTING} element={<ListingPage />} />
+        <Route path={AgencyPaths.LISTING} element={<ListingPage />}>
+          <Route index element={<ListingIndexPage />} />
+          <Route
+            path={AgencyPaths.LISTING_DETAIL}
+            element={<div>Listing Detail page</div>}
+          />
+        </Route>
       </Routes>
     </Suspense>
   );

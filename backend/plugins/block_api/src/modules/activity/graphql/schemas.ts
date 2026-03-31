@@ -8,9 +8,9 @@ export const types = `
     
     type BlockActivity {
       _id: String
-      action: String  
+      action: String
       contentId: String
-      field: String
+      module: String
       metadata:BlockActivityMetadata
       createdBy: String
 
@@ -22,6 +22,11 @@ export const types = `
       list: [BlockActivity],
       pageInfo: PageInfo
       totalCount: Int,
+    }
+
+    type BlockActivitySubscription {
+      type: String
+      activity: BlockActivity
     }
 `;
 

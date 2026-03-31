@@ -10,7 +10,6 @@ import {
   BlockProjectPaymentPlanFrequency,
   BlockProjectPaymentPlanInterestType,
 } from '@/project/@types/payment';
-import { requireLogin } from 'erxes-api-shared/core-modules';
 import { IContext } from '~/connectionResolvers';
 
 export const offerMutations = {
@@ -199,5 +198,3 @@ export const offerMutations = {
   },
 };
 
-requireLogin(offerMutations, 'blockCreateOffer');
-requireLogin(offerMutations, 'blockUpdateOffer');

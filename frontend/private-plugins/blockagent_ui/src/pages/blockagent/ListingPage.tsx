@@ -1,22 +1,20 @@
-import { Breadcrumb, Button, Separator } from "erxes-ui";
-import { PageHeader } from "ui-modules";
-import { IconCaretDownFilled, IconSettings, IconHomeSearch } from "@tabler/icons-react";
-import { Link } from "react-router";
+import { Breadcrumb, Button, Separator } from 'erxes-ui';
+import { PageHeader } from 'ui-modules';
+import { IconHomeSearch } from '@tabler/icons-react';
+import { CreateListing } from '~/modules/blockagent/components/listing/components/CreateListing';
+import { Outlet } from 'react-router';
 
 export const ListingPage = () => {
   return (
-
     <div className="flex flex-col h-full">
       <PageHeader>
         <PageHeader.Start>
           <Breadcrumb>
             <Breadcrumb.List className="gap-1">
               <Breadcrumb.Item>
-                <Button variant="ghost" asChild>
-                  <Link to="/settings/blockagent">
-                    <IconHomeSearch />
-                    Listing
-                  </Link>
+                <Button variant="ghost">
+                  <IconHomeSearch />
+                  Listing
                 </Button>
               </Breadcrumb.Item>
             </Breadcrumb.List>
@@ -25,20 +23,12 @@ export const ListingPage = () => {
           <PageHeader.FavoriteToggleButton />
         </PageHeader.Start>
         <PageHeader.End>
-          <Button variant="outline" asChild>
-            <Link to="/settings/blockagent">
-              <IconSettings />
-              Go to settings
-            </Link>
-          </Button>
-          <Button>
-            More <IconCaretDownFilled />
-          </Button>
+          <CreateListing />
         </PageHeader.End>
       </PageHeader>
       <div className="flex h-full overflow-hidden">
         <div className="flex flex-col h-full overflow-hidden flex-auto">
-          <h1>Listing</h1>
+          <Outlet />
         </div>
       </div>
     </div>

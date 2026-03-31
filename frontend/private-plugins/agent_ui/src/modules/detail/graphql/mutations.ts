@@ -11,3 +11,21 @@ export const ADD_AGENT = gql`
     addAgent(input: $input)
   }
 `;
+
+export const FIX_AND_RESTART_AGENT = gql`
+  mutation FixAndRestartAgent {
+    fixAndRestartAgent
+  }
+`;
+
+export const UPDATE_DISCORD_SETTINGS = gql`
+  mutation UpdateDiscordSettings($input: UpdateDiscordSettingsInput!) {
+    updateDiscordSettings(input: $input)
+  }
+`;
+
+export const ADD_DISCORD_GUILD = gql`
+  mutation AddDiscordGuild($input: AddDiscordGuildInput!) {
+    addDiscordGuild(input: $input)
+  }
+`;

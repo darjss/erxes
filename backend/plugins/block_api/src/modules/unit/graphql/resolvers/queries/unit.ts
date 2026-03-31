@@ -1,4 +1,3 @@
-import { requireLogin } from 'erxes-api-shared/core-modules';
 import { IContext } from '~/connectionResolvers';
 
 export const unitQueries = {
@@ -23,5 +22,3 @@ export const unitQueries = {
   },
 };
 
-requireLogin(unitQueries, 'blockGetUnit');
-requireLogin(unitQueries, 'blockGetUnits');

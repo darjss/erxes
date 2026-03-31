@@ -1,6 +1,5 @@
 import { IContext } from '~/connectionResolvers';
 import { IUnitLead } from '@/unit/@types/unitLead';
-import { requireLogin } from 'erxes-api-shared/core-modules';
 
 export const unitLeadMutations = {
   blockAddUnitLead: async (
@@ -23,5 +22,3 @@ export const unitLeadMutations = {
   },
 };
 
-requireLogin(unitLeadMutations, 'blockAddUnitLead');
-requireLogin(unitLeadMutations, 'blockRemoveUnitLead');

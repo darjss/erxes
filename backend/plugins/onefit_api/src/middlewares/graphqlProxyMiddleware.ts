@@ -24,6 +24,7 @@ const PROXY_TO_MASTER_OPERATIONS = [
   'cpOneFitBookingCreate',
   'cpOneFitBookingCancel',
   'oneFitBookingMarkAttendance',
+  'oneFitBookingsMarkAttendance',
   // Schedule
   'oneFitScheduleTemplates',
   'oneFitScheduleTemplatesCount',
@@ -69,6 +70,11 @@ const PROXY_TO_MASTER_OPERATIONS = [
   'oneFitActivityCategories',
   'oneFitActivityCategoriesCount',
   'oneFitActivityCategory',
+
+  'oneFitCustomers',
+  'oneFitCustomer',
+  'oneFitCustomersCount',
+  'oneFitCustomersByCompanyId',
 ];
 
 /** Operations that must never run locally in slave mode; these return 403. */
@@ -122,7 +128,6 @@ const BLOCKED_IN_SLAVE = [
   'oneFitDistrictCreate',
   'oneFitDistrictUpdate',
   'oneFitDistrictRemove',
-  'oneFitCustomers',
 ];
 
 const isOperationInList = (

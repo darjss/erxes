@@ -1,4 +1,3 @@
-import { requireLogin } from 'erxes-api-shared/core-modules';
 import { IContext } from '~/connectionResolvers';
 
 export const contractQueries = {
@@ -25,5 +24,3 @@ export const contractQueries = {
   },
 };
 
-requireLogin(contractQueries, 'blockGetContract');
-requireLogin(contractQueries, 'blockGetContracts');

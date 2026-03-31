@@ -2,6 +2,8 @@ import { IProject, IProjectDocument } from '@/project/@types/project';
 import { projectSchema } from '@/project/db/definitions/project';
 import { Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
+import { createActivity } from '@/activity/utils/createActivity';
+import { BLOCK_MODULES } from '~/constants';
 
 export interface IProjectModel extends Model<IProjectDocument> {
   getProject(_id: string): Promise<IProjectDocument>;
@@ -9,14 +11,16 @@ export interface IProjectModel extends Model<IProjectDocument> {
   updateProject({
     _id,
     input,
+    userId,
   }: {
     _id: string;
     input: IProject;
+    userId: string;
   }): Promise<IProjectDocument>;
   removeProject(ProjectId: string): Promise<{ ok: number }>;
 }
 
-export const loadProjectClass = (models: IModels) => {
+export const loadProjectClass = (models: IModels, subdomain: string) => {
   class Project {
     public static async getProject(_id: string) {
       const Project = await models.Project.findById(_id);
@@ -42,21 +46,38 @@ export const loadProjectClass = (models: IModels) => {
     public static async updateProject({
       _id,
       input,
+      userId,
     }: {
       _id: string;
       input: IProject;
+      userId: string;
     }) {
+      const oldProject = await models.Project.findOne({ _id }).lean();
+      
       const status = await models.Status.exists({ projectId: _id });
 
       if (!status) {
         await models.Status.generateDefaultStatus(_id);
       }
 
-      return await models.Project.findOneAndUpdate(
+      const updatedProject = await models.Project.findOneAndUpdate(
         { _id },
         { $set: { ...input } },
         { new: true },
       );
+
+      if (userId && updatedProject) {
+        await createActivity<IProject>({
+          subdomain,
+          oldDoc: oldProject || undefined,
+          newDoc: updatedProject.toObject(),
+          userId,
+          contentId: _id,
+          module: BLOCK_MODULES.PROJECT,
+        });
+      }
+
+      return updatedProject;
     }
 
     /**

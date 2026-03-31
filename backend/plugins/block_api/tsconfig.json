@@ -23,6 +23,7 @@
     "forceConsistentCasingInFileNames": false,
     "noFallthroughCasesInSwitch": false,
     "resolveJsonModule": true,
+    "lib": ["es2022"],
     "types": ["jest", "node"],
     "paths": {
       "~/*": ["./src/*"],

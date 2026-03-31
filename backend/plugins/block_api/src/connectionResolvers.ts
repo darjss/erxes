@@ -58,6 +58,8 @@ import {
   IBlockActivityModel,
   loadBlockActivityClass,
 } from '~/modules/activity/db/models/Activity';
+import { INoteDocument } from '~/modules/note/types';
+import { INoteModel, loadNoteClass } from '~/modules/note/db/models/Note';
 import { IOpptyDocument } from './modules/oppty/@types/oppty';
 
 export interface IModels {
@@ -74,6 +76,7 @@ export interface IModels {
   Contract: IContractModel;
   ProjectMember: IProjectMemberModel;
   BlockActivity: IBlockActivityModel;
+  BlockNote: INoteModel;
   Offer: IOfferModel;
   Invoice: IInvoiceModel;
   Oppty: IOpptyModel;
@@ -92,7 +95,7 @@ export const loadClasses = (
 
   models.Project = db.model<IProjectDocument, IProjectModel>(
     'block_projects',
-    loadProjectClass(models),
+    loadProjectClass(models, subdomain),
   );
 
   models.ProjectPaymentPlan = db.model<
@@ -112,12 +115,12 @@ export const loadClasses = (
 
   models.Unit = db.model<IUnitDocument, IUnitModel>(
     'block_units',
-    loadUnitClass(models),
+    loadUnitClass(models, subdomain),
   );
 
   models.UnitType = db.model<IUnitTypeDocument, IUnitTypeModel>(
     'block_unit_types',
-    loadUnitTypeClass(models),
+    loadUnitTypeClass(models, subdomain),
   );
 
   models.BlockDocument = db.model<IBlockDocumentDocument, IBlockDocumentModel>(
@@ -132,7 +135,7 @@ export const loadClasses = (
 
   models.Developer = db.model<IBlockDeveloperDocument, IBlockDeveloperModel>(
     'block_developers',
-    loadBlockDeveloperClass(models),
+    loadBlockDeveloperClass(models, subdomain),
   );
 
   models.Contract = db.model<IContractDocument, IContractModel>(
@@ -148,6 +151,11 @@ export const loadClasses = (
   models.BlockActivity = db.model<IBlockActivityDocument, IBlockActivityModel>(
     'block_activities',
     loadBlockActivityClass(models),
+  );
+
+  models.BlockNote = db.model<INoteDocument, INoteModel>(
+    'block_notes',
+    loadNoteClass(models),
   );
 
   models.UnitLead = db.model<IUnitLeadDocument, IUnitLeadModel>(

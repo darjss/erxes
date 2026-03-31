@@ -50,3 +50,4 @@ export const DESTROY_AGENT = gql`
     }
   }
 `;
+

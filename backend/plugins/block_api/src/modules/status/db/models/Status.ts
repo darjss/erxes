@@ -12,9 +12,11 @@ import { IModels } from '~/connectionResolvers';
 export interface IStatusModel extends Model<any> {
   getStatus(_id: string): Promise<IStatusDocument>;
   getStatuses(projectId: string, type?: string): Promise<IStatusDocument[]>;
+  getStatusTypes(projectId: string): Promise<IStatusDocument[]>;
 
   createStatus(input: IStatus): Promise<IStatusDocument>;
   updateStatus(_id: string, input: IStatus): Promise<IStatusDocument>;
+  updateStatusOrder(_id: string, order: number): Promise<IStatusDocument>;
   removeStatus(_id: string): Promise<IStatusDocument>;
 
   validateStatus(status: IStatus): Promise<void>;
@@ -32,6 +34,26 @@ export const loadBlockStatusClass = (models: IModels) => {
 
       return status;
     }
+    public static async getStatusTypes(projectId: string) {
+      const project = await models.Project.getProject(projectId);
+
+      const existing = await models.Status.find({
+        projectId: project._id,
+        type: '',
+      }).sort({ order: 1 }).lean();
+
+      if (existing.length > 0) {
+        return existing;
+      }
+
+      await this.generateDefaultStatus(project._id);
+
+      return models.Status.find({
+        projectId: project._id,
+        type: '',
+      }).sort({ order: 1 }).lean();
+    }
+
 
     public static async getStatuses(projectId: string, type?: string) {
       const project = await models.Project.getProject(projectId);
@@ -42,6 +64,8 @@ export const loadBlockStatusClass = (models: IModels) => {
 
       if (type) {
         query.type = type;
+      } else {
+        query.type = { $ne: '' };
       }
 
       const statuses = await models.Status.find(query).sort({ order: 1 }).lean();
@@ -88,6 +112,20 @@ export const loadBlockStatusClass = (models: IModels) => {
       return status;
     }
 
+    public static async updateStatusOrder(_id: string, order: number) {
+      const status = await models.Status.findOneAndUpdate(
+        { _id },
+        { $set: { order } },
+        { new: true },
+      );
+
+      if (!status) {
+        throw new Error('Status not found');
+      }
+
+      return status;
+    }
+
     public static async removeStatus(_id: string) {
       const status = await models.Status.findOneAndDelete({ _id });
 
@@ -98,7 +136,7 @@ export const loadBlockStatusClass = (models: IModels) => {
       return status;
     }
 
-    public static async generateDefaultStatus(projectId: string) {
+   public static async generateDefaultStatus(projectId: string) {
       const statuses: IStatus[] = [];
 
       for (const STATUS_TYPE_KEY in DEFAULT_STATUS_TYPES) {

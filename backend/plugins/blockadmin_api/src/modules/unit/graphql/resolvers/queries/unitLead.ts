@@ -1,5 +1,4 @@
 import { IContext } from '~/connectionResolvers';
-import { requireLogin } from 'erxes-api-shared/core-modules';
 
 export const unitLeadQueries = {
   blockGetUnitLeads: async (
@@ -11,4 +10,3 @@ export const unitLeadQueries = {
   },
 };
 
-requireLogin(unitLeadQueries, 'blockGetUnitLeads');

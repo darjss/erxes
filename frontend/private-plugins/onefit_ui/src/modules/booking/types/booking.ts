@@ -31,6 +31,7 @@ export interface OneFitBooking {
       en: string;
       mn: string;
     };
+    coverImages?: string[];
   };
   activityType?: {
     _id: string;
@@ -38,6 +39,7 @@ export interface OneFitBooking {
       en: string;
       mn: string;
     };
+    image?: string;
   };
   bookingDate: string;
   startTime: string;
@@ -76,17 +78,22 @@ export interface BookingFilters {
   attendanceStatus?: AttendanceStatus;
 }
 
+/** User is the raw OneFitCustomer document from the API (JSON). */
+export interface CreditConsumptionRowUser {
+  _id: string;
+  firstName?: string;
+  lastName?: string;
+  primaryEmail?: string;
+  primaryPhone?: string;
+  currentCreditBalance?: number;
+  [key: string]: unknown;
+}
+
 export interface CreditConsumptionRow {
   year: number;
   month: number;
   userId: string;
-  user?: {
-    _id: string;
-    firstName?: string;
-    lastName?: string;
-    primaryEmail?: string;
-    primaryPhone?: string;
-  } | null;
+  user?: CreditConsumptionRowUser | null;
   totalCreditsConsumed: number;
   bookingCount: number;
 }

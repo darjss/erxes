@@ -7,6 +7,7 @@ import {
   ICursorListResponse,
   isUndefinedOrNull,
   mergeCursorData,
+  parseDateRangeFromString,
   useNonNullMultiQueryState,
   useToast,
   validateFetchMore,
@@ -25,25 +26,41 @@ interface IOpptyChanged {
 export const useOpptysVariables = (
   variables?: QueryHookOptions<ICursorListResponse<IOppty>>['variables'],
 ) => {
-  const { searchValue, assignee, priority, statusId } =
+  const { searchValue, assignedUserId, priority, customerSource, startDate, targetDate } =
     useNonNullMultiQueryState<{
       searchValue: string;
-      assignee: string;
+      assignedUserId: string;
       priority: string;
-      statusId: string;
-    }>(['searchValue', 'assignee', 'priority', 'statusId']);
+      customerSource: string;
+      startDate: string;
+      targetDate: string;
+    }>(['searchValue', 'assignedUserId', 'priority', 'customerSource', 'startDate', 'targetDate']);
+
+  const dateFilters: Record<string, any> = {};
+
+  if (startDate) {
+    dateFilters.startDate = {
+      gte: parseDateRangeFromString(startDate)?.from,
+      lte: parseDateRangeFromString(startDate)?.to,
+    };
+  }
+
+  if (targetDate) {
+    dateFilters.targetDate = {
+      gte: parseDateRangeFromString(targetDate)?.from,
+      lte: parseDateRangeFromString(targetDate)?.to,
+    };
+  }
 
   return {
     cursor: '',
     limit: OPPTYS_PER_PAGE,
-    orderBy: {
-      updatedAt: -1,
-    },
     direction: 'forward',
-    name: searchValue,
-    assigneeId: assignee,
-    priority: priority,
-    statusId: statusId,
+    searchValue,
+    assignedUserId,
+    priority,
+    customerSource,
+    dateFilters: JSON.stringify(dateFilters),
     ...variables,
   };
 };
@@ -108,15 +125,15 @@ export const useOpptys = (
         return {
           ...prev,
           blockGetOpptys: {
-            ...prev.getOpptys,
+            ...prev.blockGetOpptys,
             list: updatedList,
-            pageInfo: prev.getOpptys.pageInfo,
+            pageInfo: prev.blockGetOpptys.pageInfo,
             totalCount:
               type === 'create'
-                ? prev.getOpptys.totalCount + 1
+                ? prev.blockGetOpptys.totalCount + 1
                 : type === 'remove'
-                ? prev.getOpptys.totalCount - 1
-                : prev.getOpptys.totalCount,
+                  ? prev.blockGetOpptys.totalCount - 1
+                  : prev.blockGetOpptys.totalCount,
           },
         };
       },
@@ -153,10 +170,10 @@ export const useOpptys = (
         if (!fetchMoreResult) return prev;
 
         return Object.assign({}, prev, {
-          getOpptys: mergeCursorData({
+          blockGetOpptys: mergeCursorData({
             direction,
-            fetchMoreResult: fetchMoreResult.getOpptys,
-            prevResult: prev.getOpptys,
+            fetchMoreResult: fetchMoreResult.blockGetOpptys,
+            prevResult: prev.blockGetOpptys,
           }),
         });
       },

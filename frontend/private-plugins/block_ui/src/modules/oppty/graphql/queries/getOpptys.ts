@@ -10,7 +10,14 @@ export const GET_OPPTYS = gql`
         description
         customerId
         unitTypes
+        unit
         units
+        propertyRows {
+          buildingId
+          zoningId
+          unitId
+          isMain
+        }
         assignedUserId
         status
         labelIds
@@ -19,6 +26,7 @@ export const GET_OPPTYS = gql`
         startDate
         targetDate
         customerSource
+        propertiesData
         createdAt
         updatedAt
       }

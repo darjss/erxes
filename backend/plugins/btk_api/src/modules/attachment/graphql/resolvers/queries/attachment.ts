@@ -1,5 +1,4 @@
 import { IContext } from '~/connectionResolvers';
-import { requireLogin } from 'erxes-api-shared/core-modules';
 
 export const attachmentQueries = {
   btkGetAttachment: async (
@@ -19,5 +18,3 @@ export const attachmentQueries = {
   },
 };
 
-requireLogin(attachmentQueries, 'btkGetAttachment');
-requireLogin(attachmentQueries, 'btkGetAttachments');

@@ -6,15 +6,28 @@ import {
   useRecordTableCursor,
   validateFetchMore,
 } from 'erxes-ui';
-import { BOOKINGS_CURSOR_SESSION_KEY } from '../constants/bookingCursorSessionKey';
+import {
+  BOOKINGS_CURSOR_SESSION_KEY,
+  BOOKINGS_LOG_CURSOR_SESSION_KEY,
+} from '../constants/bookingCursorSessionKey';
 import { ONE_FIT_BOOKINGS } from '../graphql/bookingQueries';
 import { BookingFilters } from '../types/booking';
 
 const BOOKINGS_PER_PAGE = 20;
 
-export const useBookings = (filters?: BookingFilters) => {
+interface UseBookingsOptions {
+  sessionKey?: string;
+  orderBy?: Record<string, 'asc' | 'desc' | 1 | -1>;
+}
+
+export const useBookings = (
+  filters?: BookingFilters,
+  options?: UseBookingsOptions,
+) => {
+  const sessionKey = options?.sessionKey || BOOKINGS_CURSOR_SESSION_KEY;
+
   const { cursor } = useRecordTableCursor({
-    sessionKey: BOOKINGS_CURSOR_SESSION_KEY,
+    sessionKey,
   });
 
   const { data, loading, error, fetchMore, refetch } = useQuery(
@@ -23,6 +36,7 @@ export const useBookings = (filters?: BookingFilters) => {
       variables: {
         ...filters,
         cursor,
+        orderBy: options?.orderBy,
       },
     },
   );
@@ -52,6 +66,7 @@ export const useBookings = (filters?: BookingFilters) => {
             : pageInfo?.startCursor,
         limit: BOOKINGS_PER_PAGE,
         direction,
+        orderBy: options?.orderBy,
       },
       updateQuery: (prev, { fetchMoreResult }) => {
         if (!fetchMoreResult) return prev;
@@ -70,8 +85,9 @@ export const useBookings = (filters?: BookingFilters) => {
     return refetch({
       ...filters,
       cursor,
+      orderBy: options?.orderBy,
     });
-  }, [refetch, filters, cursor]);
+  }, [refetch, filters, cursor, options?.orderBy]);
 
   return {
     bookings,

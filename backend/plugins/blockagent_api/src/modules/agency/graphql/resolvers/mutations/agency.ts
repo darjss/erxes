@@ -1,4 +1,3 @@
-import { requireLogin } from 'erxes-api-shared/core-modules';
 import { IContext } from '~/connectionResolvers';
 import { IBlockAgency } from '~/modules/agency/@types/agency';
 
@@ -43,4 +42,3 @@ export const blockAgencyMutations = {
   },
 };
 
-requireLogin(blockAgencyMutations, 'updateAgencyInfo');

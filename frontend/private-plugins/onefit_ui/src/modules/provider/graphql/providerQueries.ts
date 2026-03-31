@@ -61,6 +61,7 @@ export const ONE_FIT_PROVIDERS = gql`
             mn
           }
         }
+        singleProviderLimit
         status
         rejectionReason
         approvedAt
@@ -144,6 +145,7 @@ export const ONE_FIT_PROVIDER = gql`
           mn
         }
       }
+      singleProviderLimit
       status
       rejectionReason
       approvedAt

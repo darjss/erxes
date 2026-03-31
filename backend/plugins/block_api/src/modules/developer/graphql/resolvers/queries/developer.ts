@@ -1,5 +1,3 @@
-import { requireLogin } from 'erxes-api-shared/core-modules';
-
 export const developerQueries = {
   getDeveloperInfo: async (_, __, { models }) => {
     let existingDeveloper = await models.Developer.findOne({});
@@ -12,4 +10,3 @@ export const developerQueries = {
   },
 };
 
-requireLogin(developerQueries, 'getDeveloperInfo');

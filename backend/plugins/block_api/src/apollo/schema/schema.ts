@@ -94,6 +94,12 @@ import {
 } from '~/modules/activity/graphql/schemas';
 
 import {
+  types as NoteTypes,
+  queries as NoteQueries,
+  mutations as NoteMutations,
+} from '@/note/graphql/schemas/note';
+
+import {
   mutations as StatusMutations,
   queries as StatusQueries,
   types as StatusTypes,
@@ -166,6 +172,7 @@ export const types = `
   ${UnitTypeTypes}
   ${OpptyTypes}
   ${ActivityTypes}
+  ${NoteTypes}
   ${StatusTypes}
   `;
 
@@ -186,10 +193,12 @@ export const queries = `
   ${UnitTypeQueries}
   ${OpptyQueries}
   ${ActivityQueries}
+  ${NoteQueries}
   ${StatusQueries}
   `;
 
 export const mutations = `
+  ${NoteMutations}
   ${ProjectMutations}
   ${PaymentMutations}
   ${BuildingMutations}

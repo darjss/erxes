@@ -49,7 +49,10 @@ export const ONE_FIT_BOOKING_MARK_ATTENDANCE = gql`
     $_id: String!
     $attendanceStatus: OneFitAttendanceStatus!
   ) {
-    oneFitBookingMarkAttendance(_id: $_id, attendanceStatus: $attendanceStatus) {
+    oneFitBookingMarkAttendance(
+      _id: $_id
+      attendanceStatus: $attendanceStatus
+    ) {
       _id
       attendanceStatus
       attendedAt
@@ -58,3 +61,19 @@ export const ONE_FIT_BOOKING_MARK_ATTENDANCE = gql`
   }
 `;
 
+export const ONE_FIT_BOOKINGS_MARK_ATTENDANCE = gql`
+  mutation OneFitBookingsMarkAttendance(
+    $ids: [String!]!
+    $attendanceStatus: OneFitAttendanceStatus!
+  ) {
+    oneFitBookingsMarkAttendance(
+      ids: $ids
+      attendanceStatus: $attendanceStatus
+    ) {
+      _id
+      attendanceStatus
+      attendedAt
+      markedBy
+    }
+  }
+`;

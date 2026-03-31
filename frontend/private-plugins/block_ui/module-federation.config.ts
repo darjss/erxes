@@ -20,6 +20,7 @@ const config: ModuleFederationConfig = {
     './blockSettings': './src/modules/Settings.tsx',
     './widgets': './src/widgets/Widgets.tsx',
     './floatingWidget': './src/widgets/FloatingWidget.tsx',
+    './relationWidget': './src/widgets/relation/RelationWidgets.tsx',
   },
 
   shared: (libraryName, defaultConfig) => {

@@ -1,7 +1,10 @@
 import { IconContract } from '@tabler/icons-react';
-import { Breadcrumb, Button, PageContainer } from 'erxes-ui';
+import { Breadcrumb, Button, PageContainer, PageSubHeader } from 'erxes-ui';
 import { Link, useParams } from 'react-router-dom';
 import { PageHeader } from 'ui-modules';
+import { AddOpptySheet } from './AddOpptySheet';
+import { OpptyDetailSheet } from './OpptyDetailSheet';
+import { OpptysFilter } from './OpptysFilter';
 
 export const OpptysLayout = ({ children }: { children: React.ReactNode }) => {
   //   const path = useLocation().pathname;
@@ -9,7 +12,11 @@ export const OpptysLayout = ({ children }: { children: React.ReactNode }) => {
   return (
     <PageContainer>
       <OpptysHeader />
+      <PageSubHeader>
+        <OpptysFilter />
+      </PageSubHeader>
       {children}
+      <OpptyDetailSheet />
       {/* {!(isContracts && process.env.NODE_ENV === 'development') && (
         <div className="blk:backdrop-blur-lg absolute inset-0 h-full w-full z-10 flex items-center justify-center">
           <Empty>
@@ -50,6 +57,9 @@ export const OpptysHeader = () => {
           </Breadcrumb.List>
         </Breadcrumb>
       </PageHeader.Start>
+      <PageHeader.End>
+        <AddOpptySheet />
+      </PageHeader.End>
     </PageHeader>
   );
 };

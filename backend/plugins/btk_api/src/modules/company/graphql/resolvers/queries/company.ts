@@ -1,4 +1,3 @@
-import { requireLogin } from 'erxes-api-shared/core-modules';
 import { IContext } from '~/connectionResolvers';
 
 export const companyQueries = {
@@ -13,6 +12,3 @@ export const companyQueries = {
     return models.Company.findOne({ _id }).lean();
   },
 };
-
-requireLogin(companyQueries, 'getCompanyInfo');
-requireLogin(companyQueries, 'getCompanyCompanies');

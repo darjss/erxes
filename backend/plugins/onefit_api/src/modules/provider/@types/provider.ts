@@ -39,6 +39,7 @@ export interface IProvider {
   contactInfo: IContactInfo;
   facilities?: string[];
   categoryIds: string[];
+  singleProviderLimit?: number;
   status: ProviderStatus;
   rejectionReason?: string;
   approvedAt?: Date;

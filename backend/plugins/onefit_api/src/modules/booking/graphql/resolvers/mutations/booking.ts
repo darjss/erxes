@@ -1,6 +1,7 @@
 import { IContext } from '~/connectionResolvers';
 import {
   IBooking,
+  IBookingDocument,
   AttendanceStatus,
   BookingStatus,
 } from '@/booking/@types/booking';
@@ -11,6 +12,7 @@ import {
 } from '@/membership/@types/credittransaction';
 import { DayOfWeek } from '@/schedule/@types/schedule';
 import { Resolver } from 'erxes-api-shared/core-types';
+import { ProviderStatus } from '@/provider/@types/provider';
 import { getLocalizedString } from '@/activity-type/utils/localization';
 
 function getDayOfWeek(date: Date): DayOfWeek {
@@ -44,6 +46,11 @@ async function createBookingLogic(
   }
 
   const providerId = activityType.providerId;
+  const provider = await models.Provider.findOne({ _id: providerId });
+
+  if (!provider || !provider.isActive) {
+    throw new Error('Provider not available for booking');
+  }
   const bookingDatePure = getPureDate(bookingDate);
   // Validate booking date is in the future
   const now = new Date();
@@ -51,9 +58,9 @@ async function createBookingLogic(
   const [hours, minutes] = startTime.split(':').map(Number);
   bookingDateTime.setHours(hours, minutes, 0, 0);
 
-  if (bookingDateTime <= now) {
-    throw new Error('Booking date must be in the future');
-  }
+  // if (bookingDateTime <= now) {
+  //   throw new Error('Booking date must be in the future');
+  // }
 
   // Check schedule exception (blocked dates)
   const scheduleException =
@@ -122,40 +129,7 @@ async function createBookingLogic(
   //   throw new Error('User already has a booking for this time slot');
   // }
 
-  // Check single-person limit: in any 30-day window, user cannot exceed activityType.singlePersonLimit bookings for this activity
-  const singlePersonLimit = activityType.singlePersonLimit ?? 5;
   const MS_PER_DAY = 24 * 60 * 60 * 1000;
-  const rangeStart = new Date(bookingDatePure.getTime() - 29 * MS_PER_DAY);
-  const rangeEnd = new Date(bookingDatePure.getTime() + 30 * MS_PER_DAY);
-  const existingInRange = await models.Booking.find(
-    {
-      userId,
-      activityTypeId,
-      status: { $ne: BookingStatus.CANCELLED },
-      bookingDate: { $gte: rangeStart, $lt: rangeEnd },
-    },
-    { bookingDate: 1 },
-  ).lean();
-
-  let maxCountInAnyWindow = 0;
-  for (let offset = 0; offset < 30; offset++) {
-    const windowStartMs =
-      bookingDatePure.getTime() - (29 - offset) * MS_PER_DAY;
-    const windowEndMs = windowStartMs + 30 * MS_PER_DAY;
-    const count = existingInRange.filter(
-      (b) =>
-        b.bookingDate.getTime() >= windowStartMs &&
-        b.bookingDate.getTime() < windowEndMs,
-    ).length;
-    if (count > maxCountInAnyWindow) {
-      maxCountInAnyWindow = count;
-    }
-  }
-  if (maxCountInAnyWindow >= singlePersonLimit) {
-    throw new Error(
-      `You have reached the maximum number of bookings (${singlePersonLimit}) for this activity in a 30-day period.`,
-    );
-  }
 
   // Check membership is not on hold (booking not allowed during hold)
   const oneFitCustomerForHold =
@@ -168,6 +142,53 @@ async function createBookingLogic(
       throw new Error('Booking is not allowed while membership is on hold');
     }
   }
+
+  // Check membership has not expired (must be active now)
+  if (oneFitCustomerForHold?.membershipExpiresAt) {
+    const expiresAt = new Date(oneFitCustomerForHold.membershipExpiresAt);
+    if (now > expiresAt) {
+      throw new Error(
+        'Membership has expired. Renew membership to create a booking.',
+      );
+    }
+
+    // Check single-person limit per activityType only within [expiresAt - 30 days, expiresAt]
+    const singlePersonLimit = activityType.singlePersonLimit ?? 5;
+    const expiresAtPure = getPureDate(expiresAt);
+    const rangeStart = new Date(expiresAtPure.getTime() - 30 * MS_PER_DAY);
+    const rangeEndExclusive = new Date(expiresAtPure.getTime() + MS_PER_DAY);
+
+    const existingCountInRange = await models.Booking.countDocuments({
+      userId,
+      activityTypeId,
+      status: { $ne: BookingStatus.CANCELLED },
+      bookingDate: { $gte: rangeStart, $lt: rangeEndExclusive },
+    });
+
+    if (existingCountInRange >= singlePersonLimit) {
+      throw new Error(
+        `You have reached the maximum number of bookings (${singlePersonLimit}) for this activity in the 30 days before your membership expires.`,
+      );
+    }
+
+    // Check single-person limit per provider only within [expiresAt - 30 days, expiresAt]
+    const singleProviderLimit = provider.singleProviderLimit ?? 5;
+    const existingProviderCountInRange = await models.Booking.countDocuments({
+      userId,
+      providerId,
+      status: { $ne: BookingStatus.CANCELLED },
+      bookingDate: { $gte: rangeStart, $lt: rangeEndExclusive },
+    });
+
+    if (existingProviderCountInRange >= singleProviderLimit) {
+      throw new Error(
+        `You have reached the maximum number of bookings (${singleProviderLimit}) for this provider in the 30 days before your membership expires.`,
+      );
+    }
+  }
+
+  // Check single-person limit per provider: in any 30-day window, user cannot exceed 5 bookings for this provider
+  // Note: provider limit is validated against membership expiry window above when membershipExpiresAt exists.
 
   // Check user credit balance
   const totalBalance = await models.CreditTransaction.getUserBalance(userId);
@@ -427,6 +448,125 @@ async function cancelBookingLogic(
   return await models.Booking.cancelBooking(bookingId, cancelledBy, reason);
 }
 
+async function sendBookingCancelledCpNotification(
+  subdomain: string,
+  clientPortalId: string,
+  cpUserIds: string[],
+  booking: IBookingDocument,
+): Promise<void> {
+  const cancellationReason = booking.cancellationReason || undefined;
+  const reasonText = cancellationReason ? ` Reason: ${cancellationReason}` : '';
+
+  // Create (or upsert) cp notification + send push (if firebase configured)
+  await sendTRPCMessage({
+    subdomain,
+    pluginName: 'core',
+    method: 'mutation',
+    module: 'cpNotifications',
+    action: 'create',
+    input: {
+      cpUserIds,
+      clientPortalId,
+      data: {
+        title: 'Захиалга цуцлагдлаа',
+        message: `Таны захиалга (${booking.bookingId}) цуцлагдлаа.${reasonText}`,
+        type: 'warning',
+        kind: 'user',
+        contentType: 'onefit:booking',
+        contentTypeId: String(booking._id),
+        action: 'bookingCancelled',
+        metadata: {
+          bookingId: booking.bookingId,
+          cancellationReason: cancellationReason ?? null,
+        },
+      },
+    },
+    defaultValue: null,
+  });
+}
+
+async function findCpUsersByCustomerId(
+  subdomain: string,
+  customerId: string,
+): Promise<Array<{ cpUserId: string; clientPortalId: string }>> {
+  const listResult = await sendTRPCMessage({
+    subdomain,
+    pluginName: 'core',
+    method: 'query',
+    module: 'cpUsers',
+    action: 'list',
+    input: {
+      erxesCustomerId: customerId,
+      limit: 1000,
+      skip: 0,
+    },
+    defaultValue: { list: [] as Array<any>, totalCount: 0 },
+  });
+
+  const fromList = Array.isArray(listResult?.list) ? listResult.list : [];
+
+  // booking.userId might also be cpUserId (when cpUser is not linked to erxes customer)
+  if (fromList.length === 0) {
+    const byId = await sendTRPCMessage({
+      subdomain,
+      pluginName: 'core',
+      method: 'query',
+      module: 'cpUsers',
+      action: 'get',
+      input: {
+        id: customerId,
+      },
+      defaultValue: null,
+    });
+
+    if (byId?._id && byId?.clientPortalId) {
+      return [
+        {
+          cpUserId: String(byId._id),
+          clientPortalId: String(byId.clientPortalId),
+        },
+      ];
+    }
+
+    return [];
+  }
+
+  const byId = new Map<string, string>();
+  for (const cpUser of fromList) {
+    if (!cpUser?._id || !cpUser?.clientPortalId) continue;
+    byId.set(String(cpUser._id), String(cpUser.clientPortalId));
+  }
+
+  return Array.from(byId.entries()).map(([cpUserId, clientPortalId]) => ({
+    cpUserId,
+    clientPortalId,
+  }));
+}
+
+async function notifyBookingCancelledViaClientPortal(
+  subdomain: string,
+  booking: IBookingDocument,
+): Promise<void> {
+  const cpUsers = await findCpUsersByCustomerId(subdomain, booking.userId);
+  if (cpUsers.length === 0) return;
+
+  const byPortalId = new Map<string, string[]>();
+  for (const { cpUserId, clientPortalId } of cpUsers) {
+    const list = byPortalId.get(clientPortalId) || [];
+    list.push(cpUserId);
+    byPortalId.set(clientPortalId, list);
+  }
+
+  for (const [clientPortalId, cpUserIds] of byPortalId.entries()) {
+    await sendBookingCancelledCpNotification(
+      subdomain,
+      clientPortalId,
+      cpUserIds,
+      booking,
+    );
+  }
+}
+
 export const bookingMutations: Record<string, Resolver> = {
   async oneFitBookingCreate(
     _root: undefined,
@@ -466,7 +606,7 @@ export const bookingMutations: Record<string, Resolver> = {
     }
 
     const cancelledBy = user?._id || booking.userId;
-    return cancelBookingLogic(
+    const cancelledBooking = await cancelBookingLogic(
       _id,
       cancelledBy,
       reason,
@@ -476,6 +616,8 @@ export const bookingMutations: Record<string, Resolver> = {
       } as IContext,
       true,
     );
+    await notifyBookingCancelledViaClientPortal(subdomain, cancelledBooking);
+    return cancelledBooking;
   },
 
   async oneFitBookingMarkAttendance(
@@ -505,6 +647,59 @@ export const bookingMutations: Record<string, Resolver> = {
     const markedBy = user?._id || '';
 
     return await models.Booking.markAttendance(_id, attendanceStatus, markedBy);
+  },
+
+  async oneFitBookingsMarkAttendance(
+    _root: undefined,
+    {
+      ids,
+      attendanceStatus,
+    }: { ids: string[]; attendanceStatus: AttendanceStatus },
+    { models, user, instanceId }: IContext,
+  ) {
+    if (!ids.length) {
+      return [];
+    }
+
+    const bookings = await models.Booking.find({ _id: { $in: ids } });
+
+    if (!bookings.length) {
+      return [];
+    }
+
+    if (instanceId) {
+      const providerIds = Array.from(
+        new Set(bookings.map((booking) => booking.providerId)),
+      );
+
+      const providers = await models.Provider.find({
+        _id: { $in: providerIds },
+      }).lean();
+
+      const allowedProviderIds = new Set(
+        providers
+          .filter((provider) => provider.instanceId === instanceId)
+          .map((provider) => provider._id),
+      );
+
+      const hasForbiddenBooking = bookings.some(
+        (booking) => !allowedProviderIds.has(booking.providerId),
+      );
+
+      if (hasForbiddenBooking) {
+        throw new Error('You do not have permission to modify some bookings');
+      }
+    }
+
+    const markedBy = user?._id || '';
+
+    const updatedBookings = await Promise.all(
+      bookings.map((booking) =>
+        models.Booking.markAttendance(booking._id, attendanceStatus, markedBy),
+      ),
+    );
+
+    return updatedBookings;
   },
 
   async oneFitBookingsRemove(
@@ -570,10 +765,19 @@ export const bookingMutations: Record<string, Resolver> = {
       throw new Error('Cannot cancel a booking that was marked as no-show');
     }
 
-    return cancelBookingLogic(_id, userId, reason, {
+    const cancelledBooking = await cancelBookingLogic(_id, userId, reason, {
       models,
       subdomain,
     } as IContext);
+
+    await sendBookingCancelledCpNotification(
+      subdomain,
+      cpUser.clientPortalId,
+      [cpUser._id],
+      cancelledBooking,
+    );
+
+    return cancelledBooking;
   },
 };
 

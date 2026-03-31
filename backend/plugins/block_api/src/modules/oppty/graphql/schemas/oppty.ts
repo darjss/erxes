@@ -22,13 +22,29 @@ export const types = `
     high
   }
 
+  type PropertyRow {
+    buildingId: String
+    zoningId: String
+    unitId: String
+    isMain: Boolean
+  }
+
+  input PropertyRowInput {
+    buildingId: String
+    zoningId: String
+    unitId: String
+    isMain: Boolean
+  }
+
   type Oppty {
     _id: String
     number: String
     description: String
     customerId: String
     unitTypes: [String]
+    unit: String
     units: [String]
+    propertyRows: [PropertyRow]
     assignedUserId: String
     status: String
     labelIds: [String]
@@ -38,6 +54,7 @@ export const types = `
     startDate: Date
     targetDate: Date
     customerSource: String
+    propertiesData: JSON
     createdAt: Date
     updatedAt: Date
   }
@@ -49,6 +66,7 @@ export const types = `
     unitTypes: [String]
     units: [String]
     unit: String
+    propertyRows: [PropertyRowInput]
     assignedUserId: String
     status: String
     labelIds: [String]
@@ -58,12 +76,14 @@ export const types = `
     customerSource: String
     projectId: String
     priority: Priority
+    propertiesData: JSON
     # timer nemn
     # chosenUnit
     # activity
   }
 
   input IOpptyFilter {
+    searchValue: String
     number: String
     description: String
     customerId: String
@@ -71,12 +91,20 @@ export const types = `
     unit: String
     assignedUserId: String
     status: String
+    priority: String
     startDate: Date
     targetDate: Date
+    dateFilters: String
     customerSource: String
     labelId: String
     tagId: String
     ${GQL_CURSOR_PARAM_DEFS}
+  }
+
+  type OpptyUnitRow {
+    unitId: String
+    buildingId: String
+    zoningId: String
   }
 
   type OpptyListResponse {
@@ -84,10 +112,22 @@ export const types = `
     pageInfo: PageInfo
     totalCount: Int
   }
+
+  type OpptySubscription {
+    type: String
+    oppty: Oppty
+  }
+
+  type OpptyActivitySubscription {
+    type: String
+    activity: JSON
+  }
 `;
 
 export const queries = `
+  blockGetOppty(_id: String!): Oppty
   blockGetOpptys(projectId: String!, filter: IOpptyFilter): OpptyListResponse
+  blockGetOpptyUnitRows(_id: String!): [OpptyUnitRow]
 `;
 
 export const mutations = `

@@ -18,6 +18,14 @@ export const statusMutations = {
     return models.Status.updateStatus(_id, input);
   },
 
+  updateBlockStatusOrder: async (
+    _root: undefined,
+    { _id, order }: { _id: string; order: number },
+    { models }: IContext,
+  ) => {
+    return models.Status.updateStatusOrder(_id, order);
+  },
+
   removeBlockStatus: async (
     _root: undefined,
     { _id }: { _id: string },

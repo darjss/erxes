@@ -8,7 +8,7 @@ interface IBlockActivityMetaData {
 export interface IBlockActivity {
   action: string;
   contentId: string;
-  field: string;
+  module: string;
   metadata: IBlockActivityMetaData;
   createdBy: string;
 }

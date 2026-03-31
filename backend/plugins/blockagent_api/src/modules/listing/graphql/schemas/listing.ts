@@ -1,15 +1,13 @@
-export const types = `
-  type GeoPoint {
-    type: String
-    coordinates: [Float]
-  }
+import { GQL_CURSOR_PARAM_DEFS } from 'erxes-api-shared/utils';
 
+export const types = `
   type BlockListingLocation {
     city: String!
     district: String!
     subDistrict: String!
     short: String
-    geoPoint: GeoPoint
+    lat: Float
+    lng: Float
   }
 
   type BlockListingPricing {
@@ -27,7 +25,7 @@ export const types = `
   }
 
   type BlockListing {
-    _id: ID!
+    _id: String!
     title: String!
     type: ListingType!
     propertyType: String!
@@ -37,8 +35,15 @@ export const types = `
     pricing: BlockListingPricing!
     specs: BlockListingSpecs!
     mediaAttachments: [String]
+    viewCount: Float
     createdAt: String
     updatedAt: String
+  }
+
+  type BlockListingListResponse {
+    list: [BlockListing]
+    pageInfo: PageInfo
+    totalCount: Int
   }
 
   enum ListingType {
@@ -70,7 +75,8 @@ export const types = `
     district: String!
     subDistrict: String!
     short: String
-    geoPoint: GeoPointInput
+    lat: Float
+    lng: Float
   }
 
   input BlockListingPricingInput {
@@ -97,16 +103,26 @@ export const types = `
     pricing: BlockListingPricingInput!
     specs: BlockListingSpecsInput!
     mediaAttachments: [String]
+    viewCount: Float
   }
+`;
+
+const queryParams = `
+  status: String
+  searchValue: String
+  district: String
+  city: String
+
+  ${GQL_CURSOR_PARAM_DEFS}
 `;
 
 export const queries = `
   blockGetListing(_id: String!): BlockListing
-  blockGetListings: [BlockListing]
+  blockGetListings(${queryParams}): BlockListingListResponse
 `;
 
 export const mutations = `
-  blockCreateListing(name: String!): BlockListing
+  blockCreateListing(input: BlockListingInput!): BlockListing
   blockUpdateListingGeneralInfo(_id: String!, input: BlockListingInput!): BlockListing
   blockRemoveListing(_id: String!): BlockListing
 `;

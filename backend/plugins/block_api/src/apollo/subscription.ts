@@ -3,10 +3,9 @@ import { withFilter } from 'graphql-subscriptions';
 export default {
   name: 'block',
   typeDefs: `
-      blockOpptyChanged(_id: String!): TicketSubscription
-      blockOpptyListChanged(filter: ITicketFilter): TicketSubscription
-      opptyActivityChanged(contentId: String!): TicketActivitySubscription
-
+      blockOpptyChanged(_id: String!): OpptySubscription
+      blockOpptyListChanged(projectId: String, filter: IOpptyFilter): OpptySubscription
+      opptyActivityChanged(contentId: String!): OpptyActivitySubscription
 		`,
   generateResolvers: (graphqlPubsub) => {
     return {

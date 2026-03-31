@@ -205,14 +205,29 @@ export const accountStatementQueries: Record<string, Resolver> = {
       { $sort: { '_id.year': 1, '_id.month': 1, '_id.userId': 1 } },
     ]);
 
+    const userIds = [
+      ...new Set(
+        aggregated
+          .map((a: any) => a._id?.userId)
+          .filter((id: string | undefined) => id),
+      ),
+    ];
+    const users =
+      userIds.length > 0
+        ? await models.OneFitCustomer.find({
+            _id: { $in: userIds },
+          }).lean()
+        : [];
+    const userMap = new Map(
+      users.map((u: any) => [u._id?.toString?.() ?? u._id, u]),
+    );
+
     const rows = aggregated.map((a: any) => ({
       year: a._id.year,
       month: a._id.month,
       userId: a._id.userId,
       user: a._id.userId
-        ? {
-            _id: a._id.userId,
-          }
+        ? (userMap.get(a._id.userId?.toString?.() ?? a._id.userId) ?? null)
         : null,
       totalCreditsConsumed: a.totalCreditsConsumed,
       bookingCount: a.bookingCount,

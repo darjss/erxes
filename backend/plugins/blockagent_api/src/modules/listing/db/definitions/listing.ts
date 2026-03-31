@@ -4,7 +4,7 @@ import { IBlockListingDocument } from '../../@types/listing';
 export const blockListingSchema = new Schema<IBlockListingDocument>(
   {
     title: { type: String, label: 'Title' },
-    type: { type: String, enum: ['sale, rent, lease'], default: 'sale' },
+    type: { type: String, enum: ['sale', 'rent', 'lease'], default: 'sale' },
     propertyType: { type: String },
     status: {
       type: String,
@@ -17,10 +17,8 @@ export const blockListingSchema = new Schema<IBlockListingDocument>(
       district: { type: String, required: true },
       subDistrict: { type: String },
       short: { type: String },
-      geoPoint: {
-        type: { type: String, enum: ['Point'], default: 'Point' },
-        coordinates: { type: [Number], index: '2dsphere', required: true },
-      },
+      lat: { type: Number },
+      lng: { type: Number },
     },
     pricing: {
       amount: { type: Number },
@@ -39,6 +37,7 @@ export const blockListingSchema = new Schema<IBlockListingDocument>(
       builtYear: { type: String },
     },
     mediaAttachments: [{ type: String }],
+    viewCount: { type: Number },
   },
   {
     timestamps: true,

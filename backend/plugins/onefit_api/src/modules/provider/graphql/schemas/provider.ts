@@ -49,6 +49,7 @@ export const types = `
     facilities: [String]
     categoryIds: [String]
     categories: [OneFitActivityCategory]
+    singleProviderLimit: Int
     status: String
     rejectionReason: String
     approvedAt: Date
@@ -113,6 +114,7 @@ const mutationParams = `
   contactInfo: OneFitContactInfoInput
   facilities: [String]
   categoryIds: [String]!
+  singleProviderLimit: Int
   isActive: Boolean
   icon: String
   coverImages: [String]

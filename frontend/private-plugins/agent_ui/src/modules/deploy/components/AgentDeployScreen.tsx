@@ -19,7 +19,7 @@ export const AgentDeployScreen = () => {
   }
 
   if (agent?.status === SERVER_STATUSES.DEPLOYING) {
-    return <AgentPendingForm />;
+    return <AgentPendingForm createdAt={agent.createdAt} />;
   }
 
   if (agent?.status === SERVER_STATUSES.APPROVED) {

@@ -42,11 +42,27 @@ export const loadOpptyClass = (models: IModels, subdomain: string) => {
     }
 
     public static async createOppty(input: IOppty, userId: string) {
+      const lastOppty = await models.Oppty.findOne({})
+        .sort({ createdAt: -1 })
+        .select('number');
+
+      let nextNumber = 1;
+      if (lastOppty?.number) {
+        const match = lastOppty.number.match(/(\d+)$/);
+        if (match) {
+          nextNumber = parseInt(match[1], 10) + 1;
+        }
+      }
+
+      input.number = `OPP-${String(nextNumber).padStart(5, '0')}`;
+
+      const oppty = await models.Oppty.create(input);
+
       graphqlPubsub.publish('blockOpptyListChanged', {
-        blockOpptyListChanged: { type: 'create', oppty: input },
+        blockOpptyListChanged: { type: 'create', oppty },
       });
 
-      return models.Oppty.create(input);
+      return oppty;
     }
 
     public static async updateOppty(
@@ -118,13 +134,17 @@ export const loadOpptyClass = (models: IModels, subdomain: string) => {
     public static async validateOppty(input: Partial<IOpptyDocument>) {
       const oppty = await models.Oppty.findOne({ _id: input._id });
 
+      const hasUnit =
+        oppty?.unit ||
+        (oppty?.propertyRows || []).some((row) => row.unitId && row.isMain);
+
       if (
         [
           DEFAULT_STATUS_TYPES.NEGOTIATION,
           DEFAULT_STATUS_TYPES.CLOSED_WON,
           DEFAULT_STATUS_TYPES.CLOSED_LOST,
         ].includes(input.status || '') &&
-        !oppty?.unit
+        !hasUnit
       ) {
         throw new Error('Unit is required');
       }

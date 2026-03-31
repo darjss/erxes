@@ -66,10 +66,12 @@ export const types = `
     oneFitBookingPreferences: OneFitBookingPreferences
     oneFitLastBookingDate: Date
     oneFitTotalBookings: Int
+    createdAt: Date
+    updatedAt: Date
   }
 
   type OneFitCustomerListResponse {
-    list: [Customer]
+    list: [OneFitCustomer]
     pageInfo: PageInfo
     totalCount: Int
   }
@@ -95,7 +97,7 @@ const oneFitCustomerQueryParams = `
 
 export const queries = `
   oneFitCustomers(${oneFitCustomerQueryParams}, ${GQL_CURSOR_PARAM_DEFS}): OneFitCustomerListResponse
-  oneFitCustomer(_id: String!): Customer
+  oneFitCustomer(_id: String!): OneFitCustomer
   oneFitCustomersCount(${oneFitCustomerQueryParams}): Int
   oneFitCustomersByCompanyId(companyId: String!): [OneFitCustomerByCompany]
 `;

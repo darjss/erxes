@@ -1,4 +1,4 @@
-import { IconCaretDownFilled, IconId, IconSettings } from '@tabler/icons-react';
+import { IconId } from '@tabler/icons-react';
 import { Breadcrumb, Button, Separator } from 'erxes-ui';
 import { PageHeader } from 'ui-modules';
 import { Link } from 'react-router-dom';
@@ -24,17 +24,6 @@ export const IndexPage = () => {
           <Separator.Inline />
           <PageHeader.FavoriteToggleButton />
         </PageHeader.Start>
-        <PageHeader.End>
-          <Button variant="outline" asChild>
-            <Link to="/settings/blockagent">
-              <IconSettings />
-              Go to settings
-            </Link>
-          </Button>
-          <Button>
-            More <IconCaretDownFilled />
-          </Button>
-        </PageHeader.End>
       </PageHeader>
       <div className="flex h-full overflow-hidden">
         <div className="flex flex-col h-full overflow-hidden flex-auto">

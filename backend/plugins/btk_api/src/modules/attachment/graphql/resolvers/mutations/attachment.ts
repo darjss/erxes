@@ -1,6 +1,5 @@
 import { IContext } from '~/connectionResolvers';
 import { IBtkAttachment } from '@/attachment/@types/attachment';
-import { requireLogin } from 'erxes-api-shared/core-modules';
 
 export const attachmentMutations = {
   btkCreateAttachment: async (
@@ -28,6 +27,3 @@ export const attachmentMutations = {
   },
 };
 
-requireLogin(attachmentMutations, 'btkCreateAttachment');
-requireLogin(attachmentMutations, 'btkUpdateAttachment');
-requireLogin(attachmentMutations, 'btkDeleteAttachment');

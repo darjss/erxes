@@ -1,4 +1,3 @@
-import { requireLogin } from 'erxes-api-shared/core-modules';
 import { IContext } from '~/connectionResolvers';
 
 export const offerQueries = {
@@ -25,5 +24,3 @@ export const offerQueries = {
   },
 };
 
-requireLogin(offerQueries, 'blockGetOffer');
-requireLogin(offerQueries, 'blockGetOffers');

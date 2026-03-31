@@ -1,5 +1,4 @@
 import { IContext } from '~/connectionResolvers';
-import { requireLogin } from 'erxes-api-shared/core-modules';
 
 export const paymentQueries = {
   blockGetProjectPaymentPlan: async (
@@ -19,5 +18,3 @@ export const paymentQueries = {
   },
 };
 
-requireLogin(paymentQueries, 'blockGetProjectPaymentPlan');
-requireLogin(paymentQueries, 'blockGetProjectPaymentPlans');

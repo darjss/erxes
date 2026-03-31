@@ -45,6 +45,7 @@ export const PROJECT_TABS = {
   CONTACT: 'contact',
   TARGET: 'target',
   SPECIFICATIONS: 'specifications',
+  STATUS: 'status',
 };
 
 export const BLOCK_PROJECT_STATUS = {

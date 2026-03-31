@@ -1,6 +1,7 @@
 import { Combobox, Command, Popover } from 'erxes-ui';
 import React, { useMemo, useState } from 'react';
 import { ADDRESS_CITY, ADDRESS_DISTRICT } from '../constants/address';
+import { IconCheck } from '@tabler/icons-react';
 
 interface SelectAreaProps {
   city: string;
@@ -65,8 +66,8 @@ const SelectCityValue = () => {
   );
 };
 
-const SelectCityList = () => {
-  const { onCityChange, onDistrictChange } = useSelectAreaContext();
+const SelectCityList = ({ onClose }: { onClose: () => void }) => {
+  const { onCityChange, onDistrictChange, city } = useSelectAreaContext();
 
   return (
     <Command>
@@ -81,9 +82,12 @@ const SelectCityList = () => {
               onSelect={() => {
                 onCityChange?.(c);
                 onDistrictChange?.('');
+                onClose();
               }}
+              className="flex justify-between"
             >
               {c}
+              {c === city && <IconCheck />}
             </Command.Item>
           ))}
         </Command.Group>
@@ -102,7 +106,7 @@ const SelectCity = () => {
         <SelectCityValue />
       </Combobox.Trigger>
       <Combobox.Content className="w-[--radix-popover-trigger-width] p-0">
-        <SelectCityList />
+        <SelectCityList onClose={() => setOpen(false)} />
       </Combobox.Content>
     </Popover>
   );
@@ -118,8 +122,8 @@ const SelectDistrictValue = () => {
   );
 };
 
-const SelectDistrictList = () => {
-  const { city, onDistrictChange } = useSelectAreaContext();
+const SelectDistrictList = ({ onClose }: { onClose: () => void }) => {
+  const { city, onDistrictChange, district } = useSelectAreaContext();
   const districts = ADDRESS_DISTRICT[city] ?? [];
 
   return (
@@ -132,9 +136,14 @@ const SelectDistrictList = () => {
             <Command.Item
               key={d.value}
               value={d.value}
-              onSelect={() => onDistrictChange?.(d.value)}
+              onSelect={() => {
+                onDistrictChange?.(d.value);
+                onClose();
+              }}
+              className="flex justify-between"
             >
               {d.label}
+              {d.label === district && <IconCheck />}
             </Command.Item>
           ))}
         </Command.Group>
@@ -153,7 +162,7 @@ const SelectDistrict = () => {
         <SelectDistrictValue />
       </Combobox.Trigger>
       <Combobox.Content className="w-[--radix-popover-trigger-width] p-0">
-        <SelectDistrictList />
+        <SelectDistrictList onClose={() => setOpen(false)} />
       </Combobox.Content>
     </Popover>
   );

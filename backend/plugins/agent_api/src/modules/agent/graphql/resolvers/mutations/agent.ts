@@ -2,10 +2,13 @@ import { IContext } from '~/connectionResolvers';
 import { SERVER_STATUSES } from '~/modules/agent/constants';
 import {
   addAgent,
+  addDiscordGuild,
   approveServer,
   deployServer,
   destroyServer,
+  fixAndRestartServer,
   updateAgentFile,
+  updateDiscordSettings,
 } from '~/modules/agent/utils';
 
 export const agentMutations = {
@@ -150,6 +153,68 @@ export const agentMutations = {
         input.content,
         input.agentId,
       );
+      return true;
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      throw new Error(message);
+    }
+  },
+
+  fixAndRestartAgent: async (
+    _root: undefined,
+    _args: undefined,
+    { models }: IContext,
+  ) => {
+    const server = await models.AgentServer.findOne({}).lean();
+
+    if (!server) {
+      throw new Error('Agent server not found');
+    }
+
+    try {
+      await fixAndRestartServer(server.name);
+      return true;
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      throw new Error(message);
+    }
+  },
+
+  updateDiscordSettings: async (
+    _root: undefined,
+    {
+      input,
+    }: { input: { botToken: string; dmPolicy?: 'pairing' | 'open' } },
+    { models }: IContext,
+  ) => {
+    const server = await models.AgentServer.findOne({}).lean();
+
+    if (!server) {
+      throw new Error('Agent server not found');
+    }
+
+    try {
+      await updateDiscordSettings(server.name, input.botToken, input.dmPolicy);
+      return true;
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      throw new Error(message);
+    }
+  },
+
+  addDiscordGuild: async (
+    _root: undefined,
+    { input }: { input: { guildId: string } },
+    { models }: IContext,
+  ) => {
+    const server = await models.AgentServer.findOne({}).lean();
+
+    if (!server) {
+      throw new Error('Agent server not found');
+    }
+
+    try {
+      await addDiscordGuild(server.name, input.guildId);
       return true;
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
