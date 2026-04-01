@@ -1,4 +1,4 @@
-import { Control } from 'react-hook-form';
+import { Control, useFieldArray } from 'react-hook-form';
 import {
   Form,
   Input,
@@ -8,14 +8,21 @@ import {
   Upload,
   readImage,
   Button,
+  Textarea,
+  Label,
 } from 'erxes-ui';
 import { TourCreateFormType } from '../constants/formSchema';
-import { IconPlus, IconTrash, IconUpload } from '@tabler/icons-react';
-import { nanoid } from 'nanoid';
-import { useState, useEffect } from 'react';
+import {
+  IconPlus,
+  IconTrash,
+  IconUpload,
+  IconFileText,
+} from '@tabler/icons-react';
+import { useState } from 'react';
 import { SelectItinerary } from '../../itinerary/_components/SelectItinerary';
 import { ImageUploadGrid } from '../../../components';
 import { SelectTourCategory } from './SelectTourCategory';
+import { toOptionalString, toOptionalNumber } from '../utils/fieldConverters';
 
 export const TourNameField = ({
   control,
@@ -136,28 +143,6 @@ export const TourDescriptionField = ({
   );
 };
 
-export const TourCostField = ({
-  control,
-}: {
-  control: Control<TourCreateFormType>;
-}) => {
-  return (
-    <Form.Field
-      control={control}
-      name="cost"
-      render={({ field }) => (
-        <Form.Item>
-          <Form.Label>Cost</Form.Label>
-          <Form.Control>
-            <Input type="number" placeholder="0" {...field} />
-          </Form.Control>
-          <Form.Message className="text-destructive" />
-        </Form.Item>
-      )}
-    />
-  );
-};
-
 export const TourDurationField = ({
   control,
 }: {
@@ -197,182 +182,6 @@ export const TourGroupSizeField = ({
           </Form.Control>
           <Form.Message className="text-destructive" />
         </Form.Item>
-      )}
-    />
-  );
-};
-
-type PersonCostEntry = {
-  id: string;
-  range: string;
-  price: string;
-};
-
-const createPersonCostEntry = (
-  range = '',
-  price: string | number = '',
-): PersonCostEntry => ({
-  id: nanoid(),
-  range,
-  price: price === '' ? '' : String(price),
-});
-
-const personCostToEntries = (
-  value?: TourCreateFormType['personCost'],
-): PersonCostEntry[] => {
-  if (!value || typeof value !== 'object' || Array.isArray(value)) {
-    return [createPersonCostEntry()];
-  }
-
-  const entries = Object.entries(value).map(([range, price]) =>
-    createPersonCostEntry(range, price as string | number),
-  );
-
-  return entries.length > 0 ? entries : [createPersonCostEntry()];
-};
-
-const personCostEntriesToRecord = (entries: PersonCostEntry[]) =>
-  entries.reduce<Record<string, number>>((acc, entry) => {
-    const range = entry.range.trim();
-    const price = Number(entry.price);
-
-    if (!range || Number.isNaN(price)) {
-      return acc;
-    }
-
-    acc[range] = price;
-
-    return acc;
-  }, {});
-
-const TourPersonCostFieldContent = ({
-  value,
-  onChange,
-}: {
-  value?: TourCreateFormType['personCost'];
-  onChange: (value: Record<string, number>) => void;
-}) => {
-  const [entries, setEntries] = useState<PersonCostEntry[]>(() =>
-    personCostToEntries(value),
-  );
-
-  useEffect(() => {
-    const normalizedValue = personCostEntriesToRecord(entries);
-    const currentSerialized = JSON.stringify(normalizedValue);
-    const incomingSerialized = JSON.stringify(value ?? {});
-
-    if (currentSerialized === incomingSerialized) {
-      return;
-    }
-
-    setEntries(personCostToEntries(value));
-  }, [entries, value]);
-
-  const handleChange = (
-    index: number,
-    key: 'range' | 'price',
-    nextValue: string,
-  ) => {
-    const nextEntries = entries.map((entry, entryIndex) =>
-      entryIndex === index ? { ...entry, [key]: nextValue } : entry,
-    );
-
-    setEntries(nextEntries);
-    onChange(personCostEntriesToRecord(nextEntries));
-  };
-
-  const handleAdd = () => {
-    setEntries((prev) => [...prev, createPersonCostEntry()]);
-  };
-
-  const handleRemove = (index: number) => {
-    const nextEntries = entries.filter((_, entryIndex) => entryIndex !== index);
-    const normalizedNextEntries = nextEntries.length
-      ? nextEntries
-      : [createPersonCostEntry()];
-
-    setEntries(normalizedNextEntries);
-    onChange(personCostEntriesToRecord(normalizedNextEntries));
-  };
-
-  return (
-    <Form.Item className="space-y-4">
-      <div className="flex justify-between items-center">
-        <Form.Label>Person Cost</Form.Label>
-        <Button type="button" variant="outline" onClick={handleAdd}>
-          <IconPlus />
-          Add
-        </Button>
-      </div>
-
-      <div className="space-y-3">
-        {entries.map((entry, index) => (
-          <div
-            key={entry.id}
-            className="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto] gap-4"
-          >
-            <div className="space-y-2">
-              <Form.Label>Persons Count</Form.Label>
-              <Input
-                value={entry.range}
-                onChange={(event) =>
-                  handleChange(index, 'range', event.target.value)
-                }
-                placeholder="2-3 / 4-5 / 6+"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Form.Label>Price per Person</Form.Label>
-              <Input
-                type="number"
-                min="0"
-                value={entry.price}
-                onChange={(event) =>
-                  handleChange(index, 'price', event.target.value)
-                }
-                placeholder="0"
-              />
-            </div>
-
-            <div className="flex items-end">
-              <Button
-                type="button"
-                variant="outline"
-                size="icon"
-                onClick={() => handleRemove(index)}
-                disabled={
-                  entries.length === 1 &&
-                  !entry.range &&
-                  (entry.price === '' || entry.price === '0')
-                }
-              >
-                <IconTrash size={16} />
-              </Button>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      <Form.Message className="text-destructive" />
-    </Form.Item>
-  );
-};
-
-export const TourPersonCostField = ({
-  control,
-}: {
-  control: Control<TourCreateFormType>;
-}) => {
-  return (
-    <Form.Field
-      control={control}
-      name="personCost"
-      render={({ field }) => (
-        <TourPersonCostFieldContent
-          value={field.value}
-          onChange={field.onChange}
-        />
       )}
     />
   );
@@ -606,8 +415,10 @@ export const TourItineraryIdField = ({
 
 export const TourCategoryField = ({
   control,
+  branchId,
 }: {
   control: Control<TourCreateFormType>;
+  branchId?: string;
 }) => {
   return (
     <Form.Field
@@ -621,6 +432,7 @@ export const TourCategoryField = ({
               value={field.value}
               onValueChange={field.onChange}
               placeholder="Select categories"
+              branchId={branchId}
             />
           </Form.Control>
           <Form.Message className="text-destructive" />
@@ -750,4 +562,355 @@ export const TourImagesField = ({
   );
 };
 
+export const TourAttachmentsField = ({
+  control,
+}: {
+  control: Control<TourCreateFormType>;
+}) => {
+  const [isLoading, setIsLoading] = useState(false);
+
+  return (
+    <Form.Field
+      control={control}
+      name="attachment"
+      render={({ field }) => (
+        <Form.Item>
+          <Form.Label>Attachment (PDF)</Form.Label>
+
+          <Form.Control>
+            <Upload.Root
+              value={field.value?.url || ''}
+              onChange={(fileInfo: any) => {
+                if (!fileInfo || fileInfo === '') {
+                  field.onChange(null);
+                } else if (typeof fileInfo === 'object' && 'url' in fileInfo) {
+                  field.onChange({
+                    url: fileInfo.url,
+                    name: fileInfo.name || '',
+                    type: fileInfo.type || '',
+                    size: fileInfo.size || 0,
+                  });
+                }
+              }}
+              className="relative group"
+            >
+              <Upload.Button
+                size="sm"
+                type="button"
+                variant="secondary"
+                className="overflow-hidden relative w-full min-h-[94px] rounded-md border border-dashed transition aspect-video bg-background hover:bg-accent"
+              >
+                {!field.value ? (
+                  <div className="flex gap-2 justify-center items-center w-full text-sm text-muted-foreground">
+                    {isLoading ? (
+                      <span>Uploading...</span>
+                    ) : (
+                      <>
+                        <IconUpload size={18} />
+                        <span>Upload PDF</span>
+                      </>
+                    )}
+                  </div>
+                ) : (
+                  <div className="flex gap-2 items-center px-1 w-full">
+                    <IconFileText
+                      size={18}
+                      className="shrink-0 text-muted-foreground"
+                    />
+                    <span className="text-sm truncate">{field.value.name}</span>
+                  </div>
+                )}
+              </Upload.Button>
+
+              {field.value && (
+                <Upload.RemoveButton
+                  size="sm"
+                  variant="destructive"
+                  className="absolute right-2 top-1/2 shadow opacity-0 -translate-y-1/2 group-hover:opacity-100"
+                >
+                  <IconTrash size={14} />
+                </Upload.RemoveButton>
+              )}
+
+              <div className="hidden">
+                <Upload.Preview
+                  onUploadStart={() => setIsLoading(true)}
+                  onAllUploadsComplete={() => setIsLoading(false)}
+                />
+              </div>
+            </Upload.Root>
+          </Form.Control>
+          <Form.Message className="text-destructive" />
+        </Form.Item>
+      )}
+    />
+  );
+};
+
 export { TourDateSchedulingField } from './TourDateSchedulingField';
+
+const TourPricingOptionsFieldContent = ({
+  control,
+}: {
+  control: Control<any>;
+}) => {
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: 'pricingOptions',
+  });
+
+  const handleAdd = () => {
+    append({
+      title: '',
+      minPersons: '',
+      maxPersons: '',
+      pricePerPerson: '',
+      accommodationType: '',
+      domesticFlightPerPerson: '',
+      singleSupplement: '',
+      note: '',
+    });
+  };
+
+  const handleRemove = (index: number) => {
+    if (fields.length > 1) {
+      remove(index);
+    }
+  };
+
+  return (
+    <Form.Item className="space-y-4">
+      <div className="flex justify-between items-center">
+        <div>
+          <Form.Label>Pricing Options</Form.Label>
+          <Form.Description>
+            Define packages, group sizes and pricing
+          </Form.Description>
+        </div>
+
+        <div className="flex gap-2">
+          <Button type="button" variant="outline" size="sm" onClick={handleAdd}>
+            <IconPlus size={16} />
+            Add Pricing Option
+          </Button>
+        </div>
+      </div>
+
+      <div className="space-y-4">
+        {fields.map((field, index) => (
+          <div
+            key={field.id}
+            className="p-4 space-y-3 rounded-lg border bg-card"
+          >
+            <div className="flex justify-between items-start">
+              <Label>
+                Package: <Label className="text-black">{index + 1}</Label>
+              </Label>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                onClick={() => handleRemove(index)}
+                aria-label={`Remove pricing option ${index + 1}`}
+              >
+                <IconTrash size={16} />
+              </Button>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <Form.Field
+                control={control}
+                name={`pricingOptions.${index}.title`}
+                render={({ field, fieldState }) => (
+                  <div className="space-y-2">
+                    <Form.Label
+                      className={fieldState.error ? 'text-destructive' : ''}
+                    >
+                      Package Title <span className="text-destructive">*</span>
+                    </Form.Label>
+                    <Input
+                      {...field}
+                      placeholder="e.g., Standard - Solo, Standard - Group"
+                    />
+                    <Form.Message>{fieldState.error?.message}</Form.Message>
+                  </div>
+                )}
+              />
+
+              <div className="grid grid-cols-2 gap-3">
+                <Form.Field
+                  control={control}
+                  name={`pricingOptions.${index}.minPersons`}
+                  render={({ field, fieldState }) => (
+                    <div className="space-y-2">
+                      <Form.Label
+                        className={fieldState.error ? 'text-destructive' : ''}
+                      >
+                        Min Persons <span className="text-destructive">*</span>
+                      </Form.Label>
+                      <Input type="number" min="1" {...field} placeholder="1" />
+                      <Form.Message>{fieldState.error?.message}</Form.Message>
+                    </div>
+                  )}
+                />
+
+                <Form.Field
+                  control={control}
+                  name={`pricingOptions.${index}.maxPersons`}
+                  render={({ field, fieldState }) => (
+                    <div className="space-y-2">
+                      <Form.Label
+                        className={fieldState.error ? 'text-destructive' : ''}
+                      >
+                        Max Persons
+                      </Form.Label>
+                      <Input
+                        type="number"
+                        {...field}
+                        value={field.value ?? ''}
+                        onChange={(e) =>
+                          field.onChange(toOptionalNumber(e.target.value))
+                        }
+                        placeholder="Leave empty for unlimited"
+                      />
+                      <Form.Message>{fieldState.error?.message}</Form.Message>
+                    </div>
+                  )}
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <Form.Field
+                control={control}
+                name={`pricingOptions.${index}.accommodationType`}
+                render={({ field, fieldState }) => (
+                  <div className="space-y-2">
+                    <Form.Label
+                      className={fieldState.error ? 'text-destructive' : ''}
+                    >
+                      Accommodation Type
+                    </Form.Label>
+                    <Input
+                      {...field}
+                      value={field.value ?? ''}
+                      onChange={(e) =>
+                        field.onChange(toOptionalString(e.target.value))
+                      }
+                      placeholder="e.g., Hotel, Resort, etc."
+                    />
+                    <Form.Message>{fieldState.error?.message}</Form.Message>
+                  </div>
+                )}
+              />
+
+              <Form.Field
+                control={control}
+                name={`pricingOptions.${index}.pricePerPerson`}
+                render={({ field, fieldState }) => (
+                  <div className="space-y-2">
+                    <Form.Label
+                      className={fieldState.error ? 'text-destructive' : ''}
+                    >
+                      Price per Person{' '}
+                      <span className="text-destructive">*</span>
+                    </Form.Label>
+                    <Input
+                      type="number"
+                      step="0.01"
+                      min="0.01"
+                      {...field}
+                      placeholder="0.00"
+                    />
+                    <Form.Message>{fieldState.error?.message}</Form.Message>
+                  </div>
+                )}
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <Form.Field
+                control={control}
+                name={`pricingOptions.${index}.domesticFlightPerPerson`}
+                render={({ field, fieldState }) => (
+                  <div className="space-y-2">
+                    <Form.Label
+                      className={fieldState.error ? 'text-destructive' : ''}
+                    >
+                      Domestic Flight
+                    </Form.Label>
+                    <Input
+                      type="number"
+                      {...field}
+                      value={field.value ?? ''}
+                      onChange={(e) =>
+                        field.onChange(toOptionalNumber(e.target.value))
+                      }
+                      placeholder="0.00"
+                    />
+                    <Form.Message>{fieldState.error?.message}</Form.Message>
+                  </div>
+                )}
+              />
+
+              <Form.Field
+                control={control}
+                name={`pricingOptions.${index}.singleSupplement`}
+                render={({ field, fieldState }) => (
+                  <div className="space-y-2">
+                    <Form.Label
+                      className={fieldState.error ? 'text-destructive' : ''}
+                    >
+                      Single Supplement
+                    </Form.Label>
+                    <Input
+                      type="number"
+                      {...field}
+                      value={field.value ?? ''}
+                      onChange={(e) =>
+                        field.onChange(toOptionalNumber(e.target.value))
+                      }
+                      placeholder="0.00"
+                    />
+                    <Form.Message>{fieldState.error?.message}</Form.Message>
+                  </div>
+                )}
+              />
+            </div>
+
+            <Form.Field
+              control={control}
+              name={`pricingOptions.${index}.note`}
+              render={({ field, fieldState }) => (
+                <div className="space-y-2">
+                  <Form.Label
+                    className={fieldState.error ? 'text-destructive' : ''}
+                  >
+                    Note
+                  </Form.Label>
+                  <Textarea
+                    {...field}
+                    value={field.value ?? ''}
+                    onChange={(e) =>
+                      field.onChange(toOptionalString(e.target.value))
+                    }
+                    placeholder="Additional information..."
+                  />
+                  <Form.Message>{fieldState.error?.message}</Form.Message>
+                </div>
+              )}
+            />
+          </div>
+        ))}
+      </div>
+    </Form.Item>
+  );
+};
+
+export const TourPricingOptionsField = ({
+  control,
+}: {
+  control: Control<TourCreateFormType>;
+}) => {
+  return <TourPricingOptionsFieldContent control={control} />;
+};
