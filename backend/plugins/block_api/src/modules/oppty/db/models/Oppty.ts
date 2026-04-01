@@ -15,18 +15,17 @@ import { STATUS_VALIDATION } from '../../utils/validation';
 export interface IOpptyModel extends Model<IOpptyDocument> {
   getOppty(_id: string): Promise<IOpptyDocument>;
   getOpptys(projectId: string, filter: IOpptyFilter): Promise<IOpptyDocument[]>;
-  createOppty(input: IOpptyInput, userId: string): Promise<IOpptyDocument>;
+  createOppty(input: IOpptyInput): Promise<IOpptyDocument>;
   updateOppty(
     _id: string,
     input: Partial<IOpptyInput>,
-    userId: string,
   ): Promise<IOpptyDocument>;
   deleteOppty(_id: string): Promise<IOpptyDocument | null>;
 }
 
 export const loadOpptyClass = (
   models: IModels,
-  subdomain: string,
+  _subdomain: string,
   { createActivityLog }: EventDispatcherReturn,
 ) => {
   class Oppty {
@@ -44,7 +43,7 @@ export const loadOpptyClass = (
       return models.Oppty.find({ projectId, ...filter });
     }
 
-    public static async createOppty(input: IOppty, userId: string) {
+    public static async createOppty(input: IOppty) {
       const lastOppty = await models.Oppty.findOne({})
         .sort({ createdAt: -1 })
         .select('number');
@@ -68,11 +67,7 @@ export const loadOpptyClass = (
       return oppty;
     }
 
-    public static async updateOppty(
-      _id: string,
-      input: IOpptyInput,
-      userId: string,
-    ) {
+    public static async updateOppty(_id: string, input: IOpptyInput) {
       await this.validateOppty(_id, input);
 
       const prevOppty = await models.Oppty.getOppty(_id);
@@ -106,15 +101,18 @@ export const loadOpptyClass = (
       return models.Oppty.findOneAndDelete({ _id });
     }
 
-    public static async validateOppty(_id: string, input: Partial<IOpptyDocument>) {
+    public static async validateOppty(
+      _id: string,
+      input: Partial<IOpptyDocument>,
+    ) {
       const { status } = input || {}; // status that the oppty is being updated to
-      
-      if (!status) return // if status is not being updated, no validation is needed
+
+      if (!status) return; // if status is not being updated, no validation is needed
 
       const oppty = await models.Oppty.getOppty(_id);
 
       // validates based on status type
-      const { type } = await models.Status.findOne({ _id: status }) || {};
+      const { type } = (await models.Status.findOne({ _id: status })) || {};
 
       if (!type) {
         throw new Error('The status has an invalid type');
@@ -124,7 +122,7 @@ export const loadOpptyClass = (
       const validation = STATUS_VALIDATION[type];
 
       // if there is no validation then it means the status type has no specific validation requirements
-      if (!validation) return
+      if (!validation) return;
 
       await validation(status, oppty, models);
     }

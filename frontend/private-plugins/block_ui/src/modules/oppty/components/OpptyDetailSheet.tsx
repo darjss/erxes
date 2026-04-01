@@ -19,6 +19,7 @@ import {
   useQueryState,
 } from 'erxes-ui';
 import { format } from 'date-fns';
+import { OpptyActivityLog } from './OpptyActivityLog';
 import { OpptyEditSheet } from './OpptyEdit';
 import { OpptyDelete } from './OpptyDelete';
 import { IOppty } from '../types/opptyTypes';
@@ -31,6 +32,7 @@ import { useUnitTypes } from '@/unit/hooks/useUnitTypes';
 export const OPPTY_TABS = {
   GENERAL: 'general',
   PROPERTIES: 'properties',
+  ACTIVITY_LOG: 'activity-log',
 };
 
 const STATUS_TYPE_VARIANT: Record<
@@ -97,6 +99,11 @@ export const OpptyDetailSheet = () => {
               <div className="p-4">
                 <OpptyProperties opptyId={activeOpptyId} />
               </div>
+            </ScrollArea>
+          )}
+          {activeTab === 'activity-log' && activeOpptyId && (
+            <ScrollArea className="flex-auto h-full">
+              <OpptyActivityLog opptyId={activeOpptyId} />
             </ScrollArea>
           )}
           <RelationWidgetSideTabs

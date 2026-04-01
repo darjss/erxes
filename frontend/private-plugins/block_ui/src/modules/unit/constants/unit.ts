@@ -211,6 +211,10 @@ export const UNIT_DOCUMENT_TABS = {
     mn: 'Үнийн санал',
     en: 'Offers',
   },
+  activityLog: {
+    mn: 'Үйл ажиллагаа',
+    en: 'Activity Log',
+  },
 };
 
 export const UNIT_DOCUMENT_TABS_KEYS = Object.keys(UNIT_DOCUMENT_TABS).reduce(

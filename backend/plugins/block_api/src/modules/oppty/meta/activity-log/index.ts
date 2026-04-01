@@ -52,7 +52,10 @@ const OPPTY_ACTIVITY_CONFIG: Config<ActivityLogInput> = {
         activities.push({
           activityType: 'block.oppty.label_assigned',
           target: buildOpptyTarget(ctx.oppty),
-          action: { type: 'block.oppty.label_assigned', description: 'assigned label' },
+          action: {
+            type: 'block.oppty.label_assigned',
+            description: 'assigned label',
+          },
           changes: { added: { ids: added } },
           metadata: { entityLabel: 'label' },
         });
@@ -61,7 +64,10 @@ const OPPTY_ACTIVITY_CONFIG: Config<ActivityLogInput> = {
         activities.push({
           activityType: 'block.oppty.label_unassigned',
           target: buildOpptyTarget(ctx.oppty),
-          action: { type: 'block.oppty.label_unassigned', description: 'removed label' },
+          action: {
+            type: 'block.oppty.label_unassigned',
+            description: 'removed label',
+          },
           changes: { removed: { ids: removed } },
           metadata: { entityLabel: 'label' },
         });
@@ -83,7 +89,10 @@ const OPPTY_ACTIVITY_CONFIG: Config<ActivityLogInput> = {
         activities.push({
           activityType: 'block.oppty.tag_removed',
           target: buildOpptyTarget(ctx.oppty),
-          action: { type: 'block.oppty.tag_removed', description: 'removed tag' },
+          action: {
+            type: 'block.oppty.tag_removed',
+            description: 'removed tag',
+          },
           changes: { removed: { ids: removed } },
           metadata: { entityLabel: 'tag' },
         });
@@ -97,7 +106,9 @@ const OPPTY_ACTIVITY_CONFIG: Config<ActivityLogInput> = {
 export async function generateOpptyUpdateActivityLogs(
   prevDocument: any,
   currentDocument: any,
-  createActivityLog: (activities: ActivityLogInput | ActivityLogInput[]) => void,
+  createActivityLog: (
+    activities: ActivityLogInput | ActivityLogInput[],
+  ) => void,
 ): Promise<void> {
   try {
     const activities = await activityBuilder(
