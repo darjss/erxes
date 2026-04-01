@@ -44,7 +44,9 @@ export const providerReviewMutations: Record<string, Resolver> = {
     }
 
     if (activityTypeId) {
-      const activityType = await models.ActivityType.findOne({ _id: activityTypeId });
+      const activityType = await models.ActivityType.findOne({
+        _id: activityTypeId,
+      });
       if (!activityType) {
         throw new Error('Activity type not found');
       }
