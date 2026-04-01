@@ -9,7 +9,7 @@ import {
   RecordTableInlineCell,
   validateFetchMore,
 } from 'erxes-ui';
-import { useEffect, useMemo, useRef } from 'react';
+import { useMemo, useState } from 'react';
 import { ONE_FIT_BOOKINGS } from '~/modules/booking/graphql/bookingQueries';
 import { getLocalizedString } from '~/modules/activity-type/utils/localization';
 import { useOneFitMode } from '~/modules/config/hooks/useOneFitMode';
@@ -118,73 +118,7 @@ export function AccountStatementRowDetailsDialog({
   });
 
   const { list: allBookingsRaw = [], pageInfo } = data?.oneFitBookings ?? {};
-  const isFetchingAllPagesRef = useRef(false);
-  const hasFetchedAllPagesRef = useRef(false);
-
-  useEffect(() => {
-    isFetchingAllPagesRef.current = false;
-    hasFetchedAllPagesRef.current = false;
-  }, [open, providerId, year, month]);
-
-  useEffect(() => {
-    if (!open || loading || !pageInfo?.hasNextPage || !pageInfo?.endCursor)
-      return;
-    if (isFetchingAllPagesRef.current || hasFetchedAllPagesRef.current) return;
-
-    let cancelled = false;
-    isFetchingAllPagesRef.current = true;
-
-    const fetchAllPages = async () => {
-      let hasNextPage = !!pageInfo.hasNextPage;
-      let nextCursor = pageInfo.endCursor;
-
-      while (!cancelled && hasNextPage && nextCursor) {
-        const result = await fetchMore({
-          variables: {
-            ...baseVariables,
-            cursor: nextCursor,
-            limit: BOOKINGS_PER_PAGE,
-            direction: EnumCursorDirection.FORWARD,
-          },
-          updateQuery: (prev, { fetchMoreResult }) => {
-            if (!fetchMoreResult) return prev;
-            return {
-              ...prev,
-              oneFitBookings: mergeCursorData({
-                direction: EnumCursorDirection.FORWARD,
-                fetchMoreResult: fetchMoreResult.oneFitBookings,
-                prevResult: prev.oneFitBookings,
-              }),
-            };
-          },
-        });
-
-        const nextPageInfo = result?.data?.oneFitBookings?.pageInfo;
-        hasNextPage = !!nextPageInfo?.hasNextPage;
-        nextCursor = nextPageInfo?.endCursor;
-      }
-
-      if (!cancelled) {
-        hasFetchedAllPagesRef.current = true;
-      }
-      isFetchingAllPagesRef.current = false;
-    };
-
-    fetchAllPages().catch(() => {
-      isFetchingAllPagesRef.current = false;
-    });
-
-    return () => {
-      cancelled = true;
-    };
-  }, [
-    open,
-    loading,
-    pageInfo?.hasNextPage,
-    pageInfo?.endCursor,
-    fetchMore,
-    baseVariables,
-  ]);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
 
   const allBookings = allBookingsRaw;
   const bookings = useMemo(
@@ -197,7 +131,7 @@ export function AccountStatementRowDetailsDialog({
     [allBookings],
   );
 
-  const handleFetchMore = ({
+  const handleFetchMore = async ({
     direction,
   }: {
     direction: EnumCursorDirection;
@@ -214,7 +148,7 @@ export function AccountStatementRowDetailsDialog({
       direction === EnumCursorDirection.FORWARD
         ? pageInfo?.endCursor
         : pageInfo?.startCursor;
-    fetchMore({
+    return fetchMore({
       variables: {
         ...baseVariables,
         cursor: nextCursor,
@@ -233,6 +167,15 @@ export function AccountStatementRowDetailsDialog({
         };
       },
     });
+  };
+
+  const handleLoadMore = async () => {
+    setIsLoadingMore(true);
+    try {
+      await handleFetchMore({ direction: EnumCursorDirection.FORWARD });
+    } finally {
+      setIsLoadingMore(false);
+    }
   };
 
   const { hasPreviousPage, hasNextPage } = pageInfo ?? {};
@@ -394,6 +337,18 @@ export function AccountStatementRowDetailsDialog({
         </div>
         {!loading && bookings.length > 0 && (
           <div className="flex-shrink-0 border-t bg-muted/30 px-6 py-2 text-sm font-medium space-y-1">
+            {hasNextPage && (
+              <div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleLoadMore}
+                  disabled={isLoadingMore}
+                >
+                  {isLoadingMore ? 'Loading...' : 'Load more'}
+                </Button>
+              </div>
+            )}
             {isMasterMode && (
               <div>Total credits: {totalCredits.toFixed(2)}</div>
             )}
