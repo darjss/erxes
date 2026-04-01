@@ -1,0 +1,21 @@
+import { Document } from 'mongoose';
+
+export interface IBlockAgencyMember {
+  agencyId?: string;
+  description?: string;
+  country?: string;
+  city?: string;
+  district?: string;
+  facebookUrl?: string;
+  instagramUrl?: string;
+  linkedUrl?: string;
+  certificatePhotos?: string[];
+}
+
+export interface IBlockAgencyMemberDocument
+  extends IBlockAgencyMember,
+    Document<string> {
+  _id: string;
+  createdAt: Date;
+  updatedAt: Date;
+}

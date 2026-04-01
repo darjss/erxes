@@ -2,6 +2,7 @@ import { createGenerateModels } from 'erxes-api-shared/utils';
 import { IMainContext } from 'erxes-api-shared/core-types';
 import { IBlockAgencyDocument } from '~/modules/agency/@types/agency';
 import { IBlockListingDocument } from './modules/listing/@types/listing';
+import { IBlockAgencyMemberDocument } from './modules/member/@types/member';
 
 import mongoose from 'mongoose';
 import {
@@ -12,10 +13,15 @@ import {
   IBlockListingModel,
   loadBlockListingClass,
 } from './modules/listing/db/models/Listing';
+import {
+  IBlockAgencyMemberModel,
+  loadBlockAgencyMemberClass,
+} from './modules/member/db/models/Member';
 
 export interface IModels {
   BlockAgency: IBlockAgencyModel;
   BlockListing: IBlockListingModel;
+  BlockAgencyMember: IBlockAgencyMemberModel;
 }
 
 export interface IContext extends IMainContext {
@@ -33,6 +39,11 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
   models.BlockListing = db.model<IBlockListingDocument, IBlockListingModel>(
     'block_listing',
     loadBlockListingClass(models),
+  );
+
+  models.BlockAgencyMember = db.model<IBlockAgencyMemberDocument, IBlockAgencyMemberModel>(
+    'block_agencies_members',
+    loadBlockAgencyMemberClass(models),
   );
 
   return models;
