@@ -25,14 +25,12 @@ import { IOppty } from '../types/opptyTypes';
 import { ValueOf } from 'type-fest';
 import { FieldsInDetail, RelationWidgetSideTabs } from 'ui-modules';
 import { useOpptyCustomFieldEdit } from '@/oppty/hooks/useOpptyCustomFieldEdit';
-import { ActivityList } from '@/activity/components/ActivityList';
 import { UNIT_AREA_TYPE, UNIT_MARKET_TYPE } from '@/unit/constants/unit';
 import { useUnitTypes } from '@/unit/hooks/useUnitTypes';
 
 export const OPPTY_TABS = {
   GENERAL: 'general',
   PROPERTIES: 'properties',
-  ACTIVITIES: 'activities',
 };
 
 const STATUS_TYPE_VARIANT: Record<
@@ -101,17 +99,6 @@ export const OpptyDetailSheet = () => {
               </div>
             </ScrollArea>
           )}
-          {activeTab === 'activities' && activeOpptyId && (
-            <ScrollArea className="flex-auto h-full">
-              <div className="p-4">
-                <ActivityList
-                  contentId={activeOpptyId}
-                  contentType="oppty"
-                />
-              </div>
-            </ScrollArea>
-          )}
-
           <RelationWidgetSideTabs
             contentId={activeOpptyId || ''}
             contentType="block:oppty"
@@ -232,19 +219,29 @@ const OpptyDetail = ({ opptyId }: { opptyId: string }) => {
               </Table.Row>
               {renderTableRow(
                 'Unit Type',
-                unitTypes?.find((t) => t._id === oppty.unitType)?.name || oppty.unitType || null,
+                unitTypes?.find((t) => t._id === oppty.unitType)?.name ||
+                  oppty.unitType ||
+                  null,
               )}
-              {oppty.tenureType && (() => {
-                const [areaType, ...tenureTypes] = oppty.tenureType.split(':');
-                const parts: string[] = [];
-                if (areaType) {
-                  parts.push(UNIT_AREA_TYPE[areaType as keyof typeof UNIT_AREA_TYPE]?.mn || areaType);
-                }
-                tenureTypes.forEach((t) => {
-                  parts.push(UNIT_MARKET_TYPE[t as keyof typeof UNIT_MARKET_TYPE]?.mn || t);
-                });
-                return renderTableRow('Tenure Type', parts.join(' · '));
-              })()}
+              {oppty.tenureType &&
+                (() => {
+                  const [areaType, ...tenureTypes] =
+                    oppty.tenureType.split(':');
+                  const parts: string[] = [];
+                  if (areaType) {
+                    parts.push(
+                      UNIT_AREA_TYPE[areaType as keyof typeof UNIT_AREA_TYPE]
+                        ?.mn || areaType,
+                    );
+                  }
+                  tenureTypes.forEach((t) => {
+                    parts.push(
+                      UNIT_MARKET_TYPE[t as keyof typeof UNIT_MARKET_TYPE]
+                        ?.mn || t,
+                    );
+                  });
+                  return renderTableRow('Tenure Type', parts.join(' · '));
+                })()}
               {renderTableRow('Start Date', formatDate(oppty.startDate))}
               {renderTableRow('Target Date', formatDate(oppty.targetDate))}
               {renderTableRow('Created At', formatDate(oppty.createdAt))}
@@ -297,7 +294,11 @@ const OpptyPropertyCard = ({ oppty }: { oppty: IOppty }) => {
                 projectId={oppty.projectId}
                 isFirst={index === 0}
                 isLast={index === rows.length - 1}
-                onSetMain={row.unitId && !row.isMain ? () => setMainRow(index) : undefined}
+                onSetMain={
+                  row.unitId && !row.isMain
+                    ? () => setMainRow(index)
+                    : undefined
+                }
               />
             ))}
           </Table.Body>
@@ -314,7 +315,12 @@ const OpptyPropertyRowDetail = ({
   isLast,
   onSetMain,
 }: {
-  row: { buildingId?: string; zoningId?: string; unitId?: string; isMain?: boolean };
+  row: {
+    buildingId?: string;
+    zoningId?: string;
+    unitId?: string;
+    isMain?: boolean;
+  };
   projectId?: string;
   isFirst: boolean;
   isLast: boolean;
@@ -344,10 +350,10 @@ const OpptyPropertyRowDetail = ({
   const label = row.isMain
     ? 'Main Unit'
     : row.unitId
-      ? 'Unit'
-      : row.zoningId
-        ? 'Zone'
-        : 'Building';
+    ? 'Unit'
+    : row.zoningId
+    ? 'Zone'
+    : 'Building';
 
   return (
     <Table.Row>

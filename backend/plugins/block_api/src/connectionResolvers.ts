@@ -50,14 +50,10 @@ import { IUnitTypeDocument } from '@/unit/@types/unitType';
 import { IUnitModel, loadUnitClass } from '@/unit/db/models/Unit';
 import { IUnitLeadModel, loadUnitLeadClass } from '@/unit/db/models/UnitLead';
 import { IUnitTypeModel, loadUnitTypeClass } from '@/unit/db/models/UnitType';
+import { ScopedEventHandlers } from 'erxes-api-shared/core-modules';
 import { IMainContext } from 'erxes-api-shared/core-types';
 import { createGenerateModels } from 'erxes-api-shared/utils';
 import mongoose from 'mongoose';
-import { IBlockActivityDocument } from '~/modules/activity/@types/acitivy';
-import {
-  IBlockActivityModel,
-  loadBlockActivityClass,
-} from '~/modules/activity/db/models/Activity';
 import { INoteDocument } from '~/modules/note/types';
 import { INoteModel, loadNoteClass } from '~/modules/note/db/models/Note';
 import { IOpptyDocument } from './modules/oppty/@types/oppty';
@@ -75,7 +71,6 @@ export interface IModels {
   Developer: IBlockDeveloperModel;
   Contract: IContractModel;
   ProjectMember: IProjectMemberModel;
-  BlockActivity: IBlockActivityModel;
   BlockNote: INoteModel;
   Offer: IOfferModel;
   Invoice: IInvoiceModel;
@@ -90,12 +85,14 @@ export interface IContext extends IMainContext {
 export const loadClasses = (
   db: mongoose.Connection,
   subdomain: string,
+  eventHandlers?: ScopedEventHandlers,
 ): IModels => {
   const models = {} as IModels;
+  const blockEventHandlers = eventHandlers?.('block');
 
   models.Project = db.model<IProjectDocument, IProjectModel>(
     'block_projects',
-    loadProjectClass(models, subdomain),
+    loadProjectClass(models, subdomain, blockEventHandlers?.('block', 'projects') as any),
   );
 
   models.ProjectPaymentPlan = db.model<
@@ -115,12 +112,12 @@ export const loadClasses = (
 
   models.Unit = db.model<IUnitDocument, IUnitModel>(
     'block_units',
-    loadUnitClass(models, subdomain),
+    loadUnitClass(models, subdomain, blockEventHandlers?.('block', 'units') as any),
   );
 
   models.UnitType = db.model<IUnitTypeDocument, IUnitTypeModel>(
     'block_unit_types',
-    loadUnitTypeClass(models, subdomain),
+    loadUnitTypeClass(models, subdomain, blockEventHandlers?.('block', 'unit_types') as any),
   );
 
   models.BlockDocument = db.model<IBlockDocumentDocument, IBlockDocumentModel>(
@@ -135,7 +132,7 @@ export const loadClasses = (
 
   models.Developer = db.model<IBlockDeveloperDocument, IBlockDeveloperModel>(
     'block_developers',
-    loadBlockDeveloperClass(models, subdomain),
+    loadBlockDeveloperClass(models, subdomain, blockEventHandlers?.('block', 'developers') as any),
   );
 
   models.Contract = db.model<IContractDocument, IContractModel>(
@@ -146,11 +143,6 @@ export const loadClasses = (
   models.ProjectMember = db.model<IProjectMemberDocument, IProjectMemberModel>(
     'block_project_members',
     loadProjectMemberClass(models),
-  );
-
-  models.BlockActivity = db.model<IBlockActivityDocument, IBlockActivityModel>(
-    'block_activities',
-    loadBlockActivityClass(models),
   );
 
   models.BlockNote = db.model<INoteDocument, INoteModel>(
@@ -175,7 +167,7 @@ export const loadClasses = (
 
   models.Oppty = db.model<IOpptyDocument, IOpptyModel>(
     'block_opptys',
-    loadOpptyClass(models, subdomain),
+    loadOpptyClass(models, subdomain, blockEventHandlers?.('block', 'opptys') as any),
   );
 
   models.Status = db.model<IStatusDocument, IStatusModel>(

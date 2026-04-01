@@ -1,9 +1,9 @@
 import { IUnitType, IUnitTypeDocument } from '@/unit/@types/unitType';
 import { unitTypeSchema } from '@/unit/db/definitions/unitType';
+import { EventDispatcherReturn } from 'erxes-api-shared/core-modules';
 import { Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
-import { createActivity } from '@/activity/utils/createActivity';
-import { BLOCK_MODULES } from '~/constants';
+import { generateUnitTypeUpdateActivityLogs } from '../../meta/activity-log/unitType';
 
 export interface IUnitTypeModel extends Model<IUnitTypeDocument> {
   getUnitType(_id: string): Promise<IUnitTypeDocument>;
@@ -11,7 +11,11 @@ export interface IUnitTypeModel extends Model<IUnitTypeDocument> {
   updateUnitType(_id: string, input: IUnitType, userId: string): Promise<IUnitTypeDocument>;
 }
 
-export const loadUnitTypeClass = (models: IModels, subdomain: string) => {
+export const loadUnitTypeClass = (
+  models: IModels,
+  subdomain: string,
+  { createActivityLog }: EventDispatcherReturn,
+) => {
   class UnitType {
     public static async getUnitType(_id: string) {
       return models.UnitType.findOne({ _id });
@@ -22,23 +26,20 @@ export const loadUnitTypeClass = (models: IModels, subdomain: string) => {
     }
 
     public static async updateUnitType(_id: string, input: IUnitType, userId: string) {
-      const oldUnitType = await models.UnitType.findOne({ _id }).lean();
-      
+      const prevUnitType = await models.UnitType.findOne({ _id }).lean();
+
       const updatedUnitType = await models.UnitType.findOneAndUpdate(
         { _id },
         { $set: { ...input } },
         { new: true },
       );
 
-      if (userId && updatedUnitType) {
-        await createActivity<IUnitType>({
-          subdomain,
-          oldDoc: oldUnitType || undefined,
-          newDoc: updatedUnitType.toObject(),
-          userId,
-          contentId: _id,
-          module: BLOCK_MODULES.UNIT_TYPE,
-        });
+      if (prevUnitType && updatedUnitType) {
+        await generateUnitTypeUpdateActivityLogs(
+          prevUnitType,
+          updatedUnitType.toObject(),
+          createActivityLog,
+        );
       }
 
       return updatedUnitType;

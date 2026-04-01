@@ -1,9 +1,9 @@
 import { IUnit, IUnitDocument } from '@/unit/@types/unit';
+import { EventDispatcherReturn } from 'erxes-api-shared/core-modules';
+import { Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
 import { unitSchema } from '@/unit/db/definitions/unit';
-import { Model } from 'mongoose';
-import { createActivity } from '@/activity/utils/createActivity';
-import { BLOCK_MODULES } from '~/constants';
+import { generateUnitUpdateActivityLogs } from '../../meta/activity-log';
 
 export interface IUnitModel extends Model<IUnitDocument> {
   getUnit(_id: string): Promise<IUnitDocument>;
@@ -13,7 +13,11 @@ export interface IUnitModel extends Model<IUnitDocument> {
   getUnitsByZoning(zoning: string): Promise<IUnitDocument[]>;
 }
 
-export const loadUnitClass = (models: IModels, subdomain: string) => {
+export const loadUnitClass = (
+  models: IModels,
+  subdomain: string,
+  { createActivityLog }: EventDispatcherReturn,
+) => {
   class Unit {
     public static async getUnit(_id: string) {
       return models.Unit.findOne({ _id });
@@ -24,21 +28,18 @@ export const loadUnitClass = (models: IModels, subdomain: string) => {
     }
 
     public static async updateUnit(_id: string, input: IUnit, userId?: string) {
-      const oldUnit = await models.Unit.findOne({ _id }).lean();
-      
+      const prevUnit = await models.Unit.findOne({ _id }).lean();
+
       const updatedUnit = await models.Unit.findOneAndUpdate({ _id }, input, {
         new: true,
       });
 
-      if (userId && updatedUnit) {
-        await createActivity<IUnit>({
-          subdomain,
-          oldDoc: oldUnit || undefined,
-          newDoc: updatedUnit.toObject(),
-          userId,
-          contentId: _id,
-          module: BLOCK_MODULES.UNIT,
-        });
+      if (prevUnit && updatedUnit) {
+        await generateUnitUpdateActivityLogs(
+          prevUnit,
+          updatedUnit.toObject(),
+          createActivityLog,
+        );
       }
 
       return updatedUnit;

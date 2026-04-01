@@ -121,11 +121,8 @@ export const types = `
     oppty: Oppty
   }
 
-  type OpptyActivitySubscription {
-    type: String
-    activity: JSON
-  }
 `;
+
 
 export const queries = `
   blockGetOppty(_id: String!): Oppty

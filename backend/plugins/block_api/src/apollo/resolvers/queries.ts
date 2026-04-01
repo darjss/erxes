@@ -13,12 +13,10 @@ import { unitQueries } from '@/unit/graphql/resolvers/queries/unit';
 import { unitLeadQueries } from '@/unit/graphql/resolvers/queries/unitLead';
 import { unitTypesQueries } from '@/unit/graphql/resolvers/queries/unitType';
 import { opptyQueries } from '@/oppty/graphql/queries/oppty';
-import { activityQueries } from '@/activity/graphql/queries';
 import { blockNoteQueries } from '@/note/graphql/resolvers/queries/note';
 import { statusQueries } from '@/status/graphql/queries/status';
 
 export const queries = {
-  ...activityQueries,
   ...blockNoteQueries,
   ...projectQueries,
   ...buildingQueries,

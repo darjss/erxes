@@ -1,9 +1,9 @@
 import { IProject, IProjectDocument } from '@/project/@types/project';
 import { projectSchema } from '@/project/db/definitions/project';
+import { EventDispatcherReturn } from 'erxes-api-shared/core-modules';
 import { Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
-import { createActivity } from '@/activity/utils/createActivity';
-import { BLOCK_MODULES } from '~/constants';
+import { generateProjectUpdateActivityLogs } from '../../meta/activity-log';
 
 export interface IProjectModel extends Model<IProjectDocument> {
   getProject(_id: string): Promise<IProjectDocument>;
@@ -20,7 +20,11 @@ export interface IProjectModel extends Model<IProjectDocument> {
   removeProject(ProjectId: string): Promise<{ ok: number }>;
 }
 
-export const loadProjectClass = (models: IModels, subdomain: string) => {
+export const loadProjectClass = (
+  models: IModels,
+  subdomain: string,
+  { createActivityLog }: EventDispatcherReturn,
+) => {
   class Project {
     public static async getProject(_id: string) {
       const Project = await models.Project.findById(_id);
@@ -52,8 +56,8 @@ export const loadProjectClass = (models: IModels, subdomain: string) => {
       input: IProject;
       userId: string;
     }) {
-      const oldProject = await models.Project.findOne({ _id }).lean();
-      
+      const prevProject = await models.Project.findOne({ _id }).lean();
+
       const status = await models.Status.exists({ projectId: _id });
 
       if (!status) {
@@ -66,15 +70,12 @@ export const loadProjectClass = (models: IModels, subdomain: string) => {
         { new: true },
       );
 
-      if (userId && updatedProject) {
-        await createActivity<IProject>({
-          subdomain,
-          oldDoc: oldProject || undefined,
-          newDoc: updatedProject.toObject(),
-          userId,
-          contentId: _id,
-          module: BLOCK_MODULES.PROJECT,
-        });
+      if (prevProject && updatedProject) {
+        await generateProjectUpdateActivityLogs(
+          prevProject,
+          updatedProject.toObject(),
+          createActivityLog,
+        );
       }
 
       return updatedProject;

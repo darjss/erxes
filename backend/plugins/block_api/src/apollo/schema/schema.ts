@@ -89,11 +89,6 @@ import {
 } from '@/oppty/graphql/schemas/oppty';
 
 import {
-  queries as ActivityQueries,
-  types as ActivityTypes,
-} from '~/modules/activity/graphql/schemas';
-
-import {
   types as NoteTypes,
   queries as NoteQueries,
   mutations as NoteMutations,
@@ -171,7 +166,6 @@ export const types = `
   ${OfferTypes}
   ${UnitTypeTypes}
   ${OpptyTypes}
-  ${ActivityTypes}
   ${NoteTypes}
   ${StatusTypes}
   `;
@@ -192,7 +186,6 @@ export const queries = `
   ${OfferQueries}
   ${UnitTypeQueries}
   ${OpptyQueries}
-  ${ActivityQueries}
   ${NoteQueries}
   ${StatusQueries}
   `;

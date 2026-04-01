@@ -53,16 +53,6 @@ export const loadNoteClass = (models: IModels) => {
     }): Promise<INoteDocument> {
       const note = await models.BlockNote.create(doc);
 
-      await models.BlockActivity.createActivity({
-        action: 'CREATED',
-        contentId: doc.contentId,
-        module: 'NOTE',
-        metadata: {
-          newValue: String(note._id),
-        },
-        createdBy: doc.createdBy,
-      });
-
       return note;
     }
 

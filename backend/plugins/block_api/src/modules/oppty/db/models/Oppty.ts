@@ -1,4 +1,3 @@
-import { createActivity } from '@/activity/utils/createActivity';
 import {
   IOppty,
   IOpptyDocument,
@@ -6,10 +5,11 @@ import {
   IOpptyInput,
 } from '@/oppty/@types/oppty';
 import { opptySchema } from '@/oppty/db/definitions/oppty';
+import { EventDispatcherReturn } from 'erxes-api-shared/core-modules';
 import { graphqlPubsub } from 'erxes-api-shared/utils';
 import { Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
-import { BLOCK_MODULES } from '~/constants';
+import { generateOpptyUpdateActivityLogs } from '../../meta/activity-log';
 import { STATUS_VALIDATION } from '../../utils/validation';
 
 export interface IOpptyModel extends Model<IOpptyDocument> {
@@ -24,7 +24,11 @@ export interface IOpptyModel extends Model<IOpptyDocument> {
   deleteOppty(_id: string): Promise<IOpptyDocument | null>;
 }
 
-export const loadOpptyClass = (models: IModels, subdomain: string) => {
+export const loadOpptyClass = (
+  models: IModels,
+  subdomain: string,
+  { createActivityLog }: EventDispatcherReturn,
+) => {
   class Oppty {
     public static async getOppty(_id: string) {
       const oppty = await models.Oppty.findOne({ _id });
@@ -70,8 +74,8 @@ export const loadOpptyClass = (models: IModels, subdomain: string) => {
       userId: string,
     ) {
       await this.validateOppty(_id, input);
-      
-      const oppty = await models.Oppty.getOppty(_id);
+
+      const prevOppty = await models.Oppty.getOppty(_id);
 
       const updatedOppty = await models.Oppty.findOneAndUpdate(
         { _id },
@@ -87,17 +91,12 @@ export const loadOpptyClass = (models: IModels, subdomain: string) => {
         blockOpptyListChanged: { type: 'update', oppty: updatedOppty },
       });
 
-      if (oppty && updatedOppty) {
-        await createActivity<IOppty>({
-          subdomain,
-
-          oldDoc: oppty,
-          newDoc: updatedOppty.toObject(),
-
-          userId,
-          contentId: _id,
-          module: BLOCK_MODULES.OPPTY,
-        });
+      if (updatedOppty) {
+        await generateOpptyUpdateActivityLogs(
+          prevOppty.toObject(),
+          updatedOppty.toObject(),
+          createActivityLog,
+        );
       }
 
       return updatedOppty;
