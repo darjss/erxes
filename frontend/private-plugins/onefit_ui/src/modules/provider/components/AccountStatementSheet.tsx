@@ -130,7 +130,8 @@ export const AccountStatementSheet = () => {
   }, [open, providerId, year, month]);
 
   useEffect(() => {
-    if (!open || loading || !pageInfo?.hasNextPage || !pageInfo?.endCursor) return;
+    if (!open || loading || !pageInfo?.hasNextPage || !pageInfo?.endCursor)
+      return;
     if (isFetchingAllPagesRef.current || hasFetchedAllPagesRef.current) return;
 
     let cancelled = false;
