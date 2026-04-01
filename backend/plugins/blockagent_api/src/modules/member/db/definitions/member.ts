@@ -4,6 +4,7 @@ import { IBlockAgencyMemberDocument } from '~/modules/member/@types/member';
 export const blockAgencyMemberSchema = new Schema<IBlockAgencyMemberDocument>(
   {
     agencyId: { type: String, label: 'Agency ID' },
+    memberId: { type: String, label: 'Member ID' },
     description: { type: String, label: 'Description' },
     country: { type: String, label: 'Country' },
     city: { type: String, label: 'City' },

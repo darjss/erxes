@@ -2,6 +2,7 @@ import { Document } from 'mongoose';
 
 export interface IBlockAgencyMember {
   agencyId?: string;
+  memberId?: string;
   description?: string;
   country?: string;
   city?: string;

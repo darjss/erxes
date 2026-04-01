@@ -2,7 +2,7 @@ export const types = `
   type BlockMember {
     _id: String
     agencyId: String
-
+    memberId: String
     description: String
     country: String
     city: String
@@ -18,6 +18,7 @@ export const types = `
 
   input MemberInput {
     agencyId: String
+    memberId: String
     description: String
     country: String
     city: String
