@@ -12,7 +12,7 @@ export interface IProviderReviewModel extends Model<IProviderReviewDocument> {
   updateProviderReview(
     _id: string,
     userId: string,
-    doc: Partial<Pick<IProviderReview, 'rating' | 'comment'>>,
+    doc: Partial<Pick<IProviderReview, 'rating' | 'comment' | 'activityTypeId'>>,
   ): Promise<IProviderReviewDocument | null>;
   removeProviderReview(
     _id: string,
@@ -30,7 +30,7 @@ export const loadProviderReviewClass = (models: IModels) => {
     public static async updateProviderReview(
       _id: string,
       userId: string,
-      doc: Partial<Pick<IProviderReview, 'rating' | 'comment'>>,
+      doc: Partial<Pick<IProviderReview, 'rating' | 'comment' | 'activityTypeId'>>,
     ) {
       const existing = await models.ProviderReview.findOne({ _id, userId });
       if (!existing) {
@@ -42,6 +42,9 @@ export const loadProviderReviewClass = (models: IModels) => {
       }
       if (doc.comment !== undefined) {
         next.comment = doc.comment;
+      }
+      if (doc.activityTypeId !== undefined) {
+        next.activityTypeId = doc.activityTypeId;
       }
       return models.ProviderReview.findOneAndUpdate(
         { _id, userId },
