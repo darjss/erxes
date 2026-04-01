@@ -31,13 +31,13 @@ export const types = `
 `;
 
 export const queries = `
-  blockGetMember(_id: String!): BlockMember
-  blockGetMembers(agencyId: String, page: Int, perPage: Int): [BlockMember]
-  blockGetMembersTotalCount(agencyId: String): Int
+  blockAgentGetMember(_id: String!): BlockMember
+  blockAgentGetMembers(agencyId: String, page: Int, perPage: Int): [BlockMember]
+  blockAgentGetMembersTotalCount(agencyId: String): Int
 `;
 
 export const mutations = `
-  blockCreateMember(input: MemberInput!): BlockMember
-  blockUpdateMember(_id: String!, input: MemberInput!): BlockMember
-  blockRemoveMember(_id: String!): Boolean
+  blockAgentCreateMember(input: MemberInput!): BlockMember
+  blockAgentUpdateMember(_id: String!, input: MemberInput!): BlockMember
+  blockAgentRemoveMember(_id: String!): Boolean
 `;

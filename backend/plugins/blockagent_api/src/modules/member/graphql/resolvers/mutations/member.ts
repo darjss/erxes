@@ -2,7 +2,7 @@ import { IContext } from '~/connectionResolvers';
 import { IBlockAgencyMember } from '~/modules/member/@types/member';
 
 export const blockMemberMutations = {
-  blockCreateMember: async (
+  blockAgentCreateMember: async (
     _root: undefined,
     { input }: { input: IBlockAgencyMember },
     { models }: IContext,
@@ -10,7 +10,7 @@ export const blockMemberMutations = {
     return models.BlockAgencyMember.createMember(input);
   },
 
-  blockUpdateMember: async (
+  blockAgentUpdateMember: async (
     _root: undefined,
     { _id, input }: { _id: string; input: Partial<IBlockAgencyMember> },
     { models }: IContext,
@@ -18,7 +18,7 @@ export const blockMemberMutations = {
     return models.BlockAgencyMember.updateMember(_id, input);
   },
 
-  blockRemoveMember: async (
+  blockAgentRemoveMember: async (
     _root: undefined,
     { _id }: { _id: string },
     { models }: IContext,

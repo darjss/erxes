@@ -1,7 +1,7 @@
 import { IContext } from '~/connectionResolvers';
 
 export const blockMemberQueries = {
-  blockGetMember: async (
+  blockAgentGetMember: async (
     _root: undefined,
     { _id }: { _id: string },
     { models }: IContext,
@@ -9,7 +9,7 @@ export const blockMemberQueries = {
     return models.BlockAgencyMember.getMember(_id);
   },
 
-  blockGetMembers: async (
+  blockAgentGetMembers: async (
     _root: undefined,
     {
       agencyId,
@@ -26,7 +26,7 @@ export const blockMemberQueries = {
       .lean();
   },
 
-  blockGetMembersTotalCount: async (
+  blockAgentGetMembersTotalCount: async (
     _root: undefined,
     { agencyId }: { agencyId?: string },
     { models }: IContext,
