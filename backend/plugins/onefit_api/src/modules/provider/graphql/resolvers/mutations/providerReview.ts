@@ -123,3 +123,18 @@ export const providerReviewMutations: Record<string, Resolver> = {
     };
   },
 };
+
+providerReviewMutations.cpOneFitProviderReviewAdd.wrapperConfig = {
+  forClientPortal: true,
+  cpUserRequired: true,
+};
+
+providerReviewMutations.cpOneFitProviderReviewUpdate.wrapperConfig = {
+  forClientPortal: true,
+  cpUserRequired: true,
+};
+
+providerReviewMutations.cpOneFitProviderReviewRemove.wrapperConfig = {
+  forClientPortal: true,
+  cpUserRequired: true,
+};
