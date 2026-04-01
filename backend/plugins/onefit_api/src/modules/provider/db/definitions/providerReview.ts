@@ -20,6 +20,11 @@ export const providerReviewSchema = new Schema<IProviderReviewDocument>(
       index: true,
       label: 'User ID',
     },
+    activityTypeId: {
+      type: String,
+      index: true,
+      label: 'Activity Type ID',
+    },
     rating: {
       type: Number,
       required: true,
