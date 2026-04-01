@@ -5,9 +5,11 @@ import {
   Badge,
   RecordTable,
   RecordTableInlineCell,
+  EnumCursorDirection,
+  mergeCursorData,
 } from 'erxes-ui';
 import { useQuery } from '@apollo/client';
-import { useMemo } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { ColumnDef } from '@tanstack/table-core';
 import { ONE_FIT_BOOKINGS } from '~/modules/booking/graphql/bookingQueries';
 import { getLocalizedString } from '~/modules/activity-type/utils/localization';
@@ -77,8 +79,7 @@ export const AccountStatementSheet = () => {
     if (!open) return null;
     try {
       return JSON.parse(decodeURIComponent(open)) as AccountStatementRow;
-    } catch (error) {
-      console.error('Error parsing account statement data:', error);
+    } catch {
       return null;
     }
   }, [open]);
@@ -110,7 +111,7 @@ export const AccountStatementSheet = () => {
     [providerId, startDate, endDate],
   );
 
-  const { data, loading, error } = useQuery(ONE_FIT_BOOKINGS, {
+  const { data, loading, fetchMore, error } = useQuery(ONE_FIT_BOOKINGS, {
     variables: {
       ...baseVariables,
       cursor: undefined,
@@ -118,7 +119,81 @@ export const AccountStatementSheet = () => {
     skip: !open || !rowData || !providerId || !year || !month,
   });
 
-  const { list: allBookingsRaw = [] } = data?.oneFitBookings ?? {};
+  const { list: allBookingsRaw = [], pageInfo } = data?.oneFitBookings ?? {};
+  const isFetchingAllPagesRef = useRef(false);
+  const hasFetchedAllPagesRef = useRef(false);
+  const [isLoadingAllBookings, setIsLoadingAllBookings] = useState(false);
+
+  useEffect(() => {
+    isFetchingAllPagesRef.current = false;
+    hasFetchedAllPagesRef.current = false;
+  }, [open, providerId, year, month]);
+
+  useEffect(() => {
+    if (!open || loading || !pageInfo?.hasNextPage || !pageInfo?.endCursor) return;
+    if (isFetchingAllPagesRef.current || hasFetchedAllPagesRef.current) return;
+
+    let cancelled = false;
+    isFetchingAllPagesRef.current = true;
+    setIsLoadingAllBookings(true);
+
+    const fetchAllPages = async () => {
+      let hasNextPage = !!pageInfo.hasNextPage;
+      let nextCursor = pageInfo.endCursor;
+
+      while (!cancelled && hasNextPage && nextCursor) {
+        const result = await fetchMore({
+          variables: {
+            ...baseVariables,
+            cursor: nextCursor,
+            limit: BOOKINGS_PER_PAGE,
+            direction: EnumCursorDirection.FORWARD,
+          },
+          updateQuery: (prev, { fetchMoreResult }) => {
+            if (!fetchMoreResult) return prev;
+            return {
+              ...prev,
+              oneFitBookings: mergeCursorData({
+                direction: EnumCursorDirection.FORWARD,
+                fetchMoreResult: fetchMoreResult.oneFitBookings,
+                prevResult: prev.oneFitBookings,
+              }),
+            };
+          },
+        });
+
+        const nextPageInfo = result?.data?.oneFitBookings?.pageInfo;
+        hasNextPage = !!nextPageInfo?.hasNextPage;
+        nextCursor = nextPageInfo?.endCursor;
+      }
+
+      if (!cancelled) {
+        hasFetchedAllPagesRef.current = true;
+      }
+      isFetchingAllPagesRef.current = false;
+      setIsLoadingAllBookings(false);
+    };
+
+    fetchAllPages().catch(() => {
+      isFetchingAllPagesRef.current = false;
+      setIsLoadingAllBookings(false);
+    });
+
+    return () => {
+      cancelled = true;
+      isFetchingAllPagesRef.current = false;
+      setIsLoadingAllBookings(false);
+    };
+  }, [
+    open,
+    loading,
+    pageInfo?.hasNextPage,
+    pageInfo?.endCursor,
+    fetchMore,
+    baseVariables,
+  ]);
+
+  const showLoading = loading || isLoadingAllBookings;
   const bookings = useMemo(
     () =>
       allBookingsRaw.filter(
@@ -240,7 +315,7 @@ export const AccountStatementSheet = () => {
   return (
     <FocusSheet open={!!open} onOpenChange={() => setOpen(null)}>
       <FocusSheet.View
-        loading={loading}
+        loading={showLoading}
         error={!!error || !rowData}
         notFound={!rowData}
         notFoundState={<AccountStatementEmptyState />}
@@ -269,14 +344,14 @@ export const AccountStatementSheet = () => {
                       <RecordTable>
                         <RecordTable.Header />
                         <RecordTable.Body>
-                          {loading && <RecordTable.RowSkeleton rows={10} />}
-                          {!loading && <RecordTable.RowList />}
+                          {showLoading && <RecordTable.RowSkeleton rows={10} />}
+                          {!showLoading && <RecordTable.RowList />}
                         </RecordTable.Body>
                       </RecordTable>
                     </RecordTable.Provider>
                   </div>
 
-                  {!loading && bookings.length > 0 && (
+                  {!showLoading && bookings.length > 0 && (
                     <div className="border-t bg-muted/30 px-4 py-2 text-sm font-medium space-y-1 mt-2 flex-shrink-0">
                       {isMasterMode && (
                         <div>Total credits: {totalCredits.toFixed(2)}</div>
@@ -297,7 +372,7 @@ export const AccountStatementSheet = () => {
                     </div>
                   )}
 
-                  {!loading && bookings.length === 0 && (
+                  {!showLoading && bookings.length === 0 && (
                     <p className="text-sm text-muted-foreground py-4">
                       No completed or no-show bookings for this period.
                     </p>
