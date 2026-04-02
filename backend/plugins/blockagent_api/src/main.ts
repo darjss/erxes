@@ -5,7 +5,7 @@ import { appRouter } from '~/trpc/init-trpc';
 import resolvers from './apollo/resolvers';
 import { generateModels } from './connectionResolvers';
 import { router } from './routes';
-
+import { permissions } from './modules/member/permissions';
 startPlugin({
   name: 'blockagent',
   port: 33015,
@@ -33,6 +33,9 @@ startPlugin({
 
       return context;
     },
+  },
+  meta: {
+    permissions
   },
 });
 
