@@ -27,10 +27,15 @@ const getFieldLabel = (field: string): string => {
 };
 
 const OPPTY_ACTIVITY_CONFIG: Config<ActivityLogInput> = {
-  assignmentFields: ['labelIds', 'tagIds'],
   commonFields: OPPTY_ACTIVITY_FIELDS.map(({ field }) => field),
   resolvers: {
     $default: ({ field, prev, current }, ctx) => {
+      console.log(
+        'Generating activity for field:',
+        field,
+        { prev, current },
+        ctx,
+      );
       if (!field) return [];
       const fieldLabel = getFieldLabel(field);
       return [
@@ -45,59 +50,6 @@ const OPPTY_ACTIVITY_CONFIG: Config<ActivityLogInput> = {
           metadata: { field, fieldLabel },
         },
       ];
-    },
-    labelIds: ({ added = [], removed = [] }, ctx) => {
-      const activities: ActivityLogInput[] = [];
-      if (added.length) {
-        activities.push({
-          activityType: 'block.oppty.label_assigned',
-          target: buildOpptyTarget(ctx.oppty),
-          action: {
-            type: 'block.oppty.label_assigned',
-            description: 'assigned label',
-          },
-          changes: { added: { ids: added } },
-          metadata: { entityLabel: 'label' },
-        });
-      }
-      if (removed.length) {
-        activities.push({
-          activityType: 'block.oppty.label_unassigned',
-          target: buildOpptyTarget(ctx.oppty),
-          action: {
-            type: 'block.oppty.label_unassigned',
-            description: 'removed label',
-          },
-          changes: { removed: { ids: removed } },
-          metadata: { entityLabel: 'label' },
-        });
-      }
-      return activities;
-    },
-    tagIds: ({ added = [], removed = [] }, ctx) => {
-      const activities: ActivityLogInput[] = [];
-      if (added.length) {
-        activities.push({
-          activityType: 'block.oppty.tag_added',
-          target: buildOpptyTarget(ctx.oppty),
-          action: { type: 'block.oppty.tag_added', description: 'added tag' },
-          changes: { added: { ids: added } },
-          metadata: { entityLabel: 'tag' },
-        });
-      }
-      if (removed.length) {
-        activities.push({
-          activityType: 'block.oppty.tag_removed',
-          target: buildOpptyTarget(ctx.oppty),
-          action: {
-            type: 'block.oppty.tag_removed',
-            description: 'removed tag',
-          },
-          changes: { removed: { ids: removed } },
-          metadata: { entityLabel: 'tag' },
-        });
-      }
-      return activities;
     },
   },
   buildTarget: (document) => buildOpptyTarget(document),
