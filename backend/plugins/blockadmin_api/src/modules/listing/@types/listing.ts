@@ -36,6 +36,7 @@ export interface IBlockAdminListing extends IBlock {
   pricing: IBlockAdminListingPricing;
   specs: IBlockAdminListingSpecs;
   mediaAttachments?: string[];
+  featuredImg?: string;
   viewCount?: number;
 }
 

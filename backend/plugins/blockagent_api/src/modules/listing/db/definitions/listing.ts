@@ -37,6 +37,7 @@ export const blockListingSchema = new Schema<IBlockListingDocument>(
       builtYear: { type: String },
     },
     mediaAttachments: [{ type: String }],
+    featuredImg: { type: String },
     viewCount: { type: Number },
   },
   {

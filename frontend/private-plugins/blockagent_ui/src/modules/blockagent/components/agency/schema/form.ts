@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { date, z } from 'zod';
 import { socialPlatforms } from '../constants/social-platforms';
 
 // Agency profile
@@ -7,16 +7,18 @@ export const agencyIdentitySchema = z.object({
   coverImage: z.string().optional(),
 });
 
-export const agencyBasicInformationSchema = z.object({
+export const agencyGeneralInfoSchema = z.object({
   name: z.string(),
-  type: z.string(),
   brandName: z.string(),
   dateFounded: z.string().optional(),
+  website: z.string().optional(),
+});
+
+export const agencyContactInfoSchema = z.object({
   primaryEmail: z.string().optional(),
   emails: z.string().array().optional(),
   phones: z.string().array().optional(),
   primaryPhone: z.string().optional(),
-  website: z.string().optional(),
 });
 
 export const agencyIntroductionSchema = z.object({
@@ -81,5 +83,5 @@ export const agencySocialLinksSchema = z.object({
 });
 
 export const verificationStatusSchema = z.object({
-  status: z.enum(['pending', 'approved', 'rejected']),
+  status: z.enum(['pending', 'verified', 'unverified']),
 });

@@ -35,6 +35,7 @@ export const types = `
     pricing: BlockListingPricing!
     specs: BlockListingSpecs!
     mediaAttachments: [String]
+    featuredImg: String
     viewCount: Float
     createdAt: String
     updatedAt: String
@@ -103,6 +104,7 @@ export const types = `
     pricing: BlockListingPricingInput!
     specs: BlockListingSpecsInput!
     mediaAttachments: [String]
+    featuredImg: String
     viewCount: Float
   }
 `;

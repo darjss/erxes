@@ -1,12 +1,20 @@
 import { IconId } from '@tabler/icons-react';
-import { Breadcrumb, Button, Separator } from 'erxes-ui';
+import {
+  Breadcrumb,
+  Button,
+  PageContainer,
+  ScrollArea,
+  Separator,
+} from 'erxes-ui';
 import { PageHeader } from 'ui-modules';
 import { Link } from 'react-router-dom';
-import { AgencyProfileInfo } from '~/modules/blockagent/components/agency/form/AgencyProfileInfo';
+import { AgencyProfileSidebar } from '~/modules/blockagent/components/agency/components/AgencyProfileSidebar';
+import { AgencyProfileTabs } from '~/modules/blockagent/components/agency/components/AgencyProfileTabs';
+import { AgencyProfileDetailHeader } from '~/modules/blockagent/components/agency/components/AgencyProfileDetailHeader';
 
 export const IndexPage = () => {
   return (
-    <div className="flex flex-col h-full">
+    <PageContainer>
       <PageHeader>
         <PageHeader.Start>
           <Breadcrumb>
@@ -25,11 +33,16 @@ export const IndexPage = () => {
           <PageHeader.FavoriteToggleButton />
         </PageHeader.Start>
       </PageHeader>
-      <div className="flex h-full overflow-hidden">
-        <div className="flex flex-col h-full overflow-hidden flex-auto">
-          <AgencyProfileInfo />
+      <div className="flex flex-auto overflow-hidden">
+        <AgencyProfileSidebar />
+        <div className="flex flex-col flex-auto overflow-hidden">
+          <AgencyProfileDetailHeader />
+          <ScrollArea className="flex-auto bg-sidebar">
+            <AgencyProfileTabs />
+            <ScrollArea.Bar orientation="horizontal" />
+          </ScrollArea>
         </div>
       </div>
-    </div>
+    </PageContainer>
   );
 };

@@ -2,13 +2,14 @@ import { z } from 'zod';
 import {
   // Agency
   agencyIdentitySchema,
-  agencyBasicInformationSchema,
   agencyIntroductionSchema,
   agencyDocuments,
   agencyFieldsOfExpertiseSchema,
   agencyOperationAreasSchema,
   agencySocialLinksSchema,
   verificationStatusSchema,
+  agencyGeneralInfoSchema,
+  agencyContactInfoSchema,
 } from '../schema/form';
 import { socialPlatforms } from '../constants/social-platforms';
 
@@ -16,11 +17,9 @@ import { socialPlatforms } from '../constants/social-platforms';
 
 export type SocialPlatform = (typeof socialPlatforms)[number];
 
+export type AgencyGeneralInfoValues = z.infer<typeof agencyGeneralInfoSchema>;
 export type AgencyIdentityValues = z.infer<typeof agencyIdentitySchema>;
-
-export type AgencyBasicInformationValues = z.infer<
-  typeof agencyBasicInformationSchema
->;
+export type AgencyContactInfoValues = z.infer<typeof agencyContactInfoSchema>;
 
 export type AgencyIntroductionValues = z.infer<typeof agencyIntroductionSchema>;
 
@@ -35,14 +34,5 @@ export type AgencyOperationAreasValues = z.infer<
 >;
 
 export type AgencySocialLinksValues = z.infer<typeof agencySocialLinksSchema>;
-
-/** Combined agency profile form values */
-export type AgencyProfileFormValues = AgencyIdentityValues &
-  AgencyBasicInformationValues &
-  AgencyIntroductionValues &
-  AgencyDocumentsValues &
-  AgencyFieldsOfExpertiseValues &
-  AgencyOperationAreasValues &
-  AgencySocialLinksValues;
 
 export type VerificationValues = z.infer<typeof verificationStatusSchema>;

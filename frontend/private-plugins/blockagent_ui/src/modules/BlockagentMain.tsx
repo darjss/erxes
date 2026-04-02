@@ -24,7 +24,7 @@ const BlockagentMain = () => {
   return (
     <Suspense fallback={<div />}>
       <Routes>
-        <Route path={AgencyPaths.PROFILE} element={<IndexPage />} />
+        <Route path={AgencyPaths.AGENCY_PROFILE} element={<IndexPage />} />
         <Route path={AgencyPaths.LISTING} element={<ListingPage />}>
           <Route index element={<ListingIndexPage />} />
           <Route

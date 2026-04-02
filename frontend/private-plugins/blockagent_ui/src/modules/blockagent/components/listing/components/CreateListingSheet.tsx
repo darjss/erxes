@@ -18,6 +18,8 @@ import { LISTING_TYPES, STATUS_TYPES } from '../constants/listing';
 import { ListingLocation } from './ListingLocation';
 import { ListingPricing } from './ListingPricing';
 import { ListingSpecs } from './ListingSpecs';
+import { ListingMainInfo } from './ListinMainInfo';
+import { ListingMediaAttachments } from './ListingMediaAttachments';
 
 export const CreateListingSheet = () => {
   const [open, setOpen] = useAtom(createListingSheetAtom);
@@ -56,122 +58,15 @@ export const CreateListingSheet = () => {
             </Sheet.Header>
             <Sheet.Content className="p-3 px-6 flex-1 overflow-y-auto">
               <div className="flex-1 flex flex-col gap-3">
-                <InfoCard title="Basic Information">
-                  <InfoCard.Content className="grid grid-cols-3 gap-4">
-                    <Form.Field<IListing, 'title'>
-                      control={control}
-                      name="title"
-                      render={({ field }) => (
-                        <Form.Item className="col-span-3">
-                          <Form.Label>Title</Form.Label>
-                          <Form.Control>
-                            <Input
-                              {...field}
-                              placeholder="Enter listing title"
-                            />
-                          </Form.Control>
-                          <Form.Message />
-                        </Form.Item>
-                      )}
-                    />
-
-                    <Form.Field<IListing, 'type'>
-                      control={control}
-                      name="type"
-                      render={({ field }) => (
-                        <Form.Item>
-                          <Form.Label>Type</Form.Label>
-                          <Form.Control>
-                            <Select
-                              value={field.value}
-                              onValueChange={field.onChange}
-                            >
-                              <Select.Trigger>
-                                <Select.Value placeholder="Select type" />
-                              </Select.Trigger>
-                              <Select.Content>
-                                {LISTING_TYPES.map((t) => (
-                                  <Select.Item key={t} value={t}>
-                                    {t.charAt(0).toUpperCase() + t.slice(1)}
-                                  </Select.Item>
-                                ))}
-                              </Select.Content>
-                            </Select>
-                          </Form.Control>
-                          <Form.Message />
-                        </Form.Item>
-                      )}
-                    />
-
-                    <Form.Field<IListing, 'propertyType'>
-                      control={control}
-                      name="propertyType"
-                      render={({ field }) => (
-                        <Form.Item>
-                          <Form.Label>Property Type</Form.Label>
-                          <Form.Control>
-                            <Input
-                              {...field}
-                              placeholder="e.g. apartment, house"
-                            />
-                          </Form.Control>
-                          <Form.Message />
-                        </Form.Item>
-                      )}
-                    />
-
-                    <Form.Field<IListing, 'status'>
-                      control={control}
-                      name="status"
-                      render={({ field }) => (
-                        <Form.Item>
-                          <Form.Label>Status</Form.Label>
-                          <Form.Control>
-                            <Select
-                              value={field.value}
-                              onValueChange={field.onChange}
-                            >
-                              <Select.Trigger>
-                                <Select.Value placeholder="Select status" />
-                              </Select.Trigger>
-                              <Select.Content>
-                                {STATUS_TYPES.map((s) => (
-                                  <Select.Item key={s} value={s}>
-                                    {s.charAt(0).toUpperCase() + s.slice(1)}
-                                  </Select.Item>
-                                ))}
-                              </Select.Content>
-                            </Select>
-                          </Form.Control>
-                          <Form.Message />
-                        </Form.Item>
-                      )}
-                    />
-
-                    <Form.Field<IListing, 'description'>
-                      control={control}
-                      name="description"
-                      render={({ field }) => (
-                        <Form.Item className="col-span-3">
-                          <Form.Label>Description</Form.Label>
-                          <Form.Control>
-                            <Textarea
-                              {...field}
-                              placeholder="Enter listing description"
-                            />
-                          </Form.Control>
-                          <Form.Message />
-                        </Form.Item>
-                      )}
-                    />
-                  </InfoCard.Content>
-                </InfoCard>
+                <ListingMainInfo form={form} />
 
                 <ListingLocation form={form} />
 
                 <ListingPricing form={form} />
 
                 <ListingSpecs form={form} />
+
+                <ListingMediaAttachments form={form} />
               </div>
             </Sheet.Content>
             <Sheet.Footer>

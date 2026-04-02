@@ -33,6 +33,7 @@ export interface IBlockListing {
   pricing: IBlockListingPricing;
   specs: IBlockListingSpecs;
   mediaAttachments?: string[];
+  featuredImg?: string;
   viewCount?: number;
 }
 

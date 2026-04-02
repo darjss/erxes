@@ -1,7 +1,7 @@
-import { IconPhotoCirclePlus, IconX } from '@tabler/icons-react';
-import { buttonVariants, cn, readImage, Spinner, useUpload } from 'erxes-ui';
+import { IconPhotoCirclePlus, IconStar, IconStarFilled, IconX } from '@tabler/icons-react';
+import { buttonVariants, cn, readImage, Spinner, Tooltip, useUpload } from 'erxes-ui';
 import { Slot } from 'radix-ui';
-import { forwardRef, useMemo, useState } from 'react';
+import { forwardRef, useMemo, useRef, useState } from 'react';
 import { Button, FileTrigger, FileTriggerProps } from 'react-aria-components';
 import { UploadContext, useUploadContext } from '../context/UploadContext';
 
@@ -24,6 +24,7 @@ export const UploadProvider = ({
   const [totalFilesCount, setTotalFilesCount] = useState(0);
   const [finishedFilesCount, setFinishedFilesCount] = useState(0);
   const { upload, remove, isLoading } = useUpload();
+  const accumulatedUrlsRef = useRef<string[]>([]);
 
   const responses = useMemo(() => {
     if (!value) return [];
@@ -37,6 +38,7 @@ export const UploadProvider = ({
     setPreviewUrls(Array.from(files).map((file) => URL.createObjectURL(file)));
     setTotalFilesCount(files.length);
     setFinishedFilesCount(0);
+    accumulatedUrlsRef.current = responses.map((r) => r.url);
 
     upload({
       files,
@@ -47,12 +49,16 @@ export const UploadProvider = ({
           onValueChange(checked);
           onUploadsFinished?.(checked);
         } else {
-          const next = [...responses.map((r) => r.url), checked];
-          onValueChange(next);
-          onUploadsFinished?.(next);
+          accumulatedUrlsRef.current = [...accumulatedUrlsRef.current, checked];
+          onValueChange(accumulatedUrlsRef.current);
+          onUploadsFinished?.(accumulatedUrlsRef.current);
         }
 
-        setFinishedFilesCount((c) => c + 1);
+        setFinishedFilesCount((c) => {
+          const next = c + 1;
+          if (next >= totalFilesCount) setPreviewUrls(undefined);
+          return next;
+        });
       },
       maxHeight: 10000,
       maxWidth: 10000,
@@ -79,10 +85,15 @@ export const UploadProvider = ({
     });
   };
 
+  const existingUrls = typeof value === 'string' ? [value] : value ?? [];
+  const displayUrls = isLoading
+    ? [...existingUrls, ...(previewUrls ?? [])]
+    : existingUrls;
+
   return (
     <UploadContext.Provider
       value={{
-        urls: typeof value === 'string' ? [value] : value || previewUrls || [],
+        urls: displayUrls,
         mode,
         onValueChange,
         setPreviewUrls,
@@ -152,7 +163,7 @@ export const Upload = forwardRef<
               <Spinner containerClassName="absolute inset-0" />
               {showLoadingCount && loadingCount > 1 && (
                 <div className="absolute inset-0 flex items-center justify-center pt-6 text-sm text-muted-foreground">
-                  loading {finishedCount}/{loadingCount}
+                  {finishedCount}/{loadingCount}
                 </div>
               )}
             </>
@@ -216,16 +227,96 @@ export const UploadRemoveButton = ({
   return <Slot.Root onClick={() => remove(url)}>{children}</Slot.Root>;
 };
 
+const UploadAttachmentsContent = ({
+  className,
+  featured,
+  setFeatured,
+}: {
+  className?: string;
+  featured?: string;
+  setFeatured?: (url: string) => void;
+}) => {
+  const { urls = [], remove, isLoading } = useUploadContext();
+
+  return (
+    <div className={cn('flex flex-wrap gap-2', className)}>
+      {urls.map((url) => {
+        const isFeatured = featured === url;
+        return (
+          <div key={url} className="relative group w-20 h-20">
+            <img
+              src={readImage(url)}
+              className={cn(
+                'w-full h-full object-cover rounded',
+                isFeatured && 'ring-2 ring-primary',
+              )}
+              alt="attachment"
+            />
+            {!isLoading && (
+              <>
+                {setFeatured && (
+                  <Tooltip>
+                    <Tooltip.Trigger asChild>
+                      <button
+                        type="button"
+                        onClick={() => setFeatured(url)}
+                        className={cn(
+                          'absolute top-0.5 left-0.5 bg-foreground/70 ring-1 ring-primary-foreground/60 rounded-full p-0.5 transition-opacity',
+                          isFeatured
+                            ? 'opacity-100'
+                            : 'opacity-0 group-hover:opacity-100',
+                        )}
+                      >
+                        {isFeatured ? (
+                          <IconStarFilled className="size-3 text-warning" />
+                        ) : (
+                          <IconStar className="size-3 text-primary-foreground" />
+                        )}
+                      </button>
+                    </Tooltip.Trigger>
+                    <Tooltip.Content>
+                      {isFeatured ? 'Featured image' : 'Set as featured'}
+                    </Tooltip.Content>
+                  </Tooltip>
+                )}
+                <Tooltip>
+                  <Tooltip.Trigger asChild>
+                    <button
+                      type="button"
+                      onClick={() => remove(url)}
+                      className="absolute top-0.5 right-0.5 bg-foreground/70 ring-1 ring-primary-foreground/60 rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
+                    >
+                      <IconX className="size-3 text-primary-foreground" />
+                    </button>
+                  </Tooltip.Trigger>
+                  <Tooltip.Content>Remove</Tooltip.Content>
+                </Tooltip>
+              </>
+            )}
+          </div>
+        );
+      })}
+      <Upload>
+        <div className="w-20 h-20 flex items-center justify-center border border-dashed border-foreground/20 rounded">
+          <IconPhotoCirclePlus className="size-6 text-scroll" />
+        </div>
+      </Upload>
+    </div>
+  );
+};
+
 export const UploadAttachments = ({
   values = [],
   className,
-  onRemove,
   onValueChange,
+  featured,
+  setFeatured,
 }: {
   values?: string[];
   onValueChange: (values: string[]) => void;
   className?: string;
-  onRemove?: (url: string) => void;
+  featured?: string;
+  setFeatured?: (url: string) => void;
 }) => {
   return (
     <UploadProvider
@@ -233,31 +324,11 @@ export const UploadAttachments = ({
       mode="multiple"
       onValueChange={(values) => onValueChange(values as string[])}
     >
-      <div className={cn('flex flex-wrap gap-2', className)}>
-        {values.map((url) => (
-          <div key={url} className="relative group w-20 h-20">
-            <img
-              src={url}
-              className="w-full h-full object-cover rounded"
-              alt="attachment"
-            />
-            {onRemove && (
-              <button
-                type="button"
-                onClick={() => onRemove(url)}
-                className="absolute top-0.5 right-0.5 bg-black/50 rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
-              >
-                <IconX className="size-3 text-white" />
-              </button>
-            )}
-          </div>
-        ))}
-        <Upload>
-          <div className="w-20 h-20 flex items-center justify-center border border-dashed border-foreground/20 rounded">
-            <IconPhotoCirclePlus className="size-6 text-scroll" />
-          </div>
-        </Upload>
-      </div>
+      <UploadAttachmentsContent
+        className={className}
+        featured={featured}
+        setFeatured={setFeatured}
+      />
     </UploadProvider>
   );
 };

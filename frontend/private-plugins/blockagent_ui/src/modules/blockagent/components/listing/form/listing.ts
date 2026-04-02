@@ -45,4 +45,5 @@ export const listingSchema = z.object({
   pricing: pricingSchema,
   specs: specsSchema,
   mediaAttachments: z.string().array().optional().nullable(),
+  featuredImg: z.string().optional().nullable(),
 });

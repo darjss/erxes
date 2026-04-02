@@ -41,6 +41,7 @@ export const listingSchema = schemaWrapper(
         builtYear: { type: String },
       },
       mediaAttachments: [{ type: String }],
+      featuredImg: { type: String },
       viewCount: { type: Number, default: 0 },
     },
     { timestamps: true },
