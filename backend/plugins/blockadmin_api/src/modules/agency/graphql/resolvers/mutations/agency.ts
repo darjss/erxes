@@ -1,6 +1,6 @@
 import { IContext } from '~/connectionResolvers';
 import { BLOCK_VERIFICATION_STATUS } from '~/constants';
-import { sendBlockAgentMessage } from '~/modules/blockagent/utils';
+import { sendBlockAgencyMessage } from '~/modules/blockagency/utils';
 
 export const agencyMutations = {
   updateBlockAdminAgencyVerificationStatus: async (
@@ -32,7 +32,7 @@ export const agencyMutations = {
     try {
       const { _id, subdomain, entityId } = agency;
 
-      const response = await sendBlockAgentMessage({
+      const response = await sendBlockAgencyMessage({
         subdomain,
         path: 'updateAgencyVerificationStatus',
         payload: { data: { status, message }, entityId },
@@ -52,9 +52,7 @@ export const agencyMutations = {
 
       return updatedAgency;
     } catch (error) {
-      throw new Error(
-        `Failed to update agency verification status: ${error}`,
-      );
+      throw new Error(`Failed to update agency verification status: ${error}`);
     }
   },
 };
