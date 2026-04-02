@@ -1,8 +1,9 @@
 import { Separator } from 'erxes-ui';
-import { ListingKPI } from '~/modules/blockagency/components/listing/components/ListingKPI';
-import { ListingFilter } from '~/modules/blockagency/components/listing/components/ListingFilter';
-import { ListingRecordTable } from '~/modules/blockagency/components/listing/components/ListingRecordTable';
-import { CreateListingSheet } from '~/modules/blockagency/components/listing/components/CreateListingSheet';
+import { ListingKPI } from '~/modules/listing/components/ListingKPI';
+import { ListingFilter } from '~/modules/listing/components/ListingFilter';
+import { ListingRecordTable } from '~/modules/listing/components/ListingRecordTable';
+import { CreateListingSheet } from '~/modules/listing/components/CreateListingSheet';
+
 
 export const ListingIndexPage = () => {
   return (

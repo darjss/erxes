@@ -1,7 +1,9 @@
 import { Breadcrumb, Button, Separator } from 'erxes-ui';
 import { PageHeader } from 'ui-modules';
 import { IconHomeSearch } from '@tabler/icons-react';
-import { CreateListing } from '~/modules/blockagency/components/listing/components/CreateListing';
+import { CreateListing } from '~/modules/listing/components/CreateListing';
+
+
 import { Outlet } from 'react-router';
 
 export const ListingPage = () => {

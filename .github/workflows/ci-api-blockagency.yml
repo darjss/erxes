@@ -1,4 +1,4 @@
-name: CI plugin-blockagent-api
+name: CI plugin-blockagency-api
 
 on:
   push:
@@ -6,20 +6,20 @@ on:
       - main
       - debug/core
     paths:
-      - 'backend/plugins/blockagent_api/**'
+      - 'backend/plugins/blockagency_api/**'
       - 'backend/erxes-api-shared/**'
-      - '.github/workflows/ci-api-blockagent.yml'
+      - '.github/workflows/ci-api-blockagency.yml'
   pull_request:
     paths:
-      - 'backend/plugins/blockagent_api/**'
+      - 'backend/plugins/blockagency_api/**'
       - 'backend/erxes-api-shared/**'
-      - '.github/workflows/ci-api-blockagent.yml'
+      - '.github/workflows/ci-api-blockagency.yml'
 
 env:
   NX_DAEMON: false
 
 jobs:
-  blockagent_api-ci:
+  blockagency_api-ci:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -46,8 +46,8 @@ jobs:
       - name: Build shared module
         run: pnpm nx build erxes-api-shared
 
-      - name: Build blockagent_api
-        run: pnpm nx build blockagent_api
+      - name: Build blockagency_api
+        run: pnpm nx build blockagency_api
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
@@ -67,9 +67,9 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          file: backend/plugins/blockagent_api/Dockerfile
+          file: backend/plugins/blockagency_api/Dockerfile
           push: true
           platforms: linux/amd64,linux/arm64
           tags: |
-            erxes/erxes-next-blockagent_api:latest
-            erxes/erxes-next-blockagent_api:${{ env.DATE }}-${{ env.SHORT_SHA }}
+            erxes/erxes-next-blockagency_api:latest
+            erxes/erxes-next-blockagency_api:${{ env.DATE }}-${{ env.SHORT_SHA }}
