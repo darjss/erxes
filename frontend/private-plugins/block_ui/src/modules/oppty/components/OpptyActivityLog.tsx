@@ -1,14 +1,15 @@
-import {
-  // ActivityLogCustomActivity,
-  ActivityLogs,
-  AddInternalNote,
-  // TActivityLog,
-} from 'ui-modules';
+import { ActivityLogs, AddInternalNote } from 'ui-modules';
+import { propertyRowsActivityLog } from './activity-status/PropertyRowsActivityLog';
+import { statusActivityLog } from './activity-status/StatusActivityLog';
+import { tenureTypeActivityLog } from './activity-status/TenureTypeActivityLog';
+import { unitTypeActivityLog } from './activity-status/UnitTypeActivityLog';
 
-// export const status: ActivityLogCustomActivity = {
-//   type: 'block.oppty.field_changed',
-//   render: (activity: TActivityLog) => <div>12312</div>,
-// };
+const customActivities = [
+  statusActivityLog,
+  unitTypeActivityLog,
+  tenureTypeActivityLog,
+  propertyRowsActivityLog,
+];
 
 export const OpptyActivityLog = ({ opptyId }: { opptyId: string }) => {
   return (
@@ -16,7 +17,7 @@ export const OpptyActivityLog = ({ opptyId }: { opptyId: string }) => {
       <ActivityLogs
         targetId={opptyId}
         variant="backward"
-        // customActivities={[status]}
+        customActivities={customActivities}
       />
 
       <AddInternalNote contentTypeId={opptyId} contentType="block:oppty" />

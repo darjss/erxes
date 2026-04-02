@@ -12,6 +12,8 @@ const OPPTY_ACTIVITY_FIELDS = [
   { field: 'targetDate', label: 'Target Date' },
   { field: 'customerSource', label: 'Customer Source' },
   { field: 'unitType', label: 'Unit Type' },
+  { field: 'tenureType', label: 'Tenure Type' },
+  { field: 'propertyRows', label: 'Property Rows' },
 ] as const;
 
 const buildOpptyTarget = (oppty: any) => ({
@@ -29,13 +31,71 @@ const getFieldLabel = (field: string): string => {
 const OPPTY_ACTIVITY_CONFIG: Config<ActivityLogInput> = {
   commonFields: OPPTY_ACTIVITY_FIELDS.map(({ field }) => field),
   resolvers: {
+    status: ({ field, prev, current }, ctx) => {
+      if (!field) return [];
+      const fieldLabel = getFieldLabel(field);
+      return [
+        {
+          activityType: 'oppty.status_changed',
+          target: buildOpptyTarget(ctx.oppty),
+          action: {
+            type: 'oppty.status_changed',
+            description: `changed ${fieldLabel.toLowerCase()}`,
+          },
+          changes: { prev: { [field]: prev }, current: { [field]: current } },
+          metadata: { field, fieldLabel },
+        },
+      ];
+    },
+    unitType: ({ field, prev, current }, ctx) => {
+      if (!field) return [];
+      const fieldLabel = getFieldLabel(field);
+      return [
+        {
+          activityType: 'oppty.unittype_changed',
+          target: buildOpptyTarget(ctx.oppty),
+          action: {
+            type: 'oppty.unittype_changed',
+            description: `changed ${fieldLabel.toLowerCase()}`,
+          },
+          changes: { prev: { [field]: prev }, current: { [field]: current } },
+          metadata: { field, fieldLabel },
+        },
+      ];
+    },
+    propertyRows: ({ field, prev, current }, ctx) => {
+      if (!field) return [];
+      const fieldLabel = getFieldLabel(field);
+      return [
+        {
+          activityType: 'oppty.propertyrows_changed',
+          target: buildOpptyTarget(ctx.oppty),
+          action: {
+            type: 'oppty.propertyrows_changed',
+            description: `changed ${fieldLabel.toLowerCase()}`,
+          },
+          changes: { prev: { [field]: prev }, current: { [field]: current } },
+          metadata: { field, fieldLabel },
+        },
+      ];
+    },
+    tenureType: ({ field, prev, current }, ctx) => {
+      if (!field) return [];
+      const fieldLabel = getFieldLabel(field);
+      return [
+        {
+          activityType: 'oppty.tenuretype_changed',
+          target: buildOpptyTarget(ctx.oppty),
+          action: {
+            type: 'oppty.tenuretype_changed',
+            description: `changed ${fieldLabel.toLowerCase()}`,
+          },
+          changes: { prev: { [field]: prev }, current: { [field]: current } },
+          metadata: { field, fieldLabel },
+        },
+      ];
+    },
     $default: ({ field, prev, current }, ctx) => {
-      console.log(
-        'Generating activity for field:',
-        field,
-        { prev, current },
-        ctx,
-      );
       if (!field) return [];
       const fieldLabel = getFieldLabel(field);
       return [
