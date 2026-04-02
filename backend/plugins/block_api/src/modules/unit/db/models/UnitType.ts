@@ -1,9 +1,7 @@
 import { IUnitType, IUnitTypeDocument } from '@/unit/@types/unitType';
 import { unitTypeSchema } from '@/unit/db/definitions/unitType';
-import { EventDispatcherReturn } from 'erxes-api-shared/core-modules';
 import { Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
-import { generateUnitTypeUpdateActivityLogs } from '../../meta/activity-log/unitType';
 
 export interface IUnitTypeModel extends Model<IUnitTypeDocument> {
   getUnitType(_id: string): Promise<IUnitTypeDocument>;
@@ -14,7 +12,6 @@ export interface IUnitTypeModel extends Model<IUnitTypeDocument> {
 export const loadUnitTypeClass = (
   models: IModels,
   subdomain: string,
-  { createActivityLog }: EventDispatcherReturn,
 ) => {
   class UnitType {
     public static async getUnitType(_id: string) {
@@ -33,14 +30,6 @@ export const loadUnitTypeClass = (
         { $set: { ...input } },
         { new: true },
       );
-
-      if (prevUnitType && updatedUnitType) {
-        await generateUnitTypeUpdateActivityLogs(
-          prevUnitType,
-          updatedUnitType.toObject(),
-          createActivityLog,
-        );
-      }
 
       return updatedUnitType;
     }

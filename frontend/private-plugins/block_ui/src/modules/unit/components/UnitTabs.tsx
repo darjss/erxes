@@ -32,12 +32,6 @@ const UnitOffers = lazy(() =>
   })),
 );
 
-const UnitActivityLog = lazy(() =>
-  import('./UnitActivityLog').then((module) => ({
-    default: module.UnitActivityLog,
-  })),
-);
-
 export const UnitTabs = () => {
   const [activeUnitTab] = useQueryState('activeUnitTab', {
     defaultValue: UNIT_DOCUMENT_TABS_KEYS.overview,
@@ -52,9 +46,7 @@ export const UnitTabs = () => {
       {activeUnitTab === UNIT_DOCUMENT_TABS_KEYS.media && <UnitMedia />}
       {activeUnitTab === UNIT_DOCUMENT_TABS_KEYS.contracts && <UnitContract />}
       {activeUnitTab === UNIT_DOCUMENT_TABS_KEYS.offers && <UnitOffers />}
-      {activeUnitTab === UNIT_DOCUMENT_TABS_KEYS.activityLog && (
-        <UnitActivityLog />
-      )}
+
     </Suspense>
   );
 };

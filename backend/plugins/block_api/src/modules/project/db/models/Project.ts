@@ -1,9 +1,7 @@
 import { IProject, IProjectDocument } from '@/project/@types/project';
 import { projectSchema } from '@/project/db/definitions/project';
-import { EventDispatcherReturn } from 'erxes-api-shared/core-modules';
 import { Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
-import { generateProjectUpdateActivityLogs } from '../../meta/activity-log';
 
 export interface IProjectModel extends Model<IProjectDocument> {
   getProject(_id: string): Promise<IProjectDocument>;
@@ -23,7 +21,6 @@ export interface IProjectModel extends Model<IProjectDocument> {
 export const loadProjectClass = (
   models: IModels,
   subdomain: string,
-  { createActivityLog }: EventDispatcherReturn,
 ) => {
   class Project {
     public static async getProject(_id: string) {
@@ -69,14 +66,6 @@ export const loadProjectClass = (
         { $set: { ...input } },
         { new: true },
       );
-
-      if (prevProject && updatedProject) {
-        await generateProjectUpdateActivityLogs(
-          prevProject,
-          updatedProject.toObject(),
-          createActivityLog,
-        );
-      }
 
       return updatedProject;
     }

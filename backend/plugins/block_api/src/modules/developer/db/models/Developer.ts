@@ -1,10 +1,7 @@
 import { IBlockDeveloperDocument } from '@/developer/db/@types/developer';
 import { developerSchema } from '@/developer/db/definitions/developer';
-import { EventDispatcherReturn } from 'erxes-api-shared/core-modules';
-import { log } from 'console';
 import { Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
-import { generateDeveloperUpdateActivityLogs } from '../../meta/activity-log';
 
 export interface IBlockDeveloperModel extends Model<IBlockDeveloperDocument> {
   createDeveloper(
@@ -25,7 +22,6 @@ export interface IBlockDeveloperModel extends Model<IBlockDeveloperDocument> {
 export const loadBlockDeveloperClass = (
   models: IModels,
   subdomain: string,
-  { createActivityLog }: EventDispatcherReturn,
 ) => {
   class Developer {
     public static async createDeveloper(input: IBlockDeveloperDocument, userId?: string) {
@@ -44,14 +40,6 @@ export const loadBlockDeveloperClass = (
         input,
         { new: true },
       );
-
-      if (prevDeveloper && updatedDeveloper) {
-        await generateDeveloperUpdateActivityLogs(
-          prevDeveloper,
-          updatedDeveloper.toObject(),
-          createActivityLog,
-        );
-      }
 
       return updatedDeveloper;
     }

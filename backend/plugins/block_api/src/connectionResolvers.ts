@@ -92,7 +92,7 @@ export const loadClasses = (
 
   models.Project = db.model<IProjectDocument, IProjectModel>(
     'block_projects',
-    loadProjectClass(models, subdomain, blockEventHandlers?.('block', 'projects') as any),
+    loadProjectClass(models, subdomain),
   );
 
   models.ProjectPaymentPlan = db.model<
@@ -112,12 +112,12 @@ export const loadClasses = (
 
   models.Unit = db.model<IUnitDocument, IUnitModel>(
     'block_units',
-    loadUnitClass(models, subdomain, blockEventHandlers?.('block', 'units') as any),
+    loadUnitClass(models, subdomain),
   );
 
   models.UnitType = db.model<IUnitTypeDocument, IUnitTypeModel>(
     'block_unit_types',
-    loadUnitTypeClass(models, subdomain, blockEventHandlers?.('block', 'unit_types') as any),
+    loadUnitTypeClass(models, subdomain),
   );
 
   models.BlockDocument = db.model<IBlockDocumentDocument, IBlockDocumentModel>(
@@ -132,7 +132,7 @@ export const loadClasses = (
 
   models.Developer = db.model<IBlockDeveloperDocument, IBlockDeveloperModel>(
     'block_developers',
-    loadBlockDeveloperClass(models, subdomain, blockEventHandlers?.('block', 'developers') as any),
+    loadBlockDeveloperClass(models, subdomain),
   );
 
   models.Contract = db.model<IContractDocument, IContractModel>(
@@ -167,7 +167,11 @@ export const loadClasses = (
 
   models.Oppty = db.model<IOpptyDocument, IOpptyModel>(
     'block_opptys',
-    loadOpptyClass(models, subdomain, blockEventHandlers?.('block', 'opptys') as any),
+    loadOpptyClass(
+      models,
+      subdomain,
+      blockEventHandlers?.('block', 'opptys') as any,
+    ),
   );
 
   models.Status = db.model<IStatusDocument, IStatusModel>(

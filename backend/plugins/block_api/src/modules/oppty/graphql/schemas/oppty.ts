@@ -1,21 +1,6 @@
 import { GQL_CURSOR_PARAM_DEFS } from 'erxes-api-shared/utils';
 
 export const types = `
-  enum OpptyStatus {
-    new_lead_unassigned
-    assigned_in_contact
-    qualified_lead
-    unit_shortlist_created
-    property_viewing
-    unit_selected
-    negotiation
-    reservation
-    contract_drafting_signing
-    closed_successful
-    closed_unsuccessful
-    cancelled
-  }
-
   enum Priority {
     low
     medium
@@ -36,7 +21,7 @@ export const types = `
     isMain: Boolean
   }
 
-  type Oppty {
+  type BlockOppty {
     _id: String
     number: String
     description: String
@@ -60,7 +45,7 @@ export const types = `
     updatedAt: Date
   }
 
-  input IOpptyInput {
+  input IBlockOpptyInput{
     number: String
     description: String
     customerId: String
@@ -104,35 +89,34 @@ export const types = `
     ${GQL_CURSOR_PARAM_DEFS}
   }
 
-  type OpptyUnitRow {
+  type BlockOpptyUnitRow {
     unitId: String
     buildingId: String
     zoningId: String
   }
 
-  type OpptyListResponse {
-    list: [Oppty]
+  type BlockOpptyListResponse {
+    list: [BlockOppty]
     pageInfo: PageInfo
     totalCount: Int
   }
 
   type OpptySubscription {
     type: String
-    oppty: Oppty
+    oppty: BlockOppty
   }
 
 `;
 
-
 export const queries = `
-  blockGetOppty(_id: String!): Oppty
-  blockGetOpptys(projectId: String!, filter: IOpptyFilter): OpptyListResponse
-  blockGetOpptyUnitRows(_id: String!): [OpptyUnitRow]
+  blockGetOppty(_id: String!): BlockOppty
+  blockGetOpptys(projectId: String!, filter: IOpptyFilter): BlockOpptyListResponse
+  blockGetOpptyUnitRows(_id: String!): [BlockOpptyUnitRow]
 `;
 
 export const mutations = `
-  blockCreateOppty(input: IOpptyInput!): Oppty
-  blockUpdateOppty(_id: String!, input: IOpptyInput!): Oppty
-  blockDeleteOppty(_id: String!): Oppty
+  blockCreateOppty(input: IBlockOpptyInput!): BlockOppty
+  blockUpdateOppty(_id: String!, input: IBlockOpptyInput!): BlockOppty
+  blockDeleteOppty(_id: String!): BlockOppty
   blockOpptyConvertToContract(_id: String!, unit: String!, paymentPlan: BlockProjectPaymentPlanInput!): String
 `;

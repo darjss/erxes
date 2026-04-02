@@ -1,9 +1,7 @@
 import { IUnit, IUnitDocument } from '@/unit/@types/unit';
-import { EventDispatcherReturn } from 'erxes-api-shared/core-modules';
 import { Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
 import { unitSchema } from '@/unit/db/definitions/unit';
-import { generateUnitUpdateActivityLogs } from '../../meta/activity-log';
 
 export interface IUnitModel extends Model<IUnitDocument> {
   getUnit(_id: string): Promise<IUnitDocument>;
@@ -16,7 +14,6 @@ export interface IUnitModel extends Model<IUnitDocument> {
 export const loadUnitClass = (
   models: IModels,
   subdomain: string,
-  { createActivityLog }: EventDispatcherReturn,
 ) => {
   class Unit {
     public static async getUnit(_id: string) {
@@ -33,14 +30,6 @@ export const loadUnitClass = (
       const updatedUnit = await models.Unit.findOneAndUpdate({ _id }, input, {
         new: true,
       });
-
-      if (prevUnit && updatedUnit) {
-        await generateUnitUpdateActivityLogs(
-          prevUnit,
-          updatedUnit.toObject(),
-          createActivityLog,
-        );
-      }
 
       return updatedUnit;
     }

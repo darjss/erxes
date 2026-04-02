@@ -1,11 +1,11 @@
 import { IContext } from '~/connectionResolvers';
-import { IOpptyInput } from '@/oppty/@types/oppty';
+import { IBlockOpptyInput } from '@/oppty/@types/oppty';
 import { IContractPaymentPlan } from '@/contract/@types/contract';
 
 export const opptyMutations = {
   blockCreateOppty: async (
     _parent: undefined,
-    { input }: { input: IOpptyInput },
+    { input }: { input: IBlockOpptyInput },
     { models }: IContext,
   ) => {
     return models.Oppty.createOppty(input);
@@ -13,7 +13,7 @@ export const opptyMutations = {
 
   blockUpdateOppty: async (
     _parent: undefined,
-    { _id, input }: { _id: string; input: IOpptyInput },
+    { _id, input }: { _id: string; input: IBlockOpptyInput },
     { models }: IContext,
   ) => {
     return models.Oppty.updateOppty(_id, input);

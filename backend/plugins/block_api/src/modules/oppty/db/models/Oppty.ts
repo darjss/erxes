@@ -2,7 +2,7 @@ import {
   IOppty,
   IOpptyDocument,
   IOpptyFilter,
-  IOpptyInput,
+  IBlockOpptyInput,
 } from '@/oppty/@types/oppty';
 import { opptySchema } from '@/oppty/db/definitions/oppty';
 import { EventDispatcherReturn } from 'erxes-api-shared/core-modules';
@@ -15,10 +15,10 @@ import { STATUS_VALIDATION } from '../../utils/validation';
 export interface IOpptyModel extends Model<IOpptyDocument> {
   getOppty(_id: string): Promise<IOpptyDocument>;
   getOpptys(projectId: string, filter: IOpptyFilter): Promise<IOpptyDocument[]>;
-  createOppty(input: IOpptyInput): Promise<IOpptyDocument>;
+  createOppty(input: IBlockOpptyInput): Promise<IOpptyDocument>;
   updateOppty(
     _id: string,
-    input: Partial<IOpptyInput>,
+    input: Partial<IBlockOpptyInput>,
   ): Promise<IOpptyDocument>;
   deleteOppty(_id: string): Promise<IOpptyDocument | null>;
 }
@@ -67,7 +67,7 @@ export const loadOpptyClass = (
       return oppty;
     }
 
-    public static async updateOppty(_id: string, input: IOpptyInput) {
+    public static async updateOppty(_id: string, input: IBlockOpptyInput) {
       await this.validateOppty(_id, input);
 
       const prevOppty = await models.Oppty.getOppty(_id);

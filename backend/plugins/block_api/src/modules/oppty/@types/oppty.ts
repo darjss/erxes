@@ -75,7 +75,7 @@ export interface IOpptyDocument extends IOppty, Document {
   updatedAt: Date;
 }
 
-export interface IOpptyInput {
+export interface IBlockOpptyInput {
   description: string;
   customerId: string;
   unitType?: string;

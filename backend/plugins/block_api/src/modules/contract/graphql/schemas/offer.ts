@@ -11,7 +11,7 @@ export const types = `
   }
 
   type BlockOfferPaymentPlan {
-    type: BlockProjectPaymentPlanType!
+    type: BlockProjectPaymentPlanType!  
     downPaymentPercentage: Float
     interestPercentage: Float
     advancePaymentPercentage: Float
