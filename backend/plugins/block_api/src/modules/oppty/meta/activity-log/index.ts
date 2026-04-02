@@ -40,10 +40,10 @@ const OPPTY_ACTIVITY_CONFIG: Config<ActivityLogInput> = {
       const fieldLabel = getFieldLabel(field);
       return [
         {
-          activityType: 'block.oppty.field_changed',
+          activityType: 'oppty.field_changed',
           target: buildOpptyTarget(ctx.oppty),
           action: {
-            type: 'block.oppty.field_changed',
+            type: 'oppty.field_changed',
             description: `changed ${fieldLabel.toLowerCase()}`,
           },
           changes: { prev: { [field]: prev }, current: { [field]: current } },
