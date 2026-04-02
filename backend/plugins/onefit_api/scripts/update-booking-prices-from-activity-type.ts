@@ -56,11 +56,7 @@ function parseArgs(argv: string[]): Args {
 async function updateBookingPricesFromActivityType(args: Args): Promise<void> {
   const bookingFilter = args.includeMissingPrice
     ? {
-        $or: [
-          { price: 0 },
-          { price: { $exists: false } },
-          { price: null },
-        ],
+        $or: [{ price: 0 }, { price: { $exists: false } }, { price: null }],
       }
     : { price: 0 };
 
@@ -90,7 +86,8 @@ async function updateBookingPricesFromActivityType(args: Args): Promise<void> {
 
   if (args.limit) cursorQuery.limit(args.limit);
 
-  const cursor = cursorQuery.cursor() as unknown as AsyncIterable<BookingPriceRow>;
+  const cursor =
+    cursorQuery.cursor() as unknown as AsyncIterable<BookingPriceRow>;
 
   let matchedCount = 0;
   let missingActivityTypeCount = 0;
@@ -132,7 +129,8 @@ async function updateBookingPricesFromActivityType(args: Args): Promise<void> {
         continue;
       }
 
-      const currentPrice = typeof booking.price === 'number' ? booking.price : 0;
+      const currentPrice =
+        typeof booking.price === 'number' ? booking.price : 0;
       if (currentPrice === nextPrice) {
         noOpCount++;
         continue;
@@ -177,4 +175,3 @@ main().catch((error: unknown) => {
   process.stderr.write(`Update failed: ${msg}\n`);
   process.exit(1);
 });
-
