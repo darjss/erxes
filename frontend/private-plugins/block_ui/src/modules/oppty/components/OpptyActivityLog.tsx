@@ -1,5 +1,14 @@
 import { ActivityLogs, AddInternalNote } from 'ui-modules';
-import { propertyRowsActivityLog } from './activity-status/PropertyRowsActivityLog';
+import {
+  blockSelectedActivityLog,
+  blockRemovedActivityLog,
+  zoneSelectedActivityLog,
+  zoneRemovedActivityLog,
+  unitAddedActivityLog,
+  unitRemovedActivityLog,
+  mainUnitSetActivityLog,
+  mainUnitRemovedActivityLog,
+} from './activity-status/PropertyRowsActivityLog';
 import { statusActivityLog } from './activity-status/StatusActivityLog';
 import { tenureTypeActivityLog } from './activity-status/TenureTypeActivityLog';
 import { unitTypeActivityLog } from './activity-status/UnitTypeActivityLog';
@@ -8,12 +17,19 @@ const customActivities = [
   statusActivityLog,
   unitTypeActivityLog,
   tenureTypeActivityLog,
-  propertyRowsActivityLog,
+  blockSelectedActivityLog,
+  blockRemovedActivityLog,
+  zoneSelectedActivityLog,
+  zoneRemovedActivityLog,
+  unitAddedActivityLog,
+  unitRemovedActivityLog,
+  mainUnitSetActivityLog,
+  mainUnitRemovedActivityLog,
 ];
 
 export const OpptyActivityLog = ({ opptyId }: { opptyId: string }) => {
   return (
-    <>
+    <div className="mb-4">
       <ActivityLogs
         targetId={opptyId}
         variant="backward"
@@ -21,6 +37,6 @@ export const OpptyActivityLog = ({ opptyId }: { opptyId: string }) => {
       />
 
       <AddInternalNote contentTypeId={opptyId} contentType="block:oppty" />
-    </>
+    </div>
   );
 };
