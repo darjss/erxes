@@ -11,6 +11,7 @@ import { Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
 import { generateOpptyUpdateActivityLogs } from '../../meta/activity-log';
 import { STATUS_VALIDATION } from '../../utils/validation';
+import { DEFAULT_STATUS_TYPES } from '../../../status/constants';
 
 export interface IOpptyModel extends Model<IOpptyDocument> {
   getOppty(_id: string): Promise<IOpptyDocument>;
@@ -69,8 +70,26 @@ export const loadOpptyClass = (
 
     public static async updateOppty(_id: string, input: IBlockOpptyInput) {
       await this.validateOppty(_id, input);
-
       const prevOppty = await models.Oppty.getOppty(_id);
+
+      const wonStatus = await models.Status.findOne({
+        projectId: prevOppty.projectId,
+        type: DEFAULT_STATUS_TYPES.CLOSED_WON,
+      });
+
+      if (
+        wonStatus &&
+        wonStatus._id.equals(prevOppty.status) &&
+        input.status &&
+        !wonStatus._id.equals(input.status)
+      ) {
+        const oneMinuteAgo = new Date(Date.now() - 60 * 1000);
+        if (prevOppty.updatedAt > oneMinuteAgo) {
+          throw new Error(
+            'Cannot change status: this opportunity was marked as Won less than 1 minute ago.',
+          );
+        }
+      }
 
       const updatedOppty = await models.Oppty.findOneAndUpdate(
         { _id },

@@ -1,5 +1,9 @@
 import { useUnitType } from '@/unit/hooks/useUnitType';
-import { ActivityLogCustomActivity, ActivityLogs, TActivityLog } from 'ui-modules';
+import {
+  ActivityLogCustomActivity,
+  ActivityLogs,
+  TActivityLog,
+} from 'ui-modules';
 
 const UnitTypeActivityRow = ({ activity }: { activity: TActivityLog }) => {
   const { changes, metadata } = activity;
@@ -7,7 +11,9 @@ const UnitTypeActivityRow = ({ activity }: { activity: TActivityLog }) => {
   const prevId = changes?.prev?.unitType;
   const currentId = changes?.current?.unitType;
 
-  const { unitType: prevUnitType } = useUnitType(prevId ? String(prevId) : null);
+  const { unitType: prevUnitType } = useUnitType(
+    prevId ? String(prevId) : null,
+  );
   const { unitType: currentUnitType } = useUnitType(
     currentId ? String(currentId) : null,
   );
