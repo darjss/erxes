@@ -290,7 +290,7 @@ const OpptyPropertyCard = ({ oppty }: { oppty: IOppty }) => {
   };
 
   return (
-    <InfoCard title="Property">
+    <InfoCard title="Interested Properties">
       <InfoCard.Content className="shadow-none p-0 overflow-hidden">
         <Table>
           <Table.Body className="bt:[&_td]:px-2 bt:[&_tr:first-child_td]:border-t bt:[&_td]:h-10">
