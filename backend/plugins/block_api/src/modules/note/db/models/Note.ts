@@ -9,11 +9,9 @@ export interface INoteModel extends Model<INoteDocument> {
   getNotes(filter: FilterQuery<INoteDocument>): Promise<INoteDocument[]>;
   createNote({
     doc,
-    subdomain,
     contentType,
   }: {
     doc: INote;
-    subdomain: string;
     contentType: string;
   }): Promise<INoteDocument>;
   updateNote(doc: INoteDocument): Promise<INoteDocument | null>;
