@@ -40,7 +40,6 @@ export const loadBlockOpptyStatusClass = (models: IModels) => {
 
       const existing = await models.Status.find({
         projectId: project._id,
-        type: '',
       })
         .sort({ order: 1 })
         .lean();
@@ -53,22 +52,15 @@ export const loadBlockOpptyStatusClass = (models: IModels) => {
 
       return models.Status.find({
         projectId: project._id,
-        type: '',
       })
         .sort({ order: 1 })
         .lean();
     }
 
-    public static async getStatuses(projectId: string, type?: string) {
+    public static async getStatuses(projectId: string) {
       const project = await models.Project.getProject(projectId);
 
       const query: any = { projectId: project._id };
-
-      if (type) {
-        query.type = type;
-      } else {
-        query.type = { $ne: '' };
-      }
 
       const statuses = await models.Status.find(query)
         .sort({ order: 1 })
