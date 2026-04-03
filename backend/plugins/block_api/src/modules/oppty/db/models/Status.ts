@@ -143,6 +143,12 @@ export const loadBlockOpptyStatusClass = (models: IModels) => {
     }
 
     public static async generateDefaultStatus(projectId: string) {
+      const existing = await models.Status.exists({ projectId });
+
+      if (existing) {
+        return;
+      }
+
       const statuses: IStatus[] = [];
       let order = ORDER_GAP;
 
