@@ -24,7 +24,7 @@ export const types = `
 export const queries = `
   getBlockOpptyStatus(_id: String!): BlockOpptyStatus
   getBlockOpptyStatuses(projectId: String!): [BlockOpptyStatus]
-  getBlockOpptyStatusTypes(projectId: String!): [BlockOpptyStatus]
+  getBlockOpptyStatusTypes: JSON
 `;
 
 export const mutations = `

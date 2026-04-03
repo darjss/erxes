@@ -24,6 +24,8 @@ export const useBlockStatusesByType = ({
     },
   );
 
+  console.log('data', data?.getBlockOpptyStatuses || [])
+
   const statuses = useMemo(() => {
     const all = data?.getBlockOpptyStatuses || [];
 
@@ -31,6 +33,8 @@ export const useBlockStatusesByType = ({
 
     return all.filter((status) => status.type === type);
   }, [data?.getBlockOpptyStatuses, type]);
+
+  console.log('statuses', statuses)
 
   return { statuses, loading, refetch };
 };

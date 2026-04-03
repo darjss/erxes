@@ -1,4 +1,7 @@
-import { DEFAULT_STATUS_TYPES } from '@/oppty/constants';
+import {
+  DEFAULT_STATUS_TYPE_VALUES,
+  DEFAULT_STATUS_TYPES,
+} from '@/oppty/constants';
 import { IContext } from '~/connectionResolvers';
 
 export const statusQueries = {
@@ -15,20 +18,13 @@ export const statusQueries = {
     { projectId }: { projectId: string },
     { models }: IContext,
   ) => {
-    const statuses = await Promise.all(
-      Object.values(DEFAULT_STATUS_TYPES).map((type) =>
-        models.Status.getStatuses(projectId, type),
-      ),
-    );
-
-    return statuses.flat();
+    return await models.Status.getStatuses(projectId)
   },
 
-  getBlockOpptyStatusTypes: async (
-    _root: undefined,
-    { projectId }: { projectId: string },
-    { models }: IContext,
-  ) => {
-    return models.Status.getStatusTypes(projectId);
+  getBlockOpptyStatusTypes: async () => {
+    return Object.values(DEFAULT_STATUS_TYPES).map((type) => ({
+      ...DEFAULT_STATUS_TYPE_VALUES[type],
+      type,
+    }));
   },
 };

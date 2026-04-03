@@ -17,7 +17,7 @@ export const Statuses = ({ projectId }: { projectId: string }) => {
         ) : (
           statusTypes.map((statusType, index) => (
             <StatusGroup
-              key={statusType._id}
+              key={statusType.type}
               statusType={statusType.name.toLowerCase()}
               statusTypeLabel={statusType.name}
               statusTypeColor={statusType.color}
