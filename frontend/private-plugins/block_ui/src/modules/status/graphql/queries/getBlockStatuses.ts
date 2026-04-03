@@ -1,8 +1,8 @@
 import { gql } from '@apollo/client';
 
 export const GET_BLOCK_STATUSES = gql`
-  query getBlockStatuses($projectId: String!, $type: String) {
-    getBlockStatuses(projectId: $projectId, type: $type) {
+  query getBlockStatuses($projectId: String!) {
+    getBlockStatuses(projectId: $projectId) {
       _id
       name
       projectId

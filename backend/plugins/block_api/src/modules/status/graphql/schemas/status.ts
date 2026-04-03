@@ -23,7 +23,7 @@ export const types = `
 
 export const queries = `
   getBlockStatus(_id: String!): BlockStatus
-  getBlockStatuses(projectId: String!, type: String): [BlockStatus]
+  getBlockStatuses(projectId: String!): [BlockStatus]
   getBlockStatusTypes(projectId: String!): [BlockStatus]
 `;
 

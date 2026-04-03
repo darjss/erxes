@@ -197,10 +197,12 @@ export const StatusForm = ({
   statusType,
   projectId,
   editingStatus,
+  defaultColor,
 }: {
   statusType: string;
   projectId: string;
   editingStatus?: IBlockStatus;
+  defaultColor?: string;
 }) => {
   const { addStatus } = useAddBlockStatus();
   const { toast } = useToast();
@@ -215,7 +217,7 @@ export const StatusForm = ({
     defaultValues: {
       name: editingStatus?.name || '',
       description: editingStatus?.description || '',
-      color: editingStatus?.color || '#000000',
+      color: editingStatus?.color || defaultColor || '#000000',
     },
   });
 
@@ -308,7 +310,7 @@ export const StatusForm = ({
                               : undefined,
                           }}
                         >
-                          <StatusInlineIcon statusType={statusType} />
+                          <StatusInlineIcon statusType={statusType} color={field.value} />
                         </Button>
                       </ColorPicker.Trigger>
                       <ColorPicker.Content />
@@ -462,6 +464,7 @@ export const StatusGroup = ({
                       statusType={statusType}
                       projectId={projectId}
                       editingStatus={status}
+                      defaultColor={statusTypeColor}
                     />
                   );
                 }
@@ -474,7 +477,7 @@ export const StatusGroup = ({
                 );
               })}
           {addingStatus === statusType && (
-            <StatusForm statusType={statusType} projectId={projectId} />
+            <StatusForm statusType={statusType} projectId={projectId} defaultColor={statusTypeColor} />
           )}
         </SortableContext>
       </DndContext>

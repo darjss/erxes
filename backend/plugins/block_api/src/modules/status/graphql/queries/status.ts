@@ -1,3 +1,4 @@
+import { DEFAULT_STATUS_TYPES } from '@/status/constants';
 import { IContext } from '~/connectionResolvers';
 
 export const statusQueries = {
@@ -11,10 +12,16 @@ export const statusQueries = {
 
   getBlockStatuses: async (
     _root: undefined,
-    { projectId, type }: { projectId: string; type?: string },
+    { projectId }: { projectId: string },
     { models }: IContext,
   ) => {
-    return models.Status.getStatuses(projectId, type);
+    const statuses = await Promise.all(
+      Object.values(DEFAULT_STATUS_TYPES).map((type) =>
+        models.Status.getStatuses(projectId, type),
+      ),
+    );
+
+    return statuses.flat();
   },
 
   getBlockStatusTypes: async (
