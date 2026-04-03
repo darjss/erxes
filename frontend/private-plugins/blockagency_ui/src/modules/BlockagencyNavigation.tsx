@@ -6,7 +6,7 @@ import { Can } from 'ui-modules';
 export const BlockagencyNavigation = () => {
   return (
     <>
-      <Can action="agencyRead">
+      <Can module="agency">
         <NavigationMenuLinkItem
           name="agency profile"
           icon={IconId}
@@ -14,7 +14,7 @@ export const BlockagencyNavigation = () => {
           path={AgencyPaths.AGENCY_PROFILE}
         />
       </Can>
-      <Can action="memberView">
+      <Can module="member">
         <NavigationMenuLinkItem
           name="profile"
           icon={IconUserHexagon}

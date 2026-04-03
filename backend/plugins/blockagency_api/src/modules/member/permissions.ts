@@ -145,12 +145,6 @@ export const permissions: IPermissionConfig = {
       permissions: [
         {
           plugin: 'blockagency',
-          module: 'agency',
-          actions: ['agencyRead'],
-          scope: 'all',
-        },
-        {
-          plugin: 'blockagency',
           module: 'member',
           actions: ['memberView'],
           scope: 'all',
