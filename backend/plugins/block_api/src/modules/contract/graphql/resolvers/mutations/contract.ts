@@ -17,4 +17,3 @@ export const contractMutations = {
     return models.Contract.updateContract(_id, input);
   },
 };
-

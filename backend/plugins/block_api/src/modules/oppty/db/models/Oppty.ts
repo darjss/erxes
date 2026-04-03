@@ -85,9 +85,7 @@ export const loadOpptyClass = (
       ) {
         const oneMinuteAgo = new Date(Date.now() - 60 * 1000);
         if (prevOppty.updatedAt > oneMinuteAgo) {
-          throw new Error(
-            'Cannot change status: this opportunity was marked as Won less than 1 minute ago.',
-          );
+          throw new Error('Cannot change status of won opportunity');
         }
       }
 
