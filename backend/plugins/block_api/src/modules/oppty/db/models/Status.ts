@@ -1,11 +1,11 @@
-import { IStatus, IStatusDocument } from '@/status/@types/status';
+import { IStatus, IStatusDocument } from '@/oppty/@types/status';
 import {
   DEFAULT_STATUS_TYPE_VALUES,
   DEFAULT_STATUS_TYPES,
   DEFAULT_STATUSES,
   ORDER_GAP,
-} from '@/status/constants';
-import { statusSchema } from '@/status/db/definitions/status';
+} from '@/oppty/constants';
+import { statusSchema } from '@/oppty/db/definitions/status';
 import { Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
 
@@ -23,7 +23,7 @@ export interface IStatusModel extends Model<any> {
   generateDefaultStatus(projectId: string): Promise<void>;
 }
 
-export const loadBlockStatusClass = (models: IModels) => {
+export const loadBlockOpptyStatusClass = (models: IModels) => {
   class Status {
     public static async getStatus(_id: string) {
       const status = await models.Status.findOne({ _id });
@@ -100,7 +100,7 @@ export const loadBlockStatusClass = (models: IModels) => {
 
       return status;
     }
-    
+
     public static async updateStatus(_id: string, input: IStatus) {
       await models.Status.validateStatus(input);
 

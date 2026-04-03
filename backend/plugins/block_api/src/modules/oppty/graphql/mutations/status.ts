@@ -1,8 +1,8 @@
-import { IStatus } from '@/status/@types/status';
+import { IStatus } from '@/oppty/@types/status';
 import { IContext } from '~/connectionResolvers';
 
 export const statusMutations = {
-  createBlockStatus: async (
+  createBlockOpptyStatus: async (
     _root: undefined,
     { input }: { input: IStatus },
     { models }: IContext,
@@ -10,7 +10,7 @@ export const statusMutations = {
     return models.Status.createStatus(input);
   },
 
-  updateBlockStatus: async (
+  updateBlockOpptyStatus: async (
     _root: undefined,
     { _id, input }: { _id: string; input: IStatus },
     { models }: IContext,
@@ -18,7 +18,7 @@ export const statusMutations = {
     return models.Status.updateStatus(_id, input);
   },
 
-  updateBlockStatusOrder: async (
+  updateBlockOpptyStatusOrder: async (
     _root: undefined,
     { _id, order }: { _id: string; order: number },
     { models }: IContext,
@@ -26,7 +26,7 @@ export const statusMutations = {
     return models.Status.updateStatusOrder(_id, order);
   },
 
-  removeBlockStatus: async (
+  removeBlockOpptyStatus: async (
     _root: undefined,
     { _id }: { _id: string },
     { models }: IContext,

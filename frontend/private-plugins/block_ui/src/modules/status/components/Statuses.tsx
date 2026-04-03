@@ -7,7 +7,10 @@ export const Statuses = ({ projectId }: { projectId: string }) => {
   const { statusTypes, loading } = useBlockStatusTypes(projectId);
 
   return (
-    <InfoCard title="Block statuses" description="Manage statuses for this project">
+    <InfoCard
+      title="Block statuses"
+      description="Manage statuses for this project"
+    >
       <InfoCardContent>
         {loading ? (
           <Skeleton className="h-32 w-full rounded" />

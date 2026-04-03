@@ -1,5 +1,5 @@
 import { IContext } from '~/connectionResolvers';
-import { IContract } from '@/contract/@types/contract';
+import { IContract, ContractStatus } from '@/contract/@types/contract';
 
 export const contractMutations = {
   blockCreateContract: async (
@@ -15,5 +15,12 @@ export const contractMutations = {
     { models }: IContext,
   ) => {
     return models.Contract.updateContract(_id, input);
+  },
+  blockUpdateContractStatus: async (
+    _parent: undefined,
+    { _id, status }: { _id: string; status: ContractStatus },
+    { models }: IContext,
+  ) => {
+    return models.Contract.updateContractStatus(_id, status);
   },
 };

@@ -1,8 +1,8 @@
 import { gql } from '@apollo/client';
 
 export const REMOVE_BLOCK_STATUS = gql`
-  mutation removeBlockStatus($_id: String!) {
-    removeBlockStatus(_id: $_id) {
+  mutation removeBlockOpptyStatus($_id: String!) {
+    removeBlockOpptyStatus(_id: $_id) {
       _id
     }
   }

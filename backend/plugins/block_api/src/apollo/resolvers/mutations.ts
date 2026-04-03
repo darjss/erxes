@@ -14,7 +14,7 @@ import { invoiceMutations } from '@/invoice/graphql/resolvers/mutations/invoice'
 import { unitTypesMutations } from '~/modules/unit/graphql/resolvers/mutations/unitType';
 import { opptyMutations } from '@/oppty/graphql/mutations/oppty';
 import { blockNoteMutations } from '@/note/graphql/resolvers/mutations/note';
-import { statusMutations } from '@/status/graphql/mutations/status';
+import { statusMutations } from '@/oppty/graphql/mutations/status';
 
 export const mutations = {
   ...projectMutations,

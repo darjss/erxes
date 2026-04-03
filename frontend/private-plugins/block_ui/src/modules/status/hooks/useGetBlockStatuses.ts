@@ -4,7 +4,7 @@ import { GET_BLOCK_STATUSES } from '@/status/graphql/queries/getBlockStatuses';
 import { IBlockStatus } from '@/status/types';
 
 interface IUseGetBlockStatusesResponse {
-  getBlockStatuses: IBlockStatus[];
+  getBlockOpptyStatuses: IBlockStatus[];
 }
 
 export const useBlockStatusesByType = ({
@@ -25,13 +25,12 @@ export const useBlockStatusesByType = ({
   );
 
   const statuses = useMemo(() => {
-    const all = data?.getBlockStatuses || [];
+    const all = data?.getBlockOpptyStatuses || [];
 
     if (!type) return all;
 
     return all.filter((status) => status.type === type);
-    
-  }, [data?.getBlockStatuses, type]);
+  }, [data?.getBlockOpptyStatuses, type]);
 
   return { statuses, loading, refetch };
 };

@@ -42,8 +42,8 @@ import {
   loadProjectPaymentPlanClass,
 } from '@/project/db/models/Payment';
 import { IProjectModel, loadProjectClass } from '@/project/db/models/Project';
-import { IStatusDocument } from '@/status/@types/status';
-import { IStatusModel, loadBlockStatusClass } from '@/status/db/models/Status';
+import { IStatusDocument } from '@/oppty/@types/status';
+import { IStatusModel, loadBlockOpptyStatusClass } from '@/oppty/db/models/Status';
 import { IUnitDocument } from '@/unit/@types/unit';
 import { IUnitLeadDocument } from '@/unit/@types/unitLead';
 import { IUnitTypeDocument } from '@/unit/@types/unitType';
@@ -176,7 +176,7 @@ export const loadClasses = (
 
   models.Status = db.model<IStatusDocument, IStatusModel>(
     'block_statuses',
-    loadBlockStatusClass(models),
+    loadBlockOpptyStatusClass(models),
   );
 
   return models;

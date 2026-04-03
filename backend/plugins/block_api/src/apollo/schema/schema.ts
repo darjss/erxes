@@ -98,7 +98,7 @@ import {
   mutations as StatusMutations,
   queries as StatusQueries,
   types as StatusTypes,
-} from '@/status/graphql/schemas/status';
+} from '@/oppty/graphql/schemas/status';
 
 export const types = `
   type DeveloperAddress {

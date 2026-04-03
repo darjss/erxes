@@ -1,8 +1,8 @@
-import { DEFAULT_STATUS_TYPES } from '@/status/constants';
+import { DEFAULT_STATUS_TYPES } from '@/oppty/constants';
 import { IContext } from '~/connectionResolvers';
 
 export const statusQueries = {
-  getBlockStatus: async (
+  getBlockOpptyStatus: async (
     _root: undefined,
     { _id }: { _id: string },
     { models }: IContext,
@@ -10,7 +10,7 @@ export const statusQueries = {
     return models.Status.getStatus(_id);
   },
 
-  getBlockStatuses: async (
+  getBlockOpptyStatuses: async (
     _root: undefined,
     { projectId }: { projectId: string },
     { models }: IContext,
@@ -24,7 +24,7 @@ export const statusQueries = {
     return statuses.flat();
   },
 
-  getBlockStatusTypes: async (
+  getBlockOpptyStatusTypes: async (
     _root: undefined,
     { projectId }: { projectId: string },
     { models }: IContext,
