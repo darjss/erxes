@@ -1,4 +1,7 @@
-import { checkLogin, checkPermissionGroup } from 'erxes-api-shared/core-modules/permissions/utils';
+import {
+  checkLogin,
+  checkPermissionGroup,
+} from 'erxes-api-shared/core-modules/permissions/utils';
 import { IContext } from '~/connectionResolvers';
 
 export const blockMemberQueries = {
@@ -47,5 +50,17 @@ export const blockMemberQueries = {
     const filter = agencyId ? { agencyId } : {};
 
     return models.BlockAgencyMember.countDocuments(filter);
+  },
+
+  blockAgentGetMemberProfile: async (
+    _root: undefined,
+    _args: {},
+    { models, user, subdomain }: IContext,
+  ) => {
+    checkLogin(user);
+    const checkPermission = checkPermissionGroup(subdomain, user);
+    await checkPermission('memberView');
+
+    return models.BlockAgencyMember.findOne({ memberId: user._id }).lean();
   },
 };

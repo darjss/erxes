@@ -1,12 +1,12 @@
 import { IPermissionConfig } from 'erxes-api-shared/core-types';
 
 export const permissions: IPermissionConfig = {
-  plugin: 'blockagent',
+  plugin: 'blockagency',
 
   modules: [
     {
-      name: 'agent',
-      description: 'Agent module permissions',
+      name: 'agency',
+      description: 'Agency module permissions',
       scopeField: 'agencyId',
       ownerFields: ['createdBy', 'assignedTo'],
 
@@ -24,25 +24,25 @@ export const permissions: IPermissionConfig = {
 
       actions: [
         {
-          title: 'View agent records',
-          name: 'agentRead',
-          description: 'View agents',
+          title: 'View agency records',
+          name: 'agencyRead',
+          description: 'View agencies',
           always: true,
         },
         {
-          title: 'Create agent records',
-          name: 'agentCreate',
-          description: 'Create agents',
+          title: 'Create agency records',
+          name: 'agencyCreate',
+          description: 'Create agencies',
         },
         {
-          title: 'Edit agent records',
-          name: 'agentUpdate',
-          description: 'Edit agent records',
+          title: 'Edit agency records',
+          name: 'agencyUpdate',
+          description: 'Edit agency records',
         },
         {
-          title: 'Delete agent records',
-          name: 'agentRemove',
-          description: 'Delete agent records',
+          title: 'Delete agency records',
+          name: 'agencyRemove',
+          description: 'Delete agency records',
         },
       ],
     },
@@ -91,37 +91,47 @@ export const permissions: IPermissionConfig = {
   ],
   defaultGroups: [
     {
-      id: 'blockagent:admin',
-      name: 'Blockagent Admin',
-      description: 'Full access to Blockagent plugin',
+      id: 'blockagency:admin',
+      name: 'Blockagency Admin',
+      description: 'Full access to Blockagency plugin',
       permissions: [
         {
-          plugin: 'blockagent',
-          module: 'agent',
-          actions: ['agentRead', 'agentCreate', 'agentUpdate', 'agentRemove'],
+          plugin: 'blockagency',
+          module: 'agency',
+          actions: [
+            'agencyRead',
+            'agencyCreate',
+            'agencyUpdate',
+            'agencyRemove',
+          ],
           scope: 'all',
         },
         {
-          plugin: 'blockagent',
+          plugin: 'blockagency',
           module: 'member',
-          actions: ['memberView', 'memberCreate', 'memberUpdate', 'memberRemove'],
+          actions: [
+            'memberView',
+            'memberCreate',
+            'memberUpdate',
+            'memberRemove',
+          ],
           scope: 'all',
         },
       ],
     },
     {
-      id: 'blockagent:agent',
-      name: 'Blockagent Agent',
-      description: 'Standard agent with limited access',
+      id: 'blockagency:agency',
+      name: 'Blockagency Agency',
+      description: 'Standard agency with limited access',
       permissions: [
         {
-          plugin: 'blockagent',
-          module: 'agent',
-          actions: ['agentRead', 'agentCreate', 'agentUpdate'],
+          plugin: 'blockagency',
+          module: 'agency',
+          actions: ['agencyRead', 'agencyCreate', 'agencyUpdate'],
           scope: 'own',
         },
         {
-          plugin: 'blockagent',
+          plugin: 'blockagency',
           module: 'member',
           actions: ['memberView', 'memberCreate', 'memberUpdate'],
           scope: 'own',
@@ -129,18 +139,18 @@ export const permissions: IPermissionConfig = {
       ],
     },
     {
-      id: 'blockagent:viewer',
-      name: 'Blockagent Viewer',
-      description: 'Read-only access to Blockagent plugin',
+      id: 'blockagency:viewer',
+      name: 'Blockagency Viewer',
+      description: 'Read-only access to Blockagency plugin',
       permissions: [
         {
-          plugin: 'blockagent',
-          module: 'agent',
-          actions: ['agentRead'],
+          plugin: 'blockagency',
+          module: 'agency',
+          actions: ['agencyRead'],
           scope: 'all',
         },
         {
-          plugin: 'blockagent',
+          plugin: 'blockagency',
           module: 'member',
           actions: ['memberView'],
           scope: 'all',

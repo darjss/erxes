@@ -2,6 +2,7 @@ import { Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
 import { blockAgencyMemberSchema } from '~/modules/member/db/definitions/member';
 import {
+  IBlockAgencyAddMembersInput,
   IBlockAgencyMember,
   IBlockAgencyMemberDocument,
 } from '~/modules/member/@types/member';
@@ -10,12 +11,16 @@ export interface IBlockAgencyMemberModel
   extends Model<IBlockAgencyMemberDocument> {
   getMember(_id: string): Promise<IBlockAgencyMemberDocument | null>;
   createMember(
-    input: IBlockAgencyMember,
+    members: IBlockAgencyAddMembersInput[],
   ): Promise<IBlockAgencyMemberDocument>;
   updateMember(
     _id: string,
     input: Partial<IBlockAgencyMember>,
-  ): Promise<IBlockAgencyMemberDocument | null>;
+  ): Promise<IBlockAgencyMemberDocument>;
+  updateProfile(
+    memberId: string,
+    input: Partial<IBlockAgencyMember>,
+  ): Promise<IBlockAgencyMemberDocument>;
   removeMember(_id: string): Promise<void>;
 }
 
@@ -25,8 +30,8 @@ export const loadBlockAgencyMemberClass = (_models: IModels) => {
       return _models.BlockAgencyMember.findById(_id).lean();
     }
 
-    public static async createMember(input: IBlockAgencyMember) {
-      return _models.BlockAgencyMember.create(input);
+    public static async createMember(members: IBlockAgencyAddMembersInput[]) {
+      return _models.BlockAgencyMember.insertMany(members);
     }
 
     public static async updateMember(
@@ -37,6 +42,17 @@ export const loadBlockAgencyMemberClass = (_models: IModels) => {
         { _id },
         { $set: input },
         { new: true },
+      );
+    }
+
+    public static async updateProfile(
+      memberId: string,
+      input: Partial<IBlockAgencyMember>,
+    ) {
+      return _models.BlockAgencyMember.findOneAndUpdate(
+        { memberId },
+        { $set: input, $setOnInsert: { memberId } },
+        { new: true, upsert: true },
       );
     }
 

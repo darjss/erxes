@@ -32,3 +32,24 @@ export const GET_AGENCY_INFO = gql`
     }
   }
 `;
+
+export const GET_AGENCY_MEMBERS = gql`
+  query BlockAgentGetMembers($agencyId: String, $page: Int, $perPage: Int) {
+    blockAgentGetMembers(agencyId: $agencyId, page: $page, perPage: $perPage) {
+      _id
+      role
+      updatedAt
+      memberId
+      linkedUrl
+      instagramUrl
+      facebookUrl
+      district
+      description
+      createdAt
+      country
+      city
+      certificatePhotos
+      agencyId
+    }
+  }
+`;

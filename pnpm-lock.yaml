@@ -893,7 +893,7 @@ importers:
         specifier: workspace:^
         version: link:../../erxes-api-shared
 
-  backend/plugins/blockagent_api:
+  backend/plugins/blockagency_api:
     dependencies:
       erxes-api-shared:
         specifier: workspace:^

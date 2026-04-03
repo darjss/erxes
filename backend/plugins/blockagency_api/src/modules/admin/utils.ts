@@ -23,7 +23,7 @@ interface SendMessagePayload {
 const buildPayload = (
   entity: any,
   args: any,
-  options: { fields?: string[] },
+  options: { fields?: string[] } = {},
 ) => {
   const payload: IPayload = {
     data: args,

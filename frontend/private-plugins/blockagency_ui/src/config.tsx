@@ -1,27 +1,25 @@
-
 import { IconBuildingCommunity } from '@tabler/icons-react';
 import { lazy, Suspense } from 'react';
 import { IUIConfig } from 'erxes-ui';
 
-const BlockagentSettingsNavigation = lazy(() =>
-  import('frontend/private-plugins/blockagency_ui/src/modules/BlockagentSettingsNavigation').then((module) => ({
-    default: module.BlockagentSettingsNavigation,
+const BlockagencySettingsNavigation = lazy(() =>
+  import('./modules/BlockagencySettingsNavigation').then((module) => ({
+    default: module.BlockagencySettingsNavigation,
   })),
 );
 
-const BlockagentNavigation = lazy(() =>
-  import('frontend/private-plugins/blockagency_ui/src/modules/BlockagentNavigation').then((module) => ({
-    default: module.BlockagentNavigation,
+const BlockagencyNavigation = lazy(() =>
+  import('./modules/BlockagencyNavigation').then((module) => ({
+    default: module.BlockagencyNavigation,
   })),
 );
-
 
 export const CONFIG: IUIConfig = {
-  name: 'blockagent',
-  path: 'blockagent',
+  name: 'blockagency',
+  path: 'blockagency',
   settingsNavigation: () => (
     <Suspense fallback={<div />}>
-      <BlockagentSettingsNavigation />
+      <BlockagencySettingsNavigation />
     </Suspense>
   ),
   navigationGroup: {
@@ -29,7 +27,7 @@ export const CONFIG: IUIConfig = {
     icon: IconBuildingCommunity,
     content: () => (
       <Suspense fallback={<div />}>
-        <BlockagentNavigation />
+        <BlockagencyNavigation />
       </Suspense>
     ),
   },
@@ -38,7 +36,7 @@ export const CONFIG: IUIConfig = {
     {
       name: 'agency',
       icon: IconBuildingCommunity,
-      path: 'blockagent',
+      path: 'blockagency',
     },
   ],
 };

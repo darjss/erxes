@@ -13,6 +13,11 @@ export const blockAgencyMemberSchema = new Schema<IBlockAgencyMemberDocument>(
     instagramUrl: { type: String, label: 'Instagram URL' },
     linkedUrl: { type: String, label: 'LinkedIn URL' },
     certificatePhotos: [{ type: String }],
+    role: {
+      type: String,
+      enum: ['admin', 'lead', 'member'],
+      default: 'member',
+    },
   },
   {
     timestamps: true,
