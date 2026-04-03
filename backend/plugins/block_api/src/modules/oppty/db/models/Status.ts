@@ -11,8 +11,7 @@ import { IModels } from '~/connectionResolvers';
 
 export interface IStatusModel extends Model<any> {
   getStatus(_id: string): Promise<IStatusDocument>;
-  getStatuses(projectId: string, type?: string): Promise<IStatusDocument[]>;
-  getStatusTypes(projectId: string): Promise<IStatusDocument[]>;
+  getStatuses(projectId: string): Promise<IStatusDocument[]>;
 
   createStatus(input: IStatus): Promise<IStatusDocument>;
   updateStatus(_id: string, input: IStatus): Promise<IStatusDocument>;
@@ -35,42 +34,10 @@ export const loadBlockOpptyStatusClass = (models: IModels) => {
       return status;
     }
 
-    public static async getStatusTypes(projectId: string) {
-      const project = await models.Project.getProject(projectId);
-
-      const existing = await models.Status.find({
-        projectId: project._id,
-      })
-        .sort({ order: 1 })
-        .lean();
-
-      if (existing.length > 0) {
-        return existing;
-      }
-
-      await this.generateDefaultStatus(project._id);
-
-      return models.Status.find({
-        projectId: project._id,
-      })
-        .sort({ order: 1 })
-        .lean();
-    }
-
     public static async getStatuses(projectId: string) {
       const project = await models.Project.getProject(projectId);
 
       const query: any = { projectId: project._id };
-
-      const statuses = await models.Status.find(query)
-        .sort({ order: 1 })
-        .lean();
-
-      if (statuses.length > 0) {
-        return statuses;
-      }
-
-      await this.generateDefaultStatus(project._id);
 
       return models.Status.find(query).sort({ order: 1 }).lean();
     }
@@ -146,13 +113,6 @@ export const loadBlockOpptyStatusClass = (models: IModels) => {
 
       for (const STATUS_TYPE_KEY in DEFAULT_STATUS_TYPES) {
         const STATUS_TYPE = DEFAULT_STATUS_TYPES[STATUS_TYPE_KEY];
-
-        statuses.push({
-          projectId,
-          ...DEFAULT_STATUS_TYPE_VALUES[STATUS_TYPE],
-          order,
-        });
-        order += ORDER_GAP;
 
         const CHILDREN = DEFAULT_STATUSES[STATUS_TYPE];
 
