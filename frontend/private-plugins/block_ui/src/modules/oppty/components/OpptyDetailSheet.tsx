@@ -61,31 +61,30 @@ export const OpptyDetailSheet = () => {
       open={!!activeOpptyId}
       onOpenChange={() => setActiveOpptyId(null)}
     >
-      <FocusSheet.View className="bt:sm:w-full sm:max-w-7xl">
-        <Sheet.Header>
-          <Sheet.Title>Opportunity Detail</Sheet.Title>
-          <Sheet.Close />
-        </Sheet.Header>
+      <FocusSheet.View className="sm:w-full sm:max-w-7xl">
+        <FocusSheet.Header title={'Opportunity Detail'} />
         <FocusSheet.Content className="flex flex-auto overflow-hidden">
-          <Sidebar collapsible="none" className="flex-none border-r w-64">
-            <Sidebar.Group>
-              <Sidebar.GroupContent>
-                <Sidebar.Menu>
-                  {Object.values(OPPTY_TABS).map((tab) => (
-                    <Sidebar.MenuItem key={tab}>
-                      <Sidebar.MenuButton
-                        onClick={() => setActiveTab(tab)}
-                        isActive={activeTab === tab}
-                      >
-                        {tab.charAt(0).toUpperCase() +
-                          tab.slice(1).replace('-', ' ')}
-                      </Sidebar.MenuButton>
-                    </Sidebar.MenuItem>
-                  ))}
-                </Sidebar.Menu>
-              </Sidebar.GroupContent>
-            </Sidebar.Group>
-          </Sidebar>
+          <FocusSheet.SideBar>
+            <Sidebar collapsible="none" className="flex-none border-r w-64">
+              <Sidebar.Group>
+                <Sidebar.GroupContent>
+                  <Sidebar.Menu>
+                    {Object.values(OPPTY_TABS).map((tab) => (
+                      <Sidebar.MenuItem key={tab}>
+                        <Sidebar.MenuButton
+                          onClick={() => setActiveTab(tab)}
+                          isActive={activeTab === tab}
+                        >
+                          {tab.charAt(0).toUpperCase() +
+                            tab.slice(1).replace('-', ' ')}
+                        </Sidebar.MenuButton>
+                      </Sidebar.MenuItem>
+                    ))}
+                  </Sidebar.Menu>
+                </Sidebar.GroupContent>
+              </Sidebar.Group>
+            </Sidebar>
+          </FocusSheet.SideBar>
 
           {(!activeTab || activeTab === 'general') && activeOpptyId && (
             <ScrollArea className="flex-auto h-full">
@@ -109,7 +108,10 @@ export const OpptyDetailSheet = () => {
           <RelationWidgetSideTabs
             contentId={activeOpptyId || ''}
             contentType="block:oppty"
-            hookOptions={{ hiddenModules: ['oppty', 'tasks', 'company'] }}
+            hookOptions={{
+              hiddenPlugins: ['sales', 'operation'],
+              hiddenModules: ['oppty', 'company', 'ticket'],
+            }}
           />
         </FocusSheet.Content>
         <Sheet.Footer className="flex-none">
@@ -376,14 +378,14 @@ const OpptyPropertyRowDetail = ({
           isFirst ? 'bt:rounded-tr-lg' : ''
         } ${isLast ? 'bt:rounded-br-lg' : ''}`}
       >
-        <div className="flex items-center justify-between">
+        <div className="flex justify-between items-center">
           <span>{parts.join(' · ') || '-'}</span>
           {onSetMain && (
             <Button
               variant="ghost"
               size="sm"
               onClick={onSetMain}
-              className="h-6 text-xs px-2"
+              className="px-2 h-6 text-xs"
             >
               Set main
             </Button>

@@ -110,6 +110,18 @@ export const OpptyEdit = ({
                 relatedContentIds: [data.customerId],
               });
             }
+
+            if (propertyRows?.length) {
+              const unitIds = propertyRows.map((row) => row.unitId).filter(Boolean) as string[]
+
+              manageRelations({
+                contentType: 'block:oppty',
+                contentId: id,
+                relatedContentType: 'block:unit',
+                relatedContentIds: unitIds || [],
+              });
+            }
+
             setOpen(false);
           },
         });

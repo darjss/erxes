@@ -11,11 +11,13 @@ import { OpptyWidgetCard } from './OpptyWidgetCard';
 export const Oppty = ({
   contentId,
   contentType,
+  access = 'write',
   customerId,
   companyId,
 }: {
   contentId: string;
   contentType: string;
+  access?: 'read' | 'write';
   customerId?: string;
   companyId?: string;
 }) => {
@@ -61,6 +63,8 @@ export const Oppty = ({
   };
 
   const handleOpenCreate = () => {
+    if (access === 'read') return;
+
     setOpenCreateOppty(true);
   };
 
@@ -73,10 +77,12 @@ export const Oppty = ({
         <span className="text-sm">
           No opportunities to display at the moment.
         </span>
-        <Button variant="secondary" onClick={handleOpenCreate}>
-          <IconPlus />
-          Add an opportunity
-        </Button>
+        {access === 'write' && (
+          <Button variant="secondary" onClick={handleOpenCreate}>
+            <IconPlus />
+            Add an opportunity
+          </Button>
+        )}
         <AddOpptyWidgetSheet customerId={customerId} onComplete={onComplete} />
       </div>
     );
@@ -87,9 +93,11 @@ export const Oppty = ({
       <div className="flex flex-none justify-between items-center gap-2 bg-background px-4 h-11">
         <span className="font-medium text-primary">Opportunities</span>
         <div className="flex gap-2 items-center">
-          <Button variant="secondary" onClick={handleOpenCreate}>
-            <IconPlus />
-          </Button>
+          {access === 'write' && (
+            <Button variant="secondary" onClick={handleOpenCreate}>
+              <IconPlus />
+            </Button>
+          )}
           <AddOpptyWidgetSheet customerId={customerId} onComplete={onComplete} />
         </div>
       </div>

@@ -2,6 +2,7 @@ import {
   Breadcrumb,
   Button,
   Sheet,
+  FocusSheet,
   Spinner,
   useMultiQueryState,
   useQueryState,
@@ -10,6 +11,7 @@ import { UnitSidebar } from '@/unit/components/UnitSidebar';
 import { UnitTabs } from '@/unit/components/UnitTabs';
 import { useUnit } from '@/unit/hooks/useUnit';
 import { UnitContext } from '@/unit/context/unitContext';
+import { RelationWidgetSideTabs } from 'ui-modules';
 
 export const UnitDetailSheet = () => {
   const [{ unitId }, setQueries] = useMultiQueryState<{
@@ -18,14 +20,14 @@ export const UnitDetailSheet = () => {
   }>(['unitId', 'activeUnitTab']);
 
   return (
-    <Sheet
+    <FocusSheet
       open={!!unitId}
       onOpenChange={() => setQueries({ unitId: null, activeUnitTab: null })}
     >
-      <Sheet.View className="blk:sm:max-w-5xl blk:md:w-[calc(100vw-(--spacing(4)))]">
+      <FocusSheet.View className="sm:w-full sm:max-w-7xl">
         {unitId && <UnitDetailSheetContent />}
-      </Sheet.View>
-    </Sheet>
+      </FocusSheet.View>
+    </FocusSheet>
   );
 };
 
@@ -38,31 +40,31 @@ export const UnitDetailSheetContent = () => {
     return <Spinner containerClassName="h-full" />;
   }
 
-  const zoneFloor = unit?.zoning?.floor;
+  const zoneFloor = unit?.zoningData?.floor;
 
   return (
     <>
-      <Sheet.Header>
+      <FocusSheet.Header title={''}>
         <Breadcrumb>
           <Breadcrumb.List>
-            {unit?.project && (
+            {unit?.projectData && (
               <>
                 <Button variant="ghost" asChild>
-                  <Breadcrumb.Item>{unit?.project?.name}</Breadcrumb.Item>
+                  <Breadcrumb.Item>{unit?.projectData?.name}</Breadcrumb.Item>
                 </Button>
                 <Breadcrumb.Separator />
               </>
             )}
-            {unit?.building && (
+            {unit?.buildingData && (
               <>
                 <Button variant="ghost" asChild>
-                  <Breadcrumb.Item>{unit?.building?.name}</Breadcrumb.Item>
+                  <Breadcrumb.Item>{unit?.buildingData?.name}</Breadcrumb.Item>
                 </Button>
                 <Breadcrumb.Separator />
               </>
             )}
 
-            {unit?.zoning?.floor && (
+            {unit?.zoningData?.floor && (
               <>
                 <Button variant="ghost" asChild>
                   <Breadcrumb.Item>
@@ -80,17 +82,28 @@ export const UnitDetailSheetContent = () => {
             </Button>
           </Breadcrumb.List>
         </Breadcrumb>
+      </FocusSheet.Header>
 
-        <Sheet.Close tabIndex={-1} />
-      </Sheet.Header>
-      <div className="flex-auto flex">
-        <UnitSidebar />
-        <Sheet.Content className="p-0 rounded-b-none border-b-0">
-          <UnitContext.Provider value={{ unit }}>
+      <FocusSheet.Content className="flex flex-auto overflow-hidden">
+        <FocusSheet.SideBar>
+          <UnitSidebar />
+        </FocusSheet.SideBar>
+
+        <UnitContext.Provider value={{ unit }}>
+          <div className='flex-1'>
             {!!unitId && <UnitTabs />}
-          </UnitContext.Provider>
-        </Sheet.Content>
-      </div>
+          </div>
+
+          <RelationWidgetSideTabs
+            contentId={unitId || ''}
+            contentType="block:unit"
+            access={{ oppty: "read" }}
+            hookOptions={{
+              hiddenPlugins: ['sales', 'frontline', 'core', 'operation'],
+            }}
+          />
+        </UnitContext.Provider>
+      </FocusSheet.Content>
     </>
   );
 };

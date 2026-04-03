@@ -24,7 +24,7 @@ export const ProjectBankPartners = () => {
 
   return (
     <InfoCard title="BANK PARTNERS" description="Bank partners">
-      <InfoCardContent>
+      <InfoCardContent className='ba:min-h-15'>
         {bankPartners?.map((bankPartner, index) => (
           <div className="flex gap-2" key={bankPartner || index}>
             <Select
@@ -60,13 +60,6 @@ export const ProjectBankPartners = () => {
             </Button>
           </div>
         ))}
-        <Button
-          variant="secondary"
-          onClick={() => setBankPartners([...(bankPartners || []), ''])}
-        >
-          <IconPlus />
-          Add bank
-        </Button>
       </InfoCardContent>
     </InfoCard>
   );

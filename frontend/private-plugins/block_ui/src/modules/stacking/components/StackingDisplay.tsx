@@ -6,14 +6,14 @@ import { IZoning } from '@/building/types/buildingTypes';
 import { useProjects } from '@/project/hooks/useProjects';
 import { StackingUnitItem } from '@/stacking/components/StackingUnitItem';
 import { UnitDetailSheet } from '@/unit/components/UnitDetailSheet';
-import { UNIT_SALE_STATUS } from '@/unit/constants/unit';
+import { UNIT_LEASE_STATUS, UNIT_SALE_STATUS } from '@/unit/constants/unit';
 import { useUnits } from '@/unit/hooks/useUnits';
 import {
   IconBuildingPlus,
   IconClipboardText,
   IconPlus,
 } from '@tabler/icons-react';
-import { Button, ScrollArea, Spinner, useQueryState } from 'erxes-ui';
+import { Button, ScrollArea, Spinner, Tooltip, useQueryState } from 'erxes-ui';
 import { Link, useParams } from 'react-router-dom';
 
 export const StackingDisplay = () => {
@@ -120,17 +120,23 @@ export const StackingZone = ({ zone }: { zone: IZoning }) => {
 };
 
 export const StatusExplanation = () => {
+  const ALL_STATUS = { ...UNIT_SALE_STATUS, ...UNIT_LEASE_STATUS };
+  
   return (
-    <div className="flex-none flex items-center justify-between gap-4 p-4 pt-0 text-xs">
-      {Object.values(UNIT_SALE_STATUS).map((status) => (
-        <div className="flex gap-2 items-center">
-          <div
-            className="size-4 rounded-full flex-none"
-            style={{ backgroundColor: status.color }}
-          />
-          {status.mn}
-        </div>
-      ))}
-    </div>
+    <Tooltip.Provider>
+      <div className="w-full flex items-center p-4 pt-0 gap-3">
+        {Object.values(ALL_STATUS).map((status) => (
+          <Tooltip key={status.en}>
+            <Tooltip.Trigger asChild>
+              <div
+                className="flex-1 h-2 cursor-pointer blk:rounded-lg"
+                style={{ backgroundColor: status.color }}
+              />
+            </Tooltip.Trigger>
+            <Tooltip.Content>{status.mn}</Tooltip.Content>
+          </Tooltip>
+        ))}
+      </div>
+    </Tooltip.Provider>
   );
 };

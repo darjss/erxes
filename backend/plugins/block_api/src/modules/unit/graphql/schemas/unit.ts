@@ -4,8 +4,11 @@ export const types = `
     building: String
     buildingData: BlockBuilding
     zoning: String
+    zoningData: BlockBuildingZoning
     number: String
     status: String
+
+    projectData: BlockProject
     
     leads: [String]
 
