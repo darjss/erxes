@@ -1,31 +1,30 @@
-import { IStatus, IStatusDocument } from '@/oppty/@types/status';
+import { IOpptyStatus, IOpptyStatusDocument } from '@/oppty/@types/status';
 import {
   DEFAULT_STATUS_TYPE_VALUES,
   DEFAULT_STATUS_TYPES,
   DEFAULT_STATUSES,
-  ORDER_GAP,
 } from '@/oppty/constants';
 import { statusSchema } from '@/oppty/db/definitions/status';
 import { Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
 
-export interface IStatusModel extends Model<any> {
-  getStatus(_id: string): Promise<IStatusDocument>;
-  getStatuses(projectId: string): Promise<IStatusDocument[]>;
+export interface IOpptyStatusModel extends Model<any> {
+  getOpptyStatus(_id: string): Promise<IOpptyStatusDocument>;
+  getOpptyStatuses(projectId: string, type: string): Promise<IOpptyStatusDocument[]>;
 
-  createStatus(input: IStatus): Promise<IStatusDocument>;
-  updateStatus(_id: string, input: IStatus): Promise<IStatusDocument>;
-  updateStatusOrder(_id: string, order: number): Promise<IStatusDocument>;
-  removeStatus(_id: string): Promise<IStatusDocument>;
+  createOpptyStatus(input: IOpptyStatus): Promise<IOpptyStatusDocument>;
+  updateOpptyStatus(_id: string, input: IOpptyStatus): Promise<IOpptyStatusDocument>;
+  updateOpptyStatusOrder(_id: string, order: number): Promise<IOpptyStatusDocument>;
+  removeOpptyStatus(_id: string): Promise<IOpptyStatusDocument>;
 
-  validateStatus(status: IStatus): Promise<void>;
-  generateDefaultStatus(projectId: string): Promise<void>;
+  validateOpptyStatus(status: IOpptyStatus): Promise<void>;
+  generateDefaultOpptyStatus(projectId: string): Promise<void>;
 }
 
-export const loadBlockOpptyStatusClass = (models: IModels) => {
+export const loadOpptyStatusClass = (models: IModels) => {
   class Status {
-    public static async getStatus(_id: string) {
-      const status = await models.Status.findOne({ _id });
+    public static async getOpptyStatus(_id: string) {
+      const status = await models.OpptyStatus.findOne({ _id });
 
       if (!status) {
         throw new Error('Status not found');
@@ -34,24 +33,27 @@ export const loadBlockOpptyStatusClass = (models: IModels) => {
       return status;
     }
 
-    public static async getStatuses(projectId: string) {
+    public static async getOpptyStatuses(projectId: string, type: string) {
       const project = await models.Project.getProject(projectId);
 
-      const query: any = { projectId: project._id };
-
-      return models.Status.find(query).sort({ order: 1 }).lean();
+      return models.OpptyStatus.find({ projectId: project._id, type }).sort({ order: 1 }).lean();
     }
 
-    public static async createStatus(input: IStatus) {
-      await models.Status.validateStatus(input);
+    public static async createOpptyStatus(input: IOpptyStatus) {
+      await models.OpptyStatus.validateOpptyStatus(input);
 
       const { projectId, type } = input;
 
       const project = await models.Project.getProject(projectId);
 
-      const order = await this.generateOrder(project._id, type);
+      const lastStatus = await models.OpptyStatus.findOne({
+        projectId: project._id,
+        type,
+      }).sort({ order: -1 });
 
-      const status = await models.Status.create({
+      const order = lastStatus ? lastStatus.order + 1 : 0;
+
+      const status = await models.OpptyStatus.create({
         ...input,
         order,
         projectId: project._id,
@@ -60,12 +62,12 @@ export const loadBlockOpptyStatusClass = (models: IModels) => {
       return status;
     }
 
-    public static async updateStatus(_id: string, input: IStatus) {
-      await models.Status.validateStatus(input);
+    public static async updateOpptyStatus(_id: string, input: IOpptyStatus) {
+      await models.OpptyStatus.validateOpptyStatus(input);
 
       const project = await models.Project.getProject(input.projectId);
 
-      const status = await models.Status.findOneAndUpdate(
+      const status = await models.OpptyStatus.findOneAndUpdate(
         { _id },
         {
           ...input,
@@ -77,8 +79,8 @@ export const loadBlockOpptyStatusClass = (models: IModels) => {
       return status;
     }
 
-    public static async updateStatusOrder(_id: string, order: number) {
-      const status = await models.Status.findOneAndUpdate(
+    public static async updateOpptyStatusOrder(_id: string, order: number) {
+      const status = await models.OpptyStatus.findOneAndUpdate(
         { _id },
         { $set: { order } },
         { new: true },
@@ -91,8 +93,8 @@ export const loadBlockOpptyStatusClass = (models: IModels) => {
       return status;
     }
 
-    public static async removeStatus(_id: string) {
-      const status = await models.Status.findOneAndDelete({ _id });
+    public static async removeOpptyStatus(_id: string) {
+      const status = await models.OpptyStatus.findOneAndDelete({ _id });
 
       if (!status) {
         throw new Error('Status not found');
@@ -101,20 +103,20 @@ export const loadBlockOpptyStatusClass = (models: IModels) => {
       return status;
     }
 
-    public static async generateDefaultStatus(projectId: string) {
-      const existing = await models.Status.exists({ projectId });
+    public static async generateDefaultOpptyStatus(projectId: string) {
+      const existing = await models.OpptyStatus.exists({ projectId });
 
       if (existing) {
         return;
       }
 
-      const statuses: IStatus[] = [];
-      let order = ORDER_GAP;
+      const statuses: IOpptyStatus[] = [];
 
       for (const STATUS_TYPE_KEY in DEFAULT_STATUS_TYPES) {
         const STATUS_TYPE = DEFAULT_STATUS_TYPES[STATUS_TYPE_KEY];
 
         const CHILDREN = DEFAULT_STATUSES[STATUS_TYPE];
+        let order = 0;
 
         for (const CHILD_KEY in CHILDREN) {
           statuses.push({
@@ -122,61 +124,24 @@ export const loadBlockOpptyStatusClass = (models: IModels) => {
             ...CHILDREN[CHILD_KEY],
             order,
           });
-          order += ORDER_GAP;
+          order++;
         }
       }
 
       if (statuses.length) {
-        await models.Status.insertMany(statuses);
+        await models.OpptyStatus.insertMany(statuses);
       }
     }
 
-    private static async generateOrder(projectId: string, type: string) {
-      const lastOfType = await models.Status.findOne({
-        projectId,
-        type,
-      }).sort({ order: -1 });
-
-      if (!lastOfType) {
-        const typeHeader = await models.Status.findOne({
-          projectId,
-          type: '',
-          name: { $regex: new RegExp(`^${type}$`, 'i') },
-        });
-
-        const headerOrder = typeHeader?.order ?? 0;
-
-        const nextAfterHeader = await models.Status.findOne({
-          projectId,
-          order: { $gt: headerOrder },
-          _id: { $ne: typeHeader?._id },
-        }).sort({ order: 1 });
-
-        if (nextAfterHeader) {
-          return (headerOrder + nextAfterHeader.order) / 2;
-        }
-
-        return headerOrder + ORDER_GAP;
-      }
-
-      const nextAfter = await models.Status.findOne({
-        projectId,
-        order: { $gt: lastOfType.order },
-        type: { $ne: type },
-      }).sort({ order: 1 });
-
-      if (nextAfter) {
-        return (lastOfType.order + nextAfter.order) / 2;
-      }
-
-      return lastOfType.order + ORDER_GAP;
-    }
-
-    public static async validateStatus(status: IStatus) {
+    public static async validateOpptyStatus(status: IOpptyStatus) {
       const { type } = status || {};
 
       if (!type) {
         throw new Error('Type is required');
+      }
+
+      if (type === DEFAULT_STATUS_TYPES.CLOSED_WON || type === DEFAULT_STATUS_TYPES.CLOSED_LOST) {
+        throw new Error(`Cannot set status type to default status type: ${type}`);
       }
 
       const defaultTypes = Object.values(DEFAULT_STATUS_TYPES);
@@ -185,7 +150,7 @@ export const loadBlockOpptyStatusClass = (models: IModels) => {
         throw new Error(`Invalid status type: ${type}`);
       }
 
-      const statusType = await models.Status.findOne({ name: type });
+      const statusType = await models.OpptyStatus.findOne({ name: type });
 
       if (statusType) {
         throw new Error(

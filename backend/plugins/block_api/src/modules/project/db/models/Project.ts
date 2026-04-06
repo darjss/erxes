@@ -38,7 +38,7 @@ export const loadProjectClass = (
 
       // Create default statuses for the project
       if (project) {
-        await models.Status.generateDefaultStatus(project._id);
+        await models.OpptyStatus.generateDefaultOpptyStatus(project._id);
       }
 
       return project;
@@ -53,12 +53,10 @@ export const loadProjectClass = (
       input: IProject;
       userId: string;
     }) {
-      const prevProject = await models.Project.findOne({ _id }).lean();
-
-      const status = await models.Status.exists({ projectId: _id });
+      const status = await models.OpptyStatus.exists({ projectId: _id });
 
       if (!status) {
-        await models.Status.generateDefaultStatus(_id);
+        await models.OpptyStatus.generateDefaultOpptyStatus(_id);
       }
 
       const updatedProject = await models.Project.findOneAndUpdate(

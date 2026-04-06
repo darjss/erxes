@@ -1,4 +1,4 @@
-import { capitalize } from 'lodash';
+import { startCase } from 'lodash';
 
 export const ORDER_GAP = 1000;
 
@@ -68,38 +68,38 @@ export const DEFAULT_STATUSES = {
 export const DEFAULT_STATUS_TYPE_VALUES = {
   [DEFAULT_STATUS_TYPES.LEAD]: {
     color: '#FF6B6B',
-    type: '',
-    name: capitalize(DEFAULT_STATUS_TYPES.LEAD),
+    type: DEFAULT_STATUS_TYPES.LEAD,
+    name: startCase(DEFAULT_STATUS_TYPES.LEAD),
   },
   [DEFAULT_STATUS_TYPES.QUALIFIED]: {
     color: '#4ECDC4',
-    type: '',
-    name: capitalize(DEFAULT_STATUS_TYPES.QUALIFIED),
+    type: DEFAULT_STATUS_TYPES.QUALIFIED,
+    name: startCase(DEFAULT_STATUS_TYPES.QUALIFIED),
   },
   [DEFAULT_STATUS_TYPES.SITE_VISIT]: {
     color: '#45B7D1',
-    type: '',
-    name: capitalize(DEFAULT_STATUS_TYPES.SITE_VISIT),
+    type: DEFAULT_STATUS_TYPES.SITE_VISIT,
+    name: startCase(DEFAULT_STATUS_TYPES.SITE_VISIT),
   },
   [DEFAULT_STATUS_TYPES.NEGOTIATION]: {
     color: '#96CEB4',
-    type: '',
-    name: capitalize(DEFAULT_STATUS_TYPES.NEGOTIATION),
+    type: DEFAULT_STATUS_TYPES.NEGOTIATION,
+    name: startCase(DEFAULT_STATUS_TYPES.NEGOTIATION),
   },
   [DEFAULT_STATUS_TYPES.RESERVED]: {
     color: '#FF6B6B',
-    type: '',
-    name: capitalize(DEFAULT_STATUS_TYPES.RESERVED),
+    type: DEFAULT_STATUS_TYPES.RESERVED,
+    name: startCase(DEFAULT_STATUS_TYPES.RESERVED),
   },
   [DEFAULT_STATUS_TYPES.CLOSED_WON]: {
     color: '#FFEAA7',
-    type: '',
-    name: capitalize(DEFAULT_STATUS_TYPES.CLOSED_WON),
+    type: DEFAULT_STATUS_TYPES.CLOSED_WON,
+    name: startCase(DEFAULT_STATUS_TYPES.CLOSED_WON),
   },
   [DEFAULT_STATUS_TYPES.CLOSED_LOST]: {
     color: '#DDA0DD',
-    type: '',
-    name: capitalize(DEFAULT_STATUS_TYPES.CLOSED_LOST),
+    type: DEFAULT_STATUS_TYPES.CLOSED_LOST,
+    name: startCase(DEFAULT_STATUS_TYPES.CLOSED_LOST),
   },
 };
 

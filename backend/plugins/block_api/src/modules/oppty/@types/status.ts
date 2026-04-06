@@ -1,4 +1,4 @@
-export interface IStatus {
+export interface IOpptyStatus {
   name: string;
   projectId: string;
   description?: string;
@@ -7,7 +7,7 @@ export interface IStatus {
   order?: number;
 }
 
-export interface IStatusDocument extends IStatus, Document {
+export interface IOpptyStatusDocument extends IOpptyStatus, Document {
   _id: string;
   createdAt: Date;
   updatedAt: Date;

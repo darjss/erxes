@@ -5,7 +5,7 @@ export const types = `
     projectId: String!
     description: String
     color: String
-    order: Float
+    order: Int
     type: String
     createdAt: Date
     updatedAt: Date
@@ -30,6 +30,6 @@ export const queries = `
 export const mutations = `
   createBlockOpptyStatus(input: BlockOpptyStatusInput!): BlockOpptyStatus
   updateBlockOpptyStatus(_id: String!, input: BlockOpptyStatusInput!): BlockOpptyStatus
-  updateBlockOpptyStatusOrder(_id: String!, order: Float!): BlockOpptyStatus
+  updateBlockOpptyStatusOrder(_id: String!, order: Int!): BlockOpptyStatus
   removeBlockOpptyStatus(_id: String!): BlockOpptyStatus
 `;

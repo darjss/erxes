@@ -70,7 +70,7 @@ export const loadOpptyClass = (
     public static async updateOppty(_id: string, input: IBlockOpptyInput) {
       const prevOppty = await models.Oppty.getOppty(_id);
 
-      const wonStatus = await models.Status.findOne({
+      const wonStatus = await models.OpptyStatus.findOne({
         projectId: prevOppty.projectId,
         type: DEFAULT_STATUS_TYPES.CLOSED_WON,
       });

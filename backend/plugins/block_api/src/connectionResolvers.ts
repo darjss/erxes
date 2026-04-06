@@ -42,8 +42,8 @@ import {
   loadProjectPaymentPlanClass,
 } from '@/project/db/models/Payment';
 import { IProjectModel, loadProjectClass } from '@/project/db/models/Project';
-import { IStatusDocument } from '@/oppty/@types/status';
-import { IStatusModel, loadBlockOpptyStatusClass } from '@/oppty/db/models/Status';
+import { IOpptyStatusDocument } from '@/oppty/@types/status';
+import { IOpptyStatusModel, loadOpptyStatusClass } from '@/oppty/db/models/Status';
 import { IUnitDocument } from '@/unit/@types/unit';
 import { IUnitLeadDocument } from '@/unit/@types/unitLead';
 import { IUnitTypeDocument } from '@/unit/@types/unitType';
@@ -75,7 +75,7 @@ export interface IModels {
   Offer: IOfferModel;
   Invoice: IInvoiceModel;
   Oppty: IOpptyModel;
-  Status: IStatusModel;
+  OpptyStatus: IOpptyStatusModel;
 }
 
 export interface IContext extends IMainContext {
@@ -174,9 +174,9 @@ export const loadClasses = (
     ),
   );
 
-  models.Status = db.model<IStatusDocument, IStatusModel>(
-    'block_statuses',
-    loadBlockOpptyStatusClass(models),
+  models.OpptyStatus = db.model<IOpptyStatusDocument, IOpptyStatusModel>(
+    'block_oppty_statuses',
+    loadOpptyStatusClass(models),
   );
 
   return models;

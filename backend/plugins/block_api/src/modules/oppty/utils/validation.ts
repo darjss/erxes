@@ -26,7 +26,7 @@ export const STATUS_VALIDATION = {
     oppty: IOpptyDocument,
     models: IModels,
   ) => {
-    const { type } = (await models.Status.findOne({ _id: status })) || {};
+    const { type } = (await models.OpptyStatus.findOne({ _id: status })) || {};
 
     if (!type) {
       throw new Error('The status has an invalid type');
@@ -66,7 +66,7 @@ export const STATUS_VALIDATION = {
   ) => {
     const { status: opptyStatus } = oppty || {};
 
-    const { type } = (await models.Status.findOne({ _id: status })) || {};
+    const { type } = (await models.OpptyStatus.findOne({ _id: status })) || {};
 
     if (!type) {
       throw new Error('The status has an invalid type');

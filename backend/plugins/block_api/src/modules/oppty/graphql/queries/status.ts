@@ -10,7 +10,7 @@ export const statusQueries = {
     { _id }: { _id: string },
     { models }: IContext,
   ) => {
-    return models.Status.getStatus(_id);
+    return models.OpptyStatus.getOpptyStatus(_id);
   },
 
   getBlockOpptyStatuses: async (
@@ -18,13 +18,23 @@ export const statusQueries = {
     { projectId }: { projectId: string },
     { models }: IContext,
   ) => {
-    return await models.Status.getStatuses(projectId)
+    const statuses = await Promise.all(
+      Object.values(DEFAULT_STATUS_TYPES).map((type) =>
+        models.OpptyStatus.getOpptyStatuses(projectId, type),
+      ),
+    );
+
+    return statuses.flat().map(({ name, _id, color, type, order, projectId }) => ({
+      _id,
+      name,
+      color,
+      type,
+      order,
+      projectId
+    }));
   },
 
   getBlockOpptyStatusTypes: async () => {
-    return Object.values(DEFAULT_STATUS_TYPES).map((type) => ({
-      ...DEFAULT_STATUS_TYPE_VALUES[type],
-      type,
-    }));
+    return Object.values(DEFAULT_STATUS_TYPES).map((type) => DEFAULT_STATUS_TYPE_VALUES[type]);
   },
 };
