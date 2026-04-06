@@ -1,31 +1,33 @@
-import { createActivity } from '@/activity/utils/createActivity';
 import {
   IOppty,
   IOpptyDocument,
   IOpptyFilter,
-  IOpptyInput,
+  IBlockOpptyInput,
 } from '@/oppty/@types/oppty';
 import { opptySchema } from '@/oppty/db/definitions/oppty';
-import { DEFAULT_STATUS_TYPES } from '@/status/constants';
+import { EventDispatcherReturn } from 'erxes-api-shared/core-modules';
 import { graphqlPubsub } from 'erxes-api-shared/utils';
 import { Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
-import { BLOCK_MODULES } from '~/constants';
-import { IUnit } from '~/modules/unit/@types/unit';
+import { generateOpptyUpdateActivityLogs } from '../../meta/activity-log';
+import { DEFAULT_STATUS_TYPES } from '@/oppty/constants';
 
 export interface IOpptyModel extends Model<IOpptyDocument> {
   getOppty(_id: string): Promise<IOpptyDocument>;
   getOpptys(projectId: string, filter: IOpptyFilter): Promise<IOpptyDocument[]>;
-  createOppty(input: IOpptyInput, userId: string): Promise<IOpptyDocument>;
+  createOppty(input: IBlockOpptyInput): Promise<IOpptyDocument>;
   updateOppty(
     _id: string,
-    input: Partial<IOpptyInput>,
-    userId: string,
+    input: Partial<IBlockOpptyInput>,
   ): Promise<IOpptyDocument>;
   deleteOppty(_id: string): Promise<IOpptyDocument | null>;
 }
 
-export const loadOpptyClass = (models: IModels, subdomain: string) => {
+export const loadOpptyClass = (
+  models: IModels,
+  _subdomain: string,
+  { createActivityLog }: EventDispatcherReturn,
+) => {
   class Oppty {
     public static async getOppty(_id: string) {
       const oppty = await models.Oppty.findOne({ _id });
@@ -41,7 +43,7 @@ export const loadOpptyClass = (models: IModels, subdomain: string) => {
       return models.Oppty.find({ projectId, ...filter });
     }
 
-    public static async createOppty(input: IOppty, userId: string) {
+    public static async createOppty(input: IOppty) {
       const lastOppty = await models.Oppty.findOne({})
         .sort({ createdAt: -1 })
         .select('number');
@@ -65,37 +67,25 @@ export const loadOpptyClass = (models: IModels, subdomain: string) => {
       return oppty;
     }
 
-    public static async updateOppty(
-      _id: string,
-      input: IOpptyInput,
-      userId: string,
-    ) {
-      await this.validateOppty({ _id, ...input });
+    public static async updateOppty(_id: string, input: IBlockOpptyInput) {
+      const prevOppty = await models.Oppty.getOppty(_id);
 
-      if (input?.status) {
-        const status = await models.Status.getStatus(input.status);
+      const wonStatus = await models.OpptyStatus.findOne({
+        projectId: prevOppty.projectId,
+        type: DEFAULT_STATUS_TYPES.CLOSED_WON,
+      });
 
-        if (input?.unit && status?.type === DEFAULT_STATUS_TYPES.NEGOTIATION) {
-          const statusIds = await models.Status.find({
-            type: DEFAULT_STATUS_TYPES.NEGOTIATION,
-          }).distinct('_id');
-
-          const exists = await models.Oppty.exists({
-            unit: input.unit,
-            status: { $in: statusIds },
-          });
-
-          if (exists) {
-            throw new Error('Unit is already reserved');
-          }
-
-          await models.Unit.updateUnit(input.unit, {
-            status: 'onHold',
-          } as IUnit);
+      if (
+        wonStatus &&
+        wonStatus._id.equals(prevOppty.status) &&
+        input.status &&
+        !wonStatus._id.equals(input.status)
+      ) {
+        const oneMinuteAgo = new Date(Date.now() - 60 * 1000);
+        if (prevOppty.updatedAt > oneMinuteAgo) {
+          throw new Error('Cannot change status of won opportunity');
         }
       }
-
-      const oppty = await models.Oppty.getOppty(_id);
 
       const updatedOppty = await models.Oppty.findOneAndUpdate(
         { _id },
@@ -111,17 +101,12 @@ export const loadOpptyClass = (models: IModels, subdomain: string) => {
         blockOpptyListChanged: { type: 'update', oppty: updatedOppty },
       });
 
-      if (oppty && updatedOppty) {
-        await createActivity<IOppty>({
-          subdomain,
-
-          oldDoc: oppty,
-          newDoc: updatedOppty.toObject(),
-
-          userId,
-          contentId: _id,
-          module: BLOCK_MODULES.OPPTY,
-        });
+      if (updatedOppty) {
+        await generateOpptyUpdateActivityLogs(
+          prevOppty.toObject(),
+          updatedOppty.toObject(),
+          createActivityLog,
+        );
       }
 
       return updatedOppty;
@@ -129,27 +114,6 @@ export const loadOpptyClass = (models: IModels, subdomain: string) => {
 
     public static async deleteOppty(_id: string) {
       return models.Oppty.findOneAndDelete({ _id });
-    }
-
-    public static async validateOppty(input: Partial<IOpptyDocument>) {
-      const oppty = await models.Oppty.findOne({ _id: input._id });
-
-      const hasUnit =
-        oppty?.unit ||
-        (oppty?.propertyRows || []).some((row) => row.unitId && row.isMain);
-
-      if (
-        [
-          DEFAULT_STATUS_TYPES.NEGOTIATION,
-          DEFAULT_STATUS_TYPES.CLOSED_WON,
-          DEFAULT_STATUS_TYPES.CLOSED_LOST,
-        ].includes(input.status || '') &&
-        !hasUnit
-      ) {
-        throw new Error('Unit is required');
-      }
-
-      return oppty;
     }
   }
 

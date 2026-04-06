@@ -1,10 +1,7 @@
-import { createActivity } from '@/activity/utils/createActivity';
 import { IBlockDeveloperDocument } from '@/developer/db/@types/developer';
 import { developerSchema } from '@/developer/db/definitions/developer';
-import { log } from 'console';
 import { Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
-import { BLOCK_MODULES } from '~/constants';
 
 export interface IBlockDeveloperModel extends Model<IBlockDeveloperDocument> {
   createDeveloper(
@@ -22,7 +19,10 @@ export interface IBlockDeveloperModel extends Model<IBlockDeveloperDocument> {
   ): Promise<IBlockDeveloperDocument>;
 }
 
-export const loadBlockDeveloperClass = (models: IModels, subdomain: string) => {
+export const loadBlockDeveloperClass = (
+  models: IModels,
+  subdomain: string,
+) => {
   class Developer {
     public static async createDeveloper(input: IBlockDeveloperDocument, userId?: string) {
       return models.Developer.create(input);
@@ -33,24 +33,13 @@ export const loadBlockDeveloperClass = (models: IModels, subdomain: string) => {
       input: IBlockDeveloperDocument,
       userId?: string,
     ) {
-      const oldDeveloper = await models.Developer.findOne({ _id }).lean();
-      
+      const prevDeveloper = await models.Developer.findOne({ _id }).lean();
+
       const updatedDeveloper = await models.Developer.findOneAndUpdate(
         { _id },
         input,
-        { new: true },    
+        { new: true },
       );
-
-      if (userId && updatedDeveloper) {
-        await createActivity<IBlockDeveloperDocument>({
-          subdomain,
-          oldDoc: oldDeveloper || undefined,
-          newDoc: updatedDeveloper.toObject(),
-          userId,
-          contentId: _id,
-          module: BLOCK_MODULES.DEVELOPER,
-        });
-      }
 
       return updatedDeveloper;
     }

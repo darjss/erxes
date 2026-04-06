@@ -9,11 +9,10 @@ export const UnitSidebar = () => {
   return (
     <Sidebar
       collapsible="none"
-      className="border-r flex-none [--sidebar-width:200px]"
+      className="flex-none border-r w-64"
     >
       <Sidebar.Group>
         <Sidebar.GroupContent>
-          <Sidebar.GroupLabel>General</Sidebar.GroupLabel>
           <Sidebar.Menu>
             {Object.entries(UNIT_DOCUMENT_TABS).map(([tab, value]) => (
               <Sidebar.MenuItem key={tab}>

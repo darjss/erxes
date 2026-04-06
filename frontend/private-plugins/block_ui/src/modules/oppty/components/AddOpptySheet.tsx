@@ -10,8 +10,10 @@ import { currentUserState, useCreateMultipleRelations } from 'ui-modules';
 
 export const AddOpptySheet = ({
   onComplete,
+  showTrigger = true,
 }: {
   onComplete?: (opptyId: string) => void;
+  showTrigger?: boolean;
 }) => {
   const [open, setOpen] = useAtom(opptyCreateSheetState);
   const { projectId } = useParams<{ projectId?: string }>();
@@ -69,12 +71,14 @@ export const AddOpptySheet = ({
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
-      <Sheet.Trigger asChild>
-        <Button>
-          <IconPlus />
-          Add opportunity
-        </Button>
-      </Sheet.Trigger>
+      {showTrigger && (
+        <Sheet.Trigger asChild>
+          <Button>
+            <IconPlus />
+            Add opportunity
+          </Button>
+        </Sheet.Trigger>
+      )}
       <Sheet.View className="p-0 sm:max-w-5xl">
         <Sheet.Header>
           <Sheet.Title>New opportunity</Sheet.Title>

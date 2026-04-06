@@ -7,14 +7,18 @@ export const SelectUnitType = ({
   value,
   onValueChange,
   inForm = false,
+  projectId: projectIdProp,
 }: {
   value?: string;
   onValueChange?: (value: string) => void;
   inForm?: boolean;
+  projectId?: string;
 }) => {
-  const { id, projectId } = useParams();
+  const { id, projectId: projectIdParam } = useParams();
 
-  const { unitTypes } = useUnitTypes({ project: id || (projectId as string) });
+  const { unitTypes } = useUnitTypes({
+    project: projectIdProp || id || (projectIdParam as string),
+  });
   const Control = inForm ? Form.Control : React.Fragment;
 
   const handleValueChange = (val: string) => {

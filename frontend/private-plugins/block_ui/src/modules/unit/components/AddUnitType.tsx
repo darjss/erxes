@@ -49,6 +49,7 @@ export const AddUnitType = ({ onClose }: { onClose: () => void }) => {
 
   const form = useForm<z.infer<typeof unitTypeSchema>>({
     resolver: zodResolver(unitTypeSchema),
+    shouldFocusError: false,
     defaultValues: {
       name: '',
       description: '',

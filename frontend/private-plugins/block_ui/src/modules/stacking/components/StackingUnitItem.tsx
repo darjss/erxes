@@ -1,8 +1,10 @@
-import { UNIT_SALE_STATUS } from '@/unit/constants/unit';
+import { UNIT_SALE_STATUS, UNIT_LEASE_STATUS } from '@/unit/constants/unit';
 import { IUnit } from '@/unit/types/unitType';
 import { cn, useQueryState } from 'erxes-ui';
 
 export const StackingUnitItem = ({ number, unitType, _id, status }: IUnit) => {
+  const ALL_STATUS = { ...UNIT_SALE_STATUS, ...UNIT_LEASE_STATUS };
+
   const [, setUnitId] = useQueryState<string>('unitId');
 
   const { size } = unitType || {};
@@ -15,8 +17,8 @@ export const StackingUnitItem = ({ number, unitType, _id, status }: IUnit) => {
       style={{
         // width: `${Math.max(size * 4 - 12, 0)}px`,
         backgroundColor:
-          UNIT_SALE_STATUS[
-            (status as keyof typeof UNIT_SALE_STATUS) || 'available'
+          ALL_STATUS[
+            (status as keyof typeof ALL_STATUS) || 'available'
           ]?.color,
       }}
     >

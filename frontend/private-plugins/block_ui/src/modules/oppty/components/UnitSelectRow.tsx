@@ -1,6 +1,9 @@
 import { Button, Form, Select } from 'erxes-ui';
 import { Control, UseFormSetValue, useWatch } from 'react-hook-form';
-import { useBuildings, useBuildingZonings } from '@/building/hooks/useBuildings';
+import {
+  useBuildings,
+  useBuildingZonings,
+} from '@/building/hooks/useBuildings';
 import { useUnits } from '@/unit/hooks/useUnits';
 import { IconMinus } from '@tabler/icons-react';
 import { TAddOppty } from '@/oppty/types/validations';
@@ -20,7 +23,10 @@ export const UnitSelectRow = ({
   setValue: UseFormSetValue<TAddOppty>;
   allUnitRows: TAddOppty['unitRows'];
 }) => {
-  const buildingId = useWatch({ control, name: `unitRows.${index}.buildingId` });
+  const buildingId = useWatch({
+    control,
+    name: `unitRows.${index}.buildingId`,
+  });
   const zoningId = useWatch({ control, name: `unitRows.${index}.zoningId` });
 
   const { buildings = [] } = useBuildings({ projectId });
@@ -38,9 +44,7 @@ export const UnitSelectRow = ({
     .map((row) => row.unitId)
     .filter(Boolean);
 
-  const availableUnits = units.filter(
-    (u) => !selectedUnitIds.includes(u._id),
-  );
+  const availableUnits = units.filter((u) => !selectedUnitIds.includes(u._id));
 
   return (
     <div className="flex gap-2 items-center">

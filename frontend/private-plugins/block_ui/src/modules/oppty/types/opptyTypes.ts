@@ -25,7 +25,7 @@ export interface IPropertyRow {
   isMain?: boolean;
 }
 
-export interface IOpptyInput {
+export interface IBlockOpptyInput {
   number?: string;
   description: string;
   customerId: string;
@@ -46,7 +46,7 @@ export interface IOpptyInput {
   propertiesData?: any;
 }
 
-export interface IOppty extends IOpptyInput {
+export interface IOppty extends IBlockOpptyInput {
   _id: string;
   createdAt: Date;
   updatedAt: Date;

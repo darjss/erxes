@@ -33,7 +33,7 @@ export const OpptyForm = ({
   isEdit?: boolean;
 }) => {
   const { projectId } = useParams<{ projectId?: string }>();
-  
+
   const { statuses } = useBlockStatusesByType({
     projectId: projectId || '',
   });
@@ -201,11 +201,17 @@ export const OpptyForm = ({
                       control={form.control}
                       render={({ field }) => {
                         const parseTenure = (val: string) => {
-                          if (!val) return { areaType: '', tenureTypes: [] as string[] };
+                          if (!val)
+                            return {
+                              areaType: '',
+                              tenureTypes: [] as string[],
+                            };
                           const [areaType, ...tenureTypes] = val.split(':');
                           return { areaType, tenureTypes };
                         };
-                        const { areaType, tenureTypes } = parseTenure(field.value || '');
+                        const { areaType, tenureTypes } = parseTenure(
+                          field.value || '',
+                        );
                         return (
                           <Form.Item>
                             <Form.Label>Tenure Type</Form.Label>
@@ -213,8 +219,13 @@ export const OpptyForm = ({
                               inForm
                               value={{ areaType, tenureTypes }}
                               onValueChange={(a, t) => {
-                                if (!a) { field.onChange(''); return; }
-                                field.onChange(t.length ? [a, ...t].join(':') : a);
+                                if (!a) {
+                                  field.onChange('');
+                                  return;
+                                }
+                                field.onChange(
+                                  t.length ? [a, ...t].join(':') : a,
+                                );
                               }}
                             />
                             <Form.Message />

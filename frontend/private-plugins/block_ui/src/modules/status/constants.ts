@@ -10,8 +10,9 @@ import {
 export const BlockStatusIcons: Record<string, any> = {
   lead: IconCircleDashed,
   qualified: IconCircle,
-  matching: IconCircleDot,
+  site_visit: IconCircleDot,
   negotiation: IconTarget,
+  reserved: IconCircleDashed,
   closed_won: IconCircleCheck,
   closed_lost: IconCircleX,
 };

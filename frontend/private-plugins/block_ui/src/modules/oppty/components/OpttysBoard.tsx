@@ -7,7 +7,7 @@ import {
   SkeletonArray,
   Spinner,
 } from 'erxes-ui';
-import { atom, useAtom, useAtomValue, useSetAtom } from 'jotai';
+import { atom, useAtom, useSetAtom } from 'jotai';
 import { IOppty } from '@/oppty/types/opptyTypes';
 import type { DragEndEvent } from '@dnd-kit/core';
 
@@ -26,7 +26,9 @@ const fetchedOpptysState = atom<BoardItemProps[]>([]);
 const opptyCountByProjectAtom = atom<Record<string, number>>({});
 
 export const OpptysBoard = ({ projectId }: { projectId: string }) => {
-  const { statuses, loading: columnsLoading } = useBlockStatusesByType({ projectId });
+  const { statuses, loading: columnsLoading } = useBlockStatusesByType({
+    projectId,
+  });
 
   const columns = (statuses || []).map((status) => ({
     id: status._id,
@@ -39,7 +41,8 @@ export const OpptysBoard = ({ projectId }: { projectId: string }) => {
   if (columns.length === 0) {
     return (
       <div className="flex items-center justify-center h-96 text-muted-foreground">
-        No statuses configured for this project. Add statuses in project settings.
+        No statuses configured for this project. Add statuses in project
+        settings.
       </div>
     );
   }
@@ -175,15 +178,12 @@ export const OpptysBoardCards = ({
         return [...otherColumns, ...newCards];
       });
       setAllOpptysMap((prev) => {
-        const newOpptys = opptys.reduce(
-          (acc, oppty) => {
-            if (oppty && oppty._id) {
-              acc[oppty._id] = oppty;
-            }
-            return acc;
-          },
-          {} as Record<string, IOppty>,
-        );
+        const newOpptys = opptys.reduce((acc, oppty) => {
+          if (oppty && oppty._id) {
+            acc[oppty._id] = oppty;
+          }
+          return acc;
+        }, {} as Record<string, IOppty>);
         return { ...prev, ...newOpptys };
       });
     }

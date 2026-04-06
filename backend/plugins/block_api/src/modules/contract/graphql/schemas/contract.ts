@@ -99,6 +99,7 @@ export const types = `
 export const mutations = `
   blockCreateContract(input: BlockContractInput!): BlockContract
   blockUpdateContract(_id: String!, input: BlockContractInput!): BlockContract
+  blockUpdateContractStatus(_id: String!, status: BlockContractStatus!): BlockContract
 `;
 
 export const queries = `

@@ -1,4 +1,4 @@
-import { BoardCardProps, Button, Separator, Skeleton } from 'erxes-ui';
+import { Badge, BoardCardProps, Button, Separator, Skeleton } from 'erxes-ui';
 import { IconCalendarEventFilled } from '@tabler/icons-react';
 import { format } from 'date-fns';
 
@@ -8,6 +8,7 @@ import { MembersInline, useCustomerDetail } from 'ui-modules';
 import { useQueryState } from 'erxes-ui';
 import { SelectCustomerSource } from '@/oppty/components/SelectCustomerSource';
 import { useUnitTypes } from '@/unit/hooks/useUnitTypes';
+import { useUnit } from '@/unit/hooks/useUnit';
 import { UNIT_AREA_TYPE, UNIT_MARKET_TYPE } from '@/unit/constants/unit';
 
 export const opptyBoardItemAtom = atom(
@@ -54,6 +55,9 @@ export const OpptysBoardCard = ({ id, column }: BoardCardProps) => {
 
   const { unitTypes } = useUnitTypes({ project: projectId || '' });
   const unitTypeName = unitTypes?.find((t) => t._id === unitType)?.name;
+
+  const mainUnitId = rows.find((r) => r.isMain)?.unitId;
+  const { unit: mainUnit } = useUnit(mainUnitId);
 
   const tenureLabel = (() => {
     if (!tenureType) return '';
@@ -104,6 +108,11 @@ export const OpptysBoardCard = ({ id, column }: BoardCardProps) => {
           </div>
         )}
         <div className="flex flex-wrap gap-1 mt-1">
+          {mainUnit?.number && (
+            <Badge>
+              {mainUnit.number} · {mainUnit.unitType.size}m² · {Number(mainUnit.unitType.price).toLocaleString()} 
+            </Badge>
+          )}
           {unitTypeName && (
             <Button
               variant="secondary"
