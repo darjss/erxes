@@ -33,6 +33,14 @@ export interface IProviderReviewModel extends Model<IProviderReviewDocument> {
 export const loadProviderReviewClass = (models: IModels) => {
   class ProviderReview {
     public static async createProviderReview(doc: IProviderReview) {
+      if (doc.bookingId) {
+        const dup = await models.ProviderReview.findOne({
+          bookingId: doc.bookingId,
+        }).lean();
+        if (dup) {
+          throw new Error('A review already exists for this booking');
+        }
+      }
       return models.ProviderReview.create(doc);
     }
 
@@ -49,6 +57,15 @@ export const loadProviderReviewClass = (models: IModels) => {
       const existing = await models.ProviderReview.findOne({ _id, userId });
       if (!existing) {
         return null;
+      }
+      if (doc.bookingId !== undefined && doc.bookingId) {
+        const dup = await models.ProviderReview.findOne({
+          bookingId: doc.bookingId,
+          _id: { $ne: _id },
+        }).lean();
+        if (dup) {
+          throw new Error('A review already exists for this booking');
+        }
       }
       const next: Record<string, unknown> = { modifiedAt: new Date() };
       if (doc.rating !== undefined) {

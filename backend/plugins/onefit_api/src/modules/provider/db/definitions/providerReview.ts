@@ -44,4 +44,11 @@ export const providerReviewSchema = new Schema<IProviderReviewDocument>(
 );
 
 providerReviewSchema.index({ providerId: 1, createdAt: -1 });
-providerReviewSchema.index({ bookingId: 1 }, { sparse: true });
+/** At most one review per booking when bookingId is set (non-empty). */
+providerReviewSchema.index(
+  { bookingId: 1 },
+  {
+    unique: true,
+    partialFilterExpression: { bookingId: { $gt: '' } },
+  },
+);
