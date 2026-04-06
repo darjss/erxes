@@ -3,6 +3,7 @@ import { useAgencyInfo } from '../hooks/useAgencyInfo';
 import { useUpdateAgency } from '../hooks/useUpdateAgency';
 import { AgencyGeneralInfoValues } from '../types/form';
 import { useGeneralForm } from '../hooks/useGeneralForm';
+import React from 'react';
 
 export const AgencyProfileGeneral = () => {
   const { loading } = useAgencyInfo();
@@ -30,6 +31,14 @@ export const AgencyGeneralInfo = () => {
       website: agencyInfo?.website || '',
     },
   });
+  React.useEffect(() => {
+    form.reset({
+      name: agencyInfo?.name || '',
+      brandName: agencyInfo?.brandName || '',
+      dateFounded: agencyInfo?.dateFounded || '',
+      website: agencyInfo?.website || '',
+    });
+  }, [agencyInfo]);
   const { updateAgency } = useUpdateAgency();
 
   const handleSave = (patch: Partial<AgencyGeneralInfoValues>) => {

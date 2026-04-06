@@ -20,6 +20,12 @@ const ListingIndexPage = lazy(() =>
   })),
 );
 
+const MemberIndexPage = lazy(() =>
+  import('~/pages/blockagency/MemberIndexPage').then((module) => ({
+    default: module.MemberIndexPage,
+  })),
+);
+
 const BlockagencyMain = () => {
   return (
     <Suspense fallback={<div />}>
@@ -32,6 +38,7 @@ const BlockagencyMain = () => {
             element={<div>Listing Detail page</div>}
           />
         </Route>
+        <Route path={AgencyPaths.PROFILE} element={<MemberIndexPage />} />
       </Routes>
     </Suspense>
   );

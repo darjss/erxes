@@ -8,9 +8,9 @@ import {
 } from 'erxes-ui';
 import { PageHeader } from 'ui-modules';
 import { Link } from 'react-router-dom';
-import { AgencyProfileSidebar } from '~/modules/blockagency/components/agency/components/AgencyProfileSidebar';
-import { AgencyProfileTabs } from '~/modules/blockagency/components/agency/components/AgencyProfileTabs';
-import { AgencyProfileDetailHeader } from '~/modules/blockagency/components/agency/components/AgencyProfileDetailHeader';
+import { AgencyProfileSidebar } from '~/modules/agency/components/AgencyProfileSidebar';
+import { AgencyProfileTabs } from '~/modules/agency/components/AgencyProfileTabs';
+import { AgencyProfileDetailHeader } from '~/modules/agency/components/AgencyProfileDetailHeader';
 
 export const IndexPage = () => {
   return (
@@ -20,11 +20,9 @@ export const IndexPage = () => {
           <Breadcrumb>
             <Breadcrumb.List className="gap-1">
               <Breadcrumb.Item>
-                <Button variant="ghost" asChild>
-                  <Link to="/settings/blockagent">
-                    <IconId />
-                    Profile
-                  </Link>
+                <Button variant="ghost">
+                  <IconId />
+                  Agency Profile
                 </Button>
               </Breadcrumb.Item>
             </Breadcrumb.List>

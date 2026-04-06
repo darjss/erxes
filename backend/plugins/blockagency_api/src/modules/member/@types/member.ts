@@ -11,6 +11,12 @@ export interface IBlockAgencyMember {
   instagramUrl?: string;
   linkedUrl?: string;
   certificatePhotos?: string[];
+  role?: 'admin' | 'lead' | 'member';
+}
+
+export interface IBlockAgencyAddMembersInput {
+  agencyId: string;
+  memberId: string;
 }
 
 export interface IBlockAgencyMemberDocument

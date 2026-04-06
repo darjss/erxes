@@ -1,5 +1,17 @@
-import { IconPhotoCirclePlus, IconStar, IconStarFilled, IconX } from '@tabler/icons-react';
-import { buttonVariants, cn, readImage, Spinner, Tooltip, useUpload } from 'erxes-ui';
+import {
+  IconPhotoCirclePlus,
+  IconStar,
+  IconStarFilled,
+  IconX,
+} from '@tabler/icons-react';
+import {
+  buttonVariants,
+  cn,
+  readImage,
+  Spinner,
+  Tooltip,
+  useUpload,
+} from 'erxes-ui';
 import { Slot } from 'radix-ui';
 import { forwardRef, useMemo, useRef, useState } from 'react';
 import { Button, FileTrigger, FileTriggerProps } from 'react-aria-components';
@@ -247,7 +259,7 @@ const UploadAttachmentsContent = ({
             <img
               src={readImage(url)}
               className={cn(
-                'w-full h-full object-cover rounded',
+                'w-full h-full object-cover rounded bg-accent',
                 isFeatured && 'ring-2 ring-primary',
               )}
               alt="attachment"
@@ -261,7 +273,7 @@ const UploadAttachmentsContent = ({
                         type="button"
                         onClick={() => setFeatured(url)}
                         className={cn(
-                          'absolute top-0.5 left-0.5 bg-foreground/70 ring-1 ring-primary-foreground/60 rounded-full p-0.5 transition-opacity',
+                          'absolute top-0.5 left-0.5 bg-foreground ring-1 ring-primary-foreground/60 rounded-full p-0.5 transition-opacity',
                           isFeatured
                             ? 'opacity-100'
                             : 'opacity-0 group-hover:opacity-100',
@@ -284,7 +296,7 @@ const UploadAttachmentsContent = ({
                     <button
                       type="button"
                       onClick={() => remove(url)}
-                      className="absolute top-0.5 right-0.5 bg-foreground/70 ring-1 ring-primary-foreground/60 rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
+                      className="absolute top-0.5 right-0.5 bg-foreground ring-1 ring-primary-foreground/60 rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
                     >
                       <IconX className="size-3 text-primary-foreground" />
                     </button>

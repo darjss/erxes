@@ -16,8 +16,8 @@ const config: ModuleFederationConfig = {
   name: 'blockagency_ui',
   exposes: {
     './config': './src/config.tsx',
-    './blockagency': './src/modules/blockagencyMain.tsx',
-    './blockagencySettings': './src/modules/blockagencySettings.tsx',
+    './blockagency': './src/modules/BlockagencyMain.tsx',
+    './blockagencySettings': './src/modules/BlockagencySettings.tsx',
     './widgets': './src/widgets/Widgets.tsx',
   },
 
