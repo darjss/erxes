@@ -20,10 +20,12 @@ export const providerReviewMutations: Record<string, Resolver> = {
     _root: undefined,
     {
       providerId,
+      activityTypeId,
       rating,
       comment,
     }: {
       providerId: string;
+      activityTypeId?: string | null;
       rating: number;
       comment?: string | null;
     },
@@ -41,11 +43,21 @@ export const providerReviewMutations: Record<string, Resolver> = {
       throw new Error('Provider not found');
     }
 
+    if (activityTypeId) {
+      const activityType = await models.ActivityType.findOne({
+        _id: activityTypeId,
+      });
+      if (!activityType) {
+        throw new Error('Activity type not found');
+      }
+    }
+
     const userId = cpUser.erxesCustomerId || cpUser._id;
 
     return models.ProviderReview.createProviderReview({
       providerId,
       userId,
+      activityTypeId: activityTypeId ?? undefined,
       rating,
       comment: comment ?? undefined,
     });
@@ -55,10 +67,12 @@ export const providerReviewMutations: Record<string, Resolver> = {
     _root: undefined,
     {
       _id,
+      activityTypeId,
       rating,
       comment,
     }: {
       _id: string;
+      activityTypeId?: string | null;
       rating?: number | null;
       comment?: string | null;
     },
@@ -69,7 +83,11 @@ export const providerReviewMutations: Record<string, Resolver> = {
       throw new Error('Client portal user required');
     }
 
-    const patch: Partial<{ rating: number; comment: string }> = {};
+    const patch: Partial<{
+      rating: number;
+      comment: string;
+      activityTypeId: string;
+    }> = {};
     if (rating !== undefined && rating !== null) {
       assertRating(rating);
       patch.rating = rating;
@@ -77,9 +95,23 @@ export const providerReviewMutations: Record<string, Resolver> = {
     if (comment !== undefined) {
       patch.comment = comment ?? '';
     }
+    if (activityTypeId !== undefined) {
+      if (activityTypeId) {
+        const activityType = await models.ActivityType.findOne({
+          _id: activityTypeId,
+        });
+        if (!activityType) {
+          throw new Error('Activity type not found');
+        }
+      }
+
+      patch.activityTypeId = activityTypeId ?? '';
+    }
 
     if (Object.keys(patch).length === 0) {
-      throw new Error('At least one of rating or comment is required');
+      throw new Error(
+        'At least one of rating, comment, or activityTypeId is required',
+      );
     }
 
     const userId = cpUser.erxesCustomerId || cpUser._id;
@@ -122,4 +154,19 @@ export const providerReviewMutations: Record<string, Resolver> = {
       _id: removed._id,
     };
   },
+};
+
+providerReviewMutations.cpOneFitProviderReviewAdd.wrapperConfig = {
+  forClientPortal: true,
+  cpUserRequired: true,
+};
+
+providerReviewMutations.cpOneFitProviderReviewUpdate.wrapperConfig = {
+  forClientPortal: true,
+  cpUserRequired: true,
+};
+
+providerReviewMutations.cpOneFitProviderReviewRemove.wrapperConfig = {
+  forClientPortal: true,
+  cpUserRequired: true,
 };

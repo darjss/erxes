@@ -1,22 +1,22 @@
 import { IContext } from '~/connectionResolvers';
-import { IOppty, IOpptyInput } from '@/oppty/@types/oppty';
+import { IBlockOpptyInput } from '@/oppty/@types/oppty';
 import { IContractPaymentPlan } from '@/contract/@types/contract';
 
 export const opptyMutations = {
   blockCreateOppty: async (
     _parent: undefined,
-    { input }: { input: IOpptyInput },
-    { models, user }: IContext,
+    { input }: { input: IBlockOpptyInput },
+    { models }: IContext,
   ) => {
-    return models.Oppty.createOppty(input, user._id);
+    return models.Oppty.createOppty(input);
   },
 
   blockUpdateOppty: async (
     _parent: undefined,
-    { _id, input }: { _id: string; input: IOpptyInput },
-    { models, user }: IContext,
+    { _id, input }: { _id: string; input: IBlockOpptyInput },
+    { models }: IContext,
   ) => {
-    return models.Oppty.updateOppty(_id, input, user._id);
+    return models.Oppty.updateOppty(_id, input);
   },
 
   blockDeleteOppty: async (

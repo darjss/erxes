@@ -5,18 +5,9 @@ export default {
   typeDefs: `
       blockOpptyChanged(_id: String!): OpptySubscription
       blockOpptyListChanged(projectId: String, filter: IOpptyFilter): OpptySubscription
-      opptyActivityChanged(contentId: String!): OpptyActivitySubscription
 		`,
   generateResolvers: (graphqlPubsub) => {
     return {
-      // --- Ticket Pipeline ---
-      opptyActivityChanged: {
-        resolve: (payload) => payload.opptyActivityChanged,
-        subscribe: (_, { contentId }) =>
-          graphqlPubsub.asyncIterator(`opptyActivityChanged:${contentId}`),
-      },
-
-      // --- Ticket ---
       blockOpptyChanged: {
         resolve: (payload) => payload.blockOpptyChanged,
         subscribe: (_, { _id }) =>

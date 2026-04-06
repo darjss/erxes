@@ -9,6 +9,8 @@ export const FieldChangeSentence = ({
 }) => {
   const { metadata, changes, action } = activity || {};
 
+  console.log(activity);
+
   const {
     field,
     fieldLabel = field || 'field',

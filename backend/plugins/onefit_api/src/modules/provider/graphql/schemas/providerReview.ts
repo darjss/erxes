@@ -5,6 +5,7 @@ export const providerReviewTypes = `
     _id: String
     providerId: String
     userId: String
+    activityTypeId: String
     rating: Float
     comment: String
     createdAt: Date
@@ -32,11 +33,13 @@ export const providerReviewQueries = `
 export const providerReviewMutations = `
   cpOneFitProviderReviewAdd(
     providerId: String!
+    activityTypeId: String
     rating: Float!
     comment: String
   ): OneFitProviderReview
   cpOneFitProviderReviewUpdate(
     _id: String!
+    activityTypeId: String
     rating: Float
     comment: String
   ): OneFitProviderReview

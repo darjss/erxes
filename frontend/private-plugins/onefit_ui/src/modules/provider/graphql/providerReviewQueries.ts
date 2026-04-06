@@ -23,6 +23,7 @@ export const ONE_FIT_PROVIDER_REVIEWS = gql`
         _id
         providerId
         userId
+        activityTypeId
         rating
         comment
         createdAt

@@ -12,7 +12,6 @@ import { ONE_FIT_ACCOUNT_STATEMENT } from '../graphql/accountStatementQueries';
 import { SelectProviderSearchable } from './SelectProviderSearchable';
 import { getLocalizedString } from '~/modules/activity-type/utils/localization';
 import { FilterField } from '~/components/shared/FilterField';
-import { AccountStatementRowDetailsDialog } from './AccountStatementRowDetailsDialog';
 import { useOneFitMode } from '~/modules/config/hooks/useOneFitMode';
 
 function startOfMonth(date: Date): string {
@@ -266,15 +265,6 @@ export function AccountStatementReport() {
           No completed or no-show bookings in the selected date range.
         </p>
       )}
-      {/* 
-      <AccountStatementRowDetailsDialog
-        row={detailsRow}
-        open={detailsOpen}
-        onOpenChange={(open) => {
-          setDetailsOpen(open);
-          if (!open) setDetailsRow(null);
-        }}
-      /> */}
     </div>
   );
 }

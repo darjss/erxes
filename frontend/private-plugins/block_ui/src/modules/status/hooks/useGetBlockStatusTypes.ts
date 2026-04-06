@@ -3,7 +3,7 @@ import { GET_BLOCK_STATUS_TYPES } from '@/status/graphql/queries/getBlockStatusT
 import { IBlockStatus } from '@/status/types';
 
 interface IResponse {
-  getBlockStatusTypes: IBlockStatus[];
+  getBlockOpptyStatusTypes: IBlockStatus[];
 }
 
 export const useBlockStatusTypes = (projectId: string) => {
@@ -11,5 +11,5 @@ export const useBlockStatusTypes = (projectId: string) => {
     variables: { projectId },
   });
 
-  return { statusTypes: data?.getBlockStatusTypes || [], loading };
+  return { statusTypes: data?.getBlockOpptyStatusTypes || [], loading };
 };

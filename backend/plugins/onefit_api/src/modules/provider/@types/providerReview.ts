@@ -3,6 +3,7 @@ import { Document } from 'mongoose';
 export interface IProviderReview {
   providerId: string;
   userId: string;
+  activityTypeId?: string;
   rating: number;
   comment?: string;
   createdAt?: Date;
