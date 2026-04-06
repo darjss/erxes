@@ -59,9 +59,7 @@ export function ProviderReviewsSection({
 
   async function handleDeleteReview(reviewId: string) {
     if (
-      !window.confirm(
-        'Delete this review permanently? This cannot be undone.',
-      )
+      !window.confirm('Delete this review permanently? This cannot be undone.')
     ) {
       return;
     }
