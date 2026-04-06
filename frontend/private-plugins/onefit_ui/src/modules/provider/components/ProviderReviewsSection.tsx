@@ -1,6 +1,8 @@
+import { useMutation } from '@apollo/client';
 import { Button, Label, Spinner } from 'erxes-ui';
-import { IconStar, IconStarFilled } from '@tabler/icons-react';
+import { IconStar, IconStarFilled, IconTrash } from '@tabler/icons-react';
 import { format, parseISO } from 'date-fns';
+import { ONE_FIT_PROVIDER_REVIEW_REMOVE } from '~/modules/provider/graphql/providerReviewQueries';
 import { useProviderReviews } from '~/modules/provider/hooks/useProviderReviews';
 import { OneFitProviderReview } from '~/modules/provider/types/provider';
 
@@ -41,8 +43,33 @@ function RatingStars({ rating }: { rating: number }) {
 export function ProviderReviewsSection({
   providerId,
 }: ProviderReviewsSectionProps) {
-  const { summary, reviews, totalCount, pageInfo, loading, handleFetchMore } =
-    useProviderReviews(providerId);
+  const {
+    summary,
+    reviews,
+    totalCount,
+    pageInfo,
+    loading,
+    handleFetchMore,
+    refetchAll,
+  } = useProviderReviews(providerId);
+
+  const [removeReview, { loading: removing }] = useMutation(
+    ONE_FIT_PROVIDER_REVIEW_REMOVE,
+  );
+
+  async function handleDeleteReview(reviewId: string) {
+    if (
+      !window.confirm(
+        'Delete this review permanently? This cannot be undone.',
+      )
+    ) {
+      return;
+    }
+    await removeReview({
+      variables: { id: reviewId, providerId },
+    });
+    await refetchAll();
+  }
 
   return (
     <div className="border-t border-border pt-6 space-y-4">
@@ -89,7 +116,22 @@ export function ProviderReviewsSection({
                     </p>
                   ) : null}
                 </div>
-                <RatingStars rating={review.rating} />
+                <div className="flex shrink-0 items-center gap-2">
+                  <RatingStars rating={review.rating} />
+                  {review._id ? (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 text-destructive hover:bg-destructive/10 hover:text-destructive"
+                      disabled={removing}
+                      aria-label="Delete review"
+                      onClick={() => handleDeleteReview(review._id as string)}
+                    >
+                      <IconTrash className="size-4" />
+                    </Button>
+                  ) : null}
+                </div>
               </div>
               {review.comment ? (
                 <p className="mt-2 text-sm text-foreground/90 whitespace-pre-wrap">

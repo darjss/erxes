@@ -20,6 +20,10 @@ export const providerReviewSchema = new Schema<IProviderReviewDocument>(
       index: true,
       label: 'User ID',
     },
+    bookingId: {
+      type: String,
+      label: 'Booking ID',
+    },
     activityTypeId: {
       type: String,
       index: true,
@@ -40,3 +44,4 @@ export const providerReviewSchema = new Schema<IProviderReviewDocument>(
 );
 
 providerReviewSchema.index({ providerId: 1, createdAt: -1 });
+providerReviewSchema.index({ bookingId: 1 }, { sparse: true });

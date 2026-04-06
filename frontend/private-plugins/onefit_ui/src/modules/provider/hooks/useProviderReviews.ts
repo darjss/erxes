@@ -19,13 +19,11 @@ export function useProviderReviews(providerId: string | undefined) {
     sessionKey: `onefit-provider-reviews-${providerId || 'none'}`,
   });
 
-  const { data: summaryData, loading: summaryLoading } = useQuery(
-    ONE_FIT_PROVIDER_REVIEW_SUMMARY,
-    {
+  const { data: summaryData, loading: summaryLoading, refetch: refetchSummary } =
+    useQuery(ONE_FIT_PROVIDER_REVIEW_SUMMARY, {
       variables: { providerId: providerId || '' },
       skip: !providerId,
-    },
-  );
+    });
 
   const { data, loading, error, fetchMore, refetch } = useQuery<{
     oneFitProviderReviews: OneFitProviderReviewListResponse;
@@ -79,6 +77,15 @@ export function useProviderReviews(providerId: string | undefined) {
     });
   }, [refetch, providerId, cursor]);
 
+  const refetchAll = useCallback(async () => {
+    await Promise.all([
+      handleRefetch(),
+      providerId
+        ? refetchSummary({ providerId })
+        : Promise.resolve(undefined),
+    ]);
+  }, [handleRefetch, providerId, refetchSummary]);
+
   return {
     summary: summaryData?.oneFitProviderReviewSummary,
     reviews,
@@ -88,5 +95,6 @@ export function useProviderReviews(providerId: string | undefined) {
     error,
     handleFetchMore,
     refetch: handleRefetch,
+    refetchAll,
   };
 }

@@ -13,12 +13,19 @@ export interface IProviderReviewModel extends Model<IProviderReviewDocument> {
     _id: string,
     userId: string,
     doc: Partial<
-      Pick<IProviderReview, 'rating' | 'comment' | 'activityTypeId'>
+      Pick<
+        IProviderReview,
+        'rating' | 'comment' | 'activityTypeId' | 'bookingId'
+      >
     >,
   ): Promise<IProviderReviewDocument | null>;
   removeProviderReview(
     _id: string,
     userId: string,
+  ): Promise<IProviderReviewDocument | null>;
+  removeProviderReviewAsAdmin(
+    _id: string,
+    providerId: string,
   ): Promise<IProviderReviewDocument | null>;
   getSummaryForProvider(providerId: string): Promise<IProviderReviewSummary>;
 }
@@ -33,7 +40,10 @@ export const loadProviderReviewClass = (models: IModels) => {
       _id: string,
       userId: string,
       doc: Partial<
-        Pick<IProviderReview, 'rating' | 'comment' | 'activityTypeId'>
+        Pick<
+          IProviderReview,
+          'rating' | 'comment' | 'activityTypeId' | 'bookingId'
+        >
       >,
     ) {
       const existing = await models.ProviderReview.findOne({ _id, userId });
@@ -50,6 +60,9 @@ export const loadProviderReviewClass = (models: IModels) => {
       if (doc.activityTypeId !== undefined) {
         next.activityTypeId = doc.activityTypeId;
       }
+      if (doc.bookingId !== undefined) {
+        next.bookingId = doc.bookingId;
+      }
       return models.ProviderReview.findOneAndUpdate(
         { _id, userId },
         { $set: next },
@@ -59,6 +72,13 @@ export const loadProviderReviewClass = (models: IModels) => {
 
     public static async removeProviderReview(_id: string, userId: string) {
       return models.ProviderReview.findOneAndDelete({ _id, userId });
+    }
+
+    public static async removeProviderReviewAsAdmin(
+      _id: string,
+      providerId: string,
+    ) {
+      return models.ProviderReview.findOneAndDelete({ _id, providerId });
     }
 
     public static async getSummaryForProvider(providerId: string) {

@@ -3,6 +3,8 @@ import { Document } from 'mongoose';
 export interface IProviderReview {
   providerId: string;
   userId: string;
+  /** Resolved MongoDB `_id` of the linked booking (mutation accepts `_id` or `booking.bookingId`) */
+  bookingId?: string;
   activityTypeId?: string;
   rating: number;
   comment?: string;
