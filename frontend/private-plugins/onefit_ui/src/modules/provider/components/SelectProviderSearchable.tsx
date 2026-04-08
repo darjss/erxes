@@ -95,7 +95,6 @@ const SelectProviderContent = () => {
     totalCount,
   } = useProviders({
     searchValue: debouncedSearch,
-    isActive: true,
   });
 
   return (
