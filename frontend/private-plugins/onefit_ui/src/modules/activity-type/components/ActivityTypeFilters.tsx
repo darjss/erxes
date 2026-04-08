@@ -87,8 +87,8 @@ export const ActivityTypeFiltersComponent = ({
             filters.isActive === undefined
               ? '__all__'
               : filters.isActive
-              ? 'true'
-              : 'false'
+                ? 'true'
+                : 'false'
           }
           onValueChange={(value) =>
             handleFilterChange(
