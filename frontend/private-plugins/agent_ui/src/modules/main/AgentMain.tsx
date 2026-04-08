@@ -26,7 +26,7 @@ export const AgentMain = () => {
   return (
     <div className="h-full">
       <iframe
-        src={`${agent.url}/#token=${agent.token}`}
+        src={`https:// ${agent.name}.assistant.erxes.io/#token=${agent.token}`}
         title="Agent"
         className="w-full h-full border-0 transition-opacity duration-200 opacity-100"
         allow="clipboard-read; clipboard-write; microphone"
