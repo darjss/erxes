@@ -21,7 +21,7 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
   models.AgentServer = db.model<
     IAgentServerDocument,
     Model<IAgentServerDocument>
-  >('agent_servers', agentServerSchema);
+  >('agent_serverss', agentServerSchema);
 
   return models;
 };
