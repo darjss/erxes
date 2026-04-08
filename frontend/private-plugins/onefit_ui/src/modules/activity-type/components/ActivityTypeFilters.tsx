@@ -19,7 +19,6 @@ export const ActivityTypeFiltersComponent = ({
 }: ActivityTypeFiltersProps) => {
   useQuery(ONE_FIT_PROVIDERS, {
     variables: {
-      isActive: true,
       limit: 100,
       cursor: undefined,
       cursorMode: EnumCursorMode.INCLUSIVE,

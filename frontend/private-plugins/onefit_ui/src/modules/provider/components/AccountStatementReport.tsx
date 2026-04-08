@@ -53,6 +53,7 @@ export function AccountStatementReport() {
     null,
   );
   const [detailsOpen, setDetailsOpen] = useState(false);
+
   const [, setAccountStatementId] = useQueryState<string>('accountStatementId');
   const { mode } = useOneFitMode();
   const isMasterMode = mode === 'master';
@@ -70,6 +71,16 @@ export function AccountStatementReport() {
   const totalAmountEarned = result?.totalAmountEarned ?? 0;
 
   const columns: ColumnDef<AccountStatementRow>[] = [
+    {
+      id: 'rowNumber',
+      header: '#',
+      size: 48,
+      cell: ({ row }: { row: { index: number } }) => (
+        <RecordTableInlineCell className="text-xs font-medium text-muted-foreground tabular-nums">
+          {row.index + 1}
+        </RecordTableInlineCell>
+      ),
+    },
     {
       id: 'year',
       accessorKey: 'year',
@@ -254,7 +265,9 @@ export function AccountStatementReport() {
         </div>
         {!loading && rows.length > 0 && (
           <div className="border-t bg-muted/30 px-4 py-2 text-sm font-medium space-y-1 shrink-0">
-            <div>Total credits earned: {totalCreditsEarned.toFixed(2)}</div>
+            {isMasterMode && (
+              <div>Total credits earned: {totalCreditsEarned.toFixed(2)}</div>
+            )}
             <div>Total amount earned: {totalAmountEarned.toFixed(2)}</div>
           </div>
         )}

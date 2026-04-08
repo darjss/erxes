@@ -53,7 +53,10 @@ export const promoCodeQueries: Record<string, Resolver> = {
 
     return await cursorPaginate({
       model: models.PromoCode,
-      params,
+      params: {
+        ...params,
+        orderBy: { createdAt: -1 },
+      },
       query: filter,
     });
   },
