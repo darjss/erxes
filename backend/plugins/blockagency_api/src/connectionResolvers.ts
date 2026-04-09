@@ -3,7 +3,10 @@ import { IMainContext } from 'erxes-api-shared/core-types';
 import { IBlockAgencyDocument } from '~/modules/agency/@types/agency';
 import { IBlockListingDocument } from './modules/listing/@types/listing';
 import { IBlockAgencyMemberDocument } from './modules/member/@types/member';
-import type { IBlockUnitAssignmentDocument, IBlockUnitAssignmentModel } from './modules/unit-assignment/db/unitAssignment';
+import type {
+  IBlockUnitAssignmentDocument,
+  IBlockUnitAssignmentModel,
+} from './modules/unit-assignment/db/unitAssignment';
 import { blockUnitAssignmentSchema } from './modules/unit-assignment/db/unitAssignment';
 
 import mongoose from 'mongoose';
@@ -45,10 +48,10 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
     loadBlockListingClass(models),
   );
 
-  models.BlockAgencyMember = db.model<IBlockAgencyMemberDocument, IBlockAgencyMemberModel>(
-    'block_agencies_members',
-    loadBlockAgencyMemberClass(models),
-  );
+  models.BlockAgencyMember = db.model<
+    IBlockAgencyMemberDocument,
+    IBlockAgencyMemberModel
+  >('block_agencies_members', loadBlockAgencyMemberClass(models));
 
   models.BlockUnitAssignment = db.model<
     IBlockUnitAssignmentDocument,

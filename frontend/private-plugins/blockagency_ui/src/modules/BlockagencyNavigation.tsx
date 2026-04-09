@@ -1,5 +1,10 @@
 import { NavigationMenuLinkItem } from 'erxes-ui';
-import { IconBuildingEstate, IconHomeSearch, IconId, IconUserHexagon } from '@tabler/icons-react';
+import {
+  IconBuildingEstate,
+  IconHomeSearch,
+  IconId,
+  IconUserHexagon,
+} from '@tabler/icons-react';
 import { AgencyPaths } from './types/AgencyPaths';
 import { Can } from 'ui-modules';
 

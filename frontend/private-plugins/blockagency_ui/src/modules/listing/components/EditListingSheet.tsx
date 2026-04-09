@@ -29,7 +29,9 @@ export const EditListingSheet = () => {
     async (data: IListing) => {
       if (!editListing?._id) return;
       try {
-        await updateListing({ variables: { _id: editListing._id, input: data } });
+        await updateListing({
+          variables: { _id: editListing._id, input: data },
+        });
         toast({ variant: 'success', title: 'Listing updated successfully' });
         setEditListing(null);
       } catch (error) {

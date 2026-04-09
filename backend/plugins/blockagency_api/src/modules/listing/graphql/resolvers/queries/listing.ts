@@ -29,7 +29,11 @@ export const blockListingQueries = {
     return { list, pageInfo, totalCount };
   },
 
-  blockGetListingStats: async (_root: undefined, _args: unknown, { models }: IContext) => {
+  blockGetListingStats: async (
+    _root: undefined,
+    _args: unknown,
+    { models }: IContext,
+  ) => {
     const [total, active, draft, viewsAgg] = await Promise.all([
       models.BlockListing.countDocuments({}),
       models.BlockListing.countDocuments({ status: 'active' }),

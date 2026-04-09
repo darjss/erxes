@@ -10,7 +10,11 @@ export const useAssignUnitMember = () => {
       toast({ title: 'Success', description: 'Member assigned to unit' });
     },
     onError: (err) => {
-      toast({ title: 'Error', description: err.message, variant: 'destructive' });
+      toast({
+        title: 'Error',
+        description: err.message,
+        variant: 'destructive',
+      });
     },
   });
 

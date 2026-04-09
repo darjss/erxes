@@ -35,7 +35,6 @@ startPlugin({
     },
   },
   meta: {
-    permissions
+    permissions,
   },
 });
-

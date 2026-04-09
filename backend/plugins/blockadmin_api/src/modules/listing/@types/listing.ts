@@ -40,7 +40,8 @@ export interface IBlockAdminListing extends IBlock {
   viewCount?: number;
 }
 
-export interface IBlockAdminListingDocument extends IBlockAdminListing, Document {
+export interface IBlockAdminListingDocument
+  extends IBlockAdminListing, Document {
   _id: string;
   createdAt: Date;
   updatedAt: Date;

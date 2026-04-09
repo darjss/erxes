@@ -22,7 +22,11 @@ export const useUnitTransfer = ({ unitId }: { unitId: string }) => {
         toast({ title: 'Success', description: 'Unit transferred to agency' });
       },
       onError: (err) => {
-        toast({ title: 'Transfer failed', description: err.message, variant: 'destructive' });
+        toast({
+          title: 'Transfer failed',
+          description: err.message,
+          variant: 'destructive',
+        });
       },
     });
   };

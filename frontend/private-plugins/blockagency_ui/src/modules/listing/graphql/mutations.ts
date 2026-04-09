@@ -14,7 +14,10 @@ export const CREATE_LISTING = gql`
 `;
 
 export const UPDATE_LISTING = gql`
-  mutation BlockUpdateListingGeneralInfo($_id: String!, $input: BlockListingInput!) {
+  mutation BlockUpdateListingGeneralInfo(
+    $_id: String!
+    $input: BlockListingInput!
+  ) {
     blockUpdateListingGeneralInfo(_id: $_id, input: $input) {
       _id
       title

@@ -4,9 +4,9 @@ import { encodeTRPCContextHeader } from 'erxes-api-shared/utils/trpc';
 
 let cachedClient: ReturnType<typeof createTRPCUntypedClient> | null = null;
 
-export const blockAgencyTRPCClient = async (): Promise<
-  ReturnType<typeof createTRPCUntypedClient> | null
-> => {
+export const blockAgencyTRPCClient = async (): Promise<ReturnType<
+  typeof createTRPCUntypedClient
+> | null> => {
   if (cachedClient) return cachedClient;
 
   try {

@@ -6,15 +6,12 @@ import {
   IBlockAdminListingDocument,
 } from '../@types/listing';
 
-export interface IBlockAdminListingModel
-  extends Model<IBlockAdminListingDocument> {
+export interface IBlockAdminListingModel extends Model<IBlockAdminListingDocument> {
   getListing(
     subdomain: string,
     entityId: string,
   ): Promise<IBlockAdminListingDocument>;
-  createListing(
-    input: IBlockAdminListing,
-  ): Promise<IBlockAdminListingDocument>;
+  createListing(input: IBlockAdminListing): Promise<IBlockAdminListingDocument>;
   updateListing(
     subdomain: string,
     entityId: string,

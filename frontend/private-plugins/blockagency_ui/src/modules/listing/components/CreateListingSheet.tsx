@@ -1,11 +1,6 @@
 import { useAtom } from 'jotai';
 import { createListingSheetAtom } from '../states/listing';
-import {
-  Button,
-  Form,
-  Sheet,
-  toast,
-} from 'erxes-ui';
+import { Button, Form, Sheet, toast } from 'erxes-ui';
 import { useListingForm } from '../hooks/useListingForm';
 import { useCreateListing } from '../hooks/useCreateListing';
 import { useCallback } from 'react';
@@ -20,7 +15,7 @@ import { ListingMemberSection } from './ListingMemberSection';
 export const CreateListingSheet = () => {
   const [open, setOpen] = useAtom(createListingSheetAtom);
   const { form } = useListingForm();
-  const {  handleSubmit, reset } = form;
+  const { handleSubmit, reset } = form;
   const { createListing, loading } = useCreateListing();
 
   const onSubmit = useCallback(

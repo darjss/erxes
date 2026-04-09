@@ -67,7 +67,10 @@ export const AgencyContactInfo = () => {
           }) => {
             form.setValue('phones', updatedPhones);
             form.setValue('primaryPhone', updatedPrimaryPhone);
-            handleSave({ phones: updatedPhones, primaryPhone: updatedPrimaryPhone });
+            handleSave({
+              phones: updatedPhones,
+              primaryPhone: updatedPrimaryPhone,
+            });
           }}
           disabled={isPending}
         />
@@ -85,7 +88,10 @@ export const AgencyContactInfo = () => {
           }) => {
             form.setValue('emails', updatedEmails);
             form.setValue('primaryEmail', updatedPrimaryEmail);
-            handleSave({ emails: updatedEmails, primaryEmail: updatedPrimaryEmail });
+            handleSave({
+              emails: updatedEmails,
+              primaryEmail: updatedPrimaryEmail,
+            });
           }}
           disabled={isPending}
         />

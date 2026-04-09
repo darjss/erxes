@@ -15,7 +15,9 @@ export const appRouter = t.router({
     getAgencyById: t.procedure
       .input(z.object({ agencyId: z.string() }))
       .query(async ({ ctx, input }) => {
-        return ctx.models.BlockAgency.findOne({ _id: input.agencyId }).lean() ?? null;
+        return (
+          ctx.models.BlockAgency.findOne({ _id: input.agencyId }).lean() ?? null
+        );
       }),
   },
   unit: {

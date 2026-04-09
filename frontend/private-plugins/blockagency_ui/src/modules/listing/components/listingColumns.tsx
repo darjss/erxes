@@ -65,10 +65,10 @@ export const listingColumns: ColumnDef<IListingInline>[] = [
               cell.getValue() === 'active'
                 ? 'success'
                 : cell.getValue() === 'inactive'
-                ? 'warning'
-                : cell.getValue() === 'sold'
-                ? 'info'
-                : 'secondary'
+                  ? 'warning'
+                  : cell.getValue() === 'sold'
+                    ? 'info'
+                    : 'secondary'
             }
           >
             {cell.row.original.status}

@@ -26,7 +26,9 @@ export const blockUnitQueries = {
     { agencyId, projectId, memberId, page = 1, perPage = 20 }: UnitQueryParams,
     { models }: IContext,
   ) => {
-    return models.BlockUnitAssignment.find(buildFilter({ agencyId, projectId, memberId }))
+    return models.BlockUnitAssignment.find(
+      buildFilter({ agencyId, projectId, memberId }),
+    )
       .sort({ assignedAt: -1 })
       .skip((page - 1) * perPage)
       .limit(perPage)
@@ -35,7 +37,11 @@ export const blockUnitQueries = {
 
   blockAgencyGetUnitsTotalCount: async (
     _root: undefined,
-    { agencyId, projectId, memberId }: Pick<UnitQueryParams, 'agencyId' | 'projectId' | 'memberId'>,
+    {
+      agencyId,
+      projectId,
+      memberId,
+    }: Pick<UnitQueryParams, 'agencyId' | 'projectId' | 'memberId'>,
     { models }: IContext,
   ) => {
     return models.BlockUnitAssignment.countDocuments(
