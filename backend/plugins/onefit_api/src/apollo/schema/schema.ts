@@ -59,6 +59,10 @@ import {
   queries as PromoCodeQueries,
   mutations as PromoCodeMutations,
 } from '@/promoCode/graphql/schemas/promoCode';
+import {
+  types as DashboardTypes,
+  queries as DashboardQueries,
+} from '@/dashboard/graphql/schemas/dashboard';
 import { TypeExtensions } from './extensions';
 
 export const types = `
@@ -75,6 +79,7 @@ export const types = `
   ${ActivityTypeTypes}
   ${BannerTypes}
   ${PromoCodeTypes}
+  ${DashboardTypes}
 `;
 
 export const queries = `
@@ -90,6 +95,7 @@ export const queries = `
   ${ActivityTypeQueries}
   ${BannerQueries}
   ${PromoCodeQueries}
+  ${DashboardQueries}
 `;
 
 export const mutations = `

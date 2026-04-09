@@ -119,6 +119,7 @@ const OneFitMain = () => {
     <Suspense fallback={<div />}>
       <Routes>
         <Route path="/" element={<IndexPage />} />
+        <Route path="/dashboard" element={<IndexPage />} />
         <Route path="/bookings" element={<BookingsPage />} />
         <Route path="/schedules" element={<SchedulesPage />} />
         <Route path="/activity-types" element={<ActivityTypesPage />} />
