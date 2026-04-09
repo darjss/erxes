@@ -24,18 +24,23 @@ type Props = {
   agencySubdomain?: string;
 };
 
-export const UnitTransferSection = ({ unitId, agencyEntityId, agencySubdomain }: Props) => {
+export const UnitTransferSection = ({
+  unitId,
+  agencyEntityId,
+  agencySubdomain,
+}: Props) => {
   const [selectedAgency, setSelectedAgency] = useState('');
   const { transferUnit, loading } = useUnitTransfer({ unitId });
 
-  const { data } = useQuery<{ blockGetAgencies: { _id: string; name: string; brandName?: string }[] }>(
-    GET_AGENCIES,
-    { fetchPolicy: 'cache-first' },
-  );
+  const { data } = useQuery<{
+    blockGetAgencies: { _id: string; name: string; brandName?: string }[];
+  }>(GET_AGENCIES, { fetchPolicy: 'cache-first' });
 
   const agencies = data?.blockGetAgencies || [];
   const assignedAgency = agencies.find((a) => a._id === agencyEntityId);
-  const agencyName = assignedAgency ? (assignedAgency.brandName || assignedAgency.name) : agencySubdomain;
+  const agencyName = assignedAgency
+    ? assignedAgency.brandName || assignedAgency.name
+    : agencySubdomain;
 
   // Already transferred
   if (agencyEntityId && !selectedAgency) {
@@ -62,7 +67,9 @@ export const UnitTransferSection = ({ unitId, agencyEntityId, agencySubdomain }:
   // Transfer / Reassign form
   return (
     <div className="space-y-2">
-      <Label>{agencyEntityId ? 'Reassign to agency' : 'Transfer to agency'}</Label>
+      <Label>
+        {agencyEntityId ? 'Reassign to agency' : 'Transfer to agency'}
+      </Label>
       <div className="flex items-center gap-2">
         <SelectAgency
           value={selectedAgency === '__reassign__' ? '' : selectedAgency}
@@ -70,9 +77,14 @@ export const UnitTransferSection = ({ unitId, agencyEntityId, agencySubdomain }:
         />
         <Button
           size="sm"
-          disabled={!selectedAgency || selectedAgency === '__reassign__' || loading}
+          disabled={
+            !selectedAgency || selectedAgency === '__reassign__' || loading
+          }
           onClick={() =>
-            transferUnit({ agencyId: selectedAgency, agencySubdomain: AGENCY_SUBDOMAIN })
+            transferUnit({
+              agencyId: selectedAgency,
+              agencySubdomain: AGENCY_SUBDOMAIN,
+            })
           }
         >
           <IconArrowRight className="w-4 h-4 mr-1" />

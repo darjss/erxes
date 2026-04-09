@@ -97,7 +97,7 @@ export const UploadProvider = ({
     });
   };
 
-  const existingUrls = typeof value === 'string' ? [value] : value ?? [];
+  const existingUrls = typeof value === 'string' ? [value] : (value ?? []);
   const displayUrls = isLoading
     ? [...existingUrls, ...(previewUrls ?? [])]
     : existingUrls;

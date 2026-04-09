@@ -10,10 +10,7 @@ export const locationSchema = z.object({
   city: z.string().min(1, 'City is required'),
   district: z.string().min(1, 'District is required'),
   subDistrict: z.string(),
-  short: z
-    .string()
-    .max(300, 'Cannot exceed maximum 300 characters')
-    .optional(),
+  short: z.string().max(300, 'Cannot exceed maximum 300 characters').optional(),
   lat: z.number(),
   lng: z.number(),
 });

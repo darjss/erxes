@@ -30,10 +30,10 @@ export const AgencyProfileDetailHeader = () => {
               agencyInfo?.verificationStatus === 'pending'
                 ? 'warning'
                 : agencyInfo?.verificationStatus === 'verified'
-                ? 'success'
-                : agencyInfo?.verificationStatus === 'unverified'
-                ? 'destructive'
-                : 'secondary'
+                  ? 'success'
+                  : agencyInfo?.verificationStatus === 'unverified'
+                    ? 'destructive'
+                    : 'secondary'
             }
           >
             <IconRosetteDiscountCheck

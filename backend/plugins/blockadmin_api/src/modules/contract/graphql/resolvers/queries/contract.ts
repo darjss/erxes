@@ -23,4 +23,3 @@ export const contractQueries = {
     return models.Contract.find({ unit });
   },
 };
-

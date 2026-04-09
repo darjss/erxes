@@ -7,8 +7,7 @@ import {
   IBlockAgencyMemberDocument,
 } from '~/modules/member/@types/member';
 
-export interface IBlockAgencyMemberModel
-  extends Model<IBlockAgencyMemberDocument> {
+export interface IBlockAgencyMemberModel extends Model<IBlockAgencyMemberDocument> {
   getMember(_id: string): Promise<IBlockAgencyMemberDocument | null>;
   createMember(
     members: IBlockAgencyAddMembersInput[],

@@ -23,7 +23,11 @@ export const UnitsList = ({
   const agencyMap = useMemo(
     () =>
       Object.fromEntries(
-        (agencies || []).filter((a): a is typeof a & { entityId: string } => Boolean(a.entityId)).map((a) => [a.entityId, a.brandName || a.name]),
+        (agencies || [])
+          .filter((a): a is typeof a & { entityId: string } =>
+            Boolean(a.entityId),
+          )
+          .map((a) => [a.entityId, a.brandName || a.name]),
       ),
     [agencies],
   );
@@ -56,7 +60,12 @@ export const UnitsList = ({
         </div>
       </div>
       {sortedUnits?.map((unit) => (
-        <UnitsListItem key={unit._id} unit={unit} zone={zone} agencyName={agencyMap[unit.agencyEntityId || '']} />
+        <UnitsListItem
+          key={unit._id}
+          unit={unit}
+          zone={zone}
+          agencyName={agencyMap[unit.agencyEntityId || '']}
+        />
       ))}
     </>
   );

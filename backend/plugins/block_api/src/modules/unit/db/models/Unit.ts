@@ -9,7 +9,11 @@ import fetch from 'node-fetch';
 export interface IUnitModel extends Model<IUnitDocument> {
   getUnit(_id: string): Promise<IUnitDocument>;
   createUnit(input: IUnit): Promise<IUnitDocument>;
-  updateUnit(_id: string, input: IUnit, userId?: string): Promise<IUnitDocument>;
+  updateUnit(
+    _id: string,
+    input: IUnit,
+    userId?: string,
+  ): Promise<IUnitDocument>;
   removeUnit(id: string): Promise<IUnitDocument>;
   getUnitsByZoning(zoning: string): Promise<IUnitDocument[]>;
   transferUnit(payload: ITransferUnit): Promise<IUnitDocument>;
@@ -40,10 +44,7 @@ const notifyAdmin = async (
   }
 };
 
-export const loadUnitClass = (
-  models: IModels,
-  subdomain: string,
-) => {
+export const loadUnitClass = (models: IModels, subdomain: string) => {
   class Unit {
     public static async getUnit(_id: string) {
       return models.Unit.findOne({ _id });
@@ -93,9 +94,13 @@ export const loadUnitClass = (
 
       const agencyClient = await blockAgencyTRPCClient();
       if (agencyClient) {
-        const agency = await agencyClient.query('agency.getAgencyById', { agencyId });
+        const agency = await agencyClient.query('agency.getAgencyById', {
+          agencyId,
+        });
         if (!agency) {
-          throw new Error(`Agency "${agencyId}" not found in subdomain "${agencySubdomain}"`);
+          throw new Error(
+            `Agency "${agencyId}" not found in subdomain "${agencySubdomain}"`,
+          );
         }
       }
 
@@ -113,7 +118,9 @@ export const loadUnitClass = (
       );
 
       if (agencyClient) {
-        const developer = await models.Developer.findOne({}).select('name').lean();
+        const developer = await models.Developer.findOne({})
+          .select('name')
+          .lean();
         agencyClient
           .mutation('unit.assign', {
             blockUnitId: unitId,
@@ -124,7 +131,10 @@ export const loadUnitClass = (
             unitNumber: unit.number,
           })
           .catch((err: Error) =>
-            console.error('[transferUnit] Agency assignment failed:', err.message),
+            console.error(
+              '[transferUnit] Agency assignment failed:',
+              err.message,
+            ),
           );
       }
 

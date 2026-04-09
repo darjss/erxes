@@ -3,4 +3,3 @@ export const projectMemberQueries = {
     return await models.ProjectMember.find({ project });
   },
 };
-

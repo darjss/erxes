@@ -30,8 +30,7 @@ const getSocialIcon = (url: string) => {
   return <IconLink size={16} className="text-muted-foreground" />;
 };
 
-interface SocialLinkInputProps
-  extends React.InputHTMLAttributes<HTMLInputElement> {
+interface SocialLinkInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   value?: string;
 }
 

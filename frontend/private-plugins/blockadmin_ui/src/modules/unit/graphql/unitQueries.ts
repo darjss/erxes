@@ -17,7 +17,7 @@ export const BLOCK_GET_UNITS = gql`
 export const BLOCK_GET_UNIT = gql`
   query BlockAdminGetUnit($id: String!) {
     blockAdminGetUnit(_id: $id) {
-    _id
+      _id
       building
       number
       type

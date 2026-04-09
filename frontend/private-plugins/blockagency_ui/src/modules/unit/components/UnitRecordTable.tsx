@@ -5,7 +5,9 @@ import { useGetUnits } from '../hooks/useGetUnits';
 const PER_PAGE = 20;
 
 export const UnitRecordTable = () => {
-  const { units, loading, totalCount } = useGetUnits({ perPage: PER_PAGE } as any);
+  const { units, loading, totalCount } = useGetUnits({
+    perPage: PER_PAGE,
+  } as any);
 
   const RecordMain = () => {
     if (loading) {

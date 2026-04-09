@@ -1,3 +1,1 @@
-export const BlockAgency = {
-  
-};
+export const BlockAgency = {};

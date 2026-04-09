@@ -20,8 +20,7 @@ export interface IBlockAgencyAddMembersInput {
 }
 
 export interface IBlockAgencyMemberDocument
-  extends IBlockAgencyMember,
-    Document<string> {
+  extends IBlockAgencyMember, Document<string> {
   _id: string;
   createdAt: Date;
   updatedAt: Date;

@@ -56,7 +56,10 @@ export const unitColumns: ColumnDef<IBlockAgencyUnit>[] = [
     size: 160,
     cell: ({ row }) => (
       <RecordTableInlineCell>
-        <SelectMember unitId={row.original._id} memberId={row.original.memberId} />
+        <SelectMember
+          unitId={row.original._id}
+          memberId={row.original.memberId}
+        />
       </RecordTableInlineCell>
     ),
   },

@@ -1,10 +1,7 @@
 import { Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
 import { agencySchema } from '@/agency/db/definitions/agency';
-import {
-  IBlockAgency,
-  IBlockAgencyDocument,
-} from '@/agency/@types/agency';
+import { IBlockAgency, IBlockAgencyDocument } from '@/agency/@types/agency';
 
 export interface IBlockAgencyModel extends Model<IBlockAgencyDocument> {
   getAgency(subdomain: string, entityId: string): Promise<IBlockAgencyDocument>;

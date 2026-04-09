@@ -22,9 +22,14 @@ interface SelectMemberProps {
   memberId?: string;
 }
 
-const getUserLabel = (user?: { email?: string; details?: { firstName?: string; lastName?: string } }) => {
+const getUserLabel = (user?: {
+  email?: string;
+  details?: { firstName?: string; lastName?: string };
+}) => {
   if (!user) return '';
-  const name = [user.details?.firstName, user.details?.lastName].filter(Boolean).join(' ');
+  const name = [user.details?.firstName, user.details?.lastName]
+    .filter(Boolean)
+    .join(' ');
   return name || user.email || '';
 };
 
@@ -38,13 +43,18 @@ export const SelectMember = ({ unitId, memberId }: SelectMemberProps) => {
     skip: memberUserIds.length === 0,
   });
 
-  const users: Array<{ _id: string; email?: string; details?: { firstName?: string; lastName?: string } }> =
-    usersData?.allUsers || [];
+  const users: Array<{
+    _id: string;
+    email?: string;
+    details?: { firstName?: string; lastName?: string };
+  }> = usersData?.allUsers || [];
 
   const userMap = Object.fromEntries(users.map((u) => [u._id, u]));
 
   const currentMember = agencyMembers.find((m) => m._id === memberId);
-  const currentUser = currentMember ? userMap[currentMember.memberId] : undefined;
+  const currentUser = currentMember
+    ? userMap[currentMember.memberId]
+    : undefined;
 
   const handleChange = (value: string) => {
     const next = value === 'unassigned' ? undefined : value;
@@ -59,7 +69,11 @@ export const SelectMember = ({ unitId, memberId }: SelectMemberProps) => {
     >
       <Select.Trigger className="h-7 min-w-[120px] max-w-[200px] text-xs border-none shadow-none focus:ring-0 px-2">
         <Select.Value placeholder="Assign member">
-          {memberId && currentUser ? getUserLabel(currentUser) : memberId ? memberId : 'Unassigned'}
+          {memberId && currentUser
+            ? getUserLabel(currentUser)
+            : memberId
+              ? memberId
+              : 'Unassigned'}
         </Select.Value>
       </Select.Trigger>
       <Select.Content>
