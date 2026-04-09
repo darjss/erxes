@@ -58,9 +58,7 @@ const sendMessage = ({ subdomain, path, payload }: SendMessagePayload) => {
   const API_ENDPOINT = `${BLOCKAGENT_API_URL}/webhook/${path}`;
 
   if (!BLOCKAGENT_API_URL || !BLOCK_ADMIN_SECRET) {
-    return console.error(
-      'BLOCKAGENT_API_URL or BLOCK_ADMIN_SECRET is not set',
-    );
+    return console.error('BLOCKAGENT_API_URL or BLOCK_ADMIN_SECRET is not set');
   }
 
   try {
