@@ -19,7 +19,6 @@ export const deployServer = async (
 ): Promise<DeployResponse> => {
   const DEPLOYER = getEnv({ name: 'DEPLOYER_URL' });
   const BOT_NAME = getEnv({ name: 'BOT_NAME' });
-  const MOONSHOT_API_KEY = getEnv({ name: 'MOONSHOT_API_KEY' });
 
   if (!DEPLOYER) {
     throw new Error('DEPLOYER_URL environment variable is required');
@@ -30,7 +29,6 @@ export const deployServer = async (
   const body = {
     ...payload,
     botName: BOT_NAME,
-    moonshotApiKey: MOONSHOT_API_KEY,
   };
 
   const response = await fetch(DEPLOYER_URL, {
@@ -232,9 +230,7 @@ export const listDiscordGuilds = async (
   serverName: string,
 ): Promise<{ guildId: string; requireMention: boolean }[]> => {
   const DEPLOYER = getEnv({ name: 'DEPLOYER_URL' });
-  const response = await fetch(
-    `${DEPLOYER}/tools/${serverName}/discordguilds`,
-  );
+  const response = await fetch(`${DEPLOYER}/tools/${serverName}/discordguilds`);
 
   if (!response.ok) {
     const message = await response.text();
@@ -255,13 +251,10 @@ export const fixAndRestartServer = async (
   serverName: string,
 ): Promise<void> => {
   const DEPLOYER = getEnv({ name: 'DEPLOYER_URL' });
-  const response = await fetch(
-    `${DEPLOYER}/agents/${serverName}/fix-restart`,
-    {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-    },
-  );
+  const response = await fetch(`${DEPLOYER}/agents/${serverName}/fix-restart`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+  });
 
   if (!response.ok) {
     const message = await response.text();

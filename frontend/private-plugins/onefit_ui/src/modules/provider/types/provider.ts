@@ -51,6 +51,7 @@ export interface OneFitProviderReview {
   _id: string;
   providerId: string;
   userId: string;
+  bookingId?: string;
   activityTypeId?: string;
   rating: number;
   comment?: string;

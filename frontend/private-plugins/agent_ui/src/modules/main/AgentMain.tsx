@@ -2,7 +2,7 @@ import { AgentDeployScreen } from '../deploy/components/AgentDeployScreen';
 import { SERVER_STATUSES } from '../deploy/constants';
 import { useAgent } from './hooks/useAgent';
 import { Card, Spinner } from 'erxes-ui';
-import { AgentDetailsLayout } from '../detail/components/AgentDetailsLayout';
+// import { AgentDetailsLayout } from '../detail/components/AgentDetailsLayout';
 
 export const AgentMain = () => {
   const { agent, loading } = useAgent();
@@ -23,5 +23,14 @@ export const AgentMain = () => {
     );
   }
 
-  return <AgentDetailsLayout />;
+  return (
+    <div className="h-full">
+      <iframe
+        src={`https:// ${agent.name}.assistant.erxes.io/#token=${agent.token}`}
+        title="Agent"
+        className="w-full h-full border-0 transition-opacity duration-200 opacity-100"
+        allow="clipboard-read; clipboard-write; microphone"
+      />
+    </div>
+  );
 };
