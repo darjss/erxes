@@ -8,6 +8,7 @@ import {
 } from '@tabler/icons-react';
 import { Button } from 'erxes-ui';
 import { Link } from 'react-router-dom';
+import { MainIndicatorsDashboard } from '~/components/dashboard/MainIndicatorsDashboard';
 import { OneFitPageLayout } from '~/components/OneFitPageLayout';
 import { useOneFitMode } from '~/modules/config/hooks/useOneFitMode';
 
@@ -19,6 +20,7 @@ export function IndexPage() {
       <div className="flex h-full overflow-hidden">
         <div className="flex flex-col h-full overflow-hidden flex-auto p-6">
           <div className="flex flex-col gap-4">
+            <MainIndicatorsDashboard />
             <h1 className="text-2xl font-bold">OneFit</h1>
             <div className="flex gap-4">
               <Button asChild>

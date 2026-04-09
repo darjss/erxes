@@ -20,7 +20,7 @@ async function sendCpNotificationByErxesCustomerId(
   data: CpNotificationData,
 ): Promise<void> {
   const listResult = await sendTRPCMessage({
-    subdomain,
+    subdomain: 'os',
     pluginName: 'core',
     method: 'query',
     module: 'cpUsers',
@@ -28,7 +28,6 @@ async function sendCpNotificationByErxesCustomerId(
     input: { erxesCustomerId, limit: 100 },
     defaultValue: { list: [], totalCount: 0 },
   });
-
   const list = listResult?.list ?? [];
   if (!list.length) {
     return;
@@ -45,7 +44,7 @@ async function sendCpNotificationByErxesCustomerId(
 
   for (const [clientPortalId, cpUserIds] of byPortal.entries()) {
     await sendTRPCMessage({
-      subdomain,
+      subdomain: 'os',
       pluginName: 'core',
       method: 'mutation',
       module: 'cpNotifications',
@@ -113,7 +112,6 @@ export async function processCreditExpiration(
   // Find expired customers with credits (exclude customers still on hold)
   const expiredCustomers = await models.OneFitCustomer.findOneFitCustomers({
     membershipExpiresAt: { $lt: now },
-    isExpired: false,
     currentCreditBalance: { $gt: 0 },
     $or: [
       { isMembershipOnHold: { $ne: true } },
@@ -215,8 +213,8 @@ export async function processCreditExpiration(
       );
 
       await sendCpNotificationByErxesCustomerId(subdomain, customer._id, {
-        title: 'Хөнгөлөлтөн хугацаа эхэллээ',
-        message: `Таны багцын хугацаа дууссан. ${creditBalance} кредитээ хадгалахын тулд ${gracePeriodDays} хоног байна. Цэнэглэнэ үү.`,
+        title: 'Кредит түр хадгалах хугацаа эхэллээ',
+        message: `Таны багцын хугацаа дууссан. ${creditBalance} кредитээ хадгалахын тулд ${gracePeriodDays} хоног байна. Та цэнэглэлт хийж хадгалах боломжтой.`,
         type: 'warning',
         contentType: 'onefit:creditExpiration',
         contentTypeId: customer._id,
