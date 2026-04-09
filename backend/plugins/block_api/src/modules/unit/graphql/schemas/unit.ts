@@ -1,4 +1,10 @@
 export const types = `
+  type BlockAgencyBasic {
+    _id: String!
+    name: String
+    brandName: String
+  }
+
   type BlockUnit {
     _id: String
     building: String
@@ -9,14 +15,18 @@ export const types = `
     status: String
 
     projectData: BlockProject
-    
+
     leads: [String]
 
     type: String
     unitType: UnitType
+    blockSubdomain: String
+    blockEntityId: String
+    agencySubdomain: String
+    agencyEntityId: String
     createdAt: Date
     updatedAt: Date
-  } 
+  }
 
   input BlockUnitInput {
     building: String
@@ -26,6 +36,13 @@ export const types = `
     type: String
     useProjectPrice: Boolean
     status: String
+    agencyEntityId: String
+  }
+
+  input BlockTransferUnitInput {
+    unitId: String!
+    agencySubdomain: String!
+    agencyId: String!
   }
 
   input BlockUnitsInput {
@@ -38,6 +55,7 @@ export const types = `
 export const queries = `
   blockGetUnit(_id: String!): BlockUnit
   blockGetUnits(zoning: String, zonings: [String]): [BlockUnit]
+  blockGetAgencies: [BlockAgencyBasic]
 `;
 
 export const mutations = `
@@ -46,4 +64,5 @@ export const mutations = `
   blockUpdateUnit(_id: String!, input: BlockUnitInput!): BlockUnit
   blockRemoveUnit(_id: String!): BlockUnit
   blockRemoveUnits(_ids: [String]): JSON
+  blockTransferUnit(input: BlockTransferUnitInput!): BlockUnit
 `;

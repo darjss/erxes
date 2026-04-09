@@ -8,6 +8,8 @@ export const BLOCK_GET_UNITS = gql`
       type
       status
       isFeatured
+      agencyEntityId
+      agencySubdomain
     }
   }
 `;

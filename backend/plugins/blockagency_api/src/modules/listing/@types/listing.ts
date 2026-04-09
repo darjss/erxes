@@ -35,6 +35,7 @@ export interface IBlockListing {
   mediaAttachments?: string[];
   featuredImg?: string;
   viewCount?: number;
+  memberId?: string;
 }
 
 export interface IBlockListingDocument extends IBlockListing, Document<string> {

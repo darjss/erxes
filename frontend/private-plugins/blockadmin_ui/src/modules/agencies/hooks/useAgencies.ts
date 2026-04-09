@@ -18,7 +18,7 @@ type UseAgenciesResult = {
   error: Error | undefined;
 };
 
-export const getAgencies = (): UseAgenciesResult => {
+export const useAgencies = (): UseAgenciesResult => {
   const { data, loading, error } = useQuery<TGetAgenciesResponse>(GET_AGENCIES);
   return { agencies: data?.getBlockAdminAgencies?.list, loading, error };
 };

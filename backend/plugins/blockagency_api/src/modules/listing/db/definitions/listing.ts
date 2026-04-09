@@ -39,6 +39,7 @@ export const blockListingSchema = new Schema<IBlockListingDocument>(
     mediaAttachments: [{ type: String }],
     featuredImg: { type: String },
     viewCount: { type: Number },
+    memberId: { type: String, index: true },
   },
   {
     timestamps: true,

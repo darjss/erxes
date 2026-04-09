@@ -7,12 +7,12 @@ import {
 } from '../constants/listing';
 
 export const locationSchema = z.object({
-  city: z.string(),
-  district: z.string(),
+  city: z.string().min(1, 'City is required'),
+  district: z.string().min(1, 'District is required'),
   subDistrict: z.string(),
   short: z
     .string()
-    .max(300, 'Cannot exceed maximium 300 characters')
+    .max(300, 'Cannot exceed maximum 300 characters')
     .optional(),
   lat: z.number(),
   lng: z.number(),
@@ -46,4 +46,5 @@ export const listingSchema = z.object({
   specs: specsSchema,
   mediaAttachments: z.string().array().optional().nullable(),
   featuredImg: z.string().optional().nullable(),
+  memberId: z.string().optional(),
 });

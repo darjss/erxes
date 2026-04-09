@@ -14,6 +14,7 @@ export const types = `
 
   type BlockAdminAgency {
     _id: String
+    entityId: String
     name: String
     brandName: String
     type: String

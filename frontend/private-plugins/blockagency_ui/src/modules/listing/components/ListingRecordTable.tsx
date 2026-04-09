@@ -2,6 +2,7 @@ import { Label, RecordTable } from 'erxes-ui';
 import { BLOCK_LISTING_CURSOR_SESSION_KEY } from '../constants/listing';
 import { listingColumns } from './listingColumns';
 import { useGetListings } from '../hooks/useGetListings';
+import { EditListingSheet } from './EditListingSheet';
 
 const PER_PAGE = 30;
 
@@ -31,31 +32,34 @@ export const ListingRecordTable = () => {
     return <RecordTable.RowList />;
   };
   return (
-    <RecordTable.Provider
-      columns={listingColumns}
-      data={list}
-      stickyColumns={['title']}
-      className="m-3"
-    >
-      <RecordTable.CursorProvider
-        hasPreviousPage={hasPreviousPage}
-        hasNextPage={hasNextPage}
-        dataLength={20}
-        sessionKey={BLOCK_LISTING_CURSOR_SESSION_KEY}
+    <>
+      <RecordTable.Provider
+        columns={listingColumns}
+        data={list}
+        stickyColumns={['title']}
+        className="m-3"
       >
-        <RecordTable>
-          <RecordTable.Header />
-          <RecordTable.Body>
-            <RecordTable.CursorBackwardSkeleton
-              handleFetchMore={handleFetchMore}
-            />
-            <RecordMain />
-            <RecordTable.CursorForwardSkeleton
-              handleFetchMore={handleFetchMore}
-            />
-          </RecordTable.Body>
-        </RecordTable>
-      </RecordTable.CursorProvider>
-    </RecordTable.Provider>
+        <RecordTable.CursorProvider
+          hasPreviousPage={hasPreviousPage}
+          hasNextPage={hasNextPage}
+          dataLength={20}
+          sessionKey={BLOCK_LISTING_CURSOR_SESSION_KEY}
+        >
+          <RecordTable>
+            <RecordTable.Header />
+            <RecordTable.Body>
+              <RecordTable.CursorBackwardSkeleton
+                handleFetchMore={handleFetchMore}
+              />
+              <RecordMain />
+              <RecordTable.CursorForwardSkeleton
+                handleFetchMore={handleFetchMore}
+              />
+            </RecordTable.Body>
+          </RecordTable>
+        </RecordTable.CursorProvider>
+      </RecordTable.Provider>
+      <EditListingSheet />
+    </>
   );
 };

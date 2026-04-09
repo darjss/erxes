@@ -16,22 +16,31 @@ import {
   types as BlockMemberTypes,
 } from '~/modules/member/graphql/schemas/member';
 
+import {
+  mutations as BlockUnitMutations,
+  queries as BlockUnitQueries,
+  types as BlockUnitTypes,
+} from '~/modules/unit/graphql/schemas/unit';
+
 export const types = `
   ${BlockAgencyTypes}
   ${BlockListingTypes}
   ${BlockMemberTypes}
+  ${BlockUnitTypes}
 `;
 
 export const queries = `
   ${BlockAgencyQueries}
   ${BlockListingQueries}
   ${BlockMemberQueries}
+  ${BlockUnitQueries}
 `;
 
 export const mutations = `
   ${BlockAgencyMutations}
   ${BlockListingMutations}
   ${BlockMemberMutations}
+  ${BlockUnitMutations}
 `;
 
 export default { types, queries, mutations };

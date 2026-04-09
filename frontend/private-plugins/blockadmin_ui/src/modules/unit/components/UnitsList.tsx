@@ -2,8 +2,9 @@ import { IZoning } from '@/building/types/buildingTypes';
 import { useUnits } from '@/unit/hooks/useUnits';
 import { IUnit } from '@/unit/types/unitType';
 import { IconStar, IconStarFilled } from '@tabler/icons-react';
-import { Button, Input, Label, Spinner } from 'erxes-ui';
-import { useEffect } from 'react';
+import { Badge, Button, Input, Label, Spinner } from 'erxes-ui';
+import { useEffect, useMemo } from 'react';
+import { useAgencies } from '../../agencies/hooks/useAgencies';
 import { useUnitUpdate } from '../hooks/useUnitUpdate';
 import { SelectUnitType } from './SelectUnitType';
 
@@ -17,6 +18,15 @@ export const UnitsList = ({
   const { units, loading } = useUnits({
     variables: { zoning: zone._id },
   });
+  const { agencies } = useAgencies();
+
+  const agencyMap = useMemo(
+    () =>
+      Object.fromEntries(
+        (agencies || []).filter((a): a is typeof a & { entityId: string } => Boolean(a.entityId)).map((a) => [a.entityId, a.brandName || a.name]),
+      ),
+    [agencies],
+  );
 
   useEffect(() => {
     if (units?.length) {
@@ -34,16 +44,19 @@ export const UnitsList = ({
 
   return (
     <>
-      <div className="grid gap-3 grid-cols-5 [&>span]:whitespace-nowrap min-w-[56rem]">
-        <Label asChild>
-          <span className="col-span-2">Дугаар</span>
-        </Label>
-        <Label asChild>
-          <span className="col-span-3">Unit type</span>
-        </Label>
+      <div className="flex gap-3 min-w-[40rem]">
+        <div className="w-1/4">
+          <Label>Дугаар</Label>
+        </div>
+        <div className="w-2/4">
+          <Label>Unit type</Label>
+        </div>
+        <div className="w-1/4">
+          <Label>Agency</Label>
+        </div>
       </div>
       {sortedUnits?.map((unit) => (
-        <UnitsListItem key={unit._id} unit={unit} zone={zone} />
+        <UnitsListItem key={unit._id} unit={unit} zone={zone} agencyName={agencyMap[unit.agencyEntityId || '']} />
       ))}
     </>
   );
@@ -52,18 +65,30 @@ export const UnitsList = ({
 export const UnitsListItem = ({
   unit,
   zone,
+  agencyName,
 }: {
   unit: IUnit;
   zone: IZoning;
+  agencyName?: string;
 }) => {
   return (
-    <div className="grid gap-3 grid-cols-5">
-      <div className="col-span-2">
+    <div className="flex gap-3 items-center min-w-[40rem]">
+      <div className="w-1/4">
         <Input value={unit.number} />
       </div>
-      <div className="flex items-center gap-3 col-span-3">
+      <div className="w-2/4 flex items-center gap-3">
         <SelectUnitType value={unit.type || ''} />
         <UnitListItemEdit unit={unit} zone={zone} />
+      </div>
+      <div className="w-1/4 flex items-center gap-2">
+        {unit.agencyEntityId ? (
+          <>
+            <Badge variant="success">Assigned</Badge>
+            <span className="text-sm font-medium truncate">{agencyName}</span>
+          </>
+        ) : (
+          <Badge variant="secondary">Unassigned</Badge>
+        )}
       </div>
     </div>
   );

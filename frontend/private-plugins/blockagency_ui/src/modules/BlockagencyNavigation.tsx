@@ -1,5 +1,5 @@
 import { NavigationMenuLinkItem } from 'erxes-ui';
-import { IconHomeSearch, IconId, IconUserHexagon } from '@tabler/icons-react';
+import { IconBuildingEstate, IconHomeSearch, IconId, IconUserHexagon } from '@tabler/icons-react';
 import { AgencyPaths } from './types/AgencyPaths';
 import { Can } from 'ui-modules';
 
@@ -27,6 +27,12 @@ export const BlockagencyNavigation = () => {
         icon={IconHomeSearch}
         pathPrefix="blockagency"
         path={AgencyPaths.LISTING}
+      />
+      <NavigationMenuLinkItem
+        name="units"
+        icon={IconBuildingEstate}
+        pathPrefix="blockagency"
+        path={AgencyPaths.UNITS}
       />
     </>
   );

@@ -5,6 +5,7 @@ export const GET_AGENCIES = gql`
     getBlockAdminAgencies {
       list {
         _id
+        entityId
         name
         verificationStatus
         brandName

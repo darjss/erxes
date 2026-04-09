@@ -8,6 +8,7 @@ export const CREATE_LISTING = gql`
       type
       propertyType
       status
+      memberId
     }
   }
 `;

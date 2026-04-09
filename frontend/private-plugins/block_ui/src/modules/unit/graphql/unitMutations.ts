@@ -62,6 +62,16 @@ export const BLOCK_REMOVE_UNIT_ATTACHMENT = gql`
   }
 `;
 
+export const BLOCK_TRANSFER_UNIT = gql`
+  mutation BlockTransferUnit($input: BlockTransferUnitInput!) {
+    blockTransferUnit(input: $input) {
+      _id
+      agencySubdomain
+      agencyEntityId
+    }
+  }
+`;
+
 export const BLOCK_CREATE_UNIT_TYPE = gql`
   mutation BlockCreateUnitType($input: UnitTypeInput!) {
     blockCreateUnitType(input: $input) {

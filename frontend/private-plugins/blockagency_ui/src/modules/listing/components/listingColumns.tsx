@@ -2,12 +2,18 @@ import { ColumnDef } from '@tanstack/table-core';
 import { IListingInline } from '../types/listing';
 import {
   Badge,
+  Button,
   CurrencyDisplay,
   formatAmount,
   RecordTableInlineCell,
-  RelativeDateDisplay,
+  toast,
+  useConfirm,
 } from 'erxes-ui';
 import { format } from 'date-fns';
+import { IconPencil, IconTrash } from '@tabler/icons-react';
+import { useSetAtom } from 'jotai';
+import { editListingAtom } from '../states/listing';
+import { useRemoveListing } from '../hooks/useRemoveListing';
 
 export const listingColumns: ColumnDef<IListingInline>[] = [
   {
@@ -16,10 +22,19 @@ export const listingColumns: ColumnDef<IListingInline>[] = [
     header: 'title',
   },
   {
-    id: 'propertyType',
-    accessorKey: 'propertyType',
-    header: 'property type',
+    id: 'agent',
+    header: 'agent',
     size: 80,
+    cell: ({ row }) => {
+      const agent = row.original.agent;
+      if (!agent) return null;
+      const name = [agent.firstName, agent.lastName].filter(Boolean).join(' ');
+      return (
+        <RecordTableInlineCell className="text-sm">
+          {name || agent.email || '-'}
+        </RecordTableInlineCell>
+      );
+    },
   },
   {
     id: 'pricing',
@@ -89,4 +104,53 @@ export const listingColumns: ColumnDef<IListingInline>[] = [
     },
     size: 40,
   },
+  {
+    id: 'actions',
+    header: 'actions',
+    size: 40,
+    cell: ({ row }) => <ListingRowActions listing={row.original} />,
+  },
 ];
+
+const ListingRowActions = ({ listing }: { listing: IListingInline }) => {
+  const setEditListing = useSetAtom(editListingAtom);
+  const { removeListing } = useRemoveListing();
+  const { confirm } = useConfirm();
+
+  const handleDelete = () => {
+    confirm({
+      message: 'Are you sure you want to delete this listing?',
+      options: { okLabel: 'Delete' },
+    }).then(() => {
+      removeListing({
+        variables: { _id: listing._id },
+        onError: (error) =>
+          toast({
+            variant: 'destructive',
+            title: 'Failed to delete listing',
+            description: error.message,
+          }),
+      });
+    });
+  };
+
+  return (
+    <RecordTableInlineCell className="flex items-center justify-center gap-1">
+      <Button
+        variant="ghost"
+        size="icon"
+        onClick={() => setEditListing(listing)}
+      >
+        <IconPencil size={16} />
+      </Button>
+      <Button
+        variant="ghost"
+        size="icon"
+        className="text-destructive hover:text-destructive hover:bg-destructive/10"
+        onClick={handleDelete}
+      >
+        <IconTrash size={16} />
+      </Button>
+    </RecordTableInlineCell>
+  );
+};

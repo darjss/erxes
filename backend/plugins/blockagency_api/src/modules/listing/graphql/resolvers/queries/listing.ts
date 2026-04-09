@@ -28,4 +28,22 @@ export const blockListingQueries = {
 
     return { list, pageInfo, totalCount };
   },
+
+  blockGetListingStats: async (_root: undefined, _args: unknown, { models }: IContext) => {
+    const [total, active, draft, viewsAgg] = await Promise.all([
+      models.BlockListing.countDocuments({}),
+      models.BlockListing.countDocuments({ status: 'active' }),
+      models.BlockListing.countDocuments({ status: 'draft' }),
+      models.BlockListing.aggregate([
+        { $group: { _id: null, totalViews: { $sum: '$viewCount' } } },
+      ]),
+    ]);
+
+    return {
+      total,
+      active,
+      draft,
+      totalViews: viewsAgg[0]?.totalViews ?? 0,
+    };
+  },
 };

@@ -13,6 +13,7 @@ export interface IAgencyFieldOfExpertise {
 
 export interface IAgency {
   _id: string;
+  entityId?: string;
   name: string;
   brandName: string;
   type: string;

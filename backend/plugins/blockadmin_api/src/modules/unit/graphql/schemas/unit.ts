@@ -10,9 +10,11 @@ export const types = `
     leads: [String]
 
     type: String
+    agencySubdomain: String
+    agencyEntityId: String
     createdAt: Date
     updatedAt: Date
-  } 
+  }
 
   input BlockAdminUnitInput {
     isFeatured: Boolean
