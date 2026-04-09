@@ -1,6 +1,5 @@
 import { httpBatchLink, createTRPCUntypedClient } from '@trpc/client';
-import { getPlugin, isEnabled } from 'erxes-api-shared/utils';
-import { encodeTRPCContextHeader } from 'erxes-api-shared/utils/trpc';
+import { getPlugin, isEnabled, encodeTRPCContextHeader } from 'erxes-api-shared/utils';
 
 let cachedClient: ReturnType<typeof createTRPCUntypedClient> | null = null;
 

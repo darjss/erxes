@@ -4,7 +4,7 @@ import { listingSchema } from '../definitions/listing';
 import {
   IBlockAdminListing,
   IBlockAdminListingDocument,
-} from '../@types/listing';
+} from '@/listing/@types/listing';
 
 export interface IBlockAdminListingModel extends Model<IBlockAdminListingDocument> {
   getListing(

@@ -1,7 +1,7 @@
 import {
   checkLogin,
   checkPermissionGroup,
-} from 'erxes-api-shared/core-modules/permissions/utils';
+} from 'erxes-api-shared/core-modules';
 import { IContext } from '~/connectionResolvers';
 import { IBlockAgencyMember } from '~/modules/member/@types/member';
 
