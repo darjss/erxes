@@ -104,9 +104,8 @@ export async function processCreditExpiration(
   }
 
   // Get grace period duration from config (default 7 days)
-  const gracePeriodConfig = await models.SystemConfig.getConfig(
-    'grace_period_days',
-  );
+  const gracePeriodConfig =
+    await models.SystemConfig.getConfig('grace_period_days');
   const gracePeriodDays = gracePeriodConfig?.value || 7;
 
   // Find expired customers with credits (exclude customers still on hold)

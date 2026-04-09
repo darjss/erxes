@@ -8,13 +8,15 @@ import {
   IconTrendingUp,
   IconUsers,
 } from '@tabler/icons-react';
+import { Button, Select, Skeleton, cn } from 'erxes-ui';
 import {
-  Button,
-  Select,
-  Skeleton,
-  cn,
-} from 'erxes-ui';
-import { endOfDay, format, startOfDay, subMonths, subWeeks, subYears } from 'date-fns';
+  endOfDay,
+  format,
+  startOfDay,
+  subMonths,
+  subWeeks,
+  subYears,
+} from 'date-fns';
 import { ONE_FIT_DASHBOARD_STATS } from '~/modules/dashboard/graphql/dashboardQueries';
 import { useOneFitMode } from '~/modules/config/hooks/useOneFitMode';
 
@@ -171,7 +173,10 @@ export function MainIndicatorsDashboard() {
         <div className="flex flex-wrap items-center gap-2">
           <span className="text-sm text-gray-600">Шүүлт:</span>
           <div className="flex items-center gap-2">
-            <Select value={preset} onValueChange={(value) => setPreset(value as DashboardPreset)}>
+            <Select
+              value={preset}
+              onValueChange={(value) => setPreset(value as DashboardPreset)}
+            >
               <Select.Trigger className="min-w-[220px] border-gray-200">
                 <Select.Value />
               </Select.Trigger>

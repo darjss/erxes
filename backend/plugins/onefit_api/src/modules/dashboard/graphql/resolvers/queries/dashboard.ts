@@ -140,8 +140,7 @@ export const dashboardQueries: Record<string, Resolver> = {
       countBookingsInRange(context, prev.startDate, prev.endDate),
     ]);
 
-    const avgCurrent =
-      activeCurrent > 0 ? bookingsCurrent / activeCurrent : 0;
+    const avgCurrent = activeCurrent > 0 ? bookingsCurrent / activeCurrent : 0;
     const avgPrev = activePrev > 0 ? bookingsPrev / activePrev : 0;
 
     // TODO: define B2B org count (contacts companies, relations, or credit companyId).
