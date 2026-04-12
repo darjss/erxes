@@ -12,7 +12,7 @@ export const CONFIG: IUIConfig = {
   name: 'agent',
   path: 'agent',
   navigationGroup: {
-    name: 'agent',
+    name: 'ai assistant',
     icon: IconSparkles,
     content: () => (
       <Suspense fallback={<div />}>
@@ -22,7 +22,7 @@ export const CONFIG: IUIConfig = {
   },
   modules: [
     {
-      name: 'agent',
+      name: 'ai assistand',
       icon: IconSparkles,
       path: 'agent',
     },
