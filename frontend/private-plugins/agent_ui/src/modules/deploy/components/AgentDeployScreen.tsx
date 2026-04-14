@@ -14,6 +14,8 @@ export const AgentDeployScreen = () => {
     return <Skeleton className="h-52 w-full rounded-md" />;
   }
 
+  console.log(agent);
+
   if (!agent) {
     return <AgentDeployForm />;
   }

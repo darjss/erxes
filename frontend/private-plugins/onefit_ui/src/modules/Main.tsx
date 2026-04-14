@@ -11,6 +11,12 @@ const IndexPage = lazy(() =>
   })),
 );
 
+const DashboardPage = lazy(() =>
+  import('~/pages/DashboardPage').then((module) => ({
+    default: module.DashboardPage,
+  })),
+);
+
 const BookingsPage = lazy(() =>
   import('~/pages/BookingsPage').then((module) => ({
     default: module.BookingsPage,
@@ -119,7 +125,7 @@ const OneFitMain = () => {
     <Suspense fallback={<div />}>
       <Routes>
         <Route path="/" element={<IndexPage />} />
-        <Route path="/dashboard" element={<IndexPage />} />
+        <Route path="/dashboard" element={<DashboardPage />} />
         <Route path="/bookings" element={<BookingsPage />} />
         <Route path="/schedules" element={<SchedulesPage />} />
         <Route path="/activity-types" element={<ActivityTypesPage />} />

@@ -2,6 +2,7 @@ import { IContext } from '~/connectionResolvers';
 import {
   IScheduleTemplate,
   IScheduleException,
+  IScheduleTemplateDocument,
 } from '@/schedule/@types/schedule';
 
 export const scheduleMutations = {
@@ -38,18 +39,31 @@ export const scheduleMutations = {
     },
     { models }: IContext,
   ) {
-    const results = await Promise.all(
-      providerIds.map((providerId) =>
-        models.ScheduleTemplate.copyPreviousMonth(
+    const outcomes = await Promise.all(
+      providerIds.map(async (providerId) => {
+        const template = await models.ScheduleTemplate.copyPreviousMonth(
           providerId,
           fromYear,
           fromMonth,
           toYear,
           toMonth,
-        ),
-      ),
+        );
+        return { providerId, template };
+      }),
     );
-    return results;
+
+    const templates: IScheduleTemplateDocument[] = [];
+    const skippedProviderIds: string[] = [];
+
+    for (const { providerId, template } of outcomes) {
+      if (template) {
+        templates.push(template);
+      } else {
+        skippedProviderIds.push(providerId);
+      }
+    }
+
+    return { templates, skippedProviderIds };
   },
 
   async oneFitScheduleTemplatesRemove(

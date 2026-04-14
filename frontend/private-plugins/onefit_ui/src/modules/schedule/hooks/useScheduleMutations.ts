@@ -85,10 +85,20 @@ export function useCopyPreviousMonthTemplate() {
       refetchQueries: [{ query: ONE_FIT_SCHEDULE_TEMPLATES }],
       onCompleted: (data) => {
         options.onCompleted?.(data);
-        const count = data?.oneFitScheduleTemplateCopyPreviousMonth?.length || 0;
+        const result = data?.oneFitScheduleTemplateCopyPreviousMonth;
+        const count = result?.templates?.length ?? 0;
+        const skipped = result?.skippedProviderIds ?? [];
+        let description: string;
+        if (count === 0 && skipped.length > 0) {
+          description = `No templates copied — target month already has a schedule for: ${skipped.join(', ')}`;
+        } else if (skipped.length > 0) {
+          description = `${count} schedule template${count === 1 ? '' : 's'} copied. Skipped ${skipped.length} (target month already scheduled): ${skipped.join(', ')}`;
+        } else {
+          description = `${count} schedule template${count === 1 ? '' : 's'} copied successfully`;
+        }
         toast({
           title: 'Success',
-          description: `${count} schedule template${count === 1 ? '' : 's'} copied successfully`,
+          description,
         });
       },
       onError: (error) => {
