@@ -9,13 +9,16 @@ import {
   IconTrendingUp,
   IconUsers,
 } from '@tabler/icons-react';
+import { Button, ChartContainer, Select, Skeleton, cn } from 'erxes-ui';
 import {
-  Button,
-  Select,
-  Skeleton,
-  cn,
-} from 'erxes-ui';
-import { endOfDay, format, startOfDay, subMonths, subWeeks, subYears } from 'date-fns';
+  endOfDay,
+  format,
+  startOfDay,
+  subMonths,
+  subWeeks,
+  subYears,
+} from 'date-fns';
+import { Bar, BarChart, CartesianGrid, Tooltip, XAxis, YAxis } from 'recharts';
 import { ONE_FIT_DASHBOARD_STATS } from '~/modules/dashboard/graphql/dashboardQueries';
 import { useOneFitMode } from '~/modules/config/hooks/useOneFitMode';
 
@@ -148,7 +151,9 @@ export function MainIndicatorsDashboard() {
   const isMaster = mode === 'master';
 
   const [preset, setPreset] = useState<DashboardPreset>('1w');
-  const [collapsedCategoryIds, setCollapsedCategoryIds] = useState<string[]>([]);
+  const [collapsedCategoryIds, setCollapsedCategoryIds] = useState<string[]>(
+    [],
+  );
   const range = useMemo(() => getRangeByPreset(preset), [preset]);
   const from = range.from;
   const to = range.to;
@@ -204,6 +209,24 @@ export function MainIndicatorsDashboard() {
       return true;
     });
   }, [categoryById, categoryDistribution, collapsedCategoryIds]);
+  const categoryChartItems = useMemo(
+    () => visibleCategoryDistribution.slice(0, 8),
+    [visibleCategoryDistribution],
+  );
+  const categoryChartData = useMemo(
+    () =>
+      categoryChartItems.map((category) => ({
+        name: category.label,
+        value: category.count,
+      })),
+    [categoryChartItems],
+  );
+  const categoryChartConfig = {
+    value: {
+      label: 'Count',
+      color: '#3b82f6',
+    },
+  };
 
   const rangeLabel =
     from && to
@@ -235,7 +258,10 @@ export function MainIndicatorsDashboard() {
         <div className="flex flex-wrap items-center gap-2">
           <span className="text-sm text-gray-600">Шүүлт:</span>
           <div className="flex items-center gap-2">
-            <Select value={preset} onValueChange={(value) => setPreset(value as DashboardPreset)}>
+            <Select
+              value={preset}
+              onValueChange={(value) => setPreset(value as DashboardPreset)}
+            >
               <Select.Trigger className="min-w-[220px] border-gray-200">
                 <Select.Value />
               </Select.Trigger>
@@ -312,7 +338,9 @@ export function MainIndicatorsDashboard() {
       </div>
 
       <div className="mt-8 rounded-xl border border-gray-200 bg-white p-5">
-        <h3 className="text-base font-semibold text-gray-900">Үйлчилгээний категори</h3>
+        <h3 className="text-base font-semibold text-gray-900">
+          Үйлчилгээний категори
+        </h3>
 
         {loading && !stats ? (
           <div className="mt-4 space-y-3">
@@ -326,13 +354,57 @@ export function MainIndicatorsDashboard() {
           </p>
         ) : (
           <div className="mt-4 space-y-4">
+            {categoryChartItems.length > 0 && (
+              <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
+                <ChartContainer
+                  config={categoryChartConfig}
+                  className="h-52 w-full max-w-2xl"
+                >
+                  <BarChart
+                    data={categoryChartData}
+                    margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
+                  >
+                    <CartesianGrid
+                      strokeDasharray="3 3"
+                      vertical
+                      stroke="#d4d4d8"
+                    />
+                    <XAxis
+                      dataKey="name"
+                      tick={{ fill: '#52525b', fontSize: 12 }}
+                      axisLine={{ stroke: '#a1a1aa' }}
+                      tickLine={false}
+                    />
+                    <YAxis
+                      allowDecimals={false}
+                      tick={{ fill: '#52525b', fontSize: 12 }}
+                      axisLine={{ stroke: '#a1a1aa' }}
+                      tickLine={false}
+                      width={36}
+                    />
+                    <Tooltip
+                      formatter={(value: number) => value.toLocaleString()}
+                      cursor={{ fill: '#f4f4f5' }}
+                    />
+                    <Bar
+                      dataKey="value"
+                      fill="var(--color-value)"
+                      radius={[2, 2, 0, 0]}
+                    />
+                  </BarChart>
+                </ChartContainer>
+              </div>
+            )}
+
             {visibleCategoryDistribution.map((category) => {
               const safePercent = Math.min(Math.max(category.percent, 0), 100);
               const safeDepth = Math.max(category.depth || 0, 0);
               const hasChildren = Boolean(
                 categoryChildrenByParentId.get(category.categoryId),
               );
-              const isCollapsed = collapsedCategoryIds.includes(category.categoryId);
+              const isCollapsed = collapsedCategoryIds.includes(
+                category.categoryId,
+              );
 
               return (
                 <div key={category.categoryId} className="space-y-2">
@@ -359,10 +431,13 @@ export function MainIndicatorsDashboard() {
                       ) : (
                         <span className="inline-block size-6" />
                       )}
-                      <span className="text-base text-gray-900">{category.label}</span>
+                      <span className="text-base text-gray-900">
+                        {category.label}
+                      </span>
                     </div>
                     <span className="text-base tabular-nums text-gray-900">
-                      {formatPercentage(category.percent)} ({category.count.toLocaleString()})
+                      {formatPercentage(category.percent)} (
+                      {category.count.toLocaleString()})
                     </span>
                   </div>
                   <div className="h-2 w-full rounded-full bg-gray-200">
