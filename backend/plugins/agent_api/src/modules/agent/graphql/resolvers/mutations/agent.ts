@@ -124,13 +124,13 @@ export const agentMutations = {
       throw new Error('Agent server not found');
     }
 
-    try {
-      await addAgent(server.name, input);
-      return true;
-    } catch (error) {
+    // Fire-and-forget — agent registration happens in the background
+    addAgent(server.name, input).catch((error) => {
       const message = error instanceof Error ? error.message : String(error);
-      throw new Error(message);
-    }
+      console.error('addAgent failed:', message);
+    });
+
+    return true;
   },
 
   updateAgentFile: async (
