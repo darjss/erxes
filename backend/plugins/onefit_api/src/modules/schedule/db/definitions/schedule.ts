@@ -42,6 +42,11 @@ export const scheduleTemplateSchema = new Schema(
   },
 );
 
+scheduleTemplateSchema.index(
+  { providerId: 1, year: 1, month: 1 },
+  { unique: true },
+);
+
 export const scheduleExceptionSchema = new Schema(
   {
     _id: mongooseStringRandomId,
