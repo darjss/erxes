@@ -5,6 +5,7 @@ import {
   IconBrandTiktok,
   IconBrandX,
   IconBrandYoutube,
+  IconExternalLink,
   IconLink,
 } from '@tabler/icons-react';
 import { cn, Input } from 'erxes-ui';
@@ -51,6 +52,15 @@ export function SocialLinkInput({
         placeholder="https://"
         {...props}
       />
+      <div className="absolute right-3 flex items-center pointer-events-none">
+        <a
+          href={value}
+          target="_blank"
+          className="cursor-pointer pointer-events-auto"
+        >
+          <IconExternalLink className="size-4" />
+        </a>
+      </div>
     </div>
   );
 }
