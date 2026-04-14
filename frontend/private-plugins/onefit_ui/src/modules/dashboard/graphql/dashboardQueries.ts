@@ -28,6 +28,14 @@ export const ONE_FIT_DASHBOARD_STATS = gql`
         previousValue
         changePercent
       }
+      categoryDistribution {
+        categoryId
+        label
+        parentId
+        depth
+        count
+        percent
+      }
     }
   }
 `;

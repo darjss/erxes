@@ -3,6 +3,7 @@ import { useQuery } from '@apollo/client';
 import {
   IconBuilding,
   IconCalendar,
+  IconChevronRight,
   IconFlame,
   IconTrendingDown,
   IconTrendingUp,
@@ -22,6 +23,19 @@ interface MetricField {
   value: number;
   previousValue: number | null;
   changePercent: number | null;
+}
+
+interface CategoryDistributionItem {
+  categoryId: string;
+  label: string;
+  parentId?: string;
+  depth: number;
+  count: number;
+  percent: number;
+}
+
+function formatPercentage(value: number): string {
+  return `${Math.round(value)}%`;
 }
 
 function formatMetricValue(value: number, isAverage: boolean): string {
@@ -134,6 +148,7 @@ export function MainIndicatorsDashboard() {
   const isMaster = mode === 'master';
 
   const [preset, setPreset] = useState<DashboardPreset>('1w');
+  const [collapsedCategoryIds, setCollapsedCategoryIds] = useState<string[]>([]);
   const range = useMemo(() => getRangeByPreset(preset), [preset]);
   const from = range.from;
   const to = range.to;
@@ -147,6 +162,62 @@ export function MainIndicatorsDashboard() {
     fetchPolicy: 'cache-and-network',
   });
 
+  const stats = data?.oneFitDashboardStats;
+  const categoryDistribution = (stats?.categoryDistribution ||
+    []) as CategoryDistributionItem[];
+  const hasCategoryData = categoryDistribution.length > 0;
+  const categoryById = useMemo(
+    () =>
+      new Map(
+        categoryDistribution.map((category) => [category.categoryId, category]),
+      ),
+    [categoryDistribution],
+  );
+  const categoryChildrenByParentId = useMemo(() => {
+    const result = new Map<string, number>();
+
+    for (const category of categoryDistribution) {
+      if (!category.parentId) {
+        continue;
+      }
+
+      const prevCount = result.get(category.parentId) || 0;
+      result.set(category.parentId, prevCount + 1);
+    }
+
+    return result;
+  }, [categoryDistribution]);
+  const visibleCategoryDistribution = useMemo(() => {
+    const collapsedIds = new Set(collapsedCategoryIds);
+
+    return categoryDistribution.filter((category) => {
+      let parentId = category.parentId;
+
+      while (parentId) {
+        if (collapsedIds.has(parentId)) {
+          return false;
+        }
+
+        parentId = categoryById.get(parentId)?.parentId;
+      }
+
+      return true;
+    });
+  }, [categoryById, categoryDistribution, collapsedCategoryIds]);
+
+  const rangeLabel =
+    from && to
+      ? `${format(from, 'MMM dd, yyyy')} - ${format(to, 'MMM dd, yyyy')}`
+      : 'Select range';
+
+  const toggleCollapse = (categoryId: string) => {
+    setCollapsedCategoryIds((prev) =>
+      prev.includes(categoryId)
+        ? prev.filter((id) => id !== categoryId)
+        : [...prev, categoryId],
+    );
+  };
+
   if (modeLoading) {
     return null;
   }
@@ -154,13 +225,6 @@ export function MainIndicatorsDashboard() {
   if (!isMaster) {
     return null;
   }
-
-  const stats = data?.oneFitDashboardStats;
-
-  const rangeLabel =
-    from && to
-      ? `${format(from, 'MMM dd, yyyy')} - ${format(to, 'MMM dd, yyyy')}`
-      : 'Select range';
 
   return (
     <section className="mb-8 rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
@@ -244,6 +308,73 @@ export function MainIndicatorsDashboard() {
               valueIsAverage
             />
           </>
+        )}
+      </div>
+
+      <div className="mt-8 rounded-xl border border-gray-200 bg-white p-5">
+        <h3 className="text-base font-semibold text-gray-900">Үйлчилгээний категори</h3>
+
+        {loading && !stats ? (
+          <div className="mt-4 space-y-3">
+            <Skeleton className="h-12 w-full" />
+            <Skeleton className="h-12 w-full" />
+            <Skeleton className="h-12 w-full" />
+          </div>
+        ) : !hasCategoryData ? (
+          <p className="mt-4 text-sm text-gray-500">
+            Сонгосон хугацаанд категорийн өгөгдөл алга байна.
+          </p>
+        ) : (
+          <div className="mt-4 space-y-4">
+            {visibleCategoryDistribution.map((category) => {
+              const safePercent = Math.min(Math.max(category.percent, 0), 100);
+              const safeDepth = Math.max(category.depth || 0, 0);
+              const hasChildren = Boolean(
+                categoryChildrenByParentId.get(category.categoryId),
+              );
+              const isCollapsed = collapsedCategoryIds.includes(category.categoryId);
+
+              return (
+                <div key={category.categoryId} className="space-y-2">
+                  <div
+                    className="flex items-center justify-between gap-3"
+                    style={{ paddingLeft: `${safeDepth * 16}px` }}
+                  >
+                    <div className="flex items-center gap-1">
+                      {hasChildren ? (
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          className="size-6"
+                          onClick={() => toggleCollapse(category.categoryId)}
+                        >
+                          <IconChevronRight
+                            className={cn(
+                              'size-4 transition-transform',
+                              !isCollapsed && 'rotate-90',
+                            )}
+                          />
+                        </Button>
+                      ) : (
+                        <span className="inline-block size-6" />
+                      )}
+                      <span className="text-base text-gray-900">{category.label}</span>
+                    </div>
+                    <span className="text-base tabular-nums text-gray-900">
+                      {formatPercentage(category.percent)} ({category.count.toLocaleString()})
+                    </span>
+                  </div>
+                  <div className="h-2 w-full rounded-full bg-gray-200">
+                    <div
+                      className="h-2 rounded-full bg-[#04051f]"
+                      style={{ width: `${safePercent}%` }}
+                    />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         )}
       </div>
     </section>
