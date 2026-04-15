@@ -29,7 +29,13 @@ router.post(
 
       const { status, reasons, message } = data || {};
 
-      const updatedAgency = await models.BlockAgency.updateAgencyVerificationStatus(entityId, status, reasons, message);
+      const updatedAgency =
+        await models.BlockAgency.updateAgencyVerificationStatus(
+          entityId,
+          status,
+          reasons,
+          message,
+        );
 
       graphqlPubsub.publish('blockAgencyVerificationStatusChanged', {
         blockAgencyVerificationStatusChanged: updatedAgency,

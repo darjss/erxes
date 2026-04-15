@@ -35,7 +35,7 @@ export const sendBlockAgencyMessage = async ({
       .update(body)
       .digest('hex');
 
-      console.log('API_ENDPOINT', API_ENDPOINT)
+    console.log('API_ENDPOINT', API_ENDPOINT);
 
     return await fetch(API_ENDPOINT, {
       method: 'POST',

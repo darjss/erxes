@@ -22,7 +22,9 @@ startPlugin({
   subscriptionPluginPath: path.resolve(
     __dirname,
     'apollo',
-    process.env.NODE_ENV === 'production' ? 'subscription.js' : 'subscription.ts',
+    process.env.NODE_ENV === 'production'
+      ? 'subscription.js'
+      : 'subscription.ts',
   ),
   apolloServerContext: async (subdomain, context) => {
     const models = await generateModels(subdomain);
