@@ -34,6 +34,28 @@ interface OneFitDashboardCategoryStat {
   percent: number;
 }
 
+interface IActiveCustomerProjection {
+  _id: string;
+  membershipPlanId?: string;
+  currentCreditBalance?: number;
+}
+
+interface IMembershipPlanProjection {
+  _id: string;
+  name?: string;
+  creditAmount?: number;
+}
+
+interface OneFitDashboardPackageStat {
+  planId: string;
+  planName: string;
+  activeCustomerCount: number;
+  totalCredit: number;
+  consumedCredit: number;
+  checkInCount: number;
+  usagePercent: number;
+}
+
 function buildMetric(
   value: number,
   previousValue: number | null,
@@ -343,6 +365,129 @@ async function getCategoryDistribution(
   return buildHierarchicalCategoryStats(categoryStats);
 }
 
+async function getPackageStats(
+  context: IContext,
+  startDate: Date,
+  endDate: Date,
+): Promise<OneFitDashboardPackageStat[]> {
+  const { models } = context;
+
+  const activeCustomers = (await models.OneFitCustomer.find(
+    {
+      __t: 'OneFitCustomer',
+      membershipStatus: 'active',
+      membershipPlanId: { $exists: true, $ne: '' },
+    },
+    {
+      _id: 1,
+      membershipPlanId: 1,
+      currentCreditBalance: 1,
+    },
+  ).lean()) as IActiveCustomerProjection[];
+
+  if (!activeCustomers.length) {
+    return [];
+  }
+
+  const customerById = new Map<string, IActiveCustomerProjection>();
+  const customerIds: string[] = [];
+  const planSummaryById = new Map<
+    string,
+    { activeCustomerCount: number; currentCreditTotal: number }
+  >();
+
+  for (const customer of activeCustomers) {
+    if (!customer.membershipPlanId) {
+      continue;
+    }
+
+    const customerId = String(customer._id);
+    customerIds.push(customerId);
+    customerById.set(customerId, customer);
+
+    const summary = planSummaryById.get(customer.membershipPlanId) || {
+      activeCustomerCount: 0,
+      currentCreditTotal: 0,
+    };
+
+    summary.activeCustomerCount += 1;
+    summary.currentCreditTotal += customer.currentCreditBalance || 0;
+
+    planSummaryById.set(customer.membershipPlanId, summary);
+  }
+
+  const planIds = Array.from(planSummaryById.keys());
+  if (!planIds.length) {
+    return [];
+  }
+
+  const plans = (await models.MembershipPlan.find(
+    { _id: { $in: planIds } },
+    { _id: 1, name: 1, creditAmount: 1 },
+  ).lean()) as IMembershipPlanProjection[];
+  const planById = new Map(plans.map((plan) => [String(plan._id), plan]));
+
+  const bookingFilter = await buildBookingFilterForRange(context, startDate, endDate);
+  const bookingsByUser = await models.Booking.aggregate([
+    {
+      $match: {
+        ...bookingFilter,
+        userId: { $in: customerIds },
+      },
+    },
+    {
+      $group: {
+        _id: '$userId',
+        count: { $sum: 1 },
+      },
+    },
+  ]);
+
+  const checkInsByPlanId = new Map<string, number>();
+  for (const item of bookingsByUser) {
+    const userId = String(item._id);
+    const user = customerById.get(userId);
+    if (!user?.membershipPlanId) {
+      continue;
+    }
+
+    checkInsByPlanId.set(
+      user.membershipPlanId,
+      (checkInsByPlanId.get(user.membershipPlanId) || 0) + (item.count || 0),
+    );
+  }
+
+  const packageStats = planIds
+    .map((planId) => {
+      const plan = planById.get(planId);
+      const planCreditAmount = plan?.creditAmount || 0;
+      const activeSummary = planSummaryById.get(planId) || {
+        activeCustomerCount: 0,
+        currentCreditTotal: 0,
+      };
+
+      const totalCredit = activeSummary.activeCustomerCount * planCreditAmount;
+      const consumedCredit = Math.max(
+        totalCredit - activeSummary.currentCreditTotal,
+        0,
+      );
+      const usagePercent = totalCredit > 0 ? (consumedCredit / totalCredit) * 100 : 0;
+
+      return {
+        planId,
+        planName: plan?.name || 'Unknown plan',
+        activeCustomerCount: activeSummary.activeCustomerCount,
+        totalCredit,
+        consumedCredit,
+        checkInCount: checkInsByPlanId.get(planId) || 0,
+        usagePercent,
+      };
+    })
+    .sort((left, right) => right.totalCredit - left.totalCredit);
+
+  return packageStats;
+}
+
 export const dashboardQueries: Record<string, Resolver> = {
   async oneFitDashboardStats(
     _root: undefined,
@@ -361,6 +506,7 @@ export const dashboardQueries: Record<string, Resolver> = {
       bookingsCurrent,
       bookingsPrev,
       categoryDistribution,
+      packageStats,
     ] = await Promise.all([
       countTotalOneFitUsers(context),
       countTotalOneFitUsersAsOf(context, prev.endDate),
@@ -371,6 +517,7 @@ export const dashboardQueries: Record<string, Resolver> = {
       countBookingsInRange(context, startDate, endDate),
       countBookingsInRange(context, prev.startDate, prev.endDate),
       getCategoryDistribution(context, startDate, endDate),
+      getPackageStats(context, startDate, endDate),
     ]);
 
     const avgCurrent = activeCurrent > 0 ? bookingsCurrent / activeCurrent : 0;
@@ -384,6 +531,7 @@ export const dashboardQueries: Record<string, Resolver> = {
       b2bOrganizationsActive: buildMetric(0, 0),
       averageBookingsPerActiveUserInPeriod: buildMetric(avgCurrent, avgPrev),
       categoryDistribution,
+      packageStats,
     };
   },
 };
