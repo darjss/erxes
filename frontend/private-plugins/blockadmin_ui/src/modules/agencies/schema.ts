@@ -74,10 +74,6 @@ export const agencyOperationAreasSchema = z.object({
   }),
 });
 
-export const verificationStatusSchema = z.object({
-  status: z.enum(['pending', 'approved', 'rejected']),
-});
-
 export const agencySocialLinksSchema = z.object({
   socialLinks: z
     .record(z.enum(socialPlatforms), z.string().url().optional())

@@ -1,13 +1,20 @@
 import { gql } from '@apollo/client';
 
 export const GET_AGENCIES = gql`
-  query GetAgencies {
-    getBlockAdminAgencies {
+  query GetAgencies(
+    $searchValue: String
+    $city: String
+    $district: String
+  ) {
+    getBlockAdminAgencies(
+      searchValue: $searchValue
+      city: $city
+      district: $district
+    ) {
       list {
         _id
         entityId
         name
-        verificationStatus
         brandName
         type
         description
@@ -46,7 +53,6 @@ export const GET_AGENCY_INFO = gql`
     getBlockAdminAgencyInfo(_id: $id) {
       _id
       name
-      verificationStatus
       brandName
       type
       description

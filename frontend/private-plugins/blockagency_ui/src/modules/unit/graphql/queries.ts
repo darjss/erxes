@@ -1,8 +1,8 @@
 import { gql } from '@apollo/client';
 
 export const GET_AGENCY_UNITS = gql`
-  query BlockAgencyGetUnits($agencyId: String, $page: Int, $perPage: Int) {
-    blockAgencyGetUnits(agencyId: $agencyId, page: $page, perPage: $perPage) {
+  query BlockAgencyGetUnits($agencyId: String, $status: BlockUnitStatus, $page: Int, $perPage: Int) {
+    blockAgencyGetUnits(agencyId: $agencyId, status: $status, page: $page, perPage: $perPage) {
       _id
       blockUnitId
       unitNumber
@@ -14,6 +14,7 @@ export const GET_AGENCY_UNITS = gql`
         name
       }
       memberId
+      status
       assignedAt
       createdAt
     }
@@ -21,7 +22,18 @@ export const GET_AGENCY_UNITS = gql`
 `;
 
 export const GET_AGENCY_UNITS_TOTAL_COUNT = gql`
-  query BlockAgencyGetUnitsTotalCount($agencyId: String) {
-    blockAgencyGetUnitsTotalCount(agencyId: $agencyId)
+  query BlockAgencyGetUnitsTotalCount($agencyId: String, $status: BlockUnitStatus) {
+    blockAgencyGetUnitsTotalCount(agencyId: $agencyId, status: $status)
+  }
+`;
+
+export const GET_AGENCY_UNIT_STATUS_COUNTS = gql`
+  query BlockAgencyGetUnitStatusCounts($agencyId: String) {
+    blockAgencyGetUnitStatusCounts(agencyId: $agencyId) {
+      available
+      reserved
+      sold
+      leased
+    }
   }
 `;

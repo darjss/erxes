@@ -3,6 +3,7 @@ import { Badge, RecordTableInlineCell } from 'erxes-ui';
 import { format } from 'date-fns';
 import { IBlockAgencyUnit } from '../types/unit';
 import { SelectMember } from './SelectMember';
+import { SelectUnitStatus } from './SelectUnitStatus';
 
 export const unitColumns: ColumnDef<IBlockAgencyUnit>[] = [
   {
@@ -48,6 +49,20 @@ export const unitColumns: ColumnDef<IBlockAgencyUnit>[] = [
         </RecordTableInlineCell>
       );
     },
+  },
+  {
+    id: 'status',
+    accessorKey: 'status',
+    header: 'status',
+    size: 120,
+    cell: ({ row }) => (
+      <RecordTableInlineCell>
+        <SelectUnitStatus
+          unitId={row.original._id}
+          status={row.original.status}
+        />
+      </RecordTableInlineCell>
+    ),
   },
   {
     id: 'memberId',

@@ -1,13 +1,14 @@
 import { Label, RecordTable } from 'erxes-ui';
 import { unitColumns } from './unitColumns';
 import { useGetUnits } from '../hooks/useGetUnits';
+import { BlockUnitStatus } from '../types/unit';
 
 const PER_PAGE = 20;
 
-export const UnitRecordTable = () => {
-  const { units, loading, totalCount } = useGetUnits({
-    perPage: PER_PAGE,
-  } as any);
+type Props = { status?: BlockUnitStatus };
+
+export const UnitRecordTable = ({ status }: Props) => {
+  const { units, loading, totalCount } = useGetUnits({ status } as any);
 
   const RecordMain = () => {
     if (loading) {

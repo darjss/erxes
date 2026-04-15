@@ -36,9 +36,10 @@ export const AgencyDetail = () => {
   if (loading) {
     return <Spinner containerClassName="ba:py-32" />;
   }
+
   return (
     <Form {...form}>
-      <form className="max-w-2xl mx-auto my-3">
+      <form className="max-w-2xl mx-auto my-3 space-y-3">
         <AgencyInfoForm form={form} />
       </form>
     </Form>

@@ -2,6 +2,12 @@ import { lazy, Suspense } from 'react';
 import { Route, Routes } from 'react-router';
 import { AgencyPaths } from './types/AgencyPaths';
 
+const ListingDetailPage = lazy(() =>
+  import('~/pages/blockagency/ListingDetailPage').then((module) => ({
+    default: module.ListingDetailPage,
+  })),
+);
+
 const IndexPage = lazy(() =>
   import('~/pages/blockagency/IndexPage').then((module) => ({
     default: module.IndexPage,
@@ -38,28 +44,18 @@ const UnitIndexPage = lazy(() =>
   })),
 );
 
-const DashboardIndexPage = lazy(() =>
-  import('~/pages/blockagency/DashboardIndexPage').then((module) => ({
-    default: module.DashboardIndexPage,
-  })),
-);
-
 const BlockagencyMain = () => {
   return (
     <Suspense fallback={<div />}>
       <Routes>
         <Route path={AgencyPaths.AGENCY_PROFILE} element={<IndexPage />} />
-        <Route
-          path={AgencyPaths.AGENCY_DASHBOARD}
-          element={<DashboardIndexPage />}
-        />
         <Route path={AgencyPaths.LISTING} element={<ListingPage />}>
           <Route index element={<ListingIndexPage />} />
-          <Route
-            path={AgencyPaths.LISTING_DETAIL}
-            element={<div>Listing Detail page</div>}
-          />
         </Route>
+        <Route
+          path={`${AgencyPaths.LISTING}/${AgencyPaths.LISTING_DETAIL}`}
+          element={<ListingDetailPage />}
+        />
         <Route path={AgencyPaths.PROFILE} element={<MemberIndexPage />} />
         <Route path={AgencyPaths.UNITS} element={<UnitPage />}>
           <Route index element={<UnitIndexPage />} />
@@ -70,3 +66,4 @@ const BlockagencyMain = () => {
 };
 
 export default BlockagencyMain;
+

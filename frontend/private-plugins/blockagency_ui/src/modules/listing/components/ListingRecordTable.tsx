@@ -2,21 +2,28 @@ import { Label, RecordTable } from 'erxes-ui';
 import { BLOCK_LISTING_CURSOR_SESSION_KEY } from '../constants/listing';
 import { listingColumns } from './listingColumns';
 import { useGetListings } from '../hooks/useGetListings';
-import { EditListingSheet } from './EditListingSheet';
+import { ListingFilterValue } from './ListingFilter';
 
-const PER_PAGE = 30;
+const PER_PAGE = 20;
 
-export const ListingRecordTable = () => {
+type Props = {
+  filter?: ListingFilterValue;
+};
+
+export const ListingRecordTable = ({ filter }: Props) => {
   const { list, loading, totalCount, pageInfo, handleFetchMore } =
     useGetListings({
       variables: {
         limit: PER_PAGE,
+        status: filter?.status,
+        searchValue: filter?.searchValue,
       },
     });
   const { hasNextPage, hasPreviousPage } = pageInfo || {};
+
   const RecordMain = () => {
     if (loading) {
-      return <RecordTable.RowSkeleton rows={32} />;
+      return <RecordTable.RowSkeleton rows={PER_PAGE} />;
     }
     if (!totalCount) {
       return (
@@ -31,9 +38,9 @@ export const ListingRecordTable = () => {
     }
     return <RecordTable.RowList />;
   };
+
   return (
-    <>
-      <RecordTable.Provider
+    <RecordTable.Provider
         columns={listingColumns}
         data={list}
         stickyColumns={['title']}
@@ -42,7 +49,7 @@ export const ListingRecordTable = () => {
         <RecordTable.CursorProvider
           hasPreviousPage={hasPreviousPage}
           hasNextPage={hasNextPage}
-          dataLength={20}
+          dataLength={PER_PAGE}
           sessionKey={BLOCK_LISTING_CURSOR_SESSION_KEY}
         >
           <RecordTable>
@@ -59,7 +66,5 @@ export const ListingRecordTable = () => {
           </RecordTable>
         </RecordTable.CursorProvider>
       </RecordTable.Provider>
-      <EditListingSheet />
-    </>
   );
 };

@@ -13,8 +13,8 @@ export const blockListingSchema = new Schema<IBlockListingDocument>(
     },
     description: { type: String },
     location: {
-      city: { type: String, required: true },
-      district: { type: String, required: true },
+      city: { type: String },
+      district: { type: String },
       subDistrict: { type: String },
       short: { type: String },
       lat: { type: Number },
@@ -39,6 +39,7 @@ export const blockListingSchema = new Schema<IBlockListingDocument>(
     mediaAttachments: [{ type: String }],
     featuredImg: { type: String },
     viewCount: { type: Number },
+    isFeatured: { type: Boolean, default: false },
     memberId: { type: String, index: true },
   },
   {

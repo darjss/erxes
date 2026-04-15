@@ -8,7 +8,7 @@ import {
 import { generateFilter } from '~/modules/listing/utils';
 
 export const blockListingQueries = {
-  blockGetListing: async ({ _id }, { models }: IContext) => {
+  blockGetListing: async (_root: undefined, { _id }: { _id: string }, { models }: IContext) => {
     return models.BlockListing.getListing(_id);
   },
 

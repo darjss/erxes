@@ -11,11 +11,6 @@ export interface IBlockAgencyModel extends Model<IBlockAgencyDocument> {
     entityId: string,
     input: IBlockAgency,
   ): Promise<IBlockAgencyDocument>;
-  updateAgencyVerificationStatus(
-    subdomain: string,
-    entityId: string,
-    status: string,
-  ): Promise<IBlockAgencyDocument>;
 }
 
 export const loadBlockAgencyClass = (models: IModels) => {
@@ -47,19 +42,6 @@ export const loadBlockAgencyClass = (models: IModels) => {
       return models.Agency.findOneAndUpdate({ _id }, input, { new: true });
     }
 
-    public static async updateAgencyVerificationStatus(
-      subdomain: string,
-      entityId: string,
-      status: string,
-    ) {
-      const { _id } = await models.Agency.getAgency(subdomain, entityId);
-
-      return models.Agency.findOneAndUpdate(
-        { _id },
-        { verificationStatus: status },
-        { new: true },
-      );
-    }
   }
 
   agencySchema.loadClass(Agency);

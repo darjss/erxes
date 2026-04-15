@@ -15,6 +15,7 @@ import { unitTypesQueries } from '@/unit/graphql/resolvers/queries/unitType';
 import { unitLeadQueries } from '@/unit/graphql/resolvers/queries/unitLead';
 import { cpBlockQueries } from '~/modules/clientportal/graphql/resolvers/queries';
 import { formQueries } from '~/modules/form/graphql/queries';
+import { listingQueries } from '@/listing/graphql/resolvers/queries/listing';
 
 export const queries = {
   ...agencyQueries,
@@ -33,6 +34,7 @@ export const queries = {
   ...offerQueries,
   ...invoiceQueries,
   ...formQueries,
+  ...listingQueries,
 
   ...cpBlockQueries,
 };

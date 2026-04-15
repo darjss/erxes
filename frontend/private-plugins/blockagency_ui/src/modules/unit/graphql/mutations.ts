@@ -8,3 +8,12 @@ export const ASSIGN_UNIT_TO_MEMBER = gql`
     }
   }
 `;
+
+export const UPDATE_UNIT_STATUS = gql`
+  mutation BlockAgencyUpdateUnitStatus($_id: String!, $status: BlockUnitStatus!) {
+    blockAgencyUpdateUnitStatus(_id: $_id, status: $status) {
+      _id
+      status
+    }
+  }
+`;

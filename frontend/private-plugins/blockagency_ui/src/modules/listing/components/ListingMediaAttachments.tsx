@@ -7,7 +7,7 @@ type Props = {
   form: UseFormReturn<IListing>;
 };
 
-export const ListingMediaAttachments: React.FC<Props> = ({ form }) => {
+export const ListingMediaAttachments = ({ form }: Props) => {
   const { control, watch, setValue } = form;
   const featuredImg = watch('featuredImg');
 
@@ -25,12 +25,9 @@ export const ListingMediaAttachments: React.FC<Props> = ({ form }) => {
               <Form.Control>
                 <UploadAttachments
                   values={field.value as string[]}
-                  onValueChange={(values) => {
-                    field.onChange(values);
-                  }}
+                  onValueChange={field.onChange}
                   featured={featuredImg ?? undefined}
                   setFeatured={(url) => setValue('featuredImg', url)}
-                  className="size-auto"
                 />
               </Form.Control>
               <Form.Message />

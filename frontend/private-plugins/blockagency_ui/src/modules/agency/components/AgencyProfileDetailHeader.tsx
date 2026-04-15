@@ -1,14 +1,11 @@
 import {
-  Badge,
   Input,
   Popover,
   PopoverScoped,
   RecordTableInlineCell,
   Spinner,
   Tooltip,
-  cn,
 } from 'erxes-ui';
-import { IconRosetteDiscountCheck } from '@tabler/icons-react';
 import { useAgencyInfo } from '../hooks/useAgencyInfo';
 import { useEffect, useState } from 'react';
 import { useUpdateAgency } from '../hooks/useUpdateAgency';
@@ -24,29 +21,6 @@ export const AgencyProfileDetailHeader = () => {
       <div className="p-8 space-y-3">
         <div className="flex items-center gap-3">
           <AgencyDetailName name={agencyInfo?.name || ''} />
-          <Badge
-            className="capitalize"
-            variant={
-              agencyInfo?.verificationStatus === 'pending'
-                ? 'warning'
-                : agencyInfo?.verificationStatus === 'verified'
-                  ? 'success'
-                  : agencyInfo?.verificationStatus === 'unverified'
-                    ? 'destructive'
-                    : 'secondary'
-            }
-          >
-            <IconRosetteDiscountCheck
-              className={cn(
-                'size-3.5',
-                agencyInfo?.verificationStatus !== 'pending' && 'text-warning',
-                agencyInfo?.verificationStatus === 'verified' && 'text-success',
-                agencyInfo?.verificationStatus === 'unverified' &&
-                  'text-destructive',
-              )}
-            />
-            {agencyInfo?.verificationStatus}
-          </Badge>
         </div>
       </div>
     </div>

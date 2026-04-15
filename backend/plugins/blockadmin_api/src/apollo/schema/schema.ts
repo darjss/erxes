@@ -83,6 +83,12 @@ import {
 } from '@/form/graphql/schemas';
 
 import {
+  mutations as ListingMutations,
+  queries as ListingQueries,
+  types as ListingTypes,
+} from '@/listing/graphql/schemas/listing';
+
+import {
   queries as ClientPortalBlockQueries,
   types as ClientPortalBlockTypes,
 } from '~/modules/clientportal/graphql/schemas';
@@ -107,6 +113,7 @@ export const types = `
   ${ContractTypes}
   ${OfferTypes}
   ${SubmissionTypes}
+  ${ListingTypes}
 
   ${ClientPortalBlockTypes}
   `;
@@ -128,6 +135,7 @@ export const queries = `
   ${ContractQueries}
   ${OfferQueries}
   ${FormQueries}
+  ${ListingQueries}
 
   ${ClientPortalBlockQueries}
   `;
@@ -138,6 +146,7 @@ export const mutations = `
   ${DeveloperMutations}
   ${UnitMutations}
   ${ProjectMutations}
+  ${ListingMutations}
   `;
 
 export default { types, queries, mutations };

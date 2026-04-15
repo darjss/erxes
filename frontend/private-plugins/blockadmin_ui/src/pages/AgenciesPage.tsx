@@ -1,10 +1,15 @@
+import { useState } from 'react';
 import { Agencies } from '@/agencies/components/Agencies';
 import { AgenciesBreadcrumb } from '@/agencies/components/AgenciesBreadcrumb';
 import { AgenciesFilter } from '@/agencies/components/AgenciesFilter';
+import { AgenciesSubNav } from '@/agencies/components/AgenciesSubNav';
+import { AgenciesFilterVars } from '@/agencies/hooks/useAgencies';
 import { PageContainer, PageSubHeader, ScrollArea, Separator } from 'erxes-ui';
 import { PageHeader } from 'ui-modules';
 
 export const AgenciesPage = () => {
+  const [filter, setFilter] = useState<AgenciesFilterVars>({});
+
   return (
     <PageContainer>
       <PageHeader>
@@ -14,11 +19,12 @@ export const AgenciesPage = () => {
           <PageHeader.FavoriteToggleButton />
         </PageHeader.Start>
       </PageHeader>
+      <AgenciesSubNav />
       <PageSubHeader>
-        <AgenciesFilter />
+        <AgenciesFilter filter={filter} onFilterChange={setFilter} />
       </PageSubHeader>
       <ScrollArea className="flex-auto">
-        <Agencies />
+        <Agencies filter={filter} />
       </ScrollArea>
     </PageContainer>
   );

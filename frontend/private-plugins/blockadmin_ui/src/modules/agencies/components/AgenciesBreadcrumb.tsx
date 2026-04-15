@@ -12,7 +12,7 @@ export const AgenciesBreadcrumb = ({
       <Breadcrumb.List className="gap-1">
         <Breadcrumb.Item>
           <Button variant="ghost" asChild>
-            <Link to="/blockadmin/agencies">
+            <Link to="/blockadmin/agencies/agencies">
               <IconClipboardTextFilled className="text-accent-foreground" />
               Agencies
             </Link>

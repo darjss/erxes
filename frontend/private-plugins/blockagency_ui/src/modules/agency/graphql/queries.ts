@@ -28,7 +28,6 @@ export const GET_AGENCY_INFO = gql`
         services
         clientTypes
       }
-      verificationStatus
     }
   }
 `;

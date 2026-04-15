@@ -82,6 +82,3 @@ export const agencySocialLinksSchema = z.object({
     .optional(),
 });
 
-export const verificationStatusSchema = z.object({
-  status: z.enum(['pending', 'verified', 'unverified']),
-});

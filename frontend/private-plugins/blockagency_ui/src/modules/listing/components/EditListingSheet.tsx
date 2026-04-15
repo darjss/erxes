@@ -1,8 +1,9 @@
 import { useAtom } from 'jotai';
 import { editListingAtom } from '../states/listing';
-import { Button, Form, Sheet, toast } from 'erxes-ui';
+import { Button, Form, Sheet, Spinner, toast } from 'erxes-ui';
 import { useListingForm } from '../hooks/useListingForm';
 import { useUpdateListing } from '../hooks/useUpdateListing';
+import { useGetListingDetail } from '../hooks/useGetListingDetail';
 import { useCallback, useEffect } from 'react';
 import { IListing } from '../types/listing';
 import { ListingLocation } from './ListingLocation';
@@ -15,15 +16,20 @@ import { ListingMemberSection } from './ListingMemberSection';
 export const EditListingSheet = () => {
   const [editListing, setEditListing] = useAtom(editListingAtom);
   const open = !!editListing;
+
+  const { listing, loading: detailLoading } = useGetListingDetail(
+    editListing?._id,
+  );
+
   const { form } = useListingForm();
   const { handleSubmit, reset } = form;
-  const { updateListing, loading } = useUpdateListing();
+  const { updateListing, loading: saving } = useUpdateListing();
 
   useEffect(() => {
-    if (editListing) {
-      reset(editListing as unknown as Partial<IListing>);
+    if (listing) {
+      reset(listing as unknown as Partial<IListing>);
     }
-  }, [editListing, reset]);
+  }, [listing, reset]);
 
   const onSubmit = useCallback(
     async (data: IListing) => {
@@ -57,26 +63,30 @@ export const EditListingSheet = () => {
               </Sheet.Description>
             </Sheet.Header>
             <Sheet.Content className="p-3 px-6 flex-1 overflow-y-auto">
-              <div className="flex-1 flex flex-col gap-3">
-                <ListingMainInfo form={form} />
-                <ListingLocation form={form} />
-                <ListingPricing form={form} />
-                <ListingSpecs form={form} />
-                <ListingMediaAttachments form={form} />
-                <ListingMemberSection form={form} />
-              </div>
+              {detailLoading ? (
+                <Spinner containerClassName="py-32" />
+              ) : (
+                <div className="flex-1 flex flex-col gap-3">
+                  <ListingMainInfo form={form} />
+                  <ListingLocation form={form} />
+                  <ListingPricing form={form} />
+                  <ListingSpecs form={form} />
+                  <ListingMediaAttachments form={form} />
+                  <ListingMemberSection form={form} />
+                </div>
+              )}
             </Sheet.Content>
             <Sheet.Footer>
               <Button
                 type="button"
                 onClick={() => setEditListing(null)}
                 variant="outline"
-                disabled={loading}
+                disabled={saving}
               >
                 Cancel
               </Button>
-              <Button type="submit" disabled={loading}>
-                {loading ? 'Saving...' : 'Save'}
+              <Button type="submit" disabled={detailLoading || saving}>
+                {saving ? 'Saving...' : 'Save'}
               </Button>
             </Sheet.Footer>
           </form>

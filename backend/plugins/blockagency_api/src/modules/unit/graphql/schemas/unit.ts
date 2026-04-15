@@ -1,6 +1,20 @@
 export const types = `
+  enum BlockUnitStatus {
+    available
+    reserved
+    sold
+    leased
+  }
+
   type BlockAgencyUnitAgency {
     name: String
+  }
+
+  type BlockAgencyUnitStatusCount {
+    available: Int!
+    reserved: Int!
+    sold: Int!
+    leased: Int!
   }
 
   type BlockAgencyUnit {
@@ -13,6 +27,7 @@ export const types = `
     unitNumber: String
     projectId: String
     memberId: String
+    status: BlockUnitStatus
     assignedAt: Date
     createdAt: Date
     updatedAt: Date
@@ -21,11 +36,13 @@ export const types = `
 `;
 
 export const queries = `
-  blockAgencyGetUnits(agencyId: String, projectId: String, memberId: String, page: Int, perPage: Int): [BlockAgencyUnit]
-  blockAgencyGetUnitsTotalCount(agencyId: String, projectId: String, memberId: String): Int
+  blockAgencyGetUnits(agencyId: String, projectId: String, memberId: String, status: BlockUnitStatus, page: Int, perPage: Int): [BlockAgencyUnit]
+  blockAgencyGetUnitsTotalCount(agencyId: String, projectId: String, memberId: String, status: BlockUnitStatus): Int
+  blockAgencyGetUnitStatusCounts(agencyId: String, projectId: String): BlockAgencyUnitStatusCount
 `;
 
 export const mutations = `
   blockAgencyAssignUnitToMember(_id: String!, memberId: String): BlockAgencyUnit
+  blockAgencyUpdateUnitStatus(_id: String!, status: BlockUnitStatus!): BlockAgencyUnit
   blockAgencyRemoveUnit(_id: String!): Boolean
 `;

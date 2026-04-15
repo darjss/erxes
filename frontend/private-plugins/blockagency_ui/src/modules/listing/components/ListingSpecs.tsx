@@ -6,7 +6,15 @@ type Props = {
   form: UseFormReturn<IListing>;
 };
 
-export const ListingSpecs: React.FC<Props> = ({ form }) => {
+const CURRENT_YEAR = new Date().getFullYear();
+const BUILT_YEAR_OPTIONS = Array.from({ length: 100 }, (_, i) =>
+  String(CURRENT_YEAR - i),
+);
+
+const toInt = (v: string) => (v ? parseInt(v, 10) : undefined);
+const toFloat = (v: string) => parseFloat(v) || 0;
+
+export const ListingSpecs = ({ form }: Props) => {
   const { control } = form;
 
   return (
@@ -21,9 +29,7 @@ export const ListingSpecs: React.FC<Props> = ({ form }) => {
               <Form.Control>
                 <Input
                   {...field}
-                  onChange={(e) =>
-                    field.onChange(parseFloat(e.target.value) || 0)
-                  }
+                  onChange={(e) => field.onChange(toFloat(e.target.value))}
                   placeholder="0"
                 />
               </Form.Control>
@@ -40,13 +46,8 @@ export const ListingSpecs: React.FC<Props> = ({ form }) => {
               <Form.Label>Floor</Form.Label>
               <Form.Control>
                 <Input
-                  {...field}
                   value={field.value ?? ''}
-                  onChange={(e) =>
-                    field.onChange(
-                      e.target.value ? parseInt(e.target.value) : undefined,
-                    )
-                  }
+                  onChange={(e) => field.onChange(toInt(e.target.value))}
                   placeholder="Optional"
                 />
               </Form.Control>
@@ -63,13 +64,8 @@ export const ListingSpecs: React.FC<Props> = ({ form }) => {
               <Form.Label>Total Floors</Form.Label>
               <Form.Control>
                 <Input
-                  {...field}
                   value={field.value ?? ''}
-                  onChange={(e) =>
-                    field.onChange(
-                      e.target.value ? parseInt(e.target.value) : undefined,
-                    )
-                  }
+                  onChange={(e) => field.onChange(toInt(e.target.value))}
                   placeholder="Optional"
                 />
               </Form.Control>
@@ -86,13 +82,8 @@ export const ListingSpecs: React.FC<Props> = ({ form }) => {
               <Form.Label>Rooms</Form.Label>
               <Form.Control>
                 <Input
-                  {...field}
                   value={field.value ?? ''}
-                  onChange={(e) =>
-                    field.onChange(
-                      e.target.value ? parseInt(e.target.value) : undefined,
-                    )
-                  }
+                  onChange={(e) => field.onChange(toInt(e.target.value))}
                   placeholder="Optional"
                 />
               </Form.Control>
@@ -110,15 +101,12 @@ export const ListingSpecs: React.FC<Props> = ({ form }) => {
               <Form.Control>
                 <Select value={field.value} onValueChange={field.onChange}>
                   <Select.Trigger>
-                    <Select.Value placeholder="Select date" />
+                    <Select.Value placeholder="Select year" />
                   </Select.Trigger>
                   <Select.Content>
-                    {Array.from({ length: 100 }).map((_, index) => (
-                      <Select.Item
-                        key={index}
-                        value={`${new Date().getFullYear() - index}`}
-                      >
-                        {new Date().getFullYear() - index}
+                    {BUILT_YEAR_OPTIONS.map((year) => (
+                      <Select.Item key={year} value={year}>
+                        {year}
                       </Select.Item>
                     ))}
                   </Select.Content>

@@ -1,6 +1,7 @@
 import { agencyMutations } from '@/agency/graphql/resolvers/mutations/agency';
 import { developerMutations } from '@/developer/graphql/resolvers/mutations/developer';
 import { submissionMutation } from '@/form/graphql/mutations';
+import { listingMutations } from '@/listing/graphql/resolvers/mutations/listing';
 import { unitMutations } from '@/unit/graphql/resolvers/mutations/unit';
 import { projectMutations } from '@/project/graphql/resolvers/mutations/project';
 
@@ -10,4 +11,5 @@ export const mutations = {
   ...developerMutations,
   ...unitMutations,
   ...projectMutations,
+  ...listingMutations,
 };

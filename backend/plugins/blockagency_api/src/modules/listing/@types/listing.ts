@@ -1,22 +1,22 @@
 import { Document } from 'mongoose';
 
 export interface IBlockListingLocation {
-  city: string;
-  district: string;
-  subDistrict: string;
+  city?: string;
+  district?: string;
+  subDistrict?: string;
   short?: string;
   lat?: number;
   lng?: number;
 }
 
 export interface IBlockListingPricing {
-  amount: number;
+  amount?: number;
   currency?: string;
   priceType?: 'fixed' | 'negotiable' | 'onRequest';
 }
 
 export interface IBlockListingSpecs {
-  area: number;
+  area?: number;
   floor?: number;
   totalFloors?: number;
   rooms?: number;
@@ -25,16 +25,17 @@ export interface IBlockListingSpecs {
 
 export interface IBlockListing {
   title: string;
-  type: 'sale' | 'rent' | 'lease';
-  propertyType: string;
-  status: 'active' | 'inactive' | 'sold' | 'draft';
-  description: string;
-  location: IBlockListingLocation;
-  pricing: IBlockListingPricing;
-  specs: IBlockListingSpecs;
+  type?: 'sale' | 'rent' | 'lease';
+  propertyType?: string;
+  status?: 'active' | 'inactive' | 'sold' | 'draft';
+  description?: string;
+  location?: IBlockListingLocation;
+  pricing?: IBlockListingPricing;
+  specs?: IBlockListingSpecs;
   mediaAttachments?: string[];
   featuredImg?: string;
   viewCount?: number;
+  isFeatured?: boolean;
   memberId?: string;
 }
 

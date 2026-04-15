@@ -44,13 +44,14 @@ export const useGetListings = (options?: QueryHookOptions) => {
       },
       updateQuery: (prev, { fetchMoreResult }) => {
         if (!fetchMoreResult) return prev;
-        return Object.assign({}, prev, {
-          automationHistories: mergeCursorData({
+        return {
+          ...prev,
+          blockGetListings: mergeCursorData({
             direction,
             fetchMoreResult: fetchMoreResult.blockGetListings,
             prevResult: prev.blockGetListings,
           }),
-        });
+        };
       },
     });
   };

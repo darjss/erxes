@@ -38,6 +38,7 @@ export interface IBlockAdminListing extends IBlock {
   mediaAttachments?: string[];
   featuredImg?: string;
   viewCount?: number;
+  isFeatured?: boolean;
 }
 
 export interface IBlockAdminListingDocument

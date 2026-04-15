@@ -7,7 +7,6 @@ import {
   agencyFieldsOfExpertiseSchema,
   agencyOperationAreasSchema,
   agencySocialLinksSchema,
-  verificationStatusSchema,
   agencyGeneralInfoSchema,
   agencyContactInfoSchema,
 } from '../schema/form';
@@ -34,5 +33,3 @@ export type AgencyOperationAreasValues = z.infer<
 >;
 
 export type AgencySocialLinksValues = z.infer<typeof agencySocialLinksSchema>;
-
-export type VerificationValues = z.infer<typeof verificationStatusSchema>;

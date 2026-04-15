@@ -11,8 +11,7 @@ import {
 } from 'erxes-ui';
 import { format } from 'date-fns';
 import { IconPencil, IconTrash } from '@tabler/icons-react';
-import { useSetAtom } from 'jotai';
-import { editListingAtom } from '../states/listing';
+import { useNavigate } from 'react-router';
 import { useRemoveListing } from '../hooks/useRemoveListing';
 
 export const listingColumns: ColumnDef<IListingInline>[] = [
@@ -44,10 +43,14 @@ export const listingColumns: ColumnDef<IListingInline>[] = [
       const { amount, currency } = cell.row.original.pricing || {};
       return (
         <RecordTableInlineCell className="flex items-center justify-center">
-          <CurrencyDisplay className="shrink" variant="code" code={currency} />
-          <span className="grow">
-            {formatAmount(amount as number, 'finance')}
-          </span>
+          {amount != null ? (
+            <>
+              <CurrencyDisplay className="shrink" variant="code" code={currency} />
+              <span className="grow">{formatAmount(amount, 'finance')}</span>
+            </>
+          ) : (
+            <span className="text-muted-foreground">—</span>
+          )}
         </RecordTableInlineCell>
       );
     },
@@ -113,7 +116,7 @@ export const listingColumns: ColumnDef<IListingInline>[] = [
 ];
 
 const ListingRowActions = ({ listing }: { listing: IListingInline }) => {
-  const setEditListing = useSetAtom(editListingAtom);
+  const navigate = useNavigate();
   const { removeListing } = useRemoveListing();
   const { confirm } = useConfirm();
 
@@ -139,7 +142,7 @@ const ListingRowActions = ({ listing }: { listing: IListingInline }) => {
       <Button
         variant="ghost"
         size="icon"
-        onClick={() => setEditListing(listing)}
+        onClick={() => navigate(listing._id)}
       >
         <IconPencil size={16} />
       </Button>

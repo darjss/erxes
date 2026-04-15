@@ -1,4 +1,4 @@
-import { InfoCard, Form, Input, Select, CurrencyField } from 'erxes-ui';
+import { InfoCard, Form, Select, CurrencyField } from 'erxes-ui';
 import { UseFormReturn } from 'react-hook-form';
 import { IListing } from '../types/listing';
 import { PRICING_TYPE } from '../constants/listing';
@@ -7,7 +7,9 @@ type Props = {
   form: UseFormReturn<IListing>;
 };
 
-export const ListingPricing: React.FC<Props> = ({ form }) => {
+const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
+
+export const ListingPricing = ({ form }: Props) => {
   const { control } = form;
 
   return (
@@ -39,7 +41,7 @@ export const ListingPricing: React.FC<Props> = ({ form }) => {
                 <CurrencyField>
                   <CurrencyField.ValueInput
                     value={field.value}
-                    onChange={(v) => field.onChange(v)}
+                    onChange={field.onChange}
                   />
                 </CurrencyField>
               </Form.Control>
@@ -62,7 +64,7 @@ export const ListingPricing: React.FC<Props> = ({ form }) => {
                   <Select.Content>
                     {PRICING_TYPE.map((p) => (
                       <Select.Item key={p} value={p}>
-                        {p.charAt(0).toUpperCase() + p.slice(1)}
+                        {capitalize(p)}
                       </Select.Item>
                     ))}
                   </Select.Content>

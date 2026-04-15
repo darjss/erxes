@@ -7,7 +7,9 @@ type Props = {
   form: UseFormReturn<IListing>;
 };
 
-export const ListingMainInfo: React.FC<Props> = ({ form }) => {
+const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
+
+export const ListingMainInfo = ({ form }: Props) => {
   const { control } = form;
 
   return (
@@ -41,7 +43,7 @@ export const ListingMainInfo: React.FC<Props> = ({ form }) => {
                   <Select.Content>
                     {LISTING_TYPES.map((t) => (
                       <Select.Item key={t} value={t}>
-                        {t.charAt(0).toUpperCase() + t.slice(1)}
+                        {capitalize(t)}
                       </Select.Item>
                     ))}
                   </Select.Content>
@@ -80,7 +82,7 @@ export const ListingMainInfo: React.FC<Props> = ({ form }) => {
                   <Select.Content>
                     {STATUS_TYPES.map((s) => (
                       <Select.Item key={s} value={s}>
-                        {s.charAt(0).toUpperCase() + s.slice(1)}
+                        {capitalize(s)}
                       </Select.Item>
                     ))}
                   </Select.Content>

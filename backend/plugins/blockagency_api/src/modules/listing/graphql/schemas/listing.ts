@@ -2,22 +2,22 @@ import { GQL_CURSOR_PARAM_DEFS } from 'erxes-api-shared/utils';
 
 export const types = `
   type BlockListingLocation {
-    city: String!
-    district: String!
-    subDistrict: String!
+    city: String
+    district: String
+    subDistrict: String
     short: String
     lat: Float
     lng: Float
   }
 
   type BlockListingPricing {
-    amount: Float!
+    amount: Float
     currency: String
     priceType: ListingPriceType
   }
 
   type BlockListingSpecs {
-    area: Float!
+    area: Float
     floor: Int
     totalFloors: Int
     rooms: Int
@@ -33,14 +33,14 @@ export const types = `
 
   type BlockListing {
     _id: String!
-    title: String!
-    type: ListingType!
-    propertyType: String!
-    status: ListingStatus!
-    description: String!
-    location: BlockListingLocation!
-    pricing: BlockListingPricing!
-    specs: BlockListingSpecs!
+    title: String
+    type: ListingType
+    propertyType: String
+    status: ListingStatus
+    description: String
+    location: BlockListingLocation
+    pricing: BlockListingPricing
+    specs: BlockListingSpecs
     mediaAttachments: [String]
     featuredImg: String
     viewCount: Float
@@ -88,22 +88,22 @@ export const types = `
   }
 
   input BlockListingLocationInput {
-    city: String!
-    district: String!
-    subDistrict: String!
+    city: String
+    district: String
+    subDistrict: String
     short: String
     lat: Float
     lng: Float
   }
 
   input BlockListingPricingInput {
-    amount: Float!
+    amount: Float
     currency: String
     priceType: ListingPriceType
   }
 
   input BlockListingSpecsInput {
-    area: Float!
+    area: Float
     floor: Int
     totalFloors: Int
     rooms: Int
@@ -112,13 +112,13 @@ export const types = `
 
   input BlockListingInput {
     title: String!
-    type: ListingType!
-    propertyType: String!
+    type: ListingType
+    propertyType: String
     status: ListingStatus
     description: String
-    location: BlockListingLocationInput!
-    pricing: BlockListingPricingInput!
-    specs: BlockListingSpecsInput!
+    location: BlockListingLocationInput
+    pricing: BlockListingPricingInput
+    specs: BlockListingSpecsInput
     mediaAttachments: [String]
     featuredImg: String
     viewCount: Float

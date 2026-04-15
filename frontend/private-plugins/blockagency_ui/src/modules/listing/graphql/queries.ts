@@ -16,6 +16,45 @@ export const GET_LISTING_STATS = gql`
   }
 `;
 
+export const GET_LISTING_DETAIL = gql`
+  query BlockGetListing($_id: String!) {
+    blockGetListing(_id: $_id) {
+      _id
+      title
+      type
+      propertyType
+      status
+      description
+      featuredImg
+      viewCount
+      memberId
+      mediaAttachments
+      location {
+        city
+        district
+        subDistrict
+        short
+        lat
+        lng
+      }
+      pricing {
+        amount
+        currency
+        priceType
+      }
+      specs {
+        area
+        floor
+        totalFloors
+        rooms
+        builtYear
+      }
+      createdAt
+      updatedAt
+    }
+  }
+`;
+
 export const GET_LISTINGS = gql`
   query GetListings(
     $status: String
@@ -53,6 +92,7 @@ export const GET_LISTINGS = gql`
         createdAt
       }
       ${GQL_PAGE_INFO}
+      totalCount
     }
   }
 `;

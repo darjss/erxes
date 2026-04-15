@@ -26,7 +26,7 @@ export const AgencyCard = ({
 }: IAgency) => {
   return (
     <Link
-      to={`/blockadmin/agencies/${_id}`}
+      to={`/blockadmin/agencies/agencies/${_id}`}
       className="border bg-accent p-2 ba:rounded-[1.25rem] flex flex-col gap-3"
     >
       <div className="w-full h-full relative ba:aspect-2/1 rounded-xl overflow-hidden flex items-center justify-center">

@@ -1,10 +1,14 @@
 import { Spinner } from 'erxes-ui';
-import { useAgencies } from '../hooks/useAgencies';
+import { useAgencies, AgenciesFilterVars } from '../hooks/useAgencies';
 import { AgencyCard } from './AgencyCard';
 import { IAgency } from '../types';
 
-export const Agencies = () => {
-  const { agencies, loading } = useAgencies();
+type Props = {
+  filter?: AgenciesFilterVars;
+};
+
+export const Agencies = ({ filter }: Props) => {
+  const { agencies, loading } = useAgencies(filter);
 
   if (loading) {
     return <Spinner containerClassName="ba:py-32" />;

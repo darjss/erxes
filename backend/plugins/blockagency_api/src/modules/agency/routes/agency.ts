@@ -7,7 +7,7 @@ import { IBlockAgency } from '../@types/agency';
 const router: Router = Router();
 
 router.post(
-  '/webhook/updateAgencyVerificationStatus',
+  '/updateAgencyVerificationStatus',
   async (
     req: IRequest<
       IBlockAgency,

@@ -3,7 +3,7 @@ import {
   GET_AGENCY_UNITS,
   GET_AGENCY_UNITS_TOTAL_COUNT,
 } from '../graphql/queries';
-import { IBlockAgencyUnit } from '../types/unit';
+import { BlockUnitStatus, IBlockAgencyUnit } from '../types/unit';
 
 type GetUnitsResponse = {
   blockAgencyGetUnits: IBlockAgencyUnit[];
@@ -17,12 +17,13 @@ const PER_PAGE = 20;
 
 export const useGetUnits = ({
   agencyId,
+  status,
   page = 1,
-}: { agencyId?: string; page?: number } = {}) => {
+}: { agencyId?: string; status?: BlockUnitStatus; page?: number } = {}) => {
   const { data, loading, error, refetch } = useQuery<GetUnitsResponse>(
     GET_AGENCY_UNITS,
     {
-      variables: { agencyId, page, perPage: PER_PAGE },
+      variables: { agencyId, status, page, perPage: PER_PAGE },
       fetchPolicy: 'cache-and-network',
     },
   );
@@ -30,7 +31,7 @@ export const useGetUnits = ({
   const { data: countData } = useQuery<GetUnitsTotalCountResponse>(
     GET_AGENCY_UNITS_TOTAL_COUNT,
     {
-      variables: { agencyId },
+      variables: { agencyId, status },
     },
   );
 

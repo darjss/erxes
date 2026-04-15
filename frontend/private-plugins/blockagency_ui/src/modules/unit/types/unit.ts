@@ -1,3 +1,5 @@
+export type BlockUnitStatus = 'available' | 'reserved' | 'sold' | 'leased';
+
 export interface IBlockAgencyUnit {
   _id: string;
   blockUnitId: string;
@@ -8,7 +10,15 @@ export interface IBlockAgencyUnit {
   blockDeveloperName?: string;
   agency?: { name?: string };
   memberId?: string;
+  status?: BlockUnitStatus;
   assignedAt?: string;
   createdAt?: string;
   updatedAt?: string;
+}
+
+export interface IUnitStatusCounts {
+  available: number;
+  reserved: number;
+  sold: number;
+  leased: number;
 }

@@ -8,31 +8,39 @@ type Props = {
   form: UseFormReturn<IListing>;
 };
 
-export const ListingLocation: React.FC<Props> = ({ form }) => {
-  const { control, watch } = form;
-  const [city, district] = watch(['location.city', 'location.district']);
+export const ListingLocation = ({ form }: Props) => {
+  const { control, watch, setValue } = form;
+  const [city, district, lat, lng] = watch([
+    'location.city',
+    'location.district',
+    'location.lat',
+    'location.lng',
+  ]);
 
-  const handleMapSelect = (value: {
+  const handleMapSelect = ({
+    lat,
+    lng,
+    city,
+    district,
+    subDistrict,
+  }: {
     lat: number;
     lng: number;
     city?: string;
     district?: string;
     subDistrict?: string;
   }) => {
-    const { lat, lng, city, district, subDistrict } = value || {};
-
-    form.setValue('location.lat', lat);
-    form.setValue('location.lng', lng);
-    form.setValue('location.city', city || '');
-    form.setValue('location.district', district || '');
-    form.setValue('location.subDistrict', subDistrict || '');
+    setValue('location.lat', lat);
+    setValue('location.lng', lng);
+    setValue('location.city', city ?? '');
+    setValue('location.district', district ?? '');
+    setValue('location.subDistrict', subDistrict ?? '');
   };
 
   return (
     <InfoCard title="Location">
-      <InfoCard.Content className="flex gap-4">
+      <InfoCard.Content className="flex flex-col gap-4">
         <div className="grid grid-cols-3 gap-4">
-          {/* city */}
           <Form.Field<IListing, 'location.city'>
             control={control}
             name="location.city"
@@ -49,7 +57,6 @@ export const ListingLocation: React.FC<Props> = ({ form }) => {
             )}
           />
 
-          {/* district */}
           <Form.Field<IListing, 'location.district'>
             control={control}
             name="location.district"
@@ -70,7 +77,6 @@ export const ListingLocation: React.FC<Props> = ({ form }) => {
             )}
           />
 
-          {/* sub district */}
           <Form.Field<IListing, 'location.subDistrict'>
             control={control}
             name="location.subDistrict"
@@ -85,14 +91,14 @@ export const ListingLocation: React.FC<Props> = ({ form }) => {
             )}
           />
         </div>
-        <div className="gap-4 grid grid-cols-3">
+
+        <div className="grid grid-cols-3 gap-4">
           <div className="col-span-1 flex flex-col gap-4">
-            {/* short */}
             <Form.Field<IListing, 'location.short'>
               control={control}
               name="location.short"
               render={({ field }) => (
-                <Form.Item className="col-span-2">
+                <Form.Item>
                   <Form.Label>Short Address</Form.Label>
                   <Form.Control>
                     <Textarea {...field} placeholder="Short address" />
@@ -102,7 +108,6 @@ export const ListingLocation: React.FC<Props> = ({ form }) => {
               )}
             />
 
-            {/* lat & lng */}
             <Form.Field<IListing, 'location.lat'>
               control={control}
               name="location.lat"
@@ -122,6 +127,7 @@ export const ListingLocation: React.FC<Props> = ({ form }) => {
                 </Form.Item>
               )}
             />
+
             <Form.Field<IListing, 'location.lng'>
               control={control}
               name="location.lng"
@@ -142,12 +148,10 @@ export const ListingLocation: React.FC<Props> = ({ form }) => {
               )}
             />
           </div>
-          <div className="col-span-2 flex flex-col space-y-2 col-span-2 rounded-sm overflow-hidden">
+
+          <div className="col-span-2 rounded-sm overflow-hidden">
             <GoogleMap
-              coordinate={{
-                lat: form.watch('location.lat'),
-                lng: form.watch('location.lng'),
-              }}
+              coordinate={{ lat, lng }}
               onSelect={handleMapSelect}
             />
           </div>
