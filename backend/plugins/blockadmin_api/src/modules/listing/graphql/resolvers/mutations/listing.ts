@@ -1,7 +1,7 @@
 import { IContext } from '~/connectionResolvers';
 import { sendBlockAgencyMessage } from '~/modules/blockagency/utils';
 
-interface ListingStatusInput {
+export interface ListingStatusInput {
   status?: string;
   isFeatured?: boolean;
 }

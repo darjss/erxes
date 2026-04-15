@@ -2,7 +2,7 @@ import { IContext } from '~/connectionResolvers';
 import { BLOCK_VERIFICATION_STATUS } from '~/constants';
 import { sendBlockAgencyMessage } from '~/modules/blockagency/utils';
 
-interface IBlockAdminAgencyRejectionInput {
+export interface IBlockAdminAgencyRejectionInput {
   reasons: string[];
   notes?: string;
 }

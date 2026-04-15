@@ -4,7 +4,7 @@ import { IContext } from '~/connectionResolvers';
 import { IBlockAdminListingDocument } from '@/listing/@types/listing';
 import { generateFilter } from '@/listing/utils';
 
-interface ListingQueryParams {
+export interface ListingQueryParams {
   subdomain?: string;
   status?: string;
   searchValue?: string;
