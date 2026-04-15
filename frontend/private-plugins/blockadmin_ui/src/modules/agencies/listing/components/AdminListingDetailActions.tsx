@@ -39,7 +39,9 @@ export const AdminListingDetailActions = () => {
       <DropdownMenu.Content className="min-w-48" align="end">
         <DropdownMenu.Item
           onClick={() =>
-            updateListing(listing?._id || '', { status: isPublished ? 'inactive' : 'active' })
+            updateListing(listing?._id || '', {
+              status: isPublished ? 'inactive' : 'active',
+            })
           }
         >
           {isPublished ? (

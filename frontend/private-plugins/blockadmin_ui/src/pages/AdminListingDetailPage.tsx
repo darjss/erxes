@@ -1,4 +1,10 @@
-import { Breadcrumb, Button, PageContainer, ScrollArea, Separator } from 'erxes-ui';
+import {
+  Breadcrumb,
+  Button,
+  PageContainer,
+  ScrollArea,
+  Separator,
+} from 'erxes-ui';
 import { Link } from 'react-router-dom';
 import { IconListDetails } from '@tabler/icons-react';
 import { PageHeader } from 'ui-modules';

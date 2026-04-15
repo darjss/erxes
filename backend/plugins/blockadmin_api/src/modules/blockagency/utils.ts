@@ -25,11 +25,9 @@ export const sendBlockAgencyMessage = async ({
     ? BLOCKAGENCY_API_URL
     : BLOCKAGENCY_API_URL.replace('<subdomain>', subdomain);
 
-
   const API_ENDPOINT = isDev
     ? `${BLOCKAGENCY_DOMAIN}/webhook/${path}`
     : `${BLOCKAGENCY_DOMAIN}/pl:blockagency/webhook/${path}`;
-
 
   try {
     const body = JSON.stringify({ payload });
@@ -51,4 +49,3 @@ export const sendBlockAgencyMessage = async ({
     throw new Error(`Failed to send message to blockagency: ${e}`);
   }
 };
-

@@ -1,7 +1,10 @@
 import { useState } from 'react';
 import { Separator } from 'erxes-ui';
 import { ListingKPI } from '~/modules/listing/components/ListingKPI';
-import { ListingFilter, ListingFilterValue } from '~/modules/listing/components/ListingFilter';
+import {
+  ListingFilter,
+  ListingFilterValue,
+} from '~/modules/listing/components/ListingFilter';
 import { ListingRecordTable } from '~/modules/listing/components/ListingRecordTable';
 
 export const ListingIndexPage = () => {

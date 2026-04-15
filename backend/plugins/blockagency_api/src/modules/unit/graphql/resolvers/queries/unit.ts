@@ -22,9 +22,8 @@ const buildFilter = ({
   if (memberId) filter.memberId = memberId;
   if (status) {
     // Legacy records without a status field are treated as 'available'
-    filter.status = status === 'available'
-      ? { $in: ['available', null, undefined] }
-      : status;
+    filter.status =
+      status === 'available' ? { $in: ['available', null, undefined] } : status;
   }
   return filter;
 };
@@ -32,7 +31,14 @@ const buildFilter = ({
 export const blockUnitQueries = {
   blockAgencyGetUnits: async (
     _root: undefined,
-    { agencyId, projectId, memberId, status, page = 1, perPage = 20 }: UnitQueryParams,
+    {
+      agencyId,
+      projectId,
+      memberId,
+      status,
+      page = 1,
+      perPage = 20,
+    }: UnitQueryParams,
     { models }: IContext,
   ) => {
     return models.BlockUnitAssignment.find(
@@ -46,7 +52,12 @@ export const blockUnitQueries = {
 
   blockAgencyGetUnitsTotalCount: async (
     _root: undefined,
-    { agencyId, projectId, memberId, status }: Pick<UnitQueryParams, 'agencyId' | 'projectId' | 'memberId' | 'status'>,
+    {
+      agencyId,
+      projectId,
+      memberId,
+      status,
+    }: Pick<UnitQueryParams, 'agencyId' | 'projectId' | 'memberId' | 'status'>,
     { models }: IContext,
   ) => {
     return models.BlockUnitAssignment.countDocuments(
@@ -61,7 +72,10 @@ export const blockUnitQueries = {
   ) => {
     const base = buildFilter({ agencyId, projectId });
     const [reserved, sold, leased, total] = await Promise.all([
-      models.BlockUnitAssignment.countDocuments({ ...base, status: 'reserved' }),
+      models.BlockUnitAssignment.countDocuments({
+        ...base,
+        status: 'reserved',
+      }),
       models.BlockUnitAssignment.countDocuments({ ...base, status: 'sold' }),
       models.BlockUnitAssignment.countDocuments({ ...base, status: 'leased' }),
       models.BlockUnitAssignment.countDocuments(base),

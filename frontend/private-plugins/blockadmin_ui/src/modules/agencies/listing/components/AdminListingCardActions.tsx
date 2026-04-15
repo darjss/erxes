@@ -1,4 +1,10 @@
-import { IconDotsVertical, IconEye, IconEyeOff, IconStar, IconStarOff } from '@tabler/icons-react';
+import {
+  IconDotsVertical,
+  IconEye,
+  IconEyeOff,
+  IconStar,
+  IconStarOff,
+} from '@tabler/icons-react';
 import { Button, DropdownMenu } from 'erxes-ui';
 import { useAdminUpdateListing } from '../hooks/useAdminUpdateListing';
 
@@ -29,7 +35,9 @@ export const AdminListingCardActions = ({ _id, status, isFeatured }: Props) => {
       </DropdownMenu.Trigger>
       <DropdownMenu.Content className="min-w-44" align="end" onClick={stop}>
         <DropdownMenu.Item
-          onClick={() => updateListing(_id, { status: isPublished ? 'inactive' : 'active' })}
+          onClick={() =>
+            updateListing(_id, { status: isPublished ? 'inactive' : 'active' })
+          }
         >
           {isPublished ? (
             <>

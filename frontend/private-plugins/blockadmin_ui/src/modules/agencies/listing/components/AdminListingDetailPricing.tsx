@@ -38,9 +38,7 @@ export const AdminListingDetailPricing = () => {
               '—'
             )}
           </Field>
-          <Field label="Currency">
-            {pricing?.currency || '—'}
-          </Field>
+          <Field label="Currency">{pricing?.currency || '—'}</Field>
           <Field label="Price Type">
             {pricing?.priceType
               ? (PRICE_TYPE_LABELS[pricing.priceType] ?? pricing.priceType)

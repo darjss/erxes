@@ -150,10 +150,7 @@ export const ListingLocation = ({ form }: Props) => {
           </div>
 
           <div className="col-span-2 rounded-sm overflow-hidden">
-            <GoogleMap
-              coordinate={{ lat, lng }}
-              onSelect={handleMapSelect}
-            />
+            <GoogleMap coordinate={{ lat, lng }} onSelect={handleMapSelect} />
           </div>
         </div>
       </InfoCard.Content>

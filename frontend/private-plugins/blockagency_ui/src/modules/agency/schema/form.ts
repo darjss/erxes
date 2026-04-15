@@ -81,4 +81,3 @@ export const agencySocialLinksSchema = z.object({
     .record(z.enum(socialPlatforms), z.string().url().optional())
     .optional(),
 });
-

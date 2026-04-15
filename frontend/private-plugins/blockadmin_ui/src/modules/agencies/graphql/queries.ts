@@ -1,11 +1,7 @@
 import { gql } from '@apollo/client';
 
 export const GET_AGENCIES = gql`
-  query GetAgencies(
-    $searchValue: String
-    $city: String
-    $district: String
-  ) {
+  query GetAgencies($searchValue: String, $city: String, $district: String) {
     getBlockAdminAgencies(
       searchValue: $searchValue
       city: $city

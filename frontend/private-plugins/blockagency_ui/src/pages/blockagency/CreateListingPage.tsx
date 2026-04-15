@@ -106,7 +106,13 @@ export const CreateListingPage = () => {
             </Button>
           ) : (
             <Button onClick={handleSubmit(onSubmit)} disabled={loading}>
-              {loading ? <><Spinner className="size-4" /> Creating...</> : 'Create Listing'}
+              {loading ? (
+                <>
+                  <Spinner className="size-4" /> Creating...
+                </>
+              ) : (
+                'Create Listing'
+              )}
             </Button>
           )}
         </PageHeader.End>
@@ -146,7 +152,9 @@ export const CreateListingPage = () => {
               {activeStep === 'location' && <ListingLocation form={form} />}
               {activeStep === 'pricing' && <ListingPricing form={form} />}
               {activeStep === 'specs' && <ListingSpecs form={form} />}
-              {activeStep === 'media' && <ListingMediaAttachments form={form} />}
+              {activeStep === 'media' && (
+                <ListingMediaAttachments form={form} />
+              )}
               {activeStep === 'agent' && <ListingMemberSection form={form} />}
             </div>
             <ScrollArea.Bar orientation="horizontal" />

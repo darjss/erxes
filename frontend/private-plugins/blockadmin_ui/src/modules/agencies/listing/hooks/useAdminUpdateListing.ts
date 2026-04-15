@@ -1,6 +1,9 @@
 import { useMutation } from '@apollo/client';
 import { toast } from 'erxes-ui';
-import { BLOCK_ADMIN_UPDATE_LISTING_STATUS, GET_ADMIN_LISTINGS } from '../graphql';
+import {
+  BLOCK_ADMIN_UPDATE_LISTING_STATUS,
+  GET_ADMIN_LISTINGS,
+} from '../graphql';
 
 interface ListingStatusInput {
   status?: string;

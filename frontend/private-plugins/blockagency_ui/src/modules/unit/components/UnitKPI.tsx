@@ -5,12 +5,42 @@ import { BlockUnitStatus } from '../types/unit';
 
 type StatusFilter = BlockUnitStatus | 'all';
 
-const PILLS: { key: StatusFilter; label: string; color: string; active: string }[] = [
-  { key: 'all',       label: 'All',       color: 'text-foreground',   active: 'bg-foreground text-background' },
-  { key: 'available', label: 'Available', color: 'text-green-600',    active: 'bg-green-600 text-white' },
-  { key: 'reserved',  label: 'Reserved',  color: 'text-amber-500',    active: 'bg-amber-500 text-white' },
-  { key: 'sold',      label: 'Sold',      color: 'text-blue-500',     active: 'bg-blue-500 text-white' },
-  { key: 'leased',    label: 'Leased',    color: 'text-purple-500',   active: 'bg-purple-500 text-white' },
+const PILLS: {
+  key: StatusFilter;
+  label: string;
+  color: string;
+  active: string;
+}[] = [
+  {
+    key: 'all',
+    label: 'All',
+    color: 'text-foreground',
+    active: 'bg-foreground text-background',
+  },
+  {
+    key: 'available',
+    label: 'Available',
+    color: 'text-green-600',
+    active: 'bg-green-600 text-white',
+  },
+  {
+    key: 'reserved',
+    label: 'Reserved',
+    color: 'text-amber-500',
+    active: 'bg-amber-500 text-white',
+  },
+  {
+    key: 'sold',
+    label: 'Sold',
+    color: 'text-blue-500',
+    active: 'bg-blue-500 text-white',
+  },
+  {
+    key: 'leased',
+    label: 'Leased',
+    color: 'text-purple-500',
+    active: 'bg-purple-500 text-white',
+  },
 ];
 
 type Props = {
@@ -23,11 +53,11 @@ export const UnitKPI = ({ activeStatus, onStatusChange }: Props) => {
   const { counts } = useGetUnitStatusCounts();
 
   const values: Record<StatusFilter, number> = {
-    all:       totalCount,
+    all: totalCount,
     available: counts?.available ?? 0,
-    reserved:  counts?.reserved  ?? 0,
-    sold:      counts?.sold      ?? 0,
-    leased:    counts?.leased    ?? 0,
+    reserved: counts?.reserved ?? 0,
+    sold: counts?.sold ?? 0,
+    leased: counts?.leased ?? 0,
   };
 
   return (
@@ -46,10 +76,12 @@ export const UnitKPI = ({ activeStatus, onStatusChange }: Props) => {
             )}
           >
             {label}
-            <span className={cn(
-              'text-xs font-semibold tabular-nums min-w-[1.25rem] text-center',
-              isActive ? 'opacity-90' : 'opacity-70',
-            )}>
+            <span
+              className={cn(
+                'text-xs font-semibold tabular-nums min-w-[1.25rem] text-center',
+                isActive ? 'opacity-90' : 'opacity-70',
+              )}
+            >
               {values[key]}
             </span>
           </button>

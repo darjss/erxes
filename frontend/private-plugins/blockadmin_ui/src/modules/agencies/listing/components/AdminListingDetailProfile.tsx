@@ -36,7 +36,10 @@ export const AdminListingDetailProfile = () => {
             {TYPE_LABELS[listing?.type ?? ''] ?? listing?.type}
           </Badge>
           {listing?.isFeatured && (
-            <Badge variant="warning" className="bg-amber-500 text-white border-0">
+            <Badge
+              variant="warning"
+              className="bg-amber-500 text-white border-0"
+            >
               <IconStar className="size-3 mr-1" />
               Featured
             </Badge>

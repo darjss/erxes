@@ -11,7 +11,9 @@ const Field = ({
   <div className="space-y-1.5">
     <Label className="text-muted-foreground text-xs">{label}</Label>
     <p className="text-sm font-medium">
-      {value === undefined || value === null || value === '' ? '—' : String(value)}
+      {value === undefined || value === null || value === ''
+        ? '—'
+        : String(value)}
     </p>
   </div>
 );

@@ -41,30 +41,30 @@ export const ListingRecordTable = ({ filter }: Props) => {
 
   return (
     <RecordTable.Provider
-        columns={listingColumns}
-        data={list}
-        stickyColumns={['title']}
-        className="m-3"
+      columns={listingColumns}
+      data={list}
+      stickyColumns={['title']}
+      className="m-3"
+    >
+      <RecordTable.CursorProvider
+        hasPreviousPage={hasPreviousPage}
+        hasNextPage={hasNextPage}
+        dataLength={PER_PAGE}
+        sessionKey={BLOCK_LISTING_CURSOR_SESSION_KEY}
       >
-        <RecordTable.CursorProvider
-          hasPreviousPage={hasPreviousPage}
-          hasNextPage={hasNextPage}
-          dataLength={PER_PAGE}
-          sessionKey={BLOCK_LISTING_CURSOR_SESSION_KEY}
-        >
-          <RecordTable>
-            <RecordTable.Header />
-            <RecordTable.Body>
-              <RecordTable.CursorBackwardSkeleton
-                handleFetchMore={handleFetchMore}
-              />
-              <RecordMain />
-              <RecordTable.CursorForwardSkeleton
-                handleFetchMore={handleFetchMore}
-              />
-            </RecordTable.Body>
-          </RecordTable>
-        </RecordTable.CursorProvider>
-      </RecordTable.Provider>
+        <RecordTable>
+          <RecordTable.Header />
+          <RecordTable.Body>
+            <RecordTable.CursorBackwardSkeleton
+              handleFetchMore={handleFetchMore}
+            />
+            <RecordMain />
+            <RecordTable.CursorForwardSkeleton
+              handleFetchMore={handleFetchMore}
+            />
+          </RecordTable.Body>
+        </RecordTable>
+      </RecordTable.CursorProvider>
+    </RecordTable.Provider>
   );
 };
