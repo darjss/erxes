@@ -6,6 +6,13 @@ import {
   specsSchema,
 } from '../form/listing';
 
+export interface IListingAgent {
+  _id?: string;
+  firstName?: string;
+  lastName?: string;
+  email?: string;
+}
+
 export interface IListingInline {
   _id: string;
   title: string;
@@ -14,6 +21,8 @@ export interface IListingInline {
   pricing?: IListingPricing;
   status: 'active' | 'inactive' | 'sold' | 'draft';
   viewCount?: number;
+  memberId?: string;
+  agent?: IListingAgent;
   createdAt?: string;
 }
 

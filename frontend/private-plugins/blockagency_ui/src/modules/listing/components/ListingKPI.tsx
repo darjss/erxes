@@ -1,42 +1,32 @@
-import { Card } from 'erxes-ui';
+import { Card, Skeleton } from 'erxes-ui';
 import { CountUp } from './CountUp';
+import { useListingStats } from '../hooks/useListingStats';
 
-const KPITitles = {
-  ALL: 'Нийт зар',
-  PUBLISHED: 'Идэвхтэй',
-  DRAFT: 'Ноорог',
-  VIEWS: 'Нийт үзэлт',
-};
-
-enum KPI {
-  'ALL',
-  'PUBLISHED',
-  'DRAFT',
-  'VIEWS',
-}
-
-const KPIValues = {
-  ALL: 24,
-  PUBLISHED: 18,
-  DRAFT: 3,
-  VIEWS: 2847,
-};
+const KPI_CONFIG = [
+  { key: 'total', label: 'Total Listings' },
+  { key: 'active', label: 'Active' },
+  { key: 'draft', label: 'Draft' },
+  { key: 'totalViews', label: 'Total Views' },
+] as const;
 
 export const ListingKPI = () => {
+  const { stats, loading } = useListingStats();
+
   return (
     <div className="grid grid-cols-4 gap-3 p-3 bg-sidebar">
-      {Object.entries(KPITitles).map(([key, value], idx) => (
+      {KPI_CONFIG.map(({ key, label }, idx) => (
         <Card key={key} className="shrink flex flex-col justify-between">
           <Card.Header>
             <Card.Title className="font-medium text-sm text-accent-foreground uppercase font-mono">
-              {value}
+              {label}
             </Card.Title>
           </Card.Header>
           <Card.Content className="text-2xl font-semibold text-foreground self-end">
-            <CountUp
-              to={KPIValues[key as keyof typeof KPIValues]}
-              delay={0.1 * idx}
-            />
+            {loading ? (
+              <Skeleton className="h-8 w-16" />
+            ) : (
+              <CountUp to={stats?.[key] ?? 0} delay={0.1 * idx} />
+            )}
           </Card.Content>
         </Card>
       ))}

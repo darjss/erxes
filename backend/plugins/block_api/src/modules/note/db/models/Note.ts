@@ -9,11 +9,9 @@ export interface INoteModel extends Model<INoteDocument> {
   getNotes(filter: FilterQuery<INoteDocument>): Promise<INoteDocument[]>;
   createNote({
     doc,
-    subdomain,
     contentType,
   }: {
     doc: INote;
-    subdomain: string;
     contentType: string;
   }): Promise<INoteDocument>;
   updateNote(doc: INoteDocument): Promise<INoteDocument | null>;
@@ -52,16 +50,6 @@ export const loadNoteClass = (models: IModels) => {
       contentType: string;
     }): Promise<INoteDocument> {
       const note = await models.BlockNote.create(doc);
-
-      await models.BlockActivity.createActivity({
-        action: 'CREATED',
-        contentId: doc.contentId,
-        module: 'NOTE',
-        metadata: {
-          newValue: String(note._id),
-        },
-        createdBy: doc.createdBy,
-      });
 
       return note;
     }

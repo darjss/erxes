@@ -1,5 +1,5 @@
 import { Spinner, useQueryState } from 'erxes-ui';
-import { act, lazy, Suspense } from 'react';
+import { lazy, Suspense } from 'react';
 import { AGENCY_TABS } from '../constants/sidebar';
 
 const AgencyProfileIdentity = lazy(() =>
@@ -43,12 +43,6 @@ const AgencyProfileDocuments = lazy(() =>
   })),
 );
 
-const AgencyDashboard = lazy(() =>
-  import('./AgencyProfileDashboardWindow').then((m) => ({
-    default: m.AgencyProfileDashboardWindow,
-  })),
-);
-
 const AgencyMembers = lazy(() =>
   import('./AgencyMembers').then((m) => ({
     default: m.AgencyMembers,
@@ -74,9 +68,6 @@ export const AgencyProfileTabs = () => {
       )}
       {activeTab === AGENCY_TABS.CONTACT && <AgencyProfileContact />}
       {activeTab === AGENCY_TABS.SOCIAL_LINKS && <AgencyProfileSocialLinks />}
-
-      {/* Dashboard */}
-      {activeTab === AGENCY_TABS.DASHBOARD && <AgencyDashboard />}
       {/* Settings */}
       {activeTab === AGENCY_TABS.MEMBERS && <AgencyMembers />}
     </Suspense>

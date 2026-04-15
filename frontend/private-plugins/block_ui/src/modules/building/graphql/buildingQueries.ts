@@ -16,6 +16,25 @@ export const BLOCK_GET_BUILDING_LIST = gql`
   }
 `;
 
+export const BLOCK_GET_BUILDING = gql`
+  query BlockGetBuilding($_id: String!) {
+    blockGetBuilding(_id: $_id) {
+      _id
+      name
+    }
+  }
+`;
+
+export const BLOCK_GET_BUILDING_ZONING = gql`
+  query BlockGetBuildingZoning($_id: String!) {
+    blockGetBuildingZoning(_id: $_id) {
+      _id
+      floor
+      areaType
+    }
+  }
+`;
+
 export const BLOCK_GET_BUILDING_ZONINGS = gql`
   query BlockGetBuildingZonings($building: String!) {
     blockGetBuildingZonings(building: $building) {

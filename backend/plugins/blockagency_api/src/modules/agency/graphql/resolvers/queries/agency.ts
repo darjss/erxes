@@ -1,12 +1,16 @@
 export const blockAgencyQueries = {
   getAgencyInfo: async (_, __, { models }) => {
-    let existingDeveloper = await models.BlockAgency.findOne({});
+    let existingAgency = await models.BlockAgency.findOne({});
 
-    if (!existingDeveloper) {
-      existingDeveloper = await models.BlockAgency.createAgency({});
+    if (!existingAgency) {
+      existingAgency = await models.BlockAgency.createAgency({});
     }
 
-    return existingDeveloper;
+    return existingAgency;
+  },
+  getAgencyVerificationStatus: async (_, __, { models }) => {
+    let agencyVerificationStatus = await models.BlockAgency.findOne({});
+
+    return agencyVerificationStatus;
   },
 };
-

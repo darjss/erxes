@@ -1,3 +1,4 @@
+import * as path from 'path';
 import { startPlugin } from 'erxes-api-shared/utils';
 import { typeDefs } from '~/apollo/typeDefs';
 import { wrapMutationResolver } from '~/modules/admin/utils';
@@ -17,6 +18,12 @@ startPlugin({
     },
   }),
   expressRouter: router,
+  hasSubscriptions: true,
+  subscriptionPluginPath: path.resolve(
+    __dirname,
+    'apollo',
+    process.env.NODE_ENV === 'production' ? 'subscription.js' : 'subscription.ts',
+  ),
   apolloServerContext: async (subdomain, context) => {
     const models = await generateModels(subdomain);
 
@@ -35,7 +42,6 @@ startPlugin({
     },
   },
   meta: {
-    permissions
+    permissions,
   },
 });
-

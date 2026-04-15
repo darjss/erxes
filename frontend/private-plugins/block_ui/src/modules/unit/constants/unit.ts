@@ -35,38 +35,47 @@ export const UNIT_LEASE_STATUS = {
   vacant: {
     mn: 'Чөлөөтэй',
     en: 'Vacant',
+    color: 'var(--border)',
   },
   reserved: {
     mn: 'Урьдчилсан захиалга',
     en: 'Reserved',
+    color: '#F59E0B',
   },
   leased: {
     mn: 'Түрээслэгдсэн',
     en: 'Leased/Occupied',
+    color: '#10B981',
   },
   leaseExpireSoon: {
     mn: 'Дуусах гэж буй',
     en: 'Lease expire soon',
+    color: '#F97316',
   },
   leaseRenewal: {
     mn: 'Сунгагдаж буй',
     en: 'Lease renewal',
+    color: '#8B5CF6',
   },
   underFitout: {
     mn: 'Дотоод тохижилт',
     en: 'Under Fitout',
+    color: '#EC4899',
   },
   cancelled: {
     mn: 'Цуцлагдсан',
     en: 'Cancelled',
+    color: '#6B7280',
   },
   internalUse: {
-    mn: 'Дотоод хэрэглээ ',
+    mn: 'Дотоод хэрэглээ',
     en: 'Internal use',
+    color: '#14B8A6',
   },
   onHold: {
     mn: 'Түгжсэн',
     en: 'On hold',
+    color: '#3B82F6',
   },
 };
 

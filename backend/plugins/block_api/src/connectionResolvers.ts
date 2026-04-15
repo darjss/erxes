@@ -42,22 +42,18 @@ import {
   loadProjectPaymentPlanClass,
 } from '@/project/db/models/Payment';
 import { IProjectModel, loadProjectClass } from '@/project/db/models/Project';
-import { IStatusDocument } from '@/status/@types/status';
-import { IStatusModel, loadBlockStatusClass } from '@/status/db/models/Status';
+import { IOpptyStatusDocument } from '@/oppty/@types/status';
+import { IOpptyStatusModel, loadOpptyStatusClass } from '@/oppty/db/models/Status';
 import { IUnitDocument } from '@/unit/@types/unit';
 import { IUnitLeadDocument } from '@/unit/@types/unitLead';
 import { IUnitTypeDocument } from '@/unit/@types/unitType';
 import { IUnitModel, loadUnitClass } from '@/unit/db/models/Unit';
 import { IUnitLeadModel, loadUnitLeadClass } from '@/unit/db/models/UnitLead';
 import { IUnitTypeModel, loadUnitTypeClass } from '@/unit/db/models/UnitType';
+import { ScopedEventHandlers } from 'erxes-api-shared/core-modules';
 import { IMainContext } from 'erxes-api-shared/core-types';
 import { createGenerateModels } from 'erxes-api-shared/utils';
 import mongoose from 'mongoose';
-import { IBlockActivityDocument } from '~/modules/activity/@types/acitivy';
-import {
-  IBlockActivityModel,
-  loadBlockActivityClass,
-} from '~/modules/activity/db/models/Activity';
 import { INoteDocument } from '~/modules/note/types';
 import { INoteModel, loadNoteClass } from '~/modules/note/db/models/Note';
 import { IOpptyDocument } from './modules/oppty/@types/oppty';
@@ -75,12 +71,11 @@ export interface IModels {
   Developer: IBlockDeveloperModel;
   Contract: IContractModel;
   ProjectMember: IProjectMemberModel;
-  BlockActivity: IBlockActivityModel;
   BlockNote: INoteModel;
   Offer: IOfferModel;
   Invoice: IInvoiceModel;
   Oppty: IOpptyModel;
-  Status: IStatusModel;
+  OpptyStatus: IOpptyStatusModel;
 }
 
 export interface IContext extends IMainContext {
@@ -90,8 +85,10 @@ export interface IContext extends IMainContext {
 export const loadClasses = (
   db: mongoose.Connection,
   subdomain: string,
+  eventHandlers?: ScopedEventHandlers,
 ): IModels => {
   const models = {} as IModels;
+  const blockEventHandlers = eventHandlers?.('block');
 
   models.Project = db.model<IProjectDocument, IProjectModel>(
     'block_projects',
@@ -148,11 +145,6 @@ export const loadClasses = (
     loadProjectMemberClass(models),
   );
 
-  models.BlockActivity = db.model<IBlockActivityDocument, IBlockActivityModel>(
-    'block_activities',
-    loadBlockActivityClass(models),
-  );
-
   models.BlockNote = db.model<INoteDocument, INoteModel>(
     'block_notes',
     loadNoteClass(models),
@@ -175,12 +167,16 @@ export const loadClasses = (
 
   models.Oppty = db.model<IOpptyDocument, IOpptyModel>(
     'block_opptys',
-    loadOpptyClass(models, subdomain),
+    loadOpptyClass(
+      models,
+      subdomain,
+      blockEventHandlers?.('block', 'opptys') as any,
+    ),
   );
 
-  models.Status = db.model<IStatusDocument, IStatusModel>(
-    'block_statuses',
-    loadBlockStatusClass(models),
+  models.OpptyStatus = db.model<IOpptyStatusDocument, IOpptyStatusModel>(
+    'block_oppty_statuses',
+    loadOpptyStatusClass(models),
   );
 
   return models;

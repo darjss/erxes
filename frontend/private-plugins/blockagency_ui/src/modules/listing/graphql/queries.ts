@@ -5,6 +5,17 @@ import {
   GQL_PAGE_INFO,
 } from 'erxes-ui';
 
+export const GET_LISTING_STATS = gql`
+  query GetListingStats {
+    blockGetListingStats {
+      total
+      active
+      draft
+      totalViews
+    }
+  }
+`;
+
 export const GET_LISTINGS = gql`
   query GetListings(
     $status: String
@@ -28,6 +39,13 @@ export const GET_LISTINGS = gql`
         type
         status
         viewCount
+        memberId
+        agent {
+          _id
+          firstName
+          lastName
+          email
+        }
         pricing {
           amount
           currency

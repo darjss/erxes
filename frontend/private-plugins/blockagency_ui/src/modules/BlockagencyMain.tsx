@@ -26,11 +26,33 @@ const MemberIndexPage = lazy(() =>
   })),
 );
 
+const UnitPage = lazy(() =>
+  import('~/pages/blockagency/UnitPage').then((module) => ({
+    default: module.UnitPage,
+  })),
+);
+
+const UnitIndexPage = lazy(() =>
+  import('~/pages/blockagency/UnitIndexPage').then((module) => ({
+    default: module.UnitIndexPage,
+  })),
+);
+
+const DashboardIndexPage = lazy(() =>
+  import('~/pages/blockagency/DashboardIndexPage').then((module) => ({
+    default: module.DashboardIndexPage,
+  })),
+);
+
 const BlockagencyMain = () => {
   return (
     <Suspense fallback={<div />}>
       <Routes>
         <Route path={AgencyPaths.AGENCY_PROFILE} element={<IndexPage />} />
+        <Route
+          path={AgencyPaths.AGENCY_DASHBOARD}
+          element={<DashboardIndexPage />}
+        />
         <Route path={AgencyPaths.LISTING} element={<ListingPage />}>
           <Route index element={<ListingIndexPage />} />
           <Route
@@ -39,6 +61,9 @@ const BlockagencyMain = () => {
           />
         </Route>
         <Route path={AgencyPaths.PROFILE} element={<MemberIndexPage />} />
+        <Route path={AgencyPaths.UNITS} element={<UnitPage />}>
+          <Route index element={<UnitIndexPage />} />
+        </Route>
       </Routes>
     </Suspense>
   );

@@ -5,7 +5,7 @@ import { GET_BLOCK_STATUSES } from '@/status/graphql/queries/getBlockStatuses';
 import { useToast } from 'erxes-ui';
 
 interface UpdateBlockStatusMutationResponse {
-  updateBlockStatus: IBlockStatus;
+  updateBlockOpptyStatus: IBlockStatus;
 }
 
 export const useUpdateBlockStatus = () => {

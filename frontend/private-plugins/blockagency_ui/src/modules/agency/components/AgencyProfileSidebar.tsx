@@ -16,7 +16,6 @@ export const AgencyProfileSidebar = () => {
     AGENCY_TABS.SOCIAL_LINKS,
   ];
   const settings = [AGENCY_TABS.MEMBERS];
-  const dashboard = [AGENCY_TABS.DASHBOARD];
 
   return (
     <Sidebar
@@ -28,24 +27,6 @@ export const AgencyProfileSidebar = () => {
           <Sidebar.GroupLabel>AGENCY OVERVIEW</Sidebar.GroupLabel>
           <Sidebar.Menu>
             {properties.map((tab) => (
-              <Sidebar.MenuItem key={tab}>
-                <Sidebar.MenuButton
-                  isActive={activeTab === tab}
-                  onClick={() => setActiveTab(tab)}
-                  className="capitalize"
-                >
-                  {tab}
-                </Sidebar.MenuButton>
-              </Sidebar.MenuItem>
-            ))}
-          </Sidebar.Menu>
-        </Sidebar.GroupContent>
-      </Sidebar.Group>
-      <Sidebar.Group>
-        <Sidebar.GroupContent>
-          <Sidebar.GroupLabel>DASHBOARD</Sidebar.GroupLabel>
-          <Sidebar.Menu>
-            {dashboard.map((tab) => (
               <Sidebar.MenuItem key={tab}>
                 <Sidebar.MenuButton
                   isActive={activeTab === tab}

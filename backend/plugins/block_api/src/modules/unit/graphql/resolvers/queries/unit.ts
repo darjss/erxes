@@ -1,4 +1,5 @@
 import { IContext } from '~/connectionResolvers';
+import { blockAgencyTRPCClient } from '~/trpc/blockAgencyTRPCClient';
 
 export const unitQueries = {
   blockGetUnit: async (
@@ -20,5 +21,15 @@ export const unitQueries = {
 
     return models.Unit.getUnitsByZoning(zoning);
   },
-};
 
+  blockGetAgencies: async () => {
+    try {
+      const client = await blockAgencyTRPCClient();
+      if (!client) return [];
+      return client.query('agency.getAgencies');
+    } catch (e) {
+      console.error('[blockGetAgencies] error:', e);
+      return [];
+    }
+  },
+};

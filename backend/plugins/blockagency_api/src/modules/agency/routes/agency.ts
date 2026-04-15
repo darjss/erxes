@@ -1,4 +1,4 @@
-import { getSubdomain } from 'erxes-api-shared/utils';
+import { getSubdomain, graphqlPubsub } from 'erxes-api-shared/utils';
 import { Router } from 'express';
 import { generateModels } from '~/connectionResolvers';
 import { IRequest, IResponse } from '~/types';
@@ -7,12 +7,13 @@ import { IBlockAgency } from '../@types/agency';
 const router: Router = Router();
 
 router.post(
-  '/updateAgencyVerificationStatus',
+  '/webhook/updateAgencyVerificationStatus',
   async (
     req: IRequest<
       IBlockAgency,
       {
         status: string;
+        reasons?: string[];
         message?: string;
       }
     >,
@@ -26,9 +27,13 @@ router.post(
 
       const { entityId, data } = payload || {};
 
-      const { status } = data || {};
+      const { status, reasons, message } = data || {};
 
-      models.BlockAgency.updateAgencyVerificationStatus(entityId, status);
+      const updatedAgency = await models.BlockAgency.updateAgencyVerificationStatus(entityId, status, reasons, message);
+
+      graphqlPubsub.publish('blockAgencyVerificationStatusChanged', {
+        blockAgencyVerificationStatusChanged: updatedAgency,
+      });
 
       return res.status(200).json({
         success: true,

@@ -12,6 +12,8 @@ export interface IBlockAgencyModel extends Model<IBlockAgencyDocument> {
   updateAgencyVerificationStatus(
     _id: string,
     status: string,
+    reasons?: string[],
+    notes?: string,
   ): Promise<IBlockAgencyDocument>;
 }
 
@@ -32,10 +34,22 @@ export const loadBlockAgencyClass = (models: IModels) => {
     public static async updateAgencyVerificationStatus(
       _id: string,
       status: string,
+      reasons?: string[],
+      notes?: string,
     ) {
+      const update: Record<string, unknown> = { verificationStatus: status };
+
+      if (reasons !== undefined) {
+        update.rejectionReasons = reasons;
+      }
+
+      if (notes !== undefined) {
+        update.rejectionNotes = notes;
+      }
+
       return models.BlockAgency.findOneAndUpdate(
         { _id },
-        { $set: { verificationStatus: status } },
+        { $set: update },
         { new: true },
       );
     }

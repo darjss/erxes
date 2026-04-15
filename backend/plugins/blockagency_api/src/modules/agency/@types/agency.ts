@@ -33,6 +33,8 @@ export interface IBlockAgency {
   operationArea: IBlockAgencyOperationArea;
   fieldsOfExpertise: IBlockAgencyFieldOfExpertise;
   verificationStatus: string;
+  rejectionReasons?: string[];
+  rejectionNotes?: string;
 }
 
 export interface IBlockAgencyDocument extends IBlockAgency, Document<string> {

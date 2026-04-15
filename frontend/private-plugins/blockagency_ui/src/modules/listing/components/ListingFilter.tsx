@@ -1,7 +1,7 @@
-import { Filter, PageSubHeader } from "erxes-ui"
+import { Filter, PageSubHeader } from 'erxes-ui';
 
 export const ListingFilter = () => {
-  return(
+  return (
     <PageSubHeader>
       <Filter id="block-listing">
         <Filter.Popover>
@@ -9,5 +9,5 @@ export const ListingFilter = () => {
         </Filter.Popover>
       </Filter>
     </PageSubHeader>
-  )
-}
+  );
+};

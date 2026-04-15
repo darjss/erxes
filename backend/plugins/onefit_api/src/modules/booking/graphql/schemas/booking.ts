@@ -35,6 +35,7 @@ export const types = `
     cancellationReason: String
     attendedAt: Date
     markedBy: String
+    hasReview: Boolean
   }
 
   type OneFitBookingListResponse {

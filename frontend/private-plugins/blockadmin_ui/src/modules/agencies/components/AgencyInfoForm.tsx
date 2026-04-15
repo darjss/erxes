@@ -22,6 +22,7 @@ import { SocialLinkInput } from './SocialLinkInput';
 import { AgencyEmails } from './AgencyEmails';
 import { AgencyPhones } from './AgencyPhones';
 import { SelectArea } from './SelectArea';
+import { AgencyActionBar } from './AgencyActionBar';
 
 type Props = {
   form: UseFormReturn<AgencyProfileSchema>;
@@ -46,6 +47,7 @@ export const AgencyInfoForm = ({ form }: Props) => {
             </Form.Item>
           )}
         />
+        <AgencyActionBar />
         <Form.Field<AgencyProfileSchema, 'coverImage'>
           name="coverImage"
           control={form.control}

@@ -10,6 +10,12 @@ export const ONE_FIT_PROVIDER_REVIEW_SUMMARY = gql`
   }
 `;
 
+export const ONE_FIT_PROVIDER_REVIEW_REMOVE = gql`
+  mutation OneFitProviderReviewRemove($id: String!, $providerId: String!) {
+    oneFitProviderReviewRemove(_id: $id, providerId: $providerId)
+  }
+`;
+
 export const ONE_FIT_PROVIDER_REVIEWS = gql`
   query OneFitProviderReviews(
     $providerId: String!
@@ -23,6 +29,8 @@ export const ONE_FIT_PROVIDER_REVIEWS = gql`
         _id
         providerId
         userId
+        bookingId
+        activityTypeId
         rating
         comment
         createdAt

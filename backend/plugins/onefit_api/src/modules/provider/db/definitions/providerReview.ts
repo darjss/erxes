@@ -20,6 +20,15 @@ export const providerReviewSchema = new Schema<IProviderReviewDocument>(
       index: true,
       label: 'User ID',
     },
+    bookingId: {
+      type: String,
+      label: 'Booking ID',
+    },
+    activityTypeId: {
+      type: String,
+      index: true,
+      label: 'Activity Type ID',
+    },
     rating: {
       type: Number,
       required: true,
@@ -35,3 +44,11 @@ export const providerReviewSchema = new Schema<IProviderReviewDocument>(
 );
 
 providerReviewSchema.index({ providerId: 1, createdAt: -1 });
+/** At most one review per booking when bookingId is set (non-empty). */
+providerReviewSchema.index(
+  { bookingId: 1 },
+  {
+    unique: true,
+    partialFilterExpression: { bookingId: { $gt: '' } },
+  },
+);

@@ -1,7 +1,7 @@
-import { Badge, Button, Combobox, Command, Popover } from "erxes-ui";
-import { CLIENT_TYPE_LABELS } from "../constants";
-import React, { useCallback, useMemo, useState } from "react";
-import { IconX } from "@tabler/icons-react";
+import { Badge, Button, Combobox, Command, Popover } from 'erxes-ui';
+import { CLIENT_TYPE_LABELS } from '../constants';
+import React, { useCallback, useMemo, useState } from 'react';
+import { IconX } from '@tabler/icons-react';
 
 type ClientTypeKey = keyof typeof CLIENT_TYPE_LABELS;
 
@@ -24,7 +24,7 @@ const useSelectClientTypeContext = () => {
   const ctx = React.useContext(SelectClientTypeContext);
   if (!ctx) {
     throw new Error(
-      "SelectClientType sub-components must be used inside <SelectClientType>",
+      'SelectClientType sub-components must be used inside <SelectClientType>',
     );
   }
   return ctx;
@@ -33,7 +33,7 @@ const useSelectClientTypeContext = () => {
 function SelectClientTypeRoot({
   value,
   onValueChange,
-  placeholder = "Select client types",
+  placeholder = 'Select client types',
 }: SelectClientTypeProps) {
   const [open, setOpen] = useState(false);
 
@@ -75,7 +75,12 @@ const SelectClientTypeValue = () => {
   }
 
   if (selected.length === 1) {
-    return <Combobox.Value placeholder={placeholder} value={CLIENT_TYPE_LABELS[selected[0]]} />;
+    return (
+      <Combobox.Value
+        placeholder={placeholder}
+        value={CLIENT_TYPE_LABELS[selected[0]]}
+      />
+    );
   }
 
   return (
@@ -116,7 +121,9 @@ const SelectClientTypeList = () => {
               onSelect={() => toggle(key as ClientTypeKey)}
             >
               {label}
-              <Combobox.Check checked={selected.includes(key as ClientTypeKey)} />
+              <Combobox.Check
+                checked={selected.includes(key as ClientTypeKey)}
+              />
             </Command.Item>
           ))}
         </Command.Group>

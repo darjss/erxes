@@ -35,6 +35,20 @@ const bookingCustomResolvers = {
       }
       return await models.ActivityType.findOne({ _id: booking.activityTypeId });
     },
+
+    hasReview: async (
+      booking: IBookingDocument,
+      _params: undefined,
+      { models }: IContext,
+    ) => {
+      if (!booking?._id) {
+        return false;
+      }
+      const exists = await models.ProviderReview.exists({
+        bookingId: String(booking._id),
+      });
+      return !!exists;
+    },
   },
 };
 

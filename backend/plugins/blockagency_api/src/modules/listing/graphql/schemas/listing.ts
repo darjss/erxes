@@ -24,6 +24,13 @@ export const types = `
     builtYear: String
   }
 
+  type BlockListingAgent {
+    _id: String
+    firstName: String
+    lastName: String
+    email: String
+  }
+
   type BlockListing {
     _id: String!
     title: String!
@@ -37,6 +44,8 @@ export const types = `
     mediaAttachments: [String]
     featuredImg: String
     viewCount: Float
+    memberId: String
+    agent: BlockListingAgent
     createdAt: String
     updatedAt: String
   }
@@ -45,6 +54,13 @@ export const types = `
     list: [BlockListing]
     pageInfo: PageInfo
     totalCount: Int
+  }
+
+  type BlockListingStats {
+    total: Int!
+    active: Int!
+    draft: Int!
+    totalViews: Float!
   }
 
   enum ListingType {
@@ -106,6 +122,7 @@ export const types = `
     mediaAttachments: [String]
     featuredImg: String
     viewCount: Float
+    memberId: String
   }
 `;
 
@@ -121,6 +138,7 @@ const queryParams = `
 export const queries = `
   blockGetListing(_id: String!): BlockListing
   blockGetListings(${queryParams}): BlockListingListResponse
+  blockGetListingStats: BlockListingStats
 `;
 
 export const mutations = `

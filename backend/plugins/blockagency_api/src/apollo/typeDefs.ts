@@ -13,5 +13,8 @@ export const typeDefs = async (): Promise<DocumentNode> => {
     extend type Mutation {
       ${mutations}
     }
+    extend type Subscription {
+      blockAgencyVerificationStatusChanged: BlockAgencyVerificationStatus
+    }
   `;
 };

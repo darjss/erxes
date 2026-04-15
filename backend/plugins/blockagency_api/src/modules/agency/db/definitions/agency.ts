@@ -35,6 +35,8 @@ export const blockAgencySchema = new Schema<IBlockAgencyDocument>(
       enum: BLOCKAGENCY_VERIFICATION_STATUS.ALL,
       default: BLOCKAGENCY_VERIFICATION_STATUS.PENDING,
     },
+    rejectionReasons: [{ type: String }],
+    rejectionNotes: { type: String },
   },
   {
     timestamps: true,

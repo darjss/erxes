@@ -36,6 +36,15 @@ export const types = `
     operationArea: AgencyOperationArea
     fieldsOfExpertise: AgencyFieldOfExpertise
     verificationStatus: AgencyVerificationStatus
+    rejectionReasons: [String]
+    rejectionNotes: String
+  }
+
+  type BlockAgencyVerificationStatus {
+    _id: String
+    verificationStatus: AgencyVerificationStatus
+    rejectionReasons: [String]
+    rejectionNotes: String
   }
 
   input AgencyContactInfoInput {
@@ -79,6 +88,7 @@ export const types = `
 export const queries = `
   getAgencyInfo: BlockAgency
   getAgencies: [BlockAgency]
+  getAgencyVerificationStatus: BlockAgencyVerificationStatus
 `;
 
 export const mutations = `

@@ -13,7 +13,10 @@ export const MultipleDocumentUpload = ({
 }) => {
   const { upload } = useUpload();
   const [isLoading, setIsLoading] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState({ uploaded: 0, total: 0 });
+  const [uploadProgress, setUploadProgress] = useState({
+    uploaded: 0,
+    total: 0,
+  });
   const fileInputRef = useRef<HTMLInputElement>(null);
   const latestValueRef = useRef(value);
   latestValueRef.current = value;

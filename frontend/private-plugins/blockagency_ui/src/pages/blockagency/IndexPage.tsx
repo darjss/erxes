@@ -7,7 +7,6 @@ import {
   Separator,
 } from 'erxes-ui';
 import { PageHeader } from 'ui-modules';
-import { Link } from 'react-router-dom';
 import { AgencyProfileSidebar } from '~/modules/agency/components/AgencyProfileSidebar';
 import { AgencyProfileTabs } from '~/modules/agency/components/AgencyProfileTabs';
 import { AgencyProfileDetailHeader } from '~/modules/agency/components/AgencyProfileDetailHeader';

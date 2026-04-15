@@ -12,8 +12,21 @@ export const types = `
     clientTypes: [String]
   }
 
+  enum BlockAdminAgencyRejectionReasonEnum {
+    INCOMPLETE_DOCUMENTS
+    INVALID_LICENSE
+    DUPLICATE_ACCOUNT
+    SUSPICIOUS_ACTIVITY
+  }
+
+  input BlockAdminAgencyRejectionInput {
+    reasons: [BlockAdminAgencyRejectionReasonEnum!]!
+    notes: String
+  }
+
   type BlockAdminAgency {
     _id: String
+    entityId: String
     name: String
     brandName: String
     type: String
@@ -32,6 +45,8 @@ export const types = `
     operationArea: BlockAdminAgencyOperationArea
     fieldsOfExpertise: BlockAdminAgencyFieldOfExpertise
     verificationStatus: String
+    rejectionReasons: [String]
+    rejectionNotes: String
   }
 
   type BlockAdminAgencyListResponse {
@@ -57,4 +72,6 @@ export const queries = `
 
 export const mutations = `
   updateBlockAdminAgencyVerificationStatus(agencyId: String, status: BlockAdminAgencyVerificationStatusEnum): BlockAdminAgency
+  blockAdminAgencyVerify(agencyId: String!): BlockAdminAgency
+  blockAdminAgencyReject(agencyId: String!, input: BlockAdminAgencyRejectionInput!): BlockAdminAgency
 `;

@@ -1,5 +1,5 @@
 import { CONTRACT_STATUS } from '@/contract/constants';
-import { IUnit, IUnitInput } from '@/unit/@types/unit';
+import { IUnit, IUnitInput, ITransferUnit } from '@/unit/@types/unit';
 import { DeleteResult } from 'mongoose';
 import { IContext } from '~/connectionResolvers';
 
@@ -135,5 +135,13 @@ export const unitMutations = {
     { models }: IContext,
   ): Promise<DeleteResult> => {
     return models.Unit.deleteMany({ _id: { $in: _ids } });
+  },
+
+  blockTransferUnit: async (
+    _parent: undefined,
+    { input }: { input: ITransferUnit },
+    { models }: IContext,
+  ) => {
+    return models.Unit.transferUnit(input);
   },
 };

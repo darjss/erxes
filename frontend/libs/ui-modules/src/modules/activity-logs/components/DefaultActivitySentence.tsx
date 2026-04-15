@@ -20,6 +20,8 @@ export function DefaultActivitySentence({
     activity || {};
   const [entityType, eventType] = activityType.split('.');
 
+  console.log(entityType, eventType);
+
   if (entityType === 'property' && eventType === 'field_changed') {
     return <PropertiesFieldChangeSentence activity={activity} />;
   }

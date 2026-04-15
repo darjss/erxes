@@ -13,6 +13,7 @@ export interface IAgencyFieldOfExpertise {
 
 export interface IAgency {
   _id: string;
+  entityId?: string;
   name: string;
   brandName: string;
   type: string;
@@ -34,3 +35,10 @@ export interface IAgency {
 }
 
 export type SocialPlatform = (typeof socialPlatforms)[number];
+
+export enum AgencyRejectionReasons {
+  INCOMPLETE_DOCUMENTS = 'Incomplete documents',
+  INVALID_LICENSE = 'Invalid license',
+  DUPLICATE_ACCOUNT = 'Duplicate account',
+  SUSPICIOUS_ACTIVITY = 'Suspicious activity',
+}

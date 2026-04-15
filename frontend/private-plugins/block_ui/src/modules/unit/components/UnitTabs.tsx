@@ -46,6 +46,7 @@ export const UnitTabs = () => {
       {activeUnitTab === UNIT_DOCUMENT_TABS_KEYS.media && <UnitMedia />}
       {activeUnitTab === UNIT_DOCUMENT_TABS_KEYS.contracts && <UnitContract />}
       {activeUnitTab === UNIT_DOCUMENT_TABS_KEYS.offers && <UnitOffers />}
+
     </Suspense>
   );
 };

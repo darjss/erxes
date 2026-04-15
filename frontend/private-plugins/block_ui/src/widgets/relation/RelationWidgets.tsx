@@ -12,6 +12,7 @@ export const RelationWidgets = ({
   module,
   contentId,
   contentType,
+  access,
   customerId,
   companyId,
 }: IRelationWidgetProps) => {
@@ -23,6 +24,7 @@ export const RelationWidgets = ({
           contentType={contentType}
           customerId={customerId}
           companyId={companyId}
+          access={access}
         />
       ) : null}
     </Suspense>

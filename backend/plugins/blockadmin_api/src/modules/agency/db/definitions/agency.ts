@@ -36,6 +36,8 @@ export const agencySchema = schemaWrapper(
         enum: BLOCK_VERIFICATION_STATUS.ALL,
         default: BLOCK_VERIFICATION_STATUS.PENDING,
       },
+      rejectionReasons: [{ type: String }],
+      rejectionNotes: { type: String },
     },
     { timestamps: true },
   ),

@@ -1,30 +1,21 @@
 import { useAtom } from 'jotai';
 import { createListingSheetAtom } from '../states/listing';
-import {
-  Button,
-  Form,
-  InfoCard,
-  Input,
-  Select,
-  Sheet,
-  Textarea,
-  toast,
-} from 'erxes-ui';
+import { Button, Form, Sheet, toast } from 'erxes-ui';
 import { useListingForm } from '../hooks/useListingForm';
 import { useCreateListing } from '../hooks/useCreateListing';
 import { useCallback } from 'react';
 import { IListing } from '../types/listing';
-import { LISTING_TYPES, STATUS_TYPES } from '../constants/listing';
 import { ListingLocation } from './ListingLocation';
 import { ListingPricing } from './ListingPricing';
 import { ListingSpecs } from './ListingSpecs';
 import { ListingMainInfo } from './ListinMainInfo';
 import { ListingMediaAttachments } from './ListingMediaAttachments';
+import { ListingMemberSection } from './ListingMemberSection';
 
 export const CreateListingSheet = () => {
   const [open, setOpen] = useAtom(createListingSheetAtom);
   const { form } = useListingForm();
-  const { control, handleSubmit, reset } = form;
+  const { handleSubmit, reset } = form;
   const { createListing, loading } = useCreateListing();
 
   const onSubmit = useCallback(
@@ -59,14 +50,11 @@ export const CreateListingSheet = () => {
             <Sheet.Content className="p-3 px-6 flex-1 overflow-y-auto">
               <div className="flex-1 flex flex-col gap-3">
                 <ListingMainInfo form={form} />
-
                 <ListingLocation form={form} />
-
                 <ListingPricing form={form} />
-
                 <ListingSpecs form={form} />
-
                 <ListingMediaAttachments form={form} />
+                <ListingMemberSection form={form} />
               </div>
             </Sheet.Content>
             <Sheet.Footer>

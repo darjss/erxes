@@ -1,7 +1,7 @@
 import { Router, Request } from 'express';
 import { IContext } from '~/connectionResolvers';
 import { IRequest, IResponse } from '~/types';
-import { IUnit } from '../@types/unit';
+import { IUnit, ITransferUnitPayload } from '../@types/unit';
 
 const router: Router = Router();
 
@@ -31,7 +31,7 @@ router.post(
         input['type'] = unitType._id;
       }
 
-      models.Unit.createUnit({
+      await models.Unit.createUnit({
         ...input,
         subdomain,
         entityId,
@@ -78,7 +78,7 @@ router.post('/blockCreateUnits', async (req: Request, res: IResponse) => {
       documents.push(document);
     }
 
-    models.Unit.insertMany(documents);
+    await models.Unit.insertMany(documents);
 
     return res.status(200).json({
       success: true,
@@ -111,7 +111,7 @@ router.post(
         input['type'] = unitType._id;
       }
 
-      models.Unit.updateUnit(subdomain, entityId, {
+      await models.Unit.updateUnit(subdomain, entityId, {
         ...input,
       });
 
@@ -136,7 +136,7 @@ router.post(
 
       const { entityId } = payload || {};
 
-      models.Unit.removeUnit(subdomain, entityId);
+      await models.Unit.removeUnit(subdomain, entityId);
 
       return res.status(200).json({
         success: true,
@@ -166,11 +166,9 @@ router.post(
         entityId: { $in: _ids },
       }).distinct('_id');
 
-      models.Unit.deleteMany({
-        _id: { $in: unitIds },
-      })
-        .then(() => console.log('yey'))
-        .catch((error) => console.log(error));
+      models.Unit.deleteMany({ _id: { $in: unitIds } }).catch((error) =>
+        console.error('[blockRemoveUnits] Delete failed:', error.message),
+      );
 
       return res.status(200).json({
         success: true,
@@ -179,6 +177,30 @@ router.post(
       return res.status(400).json({
         error: error.message,
       });
+    }
+  },
+);
+
+router.post(
+  '/blockTransferUnit',
+  async (req: IRequest<ITransferUnitPayload>, res: IResponse) => {
+    const { models } = res.locals as IContext;
+
+    try {
+      const { subdomain, payload } = req.body || {};
+      const { entityId, data } = payload || {};
+      const { input } = data || {};
+
+      const updated = await models.Unit.transferUnit({
+        blockSubdomain: subdomain,
+        unitId: entityId,
+        agencySubdomain: input.agencySubdomain,
+        agencyId: input.agencyEntityId,
+      });
+
+      return res.status(200).json({ success: true, unit: updated });
+    } catch (error) {
+      return res.status(400).json({ error: error.message });
     }
   },
 );

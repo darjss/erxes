@@ -19,20 +19,20 @@ import {
   useQueryState,
 } from 'erxes-ui';
 import { format } from 'date-fns';
+import { OpptyActivityLog } from './OpptyActivityLog';
 import { OpptyEditSheet } from './OpptyEdit';
 import { OpptyDelete } from './OpptyDelete';
 import { IOppty } from '../types/opptyTypes';
 import { ValueOf } from 'type-fest';
 import { FieldsInDetail, RelationWidgetSideTabs } from 'ui-modules';
 import { useOpptyCustomFieldEdit } from '@/oppty/hooks/useOpptyCustomFieldEdit';
-import { ActivityList } from '@/activity/components/ActivityList';
 import { UNIT_AREA_TYPE, UNIT_MARKET_TYPE } from '@/unit/constants/unit';
 import { useUnitTypes } from '@/unit/hooks/useUnitTypes';
 
 export const OPPTY_TABS = {
   GENERAL: 'general',
   PROPERTIES: 'properties',
-  ACTIVITIES: 'activities',
+  ACTIVITY_LOG: 'activity-log',
 };
 
 const STATUS_TYPE_VARIANT: Record<
@@ -61,31 +61,30 @@ export const OpptyDetailSheet = () => {
       open={!!activeOpptyId}
       onOpenChange={() => setActiveOpptyId(null)}
     >
-      <FocusSheet.View className="bt:sm:w-full sm:max-w-7xl">
-        <Sheet.Header>
-          <Sheet.Title>Opportunity Detail</Sheet.Title>
-          <Sheet.Close />
-        </Sheet.Header>
+      <FocusSheet.View className="sm:w-full sm:max-w-7xl">
+        <FocusSheet.Header title={'Opportunity Detail'} />
         <FocusSheet.Content className="flex flex-auto overflow-hidden">
-          <Sidebar collapsible="none" className="flex-none border-r w-64">
-            <Sidebar.Group>
-              <Sidebar.GroupContent>
-                <Sidebar.Menu>
-                  {Object.values(OPPTY_TABS).map((tab) => (
-                    <Sidebar.MenuItem key={tab}>
-                      <Sidebar.MenuButton
-                        onClick={() => setActiveTab(tab)}
-                        isActive={activeTab === tab}
-                      >
-                        {tab.charAt(0).toUpperCase() +
-                          tab.slice(1).replace('-', ' ')}
-                      </Sidebar.MenuButton>
-                    </Sidebar.MenuItem>
-                  ))}
-                </Sidebar.Menu>
-              </Sidebar.GroupContent>
-            </Sidebar.Group>
-          </Sidebar>
+          <FocusSheet.SideBar>
+            <Sidebar collapsible="none" className="flex-none border-r w-64">
+              <Sidebar.Group>
+                <Sidebar.GroupContent>
+                  <Sidebar.Menu>
+                    {Object.values(OPPTY_TABS).map((tab) => (
+                      <Sidebar.MenuItem key={tab}>
+                        <Sidebar.MenuButton
+                          onClick={() => setActiveTab(tab)}
+                          isActive={activeTab === tab}
+                        >
+                          {tab.charAt(0).toUpperCase() +
+                            tab.slice(1).replace('-', ' ')}
+                        </Sidebar.MenuButton>
+                      </Sidebar.MenuItem>
+                    ))}
+                  </Sidebar.Menu>
+                </Sidebar.GroupContent>
+              </Sidebar.Group>
+            </Sidebar>
+          </FocusSheet.SideBar>
 
           {(!activeTab || activeTab === 'general') && activeOpptyId && (
             <ScrollArea className="flex-auto h-full">
@@ -101,21 +100,18 @@ export const OpptyDetailSheet = () => {
               </div>
             </ScrollArea>
           )}
-          {activeTab === 'activities' && activeOpptyId && (
+          {activeTab === 'activity-log' && activeOpptyId && (
             <ScrollArea className="flex-auto h-full">
-              <div className="p-4">
-                <ActivityList
-                  contentId={activeOpptyId}
-                  contentType="oppty"
-                />
-              </div>
+              <OpptyActivityLog opptyId={activeOpptyId} />
             </ScrollArea>
           )}
-
           <RelationWidgetSideTabs
             contentId={activeOpptyId || ''}
             contentType="block:oppty"
-            hookOptions={{ hiddenModules: ['oppty', 'tasks', 'company'] }}
+            hookOptions={{
+              hiddenPlugins: ['sales', 'operation'],
+              hiddenModules: ['oppty', 'company', 'ticket'],
+            }}
           />
         </FocusSheet.Content>
         <Sheet.Footer className="flex-none">
@@ -232,19 +228,29 @@ const OpptyDetail = ({ opptyId }: { opptyId: string }) => {
               </Table.Row>
               {renderTableRow(
                 'Unit Type',
-                unitTypes?.find((t) => t._id === oppty.unitType)?.name || oppty.unitType || null,
+                unitTypes?.find((t) => t._id === oppty.unitType)?.name ||
+                  oppty.unitType ||
+                  null,
               )}
-              {oppty.tenureType && (() => {
-                const [areaType, ...tenureTypes] = oppty.tenureType.split(':');
-                const parts: string[] = [];
-                if (areaType) {
-                  parts.push(UNIT_AREA_TYPE[areaType as keyof typeof UNIT_AREA_TYPE]?.mn || areaType);
-                }
-                tenureTypes.forEach((t) => {
-                  parts.push(UNIT_MARKET_TYPE[t as keyof typeof UNIT_MARKET_TYPE]?.mn || t);
-                });
-                return renderTableRow('Tenure Type', parts.join(' · '));
-              })()}
+              {oppty.tenureType &&
+                (() => {
+                  const [areaType, ...tenureTypes] =
+                    oppty.tenureType.split(':');
+                  const parts: string[] = [];
+                  if (areaType) {
+                    parts.push(
+                      UNIT_AREA_TYPE[areaType as keyof typeof UNIT_AREA_TYPE]
+                        ?.mn || areaType,
+                    );
+                  }
+                  tenureTypes.forEach((t) => {
+                    parts.push(
+                      UNIT_MARKET_TYPE[t as keyof typeof UNIT_MARKET_TYPE]
+                        ?.mn || t,
+                    );
+                  });
+                  return renderTableRow('Tenure Type', parts.join(' · '));
+                })()}
               {renderTableRow('Start Date', formatDate(oppty.startDate))}
               {renderTableRow('Target Date', formatDate(oppty.targetDate))}
               {renderTableRow('Created At', formatDate(oppty.createdAt))}
@@ -286,7 +292,7 @@ const OpptyPropertyCard = ({ oppty }: { oppty: IOppty }) => {
   };
 
   return (
-    <InfoCard title="Property">
+    <InfoCard title="Interested Properties">
       <InfoCard.Content className="shadow-none p-0 overflow-hidden">
         <Table>
           <Table.Body className="bt:[&_td]:px-2 bt:[&_tr:first-child_td]:border-t bt:[&_td]:h-10">
@@ -297,7 +303,11 @@ const OpptyPropertyCard = ({ oppty }: { oppty: IOppty }) => {
                 projectId={oppty.projectId}
                 isFirst={index === 0}
                 isLast={index === rows.length - 1}
-                onSetMain={row.unitId && !row.isMain ? () => setMainRow(index) : undefined}
+                onSetMain={
+                  row.unitId && !row.isMain
+                    ? () => setMainRow(index)
+                    : undefined
+                }
               />
             ))}
           </Table.Body>
@@ -314,7 +324,12 @@ const OpptyPropertyRowDetail = ({
   isLast,
   onSetMain,
 }: {
-  row: { buildingId?: string; zoningId?: string; unitId?: string; isMain?: boolean };
+  row: {
+    buildingId?: string;
+    zoningId?: string;
+    unitId?: string;
+    isMain?: boolean;
+  };
   projectId?: string;
   isFirst: boolean;
   isLast: boolean;
@@ -344,10 +359,10 @@ const OpptyPropertyRowDetail = ({
   const label = row.isMain
     ? 'Main Unit'
     : row.unitId
-      ? 'Unit'
-      : row.zoningId
-        ? 'Zone'
-        : 'Building';
+    ? 'Unit'
+    : row.zoningId
+    ? 'Zone'
+    : 'Building';
 
   return (
     <Table.Row>
@@ -363,14 +378,14 @@ const OpptyPropertyRowDetail = ({
           isFirst ? 'bt:rounded-tr-lg' : ''
         } ${isLast ? 'bt:rounded-br-lg' : ''}`}
       >
-        <div className="flex items-center justify-between">
+        <div className="flex justify-between items-center">
           <span>{parts.join(' · ') || '-'}</span>
           {onSetMain && (
             <Button
               variant="ghost"
               size="sm"
               onClick={onSetMain}
-              className="h-6 text-xs px-2"
+              className="px-2 h-6 text-xs"
             >
               Set main
             </Button>

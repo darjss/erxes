@@ -25,7 +25,7 @@ export const sendBlockAgencyMessage = async ({
     ? BLOCKAGENCY_API_URL
     : BLOCKAGENCY_API_URL.replace('<subdomain>', subdomain);
 
-  const API_ENDPOINT = `${BLOCKAGENCY_DOMAIN}/pl:blockagency/webhook/${path}`;
+  const API_ENDPOINT = `${BLOCKAGENCY_DOMAIN}/webhook/${path}`;
 
   try {
     const body = JSON.stringify({ payload });
@@ -34,6 +34,8 @@ export const sendBlockAgencyMessage = async ({
       .createHmac('sha256', BLOCK_ADMIN_SECRET)
       .update(body)
       .digest('hex');
+
+      console.log('API_ENDPOINT', API_ENDPOINT)
 
     return await fetch(API_ENDPOINT, {
       method: 'POST',
