@@ -1,6 +1,7 @@
 import { NavigationMenuLinkItem } from 'erxes-ui';
 import {
   IconActivity,
+  IconLayoutDashboard,
   IconCalendar,
   IconBike,
   IconTags,
@@ -26,6 +27,12 @@ export const OneFitNavigation = () => {
         icon={IconActivity}
         pathPrefix="onefit"
         path=""
+      />
+      <NavigationMenuLinkItem
+        name="Dashboard"
+        icon={IconLayoutDashboard}
+        pathPrefix="onefit"
+        path="dashboard"
       />
       {!isSlaveMode && (
         <NavigationMenuLinkItem

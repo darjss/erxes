@@ -1,13 +1,13 @@
-import { IconPlus, IconSparkles } from '@tabler/icons-react';
+import { IconSparkles, IconUserPlus } from '@tabler/icons-react';
 import { Button, Form, Spinner, Sheet, useToast } from 'erxes-ui';
-import { cn } from 'erxes-ui';
+
 import { useCallback, useState } from 'react';
 import { useAgentAdd } from '../hooks/useAgentAdd';
 import { SubmitHandler } from 'react-hook-form';
 import { useAgentForm } from '../hooks/useAgentFormt';
 import { AgentForm } from './AgentForm';
 
-export const AddAgentTrigger = () => {
+export const AddAgentTrigger = ({ onSuccess }: { onSuccess?: () => void }) => {
   const { form } = useAgentForm();
 
   const [open, setOpen] = useState(false);
@@ -25,6 +25,7 @@ export const AddAgentTrigger = () => {
           });
           form.reset({ name: '' });
           setOpen(false);
+          onSuccess?.();
         },
         onError: (error) =>
           toast({
@@ -34,7 +35,7 @@ export const AddAgentTrigger = () => {
           }),
       });
     },
-    [addAgent, toast, form, setOpen],
+    [addAgent, toast, form, setOpen, onSuccess],
   );
   return (
     <Sheet
@@ -42,26 +43,12 @@ export const AddAgentTrigger = () => {
       onOpenChange={(open) => (open ? setOpen(true) : setOpen(false))}
     >
       <Sheet.Trigger asChild>
-        <Button
-          asChild
-          variant="ghost"
-          className={cn(
-            'justify-start h-auto rounded-lg p-2 items-center overflow-hidden',
-          )}
+        <button
+          className="p-1.5 rounded hover:bg-muted transition-colors"
+          title="Agents"
         >
-          <div className="flex items-center gap-0 w-full text-left">
-            <div
-              className={cn(
-                'size-8 bg-foreground/5 rounded-full flex-none flex items-center justify-center shrink-0',
-              )}
-            >
-              <IconPlus className="size-4 text-muted-foreground" />
-            </div>
-            <div className="flex-auto min-w-0 overflow-hidden flex items-center">
-              <h4 className={cn('truncate text-sm')}>Add Agent</h4>
-            </div>
-          </div>
-        </Button>
+          <IconUserPlus className="size-4" />
+        </button>
       </Sheet.Trigger>
       <Sheet.View className="p-0">
         <Form {...form}>

@@ -1,4 +1,4 @@
-import { Button, Dialog, Form, Input, Select, Spinner } from 'erxes-ui';
+import { Button, Form, Input, Select, Sheet, Spinner } from 'erxes-ui';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -55,16 +55,19 @@ export const CopyPreviousMonthDialog = ({
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <Dialog.Content>
-        <Dialog.Header>
-          <Dialog.Title>Copy Previous Month Template</Dialog.Title>
-        </Dialog.Header>
+    <Sheet open={open} onOpenChange={onOpenChange}>
+      <Sheet.View className="sm:max-w-4xl">
+        <Sheet.Header>
+          <Sheet.Title>Copy Previous Month Template</Sheet.Title>
+          <Sheet.Close />
+        </Sheet.Header>
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
-            className="flex flex-col gap-6"
+            className="flex min-h-0 flex-1 flex-col"
           >
+            <Sheet.Content className="overflow-y-auto p-6">
+              <div className="flex flex-col gap-6">
             <Form.Field
               control={form.control}
               name="providerIds"
@@ -201,7 +204,9 @@ export const CopyPreviousMonthDialog = ({
                 )}
               />
             </div>
-            <Dialog.Footer>
+              </div>
+            </Sheet.Content>
+            <Sheet.Footer className="border-t bg-background">
               <Button
                 type="button"
                 variant="outline"
@@ -214,10 +219,10 @@ export const CopyPreviousMonthDialog = ({
                 <Spinner show={loading} />
                 Copy Template
               </Button>
-            </Dialog.Footer>
+            </Sheet.Footer>
           </form>
         </Form>
-      </Dialog.Content>
-    </Dialog>
+      </Sheet.View>
+    </Sheet>
   );
 };

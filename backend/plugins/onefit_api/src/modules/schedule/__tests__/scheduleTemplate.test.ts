@@ -173,11 +173,12 @@
 //         context,
 //       );
 
-//       expect(copied).toHaveLength(1);
-//       expect(copied[0].month).toBe(2);
-//       expect(copied[0].year).toBe(2024);
-//       expect(copied[0].dailySchedules).toHaveLength(1);
-//       expect(copied[0].dailySchedules[0].dailyLimit).toBe(10);
+//       expect(copied.templates).toHaveLength(1);
+//       expect(copied.skippedProviderIds).toHaveLength(0);
+//       expect(copied.templates[0].month).toBe(2);
+//       expect(copied.templates[0].year).toBe(2024);
+//       expect(copied.templates[0].dailySchedules).toHaveLength(1);
+//       expect(copied.templates[0].dailySchedules[0].dailyLimit).toBe(10);
 //     });
 //   });
 

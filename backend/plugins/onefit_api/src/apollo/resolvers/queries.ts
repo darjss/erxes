@@ -11,6 +11,7 @@ import { oneFitCustomerQueries } from '@/onefitCustomer/graphql/resolvers/querie
 import { activityTypeQueries } from '@/activity-type/graphql/resolvers/queries/activityType';
 import { bannerQueries } from '@/banner/graphql/resolvers/queries/banner';
 import { promoCodeQueries } from '@/promoCode/graphql/resolvers/queries/promoCode';
+import { dashboardQueries } from '@/dashboard/graphql/resolvers/queries/dashboard';
 
 export const queries = {
   ...categoryQueries,
@@ -25,4 +26,5 @@ export const queries = {
   ...activityTypeQueries,
   ...bannerQueries,
   ...promoCodeQueries,
+  ...dashboardQueries,
 };

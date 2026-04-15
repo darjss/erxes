@@ -12,6 +12,7 @@ import {
 import { DayOfWeek } from '@/schedule/@types/schedule';
 import { BookingStatus, IBooking } from '@/booking/@types/booking';
 import { IModels } from '~/connectionResolvers';
+import { SortOrder } from 'mongoose';
 
 export interface IScheduleTemplateQueryParams extends ICursorPaginateParams {
   providerId?: string;
@@ -229,9 +230,21 @@ export const scheduleQueries = {
     const { models } = context;
     const filter = await generateTemplateFilter(params, context);
 
+    const defaultScheduleTemplateOrderBy: Record<string, SortOrder> = {
+      createdAt: -1,
+    };
+
+    const orderBy =
+      params.orderBy && Object.keys(params.orderBy).length > 0
+        ? params.orderBy
+        : defaultScheduleTemplateOrderBy;
+
     return await cursorPaginate({
       model: models.ScheduleTemplate,
-      params,
+      params: {
+        ...params,
+        orderBy,
+      },
       query: filter,
     });
   },
