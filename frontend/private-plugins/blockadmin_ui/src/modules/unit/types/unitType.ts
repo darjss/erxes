@@ -8,6 +8,8 @@ export interface IUnit {
   building: string;
   status: string;
   isFeatured: boolean;
+  agencyEntityId?: string;
+  agencySubdomain?: string;
 }
 
 export interface IUnitRoom {

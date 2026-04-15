@@ -1,3 +1,4 @@
+import { agencyQueries } from '@/agency/graphql/resolvers/queries/agency';
 import { attachmentQueries } from '@/attachment/graphql/resolvers/queries/attachment';
 import { buildingQueries } from '@/building/graphql/resolvers/queries/building';
 import { zoningQueries } from '@/building/graphql/resolvers/queries/zoning';
@@ -14,8 +15,10 @@ import { unitTypesQueries } from '@/unit/graphql/resolvers/queries/unitType';
 import { unitLeadQueries } from '@/unit/graphql/resolvers/queries/unitLead';
 import { cpBlockQueries } from '~/modules/clientportal/graphql/resolvers/queries';
 import { formQueries } from '~/modules/form/graphql/queries';
+import { listingQueries } from '@/listing/graphql/resolvers/queries/listing';
 
 export const queries = {
+  ...agencyQueries,
   ...projectQueries,
   ...buildingQueries,
   ...zoningQueries,
@@ -31,6 +34,7 @@ export const queries = {
   ...offerQueries,
   ...invoiceQueries,
   ...formQueries,
+  ...listingQueries,
 
   ...cpBlockQueries,
 };

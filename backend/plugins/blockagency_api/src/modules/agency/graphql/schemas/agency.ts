@@ -1,0 +1,97 @@
+export const types = `
+  type AgencyOperationArea {
+    city: String
+    district: String
+  }
+
+  type AgencyFieldOfExpertise {
+    propertyTypes: [String]
+    services: [String]
+    clientTypes: [String]
+  }
+
+  enum AgencyVerificationStatus {
+    unverified
+    pending
+    verified
+  }
+
+  type BlockAgency {
+    _id: String
+    name: String
+    brandName: String
+    type: String
+    description: String
+    brief: String
+    website: String
+    emails: [String]
+    primaryEmail: String
+    phones: [String]
+    primaryPhone: String
+    logo: String
+    coverImage: String
+    documents: [String]
+    socialLinks: JSON
+    dateFounded: String
+    operationArea: AgencyOperationArea
+    fieldsOfExpertise: AgencyFieldOfExpertise
+    verificationStatus: AgencyVerificationStatus
+    rejectionReasons: [String]
+    rejectionNotes: String
+  }
+
+  type BlockAgencyVerificationStatus {
+    _id: String
+    verificationStatus: AgencyVerificationStatus
+    rejectionReasons: [String]
+    rejectionNotes: String
+  }
+
+  input AgencyContactInfoInput {
+    email: String
+    phone: String
+    website: String
+  }
+
+  input AgencyOperationAreaInput {
+    city: String
+    district: String
+  }
+
+  input AgencyFieldOfExpertiseInput {
+    propertyTypes: [String]
+    services: [String]
+    clientTypes: [String]
+  }
+
+  input AgencyInput {
+    name: String
+    brandName: String
+    type: String
+    description: String
+    brief: String
+    website: String
+    emails: [String]
+    primaryEmail: String
+    phones: [String]
+    primaryPhone: String
+    logo: String
+    coverImage: String
+    documents: [String]
+    socialLinks: JSON
+    dateFounded: String
+    operationArea: AgencyOperationAreaInput
+    fieldsOfExpertise: AgencyFieldOfExpertiseInput
+  }
+`;
+
+export const queries = `
+  getAgencyInfo: BlockAgency
+  getAgencies: [BlockAgency]
+  getAgencyVerificationStatus: BlockAgencyVerificationStatus
+`;
+
+export const mutations = `
+  updateAgencyInfo(input: AgencyInput): BlockAgency
+  updateAgencyVerificationStatus: BlockAgency
+`;

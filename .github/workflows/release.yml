@@ -23,6 +23,7 @@ jobs:
           - erxes/erxes-next-btk_api
           - erxes/erxes-next-btkadmin_api
           - erxes/erxes-next-onefit_api
+          - erxes/erxes-next-blockagency_api
       fail-fast: false
     steps:
       - name: Set up Docker Buildx

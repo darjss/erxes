@@ -3,6 +3,11 @@ import { extension } from './extension';
 import { project as projectExtension } from './project';
 
 export const TypeExtensions = `
+    enum BlockAdminAgencyVerificationStatusEnum {
+        verified
+        unverified
+    }
+
     enum BlockAdminDeveloperVerificationStatus {
         verified
         unverified

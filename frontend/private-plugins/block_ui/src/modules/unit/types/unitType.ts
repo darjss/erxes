@@ -37,6 +37,10 @@ export interface IUnit {
   zoning: string;
   building: string;
   status: string;
+  blockSubdomain?: string;
+  blockEntityId?: string;
+  agencySubdomain?: string;
+  agencyEntityId?: string;
 }
 
 export interface IUnitAttachment {

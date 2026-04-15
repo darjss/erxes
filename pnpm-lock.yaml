@@ -101,8 +101,8 @@ importers:
         specifier: ^0.8.9
         version: 0.8.12
       '@react-pdf/renderer':
-        specifier: ^4.3.2
-        version: 4.3.3(react@18.3.1)
+        specifier: 4.4.1
+        version: 4.4.1(react@18.3.1)
       '@sendgrid/mail':
         specifier: ^8.1.5
         version: 8.1.5
@@ -895,6 +895,147 @@ importers:
         specifier: workspace:^
         version: link:../../erxes-api-shared
 
+  backend/plugins/blockadmin_api/dist:
+    dependencies:
+      '@apollo/server':
+        specifier: 4.11.3
+        version: 4.11.3(encoding@0.1.13)(graphql@16.10.0)
+      '@apollo/subgraph':
+        specifier: 2.10.0
+        version: 2.10.0(graphql@16.10.0)
+      '@azure/storage-blob':
+        specifier: 12.29.1
+        version: 12.29.1
+      '@babel/preset-env':
+        specifier: 7.26.9
+        version: 7.26.9(@babel/core@7.26.10)
+      '@elastic/elasticsearch':
+        specifier: 7.17.14
+        version: 7.17.14
+      '@google-cloud/storage':
+        specifier: 7.17.3
+        version: 7.17.3(encoding@0.1.13)
+      '@preconstruct/cli':
+        specifier: 2.8.12
+        version: 2.8.12
+      '@prettier/sync':
+        specifier: 0.5.5
+        version: 0.5.5(prettier@3.6.2)
+      '@sniptt/guards':
+        specifier: 0.2.0
+        version: 0.2.0
+      '@trpc/client':
+        specifier: 11.0.4
+        version: 11.0.4(@trpc/server@11.0.4(typescript@5.8.3))(typescript@5.8.3)
+      '@trpc/server':
+        specifier: 11.0.4
+        version: 11.0.4(typescript@5.8.3)
+      '@types/babel__preset-env':
+        specifier: 7.10.0
+        version: 7.10.0
+      '@types/graphql':
+        specifier: 14.5.0
+        version: 14.5.0
+      '@types/ioredis':
+        specifier: 5.0.0
+        version: 5.0.0
+      '@types/lodash':
+        specifier: 4.17.21
+        version: 4.17.21
+      aws-sdk:
+        specifier: 2.1692.0
+        version: 2.1692.0
+      babel-plugin-module-resolver:
+        specifier: 5.0.2
+        version: 5.0.2
+      bullmq:
+        specifier: 5.40.4
+        version: 5.40.4
+      cookie-parser:
+        specifier: 1.4.7
+        version: 1.4.7
+      cors:
+        specifier: 2.8.5
+        version: 2.8.5
+      dataloader:
+        specifier: 2.2.3
+        version: 2.2.3
+      dayjs:
+        specifier: 1.11.13
+        version: 1.11.13
+      dotenv:
+        specifier: 16.4.7
+        version: 16.4.7
+      erxes-api-shared:
+        specifier: workspace:^
+        version: link:../../../erxes-api-shared
+      exceljs:
+        specifier: 4.4.0
+        version: 4.4.0
+      express:
+        specifier: 4.21.2
+        version: 4.21.2
+      express-rate-limit:
+        specifier: 6.11.2
+        version: 6.11.2(express@4.21.2)
+      file-type:
+        specifier: 20.5.0
+        version: 20.5.0
+      form-data:
+        specifier: 4.0.2
+        version: 4.0.2
+      glob:
+        specifier: 11.0.1
+        version: 11.0.1
+      graphql:
+        specifier: 16.10.0
+        version: 16.10.0
+      graphql-redis-subscriptions:
+        specifier: 2.7.0
+        version: 2.7.0(graphql-subscriptions@3.0.0(graphql@16.10.0))
+      graphql-subscriptions:
+        specifier: 3.0.0
+        version: 3.0.0(graphql@16.10.0)
+      graphql-tag:
+        specifier: 2.12.6
+        version: 2.12.6(graphql@16.10.0)
+      helmet:
+        specifier: 8.1.0
+        version: 8.1.0
+      ioredis:
+        specifier: 5.6.1
+        version: 5.6.1
+      lodash:
+        specifier: 4.17.21
+        version: 4.17.21
+      moment:
+        specifier: 2.30.1
+        version: 2.30.1
+      mongoose:
+        specifier: 8.13.2
+        version: 8.13.2(socks@2.8.7)
+      nanoid:
+        specifier: 3.3.11
+        version: 3.3.11
+      node-fetch:
+        specifier: 2.7.0
+        version: 2.7.0(encoding@0.1.13)
+      strip-ansi:
+        specifier: 6.0.1
+        version: 6.0.1
+      tslib:
+        specifier: 2.8.1
+        version: 2.8.1
+      zod:
+        specifier: 3.23.8
+        version: 3.23.8
+
+  backend/plugins/blockagency_api:
+    dependencies:
+      erxes-api-shared:
+        specifier: workspace:^
+        version: link:../../erxes-api-shared
+
   backend/plugins/blocktest_api:
     dependencies:
       erxes-api-shared:
@@ -1006,156 +1147,6 @@ importers:
         specifier: workspace:^
         version: link:../../erxes-api-shared
 
-  backend/plugins/mto_api/dist:
-    dependencies:
-      '@apollo/server':
-        specifier: 4.11.3
-        version: 4.11.3(encoding@0.1.13)(graphql@16.10.0)
-      '@apollo/subgraph':
-        specifier: 2.10.0
-        version: 2.10.0(graphql@16.10.0)
-      '@azure/storage-blob':
-        specifier: 12.29.1
-        version: 12.29.1
-      '@babel/preset-env':
-        specifier: 7.26.9
-        version: 7.26.9(@babel/core@7.26.10)
-      '@elastic/elasticsearch':
-        specifier: 7.17.14
-        version: 7.17.14
-      '@google-cloud/storage':
-        specifier: 7.17.3
-        version: 7.17.3(encoding@0.1.13)
-      '@preconstruct/cli':
-        specifier: 2.8.12
-        version: 2.8.12
-      '@prettier/sync':
-        specifier: 0.5.5
-        version: 0.5.5(prettier@3.6.2)
-      '@sniptt/guards':
-        specifier: 0.2.0
-        version: 0.2.0
-      '@trpc/client':
-        specifier: 11.0.4
-        version: 11.0.4(@trpc/server@11.0.4(typescript@5.8.3))(typescript@5.8.3)
-      '@trpc/server':
-        specifier: 11.0.4
-        version: 11.0.4(typescript@5.8.3)
-      '@types/babel__preset-env':
-        specifier: 7.10.0
-        version: 7.10.0
-      '@types/graphql':
-        specifier: 14.5.0
-        version: 14.5.0
-      '@types/ioredis':
-        specifier: 5.0.0
-        version: 5.0.0
-      '@types/lodash':
-        specifier: 4.17.21
-        version: 4.17.21
-      '@zxing/library':
-        specifier: ^0.21.3
-        version: 0.21.3
-      aws-sdk:
-        specifier: 2.1692.0
-        version: 2.1692.0
-      babel-plugin-module-resolver:
-        specifier: 5.0.2
-        version: 5.0.2
-      bullmq:
-        specifier: 5.40.4
-        version: 5.40.4
-      cookie-parser:
-        specifier: 1.4.7
-        version: 1.4.7
-      cors:
-        specifier: 2.8.5
-        version: 2.8.5
-      dataloader:
-        specifier: 2.2.3
-        version: 2.2.3
-      dayjs:
-        specifier: 1.11.13
-        version: 1.11.13
-      dotenv:
-        specifier: 16.4.7
-        version: 16.4.7
-      erxes-api-shared:
-        specifier: workspace:^
-        version: link:../../../erxes-api-shared
-      exceljs:
-        specifier: 4.4.0
-        version: 4.4.0
-      express:
-        specifier: 4.21.2
-        version: 4.21.2
-      express-rate-limit:
-        specifier: 6.11.2
-        version: 6.11.2(express@4.21.2)
-      file-type:
-        specifier: 20.5.0
-        version: 20.5.0
-      form-data:
-        specifier: 4.0.2
-        version: 4.0.2
-      formidable:
-        specifier: 3.5.4
-        version: 3.5.4
-      glob:
-        specifier: 11.0.1
-        version: 11.0.1
-      graphql:
-        specifier: 16.10.0
-        version: 16.10.0
-      graphql-redis-subscriptions:
-        specifier: 2.7.0
-        version: 2.7.0(graphql-subscriptions@3.0.0(graphql@16.10.0))
-      graphql-subscriptions:
-        specifier: 3.0.0
-        version: 3.0.0(graphql@16.10.0)
-      graphql-tag:
-        specifier: 2.12.6
-        version: 2.12.6(graphql@16.10.0)
-      helmet:
-        specifier: 8.1.0
-        version: 8.1.0
-      ioredis:
-        specifier: 5.6.1
-        version: 5.6.1
-      lodash:
-        specifier: 4.17.21
-        version: 4.17.21
-      moment:
-        specifier: 2.30.1
-        version: 2.30.1
-      mongodb:
-        specifier: 6.18.0
-        version: 6.18.0(socks@2.8.7)
-      mongoose:
-        specifier: 8.13.2
-        version: 8.13.2(socks@2.8.7)
-      nanoid:
-        specifier: 3.3.11
-        version: 3.3.11
-      node-fetch:
-        specifier: 2.7.0
-        version: 2.7.0(encoding@0.1.13)
-      sharp:
-        specifier: ^0.33.0
-        version: 0.33.5
-      strip-ansi:
-        specifier: 6.0.1
-        version: 6.0.1
-      tslib:
-        specifier: 2.8.1
-        version: 2.8.1
-      xss:
-        specifier: 1.0.15
-        version: 1.0.15
-      zod:
-        specifier: 3.23.8
-        version: 3.23.8
-
   backend/plugins/onefit_api:
     dependencies:
       '@zxing/library':
@@ -1167,118 +1158,6 @@ importers:
       sharp:
         specifier: ^0.33.0
         version: 0.33.5
-
-  backend/plugins/onefit_api/dist:
-    dependencies:
-      '@apollo/server':
-        specifier: 4.11.3
-        version: 4.11.3(encoding@0.1.13)(graphql@16.10.0)
-      '@apollo/subgraph':
-        specifier: 2.10.0
-        version: 2.10.0(graphql@16.10.0)
-      '@babel/preset-env':
-        specifier: 7.26.9
-        version: 7.26.9(@babel/core@7.26.10)
-      '@elastic/elasticsearch':
-        specifier: 7.17.14
-        version: 7.17.14
-      '@preconstruct/cli':
-        specifier: 2.8.12
-        version: 2.8.12
-      '@prettier/sync':
-        specifier: 0.5.5
-        version: 0.5.5(prettier@3.6.2)
-      '@sniptt/guards':
-        specifier: 0.2.0
-        version: 0.2.0
-      '@trpc/client':
-        specifier: 11.0.4
-        version: 11.0.4(@trpc/server@11.0.4(typescript@5.8.3))(typescript@5.8.3)
-      '@trpc/server':
-        specifier: 11.0.4
-        version: 11.0.4(typescript@5.8.3)
-      '@types/babel__preset-env':
-        specifier: 7.10.0
-        version: 7.10.0
-      '@types/graphql':
-        specifier: 14.5.0
-        version: 14.5.0
-      '@types/ioredis':
-        specifier: 5.0.0
-        version: 5.0.0
-      babel-plugin-module-resolver:
-        specifier: 5.0.2
-        version: 5.0.2
-      bullmq:
-        specifier: 5.40.4
-        version: 5.40.4
-      cookie-parser:
-        specifier: 1.4.7
-        version: 1.4.7
-      cors:
-        specifier: 2.8.5
-        version: 2.8.5
-      dayjs:
-        specifier: 1.11.13
-        version: 1.11.13
-      dotenv:
-        specifier: 16.4.7
-        version: 16.4.7
-      erxes-api-shared:
-        specifier: workspace:^
-        version: link:../../../erxes-api-shared
-      express:
-        specifier: 4.21.2
-        version: 4.21.2
-      express-rate-limit:
-        specifier: 6.11.2
-        version: 6.11.2(express@4.21.2)
-      glob:
-        specifier: 11.0.1
-        version: 11.0.1
-      graphql:
-        specifier: 16.10.0
-        version: 16.10.0
-      graphql-redis-subscriptions:
-        specifier: 2.7.0
-        version: 2.7.0(graphql-subscriptions@3.0.0(graphql@16.10.0))
-      graphql-subscriptions:
-        specifier: 3.0.0
-        version: 3.0.0(graphql@16.10.0)
-      graphql-tag:
-        specifier: 2.12.6
-        version: 2.12.6(graphql@16.10.0)
-      helmet:
-        specifier: 8.1.0
-        version: 8.1.0
-      ioredis:
-        specifier: 5.6.1
-        version: 5.6.1
-      moment:
-        specifier: 2.30.1
-        version: 2.30.1
-      mongoose:
-        specifier: 8.13.2
-        version: 8.13.2(socks@2.8.7)
-      nanoid:
-        specifier: 3.3.11
-        version: 3.3.11
-      node-fetch:
-        specifier: 2.7.0
-        version: 2.7.0(encoding@0.1.13)
-      strip-ansi:
-        specifier: 6.0.1
-        version: 6.0.1
-      tslib:
-        specifier: 2.8.1
-        version: 2.8.1
-      zod:
-        specifier: 3.23.8
-        version: 3.23.8
-    devDependencies:
-      stream-json:
-        specifier: ^1.9.1
-        version: 1.9.1
 
   backend/plugins/operation_api:
     dependencies:
@@ -5962,6 +5841,13 @@ packages:
         integrity: sha512-9zESzOO5aDByvhIAsOy9TbpZ0Ur2AJbUI7UT73kcUTS2mxAMHOBaa1st/jAymNoCtvrit99kkzT1FZuXVcgfIQ==,
       }
 
+  '@noble/ciphers@1.3.0':
+    resolution:
+      {
+        integrity: sha512-2I0gnIVPtfnMw9ee9h1dJG7tp81+8Ob3OJb3Mv37rx5L40/b0i7djjCVvGOVqc9AEIQyvyu1i6ypKdFw8R8gQw==,
+      }
+    engines: { node: ^14.21.3 || >=16 }
+
   '@noble/hashes@1.8.0':
     resolution:
       {
@@ -8783,10 +8669,10 @@ packages:
         integrity: sha512-0I7pApDr1/RLAKbizuLy/IHTEa93LSPy/bEwYniboC3Xqnp6Od8xFJKbKEzGw2wh/5zKFFwl00g4t9RwgIMc3w==,
       }
 
-  '@react-pdf/font@4.0.5':
+  '@react-pdf/font@4.0.6':
     resolution:
       {
-        integrity: sha512-20z5FPW69T0sGiAY6v2pePudNlpR71yTIBzghsTsvWiw5FrwaWbGopmyJ7nzbvMU9UUq460tXqn0Zqb4g6lzcQ==,
+        integrity: sha512-1RxR/hTyZcbgjESUjrMms574xuS9PLB4ovqQx6jvgdrIHXUyeUtSH6i3Szw1qVfUnA9MfaEm1FBuydQeJD39BQ==,
       }
 
   '@react-pdf/image@3.0.4':
@@ -8795,16 +8681,16 @@ packages:
         integrity: sha512-z0ogVQE0bKqgXQ5smgzIU857rLV7bMgVdrYsu3UfXDDLSzI7QPvzf6MFTFllX6Dx2rcsF13E01dqKPtJEM799g==,
       }
 
-  '@react-pdf/layout@4.4.3':
+  '@react-pdf/layout@4.5.1':
     resolution:
       {
-        integrity: sha512-LuNxgLtUWcNDW6qA+bYZB7wM8IPPAwsneMG4zEe8tAApHVi/lyE3OOWfbSlPRv9mSVEDvlKtqlwl+cOrLkjU5g==,
+        integrity: sha512-1V8ssgg9FHVsmvuCKmp7TWoUiPGgxAR2cgyvdcao8UQm7emWB7rP1o4CieHH56kgZyXXbwWqQAmmtgvcju+xfA==,
       }
 
-  '@react-pdf/pdfkit@4.1.0':
+  '@react-pdf/pdfkit@5.0.0':
     resolution:
       {
-        integrity: sha512-Wm/IOAv0h/U5Ra94c/PltFJGcpTUd/fwVMVeFD6X9tTTPCttIwg0teRG1Lqq617J8K4W7jpL/B0HTH0mjp3QpQ==,
+        integrity: sha512-FcQBWGtfhMGuOB0G3NcnF/cBq/JnFVs22i1tuafiT1XlmG6KjCxgTGng5bVh+b9RtTuwNpUGmCtB6CmG6B4ZVA==,
       }
 
   '@react-pdf/png-js@3.0.0':
@@ -8813,10 +8699,10 @@ packages:
         integrity: sha512-eSJnEItZ37WPt6Qv5pncQDxLJRK15eaRwPT+gZoujP548CodenOVp49GST8XJvKMFt9YqIBzGBV/j9AgrOQzVA==,
       }
 
-  '@react-pdf/primitives@4.1.1':
+  '@react-pdf/primitives@4.2.0':
     resolution:
       {
-        integrity: sha512-IuhxYls1luJb7NUWy6q5avb1XrNaVj9bTNI40U9qGRuS6n7Hje/8H8Qi99Z9UKFV74bBP3DOf3L1wV2qZVgVrQ==,
+        integrity: sha512-onlXLcA6SpsD7SX9HOyt55qdRRJCfauegPlo4ZNw0hA/IipaZTbT9MJliWKtEXm03ibGxAQyp/BgTuXm91fo0A==,
       }
 
   '@react-pdf/reconciler@2.0.0':
@@ -8827,36 +8713,36 @@ packages:
     peerDependencies:
       react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
 
-  '@react-pdf/render@4.3.3':
+  '@react-pdf/render@4.4.1':
     resolution:
       {
-        integrity: sha512-u2xVZCwGZ9AbLi0Z09Q6D/79vQNuKcUBNDXzlQeZgR2g0Jd5xrvBDCCbZZ6W40BoFQBTuO1fsc68dYnhU2VMSA==,
+        integrity: sha512-TBaEw6F+IBI4oVHUF7LL2OJX87unRrk6r7mkEmgjehN9BV5LF53I8CzVtdAchuO1+YhvE4MoMzkNelA+X2luRA==,
       }
 
-  '@react-pdf/renderer@4.3.3':
+  '@react-pdf/renderer@4.4.1':
     resolution:
       {
-        integrity: sha512-3rqNnw9x29jotD62PW4dKoUmUTwHQxwHM/T23kV9UJUQMKgA0FiFKqYMiOF05f+05TlN/z8hWFbytgcw91gIJg==,
+        integrity: sha512-mK7xyCdDUagO1kg8jraad3aUzdVAGBru08qyjjp8FMhGsh4BcuPGa0SycQ8Pv8EDEdyEOfmiE+XI1sBybSLwaQ==,
       }
     peerDependencies:
       react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
 
-  '@react-pdf/stylesheet@6.1.3':
+  '@react-pdf/stylesheet@6.1.4':
     resolution:
       {
-        integrity: sha512-NIYk1x/xmbcPE4G3kfz+USAdZSosD7sK+mvZlW+p0FkVcEVPVATYmxNPQDFW166P03jFn75+R2DIwjcxcIdqJA==,
+        integrity: sha512-jiwovO7lUwgccAh3JbVcXnh90AiSKZetdz2ETcWsKApPPLzLUzPkEs6wCVvZqh3lcGOAPFV3AfdMkFnLwv1ryg==,
       }
 
-  '@react-pdf/textkit@6.1.1':
+  '@react-pdf/textkit@6.2.0':
     resolution:
       {
-        integrity: sha512-HAHoa407q0UHLzwe/oL6VwgJj2cGKs5vORSVY+cRG/GC0kt7nxUV9N+2hA6VcqJA37gSRg7BTLsVr8Tt+4l5ow==,
+        integrity: sha512-0B22Kue/ALHiEcYNbrx2BdkpHPTq2j3u2xmAyCnf3XJbTyANjljJjtWRohkVLQKqOlieD88BvmQt7OeWLj+ZYg==,
       }
 
-  '@react-pdf/types@2.9.3':
+  '@react-pdf/types@2.10.0':
     resolution:
       {
-        integrity: sha512-UnqzRuA3tpAVSS0hmUA96csCH5bbDUPih1z2lcCJGaeAkGkN70T0ighpQaWOIea7Og4HuAqPKg8RAT4zP8BRfg==,
+        integrity: sha512-iz0NusqQ/9ZHQirWhJqOaxY1UkpvuNkEDtH4/SPCnhZJKBO/IhlFLFHuzbHkmWByBoX6X3m8GCc2b/1QH6QNlA==,
       }
 
   '@react-stately/autocomplete@3.0.0-beta.2':
@@ -15201,12 +15087,6 @@ packages:
       }
     engines: { node: '>= 8' }
 
-  crypto-js@4.2.0:
-    resolution:
-      {
-        integrity: sha512-KALDyEYgpY+Rlob/iriUtjV6d5Eq+Y191A5g4UqLAi8CyGP9N1+FdVbkc1SxKc2r4YAYqG8JzO2KGL+AizD70Q==,
-      }
-
   crypto-random-string@2.0.0:
     resolution:
       {
@@ -18054,6 +17934,7 @@ packages:
         integrity: sha512-zrQDm8XPnYEKawJScsnM0QzobJxlT/kHOOlRTio8IH/GrmxRE5fjllkzdaHclIuNjUQTJYH2xHNIGfdpJkDJUw==,
       }
     engines: { node: 20 || >=22 }
+    deprecated: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
     hasBin: true
 
   glob@7.2.3:
@@ -20421,6 +20302,12 @@ packages:
         integrity: sha512-ZC41vPSTLKGwIRjqDh8DfXoCrdQIyBgspJVPXHBGu4nZlAEvG3nf+jO9avM9RmLiGakg7vz974ms99nEV0tmTQ==,
       }
 
+  js-md5@0.8.3:
+    resolution:
+      {
+        integrity: sha512-qR0HB5uP6wCuRMrWPTrkMaev7MJZwJuuw4fnwAzRgP4J4/F8RwtodOKpGp4XpqsLBFzzgqIO42efFAyz2Et6KQ==,
+      }
+
   js-sha1@0.6.0:
     resolution:
       {
@@ -21481,6 +21368,12 @@ packages:
     resolution:
       {
         integrity: sha512-RmF0AsMzgt25qzqqLc1+MbHmhdx0ojF2Fvs4XnOqz2ZOBXzzkEwc/dJQZCYHAn7v1jbVOjAZfK8msRn4BxO4VQ==,
+      }
+
+  magic-string@0.30.17:
+    resolution:
+      {
+        integrity: sha512-sNPKHvyjVf7gyjwS4xGTaW/mCnF8wnjtifKBEhxfZ7E/S8tQ0rssrwGNn6q8JH/ohItJfSQp9mBtQYuTlH5QnA==,
       }
 
   magic-string@0.30.21:
@@ -23374,6 +23267,13 @@ packages:
         integrity: sha512-JU3teHTNjmE2VCGFzuY8EXzCDVwEqB2a8fsIvwaStHhAWJEeVd1o1QD80CU6+ZdEXXSLbSsuLwJjkCBWqRQUVA==,
       }
     engines: { node: '>=8.6' }
+
+  picomatch@4.0.2:
+    resolution:
+      {
+        integrity: sha512-M7BAV6Rlcy5u+m6oPhAPFgJTzAioX/6B0DxyvDlo9l8+T3nLKbrczg2WLUyzd45L8RqfUMyGPzekbMvX2Ldkwg==,
+      }
+    engines: { node: '>=12' }
 
   picomatch@4.0.3:
     resolution:
@@ -26354,12 +26254,6 @@ packages:
       prettier:
         optional: true
 
-  stream-chain@2.2.5:
-    resolution:
-      {
-        integrity: sha512-1TJmBx6aSWqZ4tx7aTpBDXK0/e2hhcNSTV8+CbFJtDjbb+I1mZ8lHit0Grw9GRT+6JbIrrDd8esncgBi8aBXGA==,
-      }
-
   stream-combiner2@1.0.2:
     resolution:
       {
@@ -26370,12 +26264,6 @@ packages:
     resolution:
       {
         integrity: sha512-E1GUzBSgvct8Jsb3v2X15pjzN1tYebtbLaMg+eBOUOAxgbLoSbT2NS91ckc5lJD1KfLjId+jXJRgo0qnV5Nerg==,
-      }
-
-  stream-json@1.9.1:
-    resolution:
-      {
-        integrity: sha512-uWkjJ+2Nt/LO9Z/JyKZbMusL8Dkh97uUBTv3AJQ74y07lVahLY4eEFsPsE97pxYBwr8nnjMAIch5eqI0gPShyw==,
       }
 
   stream-shift@1.0.3:
@@ -32795,6 +32683,8 @@ snapshots:
       '@emnapi/runtime': 1.4.0
       '@tybys/wasm-util': 0.9.0
 
+  '@noble/ciphers@1.3.0': {}
+
   '@noble/hashes@1.8.0': {}
 
   '@nodelib/fs.scandir@2.1.5':
@@ -32852,7 +32742,7 @@ snapshots:
       ignore: 5.3.2
       minimatch: 9.0.3
       nx: 20.0.8(@swc-node/register@1.9.2(@swc/core@1.5.29(@swc/helpers@0.5.15))(@swc/types@0.1.24)(typescript@5.7.3))(@swc/core@1.5.29(@swc/helpers@0.5.15))
-      semver: 7.7.3
+      semver: 7.7.1
       tmp: 0.2.3
       tslib: 2.8.1
       yargs-parser: 21.1.1
@@ -32864,7 +32754,7 @@ snapshots:
       ignore: 5.3.2
       minimatch: 9.0.3
       nx: 20.4.0(@swc-node/register@1.9.2(@swc/core@1.5.29(@swc/helpers@0.5.15))(@swc/types@0.1.24)(typescript@5.7.3))(@swc/core@1.5.29(@swc/helpers@0.5.15))
-      semver: 7.7.3
+      semver: 7.7.1
       tmp: 0.2.3
       tslib: 2.8.1
       yargs-parser: 21.1.1
@@ -32945,7 +32835,7 @@ snapshots:
       '@nx/devkit': 20.4.0(nx@20.0.8(@swc-node/register@1.9.2(@swc/core@1.5.29(@swc/helpers@0.5.15))(@swc/types@0.1.24)(typescript@5.7.3))(@swc/core@1.5.29(@swc/helpers@0.5.15)))
       '@nx/js': 20.4.0(@babel/traverse@7.27.0)(@swc-node/register@1.9.2(@swc/core@1.5.29(@swc/helpers@0.5.15))(@swc/types@0.1.24)(typescript@5.7.3))(@swc/core@1.5.29(@swc/helpers@0.5.15))(@types/node@18.16.9)(nx@20.0.8(@swc-node/register@1.9.2(@swc/core@1.5.29(@swc/helpers@0.5.15))(@swc/types@0.1.24)(typescript@5.7.3))(@swc/core@1.5.29(@swc/helpers@0.5.15)))(typescript@5.7.3)
       eslint: 9.24.0(jiti@2.6.1)
-      semver: 7.7.3
+      semver: 7.7.1
       tslib: 2.8.1
       typescript: 5.7.3
     optionalDependencies:
@@ -35913,10 +35803,10 @@ snapshots:
 
   '@react-pdf/fns@3.1.3': {}
 
-  '@react-pdf/font@4.0.5':
+  '@react-pdf/font@4.0.6':
     dependencies:
-      '@react-pdf/pdfkit': 4.1.0
-      '@react-pdf/types': 2.9.3
+      '@react-pdf/pdfkit': 5.0.0
+      '@react-pdf/types': 2.10.0
       fontkit: 2.0.4
       is-url: 1.2.4
 
@@ -35925,26 +35815,28 @@ snapshots:
       '@react-pdf/png-js': 3.0.0
       jay-peg: 1.1.1
 
-  '@react-pdf/layout@4.4.3':
+  '@react-pdf/layout@4.5.1':
     dependencies:
       '@react-pdf/fns': 3.1.3
       '@react-pdf/image': 3.0.4
-      '@react-pdf/primitives': 4.1.1
-      '@react-pdf/stylesheet': 6.1.3
-      '@react-pdf/textkit': 6.1.1
-      '@react-pdf/types': 2.9.3
+      '@react-pdf/primitives': 4.2.0
+      '@react-pdf/stylesheet': 6.1.4
+      '@react-pdf/textkit': 6.2.0
+      '@react-pdf/types': 2.10.0
       emoji-regex-xs: 1.0.0
       queue: 6.0.2
       yoga-layout: 3.2.1
 
-  '@react-pdf/pdfkit@4.1.0':
+  '@react-pdf/pdfkit@5.0.0':
     dependencies:
       '@babel/runtime': 7.28.4
+      '@noble/ciphers': 1.3.0
+      '@noble/hashes': 1.8.0
       '@react-pdf/png-js': 3.0.0
       browserify-zlib: 0.2.0
-      crypto-js: 4.2.0
       fontkit: 2.0.4
       jay-peg: 1.1.1
+      js-md5: 0.8.3
       linebreak: 1.1.0
       vite-compatible-readable-stream: 3.6.1
 
@@ -35952,7 +35844,7 @@ snapshots:
     dependencies:
       browserify-zlib: 0.2.0
 
-  '@react-pdf/primitives@4.1.1': {}
+  '@react-pdf/primitives@4.2.0': {}
 
   '@react-pdf/reconciler@2.0.0(react@18.3.1)':
     dependencies:
@@ -35960,57 +35852,57 @@ snapshots:
       react: 18.3.1
       scheduler: 0.25.0-rc-603e6108-20241029
 
-  '@react-pdf/render@4.3.3':
+  '@react-pdf/render@4.4.1':
     dependencies:
       '@babel/runtime': 7.28.4
       '@react-pdf/fns': 3.1.3
-      '@react-pdf/primitives': 4.1.1
-      '@react-pdf/textkit': 6.1.1
-      '@react-pdf/types': 2.9.3
+      '@react-pdf/primitives': 4.2.0
+      '@react-pdf/textkit': 6.2.0
+      '@react-pdf/types': 2.10.0
       abs-svg-path: 0.1.1
       color-string: 1.9.1
       normalize-svg-path: 1.1.0
       parse-svg-path: 0.1.2
       svg-arc-to-cubic-bezier: 3.2.0
 
-  '@react-pdf/renderer@4.3.3(react@18.3.1)':
+  '@react-pdf/renderer@4.4.1(react@18.3.1)':
     dependencies:
       '@babel/runtime': 7.28.4
       '@react-pdf/fns': 3.1.3
-      '@react-pdf/font': 4.0.5
-      '@react-pdf/layout': 4.4.3
-      '@react-pdf/pdfkit': 4.1.0
-      '@react-pdf/primitives': 4.1.1
+      '@react-pdf/font': 4.0.6
+      '@react-pdf/layout': 4.5.1
+      '@react-pdf/pdfkit': 5.0.0
+      '@react-pdf/primitives': 4.2.0
       '@react-pdf/reconciler': 2.0.0(react@18.3.1)
-      '@react-pdf/render': 4.3.3
-      '@react-pdf/types': 2.9.3
+      '@react-pdf/render': 4.4.1
+      '@react-pdf/types': 2.10.0
       events: 3.3.0
       object-assign: 4.1.1
       prop-types: 15.8.1
       queue: 6.0.2
       react: 18.3.1
 
-  '@react-pdf/stylesheet@6.1.3':
+  '@react-pdf/stylesheet@6.1.4':
     dependencies:
       '@react-pdf/fns': 3.1.3
-      '@react-pdf/types': 2.9.3
+      '@react-pdf/types': 2.10.0
       color-string: 1.9.1
       hsl-to-hex: 1.0.0
       media-engine: 1.0.3
       postcss-value-parser: 4.2.0
 
-  '@react-pdf/textkit@6.1.1':
+  '@react-pdf/textkit@6.2.0':
     dependencies:
       '@react-pdf/fns': 3.1.3
       bidi-js: 1.0.3
       hyphen: 1.14.1
       unicode-properties: 1.4.1
 
-  '@react-pdf/types@2.9.3':
+  '@react-pdf/types@2.10.0':
     dependencies:
-      '@react-pdf/font': 4.0.5
-      '@react-pdf/primitives': 4.1.1
-      '@react-pdf/stylesheet': 6.1.3
+      '@react-pdf/font': 4.0.6
+      '@react-pdf/primitives': 4.2.0
+      '@react-pdf/stylesheet': 6.1.4
 
   '@react-stately/autocomplete@3.0.0-beta.2(react@18.3.1)':
     dependencies:
@@ -37195,10 +37087,10 @@ snapshots:
       es-module-lexer: 1.6.0
       fork-ts-checker-webpack-plugin: 8.0.0(typescript@5.7.3)(webpack@5.99.5)
       html-webpack-plugin: 5.6.3(@rspack/core@1.0.5(@swc/helpers@0.5.15))(webpack@5.99.5)
-      magic-string: 0.30.21
+      magic-string: 0.30.17
       path-browserify: 1.0.1
       process: 0.11.10
-      semver: 7.7.3
+      semver: 7.7.1
       storybook: 8.6.12(prettier@2.8.8)
       style-loader: 3.3.4(webpack@5.99.5)
       terser-webpack-plugin: 5.3.14(@swc/core@1.5.29(@swc/helpers@0.5.15))(esbuild@0.19.12)(webpack@5.99.5)
@@ -37359,12 +37251,12 @@ snapshots:
       '@storybook/react-docgen-typescript-plugin': 1.0.6--canary.9.0c3f3b7.0(typescript@5.7.3)(webpack@5.99.5)
       '@types/semver': 7.7.0
       find-up: 5.0.0
-      magic-string: 0.30.21
+      magic-string: 0.30.17
       react: 18.3.1
       react-docgen: 7.1.1
       react-dom: 18.3.1(react@18.3.1)
       resolve: 1.22.10
-      semver: 7.7.3
+      semver: 7.7.1
       storybook: 8.6.12(prettier@2.8.8)
       tsconfig-paths: 4.2.0
       webpack: 5.99.5(@swc/core@1.5.29(@swc/helpers@0.5.15))(esbuild@0.19.12)(webpack-cli@5.1.4)
@@ -38209,7 +38101,7 @@ snapshots:
   '@types/eslint-scope@3.7.7':
     dependencies:
       '@types/eslint': 9.6.1
-      '@types/estree': 1.0.8
+      '@types/estree': 1.0.7
 
   '@types/eslint@9.6.1':
     dependencies:
@@ -39046,7 +38938,7 @@ snapshots:
 
   acorn-globals@7.0.1:
     dependencies:
-      acorn: 8.15.0
+      acorn: 8.14.1
       acorn-walk: 8.3.4
 
   acorn-jsx@5.3.2(acorn@8.14.1):
@@ -39059,7 +38951,7 @@ snapshots:
 
   acorn-walk@8.3.4:
     dependencies:
-      acorn: 8.15.0
+      acorn: 8.14.1
 
   acorn@8.14.1: {}
 
@@ -39403,13 +39295,13 @@ snapshots:
 
   axios@0.21.4:
     dependencies:
-      follow-redirects: 1.15.9(debug@4.4.0)
+      follow-redirects: 1.15.9(debug@4.4.3)
     transitivePeerDependencies:
       - debug
 
   axios@1.8.4:
     dependencies:
-      follow-redirects: 1.15.9(debug@4.4.0)
+      follow-redirects: 1.15.9(debug@4.4.3)
       form-data: 4.0.2
       proxy-from-env: 1.1.0
     transitivePeerDependencies:
@@ -39493,7 +39385,7 @@ snapshots:
 
   babel-plugin-macros@3.1.0:
     dependencies:
-      '@babel/runtime': 7.28.4
+      '@babel/runtime': 7.27.0
       cosmiconfig: 7.1.0
       resolve: 1.22.10
 
@@ -40506,8 +40398,6 @@ snapshots:
       shebang-command: 2.0.0
       which: 2.0.2
 
-  crypto-js@4.2.0: {}
-
   crypto-random-string@2.0.0: {}
 
   css-declaration-sorter@7.2.0(postcss@8.4.38):
@@ -40523,7 +40413,7 @@ snapshots:
       postcss-modules-scope: 3.2.1(postcss@8.4.38)
       postcss-modules-values: 4.0.0(postcss@8.4.38)
       postcss-value-parser: 4.2.0
-      semver: 7.7.3
+      semver: 7.7.1
     optionalDependencies:
       '@rspack/core': 1.0.5(@swc/helpers@0.5.15)
       webpack: 5.99.5(@swc/core@1.5.29(@swc/helpers@0.5.15))(esbuild@0.19.12)(webpack-cli@5.1.4)
@@ -41746,8 +41636,8 @@ snapshots:
 
   espree@10.3.0:
     dependencies:
-      acorn: 8.15.0
-      acorn-jsx: 5.3.2(acorn@8.15.0)
+      acorn: 8.14.1
+      acorn-jsx: 5.3.2(acorn@8.14.1)
       eslint-visitor-keys: 4.2.0
 
   espree@10.4.0:
@@ -42049,9 +41939,9 @@ snapshots:
     dependencies:
       pend: 1.2.0
 
-  fdir@6.4.3(picomatch@4.0.3):
+  fdir@6.4.3(picomatch@4.0.2):
     optionalDependencies:
-      picomatch: 4.0.3
+      picomatch: 4.0.2
 
   fdir@6.5.0(picomatch@4.0.3):
     optionalDependencies:
@@ -42236,9 +42126,9 @@ snapshots:
     transitivePeerDependencies:
       - encoding
 
-  follow-redirects@1.15.9(debug@4.4.0):
+  follow-redirects@1.15.9(debug@4.4.3):
     optionalDependencies:
-      debug: 4.4.0(supports-color@5.5.0)
+      debug: 4.4.3(supports-color@8.1.1)
 
   fontkit@2.0.4:
     dependencies:
@@ -42280,7 +42170,7 @@ snapshots:
       minimatch: 3.1.2
       node-abort-controller: 3.1.1
       schema-utils: 3.3.0
-      semver: 7.7.3
+      semver: 7.7.1
       tapable: 2.2.1
       typescript: 5.7.3
       webpack: 5.99.5(@swc/core@1.5.29(@swc/helpers@0.5.15))(esbuild@0.19.12)(webpack-cli@5.1.4)
@@ -42789,7 +42679,7 @@ snapshots:
 
   graphql-parse-resolve-info@4.14.1(graphql@16.10.0):
     dependencies:
-      debug: 4.4.0(supports-color@5.5.0)
+      debug: 4.4.3(supports-color@8.1.1)
       graphql: 16.10.0
       tslib: 2.8.1
     transitivePeerDependencies:
@@ -43179,7 +43069,7 @@ snapshots:
   http-proxy-middleware@2.0.9(@types/express@4.17.21):
     dependencies:
       '@types/http-proxy': 1.17.16
-      http-proxy: 1.18.1(debug@4.4.0)
+      http-proxy: 1.18.1(debug@4.4.3)
       is-glob: 4.0.3
       is-plain-obj: 3.0.0
       micromatch: 4.0.8
@@ -43191,18 +43081,18 @@ snapshots:
   http-proxy-middleware@3.0.5:
     dependencies:
       '@types/http-proxy': 1.17.16
-      debug: 4.4.0(supports-color@5.5.0)
-      http-proxy: 1.18.1(debug@4.4.0)
+      debug: 4.4.3(supports-color@8.1.1)
+      http-proxy: 1.18.1(debug@4.4.3)
       is-glob: 4.0.3
       is-plain-object: 5.0.0
       micromatch: 4.0.8
     transitivePeerDependencies:
       - supports-color
 
-  http-proxy@1.18.1(debug@4.4.0):
+  http-proxy@1.18.1(debug@4.4.3):
     dependencies:
       eventemitter3: 4.0.7
-      follow-redirects: 1.15.9(debug@4.4.0)
+      follow-redirects: 1.15.9(debug@4.4.3)
       requires-port: 1.0.0
     transitivePeerDependencies:
       - debug
@@ -43214,7 +43104,7 @@ snapshots:
       corser: 2.0.1
       he: 1.2.0
       html-encoding-sniffer: 3.0.0
-      http-proxy: 1.18.1(debug@4.4.0)
+      http-proxy: 1.18.1(debug@4.4.3)
       mime: 1.6.0
       minimist: 1.2.8
       opener: 1.5.2
@@ -44585,6 +44475,8 @@ snapshots:
 
   js-md5@0.7.3: {}
 
+  js-md5@0.8.3: {}
+
   js-sha1@0.6.0: {}
 
   js-tokens@4.0.0: {}
@@ -45186,6 +45078,10 @@ snapshots:
   magic-string@0.25.9:
     dependencies:
       sourcemap-codec: 1.4.8
+
+  magic-string@0.30.17:
+    dependencies:
+      '@jridgewell/sourcemap-codec': 1.5.0
 
   magic-string@0.30.21:
     dependencies:
@@ -45950,7 +45846,7 @@ snapshots:
     dependencies:
       hosted-git-info: 7.0.2
       proc-log: 3.0.0
-      semver: 7.7.3
+      semver: 7.7.1
       validate-npm-package-name: 5.0.1
 
   npm-packlist@2.2.2:
@@ -46519,6 +46415,8 @@ snapshots:
 
   picomatch@2.3.1: {}
 
+  picomatch@4.0.2: {}
+
   picomatch@4.0.3: {}
 
   pify@2.3.0: {}
@@ -46655,7 +46553,7 @@ snapshots:
       cosmiconfig: 7.1.0
       klona: 2.0.6
       postcss: 8.4.38
-      semver: 7.7.3
+      semver: 7.7.1
       webpack: 5.99.5(@swc/core@1.5.29(@swc/helpers@0.5.15))(esbuild@0.19.12)(webpack-cli@5.1.4)
 
   postcss-loader@8.2.0(@rspack/core@1.0.5(@swc/helpers@0.5.15))(postcss@8.4.38)(typescript@5.7.3)(webpack@5.99.5):
@@ -47666,7 +47564,7 @@ snapshots:
 
   react-textarea-autosize@8.5.9(@types/react@18.3.1)(react@18.3.1):
     dependencies:
-      '@babel/runtime': 7.27.0
+      '@babel/runtime': 7.28.4
       react: 18.3.1
       use-composed-ref: 1.4.0(@types/react@18.3.1)(react@18.3.1)
       use-latest: 1.3.0(@types/react@18.3.1)(react@18.3.1)
@@ -48491,7 +48389,7 @@ snapshots:
 
   simple-update-notifier@2.0.0:
     dependencies:
-      semver: 7.7.3
+      semver: 7.7.1
 
   simple-xml-to-json@1.2.3: {}
 
@@ -48700,8 +48598,6 @@ snapshots:
       - supports-color
       - utf-8-validate
 
-  stream-chain@2.2.5: {}
-
   stream-combiner2@1.0.2:
     dependencies:
       duplexer2: 0.0.2
@@ -48710,10 +48606,6 @@ snapshots:
   stream-events@1.0.5:
     dependencies:
       stubs: 3.0.0
-
-  stream-json@1.9.1:
-    dependencies:
-      stream-chain: 2.2.5
 
   stream-shift@1.0.3: {}
 
@@ -49152,7 +49044,7 @@ snapshots:
   terser@5.39.0:
     dependencies:
       '@jridgewell/source-map': 0.3.6
-      acorn: 8.15.0
+      acorn: 8.14.1
       commander: 2.20.3
       source-map-support: 0.5.21
 
@@ -49214,8 +49106,8 @@ snapshots:
 
   tinyglobby@0.2.12:
     dependencies:
-      fdir: 6.4.3(picomatch@4.0.3)
-      picomatch: 4.0.3
+      fdir: 6.4.3(picomatch@4.0.2)
+      picomatch: 4.0.2
 
   tinyglobby@0.2.15:
     dependencies:
@@ -49355,7 +49247,7 @@ snapshots:
       chalk: 4.1.2
       enhanced-resolve: 5.18.1
       micromatch: 4.0.8
-      semver: 7.7.3
+      semver: 7.7.1
       source-map: 0.7.4
       typescript: 5.7.3
       webpack: 5.99.5(@swc/core@1.5.29(@swc/helpers@0.5.15))(esbuild@0.19.12)(webpack-cli@5.1.4)
@@ -49684,7 +49576,7 @@ snapshots:
 
   unplugin@1.16.1:
     dependencies:
-      acorn: 8.15.0
+      acorn: 8.14.1
       webpack-virtual-modules: 0.6.2
 
   untildify@4.0.0:
@@ -50156,11 +50048,11 @@ snapshots:
   webpack@5.99.5(@swc/core@1.5.29(@swc/helpers@0.5.15))(esbuild@0.19.12)(webpack-cli@5.1.4):
     dependencies:
       '@types/eslint-scope': 3.7.7
-      '@types/estree': 1.0.8
+      '@types/estree': 1.0.7
       '@webassemblyjs/ast': 1.14.1
       '@webassemblyjs/wasm-edit': 1.14.1
       '@webassemblyjs/wasm-parser': 1.14.1
-      acorn: 8.15.0
+      acorn: 8.14.1
       browserslist: 4.24.4
       chrome-trace-event: 1.0.4
       enhanced-resolve: 5.18.1

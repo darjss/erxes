@@ -1,3 +1,13 @@
+import { IBlockAgencyDocument } from '@/agency/@types/agency';
+import {
+  IBlockAgencyModel,
+  loadBlockAgencyClass,
+} from '@/agency/db/models/Agency';
+import { IBlockAdminListingDocument } from '@/listing/@types/listing';
+import {
+  IBlockAdminListingModel,
+  loadBlockAdminListingClass,
+} from '@/listing/db/models/Listing';
 import { IBlockAttachmentDocument } from '@/attachment/@types/attachment';
 import {
   IBlockAttachmentModel,
@@ -55,9 +65,14 @@ import { createGenerateModels } from 'erxes-api-shared/utils';
 
 import mongoose from 'mongoose';
 import { IUnitTypeDocument } from './modules/unit/@types/unitType';
-import { IUnitTypeModel, loadUnitTypeClass } from './modules/unit/db/models/UnitType';
+import {
+  IUnitTypeModel,
+  loadUnitTypeClass,
+} from './modules/unit/db/models/UnitType';
 
 export interface IModels {
+  Agency: IBlockAgencyModel;
+  Listing: IBlockAdminListingModel;
   Project: IProjectModel;
   ProjectPaymentPlan: IProjectPaymentPlanModel;
   Building: IBuildingModel;
@@ -82,6 +97,16 @@ export interface IContext extends IMainContext {
 
 export const loadClasses = (db: mongoose.Connection): IModels => {
   const models = {} as IModels;
+
+  models.Agency = db.model<IBlockAgencyDocument, IBlockAgencyModel>(
+    'block_admin_agencies',
+    loadBlockAgencyClass(models),
+  );
+
+  models.Listing = db.model<
+    IBlockAdminListingDocument,
+    IBlockAdminListingModel
+  >('block_admin_listings', loadBlockAdminListingClass(models));
 
   models.Project = db.model<IProjectDocument, IProjectModel>(
     'block_admin_projects',
@@ -112,7 +137,6 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
     'block_admin_unit_types',
     loadUnitTypeClass(models),
   );
-
 
   models.BlockDocument = db.model<IBlockDocumentDocument, IBlockDocumentModel>(
     'block_admin_documents',

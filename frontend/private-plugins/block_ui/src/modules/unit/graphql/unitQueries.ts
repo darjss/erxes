@@ -51,6 +51,10 @@ export const BLOCK_GET_UNIT = gql`
         }
       }
       status
+      blockSubdomain
+      blockEntityId
+      agencySubdomain
+      agencyEntityId
       projectData {
         _id
         name
