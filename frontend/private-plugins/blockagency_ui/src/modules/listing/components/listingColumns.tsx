@@ -45,7 +45,11 @@ export const listingColumns: ColumnDef<IListingInline>[] = [
         <RecordTableInlineCell className="flex items-center justify-center">
           {amount != null ? (
             <>
-              <CurrencyDisplay className="shrink" variant="code" code={currency} />
+              <CurrencyDisplay
+                className="shrink"
+                variant="code"
+                code={currency}
+              />
               <span className="grow">{formatAmount(amount, 'finance')}</span>
             </>
           ) : (
@@ -139,11 +143,7 @@ const ListingRowActions = ({ listing }: { listing: IListingInline }) => {
 
   return (
     <RecordTableInlineCell className="flex items-center justify-center gap-1">
-      <Button
-        variant="ghost"
-        size="icon"
-        onClick={() => navigate(listing._id)}
-      >
+      <Button variant="ghost" size="icon" onClick={() => navigate(listing._id)}>
         <IconPencil size={16} />
       </Button>
       <Button

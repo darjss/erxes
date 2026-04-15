@@ -41,7 +41,6 @@ export const loadBlockAgencyClass = (models: IModels) => {
 
       return models.Agency.findOneAndUpdate({ _id }, input, { new: true });
     }
-
   }
 
   agencySchema.loadClass(Agency);

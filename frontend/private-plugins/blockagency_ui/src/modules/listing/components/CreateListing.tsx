@@ -45,7 +45,9 @@ const CreateListingForm = ({ onClose }: { onClose: () => void }) => {
 
   const onSubmit = (data: FormValues) => {
     createListing({
-      variables: { input: { title: data.title, type: data.type, status: 'draft' } },
+      variables: {
+        input: { title: data.title, type: data.type, status: 'draft' },
+      },
       onCompleted: (result: any) => {
         const newId = result?.blockCreateListing?._id;
         onClose();
@@ -53,14 +55,21 @@ const CreateListingForm = ({ onClose }: { onClose: () => void }) => {
         if (newId) navigate(newId);
       },
       onError: (error: any) => {
-        toast({ variant: 'destructive', title: 'Failed to create listing', description: error.message });
+        toast({
+          variant: 'destructive',
+          title: 'Failed to create listing',
+          description: error.message,
+        });
       },
     });
   };
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-6">
+      <form
+        onSubmit={form.handleSubmit(onSubmit)}
+        className="flex flex-col gap-6"
+      >
         <Form.Field
           control={form.control}
           name="title"

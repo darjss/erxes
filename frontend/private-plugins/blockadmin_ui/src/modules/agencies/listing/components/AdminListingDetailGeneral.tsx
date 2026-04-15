@@ -29,10 +29,7 @@ export const AdminListingDetailGeneral = () => {
           <Field label="Type" value={listing?.type} />
           <Field label="Property Type" value={listing?.propertyType} />
           <Field label="Status" value={listing?.status} />
-          <Field
-            label="Featured"
-            value={listing?.isFeatured ? 'Yes' : 'No'}
-          />
+          <Field label="Featured" value={listing?.isFeatured ? 'Yes' : 'No'} />
           <Field label="View Count" value={listing?.viewCount} />
         </InfoCard.Content>
       </InfoCard>

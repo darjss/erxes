@@ -15,5 +15,4 @@ export const blockAgencyMutations = {
 
     return models.BlockAgency.updateAgency(existingAgency._id, input);
   },
-
 };

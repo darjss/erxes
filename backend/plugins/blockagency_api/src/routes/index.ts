@@ -6,6 +6,5 @@ import { Router } from 'express';
 
 const router: Router = Router();
 
-
-router.use('/webhook', validationMiddleware,[agencyRoutes, listingRoutes]);
+router.use('/webhook', validationMiddleware, [agencyRoutes, listingRoutes]);
 export { router };

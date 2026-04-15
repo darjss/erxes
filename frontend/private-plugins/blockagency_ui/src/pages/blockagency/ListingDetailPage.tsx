@@ -13,7 +13,11 @@ import {
   toast,
 } from 'erxes-ui';
 import { PageHeader } from 'ui-modules';
-import { IconCheck, IconCloudUpload, IconHomeSearch } from '@tabler/icons-react';
+import {
+  IconCheck,
+  IconCloudUpload,
+  IconHomeSearch,
+} from '@tabler/icons-react';
 import { IListing } from '~/modules/listing/types/listing';
 import { useListingForm } from '~/modules/listing/hooks/useListingForm';
 import { useUpdateListing } from '~/modules/listing/hooks/useUpdateListing';
@@ -38,7 +42,10 @@ const TABS = [
 
 type TabKey = (typeof TABS)[number]['key'];
 
-const STATUS_VARIANT: Record<string, 'success' | 'warning' | 'info' | 'secondary'> = {
+const STATUS_VARIANT: Record<
+  string,
+  'success' | 'warning' | 'info' | 'secondary'
+> = {
   active: 'success',
   inactive: 'warning',
   sold: 'info',
@@ -153,8 +160,12 @@ export const ListingDetailPage = () => {
                   {activeTab === 'location' && <ListingLocation form={form} />}
                   {activeTab === 'pricing' && <ListingPricing form={form} />}
                   {activeTab === 'specs' && <ListingSpecs form={form} />}
-                  {activeTab === 'media' && <ListingMediaAttachments form={form} />}
-                  {activeTab === 'agent' && <ListingMemberSection form={form} />}
+                  {activeTab === 'media' && (
+                    <ListingMediaAttachments form={form} />
+                  )}
+                  {activeTab === 'agent' && (
+                    <ListingMemberSection form={form} />
+                  )}
                 </div>
                 <ScrollArea.Bar orientation="horizontal" />
               </ScrollArea>
@@ -166,7 +177,11 @@ export const ListingDetailPage = () => {
   );
 };
 
-const SaveStatusIndicator = ({ status }: { status: 'idle' | 'saving' | 'saved' | 'error' }) => {
+const SaveStatusIndicator = ({
+  status,
+}: {
+  status: 'idle' | 'saving' | 'saved' | 'error';
+}) => {
   if (status === 'idle') return null;
 
   if (status === 'saving') {

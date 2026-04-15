@@ -1,8 +1,18 @@
 import { gql } from '@apollo/client';
 
 export const GET_AGENCY_UNITS = gql`
-  query BlockAgencyGetUnits($agencyId: String, $status: BlockUnitStatus, $page: Int, $perPage: Int) {
-    blockAgencyGetUnits(agencyId: $agencyId, status: $status, page: $page, perPage: $perPage) {
+  query BlockAgencyGetUnits(
+    $agencyId: String
+    $status: BlockUnitStatus
+    $page: Int
+    $perPage: Int
+  ) {
+    blockAgencyGetUnits(
+      agencyId: $agencyId
+      status: $status
+      page: $page
+      perPage: $perPage
+    ) {
       _id
       blockUnitId
       unitNumber
@@ -22,7 +32,10 @@ export const GET_AGENCY_UNITS = gql`
 `;
 
 export const GET_AGENCY_UNITS_TOTAL_COUNT = gql`
-  query BlockAgencyGetUnitsTotalCount($agencyId: String, $status: BlockUnitStatus) {
+  query BlockAgencyGetUnitsTotalCount(
+    $agencyId: String
+    $status: BlockUnitStatus
+  ) {
     blockAgencyGetUnitsTotalCount(agencyId: $agencyId, status: $status)
   }
 `;

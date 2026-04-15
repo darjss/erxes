@@ -1,6 +1,12 @@
 import { Sidebar, useQueryState } from 'erxes-ui';
 
-const LISTING_TABS = ['general', 'location', 'pricing', 'specs', 'media'] as const;
+const LISTING_TABS = [
+  'general',
+  'location',
+  'pricing',
+  'specs',
+  'media',
+] as const;
 
 export type ListingTab = (typeof LISTING_TABS)[number];
 

@@ -107,11 +107,7 @@ export const CreateListingSheet = () => {
                               : 'border-muted-foreground/30',
                         )}
                       >
-                        {isDone ? (
-                          <IconCheck className="size-3" />
-                        ) : (
-                          idx + 1
-                        )}
+                        {isDone ? <IconCheck className="size-3" /> : idx + 1}
                       </span>
                       {step.label}
                     </button>

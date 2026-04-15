@@ -27,9 +27,12 @@ type UseAgenciesResult = {
 };
 
 export const useAgencies = (filter?: AgenciesFilterVars): UseAgenciesResult => {
-  const { data, loading, error } = useQuery<TGetAgenciesResponse>(GET_AGENCIES, {
-    variables: filter,
-  });
+  const { data, loading, error } = useQuery<TGetAgenciesResponse>(
+    GET_AGENCIES,
+    {
+      variables: filter,
+    },
+  );
   return {
     agencies: data?.getBlockAdminAgencies?.list,
     totalCount: data?.getBlockAdminAgencies?.totalCount,

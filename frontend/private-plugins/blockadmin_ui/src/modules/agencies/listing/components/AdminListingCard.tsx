@@ -57,18 +57,28 @@ export const AdminListingCard = ({
           <Badge variant={STATUS_VARIANT[status] ?? 'secondary'}>
             {status}
           </Badge>
-          <Badge variant="outline" className="bg-background/80 backdrop-blur-sm">
+          <Badge
+            variant="outline"
+            className="bg-background/80 backdrop-blur-sm"
+          >
             {TYPE_LABELS[type] ?? type}
           </Badge>
           {isFeatured && (
-            <Badge variant="warning" className="bg-amber-500/90 text-white border-0 backdrop-blur-sm">
+            <Badge
+              variant="warning"
+              className="bg-amber-500/90 text-white border-0 backdrop-blur-sm"
+            >
               <IconStar className="size-3 mr-0.5" />
               Featured
             </Badge>
           )}
         </div>
         <div className="absolute top-2 right-2 flex items-center gap-1">
-          <AdminListingCardActions _id={_id} status={status} isFeatured={isFeatured} />
+          <AdminListingCardActions
+            _id={_id}
+            status={status}
+            isFeatured={isFeatured}
+          />
         </div>
         {viewCount !== undefined && (
           <div className="absolute bottom-2 right-2 flex items-center gap-1 text-xs text-white bg-black/50 rounded-md px-2 py-0.5 backdrop-blur-sm">

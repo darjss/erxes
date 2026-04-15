@@ -8,7 +8,10 @@ export interface ListingFilterValue {
 
 const STATUS_TABS = [
   { label: 'All', value: '' },
-  ...STATUS_TYPES.map((s) => ({ label: s.charAt(0).toUpperCase() + s.slice(1), value: s })),
+  ...STATUS_TYPES.map((s) => ({
+    label: s.charAt(0).toUpperCase() + s.slice(1),
+    value: s,
+  })),
 ] as const;
 
 type Props = {
