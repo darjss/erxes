@@ -90,15 +90,6 @@ export function RegistrationsList({ filters }: RegistrationsListProps) {
       },
     },
     {
-      accessorKey: 'cpUserPhone',
-      header: 'CP утас',
-      cell: ({ cell }) => (
-        <RecordTableInlineCell className="text-sm max-w-[160px] truncate">
-          {(cell.getValue() as string) || '—'}
-        </RecordTableInlineCell>
-      ),
-    },
-    {
       accessorKey: 'createdAt',
       header: 'Огноо',
       cell: ({ cell }) => (

@@ -1,6 +1,7 @@
 import { Resolver } from 'erxes-api-shared/core-types';
 import { markResolvers } from 'erxes-api-shared/utils';
 import { RegistrationFormDefinition } from '@/registration/@types/registrationForm';
+import { assertErxesUser } from '@/registration/graphql/utils/registrationAuth';
 import { IContext } from '~/connectionResolvers';
 
 function toDefinition(input: unknown): RegistrationFormDefinition {
@@ -45,6 +46,7 @@ export const registrationFormSchemaMutations: Record<string, Resolver> = {
     { definition }: { definition: unknown },
     context: IContext,
   ) {
+    assertErxesUser(context);
     const doc = toDefinition(definition);
     const { models } = context;
 
@@ -68,6 +70,7 @@ export const registrationFormSchemaMutations: Record<string, Resolver> = {
     { _id, definition }: { _id: string; definition: unknown },
     context: IContext,
   ) {
+    assertErxesUser(context);
     const doc = toDefinition(definition);
     const { models } = context;
 
@@ -97,6 +100,7 @@ export const registrationFormSchemaMutations: Record<string, Resolver> = {
     { _id }: { _id: string },
     context: IContext,
   ) {
+    assertErxesUser(context);
     const { models } = context;
     const target = await models.RegistrationFormSchema.findOne({ _id }).lean();
     if (!target) throw new Error('Schema not found');

@@ -1,9 +1,17 @@
 import { Resolver } from 'erxes-api-shared/core-types';
 import { markResolvers } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
-import { RegistrationApplicationStatus } from '@/registration/@types/registrationApplication';
-import { getRegistrationFormDefinition } from '@/registration/schemas/registry';
-import { validateRegistrationAnswers } from '@/registration/utils/validateRegistrationAnswers';
+import { assertClientPortalAllowedStatusUpdate } from '@/registration/graphql/utils/registrationAuth';
+import {
+  assertApplicationInstanceMatches,
+  assertCpUserOwnsApplication,
+  loadRegistrationDefinitionOrThrow,
+  normalizeAnswersRecord,
+  parseNextStatusOrThrow,
+  resolveStaffCpLinkPatches,
+  toPlainRegistrationDoc,
+  validateAnswersOrThrow,
+} from '@/registration/graphql/utils/registrationApplicationMutations';
 import { mapRegistrationApplicationGql } from '@/registration/utils/mapRegistrationApplicationGql';
 
 interface SubmitArgs {
@@ -11,34 +19,39 @@ interface SubmitArgs {
   schemaVersion: string;
   answers: Record<string, unknown>;
   cpUserId?: string | null;
-  clientPortalId?: string | null;
-  cpUserPhone?: string | null;
 }
-
-const ALLOWED_APPLICATION_STATUSES: RegistrationApplicationStatus[] = [
-  'draft',
-  'submitted',
-  'under_review',
-  'approved',
-  'rejected',
-];
 
 interface UpdateApplicationArgs {
   _id: string;
   answers?: Record<string, unknown> | null;
   status?: string | null;
   cpUserId?: string | null;
-  clientPortalId?: string | null;
-  cpUserPhone?: string | null;
 }
 
-function toPlainRegistrationDoc(
-  doc: { toObject?: () => Record<string, unknown> } | Record<string, unknown>,
+function resolveSubmitCpUserId(
+  context: IContext,
+  cpUserIdArg?: string | null,
+): string | undefined {
+  if (context.cpUser?._id !== undefined && context.cpUser?._id !== null)
+    return String(context.cpUser._id);
+
+  if (
+    cpUserIdArg !== undefined &&
+    cpUserIdArg !== null &&
+    String(cpUserIdArg).trim() !== ''
+  )
+    return String(cpUserIdArg).trim();
+
+  return undefined;
+}
+
+function parseAndValidateAnswers(
+  definition: Parameters<typeof validateAnswersOrThrow>[0],
+  answers: Record<string, unknown> | null | undefined,
 ): Record<string, unknown> {
-  return typeof (doc as { toObject?: () => Record<string, unknown> }).toObject ===
-    'function'
-    ? (doc as { toObject: () => Record<string, unknown> }).toObject()
-    : (doc as Record<string, unknown>);
+  const parsed = normalizeAnswersRecord(answers);
+  validateAnswersOrThrow(definition, parsed);
+  return parsed;
 }
 
 export const registrationMutations: Record<string, Resolver> = {
@@ -49,78 +62,19 @@ export const registrationMutations: Record<string, Resolver> = {
       schemaVersion,
       answers,
       cpUserId: cpUserIdArg,
-      clientPortalId: clientPortalIdArg,
-      cpUserPhone: cpUserPhoneArg,
     }: SubmitArgs,
     context: IContext,
   ) {
     const { models, subdomain, instanceId } = context;
 
-    const definition = getRegistrationFormDefinition(
+    const resolvedDefinition = await loadRegistrationDefinitionOrThrow(
       models,
       membershipTypeId,
       schemaVersion,
     );
-    const resolvedDefinition = await definition;
-    if (!resolvedDefinition) {
-      throw new Error('Registration form definition not found');
-    }
 
-    const parsed =
-      answers && typeof answers === 'object' && !Array.isArray(answers)
-        ? (answers as Record<string, unknown>)
-        : {};
-
-    const validation = validateRegistrationAnswers(resolvedDefinition, parsed);
-    if (!validation.valid) {
-      throw new Error(validation.errors.join('; '));
-    }
-
-    const cpUser = context.cpUser;
-    const clientPortalIdFromCtx =
-      cpUser?.clientPortalId ?? context.clientPortal?._id;
-
-    let cpLink: {
-      cpUserId: string;
-      clientPortalId?: string;
-      cpUserPhone?: string;
-    } | null = null;
-
-    if (cpUser?._id) {
-      cpLink = {
-        cpUserId: String(cpUser._id),
-        ...(clientPortalIdFromCtx
-          ? { clientPortalId: String(clientPortalIdFromCtx) }
-          : {}),
-        ...(cpUser?.phone ? { cpUserPhone: String(cpUser.phone) } : {}),
-      };
-    } else {
-      const id =
-        cpUserIdArg !== undefined &&
-        cpUserIdArg !== null &&
-        String(cpUserIdArg).trim() !== ''
-          ? String(cpUserIdArg).trim()
-          : '';
-      if (id) {
-        const portalId =
-          clientPortalIdArg !== undefined &&
-          clientPortalIdArg !== null &&
-          String(clientPortalIdArg).trim() !== ''
-            ? String(clientPortalIdArg).trim()
-            : undefined;
-        const phone =
-          cpUserPhoneArg !== undefined &&
-          cpUserPhoneArg !== null &&
-          String(cpUserPhoneArg).trim() !== ''
-            ? String(cpUserPhoneArg).trim()
-            : undefined;
-        cpLink = {
-          cpUserId: id,
-          ...(portalId ? { clientPortalId: portalId } : {}),
-          ...(phone ? { cpUserPhone: phone } : {}),
-        };
-      }
-    }
+    const parsed = parseAndValidateAnswers(resolvedDefinition, answers);
+    const resolvedCpUserId = resolveSubmitCpUserId(context, cpUserIdArg);
 
     const created = await models.RegistrationApplication.createApplication({
       membershipTypeId,
@@ -129,17 +83,7 @@ export const registrationMutations: Record<string, Resolver> = {
       answers: parsed,
       subdomain,
       instanceId,
-      ...(cpLink
-        ? {
-            cpUserId: cpLink.cpUserId,
-            ...(cpLink.clientPortalId
-              ? { clientPortalId: cpLink.clientPortalId }
-              : {}),
-            ...(cpLink.cpUserPhone
-              ? { cpUserPhone: cpLink.cpUserPhone }
-              : {}),
-          }
-        : {}),
+      ...(resolvedCpUserId ? { cpUserId: resolvedCpUserId } : {}),
     });
     return mapRegistrationApplicationGql(models, toPlainRegistrationDoc(created));
   },
@@ -151,8 +95,6 @@ export const registrationMutations: Record<string, Resolver> = {
       answers,
       status,
       cpUserId: cpUserIdArg,
-      clientPortalId: clientPortalIdArg,
-      cpUserPhone: cpUserPhoneArg,
     }: UpdateApplicationArgs,
     context: IContext,
   ) {
@@ -167,89 +109,34 @@ export const registrationMutations: Record<string, Resolver> = {
       throw new Error('Application not found');
     }
 
-    if (
-      instanceId &&
-      existing.instanceId &&
-      existing.instanceId !== instanceId
-    ) {
-      throw new Error('Application not found');
-    }
+    assertApplicationInstanceMatches(existing, instanceId);
+    assertCpUserOwnsApplication(context.cpUser, existing);
 
-    const cpUser = context.cpUser;
-    if (cpUser?._id) {
-      const ownerId = existing.cpUserId
-        ? String(existing.cpUserId)
-        : undefined;
-      if (!ownerId || ownerId !== String(cpUser._id)) {
-        throw new Error('Application not found');
-      }
-    }
-
-    const definition = getRegistrationFormDefinition(
+    const resolvedDefinition = await loadRegistrationDefinitionOrThrow(
       models,
       existing.membershipTypeId,
       existing.schemaVersion,
     );
-    const resolvedDefinition = await definition;
-    if (!resolvedDefinition) {
-      throw new Error('Registration form definition not found');
-    }
 
-    let parsedAnswers: Record<string, unknown> | undefined;
-    if (answers !== undefined && answers !== null) {
-      const parsed =
-        typeof answers === 'object' && !Array.isArray(answers)
-          ? (answers as Record<string, unknown>)
-          : {};
-      const validation = validateRegistrationAnswers(resolvedDefinition, parsed);
-      if (!validation.valid) {
-        throw new Error(validation.errors.join('; '));
-      }
-      parsedAnswers = parsed;
-    }
+    const parsedAnswers =
+      answers !== undefined && answers !== null
+        ? parseAndValidateAnswers(resolvedDefinition, answers)
+        : undefined;
 
-    let nextStatus: RegistrationApplicationStatus | undefined;
-    if (status !== undefined && status !== null && status !== '') {
-      if (!ALLOWED_APPLICATION_STATUSES.includes(status as RegistrationApplicationStatus)) {
-        throw new Error('Invalid status');
-      }
-      nextStatus = status as RegistrationApplicationStatus;
-    }
+    const nextStatus = parseNextStatusOrThrow(status);
+    assertClientPortalAllowedStatusUpdate(context, nextStatus);
 
-    let cpUserIdPatch: string | null | undefined;
-    let clientPortalIdPatch: string | null | undefined;
-    let cpUserPhonePatch: string | null | undefined;
-    if (!context.cpUser) {
-      if (cpUserIdArg !== undefined) {
-        cpUserIdPatch =
-          cpUserIdArg === null || cpUserIdArg === ''
-            ? null
-            : String(cpUserIdArg);
-      }
-      if (clientPortalIdArg !== undefined) {
-        clientPortalIdPatch =
-          clientPortalIdArg === null || clientPortalIdArg === ''
-            ? null
-            : String(clientPortalIdArg);
-      }
-      if (cpUserPhoneArg !== undefined) {
-        cpUserPhonePatch =
-          cpUserPhoneArg === null || cpUserPhoneArg === ''
-            ? null
-            : String(cpUserPhoneArg);
-      }
-      if (cpUserIdPatch === null) {
-        clientPortalIdPatch = null;
-        cpUserPhonePatch = null;
-      }
-    }
+    const { cpUserIdPatch } =
+      context.cpUser
+        ? {}
+        : resolveStaffCpLinkPatches({
+            cpUserId: cpUserIdArg,
+          });
 
     if (
       parsedAnswers === undefined &&
       nextStatus === undefined &&
-      cpUserIdPatch === undefined &&
-      clientPortalIdPatch === undefined &&
-      cpUserPhonePatch === undefined
+      cpUserIdPatch === undefined
     ) {
       throw new Error('Nothing to update');
     }
@@ -261,12 +148,6 @@ export const registrationMutations: Record<string, Resolver> = {
         ...(parsedAnswers !== undefined ? { answers: parsedAnswers } : {}),
         ...(nextStatus !== undefined ? { status: nextStatus } : {}),
         ...(cpUserIdPatch !== undefined ? { cpUserId: cpUserIdPatch } : {}),
-        ...(clientPortalIdPatch !== undefined
-          ? { clientPortalId: clientPortalIdPatch }
-          : {}),
-        ...(cpUserPhonePatch !== undefined
-          ? { cpUserPhone: cpUserPhonePatch }
-          : {}),
       },
     );
 

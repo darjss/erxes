@@ -46,7 +46,6 @@ export const MTO_REGISTRATION_APPLICATIONS = gql`
         schemaVersion
         status
         instanceId
-        cpUserPhone
       }
       totalCount
       pageInfo {
@@ -87,8 +86,6 @@ export const MTO_REGISTRATION_APPLICATION = gql`
       answers
       instanceId
       cpUserId
-      clientPortalId
-      cpUserPhone
     }
   }
 `;

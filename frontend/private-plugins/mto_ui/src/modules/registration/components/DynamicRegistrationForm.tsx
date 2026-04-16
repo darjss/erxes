@@ -302,8 +302,6 @@ export function DynamicRegistrationForm({
             ...(selectedCpUser
               ? {
                   cpUserId: selectedCpUser._id,
-                  clientPortalId: selectedCpUser.clientPortalId,
-                  cpUserPhone: selectedCpUser.phone ?? null,
                 }
               : {}),
           },

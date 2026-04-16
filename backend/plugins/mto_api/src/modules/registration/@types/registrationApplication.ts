@@ -13,6 +13,4 @@ export interface IRegistrationApplication {
   subdomain: string;
   instanceId?: string;
   cpUserId?: string;
-  clientPortalId?: string;
-  cpUserPhone?: string;
 }

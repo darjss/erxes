@@ -52,17 +52,6 @@ export const registrationApplicationSchema = new Schema(
       sparse: true,
       index: true,
     },
-    clientPortalId: {
-      type: String,
-      label: 'Client portal',
-      sparse: true,
-      index: true,
-    },
-    cpUserPhone: {
-      type: String,
-      label: 'Client portal user phone',
-      sparse: true,
-    },
   },
   {
     timestamps: true,

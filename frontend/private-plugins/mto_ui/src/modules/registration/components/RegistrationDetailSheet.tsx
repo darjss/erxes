@@ -59,10 +59,8 @@ export function RegistrationDetailSheet({
   }, [row?.status, row?._id]);
 
   useEffect(() => {
-    setPortalRemoteId(
-      row?.clientPortalId ? String(row.clientPortalId) : undefined,
-    );
-  }, [row?._id, row?.clientPortalId]);
+    setPortalRemoteId(undefined);
+  }, [row?._id]);
 
   const { data: defData, loading: defLoading } = useQuery(
     MTO_REGISTRATION_FORM_DEFINITION,
@@ -94,8 +92,6 @@ export function RegistrationDetailSheet({
       variables: {
         _id: applicationId,
         cpUserId: user?._id ?? null,
-        clientPortalId: user?.clientPortalId ?? null,
-        cpUserPhone: user?.phone ?? null,
       },
     });
     await refetch();

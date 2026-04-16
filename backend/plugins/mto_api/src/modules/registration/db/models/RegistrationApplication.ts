@@ -19,8 +19,6 @@ export interface IRegistrationApplicationModel
       answers?: Record<string, unknown>;
       status?: RegistrationApplicationStatus;
       cpUserId?: string | null;
-      clientPortalId?: string | null;
-      cpUserPhone?: string | null;
     },
   ): Promise<IRegistrationApplicationDocument | null>;
 }
@@ -43,21 +41,15 @@ export const loadRegistrationApplicationClass = (models: IModels) => {
         answers?: Record<string, unknown>;
         status?: RegistrationApplicationStatus;
         cpUserId?: string | null;
-        clientPortalId?: string | null;
-        cpUserPhone?: string | null;
       },
     ) {
       const hasAnswers = patch.answers !== undefined;
       const hasStatus = patch.status !== undefined;
       const hasCpUserId = patch.cpUserId !== undefined;
-      const hasClientPortalId = patch.clientPortalId !== undefined;
-      const hasCpUserPhone = patch.cpUserPhone !== undefined;
       if (
         !hasAnswers &&
         !hasStatus &&
-        !hasCpUserId &&
-        !hasClientPortalId &&
-        !hasCpUserPhone
+        !hasCpUserId
       ) {
         throw new Error('Nothing to update');
       }
@@ -75,20 +67,6 @@ export const loadRegistrationApplicationClass = (models: IModels) => {
           $unset.cpUserId = 1;
         } else {
           $set.cpUserId = patch.cpUserId;
-        }
-      }
-      if (hasClientPortalId) {
-        if (patch.clientPortalId === null) {
-          $unset.clientPortalId = 1;
-        } else {
-          $set.clientPortalId = patch.clientPortalId;
-        }
-      }
-      if (hasCpUserPhone) {
-        if (patch.cpUserPhone === null) {
-          $unset.cpUserPhone = 1;
-        } else {
-          $set.cpUserPhone = patch.cpUserPhone;
         }
       }
 

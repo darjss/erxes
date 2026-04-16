@@ -19,8 +19,6 @@ export const types = `
     answers: JSON
     instanceId: String
     cpUserId: String
-    clientPortalId: String
-    cpUserPhone: String
   }
 
   type MtoRegistrationApplicationListResponse {
@@ -64,16 +62,12 @@ export const mutations = `
     schemaVersion: String!
     answers: JSON!
     cpUserId: String
-    clientPortalId: String
-    cpUserPhone: String
   ): MtoRegistrationApplication
   mtoRegistrationApplicationUpdate(
     _id: String!
     answers: JSON
     status: String
     cpUserId: String
-    clientPortalId: String
-    cpUserPhone: String
   ): MtoRegistrationApplication
   mtoRegistrationFormSchemaCreate(
     definition: JSON!
