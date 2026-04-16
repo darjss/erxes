@@ -171,7 +171,11 @@ function buildCategoryDepth(
   let parentId = parentByCategoryId.get(categoryId);
   const visited = new Set<string>([categoryId]);
 
-  while (parentId && parentByCategoryId.has(parentId) && !visited.has(parentId)) {
+  while (
+    parentId &&
+    parentByCategoryId.has(parentId) &&
+    !visited.has(parentId)
+  ) {
     depth += 1;
     visited.add(parentId);
     parentId = parentByCategoryId.get(parentId);
@@ -192,7 +196,9 @@ function buildHierarchicalCategoryStats(
 
   for (const stat of stats) {
     const parentId =
-      stat.parentId && statsById.has(stat.parentId) ? stat.parentId : '__root__';
+      stat.parentId && statsById.has(stat.parentId)
+        ? stat.parentId
+        : '__root__';
     const siblings = statsByParentId.get(parentId) || [];
     siblings.push(stat);
     statsByParentId.set(parentId, siblings);
@@ -225,13 +231,17 @@ async function getCategoryDistribution(
 ): Promise<OneFitDashboardCategoryStat[]> {
   const { models } = context;
   const filter = await buildBookingFilterForRange(context, startDate, endDate);
-  const bookings = await models.Booking.find(filter, { activityTypeId: 1 }).lean();
+  const bookings = await models.Booking.find(filter, {
+    activityTypeId: 1,
+  }).lean();
 
   const activityTypeIds = [
     ...new Set(
       bookings
         .map((booking) => booking.activityTypeId)
-        .filter((activityTypeId): activityTypeId is string => Boolean(activityTypeId)),
+        .filter((activityTypeId): activityTypeId is string =>
+          Boolean(activityTypeId),
+        ),
     ),
   ];
 
@@ -245,7 +255,10 @@ async function getCategoryDistribution(
   ).lean()) as IActivityTypeCategoryProjection[];
 
   const activityTypeById = new Map(
-    activityTypes.map((activityType) => [String(activityType._id), activityType]),
+    activityTypes.map((activityType) => [
+      String(activityType._id),
+      activityType,
+    ]),
   );
 
   const categoryCountById = new Map<string, number>();
@@ -304,7 +317,10 @@ async function getCategoryDistribution(
       continue;
     }
 
-    leafCategoryCountById.set(categoryId, (leafCategoryCountById.get(categoryId) || 0) + count);
+    leafCategoryCountById.set(
+      categoryId,
+      (leafCategoryCountById.get(categoryId) || 0) + count,
+    );
   }
 
   if (!leafCategoryCountById.size) {
@@ -333,7 +349,10 @@ async function getCategoryDistribution(
 
   const categoryIds = Array.from(aggregatedCategoryCountById.keys());
   const categoryLabelById = new Map(
-    categories.map((category) => [String(category._id), getCategoryLabel(category.name)]),
+    categories.map((category) => [
+      String(category._id),
+      getCategoryLabel(category.name),
+    ]),
   );
   const parentByCategoryId = new Map(
     categories.map((category) => [String(category._id), category.parentId]),
@@ -427,7 +446,11 @@ async function getPackageStats(
   ).lean()) as IMembershipPlanProjection[];
   const planById = new Map(plans.map((plan) => [String(plan._id), plan]));
 
-  const bookingFilter = await buildBookingFilterForRange(context, startDate, endDate);
+  const bookingFilter = await buildBookingFilterForRange(
+    context,
+    startDate,
+    endDate,
+  );
   const bookingsByUser = await models.Booking.aggregate([
     {
       $match: {
@@ -471,7 +494,8 @@ async function getPackageStats(
         totalCredit - activeSummary.currentCreditTotal,
         0,
       );
-      const usagePercent = totalCredit > 0 ? (consumedCredit / totalCredit) * 100 : 0;
+      const usagePercent =
+        totalCredit > 0 ? (consumedCredit / totalCredit) * 100 : 0;
 
       return {
         planId,

@@ -88,10 +88,7 @@ export const OneFitCustomerFiltersComponent = ({
           onValueChange={(value) =>
             onFiltersChange({
               ...filters,
-              graceMode:
-                value === '__all__'
-                  ? undefined
-                  : value === 'true',
+              graceMode: value === '__all__' ? undefined : value === 'true',
             })
           }
         >
