@@ -140,11 +140,7 @@ const SelectProviderContent = () => {
   );
 };
 
-const SelectProviderCommandItem = ({
-  provider,
-}: {
-  provider: MtoProvider;
-}) => {
+const SelectProviderCommandItem = ({ provider }: { provider: MtoProvider }) => {
   const { onSelect, providerId } = useSelectProviderContext();
   return (
     <Command.Item

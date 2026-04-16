@@ -36,10 +36,7 @@ export const BannerFilters = ({
         <Select
           value={filters.type || '__all__'}
           onValueChange={(value) =>
-            handleFilterChange(
-              'type',
-              value === '__all__' ? undefined : value,
-            )
+            handleFilterChange('type', value === '__all__' ? undefined : value)
           }
         >
           <Select.Trigger>

@@ -8,11 +8,7 @@ import FormData from 'form-data';
 import { getSubdomain, getEnv } from 'erxes-api-shared/utils';
 import { contextMiddleware } from '~/middlewares/contextMiddleware';
 import { validationMiddleware } from '~/middlewares/validationMiddleware';
-import {
-  isSlaveMode,
-  getMtoInstanceId,
-  getMtoSecret,
-} from '~/constants/mode';
+import { isSlaveMode, getMtoInstanceId, getMtoSecret } from '~/constants/mode';
 import { getMasterClient } from '~/utils/masterClient';
 import { filterXSS } from 'xss';
 import { decodeQrFromImagePath } from '~/utils/qrDecoder';

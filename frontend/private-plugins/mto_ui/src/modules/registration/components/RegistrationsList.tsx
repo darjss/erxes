@@ -34,13 +34,8 @@ function statusBadgeVariant(status: string) {
 }
 
 export function RegistrationsList({ filters }: RegistrationsListProps) {
-  const {
-    registrations,
-    handleFetchMore,
-    loading,
-    pageInfo,
-    refetch,
-  } = useRegistrations(filters);
+  const { registrations, handleFetchMore, loading, pageInfo, refetch } =
+    useRegistrations(filters);
 
   const [detailId, setDetailId] = useState<string | null>(null);
   const [detailOpen, setDetailOpen] = useState(false);

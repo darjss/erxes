@@ -91,19 +91,11 @@ export const configQueries = {
     return context.mode;
   },
 
-  async mtoMasterUrl(
-    _root: undefined,
-    _params: undefined,
-    context: IContext,
-  ) {
+  async mtoMasterUrl(_root: undefined, _params: undefined, context: IContext) {
     return context.masterUrl;
   },
 
-  async mtoInstanceId(
-    _root: undefined,
-    _params: undefined,
-    context: IContext,
-  ) {
+  async mtoInstanceId(_root: undefined, _params: undefined, context: IContext) {
     return context.instanceId;
   },
 

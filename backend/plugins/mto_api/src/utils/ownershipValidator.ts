@@ -138,4 +138,3 @@ export const validateProviderOwnershipByProviderId = async (
 ): Promise<void> => {
   await validateProviderOwnership(context, providerId);
 };
-

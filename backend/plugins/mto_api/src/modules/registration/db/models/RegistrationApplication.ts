@@ -7,8 +7,7 @@ import { Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
 import { registrationApplicationSchema } from '../definitions/registrationApplication';
 
-export interface IRegistrationApplicationModel
-  extends Model<IRegistrationApplicationDocument> {
+export interface IRegistrationApplicationModel extends Model<IRegistrationApplicationDocument> {
   createApplication(
     doc: IRegistrationApplication,
   ): Promise<IRegistrationApplicationDocument>;
@@ -25,9 +24,7 @@ export interface IRegistrationApplicationModel
 
 export const loadRegistrationApplicationClass = (models: IModels) => {
   class RegistrationApplication {
-    public static async createApplication(
-      doc: IRegistrationApplication,
-    ) {
+    public static async createApplication(doc: IRegistrationApplication) {
       return models.RegistrationApplication.create({
         ...doc,
         createdAt: new Date(),
@@ -46,11 +43,7 @@ export const loadRegistrationApplicationClass = (models: IModels) => {
       const hasAnswers = patch.answers !== undefined;
       const hasStatus = patch.status !== undefined;
       const hasCpUserId = patch.cpUserId !== undefined;
-      if (
-        !hasAnswers &&
-        !hasStatus &&
-        !hasCpUserId
-      ) {
+      if (!hasAnswers && !hasStatus && !hasCpUserId) {
         throw new Error('Nothing to update');
       }
 

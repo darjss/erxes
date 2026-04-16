@@ -28,7 +28,9 @@ function isEmptyValue(field: RegistrationField, value: unknown): boolean {
   return false;
 }
 
-function allowedOptionValues(field: RegistrationField): Set<string> | undefined {
+function allowedOptionValues(
+  field: RegistrationField,
+): Set<string> | undefined {
   if (!field.options?.length) return undefined;
   return new Set(field.options.map((o) => o.value));
 }

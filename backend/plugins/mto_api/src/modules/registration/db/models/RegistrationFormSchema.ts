@@ -6,8 +6,7 @@ import { Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
 import { registrationFormSchema } from '../definitions/registrationFormSchema';
 
-export interface IRegistrationFormSchemaModel
-  extends Model<IRegistrationFormSchemaDocument> {
+export interface IRegistrationFormSchemaModel extends Model<IRegistrationFormSchemaDocument> {
   createSchema(
     doc: IRegistrationFormSchema,
   ): Promise<IRegistrationFormSchemaDocument>;

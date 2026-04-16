@@ -72,10 +72,7 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
   models.RegistrationApplication = db.model<
     IRegistrationApplicationDocument,
     IRegistrationApplicationModel
-  >(
-    'mto_registration_applications',
-    loadRegistrationApplicationClass(models),
-  );
+  >('mto_registration_applications', loadRegistrationApplicationClass(models));
 
   models.RegistrationFormSchema = db.model<
     IRegistrationFormSchemaDocument,

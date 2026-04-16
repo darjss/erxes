@@ -88,7 +88,10 @@ export const registrationMutations: Record<string, Resolver> = {
       instanceId,
       ...(resolvedCpUserId ? { cpUserId: resolvedCpUserId } : {}),
     });
-    return mapRegistrationApplicationGql(models, toPlainRegistrationDoc(created));
+    return mapRegistrationApplicationGql(
+      models,
+      toPlainRegistrationDoc(created),
+    );
   },
 
   async cpMtoRegistrationSubmit(
@@ -118,17 +121,15 @@ export const registrationMutations: Record<string, Resolver> = {
       instanceId,
       ...(resolvedCpUserId ? { cpUserId: resolvedCpUserId } : {}),
     });
-    return mapRegistrationApplicationGql(models, toPlainRegistrationDoc(created));
+    return mapRegistrationApplicationGql(
+      models,
+      toPlainRegistrationDoc(created),
+    );
   },
 
   async mtoRegistrationApplicationUpdate(
     _root: undefined,
-    {
-      _id,
-      answers,
-      status,
-      cpUserId: cpUserIdArg,
-    }: UpdateApplicationArgs,
+    { _id, answers, status, cpUserId: cpUserIdArg }: UpdateApplicationArgs,
     context: IContext,
   ) {
     const { models, subdomain, instanceId } = context;
@@ -159,12 +160,11 @@ export const registrationMutations: Record<string, Resolver> = {
     const nextStatus = parseNextStatusOrThrow(status);
     assertClientPortalAllowedStatusUpdate(context, nextStatus);
 
-    const { cpUserIdPatch } =
-      context.cpUser
-        ? {}
-        : resolveStaffCpLinkPatches({
-            cpUserId: cpUserIdArg,
-          });
+    const { cpUserIdPatch } = context.cpUser
+      ? {}
+      : resolveStaffCpLinkPatches({
+          cpUserId: cpUserIdArg,
+        });
 
     if (
       parsedAnswers === undefined &&
@@ -188,7 +188,10 @@ export const registrationMutations: Record<string, Resolver> = {
       throw new Error('Application not found');
     }
 
-    return mapRegistrationApplicationGql(models, toPlainRegistrationDoc(updated));
+    return mapRegistrationApplicationGql(
+      models,
+      toPlainRegistrationDoc(updated),
+    );
   },
 
   async cpMtoRegistrationApplicationUpdate(
@@ -243,7 +246,10 @@ export const registrationMutations: Record<string, Resolver> = {
       throw new Error('Application not found');
     }
 
-    return mapRegistrationApplicationGql(models, toPlainRegistrationDoc(updated));
+    return mapRegistrationApplicationGql(
+      models,
+      toPlainRegistrationDoc(updated),
+    );
   },
 };
 

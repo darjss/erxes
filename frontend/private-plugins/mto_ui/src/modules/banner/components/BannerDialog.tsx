@@ -1,21 +1,11 @@
-import {
-  Button,
-  Sheet,
-  Form,
-  Spinner,
-  Select,
-  Label,
-} from 'erxes-ui';
+import { Button, Sheet, Form, Spinner, Select, Label } from 'erxes-ui';
 import { IconPlus } from '@tabler/icons-react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useState, useEffect } from 'react';
 import { useQuery } from '@apollo/client';
-import {
-  useCreateBanner,
-  useUpdateBanner,
-} from '../hooks/useBannerMutations';
+import { useCreateBanner, useUpdateBanner } from '../hooks/useBannerMutations';
 import { ONE_FIT_BANNER } from '../graphql/bannerQueries';
 import { BannerType, BannerStatus } from '../types/banner';
 import { SelectProvider } from './SelectProvider';
@@ -148,13 +138,10 @@ const BannerForm = ({
 }: BannerFormProps) => {
   const isCreate = mode === 'create';
 
-  const { data: bannerData, loading: queryLoading } = useQuery(
-    ONE_FIT_BANNER,
-    {
-      variables: { _id: bannerId },
-      skip: isCreate || !bannerId,
-    },
-  );
+  const { data: bannerData, loading: queryLoading } = useQuery(ONE_FIT_BANNER, {
+    variables: { _id: bannerId },
+    skip: isCreate || !bannerId,
+  });
 
   const banner = bannerData?.mtoBanner;
 
@@ -263,10 +250,7 @@ const BannerForm = ({
           render={({ field }) => (
             <Form.Item>
               <Label>Type</Label>
-              <Select
-                value={field.value}
-                onValueChange={field.onChange}
-              >
+              <Select value={field.value} onValueChange={field.onChange}>
                 <Select.Trigger>
                   <Select.Value placeholder="Select type" />
                 </Select.Trigger>
@@ -286,16 +270,15 @@ const BannerForm = ({
           render={({ field }) => (
             <Form.Item>
               <Label>Status</Label>
-              <Select
-                value={field.value}
-                onValueChange={field.onChange}
-              >
+              <Select value={field.value} onValueChange={field.onChange}>
                 <Select.Trigger>
                   <Select.Value placeholder="Select status" />
                 </Select.Trigger>
                 <Select.Content>
                   <Select.Item value={BannerStatus.ACTIVE}>Active</Select.Item>
-                  <Select.Item value={BannerStatus.INACTIVE}>Inactive</Select.Item>
+                  <Select.Item value={BannerStatus.INACTIVE}>
+                    Inactive
+                  </Select.Item>
                 </Select.Content>
               </Select>
               <Form.Message />

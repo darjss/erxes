@@ -15,5 +15,3 @@ export const systemConfigSchema = new Schema(
     timestamps: true,
   },
 );
-
-

@@ -5,7 +5,6 @@ interface ImageUrlOptions {
   masterUrl?: string;
 }
 
-
 export function getImageReadUrl(
   imageKey: string | undefined,
   options: ImageUrlOptions,

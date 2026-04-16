@@ -27,8 +27,11 @@ export function useRegistrations(filters?: RegistrationFilters) {
     },
   );
 
-  const { list: registrations, totalCount, pageInfo } =
-    data?.mtoRegistrationApplications || {};
+  const {
+    list: registrations,
+    totalCount,
+    pageInfo,
+  } = data?.mtoRegistrationApplications || {};
 
   const handleFetchMore = ({
     direction,

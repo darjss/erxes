@@ -36,7 +36,9 @@ export const SelectProvider = ({
   return (
     <Select
       value={selected || ''}
-      onValueChange={(value) => onSelect(value === '__none__' ? undefined : value)}
+      onValueChange={(value) =>
+        onSelect(value === '__none__' ? undefined : value)
+      }
       disabled={disabled}
     >
       <Select.Trigger>
@@ -44,17 +46,22 @@ export const SelectProvider = ({
       </Select.Trigger>
       <Select.Content>
         <Select.Item value="__none__">None</Select.Item>
-        {providers.map((provider: {
-          _id: string;
-          businessName: { en: string; mn: string };
-        }) => {
-          const businessName = getLocalizedString(provider.businessName, 'en');
-          return (
-            <Select.Item key={provider._id} value={provider._id}>
-              {businessName}
-            </Select.Item>
-          );
-        })}
+        {providers.map(
+          (provider: {
+            _id: string;
+            businessName: { en: string; mn: string };
+          }) => {
+            const businessName = getLocalizedString(
+              provider.businessName,
+              'en',
+            );
+            return (
+              <Select.Item key={provider._id} value={provider._id}>
+                {businessName}
+              </Select.Item>
+            );
+          },
+        )}
       </Select.Content>
     </Select>
   );

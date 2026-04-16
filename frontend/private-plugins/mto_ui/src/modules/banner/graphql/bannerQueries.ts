@@ -35,16 +35,8 @@ export const ONE_FIT_BANNERS = gql`
 `;
 
 export const ONE_FIT_BANNERS_COUNT = gql`
-  query MtoBannersCount(
-    $providerId: String
-    $type: String
-    $status: String
-  ) {
-    mtoBannersCount(
-      providerId: $providerId
-      type: $type
-      status: $status
-    )
+  query MtoBannersCount($providerId: String, $type: String, $status: String) {
+    mtoBannersCount(providerId: $providerId, type: $type, status: $status)
   }
 `;
 

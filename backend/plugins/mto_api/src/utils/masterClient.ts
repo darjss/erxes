@@ -136,9 +136,7 @@ export class MasterClient {
       console.log('result uploadFile', result);
       return result;
     } catch (error: any) {
-      throw new Error(
-        `Failed to upload file to master: ${error.message}`,
-      );
+      throw new Error(`Failed to upload file to master: ${error.message}`);
     }
   }
 }

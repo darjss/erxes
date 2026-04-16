@@ -38,7 +38,10 @@ export const travelAgentForm: RegistrationFormDefinition = {
             { value: 'religious', label: 'Шашны байгууллага' },
             { value: 'government', label: 'Төрийн байгууллага' },
             { value: 'state_industry', label: 'Улсын төсөвт үйлдвэрийн газар' },
-            { value: 'commercial_industry', label: 'Аж ахуйн тооцоот үйлдвэрийн газар' },
+            {
+              value: 'commercial_industry',
+              label: 'Аж ахуйн тооцоот үйлдвэрийн газар',
+            },
             {
               value: 'natural_resource_coop',
               label: 'Байгалийн нөөцийн менежементийн нөхөрлөл',
@@ -106,7 +109,10 @@ export const travelAgentForm: RegistrationFormDefinition = {
               value: 'domestic_hotel',
               label: 'Дотоодын зочид буудлын захиалга',
             },
-            { value: 'tour_operator_trips', label: 'Тур оператор компаниудын аялал' },
+            {
+              value: 'tour_operator_trips',
+              label: 'Тур оператор компаниудын аялал',
+            },
             { value: 'camp_booking', label: 'Жуулчны баазын захиалга' },
             { value: 'train', label: 'Галт тэрэг' },
             { value: 'bus', label: 'Автобус' },

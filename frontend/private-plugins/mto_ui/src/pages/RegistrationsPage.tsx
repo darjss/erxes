@@ -17,7 +17,10 @@ export function RegistrationsPage() {
   const [selectedTypeId, setSelectedTypeId] = useState<string | null>(null);
   const [selectedTitle, setSelectedTitle] = useState<string | undefined>();
 
-  const fillFormTypes = (data?.mtoRegistrationMembershipSummaries ?? []).slice(0, 6);
+  const fillFormTypes = (data?.mtoRegistrationMembershipSummaries ?? []).slice(
+    0,
+    6,
+  );
 
   function openSheet(row: {
     membershipTypeId: string;

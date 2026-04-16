@@ -1,17 +1,11 @@
-import {
-  ISystemConfig,
-  ISystemConfigDocument,
-} from '@/config/@types/config';
+import { ISystemConfig, ISystemConfigDocument } from '@/config/@types/config';
 import { Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
 import { systemConfigSchema } from '../definitions/config';
 
 export interface ISystemConfigModel extends Model<ISystemConfigDocument> {
   createConfig(doc: ISystemConfig): Promise<ISystemConfigDocument>;
-  updateConfig(
-    key: string,
-    value: any,
-  ): Promise<ISystemConfigDocument>;
+  updateConfig(key: string, value: any): Promise<ISystemConfigDocument>;
   getConfig(key: string): Promise<ISystemConfigDocument | null>;
   getAllConfigs(): Promise<ISystemConfigDocument[]>;
   removeConfigs(keys: string[]): Promise<{ n: number; ok: number }>;
@@ -56,4 +50,3 @@ export const loadSystemConfigClass = (models: IModels) => {
 
   return systemConfigSchema;
 };
-

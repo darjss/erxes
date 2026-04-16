@@ -199,7 +199,9 @@ export function ClientPortalUserSelect({
                     onSelect={() => selectUser(u)}
                   >
                     <div className="flex flex-col">
-                      <span className="font-medium">{formatCpUserLabel(u)}</span>
+                      <span className="font-medium">
+                        {formatCpUserLabel(u)}
+                      </span>
                       <span className="text-xs text-muted-foreground font-mono">
                         {u._id}
                       </span>

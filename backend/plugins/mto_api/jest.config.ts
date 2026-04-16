@@ -11,9 +11,7 @@ export default {
       },
     ],
   },
-  transformIgnorePatterns: [
-    'node_modules/',
-  ],
+  transformIgnorePatterns: ['node_modules/'],
   moduleFileExtensions: ['ts', 'js', 'json'],
   coverageDirectory: '../../../coverage/backend/plugins/mto_api',
   testMatch: ['**/__tests__/**/*.test.ts'],

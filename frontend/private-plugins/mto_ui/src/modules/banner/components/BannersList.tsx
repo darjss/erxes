@@ -44,8 +44,7 @@ const getTypeBadgeVariant = (type: string) => {
 };
 
 export const BannersList = ({ filters }: BannersListProps) => {
-  const { banners, handleFetchMore, loading, pageInfo } =
-    useBanners(filters);
+  const { banners, handleFetchMore, loading, pageInfo } = useBanners(filters);
   const [selectedBanner, setSelectedBanner] = useState<string | null>(null);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [removeDialogOpen, setRemoveDialogOpen] = useState(false);
@@ -58,7 +57,9 @@ export const BannersList = ({ filters }: BannersListProps) => {
 
   const providers = providersData?.mtoProviders?.list || [];
   const getProviderName = (providerId: string) => {
-    const provider = providers.find((p: { _id: string }) => p._id === providerId);
+    const provider = providers.find(
+      (p: { _id: string }) => p._id === providerId,
+    );
     if (!provider) return providerId;
     return getLocalizedString(provider.businessName, 'en');
   };
@@ -104,10 +105,7 @@ export const BannersList = ({ filters }: BannersListProps) => {
         const type = cell.getValue() as string;
         return (
           <RecordTableInlineCell>
-            <Badge
-              variant={getTypeBadgeVariant(type)}
-              className="capitalize"
-            >
+            <Badge variant={getTypeBadgeVariant(type)} className="capitalize">
               {type}
             </Badge>
           </RecordTableInlineCell>

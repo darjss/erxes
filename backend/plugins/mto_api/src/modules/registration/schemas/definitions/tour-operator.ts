@@ -5,7 +5,8 @@ export const tourOperatorForm: RegistrationFormDefinition = {
   membershipTypeId: 'tour_operator',
   schemaVersion: SCHEMA_VERSION_V1,
   title: 'Тур оператор компани',
-  description: 'Гишүүний татвар: 1,200,000 ₮ / жил. Гүйлгээний утга: Байгууллагын нэр · Регистрийн дугаар · Утасны дугаар',
+  description:
+    'Гишүүний татвар: 1,200,000 ₮ / жил. Гүйлгээний утга: Байгууллагын нэр · Регистрийн дугаар · Утасны дугаар',
   sections: [
     {
       id: 'org_base',
@@ -37,7 +38,10 @@ export const tourOperatorForm: RegistrationFormDefinition = {
             { value: 'religious', label: 'Шашны байгууллага' },
             { value: 'government', label: 'Төрийн байгууллага' },
             { value: 'state_industry', label: 'Улсын төсөвт үйлдвэрийн газар' },
-            { value: 'commercial_industry', label: 'Аж ахуйн тооцоот үйлдвэрийн газар' },
+            {
+              value: 'commercial_industry',
+              label: 'Аж ахуйн тооцоот үйлдвэрийн газар',
+            },
             {
               value: 'natural_resource_coop',
               label: 'Байгалийн нөөцийн менежментийн нөхөрлөл',
@@ -92,7 +96,8 @@ export const tourOperatorForm: RegistrationFormDefinition = {
     },
     {
       id: 'law_12_activity',
-      title: 'Байгууллагын үйл ажиллагааны чиглэл (Аялал жуулчлалын тухай хуулийн 12-р зүйл)',
+      title:
+        'Байгууллагын үйл ажиллагааны чиглэл (Аялал жуулчлалын тухай хуулийн 12-р зүйл)',
       fields: [
         {
           id: 'activity_directions',

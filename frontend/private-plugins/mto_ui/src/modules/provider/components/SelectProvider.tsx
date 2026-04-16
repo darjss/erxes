@@ -54,32 +54,37 @@ export const SelectProvider = ({
     <div className="border rounded-md p-4">
       <ScrollArea className="h-[200px]">
         <div className="space-y-2">
-          {providers.map((provider: {
-            _id: string;
-            businessName: { en: string; mn: string };
-          }) => {
-            const isSelected = selected.includes(provider._id);
-            const businessName = getLocalizedString(provider.businessName, 'en');
-            return (
-              <div
-                key={provider._id}
-                className="flex items-center space-x-2 py-1"
-              >
-                <Checkbox
-                  id={provider._id}
-                  checked={isSelected}
-                  onCheckedChange={() => handleProviderToggle(provider._id)}
-                  disabled={disabled}
-                />
-                <label
-                  htmlFor={provider._id}
-                  className="text-sm font-medium leading-none cursor-pointer select-none flex-1"
+          {providers.map(
+            (provider: {
+              _id: string;
+              businessName: { en: string; mn: string };
+            }) => {
+              const isSelected = selected.includes(provider._id);
+              const businessName = getLocalizedString(
+                provider.businessName,
+                'en',
+              );
+              return (
+                <div
+                  key={provider._id}
+                  className="flex items-center space-x-2 py-1"
                 >
-                  {businessName}
-                </label>
-              </div>
-            );
-          })}
+                  <Checkbox
+                    id={provider._id}
+                    checked={isSelected}
+                    onCheckedChange={() => handleProviderToggle(provider._id)}
+                    disabled={disabled}
+                  />
+                  <label
+                    htmlFor={provider._id}
+                    className="text-sm font-medium leading-none cursor-pointer select-none flex-1"
+                  >
+                    {businessName}
+                  </label>
+                </div>
+              );
+            },
+          )}
         </div>
       </ScrollArea>
       {selected.length > 0 && (
@@ -90,4 +95,3 @@ export const SelectProvider = ({
     </div>
   );
 };
-

@@ -43,7 +43,11 @@ const FIELD_KIND_OPTIONS: RegistrationFieldKind[] = [
   'file_list',
 ];
 
-const OPTION_KINDS: RegistrationFieldKind[] = ['select', 'multiselect', 'checkbox_group'];
+const OPTION_KINDS: RegistrationFieldKind[] = [
+  'select',
+  'multiselect',
+  'checkbox_group',
+];
 
 interface SchemaRow {
   _id: string;
@@ -60,7 +64,9 @@ function updateSection(
   sectionIndex: number,
   updater: (section: RegistrationSection) => RegistrationSection,
 ) {
-  return sections.map((section, idx) => (idx === sectionIndex ? updater(section) : section));
+  return sections.map((section, idx) =>
+    idx === sectionIndex ? updater(section) : section,
+  );
 }
 
 function updateField(
@@ -77,7 +83,9 @@ function updateField(
   }));
 }
 
-function buildCollapsedState(sections: RegistrationSection[]): Record<number, boolean> {
+function buildCollapsedState(
+  sections: RegistrationSection[],
+): Record<number, boolean> {
   return sections.reduce(
     (acc, _section, index) => ({ ...acc, [index]: true }),
     {} as Record<number, boolean>,
@@ -85,7 +93,9 @@ function buildCollapsedState(sections: RegistrationSection[]): Record<number, bo
 }
 
 export function RegistrationSchemasBuilderPage() {
-  const { data, loading, error, refetch } = useQuery(MTO_REGISTRATION_FORM_SCHEMAS);
+  const { data, loading, error, refetch } = useQuery(
+    MTO_REGISTRATION_FORM_SCHEMAS,
+  );
   const [createMutation, { loading: creating }] = useMutation(
     MTO_REGISTRATION_FORM_SCHEMA_CREATE,
   );
@@ -103,8 +113,12 @@ export function RegistrationSchemasBuilderPage() {
   const [schemaVersion, setSchemaVersion] = useState('');
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [sections, setSections] = useState<RegistrationSection[]>([createEmptySection()]);
-  const [collapsedSections, setCollapsedSections] = useState<Record<number, boolean>>({});
+  const [sections, setSections] = useState<RegistrationSection[]>([
+    createEmptySection(),
+  ]);
+  const [collapsedSections, setCollapsedSections] = useState<
+    Record<number, boolean>
+  >({});
   const [selectedSectionIndex, setSelectedSectionIndex] = useState(0);
 
   const selected = useMemo(
@@ -139,7 +153,9 @@ export function RegistrationSchemasBuilderPage() {
     setTitle(row.title);
     setDescription(row.description ?? '');
     const normalized = normalizeSectionsFromUnknown(row.sections);
-    const nextSections = normalized.length ? normalized : [createEmptySection()];
+    const nextSections = normalized.length
+      ? normalized
+      : [createEmptySection()];
     setSections(nextSections);
     setCollapsedSections(buildCollapsedState(nextSections));
     setSelectedSectionIndex(0);
@@ -183,7 +199,9 @@ export function RegistrationSchemasBuilderPage() {
         fields: section.fields.map((field) => ({
           ...field,
           options: OPTION_KINDS.includes(field.kind)
-            ? (field.options ?? []).filter((opt) => opt.value.trim() && opt.label.trim())
+            ? (field.options ?? []).filter(
+                (opt) => opt.value.trim() && opt.label.trim(),
+              )
             : undefined,
         })),
       })),
@@ -191,7 +209,9 @@ export function RegistrationSchemasBuilderPage() {
 
     try {
       if (selectedId) {
-        await updateMutation({ variables: { _id: selectedId, definition: payload } });
+        await updateMutation({
+          variables: { _id: selectedId, definition: payload },
+        });
       } else {
         await createMutation({ variables: { definition: payload } });
       }
@@ -243,7 +263,9 @@ export function RegistrationSchemasBuilderPage() {
         </div>
 
         {loading ? <Spinner /> : null}
-        {error ? <p className="text-sm text-destructive">{error.message}</p> : null}
+        {error ? (
+          <p className="text-sm text-destructive">{error.message}</p>
+        ) : null}
 
         <div className="space-y-2">
           {rows.map((row) => (
@@ -265,7 +287,9 @@ export function RegistrationSchemasBuilderPage() {
       <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
         <Sheet.View className="sm:max-w-4xl lg:max-w-6xl w-full md:w-[min(84rem,calc(100vw-1rem))]">
           <Sheet.Header className="shrink-0">
-            <Sheet.Title>{selectedId ? 'Edit schema' : 'Create schema'}</Sheet.Title>
+            <Sheet.Title>
+              {selectedId ? 'Edit schema' : 'Create schema'}
+            </Sheet.Title>
             <Sheet.Close />
           </Sheet.Header>
 
@@ -273,7 +297,8 @@ export function RegistrationSchemasBuilderPage() {
             <div className="space-y-3 p-5 pb-10">
               {hasUsedApplications ? (
                 <p className="text-xs text-amber-600">
-                  Warning: this schema is already used by submitted applications.
+                  Warning: this schema is already used by submitted
+                  applications.
                 </p>
               ) : null}
 
@@ -289,7 +314,11 @@ export function RegistrationSchemasBuilderPage() {
                   placeholder="schemaVersion"
                 />
               </div>
-              <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="title" />
+              <Input
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder="title"
+              />
               <Textarea
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
@@ -327,11 +356,15 @@ export function RegistrationSchemasBuilderPage() {
                         type="button"
                         onClick={() => setSelectedSectionIndex(sectionIndex)}
                         className={`w-full text-left border rounded-md px-3 py-2 ${
-                          selectedSectionIndex === sectionIndex ? 'border-primary bg-muted/40' : ''
+                          selectedSectionIndex === sectionIndex
+                            ? 'border-primary bg-muted/40'
+                            : ''
                         }`}
                       >
                         <p className="text-sm font-medium">
-                          {section.title?.trim() || section.id?.trim() || `Section ${sectionIndex + 1}`}
+                          {section.title?.trim() ||
+                            section.id?.trim() ||
+                            `Section ${sectionIndex + 1}`}
                         </p>
                         <p className="text-xs text-muted-foreground">
                           {section.fields.length} questions
@@ -357,11 +390,14 @@ export function RegistrationSchemasBuilderPage() {
                           onClick={() =>
                             setCollapsedSections((prev) => ({
                               ...prev,
-                              [selectedSectionIndex]: !prev[selectedSectionIndex],
+                              [selectedSectionIndex]:
+                                !prev[selectedSectionIndex],
                             }))
                           }
                         >
-                          {collapsedSections[selectedSectionIndex] ? 'Expand' : 'Collapse'}
+                          {collapsedSections[selectedSectionIndex]
+                            ? 'Expand'
+                            : 'Collapse'}
                         </Button>
                       </div>
 
@@ -372,10 +408,14 @@ export function RegistrationSchemasBuilderPage() {
                               value={sections[selectedSectionIndex].id}
                               onChange={(e) =>
                                 setSections((prev) =>
-                                  updateSection(prev, selectedSectionIndex, (s) => ({
-                                    ...s,
-                                    id: e.target.value,
-                                  })),
+                                  updateSection(
+                                    prev,
+                                    selectedSectionIndex,
+                                    (s) => ({
+                                      ...s,
+                                      id: e.target.value,
+                                    }),
+                                  ),
                                 )
                               }
                               placeholder="section id"
@@ -392,7 +432,9 @@ export function RegistrationSchemasBuilderPage() {
                                     selectedSectionIndex,
                                     selectedSectionIndex - 1,
                                   );
-                                  setSelectedSectionIndex((index) => Math.max(0, index - 1));
+                                  setSelectedSectionIndex((index) =>
+                                    Math.max(0, index - 1),
+                                  );
                                   return moved;
                                 })
                               }
@@ -403,7 +445,9 @@ export function RegistrationSchemasBuilderPage() {
                               type="button"
                               size="sm"
                               variant="outline"
-                              disabled={selectedSectionIndex === sections.length - 1}
+                              disabled={
+                                selectedSectionIndex === sections.length - 1
+                              }
                               onClick={() =>
                                 setSections((prev) => {
                                   const moved = moveItem(
@@ -427,9 +471,14 @@ export function RegistrationSchemasBuilderPage() {
                               disabled={sections.length === 1}
                               onClick={() =>
                                 setSections((prev) => {
-                                  const next = prev.filter((_, idx) => idx !== selectedSectionIndex);
+                                  const next = prev.filter(
+                                    (_, idx) => idx !== selectedSectionIndex,
+                                  );
                                   setSelectedSectionIndex((index) =>
-                                    Math.max(0, Math.min(index - 1, next.length - 1)),
+                                    Math.max(
+                                      0,
+                                      Math.min(index - 1, next.length - 1),
+                                    ),
                                   );
                                   return next;
                                 })
@@ -444,255 +493,366 @@ export function RegistrationSchemasBuilderPage() {
                               value={sections[selectedSectionIndex].title ?? ''}
                               onChange={(e) =>
                                 setSections((prev) =>
-                                  updateSection(prev, selectedSectionIndex, (s) => ({
-                                    ...s,
-                                    title: e.target.value,
-                                  })),
+                                  updateSection(
+                                    prev,
+                                    selectedSectionIndex,
+                                    (s) => ({
+                                      ...s,
+                                      title: e.target.value,
+                                    }),
+                                  ),
                                 )
                               }
                               placeholder="section title"
                             />
                             <Textarea
                               rows={2}
-                              value={sections[selectedSectionIndex].description ?? ''}
+                              value={
+                                sections[selectedSectionIndex].description ?? ''
+                              }
                               onChange={(e) =>
                                 setSections((prev) =>
-                                  updateSection(prev, selectedSectionIndex, (s) => ({
-                                    ...s,
-                                    description: e.target.value,
-                                  })),
+                                  updateSection(
+                                    prev,
+                                    selectedSectionIndex,
+                                    (s) => ({
+                                      ...s,
+                                      description: e.target.value,
+                                    }),
+                                  ),
                                 )
                               }
                               placeholder="section description"
                             />
                           </div>
 
-                          {sections[selectedSectionIndex].fields.map((field, fieldIndex) => (
-                            <div
-                              key={`field-${selectedSectionIndex}-${fieldIndex}`}
-                              className="border rounded-md bg-background p-3 space-y-3"
-                            >
-                        <div className="flex items-center justify-between">
-                          <p className="text-xs font-medium text-muted-foreground">
-                            Question {fieldIndex + 1}
-                          </p>
-                        </div>
-
-                        <div className="grid grid-cols-1 md:grid-cols-[1fr_1fr_180px] gap-2">
-                          <Input
-                            value={field.id}
-                            onChange={(e) =>
-                              setSections((prev) =>
-                                updateField(prev, selectedSectionIndex, fieldIndex, (f) => ({
-                                  ...f,
-                                  id: e.target.value,
-                                })),
-                              )
-                            }
-                            placeholder="field id"
-                          />
-                          <Input
-                            value={field.label}
-                            onChange={(e) =>
-                              setSections((prev) =>
-                                updateField(prev, selectedSectionIndex, fieldIndex, (f) => ({
-                                  ...f,
-                                  label: e.target.value,
-                                })),
-                              )
-                            }
-                            placeholder="field label"
-                          />
-                          <select
-                            className="h-8 rounded-md border px-1.5 text-xs bg-background"
-                            value={field.kind}
-                            onChange={(e) =>
-                              setSections((prev) =>
-                                updateField(prev, selectedSectionIndex, fieldIndex, (f) => ({
-                                  ...f,
-                                  kind: e.target.value as RegistrationFieldKind,
-                                  options: OPTION_KINDS.includes(
-                                    e.target.value as RegistrationFieldKind,
-                                  )
-                                    ? f.options ?? [createEmptyOption()]
-                                    : [],
-                                })),
-                              )
-                            }
-                          >
-                            {FIELD_KIND_OPTIONS.map((kind) => (
-                              <option key={kind} value={kind}>
-                                {kind}
-                              </option>
-                            ))}
-                          </select>
-                        </div>
-
-                        <div className="flex flex-wrap gap-4 text-xs">
-                          <label className="flex items-center gap-2">
-                            <Checkbox
-                              checked={field.required === true}
-                              onCheckedChange={(checked) =>
-                                setSections((prev) =>
-                                  updateField(prev, selectedSectionIndex, fieldIndex, (f) => ({
-                                    ...f,
-                                    required: checked === true,
-                                  })),
-                                )
-                              }
-                            />
-                            required
-                          </label>
-                          <label className="flex items-center gap-2">
-                            <Checkbox
-                              checked={field.acknowledgment === true}
-                              onCheckedChange={(checked) =>
-                                setSections((prev) =>
-                                  updateField(prev, selectedSectionIndex, fieldIndex, (f) => ({
-                                    ...f,
-                                    acknowledgment: checked === true,
-                                  })),
-                                )
-                              }
-                            />
-                            acknowledgment
-                          </label>
-                        </div>
-
-                        {OPTION_KINDS.includes(field.kind) ? (
-                          <div className="space-y-2 border rounded-md p-2">
-                            <p className="text-xs font-medium text-muted-foreground">Answers</p>
-                            {(field.options ?? []).map((option, optionIndex) => (
+                          {sections[selectedSectionIndex].fields.map(
+                            (field, fieldIndex) => (
                               <div
-                                key={`opt-${selectedSectionIndex}-${fieldIndex}-${optionIndex}`}
-                                className="flex items-center gap-2"
+                                key={`field-${selectedSectionIndex}-${fieldIndex}`}
+                                className="border rounded-md bg-background p-3 space-y-3"
                               >
-                                <Input
-                                  className="min-w-0 flex-1"
-                                  value={option.value}
-                                  onChange={(e) =>
-                                    setSections((prev) =>
-                                      updateField(prev, selectedSectionIndex, fieldIndex, (f) => ({
-                                        ...f,
-                                        options: (f.options ?? []).map((opt, idx) =>
-                                          idx === optionIndex
-                                            ? { ...opt, value: e.target.value }
-                                            : opt,
+                                <div className="flex items-center justify-between">
+                                  <p className="text-xs font-medium text-muted-foreground">
+                                    Question {fieldIndex + 1}
+                                  </p>
+                                </div>
+
+                                <div className="grid grid-cols-1 md:grid-cols-[1fr_1fr_180px] gap-2">
+                                  <Input
+                                    value={field.id}
+                                    onChange={(e) =>
+                                      setSections((prev) =>
+                                        updateField(
+                                          prev,
+                                          selectedSectionIndex,
+                                          fieldIndex,
+                                          (f) => ({
+                                            ...f,
+                                            id: e.target.value,
+                                          }),
                                         ),
-                                      })),
-                                    )
-                                  }
-                                  placeholder="option value"
-                                />
-                                <Input
-                                  className="min-w-0 flex-1"
-                                  value={option.label}
-                                  onChange={(e) =>
-                                    setSections((prev) =>
-                                      updateField(prev, selectedSectionIndex, fieldIndex, (f) => ({
-                                        ...f,
-                                        options: (f.options ?? []).map((opt, idx) =>
-                                          idx === optionIndex
-                                            ? { ...opt, label: e.target.value }
-                                            : opt,
+                                      )
+                                    }
+                                    placeholder="field id"
+                                  />
+                                  <Input
+                                    value={field.label}
+                                    onChange={(e) =>
+                                      setSections((prev) =>
+                                        updateField(
+                                          prev,
+                                          selectedSectionIndex,
+                                          fieldIndex,
+                                          (f) => ({
+                                            ...f,
+                                            label: e.target.value,
+                                          }),
                                         ),
-                                      })),
-                                    )
-                                  }
-                                  placeholder="option label"
-                                />
-                                <Button
-                                  type="button"
-                                  variant="outline"
-                                  size="sm"
-                                  className="shrink-0"
-                                  onClick={() =>
-                                    setSections((prev) =>
-                                      updateField(prev, selectedSectionIndex, fieldIndex, (f) => ({
-                                        ...f,
-                                        options: (f.options ?? []).filter(
-                                          (_, idx) => idx !== optionIndex,
+                                      )
+                                    }
+                                    placeholder="field label"
+                                  />
+                                  <select
+                                    className="h-8 rounded-md border px-1.5 text-xs bg-background"
+                                    value={field.kind}
+                                    onChange={(e) =>
+                                      setSections((prev) =>
+                                        updateField(
+                                          prev,
+                                          selectedSectionIndex,
+                                          fieldIndex,
+                                          (f) => ({
+                                            ...f,
+                                            kind: e.target
+                                              .value as RegistrationFieldKind,
+                                            options: OPTION_KINDS.includes(
+                                              e.target
+                                                .value as RegistrationFieldKind,
+                                            )
+                                              ? (f.options ?? [
+                                                  createEmptyOption(),
+                                                ])
+                                              : [],
+                                          }),
                                         ),
-                                      })),
-                                    )
-                                  }
-                                >
-                                  Remove
-                                </Button>
+                                      )
+                                    }
+                                  >
+                                    {FIELD_KIND_OPTIONS.map((kind) => (
+                                      <option key={kind} value={kind}>
+                                        {kind}
+                                      </option>
+                                    ))}
+                                  </select>
+                                </div>
+
+                                <div className="flex flex-wrap gap-4 text-xs">
+                                  <label className="flex items-center gap-2">
+                                    <Checkbox
+                                      checked={field.required === true}
+                                      onCheckedChange={(checked) =>
+                                        setSections((prev) =>
+                                          updateField(
+                                            prev,
+                                            selectedSectionIndex,
+                                            fieldIndex,
+                                            (f) => ({
+                                              ...f,
+                                              required: checked === true,
+                                            }),
+                                          ),
+                                        )
+                                      }
+                                    />
+                                    required
+                                  </label>
+                                  <label className="flex items-center gap-2">
+                                    <Checkbox
+                                      checked={field.acknowledgment === true}
+                                      onCheckedChange={(checked) =>
+                                        setSections((prev) =>
+                                          updateField(
+                                            prev,
+                                            selectedSectionIndex,
+                                            fieldIndex,
+                                            (f) => ({
+                                              ...f,
+                                              acknowledgment: checked === true,
+                                            }),
+                                          ),
+                                        )
+                                      }
+                                    />
+                                    acknowledgment
+                                  </label>
+                                </div>
+
+                                {OPTION_KINDS.includes(field.kind) ? (
+                                  <div className="space-y-2 border rounded-md p-2">
+                                    <p className="text-xs font-medium text-muted-foreground">
+                                      Answers
+                                    </p>
+                                    {(field.options ?? []).map(
+                                      (option, optionIndex) => (
+                                        <div
+                                          key={`opt-${selectedSectionIndex}-${fieldIndex}-${optionIndex}`}
+                                          className="flex items-center gap-2"
+                                        >
+                                          <Input
+                                            className="min-w-0 flex-1"
+                                            value={option.value}
+                                            onChange={(e) =>
+                                              setSections((prev) =>
+                                                updateField(
+                                                  prev,
+                                                  selectedSectionIndex,
+                                                  fieldIndex,
+                                                  (f) => ({
+                                                    ...f,
+                                                    options: (
+                                                      f.options ?? []
+                                                    ).map((opt, idx) =>
+                                                      idx === optionIndex
+                                                        ? {
+                                                            ...opt,
+                                                            value:
+                                                              e.target.value,
+                                                          }
+                                                        : opt,
+                                                    ),
+                                                  }),
+                                                ),
+                                              )
+                                            }
+                                            placeholder="option value"
+                                          />
+                                          <Input
+                                            className="min-w-0 flex-1"
+                                            value={option.label}
+                                            onChange={(e) =>
+                                              setSections((prev) =>
+                                                updateField(
+                                                  prev,
+                                                  selectedSectionIndex,
+                                                  fieldIndex,
+                                                  (f) => ({
+                                                    ...f,
+                                                    options: (
+                                                      f.options ?? []
+                                                    ).map((opt, idx) =>
+                                                      idx === optionIndex
+                                                        ? {
+                                                            ...opt,
+                                                            label:
+                                                              e.target.value,
+                                                          }
+                                                        : opt,
+                                                    ),
+                                                  }),
+                                                ),
+                                              )
+                                            }
+                                            placeholder="option label"
+                                          />
+                                          <Button
+                                            type="button"
+                                            variant="outline"
+                                            size="sm"
+                                            className="shrink-0"
+                                            onClick={() =>
+                                              setSections((prev) =>
+                                                updateField(
+                                                  prev,
+                                                  selectedSectionIndex,
+                                                  fieldIndex,
+                                                  (f) => ({
+                                                    ...f,
+                                                    options: (
+                                                      f.options ?? []
+                                                    ).filter(
+                                                      (_, idx) =>
+                                                        idx !== optionIndex,
+                                                    ),
+                                                  }),
+                                                ),
+                                              )
+                                            }
+                                          >
+                                            Remove
+                                          </Button>
+                                        </div>
+                                      ),
+                                    )}
+                                    <Button
+                                      type="button"
+                                      variant="outline"
+                                      size="sm"
+                                      onClick={() =>
+                                        setSections((prev) =>
+                                          updateField(
+                                            prev,
+                                            selectedSectionIndex,
+                                            fieldIndex,
+                                            (f) => ({
+                                              ...f,
+                                              options: [
+                                                ...(f.options ?? []),
+                                                createEmptyOption(),
+                                              ],
+                                            }),
+                                          ),
+                                        )
+                                      }
+                                    >
+                                      Add option
+                                    </Button>
+                                  </div>
+                                ) : null}
+
+                                <div className="flex flex-wrap gap-2">
+                                  <Button
+                                    type="button"
+                                    size="sm"
+                                    variant="outline"
+                                    disabled={fieldIndex === 0}
+                                    onClick={() =>
+                                      setSections((prev) =>
+                                        updateSection(
+                                          prev,
+                                          selectedSectionIndex,
+                                          (s) => ({
+                                            ...s,
+                                            fields: moveItem(
+                                              s.fields,
+                                              fieldIndex,
+                                              fieldIndex - 1,
+                                            ),
+                                          }),
+                                        ),
+                                      )
+                                    }
+                                  >
+                                    Up
+                                  </Button>
+                                  <Button
+                                    type="button"
+                                    size="sm"
+                                    variant="outline"
+                                    disabled={
+                                      fieldIndex ===
+                                      sections[selectedSectionIndex].fields
+                                        .length -
+                                        1
+                                    }
+                                    onClick={() =>
+                                      setSections((prev) =>
+                                        updateSection(
+                                          prev,
+                                          selectedSectionIndex,
+                                          (s) => ({
+                                            ...s,
+                                            fields: moveItem(
+                                              s.fields,
+                                              fieldIndex,
+                                              fieldIndex + 1,
+                                            ),
+                                          }),
+                                        ),
+                                      )
+                                    }
+                                  >
+                                    Down
+                                  </Button>
+                                  <Button
+                                    type="button"
+                                    size="sm"
+                                    variant="destructive"
+                                    disabled={
+                                      sections[selectedSectionIndex].fields
+                                        .length === 1
+                                    }
+                                    onClick={() =>
+                                      setSections((prev) =>
+                                        updateSection(
+                                          prev,
+                                          selectedSectionIndex,
+                                          (s) => ({
+                                            ...s,
+                                            fields: s.fields.filter(
+                                              (_, idx) => idx !== fieldIndex,
+                                            ),
+                                          }),
+                                        ),
+                                      )
+                                    }
+                                  >
+                                    Remove field
+                                  </Button>
+                                </div>
                               </div>
-                            ))}
-                            <Button
-                              type="button"
-                              variant="outline"
-                              size="sm"
-                              onClick={() =>
-                                setSections((prev) =>
-                                  updateField(prev, selectedSectionIndex, fieldIndex, (f) => ({
-                                    ...f,
-                                    options: [...(f.options ?? []), createEmptyOption()],
-                                  })),
-                                )
-                              }
-                            >
-                              Add option
-                            </Button>
-                          </div>
-                        ) : null}
-
-                        <div className="flex flex-wrap gap-2">
-                          <Button
-                            type="button"
-                            size="sm"
-                            variant="outline"
-                            disabled={fieldIndex === 0}
-                            onClick={() =>
-                              setSections((prev) =>
-                                updateSection(prev, selectedSectionIndex, (s) => ({
-                                  ...s,
-                                  fields: moveItem(s.fields, fieldIndex, fieldIndex - 1),
-                                })),
-                              )
-                            }
-                          >
-                            Up
-                          </Button>
-                          <Button
-                            type="button"
-                            size="sm"
-                            variant="outline"
-                            disabled={
-                              fieldIndex === sections[selectedSectionIndex].fields.length - 1
-                            }
-                            onClick={() =>
-                              setSections((prev) =>
-                                updateSection(prev, selectedSectionIndex, (s) => ({
-                                  ...s,
-                                  fields: moveItem(s.fields, fieldIndex, fieldIndex + 1),
-                                })),
-                              )
-                            }
-                          >
-                            Down
-                          </Button>
-                          <Button
-                            type="button"
-                            size="sm"
-                            variant="destructive"
-                            disabled={sections[selectedSectionIndex].fields.length === 1}
-                            onClick={() =>
-                              setSections((prev) =>
-                                updateSection(prev, selectedSectionIndex, (s) => ({
-                                  ...s,
-                                  fields: s.fields.filter((_, idx) => idx !== fieldIndex),
-                                })),
-                              )
-                            }
-                          >
-                            Remove field
-                          </Button>
-                        </div>
-                      </div>
-                          ))}
+                            ),
+                          )}
 
                           <Button
                             type="button"
@@ -700,10 +860,14 @@ export function RegistrationSchemasBuilderPage() {
                             variant="outline"
                             onClick={() =>
                               setSections((prev) =>
-                                updateSection(prev, selectedSectionIndex, (s) => ({
-                                  ...s,
-                                  fields: [...s.fields, createEmptyField()],
-                                })),
+                                updateSection(
+                                  prev,
+                                  selectedSectionIndex,
+                                  (s) => ({
+                                    ...s,
+                                    fields: [...s.fields, createEmptyField()],
+                                  }),
+                                ),
                               )
                             }
                           >
@@ -713,7 +877,9 @@ export function RegistrationSchemasBuilderPage() {
                       )}
                     </>
                   ) : (
-                    <p className="text-sm text-muted-foreground">Select a group to edit questions.</p>
+                    <p className="text-sm text-muted-foreground">
+                      Select a group to edit questions.
+                    </p>
                   )}
                 </div>
               </div>
@@ -721,10 +887,18 @@ export function RegistrationSchemasBuilderPage() {
           </Sheet.Content>
 
           <Sheet.Footer>
-            <Button type="button" variant="outline" onClick={() => setSheetOpen(false)}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setSheetOpen(false)}
+            >
               Close
             </Button>
-            <Button type="button" disabled={mutationLoading} onClick={handleSave}>
+            <Button
+              type="button"
+              disabled={mutationLoading}
+              onClick={handleSave}
+            >
               Save
             </Button>
             <Button

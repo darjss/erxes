@@ -8,11 +8,13 @@ import {
 } from '@zxing/library';
 import sharp from 'sharp';
 
-export type DecodeQrResult =
-  | { value: string }
-  | { error: string };
+export type DecodeQrResult = { value: string } | { error: string };
 
-function rgbaToLuminance(data: Buffer, width: number, height: number): Uint8ClampedArray {
+function rgbaToLuminance(
+  data: Buffer,
+  width: number,
+  height: number,
+): Uint8ClampedArray {
   const size = width * height;
   const luminances = new Uint8ClampedArray(size);
   for (let i = 0; i < size; i++) {
@@ -59,7 +61,8 @@ export async function decodeQrFromImagePath(
     const err = e as { name?: string; message?: string };
     const isNotFound =
       err?.name === 'NotFoundException' ||
-      (typeof err?.message === 'string' && err.message.toLowerCase().includes('not found'));
+      (typeof err?.message === 'string' &&
+        err.message.toLowerCase().includes('not found'));
     return {
       error: isNotFound ? 'No QR code found' : 'Invalid or unsupported image',
     };

@@ -50,10 +50,7 @@ export function RegistrationFilters({
         <Select
           value={filters.membershipTypeId || '__all__'}
           onValueChange={(v) =>
-            handleChange(
-              'membershipTypeId',
-              v === '__all__' ? undefined : v,
-            )
+            handleChange('membershipTypeId', v === '__all__' ? undefined : v)
           }
         >
           <Select.Trigger>
@@ -61,13 +58,11 @@ export function RegistrationFilters({
           </Select.Trigger>
           <Select.Content>
             <Select.Item value="__all__">Бүх төрөл</Select.Item>
-            {summaries.map(
-              (s: { membershipTypeId: string; title: string }) => (
-                <Select.Item key={s.membershipTypeId} value={s.membershipTypeId}>
-                  {s.title}
-                </Select.Item>
-              ),
-            )}
+            {summaries.map((s: { membershipTypeId: string; title: string }) => (
+              <Select.Item key={s.membershipTypeId} value={s.membershipTypeId}>
+                {s.title}
+              </Select.Item>
+            ))}
           </Select.Content>
         </Select>
       </FilterField>
@@ -104,9 +99,7 @@ export function RegistrationFilters({
         <ClientPortalUserSelect
           clientPortalIdFilter={cpPortalRemoteId}
           value={filters.cpUserId}
-          onValueChange={(user) =>
-            handleChange('cpUserId', user?._id)
-          }
+          onValueChange={(user) => handleChange('cpUserId', user?._id)}
           placeholder="Бүх CP хэрэглэгч"
         />
       </FilterField>

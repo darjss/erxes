@@ -7,8 +7,7 @@ export interface IRegistrationFormSchema extends RegistrationFormDefinition {
 }
 
 export interface IRegistrationFormSchemaDocument
-  extends Document,
-    IRegistrationFormSchema {
+  extends Document, IRegistrationFormSchema {
   _id: string;
   createdAt: Date;
   modifiedAt: Date;

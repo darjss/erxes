@@ -1,8 +1,5 @@
 import { ICursorPaginateParams, Resolver } from 'erxes-api-shared/core-types';
-import {
-  cursorPaginate,
-  markResolvers,
-} from 'erxes-api-shared/utils';
+import { cursorPaginate, markResolvers } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 import { BannerType, BannerStatus } from '@/banner/@types/banner';
 

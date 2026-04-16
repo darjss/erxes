@@ -12,4 +12,3 @@ const RelationWidget = (props: IRelationWidgetProps) => {
 };
 
 export default RelationWidget;
-

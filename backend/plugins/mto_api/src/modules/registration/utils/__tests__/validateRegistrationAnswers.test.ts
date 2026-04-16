@@ -24,7 +24,10 @@ describe('validateRegistrationAnswers', () => {
   it('accepts minimal valid tour_guide answers', () => {
     const def = getDefaultDefinition('tour_guide', '2026-03-26');
     expect(def).toBeTruthy();
-    const result = validateRegistrationAnswers(def!, minimalValidGuideAnswers());
+    const result = validateRegistrationAnswers(
+      def!,
+      minimalValidGuideAnswers(),
+    );
     expect(result.valid).toBe(true);
   });
 

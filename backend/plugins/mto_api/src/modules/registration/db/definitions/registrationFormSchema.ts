@@ -38,4 +38,7 @@ export const registrationFormSchema = new Schema(
   },
 );
 
-registrationFormSchema.index({ membershipTypeId: 1, schemaVersion: 1 }, { unique: true });
+registrationFormSchema.index(
+  { membershipTypeId: 1, schemaVersion: 1 },
+  { unique: true },
+);

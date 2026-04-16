@@ -25,4 +25,3 @@ export const ONE_FIT_SYSTEM_CONFIG_BY_KEY = gql`
     }
   }
 `;
-

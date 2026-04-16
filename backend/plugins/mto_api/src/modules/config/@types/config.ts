@@ -13,4 +13,3 @@ export interface ISystemConfigDocument extends Document, ISystemConfig {
   createdAt: Date;
   modifiedAt: Date;
 }
-

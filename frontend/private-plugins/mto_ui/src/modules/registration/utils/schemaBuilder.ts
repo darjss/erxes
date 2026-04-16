@@ -36,7 +36,13 @@ export function createEmptyOption(): RegistrationFieldOption {
 }
 
 export function moveItem<T>(items: T[], from: number, to: number): T[] {
-  if (from === to || from < 0 || to < 0 || from >= items.length || to >= items.length) {
+  if (
+    from === to ||
+    from < 0 ||
+    to < 0 ||
+    from >= items.length ||
+    to >= items.length
+  ) {
     return items;
   }
   const clone = [...items];
@@ -45,20 +51,26 @@ export function moveItem<T>(items: T[], from: number, to: number): T[] {
   return clone;
 }
 
-export function normalizeSectionsFromUnknown(value: unknown): RegistrationSection[] {
+export function normalizeSectionsFromUnknown(
+  value: unknown,
+): RegistrationSection[] {
   if (!Array.isArray(value)) return [];
 
   return value
     .filter((section) => section && typeof section === 'object')
     .map((section) => {
       const rawSection = section as Record<string, unknown>;
-      const rawFields = Array.isArray(rawSection.fields) ? rawSection.fields : [];
+      const rawFields = Array.isArray(rawSection.fields)
+        ? rawSection.fields
+        : [];
 
       const fields: RegistrationField[] = rawFields
         .filter((field) => field && typeof field === 'object')
         .map((field) => {
           const rawField = field as Record<string, unknown>;
-          const kindValue = String(rawField.kind ?? 'text') as RegistrationFieldKind;
+          const kindValue = String(
+            rawField.kind ?? 'text',
+          ) as RegistrationFieldKind;
           const kind: RegistrationFieldKind = [
             'text',
             'textarea',
@@ -102,7 +114,8 @@ export function normalizeSectionsFromUnknown(value: unknown): RegistrationSectio
             ? ''
             : String(rawSection.title),
         description:
-          rawSection.description === undefined || rawSection.description === null
+          rawSection.description === undefined ||
+          rawSection.description === null
             ? ''
             : String(rawSection.description),
         fields,
@@ -110,7 +123,9 @@ export function normalizeSectionsFromUnknown(value: unknown): RegistrationSectio
     });
 }
 
-export function validateSchemaSections(sections: RegistrationSection[]): string | null {
+export function validateSchemaSections(
+  sections: RegistrationSection[],
+): string | null {
   if (!Array.isArray(sections) || sections.length === 0) {
     return 'At least one section is required';
   }

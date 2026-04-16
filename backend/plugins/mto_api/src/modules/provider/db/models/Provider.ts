@@ -13,10 +13,7 @@ export interface IProviderModel extends Model<IProviderDocument> {
     _id: string,
     doc: Partial<IProvider>,
   ): Promise<IProviderDocument>;
-  approveProvider(
-    _id: string,
-    approvedBy: string,
-  ): Promise<IProviderDocument>;
+  approveProvider(_id: string, approvedBy: string): Promise<IProviderDocument>;
   rejectProvider(
     _id: string,
     rejectionReason: string,
@@ -38,10 +35,7 @@ export const loadProviderClass = (models: IModels) => {
       });
     }
 
-    public static async updateProvider(
-      _id: string,
-      doc: Partial<IProvider>,
-    ) {
+    public static async updateProvider(_id: string, doc: Partial<IProvider>) {
       return await models.Provider.findOneAndUpdate(
         { _id },
         {
@@ -112,4 +106,3 @@ export const loadProviderClass = (models: IModels) => {
 
   return providerSchema;
 };
-

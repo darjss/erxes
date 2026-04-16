@@ -55,7 +55,9 @@ export const registrationFormSchemaMutations: Record<string, Resolver> = {
       schemaVersion: doc.schemaVersion,
     }).lean();
     if (existing) {
-      throw new Error('Schema with this membershipTypeId + schemaVersion already exists');
+      throw new Error(
+        'Schema with this membershipTypeId + schemaVersion already exists',
+      );
     }
 
     const created = await models.RegistrationFormSchema.createSchema(doc);
@@ -80,10 +82,15 @@ export const registrationFormSchemaMutations: Record<string, Resolver> = {
       schemaVersion: doc.schemaVersion,
     }).lean();
     if (conflict) {
-      throw new Error('Schema with this membershipTypeId + schemaVersion already exists');
+      throw new Error(
+        'Schema with this membershipTypeId + schemaVersion already exists',
+      );
     }
 
-    const updated = await models.RegistrationFormSchema.updateSchemaById(_id, doc);
+    const updated = await models.RegistrationFormSchema.updateSchemaById(
+      _id,
+      doc,
+    );
     if (!updated) throw new Error('Schema not found');
 
     return {

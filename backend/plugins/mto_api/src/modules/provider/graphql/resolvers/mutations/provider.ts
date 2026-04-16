@@ -3,11 +3,7 @@ import { IProvider, ProviderStatus } from '@/provider/@types/provider';
 import { validateProviderOwnershipByProvider } from '~/utils/ownershipValidator';
 
 export const providerMutations = {
-  async mtoProviderCreate(
-    _root: undefined,
-    doc: IProvider,
-    context: IContext,
-  ) {
+  async mtoProviderCreate(_root: undefined, doc: IProvider, context: IContext) {
     const { models } = context;
 
     const instanceId = context.instanceId;

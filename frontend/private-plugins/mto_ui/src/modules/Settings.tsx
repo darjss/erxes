@@ -48,8 +48,8 @@ const MtoSettings = () => {
         <div className="bg-white rounded-lg border shadow-sm p-6">
           <h2 className="text-lg font-semibold mb-2">Instance ID</h2>
           <p className="text-sm text-gray-600 mb-4">
-            This value identifies the current Mto instance. Save it here to
-            use it as the instance ID for this deployment (e.g. in slave mode).
+            This value identifies the current Mto instance. Save it here to use
+            it as the instance ID for this deployment (e.g. in slave mode).
           </p>
 
           {configLoading ? (

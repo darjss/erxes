@@ -5,8 +5,7 @@ export const tourGuideForm: RegistrationFormDefinition = {
   membershipTypeId: 'tour_guide',
   schemaVersion: SCHEMA_VERSION_V1,
   title: 'Жуулчны хөтөч тайлбарлагч',
-  description:
-    'Сонголт 1: шалгалт 150,000 ₮ · Сонголт 2: гишүүн 300,000 ₮',
+  description: 'Сонголт 1: шалгалт 150,000 ₮ · Сонголт 2: гишүүн 300,000 ₮',
   sections: [
     {
       id: 'personal',
@@ -85,7 +84,10 @@ export const tourGuideForm: RegistrationFormDefinition = {
           label: 'Мэргэшсэн чиглэл',
           options: [
             { value: 'general', label: 'Ерөнхий аяллын хөтөч' },
-            { value: 'special_interest', label: 'Тусгай сонирхлын аяллын хөтөч' },
+            {
+              value: 'special_interest',
+              label: 'Тусгай сонирхлын аяллын хөтөч',
+            },
             { value: 'local', label: 'Орон нутгийн хөтөч' },
           ],
         },

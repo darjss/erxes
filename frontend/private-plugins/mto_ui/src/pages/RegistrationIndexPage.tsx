@@ -8,7 +8,9 @@ import { RegistrationFormSheet } from '@/registration/components/RegistrationFor
 import { useMtoMode } from '~/modules/config/hooks/useMtoMode';
 
 export function RegistrationIndexPage() {
-  const { data, loading, error } = useQuery(MTO_REGISTRATION_MEMBERSHIP_SUMMARIES);
+  const { data, loading, error } = useQuery(
+    MTO_REGISTRATION_MEMBERSHIP_SUMMARIES,
+  );
   const { isSlaveMode } = useMtoMode();
 
   const [sheetOpen, setSheetOpen] = useState(false);
@@ -62,7 +64,8 @@ export function RegistrationIndexPage() {
     }
 
     const target = fillFormTypes.find(
-      (item: { membershipTypeId: string }) => item.membershipTypeId === pendingTypeId,
+      (item: { membershipTypeId: string }) =>
+        item.membershipTypeId === pendingTypeId,
     );
 
     if (!target) {
@@ -104,7 +107,8 @@ export function RegistrationIndexPage() {
           <Dialog.Header>
             <Dialog.Title>FillForm төрлөө сонгоно уу</Dialog.Title>
             <Dialog.Description>
-              Дараах {fillFormTypes.length} төрлөөс нэгийг сонгоод Continue дарна уу.
+              Дараах {fillFormTypes.length} төрлөөс нэгийг сонгоод Continue
+              дарна уу.
             </Dialog.Description>
           </Dialog.Header>
 
@@ -119,7 +123,9 @@ export function RegistrationIndexPage() {
                   key={row.membershipTypeId}
                   type="button"
                   variant={
-                    pendingTypeId === row.membershipTypeId ? 'default' : 'outline'
+                    pendingTypeId === row.membershipTypeId
+                      ? 'default'
+                      : 'outline'
                   }
                   className="w-full justify-start h-auto py-3"
                   onClick={() => setPendingTypeId(row.membershipTypeId)}

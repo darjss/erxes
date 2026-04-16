@@ -15,8 +15,8 @@ export const ALLOWED_APPLICATION_STATUSES: RegistrationApplicationStatus[] = [
 export function toPlainRegistrationDoc(
   doc: { toObject?: () => Record<string, unknown> } | Record<string, unknown>,
 ): Record<string, unknown> {
-  return typeof (doc as { toObject?: () => Record<string, unknown> }).toObject ===
-    'function'
+  return typeof (doc as { toObject?: () => Record<string, unknown> })
+    .toObject === 'function'
     ? (doc as { toObject: () => Record<string, unknown> }).toObject()
     : (doc as Record<string, unknown>);
 }
@@ -84,9 +84,7 @@ export interface StaffCpLinkPatchArgs {
   cpUserId?: string | null;
 }
 
-export function resolveStaffCpLinkPatches(
-  args: StaffCpLinkPatchArgs,
-): {
+export function resolveStaffCpLinkPatches(args: StaffCpLinkPatchArgs): {
   cpUserIdPatch?: string | null;
 } {
   let cpUserIdPatch: string | null | undefined;
@@ -106,7 +104,11 @@ export function parseNextStatusOrThrow(
   if (status === undefined || status === null || status === '') {
     return undefined;
   }
-  if (!ALLOWED_APPLICATION_STATUSES.includes(status as RegistrationApplicationStatus)) {
+  if (
+    !ALLOWED_APPLICATION_STATUSES.includes(
+      status as RegistrationApplicationStatus,
+    )
+  ) {
     throw new Error('Invalid status');
   }
   return status as RegistrationApplicationStatus;

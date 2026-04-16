@@ -115,10 +115,7 @@ export const RejectProviderDialog = ({
                 <Form.Item>
                   <Form.Label>Rejected By (User ID) *</Form.Label>
                   <Form.Control>
-                    <Input
-                      {...field}
-                      placeholder="Enter user ID"
-                    />
+                    <Input {...field} placeholder="Enter user ID" />
                   </Form.Control>
                   <Form.Message />
                 </Form.Item>

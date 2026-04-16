@@ -21,4 +21,3 @@ import exampleImage from '~/assets/example-image.svg';
 2. Optimize images before adding them to the assets folder
 3. Keep file names descriptive and in kebab-case
 4. Document any new assets added to this directory
-

@@ -248,9 +248,7 @@ export function DynamicRegistrationForm({
 
   useEffect(() => {
     if (editApplicationId) {
-      form.reset(
-        mergeInitialAnswers(definition, initialAnswers ?? {}),
-      );
+      form.reset(mergeInitialAnswers(definition, initialAnswers ?? {}));
     } else {
       form.reset(defaultValuesFromDefinition(definition));
     }
@@ -313,8 +311,7 @@ export function DynamicRegistrationForm({
       }
       onSubmitted?.();
     } catch (e: unknown) {
-      const message =
-        e instanceof Error ? e.message : 'Илгээхэд алдаа гарлаа';
+      const message = e instanceof Error ? e.message : 'Илгээхэд алдаа гарлаа';
       toast({
         title: 'Алдаа',
         description: message,
@@ -330,7 +327,9 @@ export function DynamicRegistrationForm({
         className={cn('space-y-8', formClassName ?? 'max-w-3xl')}
       >
         {!hideDescription && definition.description ? (
-          <p className="text-sm text-muted-foreground">{definition.description}</p>
+          <p className="text-sm text-muted-foreground">
+            {definition.description}
+          </p>
         ) : null}
 
         {definition.sections.map((section) => (
@@ -378,8 +377,7 @@ export function DynamicRegistrationForm({
         <div className="flex justify-end gap-2 pt-4">
           <Button type="submit" disabled={loading}>
             <Spinner show={loading} />
-            {submitLabel ??
-              (editApplicationId ? 'Хадгалах' : 'Илгээх')}
+            {submitLabel ?? (editApplicationId ? 'Хадгалах' : 'Илгээх')}
           </Button>
         </div>
       </form>

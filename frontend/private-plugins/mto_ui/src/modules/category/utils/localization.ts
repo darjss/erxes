@@ -4,10 +4,7 @@ import {
 } from '../types/category';
 
 export function getLocalizedString(
-  localized:
-    | MtoMultilingualString
-    | MtoMultilingualStringOptional
-    | undefined,
+  localized: MtoMultilingualString | MtoMultilingualStringOptional | undefined,
   preferredLang?: 'en' | 'mn',
 ): string {
   if (!localized || typeof localized !== 'object') {

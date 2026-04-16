@@ -33,4 +33,3 @@ const config: ModuleFederationConfig = {
 };
 
 export default config;
-

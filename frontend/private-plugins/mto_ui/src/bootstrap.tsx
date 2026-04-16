@@ -9,4 +9,3 @@ root.render(
     <div>App</div>
   </StrictMode>,
 );
-

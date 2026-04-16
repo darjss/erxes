@@ -35,12 +35,12 @@ interface MtoUploadContextValue {
   setCallbacks: (callbacks: FileUploadCallbacks) => void;
 }
 
-const MtoUploadContext = createContext<MtoUploadContextValue | null>(
-  null,
-);
+const MtoUploadContext = createContext<MtoUploadContextValue | null>(null);
 
-interface MtoUploadRootProps
-  extends Omit<React.ComponentPropsWithoutRef<'div'>, 'onChange'> {
+interface MtoUploadRootProps extends Omit<
+  React.ComponentPropsWithoutRef<'div'>,
+  'onChange'
+> {
   value: string;
   onChange: (value: MtoUploadChangeValue) => void;
   uploadUrl?: string;
@@ -142,8 +142,7 @@ const MtoUploadRoot = ({
   );
 };
 
-interface MtoUploadPreviewProps
-  extends React.ComponentPropsWithoutRef<'img'> {
+interface MtoUploadPreviewProps extends React.ComponentPropsWithoutRef<'img'> {
   onUploadStart?: (fileCount?: number) => void;
   onUploadProgress?: () => void;
   onAllUploadsComplete?: () => void;

@@ -15,7 +15,9 @@ export const getProviderIdsByInstanceId = async (
   // Find all providers with matching instanceId
   const providers = await context.models.Provider.find({
     instanceId: context.instanceId,
-  }).select('_id').lean();
+  })
+    .select('_id')
+    .lean();
 
   return providers.map((p) => p._id);
 };
@@ -51,4 +53,3 @@ export const addInstanceIdFilter = async (
     providerId: { $in: providerIds },
   };
 };
-

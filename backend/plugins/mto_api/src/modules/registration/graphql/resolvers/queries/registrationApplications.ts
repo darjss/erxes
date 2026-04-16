@@ -1,14 +1,10 @@
 import { ICursorPaginateParams, Resolver } from 'erxes-api-shared/core-types';
-import {
-  cursorPaginate,
-  markResolvers,
-} from 'erxes-api-shared/utils';
+import { cursorPaginate, markResolvers } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 import { mapRegistrationApplicationGql } from '@/registration/utils/mapRegistrationApplicationGql';
 import { assertClientPortalUser } from '@/registration/graphql/utils/registrationAuth';
 
-export interface IRegistrationApplicationsQueryParams
-  extends ICursorPaginateParams {
+export interface IRegistrationApplicationsQueryParams extends ICursorPaginateParams {
   membershipTypeId?: string;
   status?: string;
   cpUserId?: string;
@@ -68,11 +64,12 @@ export const registrationApplicationsQueries: Record<string, Resolver> = {
     });
 
     const list = await Promise.all(
-      result.list.map((doc) =>
-        mapRegistrationApplicationGql(
-          models,
-          doc as unknown as Record<string, unknown>,
-        ) as Promise<Record<string, unknown>>,
+      result.list.map(
+        (doc) =>
+          mapRegistrationApplicationGql(
+            models,
+            doc as unknown as Record<string, unknown>,
+          ) as Promise<Record<string, unknown>>,
       ),
     );
 
@@ -107,11 +104,12 @@ export const registrationApplicationsQueries: Record<string, Resolver> = {
     });
 
     const list = await Promise.all(
-      result.list.map((doc) =>
-        mapRegistrationApplicationGql(
-          models,
-          doc as unknown as Record<string, unknown>,
-        ) as Promise<Record<string, unknown>>,
+      result.list.map(
+        (doc) =>
+          mapRegistrationApplicationGql(
+            models,
+            doc as unknown as Record<string, unknown>,
+          ) as Promise<Record<string, unknown>>,
       ),
     );
 
@@ -143,7 +141,10 @@ export const registrationApplicationsQueries: Record<string, Resolver> = {
 
   async cpMtoRegistrationApplicationsCount(
     _root: undefined,
-    params: Pick<IRegistrationApplicationsQueryParams, 'membershipTypeId' | 'status'>,
+    params: Pick<
+      IRegistrationApplicationsQueryParams,
+      'membershipTypeId' | 'status'
+    >,
     context: IContext,
   ) {
     assertClientPortalUser(context);
@@ -187,7 +188,10 @@ export const registrationApplicationsQueries: Record<string, Resolver> = {
       }
     }
 
-    return mapRegistrationApplicationGql(models, doc as Record<string, unknown>);
+    return mapRegistrationApplicationGql(
+      models,
+      doc as Record<string, unknown>,
+    );
   },
 
   async cpMtoRegistrationApplication(
@@ -219,7 +223,10 @@ export const registrationApplicationsQueries: Record<string, Resolver> = {
       }
     }
 
-    return mapRegistrationApplicationGql(models, doc as Record<string, unknown>);
+    return mapRegistrationApplicationGql(
+      models,
+      doc as Record<string, unknown>,
+    );
   },
 };
 

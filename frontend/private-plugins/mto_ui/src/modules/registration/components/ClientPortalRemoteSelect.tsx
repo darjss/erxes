@@ -19,21 +19,19 @@ export function ClientPortalRemoteSelect({
 }: ClientPortalRemoteSelectProps) {
   const { data, loading } = useQuery(GET_CLIENT_PORTALS_FOR_SELECT);
 
-  const portals =
-    (data?.getClientPortals?.list ?? []) as { _id: string; name?: string }[];
+  const portals = (data?.getClientPortals?.list ?? []) as {
+    _id: string;
+    name?: string;
+  }[];
 
   return (
     <Select
       value={value || '__all__'}
-      onValueChange={(v) =>
-        onValueChange?.(v === '__all__' ? undefined : v)
-      }
+      onValueChange={(v) => onValueChange?.(v === '__all__' ? undefined : v)}
       disabled={disabled || loading}
     >
       <Select.Trigger className={className}>
-        <Select.Value
-          placeholder={loading ? 'Ачаалж байна…' : placeholder}
-        />
+        <Select.Value placeholder={loading ? 'Ачаалж байна…' : placeholder} />
       </Select.Trigger>
       <Select.Content>
         <Select.Item value="__all__">Бүх портал</Select.Item>

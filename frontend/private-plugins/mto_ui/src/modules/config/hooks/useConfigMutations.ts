@@ -35,4 +35,3 @@ export function useUpdateSelectedPayments() {
 
   return { updateSelectedPayments, loading };
 }
-
