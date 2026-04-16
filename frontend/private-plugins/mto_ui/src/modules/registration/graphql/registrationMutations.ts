@@ -23,6 +23,27 @@ export const MTO_REGISTRATION_SUBMIT = gql`
   }
 `;
 
+export const CP_MTO_REGISTRATION_SUBMIT = gql`
+  mutation CpMtoRegistrationSubmit(
+    $membershipTypeId: String!
+    $schemaVersion: String!
+    $answers: JSON!
+  ) {
+    cpMtoRegistrationSubmit(
+      membershipTypeId: $membershipTypeId
+      schemaVersion: $schemaVersion
+      answers: $answers
+    ) {
+      _id
+      status
+      membershipTypeId
+      schemaVersion
+      createdAt
+      cpUserId
+    }
+  }
+`;
+
 export const MTO_REGISTRATION_APPLICATION_UPDATE = gql`
   mutation MtoRegistrationApplicationUpdate(
     $_id: String!
@@ -35,6 +56,29 @@ export const MTO_REGISTRATION_APPLICATION_UPDATE = gql`
       answers: $answers
       status: $status
       cpUserId: $cpUserId
+    ) {
+      _id
+      status
+      membershipTypeId
+      membershipTypeTitle
+      schemaVersion
+      answers
+      modifiedAt
+      cpUserId
+    }
+  }
+`;
+
+export const CP_MTO_REGISTRATION_APPLICATION_UPDATE = gql`
+  mutation CpMtoRegistrationApplicationUpdate(
+    $_id: String!
+    $answers: JSON
+    $status: String
+  ) {
+    cpMtoRegistrationApplicationUpdate(
+      _id: $_id
+      answers: $answers
+      status: $status
     ) {
       _id
       status

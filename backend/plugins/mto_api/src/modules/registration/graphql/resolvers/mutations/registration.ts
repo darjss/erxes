@@ -1,7 +1,10 @@
 import { Resolver } from 'erxes-api-shared/core-types';
 import { markResolvers } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
-import { assertClientPortalAllowedStatusUpdate } from '@/registration/graphql/utils/registrationAuth';
+import {
+  assertClientPortalAllowedStatusUpdate,
+  assertClientPortalUser,
+} from '@/registration/graphql/utils/registrationAuth';
 import {
   assertApplicationInstanceMatches,
   assertCpUserOwnsApplication,
@@ -88,6 +91,36 @@ export const registrationMutations: Record<string, Resolver> = {
     return mapRegistrationApplicationGql(models, toPlainRegistrationDoc(created));
   },
 
+  async cpMtoRegistrationSubmit(
+    _root: undefined,
+    { membershipTypeId, schemaVersion, answers }: Omit<SubmitArgs, 'cpUserId'>,
+    context: IContext,
+  ) {
+    assertClientPortalUser(context);
+
+    const { models, subdomain, instanceId } = context;
+
+    const resolvedDefinition = await loadRegistrationDefinitionOrThrow(
+      models,
+      membershipTypeId,
+      schemaVersion,
+    );
+
+    const parsed = parseAndValidateAnswers(resolvedDefinition, answers);
+    const resolvedCpUserId = resolveSubmitCpUserId(context);
+
+    const created = await models.RegistrationApplication.createApplication({
+      membershipTypeId,
+      schemaVersion,
+      status: 'submitted',
+      answers: parsed,
+      subdomain,
+      instanceId,
+      ...(resolvedCpUserId ? { cpUserId: resolvedCpUserId } : {}),
+    });
+    return mapRegistrationApplicationGql(models, toPlainRegistrationDoc(created));
+  },
+
   async mtoRegistrationApplicationUpdate(
     _root: undefined,
     {
@@ -148,6 +181,61 @@ export const registrationMutations: Record<string, Resolver> = {
         ...(parsedAnswers !== undefined ? { answers: parsedAnswers } : {}),
         ...(nextStatus !== undefined ? { status: nextStatus } : {}),
         ...(cpUserIdPatch !== undefined ? { cpUserId: cpUserIdPatch } : {}),
+      },
+    );
+
+    if (!updated) {
+      throw new Error('Application not found');
+    }
+
+    return mapRegistrationApplicationGql(models, toPlainRegistrationDoc(updated));
+  },
+
+  async cpMtoRegistrationApplicationUpdate(
+    _root: undefined,
+    { _id, answers, status }: Omit<UpdateApplicationArgs, 'cpUserId'>,
+    context: IContext,
+  ) {
+    assertClientPortalUser(context);
+
+    const { models, subdomain, instanceId } = context;
+
+    const existing = await models.RegistrationApplication.findOne({
+      _id,
+      subdomain,
+    }).lean();
+
+    if (!existing) {
+      throw new Error('Application not found');
+    }
+
+    assertApplicationInstanceMatches(existing, instanceId);
+    assertCpUserOwnsApplication(context.cpUser, existing);
+
+    const resolvedDefinition = await loadRegistrationDefinitionOrThrow(
+      models,
+      existing.membershipTypeId,
+      existing.schemaVersion,
+    );
+
+    const parsedAnswers =
+      answers !== undefined && answers !== null
+        ? parseAndValidateAnswers(resolvedDefinition, answers)
+        : undefined;
+
+    const nextStatus = parseNextStatusOrThrow(status);
+    assertClientPortalAllowedStatusUpdate(context, nextStatus);
+
+    if (parsedAnswers === undefined && nextStatus === undefined) {
+      throw new Error('Nothing to update');
+    }
+
+    const updated = await models.RegistrationApplication.updateApplicationById(
+      _id,
+      subdomain,
+      {
+        ...(parsedAnswers !== undefined ? { answers: parsedAnswers } : {}),
+        ...(nextStatus !== undefined ? { status: nextStatus } : {}),
       },
     );
 

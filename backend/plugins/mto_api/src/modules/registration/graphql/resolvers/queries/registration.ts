@@ -5,6 +5,7 @@ import {
   getAllRegistrationFormDefinitions,
   getRegistrationFormDefinition,
 } from '@/registration/schemas/registry';
+import { assertClientPortalUser } from '@/registration/graphql/utils/registrationAuth';
 
 function compareSchemaVersion(a: string, b: string): number {
   const ax = a.split(/[.-]/).map((p) => parseInt(p, 10) || 0);
@@ -36,11 +37,56 @@ export const registrationQueries: Record<string, Resolver> = {
     return def ?? null;
   },
 
+  async cpMtoRegistrationFormDefinition(
+    _root: undefined,
+    {
+      membershipTypeId,
+      version,
+    }: { membershipTypeId: string; version?: string },
+    context: IContext,
+  ) {
+    assertClientPortalUser(context);
+
+    const def = await getRegistrationFormDefinition(
+      context.models,
+      membershipTypeId,
+      version,
+    );
+    return def ?? null;
+  },
+
   async mtoRegistrationMembershipSummaries(
     _root: undefined,
     _args: unknown,
     context: IContext,
   ) {
+    const forms = await getAllRegistrationFormDefinitions(context.models);
+    const latestByMembershipType = new Map<string, (typeof forms)[number]>();
+    for (const form of forms) {
+      const current = latestByMembershipType.get(form.membershipTypeId);
+      if (!current) {
+        latestByMembershipType.set(form.membershipTypeId, form);
+        continue;
+      }
+      if (compareSchemaVersion(form.schemaVersion, current.schemaVersion) > 0) {
+        latestByMembershipType.set(form.membershipTypeId, form);
+      }
+    }
+
+    return [...latestByMembershipType.values()].map((f) => ({
+      membershipTypeId: f.membershipTypeId,
+      title: f.title,
+      schemaVersion: f.schemaVersion,
+    }));
+  },
+
+  async cpMtoRegistrationMembershipSummaries(
+    _root: undefined,
+    _args: unknown,
+    context: IContext,
+  ) {
+    assertClientPortalUser(context);
+
     const forms = await getAllRegistrationFormDefinitions(context.models);
     const latestByMembershipType = new Map<string, (typeof forms)[number]>();
     for (const form of forms) {
