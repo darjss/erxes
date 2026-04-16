@@ -2,8 +2,6 @@ import { IProject, IProjectDocument } from '@/project/@types/project';
 import { projectSchema } from '@/project/db/definitions/project';
 import { Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
-import { createActivity } from '@/activity/utils/createActivity';
-import { BLOCK_MODULES } from '~/constants';
 
 export interface IProjectModel extends Model<IProjectDocument> {
   getProject(_id: string): Promise<IProjectDocument>;
@@ -20,7 +18,10 @@ export interface IProjectModel extends Model<IProjectDocument> {
   removeProject(ProjectId: string): Promise<{ ok: number }>;
 }
 
-export const loadProjectClass = (models: IModels, subdomain: string) => {
+export const loadProjectClass = (
+  models: IModels,
+  subdomain: string,
+) => {
   class Project {
     public static async getProject(_id: string) {
       const Project = await models.Project.findById(_id);
@@ -37,7 +38,7 @@ export const loadProjectClass = (models: IModels, subdomain: string) => {
 
       // Create default statuses for the project
       if (project) {
-        await models.Status.generateDefaultStatus(project._id);
+        await models.OpptyStatus.generateDefaultOpptyStatus(project._id);
       }
 
       return project;
@@ -52,12 +53,10 @@ export const loadProjectClass = (models: IModels, subdomain: string) => {
       input: IProject;
       userId: string;
     }) {
-      const oldProject = await models.Project.findOne({ _id }).lean();
-      
-      const status = await models.Status.exists({ projectId: _id });
+      const status = await models.OpptyStatus.exists({ projectId: _id });
 
       if (!status) {
-        await models.Status.generateDefaultStatus(_id);
+        await models.OpptyStatus.generateDefaultOpptyStatus(_id);
       }
 
       const updatedProject = await models.Project.findOneAndUpdate(
@@ -65,17 +64,6 @@ export const loadProjectClass = (models: IModels, subdomain: string) => {
         { $set: { ...input } },
         { new: true },
       );
-
-      if (userId && updatedProject) {
-        await createActivity<IProject>({
-          subdomain,
-          oldDoc: oldProject || undefined,
-          newDoc: updatedProject.toObject(),
-          userId,
-          contentId: _id,
-          module: BLOCK_MODULES.PROJECT,
-        });
-      }
 
       return updatedProject;
     }

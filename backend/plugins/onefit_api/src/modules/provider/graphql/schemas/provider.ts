@@ -60,6 +60,7 @@ export const types = `
     coverImages: [String]
     distance: Float
     instanceId: String
+    reviewSummary: OneFitProviderReviewSummary
   }
 
   type OneFitProviderListResponse {

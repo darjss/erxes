@@ -1,4 +1,4 @@
-import { Badge, Card, Separator, Spinner } from 'erxes-ui';
+import { Badge, Card, Separator, Spinner, useQueryState } from 'erxes-ui';
 import { IconCalendarEventFilled } from '@tabler/icons-react';
 import { format } from 'date-fns';
 import { useGetOppty } from '@/oppty/hooks/useGetOppty';
@@ -20,6 +20,8 @@ export const OpptyWidgetCard = ({ opptyId }: { opptyId: string }) => {
     true,
   );
 
+  const [, setActiveOpptyId] = useQueryState<string>('activeOpptyId');
+
   if (loading) {
     return <Spinner containerClassName="py-10" />;
   }
@@ -35,12 +37,7 @@ export const OpptyWidgetCard = ({ opptyId }: { opptyId: string }) => {
   const createdDate = parseDate(oppty.createdAt);
 
   const handleClick = () => {
-    if (oppty.projectId) {
-      window.open(
-        `/block/project/${oppty.projectId}/opptys?activeOpptyId=${oppty._id}`,
-        '_blank',
-      );
-    }
+    setActiveOpptyId(oppty._id);
   };
 
   return (

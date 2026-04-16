@@ -1,13 +1,14 @@
 import { gql } from '@apollo/client';
 
 export const CREATE_OPPTY_MUTATION = gql`
-  mutation BlockCreateOppty($input: IOpptyInput!) {
+  mutation BlockCreateOppty($input: IBlockOpptyInput!) {
     blockCreateOppty(input: $input) {
       _id
       number
       description
       customerId
-      unitTypes
+      unitType
+      tenureType
       unit
       units
       propertyRows {

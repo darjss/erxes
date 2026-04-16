@@ -10,8 +10,10 @@ import { currentUserState, useCreateMultipleRelations } from 'ui-modules';
 
 export const AddOpptySheet = ({
   onComplete,
+  showTrigger = true,
 }: {
   onComplete?: (opptyId: string) => void;
+  showTrigger?: boolean;
 }) => {
   const [open, setOpen] = useAtom(opptyCreateSheetState);
   const { projectId } = useParams<{ projectId?: string }>();
@@ -20,12 +22,14 @@ export const AddOpptySheet = ({
   const { createMultipleRelations } = useCreateMultipleRelations();
 
   const onSubmit = (data: TAddOppty) => {
-    const allUnitIds = data.unitRows
-      .map((row) => row.unitId)
-      .filter(Boolean) as string[];
-
-    const unit = allUnitIds[0] || undefined;
-    const units = allUnitIds.slice(1);
+    const propertyRows = data.unitRows
+      .filter((row) => row.buildingId)
+      .map((row) => ({
+        buildingId: row.buildingId,
+        zoningId: row.zoningId || undefined,
+        unitId: row.unitId || undefined,
+        isMain: row.isMain || false,
+      }));
 
     createOppty({
       variables: {
@@ -35,8 +39,9 @@ export const AddOpptySheet = ({
           status: data.status,
           customerSource: data.customerSource,
           assignedUserId: data.assignedUserId,
-          unit,
-          units,
+          unitType: data.unitType || undefined,
+          tenureType: data.tenureType || undefined,
+          propertyRows,
           labelIds: data.labelIds,
           tagIds: data.tagIds,
           startDate: data.startDate,
@@ -66,12 +71,14 @@ export const AddOpptySheet = ({
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
-      <Sheet.Trigger asChild>
-        <Button>
-          <IconPlus />
-          Add opportunity
-        </Button>
-      </Sheet.Trigger>
+      {showTrigger && (
+        <Sheet.Trigger asChild>
+          <Button>
+            <IconPlus />
+            Add opportunity
+          </Button>
+        </Sheet.Trigger>
+      )}
       <Sheet.View className="p-0 sm:max-w-5xl">
         <Sheet.Header>
           <Sheet.Title>New opportunity</Sheet.Title>

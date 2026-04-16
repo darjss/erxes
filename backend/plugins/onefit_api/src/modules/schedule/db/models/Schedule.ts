@@ -11,6 +11,18 @@ import {
   scheduleExceptionSchema,
 } from '../definitions/schedule';
 
+const SCHEDULE_TEMPLATE_DUPLICATE_MESSAGE =
+  'Schedule template already exists for this provider and month';
+
+function isMongoDuplicateKeyError(error: unknown): boolean {
+  return (
+    typeof error === 'object' &&
+    error !== null &&
+    'code' in error &&
+    (error as { code: number }).code === 11000
+  );
+}
+
 export interface IScheduleTemplateModel
   extends Model<IScheduleTemplateDocument> {
   createTemplate(doc: IScheduleTemplate): Promise<IScheduleTemplateDocument>;
@@ -29,7 +41,7 @@ export interface IScheduleTemplateModel
     fromMonth: number,
     toYear: number,
     toMonth: number,
-  ): Promise<IScheduleTemplateDocument>;
+  ): Promise<IScheduleTemplateDocument | null>;
   removeTemplates(ids: string[]): Promise<{ n: number; ok: number }>;
 }
 
@@ -52,10 +64,26 @@ export interface IScheduleExceptionModel
 export const loadScheduleTemplateClass = (models: IModels) => {
   class ScheduleTemplate {
     public static async createTemplate(doc: IScheduleTemplate) {
-      return await models.ScheduleTemplate.create({
-        ...doc,
-        createdAt: new Date(),
-      });
+      const existing = await models.ScheduleTemplate.findByProviderAndMonth(
+        doc.providerId,
+        doc.year,
+        doc.month,
+      );
+      if (existing) {
+        throw new Error(SCHEDULE_TEMPLATE_DUPLICATE_MESSAGE);
+      }
+
+      try {
+        return await models.ScheduleTemplate.create({
+          ...doc,
+          createdAt: new Date(),
+        });
+      } catch (error: unknown) {
+        if (isMongoDuplicateKeyError(error)) {
+          throw new Error(SCHEDULE_TEMPLATE_DUPLICATE_MESSAGE);
+        }
+        throw error;
+      }
     }
 
     public static async updateTemplate(
@@ -101,6 +129,15 @@ export const loadScheduleTemplateClass = (models: IModels) => {
 
       if (!sourceTemplate) {
         throw new Error('Source template not found');
+      }
+
+      const existingTarget = await models.ScheduleTemplate.findByProviderAndMonth(
+        providerId,
+        toYear,
+        toMonth,
+      );
+      if (existingTarget) {
+        return null;
       }
 
       return await models.ScheduleTemplate.createTemplate({

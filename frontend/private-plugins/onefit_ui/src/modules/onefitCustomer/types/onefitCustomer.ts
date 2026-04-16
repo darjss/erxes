@@ -23,6 +23,7 @@ export interface OneFitCustomer {
   oneFitMembershipPlanId?: string;
   oneFitMembershipExpiresAt?: string;
   oneFitMembershipStatus?: OneFitMembershipStatus;
+  graceMode?: boolean;
   oneFitIsMembershipOnHold?: boolean;
   oneFitMembershipHoldStartAt?: string;
   oneFitMembershipHoldEndAt?: string;
@@ -53,6 +54,7 @@ export interface OneFitCustomerFilters {
   email?: string;
   membershipPlanId?: string;
   membershipStatus?: OneFitMembershipStatus;
+  graceMode?: boolean;
   minCreditBalance?: number;
   maxCreditBalance?: number;
   preferredActivityTypeId?: string;

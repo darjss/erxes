@@ -4,6 +4,11 @@ import {
   mutations as CategoryMutations,
 } from '@/category/graphql/schemas/category';
 import {
+  providerReviewTypes,
+  providerReviewQueries,
+  providerReviewMutations,
+} from '@/provider/graphql/schemas/providerReview';
+import {
   types as ProviderTypes,
   queries as ProviderQueries,
   mutations as ProviderMutations,
@@ -54,11 +59,16 @@ import {
   queries as PromoCodeQueries,
   mutations as PromoCodeMutations,
 } from '@/promoCode/graphql/schemas/promoCode';
+import {
+  types as DashboardTypes,
+  queries as DashboardQueries,
+} from '@/dashboard/graphql/schemas/dashboard';
 import { TypeExtensions } from './extensions';
 
 export const types = `
   ${TypeExtensions}
   ${CategoryTypes}
+  ${providerReviewTypes}
   ${ProviderTypes}
   ${ScheduleTypes}
   ${MembershipTypes}
@@ -69,10 +79,12 @@ export const types = `
   ${ActivityTypeTypes}
   ${BannerTypes}
   ${PromoCodeTypes}
+  ${DashboardTypes}
 `;
 
 export const queries = `
   ${CategoryQueries}
+  ${providerReviewQueries}
   ${ProviderQueries}
   ${ScheduleQueries}
   ${MembershipQueries}
@@ -83,10 +95,12 @@ export const queries = `
   ${ActivityTypeQueries}
   ${BannerQueries}
   ${PromoCodeQueries}
+  ${DashboardQueries}
 `;
 
 export const mutations = `
   ${CategoryMutations}
+  ${providerReviewMutations}
   ${ProviderMutations}
   ${ScheduleMutations}
   ${MembershipMutations}

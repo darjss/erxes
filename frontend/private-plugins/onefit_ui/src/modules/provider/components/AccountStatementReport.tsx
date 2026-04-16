@@ -12,7 +12,6 @@ import { ONE_FIT_ACCOUNT_STATEMENT } from '../graphql/accountStatementQueries';
 import { SelectProviderSearchable } from './SelectProviderSearchable';
 import { getLocalizedString } from '~/modules/activity-type/utils/localization';
 import { FilterField } from '~/components/shared/FilterField';
-import { AccountStatementRowDetailsDialog } from './AccountStatementRowDetailsDialog';
 import { useOneFitMode } from '~/modules/config/hooks/useOneFitMode';
 
 function startOfMonth(date: Date): string {
@@ -54,6 +53,7 @@ export function AccountStatementReport() {
     null,
   );
   const [detailsOpen, setDetailsOpen] = useState(false);
+
   const [, setAccountStatementId] = useQueryState<string>('accountStatementId');
   const { mode } = useOneFitMode();
   const isMasterMode = mode === 'master';
@@ -72,8 +72,20 @@ export function AccountStatementReport() {
 
   const columns: ColumnDef<AccountStatementRow>[] = [
     {
+      id: 'rowNumber',
+      header: '#',
+      size: 48,
+      cell: ({ row }: { row: { index: number } }) => (
+        <RecordTableInlineCell className="text-xs font-medium text-muted-foreground tabular-nums">
+          {row.index + 1}
+        </RecordTableInlineCell>
+      ),
+    },
+    {
+      id: 'year',
       accessorKey: 'year',
       header: 'Year',
+      size: 80,
       cell: ({ cell }: { cell: Cell<AccountStatementRow, unknown> }) => (
         <RecordTableInlineCell className="text-xs font-medium">
           {cell.getValue() as number}
@@ -81,8 +93,10 @@ export function AccountStatementReport() {
       ),
     },
     {
+      id: 'month',
       accessorKey: 'month',
       header: 'Month',
+      size: 90,
       cell: ({ row }: { row: { original: AccountStatementRow } }) => {
         const y = row.original.year;
         const m = String(row.original.month).padStart(2, '0');
@@ -94,8 +108,10 @@ export function AccountStatementReport() {
       },
     },
     {
+      id: 'provider',
       accessorKey: 'provider',
       header: 'Provider',
+      size: 220,
       cell: ({ row }: { row: { original: AccountStatementRow } }) => {
         const provider = row.original.provider;
         const name = provider?.businessName
@@ -111,8 +127,10 @@ export function AccountStatementReport() {
     ...(isMasterMode
       ? [
           {
+            id: 'creditsEarnedCompleted',
             accessorKey: 'creditsEarnedCompleted',
             header: 'Credits (completed)',
+            size: 180,
             cell: ({ cell }: { cell: Cell<AccountStatementRow, unknown> }) => (
               <RecordTableInlineCell className="text-xs font-medium">
                 {(cell.getValue() as number).toFixed(2)}
@@ -120,8 +138,10 @@ export function AccountStatementReport() {
             ),
           },
           {
+            id: 'creditsEarnedNoShow',
             accessorKey: 'creditsEarnedNoShow',
             header: 'Credits (no-show)',
+            size: 180,
             cell: ({ cell }: { cell: Cell<AccountStatementRow, unknown> }) => (
               <RecordTableInlineCell className="text-xs font-medium">
                 {(cell.getValue() as number).toFixed(2)}
@@ -131,8 +151,10 @@ export function AccountStatementReport() {
         ]
       : []),
     {
+      id: 'bookingCountCompleted',
       accessorKey: 'bookingCountCompleted',
       header: 'Bookings (completed)',
+      size: 50,
       cell: ({ cell }: { cell: Cell<AccountStatementRow, unknown> }) => (
         <RecordTableInlineCell className="text-xs font-medium">
           {cell.getValue() as number}
@@ -140,8 +162,10 @@ export function AccountStatementReport() {
       ),
     },
     {
+      id: 'bookingCountNoShow',
       accessorKey: 'bookingCountNoShow',
       header: 'Bookings (no-show)',
+      size: 50,
       cell: ({ cell }: { cell: Cell<AccountStatementRow, unknown> }) => (
         <RecordTableInlineCell className="text-xs font-medium">
           {cell.getValue() as number}
@@ -149,8 +173,10 @@ export function AccountStatementReport() {
       ),
     },
     {
+      id: 'amountEarnedCompleted',
       accessorKey: 'amountEarnedCompleted',
       header: 'Amount (completed)',
+      size: 200,
       cell: ({ cell }: { cell: Cell<AccountStatementRow, unknown> }) => (
         <RecordTableInlineCell className="text-xs font-medium">
           {(cell.getValue() as number).toFixed(2)}
@@ -158,8 +184,10 @@ export function AccountStatementReport() {
       ),
     },
     {
+      id: 'amountEarnedNoShow',
       accessorKey: 'amountEarnedNoShow',
       header: 'Amount (no-show)',
+      size: 200,
       cell: ({ cell }: { cell: Cell<AccountStatementRow, unknown> }) => (
         <RecordTableInlineCell className="text-xs font-medium">
           {(cell.getValue() as number).toFixed(2)}
@@ -169,6 +197,7 @@ export function AccountStatementReport() {
     {
       id: 'details',
       header: '',
+      size: 160,
       cell: ({ row }: { row: { original: AccountStatementRow } }) => (
         <RecordTableInlineCell>
           <Button
@@ -219,11 +248,11 @@ export function AccountStatementReport() {
       </div>
 
       <div className="rounded-md border flex flex-col max-h-[70vh]">
-        <div className="overflow-auto min-h-0 flex-1">
+        <div className="overflow-x-auto overflow-y-auto min-h-0 flex-1">
           <RecordTable.Provider
             columns={columns}
             data={rows}
-            className="m-0 min-w-max"
+            className="m-0 overflow-x-auto"
           >
             <RecordTable>
               <RecordTable.Header />
@@ -236,7 +265,9 @@ export function AccountStatementReport() {
         </div>
         {!loading && rows.length > 0 && (
           <div className="border-t bg-muted/30 px-4 py-2 text-sm font-medium space-y-1 shrink-0">
-            <div>Total credits earned: {totalCreditsEarned.toFixed(2)}</div>
+            {isMasterMode && (
+              <div>Total credits earned: {totalCreditsEarned.toFixed(2)}</div>
+            )}
             <div>Total amount earned: {totalAmountEarned.toFixed(2)}</div>
           </div>
         )}
@@ -247,15 +278,6 @@ export function AccountStatementReport() {
           No completed or no-show bookings in the selected date range.
         </p>
       )}
-
-      <AccountStatementRowDetailsDialog
-        row={detailsRow}
-        open={detailsOpen}
-        onOpenChange={(open) => {
-          setDetailsOpen(open);
-          if (!open) setDetailsRow(null);
-        }}
-      />
     </div>
   );
 }

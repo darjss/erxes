@@ -278,9 +278,48 @@ export const activityTypeQueries = {
       baseFilter.providerId = params.providerId;
     }
 
-    // Filter by active status
+    // Filter by active status (activity type; when true, provider must also be active)
     if (params.isActive !== undefined) {
       baseFilter.isActive = params.isActive;
+      if (params.isActive === true) {
+        const activeProviderIds = await context.models.Provider.distinct(
+          '_id',
+          {
+            isActive: true,
+          },
+        );
+        if (activeProviderIds.length === 0) {
+          return {
+            list: [],
+            totalCount: 0,
+            pageInfo: {
+              hasNextPage: false,
+              hasPreviousPage: false,
+              startCursor: null,
+              endCursor: null,
+            },
+          };
+        }
+        if (params.providerId) {
+          const providerIsActive = activeProviderIds.some(
+            (id) => String(id) === String(params.providerId),
+          );
+          if (!providerIsActive) {
+            return {
+              list: [],
+              totalCount: 0,
+              pageInfo: {
+                hasNextPage: false,
+                hasPreviousPage: false,
+                startCursor: null,
+                endCursor: null,
+              },
+            };
+          }
+        } else {
+          baseFilter.providerId = { $in: activeProviderIds };
+        }
+      }
     }
 
     // Add instanceId filtering

@@ -53,7 +53,23 @@ export const opptyQueries = {
     }
 
     if (filter?.unitType) {
-      filterQuery.unitTypes = { $in: [filter.unitType] };
+      filterQuery.unitType = filter.unitType;
+    }
+
+    if (filter?.tenureType) {
+      const [areaType, ...tenureTypes] = filter.tenureType.split(':');
+
+      if (tenureTypes.length) {
+        filterQuery.$and = [
+          ...(filterQuery.$and || []),
+          { tenureType: { $regex: `^${areaType}:` } },
+          ...tenureTypes.map((t) => ({
+            tenureType: { $regex: `:${t}(:|$)` },
+          })),
+        ];
+      } else {
+        filterQuery.tenureType = { $regex: `^${areaType}(:|$)` };
+      }
     }
 
     if (filter?.unit) {

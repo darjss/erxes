@@ -21,6 +21,10 @@ export const BLOCK_GET_UNIT = gql`
     blockGetUnit(_id: $id) {
       _id
       building
+      buildingData {
+        _id
+        name
+      }
       number
       type
       unitType {
@@ -31,7 +35,30 @@ export const BLOCK_GET_UNIT = gql`
       }
       updatedAt
       zoning
+      zoningData {
+        _id
+        building
+        floor
+        usageTypes
+        areaType
+        tenureTypes
+        unitsCount
+        size
+        priceList {
+          currency
+          priceType
+          price
+        }
+      }
       status
+      blockSubdomain
+      blockEntityId
+      agencySubdomain
+      agencyEntityId
+      projectData {
+        _id
+        name
+      }
     }
   }
 `;

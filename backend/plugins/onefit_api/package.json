@@ -10,7 +10,9 @@
     "import:category": "tsx scripts/import-category.ts",
     "import:providers": "tsx scripts/import-providers.ts",
     "import:partner-activities": "tsx scripts/import-partner-activities.ts",
-    "update:activity-type-prices": "tsx scripts/update-activity-type-prices.ts"
+    "update:activity-type-prices": "tsx scripts/update-activity-type-prices.ts",
+    "update:booking-prices": "tsx scripts/update-booking-prices-from-activity-type.ts",
+    "seed:provider-reviews": "tsx scripts/seed-provider-reviews.ts"
   },
   "keywords": [],
   "author": "",

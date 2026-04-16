@@ -18,9 +18,9 @@ export const useAddBlockStatus = () => {
             type: input?.type,
             projectId: input?.projectId,
           },
-        }) as { getBlockStatuses: any[] } | null;
+        }) as { getBlockOpptyStatuses: any[] } | null;
 
-        if (existingData && data?.createBlockStatus) {
+        if (existingData && data?.createBlockOpptyStatus) {
           cache.writeQuery({
             query: GET_BLOCK_STATUSES,
             variables: {
@@ -28,9 +28,9 @@ export const useAddBlockStatus = () => {
               projectId: input?.projectId,
             },
             data: {
-              getBlockStatuses: [
-                ...existingData.getBlockStatuses,
-                data.createBlockStatus,
+              getBlockOpptyStatuses: [
+                ...existingData.getBlockOpptyStatuses,
+                data.createBlockOpptyStatus,
               ],
             },
           });

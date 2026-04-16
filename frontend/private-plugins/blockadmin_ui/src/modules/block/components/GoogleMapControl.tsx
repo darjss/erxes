@@ -1,4 +1,4 @@
-import { IconMap, IconSatellite, IconStack } from '@tabler/icons-react';
+import { IconMap, IconSatellite, IconStack2 } from '@tabler/icons-react';
 import { ControlPosition, MapControl } from '@vis.gl/react-google-maps';
 import { Button, DropdownMenu } from 'erxes-ui';
 import { MapConfig } from '../types';
@@ -59,7 +59,7 @@ export const GoogleMapControl = ({
         <DropdownMenu>
           <DropdownMenu.Trigger asChild>
             <Button variant="outline">
-              <IconStack className="w-6 h-6" />
+              <IconStack2 className="w-6 h-6" />
             </Button>
           </DropdownMenu.Trigger>
           <DropdownMenu.Content align="end" className="min-w-10">

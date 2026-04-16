@@ -312,6 +312,20 @@ async function cancelBookingLogic(
     throw new Error('Захиалга аль хэдийн цуцлагдсан');
   }
 
+  if (
+    booking.status === BookingStatus.COMPLETED ||
+    booking.attendanceStatus === AttendanceStatus.ATTENDED
+  ) {
+    throw new Error('Cannot cancel a booking that was already attended');
+  }
+
+  if (
+    booking.status === BookingStatus.NO_SHOW ||
+    booking.attendanceStatus === AttendanceStatus.NO_SHOW
+  ) {
+    throw new Error('Cannot cancel a booking that was marked as no-show');
+  }
+
   if (!skipDateTimeCheck) {
     const activityType = await models.ActivityType.findById(
       booking.activityTypeId,
@@ -324,11 +338,11 @@ async function cancelBookingLogic(
     const hoursUntilBooking =
       (bookingDateTime.getTime() - now.getTime()) / (1000 * 60 * 60);
 
-    if (hoursUntilBooking > 24) {
-      throw new Error(
-        'Цуцлалтыг үйл ажиллагаа дуусахын 24 цагийн дотор хийх боломжтой',
-      );
-    }
+    // if (hoursUntilBooking > 24) {
+    //   throw new Error(
+    //     'Цуцлалтыг үйл ажиллагаа дуусахын 24 цагийн дотор хийх боломжтой',
+    //   );
+    // }
 
     if (rawDeadline >= 0) {
       // Positive: must cancel at least N hours before activity end
@@ -448,6 +462,8 @@ async function cancelBookingLogic(
   return await models.Booking.cancelBooking(bookingId, cancelledBy, reason);
 }
 
+const CP_NOTIFICATIONS_CREATE_FAILED = Symbol('cpNotificationsCreateFailed');
+
 async function sendBookingCancelledCpNotification(
   subdomain: string,
   clientPortalId: string,
@@ -458,7 +474,7 @@ async function sendBookingCancelledCpNotification(
   const reasonText = cancellationReason ? ` Reason: ${cancellationReason}` : '';
 
   // Create (or upsert) cp notification + send push (if firebase configured)
-  await sendTRPCMessage({
+  const result = await sendTRPCMessage({
     subdomain,
     pluginName: 'core',
     method: 'mutation',
@@ -481,8 +497,17 @@ async function sendBookingCancelledCpNotification(
         },
       },
     },
-    defaultValue: null,
+    defaultValue: CP_NOTIFICATIONS_CREATE_FAILED,
   });
+
+  if (result === CP_NOTIFICATIONS_CREATE_FAILED) {
+    // Mirrors sendTRPCMessage silent catch; surfaces failures for ops/debugging
+    console.warn(
+      `[onefit] cpNotifications.create failed (subdomain=${subdomain}, booking._id=${String(
+        booking._id,
+      )}, clientPortalId=${clientPortalId})`,
+    );
+  }
 }
 
 async function findCpUsersByCustomerId(
@@ -505,8 +530,29 @@ async function findCpUsersByCustomerId(
 
   const fromList = Array.isArray(listResult?.list) ? listResult.list : [];
 
-  // booking.userId might also be cpUserId (when cpUser is not linked to erxes customer)
+  // booking.userId is usually erxes customer id; may also be cpUser._id when unlinked
   if (fromList.length === 0) {
+    const byErxesCustomerId = await sendTRPCMessage({
+      subdomain,
+      pluginName: 'core',
+      method: 'query',
+      module: 'cpUsers',
+      action: 'get',
+      input: {
+        erxesCustomerId: customerId,
+      },
+      defaultValue: null,
+    });
+
+    if (byErxesCustomerId?._id && byErxesCustomerId?.clientPortalId) {
+      return [
+        {
+          cpUserId: String(byErxesCustomerId._id),
+          clientPortalId: String(byErxesCustomerId.clientPortalId),
+        },
+      ];
+    }
+
     const byId = await sendTRPCMessage({
       subdomain,
       pluginName: 'core',
@@ -564,6 +610,23 @@ async function notifyBookingCancelledViaClientPortal(
       cpUserIds,
       booking,
     );
+  }
+}
+
+function validateAttendanceMarkPreconditions(booking: IBookingDocument): void {
+  if (booking.status === BookingStatus.CANCELLED) {
+    throw new Error('Cannot mark attendance for a cancelled booking');
+  }
+
+  if (
+    booking.status === BookingStatus.COMPLETED ||
+    booking.status === BookingStatus.NO_SHOW
+  ) {
+    throw new Error('Booking attendance has already been finalized');
+  }
+
+  if (booking.attendanceStatus !== AttendanceStatus.PENDING) {
+    throw new Error('Booking attendance has already been marked');
   }
 }
 
@@ -633,6 +696,8 @@ export const bookingMutations: Record<string, Resolver> = {
       throw new Error('Booking not found');
     }
 
+    validateAttendanceMarkPreconditions(booking);
+
     // Verify instanceId ownership if instanceId is set
     if (instanceId) {
       const provider = await models.Provider.findOne({
@@ -665,6 +730,10 @@ export const bookingMutations: Record<string, Resolver> = {
 
     if (!bookings.length) {
       return [];
+    }
+
+    for (const booking of bookings) {
+      validateAttendanceMarkPreconditions(booking);
     }
 
     if (instanceId) {
@@ -761,21 +830,13 @@ export const bookingMutations: Record<string, Resolver> = {
       throw new Error('You do not have permission to cancel this booking');
     }
 
-    if (booking.attendanceStatus === AttendanceStatus.NO_SHOW) {
-      throw new Error('Cannot cancel a booking that was marked as no-show');
-    }
-
     const cancelledBooking = await cancelBookingLogic(_id, userId, reason, {
       models,
       subdomain,
     } as IContext);
 
-    await sendBookingCancelledCpNotification(
-      subdomain,
-      cpUser.clientPortalId,
-      [cpUser._id],
-      cancelledBooking,
-    );
+    // Staff cancel (oneFitBookingCancel) still notifies via notifyBookingCancelledViaClientPortal.
+    // Skip CP push/in-app here: the canceller is the same user and already sees the UI result.
 
     return cancelledBooking;
   },

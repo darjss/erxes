@@ -15,7 +15,7 @@ export const blockNoteMutations = {
       mentions: string[];
       contentType: string;
     },
-    { models, user, subdomain }: IContext,
+    { models, user }: IContext,
   ) => {
     return models.BlockNote.createNote({
       doc: {
@@ -25,7 +25,6 @@ export const blockNoteMutations = {
         createdBy: user._id,
       },
       contentType,
-      subdomain,
     });
   },
 

@@ -38,6 +38,30 @@ const SubmissionsPage = lazy(() =>
   })),
 );
 
+const AgenciesPage = lazy(() =>
+  import('~/pages/AgenciesPage').then((module) => ({
+    default: module.AgenciesPage,
+  })),
+);
+
+const AgencyDetailPage = lazy(() =>
+  import('~/pages/AgencyDetailPage').then((module) => ({
+    default: module.AgencyDetailPage,
+  })),
+);
+
+const AgencyListingPage = lazy(() =>
+  import('~/pages/AgencyListingPage').then((module) => ({
+    default: module.AgencyListingPage,
+  })),
+);
+
+const AdminListingDetailPage = lazy(() =>
+  import('~/pages/AdminListingDetailPage').then((module) => ({
+    default: module.AdminListingDetailPage,
+  })),
+);
+
 const Main = () => {
   return (
     <Suspense fallback={<div />}>
@@ -47,6 +71,18 @@ const Main = () => {
 
         <Route path="/developers" element={<DevelopersPage />} />
         <Route path="/developers/:id" element={<DeveloperDetail />} />
+
+        <Route path="/agencies">
+          <Route index element={<Navigate to="agencies" replace />} />
+          <Route path="agencies">
+            <Route index element={<AgenciesPage />} />
+            <Route path=":id" element={<AgencyDetailPage />} />
+          </Route>
+          <Route path="listing">
+            <Route index element={<AgencyListingPage />} />
+            <Route path=":listingId" element={<AdminListingDetailPage />} />
+          </Route>
+        </Route>
 
         <Route path="/form">
           <Route index element={<Navigate to="submissions" replace />} />

@@ -6,6 +6,7 @@ export interface IOpptyFilter {
   description?: string;
   customerId?: string;
   unitType?: string;
+  tenureType?: string;
   unit?: string;
   assignedUserId?: string;
   status?: string;
@@ -24,11 +25,12 @@ export interface IPropertyRow {
   isMain?: boolean;
 }
 
-export interface IOpptyInput {
+export interface IBlockOpptyInput {
   number?: string;
   description: string;
   customerId: string;
-  unitTypes?: string[];
+  unitType?: string;
+  tenureType?: string;
   unit?: string;
   units?: string[];
   propertyRows?: IPropertyRow[];
@@ -44,7 +46,7 @@ export interface IOpptyInput {
   propertiesData?: any;
 }
 
-export interface IOppty extends IOpptyInput {
+export interface IOppty extends IBlockOpptyInput {
   _id: string;
   createdAt: Date;
   updatedAt: Date;

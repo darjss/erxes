@@ -33,7 +33,8 @@ export interface IOppty {
   number: string;
   description: string;
   customerId: string;
-  unitTypes?: string[];
+  unitType?: string;
+  tenureType?: string;
   units?: string[];
   unit?: string;
   propertyRows?: IPropertyRow[];
@@ -55,6 +56,7 @@ export interface IOpptyFilter {
   description?: string;
   customerId?: string;
   unitType?: string;
+  tenureType?: string;
   unit?: string;
   assignedUserId?: string;
   status?: string;
@@ -73,10 +75,11 @@ export interface IOpptyDocument extends IOppty, Document {
   updatedAt: Date;
 }
 
-export interface IOpptyInput {
+export interface IBlockOpptyInput {
   description: string;
   customerId: string;
-  unitTypes?: string[];
+  unitType?: string;
+  tenureType?: string;
   units?: string[];
   unit?: string;
   propertyRows?: IPropertyRow[];

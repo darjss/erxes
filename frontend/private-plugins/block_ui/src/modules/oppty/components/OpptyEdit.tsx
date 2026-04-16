@@ -59,6 +59,8 @@ export const OpptyEdit = ({
     status: oppty.status || '',
     customerSource: oppty.customerSource || '',
     assignedUserId: oppty.assignedUserId || undefined,
+    unitType: oppty.unitType || '',
+    tenureType: oppty.tenureType || '',
     unitRows: rows.length > 0 ? rows : [{ buildingId: '', zoningId: '', unitId: '' }],
     labelIds: oppty.labelIds || [],
     tagIds: oppty.tagIds || [],
@@ -89,6 +91,8 @@ export const OpptyEdit = ({
               status: data.status,
               customerSource: data.customerSource,
               assignedUserId: data.assignedUserId,
+              unitType: data.unitType || undefined,
+              tenureType: data.tenureType || undefined,
               propertyRows,
               labelIds: data.labelIds,
               tagIds: data.tagIds,
@@ -106,6 +110,18 @@ export const OpptyEdit = ({
                 relatedContentIds: [data.customerId],
               });
             }
+
+            if (propertyRows?.length) {
+              const unitIds = propertyRows.map((row) => row.unitId).filter(Boolean) as string[]
+
+              manageRelations({
+                contentType: 'block:oppty',
+                contentId: id,
+                relatedContentType: 'block:unit',
+                relatedContentIds: unitIds || [],
+              });
+            }
+
             setOpen(false);
           },
         });

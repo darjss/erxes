@@ -69,20 +69,23 @@ export const ONE_FIT_SCHEDULE_TEMPLATE_COPY_PREVIOUS_MONTH = gql`
       toYear: $toYear
       toMonth: $toMonth
     ) {
-      _id
-      createdAt
-      modifiedAt
-      providerId
-      month
-      year
-      dailySchedules {
-        dayOfWeek
-        activityTypeId
-        genderRestriction
-        startTime
-        endTime
-        dailyLimit
+      templates {
+        _id
+        createdAt
+        modifiedAt
+        providerId
+        month
+        year
+        dailySchedules {
+          dayOfWeek
+          activityTypeId
+          genderRestriction
+          startTime
+          endTime
+          dailyLimit
+        }
       }
+      skippedProviderIds
     }
   }
 `;

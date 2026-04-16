@@ -41,6 +41,11 @@ import {
 } from '@/attachment/graphql/schemas/attachment';
 
 import {
+  mutations as AgencyMutations,
+  queries as AgencyQueries,
+  types as AgencyTypes,
+} from '@/agency/graphql/schemas/agency';
+import {
   mutations as DeveloperMutations,
   queries as DeveloperQueries,
   types as DeveloperTypes,
@@ -78,6 +83,12 @@ import {
 } from '@/form/graphql/schemas';
 
 import {
+  mutations as ListingMutations,
+  queries as ListingQueries,
+  types as ListingTypes,
+} from '@/listing/graphql/schemas/listing';
+
+import {
   queries as ClientPortalBlockQueries,
   types as ClientPortalBlockTypes,
 } from '~/modules/clientportal/graphql/schemas';
@@ -94,6 +105,7 @@ export const types = `
   ${UnitTypeTypes}
   ${ZoningTypes}
   ${AttachmentTypes}
+  ${AgencyTypes}
   ${DeveloperTypes}
   ${ProjectMemberTypes}
   ${UnitLeadTypes}
@@ -101,6 +113,7 @@ export const types = `
   ${ContractTypes}
   ${OfferTypes}
   ${SubmissionTypes}
+  ${ListingTypes}
 
   ${ClientPortalBlockTypes}
   `;
@@ -114,6 +127,7 @@ export const queries = `
   ${UnitTypeQueries}
   ${ZoningQueries}
   ${AttachmentQueries}
+  ${AgencyQueries}
   ${DeveloperQueries}
   ${ProjectMemberQueries}
   ${UnitLeadQueries}
@@ -121,15 +135,18 @@ export const queries = `
   ${ContractQueries}
   ${OfferQueries}
   ${FormQueries}
+  ${ListingQueries}
 
   ${ClientPortalBlockQueries}
   `;
 
 export const mutations = `
   ${SubmissionMutations}
+  ${AgencyMutations}
   ${DeveloperMutations}
   ${UnitMutations}
   ${ProjectMutations}
+  ${ListingMutations}
   `;
 
 export default { types, queries, mutations };

@@ -43,9 +43,7 @@ import {
   IconTrash,
 } from '@tabler/icons-react';
 import { useDeleteBlockStatus } from '@/status/hooks/useDeleteBlockStatus';
-import {
-  StatusInlineIcon,
-} from '@/status/components/StatusInline';
+import { StatusInlineIcon } from '@/status/components/StatusInline';
 
 const StatusSkeleton = () => {
   return (
@@ -130,7 +128,7 @@ export const Status = ({
           </span>
         </div>
       </span>
-      <StatusOptionMenu statusId={status._id} />
+      {['closed_won', 'closed_lost'].includes(status.type) ? null : (<StatusOptionMenu statusId={status._id} />)}
     </div>
   );
 };
@@ -197,10 +195,12 @@ export const StatusForm = ({
   statusType,
   projectId,
   editingStatus,
+  defaultColor,
 }: {
   statusType: string;
   projectId: string;
   editingStatus?: IBlockStatus;
+  defaultColor?: string;
 }) => {
   const { addStatus } = useAddBlockStatus();
   const { toast } = useToast();
@@ -215,7 +215,7 @@ export const StatusForm = ({
     defaultValues: {
       name: editingStatus?.name || '',
       description: editingStatus?.description || '',
-      color: editingStatus?.color || '#000000',
+      color: editingStatus?.color || defaultColor || '#000000',
     },
   });
 
@@ -308,7 +308,10 @@ export const StatusForm = ({
                               : undefined,
                           }}
                         >
-                          <StatusInlineIcon statusType={statusType} />
+                          <StatusInlineIcon
+                            statusType={statusType}
+                            color={field.value}
+                          />
                         </Button>
                       </ColorPicker.Trigger>
                       <ColorPicker.Content />
@@ -374,7 +377,6 @@ export const StatusGroup = ({
     type: statusType,
   });
   const { changeOrder } = useUpdateBlockStatusOrder();
-  const { toast } = useToast();
   const [addingStatus, setAddingStatus] = useAtom(addingStatusState);
   const editingStatusId = useAtomValue(editingStatusState);
   const [_statuses, _setStatuses] = useState(statuses);
@@ -395,19 +397,16 @@ export const StatusGroup = ({
 
     const newOrder = arrayMove(_statuses, oldIndex, newIndex);
 
-    const prev = newOrder[newIndex - 1]?.order ?? 0;
-    const next = newOrder[newIndex + 1]?.order ?? prev + 200;
-    const order = Math.floor((prev + next) / 2);
-
-    newOrder[newIndex] = { ...newOrder[newIndex], order };
-    _setStatuses(newOrder);
-
-    changeOrder({
-      variables: {
-        _id: newOrder[newIndex]._id,
-        order,
-      },
+    newOrder.forEach((status, index) => {
+      changeOrder({
+        variables: {
+          _id: status._id,
+          order: index,
+        },
+      });
     });
+
+    _setStatuses(newOrder);
   };
 
   const handleDragMove = (event: DragMoveEvent) => {
@@ -420,21 +419,23 @@ export const StatusGroup = ({
   return (
     <section className="p-4 w-full">
       <div className="flex justify-between items-center">
-        <div className="flex justify-between items-center gap-2 bg-accent py-1 pr-2 pl-4 rounded-md w-full">
+        <div className="flex justify-between items-center gap-2 bg-accent py-1 pr-2 pl-4 rounded-md w-full blk:min-h-8">
           <div className="flex items-center gap-2">
             <p className="font-medium text-base capitalize">
               {statusTypeLabel || statusType}
             </p>
           </div>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setAddingStatus(statusType)}
-            disabled={addingStatus !== null || editingStatusId !== null}
-            className="size-6"
-          >
-            <IconPlus className="stroke-foreground" />
-          </Button>
+          {['closed_won', 'closed_lost'].includes(statusType) ? null : (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setAddingStatus(statusType)}
+              disabled={addingStatus !== null || editingStatusId !== null}
+              className="size-6"
+            >
+              <IconPlus className="stroke-foreground" />
+            </Button>
+          )}
         </div>
       </div>
 
@@ -459,6 +460,7 @@ export const StatusGroup = ({
                       statusType={statusType}
                       projectId={projectId}
                       editingStatus={status}
+                      defaultColor={statusTypeColor}
                     />
                   );
                 }
@@ -471,7 +473,11 @@ export const StatusGroup = ({
                 );
               })}
           {addingStatus === statusType && (
-            <StatusForm statusType={statusType} projectId={projectId} />
+            <StatusForm
+              statusType={statusType}
+              projectId={projectId}
+              defaultColor={statusTypeColor}
+            />
           )}
         </SortableContext>
       </DndContext>

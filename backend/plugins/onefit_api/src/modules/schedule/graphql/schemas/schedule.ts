@@ -37,6 +37,11 @@ export const types = `
     totalCount: Int
   }
 
+  type OneFitScheduleTemplateCopyPreviousMonthResult {
+    templates: [OneFitScheduleTemplate!]!
+    skippedProviderIds: [String!]!
+  }
+
   type OneFitScheduleException {
     _id: String
     createdAt: Date
@@ -150,7 +155,7 @@ const exceptionInput = `
 export const mutations = `
   oneFitScheduleTemplateCreate(${scheduleTemplateInput}): OneFitScheduleTemplate
   oneFitScheduleTemplateUpdate(_id: String!, ${scheduleTemplateUpdateInput}): OneFitScheduleTemplate
-  oneFitScheduleTemplateCopyPreviousMonth(providerIds: [String]!, fromYear: Int!, fromMonth: Int!, toYear: Int!, toMonth: Int!): [OneFitScheduleTemplate]
+  oneFitScheduleTemplateCopyPreviousMonth(providerIds: [String]!, fromYear: Int!, fromMonth: Int!, toYear: Int!, toMonth: Int!): OneFitScheduleTemplateCopyPreviousMonthResult!
   oneFitScheduleTemplatesRemove(ids: [String]!): JSON
   oneFitScheduleExceptionCreate(${exceptionInput}): OneFitScheduleException
   oneFitScheduleExceptionRemove(_id: String!): JSON

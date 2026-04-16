@@ -1,0 +1,61 @@
+{
+  "name": "supplier_ui",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "frontend/private-plugins/supplier_ui/src",
+  "projectType": "application",
+  "tags": [],
+  "targets": {
+    "build": {
+      "executor": "@nx/rspack:rspack",
+      "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
+      "options": {
+        "target": "web",
+        "outputPath": "dist/frontend/private-plugins/supplier_ui",
+        "main": "frontend/private-plugins/supplier_ui/src/main.ts",
+        "tsConfig": "frontend/private-plugins/supplier_ui/tsconfig.app.json",
+        "rspackConfig": "frontend/private-plugins/supplier_ui/rspack.config.ts",
+        "assets": ["frontend/private-plugins/supplier_ui/src/assets"]
+      },
+      "configurations": {
+        "development": {
+          "mode": "development"
+        },
+        "production": {
+          "mode": "production",
+          "optimization": true,
+          "sourceMap": false,
+          "rspackConfig": "frontend/private-plugins/supplier_ui/rspack.config.prod.ts"
+        }
+      }
+    },
+    "serve": {
+      "executor": "@nx/rspack:module-federation-dev-server",
+      "options": {
+        "buildTarget": "supplier_ui:build:development",
+        "port": 3005
+      },
+      "configurations": {
+        "development": {},
+        "production": {
+          "buildTarget": "supplier_ui:build:production"
+        }
+      }
+    },
+    "serve-static": {
+      "executor": "@nx/rspack:module-federation-static-server",
+      "defaultConfiguration": "production",
+      "options": {
+        "serveTarget": "supplier_ui:serve"
+      },
+      "configurations": {
+        "development": {
+          "serveTarget": "supplier_ui:serve:development"
+        },
+        "production": {
+          "serveTarget": "supplier_ui:serve:production"
+        }
+      }
+    }
+  }
+}

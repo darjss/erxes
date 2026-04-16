@@ -1,5 +1,4 @@
 import { IContext } from '~/connectionResolvers';
-import { requireLogin } from 'erxes-api-shared/core-modules';
 
 export const documentQueries = {
   btkAdminGetDocument: async (
@@ -18,6 +17,3 @@ export const documentQueries = {
     return models.BtkDocument.find({ itemType, itemId });
   },
 };
-
-requireLogin(documentQueries, 'btkAdminGetDocument');
-requireLogin(documentQueries, 'btkAdminGetDocuments');

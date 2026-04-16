@@ -5,11 +5,12 @@ import { useUnitUpdate } from '@/unit/hooks/useUnitUpdate';
 import { Input, Label, Separator } from 'erxes-ui';
 import { SelectUnitType } from './SelectUnitType';
 import { UnitTypeSummary } from './UnitTypeSummary';
+import { UnitTransferSection } from './UnitTransferSection';
 
 export const UnitDetailOverview = () => {
   const { unit } = useUnitContext();
 
-  const { number, type } = unit || {};
+  const { number, type, agencyEntityId, agencySubdomain } = unit || {};
 
   const { unitType } = useUnitType(type);
 
@@ -41,6 +42,11 @@ export const UnitDetailOverview = () => {
             tenureType={unitType?.tenureType}
           />
         </div>
+        <UnitTransferSection
+          unitId={unit?._id}
+          agencyEntityId={agencyEntityId}
+          agencySubdomain={agencySubdomain}
+        />
       </div>
       <Separator />
       <div className="p-5">

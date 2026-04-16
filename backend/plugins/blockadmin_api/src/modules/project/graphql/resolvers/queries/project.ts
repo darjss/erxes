@@ -1,4 +1,3 @@
-import { requireLogin } from 'erxes-api-shared/core-modules';
 import { IContext } from '~/connectionResolvers';
 import { IProjectQueryParams } from '~/modules/project/@types/project';
 import { generateFilter } from '~/modules/project/utils';
@@ -28,6 +27,3 @@ export const projectQueries = {
     return await models.Project.find(filter).lean();
   },
 };
-
-requireLogin(projectQueries, 'blockAdminGetProject');
-requireLogin(projectQueries, 'blockAdminGetProjects');

@@ -1,5 +1,6 @@
 import { categoryMutations } from '@/category/graphql/resolvers/mutations/category';
 import { providerMutations } from '@/provider/graphql/resolvers/mutations/provider';
+import { providerReviewMutations } from '@/provider/graphql/resolvers/mutations/providerReview';
 import { scheduleMutations } from '@/schedule/graphql/resolvers/mutations/schedule';
 import { membershipMutations } from '@/membership/graphql/resolvers/mutations/membership';
 import { creditTransactionMutations } from '@/membership/graphql/resolvers/mutations/credittransaction';
@@ -15,6 +16,7 @@ export const mutations = Object.assign(
   {},
   categoryMutations,
   providerMutations,
+  providerReviewMutations,
   scheduleMutations,
   membershipMutations,
   creditTransactionMutations,
