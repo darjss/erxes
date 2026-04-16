@@ -13,6 +13,7 @@ export interface IOneFitCustomerQueryParams extends ICursorPaginateParams {
   email?: string;
   membershipPlanId?: string;
   membershipStatus?: 'active' | 'expired' | 'none';
+  graceMode?: boolean;
   minCreditBalance?: number;
   maxCreditBalance?: number;
   preferredActivityTypeId?: string;
@@ -75,6 +76,12 @@ const generateFilter = async (params: IOneFitCustomerQueryParams) => {
 
   if (params.membershipStatus) {
     filter.membershipStatus = params.membershipStatus;
+  }
+
+  if (params.graceMode === true) {
+    filter.isInGracePeriod = true;
+  } else if (params.graceMode === false) {
+    filter.isInGracePeriod = { $ne: true };
   }
 
   if (

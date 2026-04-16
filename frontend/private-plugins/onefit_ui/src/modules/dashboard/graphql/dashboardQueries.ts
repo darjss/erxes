@@ -36,6 +36,15 @@ export const ONE_FIT_DASHBOARD_STATS = gql`
         count
         percent
       }
+      packageStats {
+        planId
+        planName
+        activeCustomerCount
+        totalCredit
+        consumedCredit
+        checkInCount
+        usagePercent
+      }
     }
   }
 `;

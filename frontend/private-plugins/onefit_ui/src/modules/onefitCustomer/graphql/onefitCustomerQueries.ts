@@ -8,6 +8,7 @@ export const ONE_FIT_CUSTOMERS = gql`
     $email: String
     $membershipPlanId: String
     $membershipStatus: OneFitMembershipStatus
+    $graceMode: Boolean
     $minCreditBalance: Float
     $maxCreditBalance: Float
     $preferredActivityTypeId: String
@@ -20,6 +21,7 @@ export const ONE_FIT_CUSTOMERS = gql`
       email: $email
       membershipPlanId: $membershipPlanId
       membershipStatus: $membershipStatus
+      graceMode: $graceMode
       minCreditBalance: $minCreditBalance
       maxCreditBalance: $maxCreditBalance
       preferredActivityTypeId: $preferredActivityTypeId
@@ -37,6 +39,7 @@ export const ONE_FIT_CUSTOMERS = gql`
         oneFitMembershipPlanId
         oneFitMembershipExpiresAt
         oneFitMembershipStatus
+        graceMode
         oneFitIsMembershipOnHold
         oneFitMembershipHoldStartAt
         oneFitMembershipHoldEndAt
@@ -102,6 +105,7 @@ export const ONE_FIT_CUSTOMERS_COUNT = gql`
     $email: String
     $membershipPlanId: String
     $membershipStatus: OneFitMembershipStatus
+    $graceMode: Boolean
     $minCreditBalance: Float
     $maxCreditBalance: Float
     $preferredActivityTypeId: String
@@ -112,6 +116,7 @@ export const ONE_FIT_CUSTOMERS_COUNT = gql`
       email: $email
       membershipPlanId: $membershipPlanId
       membershipStatus: $membershipStatus
+      graceMode: $graceMode
       minCreditBalance: $minCreditBalance
       maxCreditBalance: $maxCreditBalance
       preferredActivityTypeId: $preferredActivityTypeId

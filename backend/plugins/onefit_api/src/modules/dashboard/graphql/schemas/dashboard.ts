@@ -14,6 +14,16 @@ export const types = `
     percent: Float!
   }
 
+  type OneFitDashboardPackageStat {
+    planId: String!
+    planName: String!
+    activeCustomerCount: Int!
+    totalCredit: Float!
+    consumedCredit: Float!
+    checkInCount: Int!
+    usagePercent: Float!
+  }
+
   type OneFitDashboardStats {
     totalOneFitUsers: OneFitDashboardMetric!
     activeUsersInPeriod: OneFitDashboardMetric!
@@ -21,6 +31,7 @@ export const types = `
     b2bOrganizationsActive: OneFitDashboardMetric!
     averageBookingsPerActiveUserInPeriod: OneFitDashboardMetric!
     categoryDistribution: [OneFitDashboardCategoryStat!]!
+    packageStats: [OneFitDashboardPackageStat!]!
   }
 `;
 

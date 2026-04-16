@@ -18,6 +18,7 @@ export const types = `
     oneFitMembershipPlanId: String
     oneFitMembershipExpiresAt: Date
     oneFitMembershipStatus: OneFitMembershipStatus
+    graceMode: Boolean
 
     # Membership hold
     oneFitIsMembershipOnHold: Boolean
@@ -49,6 +50,7 @@ export const types = `
     oneFitMembershipPlanId: String
     oneFitMembershipExpiresAt: Date
     oneFitMembershipStatus: OneFitMembershipStatus
+    graceMode: Boolean
 
     # Membership hold
     oneFitIsMembershipOnHold: Boolean
@@ -89,6 +91,7 @@ const oneFitCustomerQueryParams = `
   email: String
   membershipPlanId: String
   membershipStatus: OneFitMembershipStatus
+  graceMode: Boolean
   minCreditBalance: Float
   maxCreditBalance: Float
   preferredActivityTypeId: String

@@ -42,7 +42,7 @@ const getMembershipStatusBadgeVariant = (status?: OneFitMembershipStatus) => {
 };
 
 export const OneFitCustomersList = ({ filters }: OneFitCustomersListProps) => {
-  const { customers, handleFetchMore, loading, pageInfo } =
+  const { customers, handleFetchMore, loading, pageInfo, totalCount } =
     useOneFitCustomers(filters);
   const [selectedCustomer, setSelectedCustomer] = useState<string | null>(null);
   const [detailSheetOpen, setDetailSheetOpen] = useState(false);
@@ -177,6 +177,20 @@ export const OneFitCustomersList = ({ filters }: OneFitCustomersListProps) => {
         },
       },
       {
+        accessorKey: 'graceMode',
+        header: 'Grace Mode',
+        cell: ({ cell }) => {
+          const isInGraceMode = Boolean(cell.getValue());
+          return (
+            <RecordTableInlineCell>
+              <Badge variant={isInGraceMode ? 'warning' : 'secondary'}>
+                {isInGraceMode ? 'On' : 'Off'}
+              </Badge>
+            </RecordTableInlineCell>
+          );
+        },
+      },
+      {
         accessorKey: 'oneFitMembershipExpiresAt',
         header: 'Membership Expires',
         cell: ({ cell }) => {
@@ -283,14 +297,26 @@ export const OneFitCustomersList = ({ filters }: OneFitCustomersListProps) => {
     [membershipPlanMap],
   );
 
+  const customerCountLabel =
+    loading && totalCount === undefined
+      ? 'Loading…'
+      : totalCount === undefined
+        ? '—'
+        : `${totalCount.toLocaleString()} ${
+            totalCount === 1 ? 'customer' : 'customers'
+          }`;
+
   return (
     <>
       <div className="flex flex-col overflow-hidden h-full relative">
+        <div className="px-3 pt-3 text-sm text-muted-foreground shrink-0">
+          {customerCountLabel}
+        </div>
         <RecordTable.Provider
           columns={columns}
           data={customers || []}
           stickyColumns={['firstName']}
-          className="m-3"
+          className="m-3 mt-2"
         >
           <RecordTable.CursorProvider
             hasPreviousPage={hasPreviousPage}
