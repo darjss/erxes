@@ -18,6 +18,9 @@ export const types = `
     status: String
     answers: JSON
     instanceId: String
+    cpUserId: String
+    clientPortalId: String
+    cpUserPhone: String
   }
 
   type MtoRegistrationApplicationListResponse {
@@ -42,6 +45,7 @@ export const types = `
 const registrationListParams = `
   membershipTypeId: String,
   status: String,
+  cpUserId: String,
 `;
 
 export const queries = `
@@ -59,11 +63,17 @@ export const mutations = `
     membershipTypeId: String!
     schemaVersion: String!
     answers: JSON!
+    cpUserId: String
+    clientPortalId: String
+    cpUserPhone: String
   ): MtoRegistrationApplication
   mtoRegistrationApplicationUpdate(
     _id: String!
     answers: JSON
     status: String
+    cpUserId: String
+    clientPortalId: String
+    cpUserPhone: String
   ): MtoRegistrationApplication
   mtoRegistrationFormSchemaCreate(
     definition: JSON!

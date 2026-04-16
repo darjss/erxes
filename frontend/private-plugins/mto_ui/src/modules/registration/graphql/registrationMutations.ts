@@ -5,17 +5,26 @@ export const MTO_REGISTRATION_SUBMIT = gql`
     $membershipTypeId: String!
     $schemaVersion: String!
     $answers: JSON!
+    $cpUserId: String
+    $clientPortalId: String
+    $cpUserPhone: String
   ) {
     mtoRegistrationSubmit(
       membershipTypeId: $membershipTypeId
       schemaVersion: $schemaVersion
       answers: $answers
+      cpUserId: $cpUserId
+      clientPortalId: $clientPortalId
+      cpUserPhone: $cpUserPhone
     ) {
       _id
       status
       membershipTypeId
       schemaVersion
       createdAt
+      cpUserId
+      clientPortalId
+      cpUserPhone
     }
   }
 `;
@@ -25,8 +34,18 @@ export const MTO_REGISTRATION_APPLICATION_UPDATE = gql`
     $_id: String!
     $answers: JSON
     $status: String
+    $cpUserId: String
+    $clientPortalId: String
+    $cpUserPhone: String
   ) {
-    mtoRegistrationApplicationUpdate(_id: $_id, answers: $answers, status: $status) {
+    mtoRegistrationApplicationUpdate(
+      _id: $_id
+      answers: $answers
+      status: $status
+      cpUserId: $cpUserId
+      clientPortalId: $clientPortalId
+      cpUserPhone: $cpUserPhone
+    ) {
       _id
       status
       membershipTypeId
@@ -34,6 +53,9 @@ export const MTO_REGISTRATION_APPLICATION_UPDATE = gql`
       schemaVersion
       answers
       modifiedAt
+      cpUserId
+      clientPortalId
+      cpUserPhone
     }
   }
 `;

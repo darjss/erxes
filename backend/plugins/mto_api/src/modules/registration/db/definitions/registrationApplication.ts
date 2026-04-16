@@ -46,6 +46,23 @@ export const registrationApplicationSchema = new Schema(
       label: 'Answers',
     },
     instanceId: { type: String, label: 'Instance ID', index: true },
+    cpUserId: {
+      type: String,
+      label: 'Client portal user',
+      sparse: true,
+      index: true,
+    },
+    clientPortalId: {
+      type: String,
+      label: 'Client portal',
+      sparse: true,
+      index: true,
+    },
+    cpUserPhone: {
+      type: String,
+      label: 'Client portal user phone',
+      sparse: true,
+    },
   },
   {
     timestamps: true,
@@ -54,3 +71,4 @@ export const registrationApplicationSchema = new Schema(
 
 registrationApplicationSchema.index({ subdomain: 1, membershipTypeId: 1 });
 registrationApplicationSchema.index({ subdomain: 1, createdAt: -1 });
+registrationApplicationSchema.index({ subdomain: 1, cpUserId: 1 });

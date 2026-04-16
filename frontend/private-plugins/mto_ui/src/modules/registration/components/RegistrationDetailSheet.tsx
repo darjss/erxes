@@ -1,12 +1,18 @@
-import { useQuery } from '@apollo/client';
+import { useMutation, useQuery } from '@apollo/client';
 import { Button, Label, Select, Sheet, Spinner } from 'erxes-ui';
 import { useEffect, useMemo, useState } from 'react';
 import {
   MTO_REGISTRATION_APPLICATION,
   MTO_REGISTRATION_FORM_DEFINITION,
 } from '@/registration/graphql/registrationQueries';
+import { MTO_REGISTRATION_APPLICATION_UPDATE } from '@/registration/graphql/registrationMutations';
 import { DynamicRegistrationForm } from '@/registration/components/DynamicRegistrationForm';
 import { isFormDefinition } from '@/registration/utils/isFormDefinition';
+import {
+  ClientPortalUserSelect,
+  IClientPortalUserRow,
+} from '@/registration/components/ClientPortalUserSelect';
+import { ClientPortalRemoteSelect } from '@/registration/components/ClientPortalRemoteSelect';
 
 const STATUS_OPTIONS = [
   { value: 'draft', label: 'draft' },
@@ -37,15 +43,26 @@ export function RegistrationDetailSheet({
     },
   );
 
+  const [updateCpLink, { loading: cpLinkSaving }] = useMutation(
+    MTO_REGISTRATION_APPLICATION_UPDATE,
+  );
+
   const row = data?.mtoRegistrationApplication;
 
   const [status, setStatus] = useState<string>('submitted');
+  const [portalRemoteId, setPortalRemoteId] = useState<string | undefined>();
 
   useEffect(() => {
     if (row?.status) {
       setStatus(row.status);
     }
   }, [row?.status, row?._id]);
+
+  useEffect(() => {
+    setPortalRemoteId(
+      row?.clientPortalId ? String(row.clientPortalId) : undefined,
+    );
+  }, [row?._id, row?.clientPortalId]);
 
   const { data: defData, loading: defLoading } = useQuery(
     MTO_REGISTRATION_FORM_DEFINITION,
@@ -70,6 +87,20 @@ export function RegistrationDetailSheet({
     }
     return {};
   }, [row?.answers, row?.modifiedAt]);
+
+  async function handleCpUserChange(user: IClientPortalUserRow | null) {
+    if (!applicationId) return;
+    await updateCpLink({
+      variables: {
+        _id: applicationId,
+        cpUserId: user?._id ?? null,
+        clientPortalId: user?.clientPortalId ?? null,
+        cpUserPhone: user?.phone ?? null,
+      },
+    });
+    await refetch();
+    onSaved?.();
+  }
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -125,6 +156,30 @@ export function RegistrationDetailSheet({
                     </div>
                   ) : null}
                 </dl>
+
+                <div className="space-y-4 max-w-md">
+                  <div className="space-y-2">
+                    <Label>Client portal</Label>
+                    <ClientPortalRemoteSelect
+                      value={portalRemoteId}
+                      onValueChange={setPortalRemoteId}
+                      placeholder="Портал сонгох"
+                      disabled={cpLinkSaving}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Client portal user</Label>
+                    <ClientPortalUserSelect
+                      clientPortalIdFilter={portalRemoteId}
+                      value={row.cpUserId}
+                      onValueChange={(user) => {
+                        void handleCpUserChange(user);
+                      }}
+                      disabled={cpLinkSaving}
+                      allowClear
+                    />
+                  </div>
+                </div>
 
                 <div className="space-y-2 max-w-xs">
                   <Label>Төлөв</Label>

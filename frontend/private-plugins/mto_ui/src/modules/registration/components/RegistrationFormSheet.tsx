@@ -1,8 +1,14 @@
 import { useQuery } from '@apollo/client';
-import { Button, Sheet, Spinner } from 'erxes-ui';
+import { Button, Label, Sheet, Spinner } from 'erxes-ui';
+import { useEffect, useState } from 'react';
 import { MTO_REGISTRATION_FORM_DEFINITION } from '@/registration/graphql/registrationQueries';
 import { DynamicRegistrationForm } from '@/registration/components/DynamicRegistrationForm';
 import { isFormDefinition } from '@/registration/utils/isFormDefinition';
+import {
+  ClientPortalUserSelect,
+  IClientPortalUserRow,
+} from '@/registration/components/ClientPortalUserSelect';
+import { ClientPortalRemoteSelect } from '@/registration/components/ClientPortalRemoteSelect';
 
 interface RegistrationFormSheetProps {
   open: boolean;
@@ -17,6 +23,23 @@ export function RegistrationFormSheet({
   membershipTypeId,
   summaryTitle,
 }: RegistrationFormSheetProps) {
+  const [clientPortalRemoteId, setClientPortalRemoteId] = useState<
+    string | undefined
+  >();
+  const [selectedCpUser, setSelectedCpUser] =
+    useState<IClientPortalUserRow | null>(null);
+
+  useEffect(() => {
+    if (!open) {
+      setSelectedCpUser(null);
+      setClientPortalRemoteId(undefined);
+    }
+  }, [open]);
+
+  useEffect(() => {
+    setSelectedCpUser(null);
+  }, [clientPortalRemoteId]);
+
   const { data, loading, error } = useQuery(MTO_REGISTRATION_FORM_DEFINITION, {
     variables: {
       membershipTypeId: membershipTypeId ?? '',
@@ -82,12 +105,35 @@ export function RegistrationFormSheet({
                 </Button>
               </div>
             ) : (
-              <DynamicRegistrationForm
-                definition={definition}
-                onSubmitted={handleSubmitted}
-                formClassName="max-w-full"
-                hideDescription
-              />
+              <>
+                <div className="space-y-4 mb-6 max-w-md">
+                  <div className="space-y-2">
+                    <Label>Client portal</Label>
+                    <ClientPortalRemoteSelect
+                      value={clientPortalRemoteId}
+                      onValueChange={setClientPortalRemoteId}
+                      placeholder="Портал сонгох"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Client portal user</Label>
+                    <ClientPortalUserSelect
+                      clientPortalIdFilter={clientPortalRemoteId}
+                      value={selectedCpUser?._id}
+                      onValueChange={setSelectedCpUser}
+                      allowClear
+                      placeholder="Сонгох (заавал биш)"
+                    />
+                  </div>
+                </div>
+                <DynamicRegistrationForm
+                  definition={definition}
+                  onSubmitted={handleSubmitted}
+                  formClassName="max-w-full"
+                  hideDescription
+                  selectedCpUser={selectedCpUser}
+                />
+              </>
             )}
           </div>
         </Sheet.Content>

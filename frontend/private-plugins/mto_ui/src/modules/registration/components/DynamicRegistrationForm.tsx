@@ -28,6 +28,7 @@ import {
   RegistrationField,
   RegistrationFormDefinition,
 } from '@/registration/types/registrationForm';
+import { IClientPortalUserRow } from '@/registration/components/ClientPortalUserSelect';
 
 interface DynamicRegistrationFormProps {
   definition: RegistrationFormDefinition;
@@ -44,6 +45,8 @@ interface DynamicRegistrationFormProps {
   registrationStatus?: string;
   /** Overrides default submit button label. */
   submitLabel?: string;
+  /** When creating (no `editApplicationId`), optional linked client portal user (staff). */
+  selectedCpUser?: IClientPortalUserRow | null;
 }
 
 function toggleInList(list: string[], value: string): string[] {
@@ -231,6 +234,7 @@ export function DynamicRegistrationForm({
   editApplicationId,
   registrationStatus,
   submitLabel,
+  selectedCpUser,
 }: DynamicRegistrationFormProps) {
   const { uploadUrl } = useUploadConfig();
   const form = useForm<Record<string, unknown>>({
@@ -295,6 +299,13 @@ export function DynamicRegistrationForm({
             membershipTypeId: definition.membershipTypeId,
             schemaVersion: definition.schemaVersion,
             answers: values,
+            ...(selectedCpUser
+              ? {
+                  cpUserId: selectedCpUser._id,
+                  clientPortalId: selectedCpUser.clientPortalId,
+                  cpUserPhone: selectedCpUser.phone ?? null,
+                }
+              : {}),
           },
         });
         toast({

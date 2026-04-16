@@ -18,6 +18,9 @@ export interface IRegistrationApplicationModel
     patch: {
       answers?: Record<string, unknown>;
       status?: RegistrationApplicationStatus;
+      cpUserId?: string | null;
+      clientPortalId?: string | null;
+      cpUserPhone?: string | null;
     },
   ): Promise<IRegistrationApplicationDocument | null>;
 }
@@ -39,25 +42,64 @@ export const loadRegistrationApplicationClass = (models: IModels) => {
       patch: {
         answers?: Record<string, unknown>;
         status?: RegistrationApplicationStatus;
+        cpUserId?: string | null;
+        clientPortalId?: string | null;
+        cpUserPhone?: string | null;
       },
     ) {
       const hasAnswers = patch.answers !== undefined;
       const hasStatus = patch.status !== undefined;
-      if (!hasAnswers && !hasStatus) {
+      const hasCpUserId = patch.cpUserId !== undefined;
+      const hasClientPortalId = patch.clientPortalId !== undefined;
+      const hasCpUserPhone = patch.cpUserPhone !== undefined;
+      if (
+        !hasAnswers &&
+        !hasStatus &&
+        !hasCpUserId &&
+        !hasClientPortalId &&
+        !hasCpUserPhone
+      ) {
         throw new Error('Nothing to update');
       }
 
       const $set: Record<string, unknown> = { modifiedAt: new Date() };
+      const $unset: Record<string, 1> = {};
       if (hasAnswers) {
         $set.answers = patch.answers;
       }
       if (hasStatus) {
         $set.status = patch.status;
       }
+      if (hasCpUserId) {
+        if (patch.cpUserId === null) {
+          $unset.cpUserId = 1;
+        } else {
+          $set.cpUserId = patch.cpUserId;
+        }
+      }
+      if (hasClientPortalId) {
+        if (patch.clientPortalId === null) {
+          $unset.clientPortalId = 1;
+        } else {
+          $set.clientPortalId = patch.clientPortalId;
+        }
+      }
+      if (hasCpUserPhone) {
+        if (patch.cpUserPhone === null) {
+          $unset.cpUserPhone = 1;
+        } else {
+          $set.cpUserPhone = patch.cpUserPhone;
+        }
+      }
+
+      const update: Record<string, unknown> = { $set };
+      if (Object.keys($unset).length > 0) {
+        update.$unset = $unset;
+      }
 
       return models.RegistrationApplication.findOneAndUpdate(
         { _id, subdomain },
-        { $set },
+        update,
         { new: true },
       );
     }

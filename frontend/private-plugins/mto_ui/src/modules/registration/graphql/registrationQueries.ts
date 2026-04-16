@@ -27,11 +27,13 @@ export const MTO_REGISTRATION_APPLICATIONS = gql`
   query MtoRegistrationApplications(
     $membershipTypeId: String
     $status: String
+    $cpUserId: String
     ${GQL_CURSOR_PARAM_DEFS}
   ) {
     mtoRegistrationApplications(
       membershipTypeId: $membershipTypeId
       status: $status
+      cpUserId: $cpUserId
       ${GQL_CURSOR_PARAMS}
     ) {
       list {
@@ -44,6 +46,7 @@ export const MTO_REGISTRATION_APPLICATIONS = gql`
         schemaVersion
         status
         instanceId
+        cpUserPhone
       }
       totalCount
       pageInfo {
@@ -60,10 +63,12 @@ export const MTO_REGISTRATION_APPLICATIONS_COUNT = gql`
   query MtoRegistrationApplicationsCount(
     $membershipTypeId: String
     $status: String
+    $cpUserId: String
   ) {
     mtoRegistrationApplicationsCount(
       membershipTypeId: $membershipTypeId
       status: $status
+      cpUserId: $cpUserId
     )
   }
 `;
@@ -81,6 +86,9 @@ export const MTO_REGISTRATION_APPLICATION = gql`
       status
       answers
       instanceId
+      cpUserId
+      clientPortalId
+      cpUserPhone
     }
   }
 `;

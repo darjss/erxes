@@ -12,4 +12,7 @@ export interface IRegistrationApplication {
   answers: Record<string, unknown>;
   subdomain: string;
   instanceId?: string;
+  cpUserId?: string;
+  clientPortalId?: string;
+  cpUserPhone?: string;
 }

@@ -10,17 +10,25 @@ export interface IRegistrationApplicationsQueryParams
   extends ICursorPaginateParams {
   membershipTypeId?: string;
   status?: string;
+  cpUserId?: string;
 }
 
 function buildRegistrationApplicationsFilter(
   params: IRegistrationApplicationsQueryParams,
   subdomain: string,
   instanceId?: string,
+  cpUser?: { _id: string },
 ) {
   const filter: Record<string, unknown> = { subdomain };
 
   if (instanceId) {
     filter.instanceId = instanceId;
+  }
+
+  if (cpUser?._id) {
+    filter.cpUserId = String(cpUser._id);
+  } else if (params.cpUserId) {
+    filter.cpUserId = String(params.cpUserId);
   }
 
   if (params.membershipTypeId) {
@@ -40,12 +48,13 @@ export const registrationApplicationsQueries: Record<string, Resolver> = {
     params: IRegistrationApplicationsQueryParams,
     context: IContext,
   ) {
-    const { models, subdomain, instanceId } = context;
+    const { models, subdomain, instanceId, cpUser } = context;
 
     const filter = buildRegistrationApplicationsFilter(
       params,
       subdomain,
       instanceId,
+      cpUser,
     );
 
     const result = await cursorPaginate({
@@ -76,16 +85,17 @@ export const registrationApplicationsQueries: Record<string, Resolver> = {
     _root: undefined,
     params: Pick<
       IRegistrationApplicationsQueryParams,
-      'membershipTypeId' | 'status'
+      'membershipTypeId' | 'status' | 'cpUserId'
     >,
     context: IContext,
   ) {
-    const { models, subdomain, instanceId } = context;
+    const { models, subdomain, instanceId, cpUser } = context;
 
     const filter = buildRegistrationApplicationsFilter(
       params,
       subdomain,
       instanceId,
+      cpUser,
     );
 
     return models.RegistrationApplication.countDocuments(filter);
@@ -96,7 +106,7 @@ export const registrationApplicationsQueries: Record<string, Resolver> = {
     { _id }: { _id: string },
     context: IContext,
   ) {
-    const { models, subdomain, instanceId } = context;
+    const { models, subdomain, instanceId, cpUser } = context;
 
     const doc = await models.RegistrationApplication.findOne({
       _id,
@@ -109,6 +119,13 @@ export const registrationApplicationsQueries: Record<string, Resolver> = {
 
     if (instanceId && doc.instanceId && doc.instanceId !== instanceId) {
       return null;
+    }
+
+    if (cpUser?._id) {
+      const ownerId = doc.cpUserId ? String(doc.cpUserId) : undefined;
+      if (!ownerId || ownerId !== String(cpUser._id)) {
+        return null;
+      }
     }
 
     return mapRegistrationApplicationGql(models, doc as Record<string, unknown>);

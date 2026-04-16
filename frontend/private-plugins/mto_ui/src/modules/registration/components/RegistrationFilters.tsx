@@ -1,9 +1,12 @@
 import { Select } from 'erxes-ui';
 import { useQuery } from '@apollo/client';
+import { useState } from 'react';
 import { MtoFilterBase } from '~/components/MtoFilterBase';
 import { FilterField } from '~/components/shared/FilterField';
 import { MTO_REGISTRATION_MEMBERSHIP_SUMMARIES } from '@/registration/graphql/registrationQueries';
 import { RegistrationFilters as RegistrationFiltersType } from '@/registration/types/registrationFilters';
+import { ClientPortalUserSelect } from '@/registration/components/ClientPortalUserSelect';
+import { ClientPortalRemoteSelect } from '@/registration/components/ClientPortalRemoteSelect';
 
 const STATUS_OPTIONS = [
   { value: '__all__', label: 'Бүх төлөв' },
@@ -23,6 +26,10 @@ export function RegistrationFilters({
   filters,
   onFiltersChange,
 }: RegistrationFiltersProps) {
+  const [cpPortalRemoteId, setCpPortalRemoteId] = useState<
+    string | undefined
+  >();
+
   const { data } = useQuery(MTO_REGISTRATION_MEMBERSHIP_SUMMARIES);
 
   const summaries = data?.mtoRegistrationMembershipSummaries ?? [];
@@ -82,6 +89,26 @@ export function RegistrationFilters({
             ))}
           </Select.Content>
         </Select>
+      </FilterField>
+      <FilterField label="Client portal">
+        <ClientPortalRemoteSelect
+          value={cpPortalRemoteId}
+          onValueChange={(id) => {
+            setCpPortalRemoteId(id);
+            handleChange('cpUserId', undefined);
+          }}
+          placeholder="Бүх портал"
+        />
+      </FilterField>
+      <FilterField label="CP хэрэглэгч">
+        <ClientPortalUserSelect
+          clientPortalIdFilter={cpPortalRemoteId}
+          value={filters.cpUserId}
+          onValueChange={(user) =>
+            handleChange('cpUserId', user?._id)
+          }
+          placeholder="Бүх CP хэрэглэгч"
+        />
       </FilterField>
     </MtoFilterBase>
   );
