@@ -33,6 +33,8 @@ export default {
       }
       return customer.membershipStatus || 'none';
     },
+    graceMode: (customer: IOneFitCustomerDocument) =>
+      !!customer?.isInGracePeriod,
     oneFitIsMembershipOnHold: (customer: IOneFitCustomerDocument) => {
       if (!customer || !('isMembershipOnHold' in customer)) {
         return false;
@@ -108,6 +110,8 @@ export default {
       customer?.membershipExpiresAt ?? null,
     oneFitMembershipStatus: (customer: IOneFitCustomerDocument) =>
       customer?.membershipStatus ?? 'none',
+    graceMode: (customer: IOneFitCustomerDocument) =>
+      !!customer?.isInGracePeriod,
     oneFitIsMembershipOnHold: (customer: IOneFitCustomerDocument) =>
       !!customer?.isMembershipOnHold,
     oneFitMembershipHoldStartAt: (customer: IOneFitCustomerDocument) =>

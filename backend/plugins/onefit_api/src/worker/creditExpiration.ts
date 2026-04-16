@@ -104,8 +104,9 @@ export async function processCreditExpiration(
   }
 
   // Get grace period duration from config (default 7 days)
-  const gracePeriodConfig =
-    await models.SystemConfig.getConfig('grace_period_days');
+  const gracePeriodConfig = await models.SystemConfig.getConfig(
+    'grace_period_days',
+  );
   const gracePeriodDays = gracePeriodConfig?.value || 7;
 
   // Find expired customers with credits (exclude customers still on hold)
@@ -123,6 +124,18 @@ export async function processCreditExpiration(
 
     // Check if already in grace period
     if (customer.isInGracePeriod) {
+      if (customer.membershipStatus !== 'expired') {
+        await models.OneFitCustomer.findOneAndUpdate(
+          { _id: customer._id, __t: 'OneFitCustomer' },
+          {
+            $set: {
+              membershipStatus: 'expired',
+            },
+          },
+          { new: true },
+        );
+      }
+
       // Check if grace period has ended
       if (customer.gracePeriodEnd && customer.gracePeriodEnd < now) {
         // Grace period ended, forfeit remaining credits
@@ -206,6 +219,7 @@ export async function processCreditExpiration(
             isInGracePeriod: true,
             gracePeriodStart,
             gracePeriodEnd,
+            membershipStatus: 'expired',
           },
         },
         { new: true },
@@ -224,5 +238,51 @@ export async function processCreditExpiration(
         },
       });
     }
+  }
+
+  // Remove all remaining credits for memberships expired more than 7 days
+  const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+  const customersToForceExpireCredits =
+    await models.OneFitCustomer.findOneFitCustomers({
+      membershipExpiresAt: { $lt: sevenDaysAgo },
+      currentCreditBalance: { $gte: 0 },
+      membershipHoldStartAt: { $exists: false },
+      membershipHoldEndAt: { $exists: false },
+    });
+
+  for (const customer of customersToForceExpireCredits) {
+    const creditBalance = customer.currentCreditBalance || 0;
+    await models.OneFitCustomer.findOneAndUpdate(
+      { _id: customer._id, __t: 'OneFitCustomer' },
+      {
+        $set: {
+          membershipStatus: 'expired',
+          isInGracePeriod: false,
+        },
+      },
+      { new: true },
+    );
+
+    if (creditBalance <= 0) {
+      continue;
+    }
+
+    const balanceAfter = await models.CreditTransaction.getUserBalance(
+      customer._id,
+    );
+    await models.CreditTransaction.createTransaction({
+      userId: customer._id,
+      amount: -creditBalance,
+      transactionType: CreditTransactionType.EXPIRATION,
+      source: CreditSource.INDIVIDUAL,
+      description: 'Credit expiration after 7 days from membership expiration',
+      balanceAfter: balanceAfter - creditBalance,
+    });
+
+    await models.OneFitCustomer.updateCreditBalanceAndUsed(
+      customer._id,
+      balanceAfter - creditBalance,
+      creditBalance,
+    );
   }
 }

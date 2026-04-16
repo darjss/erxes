@@ -76,6 +76,35 @@ export const OneFitCustomerFiltersComponent = ({
           </Select.Content>
         </Select>
       </FilterField>
+      <FilterField label="Grace mode">
+        <Select
+          value={
+            filters.graceMode === true
+              ? 'true'
+              : filters.graceMode === false
+                ? 'false'
+                : '__all__'
+          }
+          onValueChange={(value) =>
+            onFiltersChange({
+              ...filters,
+              graceMode:
+                value === '__all__'
+                  ? undefined
+                  : value === 'true',
+            })
+          }
+        >
+          <Select.Trigger>
+            <Select.Value placeholder="All" />
+          </Select.Trigger>
+          <Select.Content>
+            <Select.Item value="__all__">All</Select.Item>
+            <Select.Item value="true">On</Select.Item>
+            <Select.Item value="false">Off</Select.Item>
+          </Select.Content>
+        </Select>
+      </FilterField>
       <FilterField label="Min Credit Balance">
         <Input
           type="number"
