@@ -13,6 +13,7 @@ export interface OneFitPromoCode {
   code: string;
   discountType: string;
   value: number;
+  isCompanyTag: boolean;
   validFrom?: string;
   validTo?: string;
   usageLimit?: number;

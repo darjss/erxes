@@ -5,6 +5,7 @@ export const ONE_FIT_PROMO_CODE_CREATE = gql`
     $code: String!
     $discountType: OneFitPromoCodeDiscountType!
     $value: Float!
+    $isCompanyTag: Boolean
     $validFrom: Date
     $validTo: Date
     $usageLimit: Int
@@ -14,6 +15,7 @@ export const ONE_FIT_PROMO_CODE_CREATE = gql`
       code: $code
       discountType: $discountType
       value: $value
+      isCompanyTag: $isCompanyTag
       validFrom: $validFrom
       validTo: $validTo
       usageLimit: $usageLimit
@@ -25,6 +27,7 @@ export const ONE_FIT_PROMO_CODE_CREATE = gql`
       code
       discountType
       value
+      isCompanyTag
       validFrom
       validTo
       usageLimit
@@ -40,6 +43,7 @@ export const ONE_FIT_PROMO_CODE_UPDATE = gql`
     $code: String
     $discountType: OneFitPromoCodeDiscountType
     $value: Float
+    $isCompanyTag: Boolean
     $validFrom: Date
     $validTo: Date
     $usageLimit: Int
@@ -50,6 +54,7 @@ export const ONE_FIT_PROMO_CODE_UPDATE = gql`
       code: $code
       discountType: $discountType
       value: $value
+      isCompanyTag: $isCompanyTag
       validFrom: $validFrom
       validTo: $validTo
       usageLimit: $usageLimit
@@ -60,6 +65,7 @@ export const ONE_FIT_PROMO_CODE_UPDATE = gql`
       code
       discountType
       value
+      isCompanyTag
       validFrom
       validTo
       usageLimit

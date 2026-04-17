@@ -44,6 +44,7 @@ export const PromoCodesList = ({ filters }: PromoCodesListProps) => {
     code: string;
     discountType: string;
     value: number;
+    isCompanyTag: boolean;
     validFrom?: string;
     validTo?: string;
     usageLimit?: number;
@@ -120,6 +121,20 @@ export const PromoCodesList = ({ filters }: PromoCodesListProps) => {
         return (
           <RecordTableInlineCell className="text-xs">
             {label}
+          </RecordTableInlineCell>
+        );
+      },
+    },
+    {
+      accessorKey: 'isCompanyTag',
+      header: 'Audience',
+      cell: ({ cell }) => {
+        const isCompanyTag = cell.getValue() as boolean;
+        return (
+          <RecordTableInlineCell>
+            <Badge variant={isCompanyTag ? 'default' : 'secondary'}>
+              {isCompanyTag ? 'B2B' : 'B2C'}
+            </Badge>
           </RecordTableInlineCell>
         );
       },

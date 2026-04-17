@@ -12,6 +12,7 @@ export interface IPromoCode {
   code: string;
   discountType: PromoCodeDiscountTypeValue;
   value: number;
+  isCompanyTag?: boolean;
   validFrom?: Date;
   validTo?: Date;
   usageLimit?: number;

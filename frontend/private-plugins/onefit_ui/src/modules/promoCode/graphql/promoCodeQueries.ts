@@ -21,6 +21,7 @@ export const ONE_FIT_PROMO_CODES = gql`
         code
         discountType
         value
+        isCompanyTag
         validFrom
         validTo
         usageLimit
@@ -57,6 +58,7 @@ export const ONE_FIT_PROMO_CODE = gql`
       code
       discountType
       value
+      isCompanyTag
       validFrom
       validTo
       usageLimit
