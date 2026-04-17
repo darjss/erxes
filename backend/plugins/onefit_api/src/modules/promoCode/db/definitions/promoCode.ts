@@ -25,6 +25,11 @@ export const promoCodeSchema = new Schema(
       required: true,
       label: 'Value',
     },
+    isCompanyTag: {
+      type: Boolean,
+      default: false,
+      label: 'Company Tag',
+    },
     validFrom: { type: Date, label: 'Valid From' },
     validTo: { type: Date, label: 'Valid To' },
     usageLimit: { type: Number, label: 'Usage Limit' },

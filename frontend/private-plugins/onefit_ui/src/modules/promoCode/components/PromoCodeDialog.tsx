@@ -28,6 +28,7 @@ const basePromoCodeSchema = z.object({
     PromoCodeDiscountType.FIXED,
   ]),
   value: z.number().min(0, { message: 'Value must be 0 or greater' }),
+  isCompanyTag: z.boolean().default(false),
   validFrom: z.string().optional(),
   validTo: z.string().optional(),
   usageLimit: z.number().min(0).optional().nullable(),
@@ -169,6 +170,7 @@ const PromoCodeForm = ({ mode, promoCodeId, onClose }: PromoCodeFormProps) => {
       code: '',
       discountType: PromoCodeDiscountType.PERCENT,
       value: 0,
+      isCompanyTag: false,
       validFrom: '',
       validTo: '',
       usageLimit: undefined,
@@ -184,6 +186,7 @@ const PromoCodeForm = ({ mode, promoCodeId, onClose }: PromoCodeFormProps) => {
           (promoCode.discountType as CreatePromoCodeFormData['discountType']) ??
           PromoCodeDiscountType.PERCENT,
         value: promoCode.value ?? 0,
+        isCompanyTag: promoCode.isCompanyTag ?? false,
         validFrom: toDateInputValue(promoCode.validFrom),
         validTo: toDateInputValue(promoCode.validTo),
         usageLimit: promoCode.usageLimit ?? undefined,
@@ -295,6 +298,21 @@ const PromoCodeForm = ({ mode, promoCodeId, onClose }: PromoCodeFormProps) => {
                   )
                 }
               />
+              <Form.Message />
+            </Form.Item>
+          )}
+        />
+
+        <Form.Field
+          control={form.control}
+          name="isCompanyTag"
+          render={({ field }) => (
+            <Form.Item className="flex flex-row items-center gap-2">
+              <Checkbox
+                checked={field.value}
+                onCheckedChange={field.onChange}
+              />
+              <Label>Company tag (B2B)</Label>
               <Form.Message />
             </Form.Item>
           )}

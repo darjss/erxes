@@ -32,6 +32,7 @@ export const promoCodeMutations = {
         doc.discountType ??
         (PromoCodeDiscountType.PERCENT as IPromoCode['discountType']),
       isActive: doc.isActive ?? true,
+      isCompanyTag: doc.isCompanyTag ?? false,
     });
   },
 

@@ -13,6 +13,7 @@ export const types = `
     code: String
     discountType: OneFitPromoCodeDiscountType
     value: Float
+    isCompanyTag: Boolean
     validFrom: Date
     validTo: Date
     usageLimit: Int
@@ -43,6 +44,7 @@ const createInput = `
   code: String!
   discountType: OneFitPromoCodeDiscountType!
   value: Float!
+  isCompanyTag: Boolean
   validFrom: Date
   validTo: Date
   usageLimit: Int
@@ -53,6 +55,7 @@ const updateInput = `
   code: String
   discountType: OneFitPromoCodeDiscountType
   value: Float
+  isCompanyTag: Boolean
   validFrom: Date
   validTo: Date
   usageLimit: Int

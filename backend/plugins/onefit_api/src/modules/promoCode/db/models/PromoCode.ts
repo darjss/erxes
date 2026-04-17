@@ -19,6 +19,7 @@ export const loadPromoCodeClass = (models: IModels) => {
         ...doc,
         usedCount: doc.usedCount ?? 0,
         isActive: doc.isActive ?? true,
+        isCompanyTag: doc.isCompanyTag ?? false,
         createdAt: new Date(),
       });
     }

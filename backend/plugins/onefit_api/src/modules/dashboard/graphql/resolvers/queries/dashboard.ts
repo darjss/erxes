@@ -1,5 +1,6 @@
 import { Resolver } from 'erxes-api-shared/core-types';
 import { getPureDate, markResolvers } from 'erxes-api-shared/utils';
+import { MembershipPurchaseStatus } from '@/membership/@types/membershippurchase';
 import { IContext } from '~/connectionResolvers';
 import { addInstanceIdFilter } from '~/utils/providerFilter';
 
@@ -54,6 +55,23 @@ interface OneFitDashboardPackageStat {
   consumedCredit: number;
   checkInCount: number;
   usagePercent: number;
+}
+
+interface OneFitDashboardB2bB2cSales {
+  b2bCount: number;
+  b2cCount: number;
+  b2bPercent: number;
+  b2cPercent: number;
+}
+
+interface IPromoCodeProjection {
+  _id: string;
+  isCompanyTag?: boolean;
+}
+
+interface IPurchaseProjection {
+  _id: string;
+  promoCodeId?: string;
 }
 
 function buildMetric(
@@ -512,6 +530,82 @@ async function getPackageStats(
   return packageStats;
 }
 
+async function getB2bB2cSalesCounts(
+  context: IContext,
+  startDate: Date,
+  endDate: Date,
+): Promise<OneFitDashboardB2bB2cSales> {
+  const { models } = context;
+  const { gte, lte } = getBookingDateBounds(startDate, endDate);
+
+  const purchases = (await models.MembershipPurchase.find(
+    {
+      status: MembershipPurchaseStatus.PAID,
+      $or: [
+        { paidAt: { $gte: gte, $lte: lte } },
+        {
+          paidAt: { $exists: false },
+          purchasedAt: { $gte: gte, $lte: lte },
+        },
+        {
+          paidAt: null,
+          purchasedAt: { $gte: gte, $lte: lte },
+        },
+      ],
+    },
+    { _id: 1, promoCodeId: 1 },
+  ).lean()) as IPurchaseProjection[];
+
+  if (!purchases.length) {
+    return {
+      b2bCount: 0,
+      b2cCount: 0,
+      b2bPercent: 0,
+      b2cPercent: 0,
+    };
+  }
+
+  const promoCodeIds = [
+    ...new Set(
+      purchases
+        .map((purchase) => purchase.promoCodeId)
+        .filter((promoCodeId): promoCodeId is string => Boolean(promoCodeId)),
+    ),
+  ];
+
+  const promoCodes = promoCodeIds.length
+    ? ((await models.PromoCode.find(
+        { _id: { $in: promoCodeIds } },
+        { _id: 1, isCompanyTag: 1 },
+      ).lean()) as IPromoCodeProjection[])
+    : [];
+
+  const companyTagByPromoCodeId = new Map(
+    promoCodes.map((promoCode) => [String(promoCode._id), !!promoCode.isCompanyTag]),
+  );
+
+  let b2bCount = 0;
+  for (const purchase of purchases) {
+    if (!purchase.promoCodeId) {
+      continue;
+    }
+
+    if (companyTagByPromoCodeId.get(String(purchase.promoCodeId))) {
+      b2bCount += 1;
+    }
+  }
+
+  const total = purchases.length;
+  const b2cCount = Math.max(total - b2bCount, 0);
+
+  return {
+    b2bCount,
+    b2cCount,
+    b2bPercent: total > 0 ? (b2bCount / total) * 100 : 0,
+    b2cPercent: total > 0 ? (b2cCount / total) * 100 : 0,
+  };
+}
+
 export const dashboardQueries: Record<string, Resolver> = {
   async oneFitDashboardStats(
     _root: undefined,
@@ -531,6 +625,7 @@ export const dashboardQueries: Record<string, Resolver> = {
       bookingsPrev,
       categoryDistribution,
       packageStats,
+      b2bB2cSales,
     ] = await Promise.all([
       countTotalOneFitUsers(context),
       countTotalOneFitUsersAsOf(context, prev.endDate),
@@ -542,6 +637,7 @@ export const dashboardQueries: Record<string, Resolver> = {
       countBookingsInRange(context, prev.startDate, prev.endDate),
       getCategoryDistribution(context, startDate, endDate),
       getPackageStats(context, startDate, endDate),
+      getB2bB2cSalesCounts(context, startDate, endDate),
     ]);
 
     const avgCurrent = activeCurrent > 0 ? bookingsCurrent / activeCurrent : 0;
@@ -554,6 +650,7 @@ export const dashboardQueries: Record<string, Resolver> = {
       newUsersInPeriod: buildMetric(newCurrent, newPrev),
       b2bOrganizationsActive: buildMetric(0, 0),
       averageBookingsPerActiveUserInPeriod: buildMetric(avgCurrent, avgPrev),
+      b2bB2cSales,
       categoryDistribution,
       packageStats,
     };

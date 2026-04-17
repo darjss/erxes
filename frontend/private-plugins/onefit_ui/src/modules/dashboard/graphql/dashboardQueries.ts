@@ -28,6 +28,12 @@ export const ONE_FIT_DASHBOARD_STATS = gql`
         previousValue
         changePercent
       }
+      b2bB2cSales {
+        b2bCount
+        b2cCount
+        b2bPercent
+        b2cPercent
+      }
       categoryDistribution {
         categoryId
         label
