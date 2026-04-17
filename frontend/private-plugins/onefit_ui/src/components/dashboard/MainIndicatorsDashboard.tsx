@@ -414,7 +414,9 @@ export function MainIndicatorsDashboard() {
                   cy="50%"
                   innerRadius={0}
                   outerRadius={100}
-                  label={({ name, percent }) => `${name}: ${percent.toFixed(1)}%`}
+                  label={({ name, percent }) =>
+                    `${name}: ${percent.toFixed(1)}%`
+                  }
                   labelLine={false}
                 >
                   {b2bB2cChartData.map((entry) => (

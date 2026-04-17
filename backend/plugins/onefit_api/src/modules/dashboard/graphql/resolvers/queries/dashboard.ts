@@ -581,7 +581,10 @@ async function getB2bB2cSalesCounts(
     : [];
 
   const companyTagByPromoCodeId = new Map(
-    promoCodes.map((promoCode) => [String(promoCode._id), !!promoCode.isCompanyTag]),
+    promoCodes.map((promoCode) => [
+      String(promoCode._id),
+      !!promoCode.isCompanyTag,
+    ]),
   );
 
   let b2bCount = 0;
