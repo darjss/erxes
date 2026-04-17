@@ -31,6 +31,13 @@ export const types = `
     b2cPercent: Float!
   }
 
+  type OneFitDashboardUserGrowthMonth {
+    monthKey: String!
+    b2bUsers: Int!
+    b2cUsers: Int!
+    newUsers: Int!
+  }
+
   type OneFitDashboardStats {
     totalOneFitUsers: OneFitDashboardMetric!
     activeUsersInPeriod: OneFitDashboardMetric!
@@ -38,6 +45,7 @@ export const types = `
     b2bOrganizationsActive: OneFitDashboardMetric!
     averageBookingsPerActiveUserInPeriod: OneFitDashboardMetric!
     b2bB2cSales: OneFitDashboardB2bB2cSales!
+    userGrowthByMonth: [OneFitDashboardUserGrowthMonth!]!
     categoryDistribution: [OneFitDashboardCategoryStat!]!
     packageStats: [OneFitDashboardPackageStat!]!
   }
