@@ -34,6 +34,12 @@ export const ONE_FIT_DASHBOARD_STATS = gql`
         b2bPercent
         b2cPercent
       }
+      userGrowthByMonth {
+        monthKey
+        b2bUsers
+        b2cUsers
+        newUsers
+      }
       categoryDistribution {
         categoryId
         label
