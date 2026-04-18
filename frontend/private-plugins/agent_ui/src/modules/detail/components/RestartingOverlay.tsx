@@ -1,0 +1,91 @@
+import { useEffect, useState } from 'react';
+import { cn } from 'erxes-ui';
+
+interface RestartingOverlayProps {
+  visible: boolean;
+}
+
+export const RestartingOverlay = ({ visible }: RestartingOverlayProps) => {
+  const [phase, setPhase] = useState<'stopping' | 'loading'>('stopping');
+  const [progress, setProgress] = useState(0);
+
+  useEffect(() => {
+    if (!visible) {
+      setPhase('stopping');
+      setProgress(0);
+      return;
+    }
+
+    const stopTimer = setTimeout(() => setPhase('loading'), 3000);
+    return () => clearTimeout(stopTimer);
+  }, [visible]);
+
+  useEffect(() => {
+    if (!visible || phase !== 'loading') return;
+
+    setProgress(0);
+    const interval = setInterval(() => {
+      setProgress((prev) => {
+        if (prev >= 95) {
+          clearInterval(interval);
+          return prev;
+        }
+        return prev + Math.random() * 4;
+      });
+    }, 400);
+
+    return () => clearInterval(interval);
+  }, [visible, phase]);
+
+  if (!visible) return null;
+
+  return (
+    <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-background/95 backdrop-blur-sm">
+      {phase === 'stopping' ? (
+        <div className="flex flex-col items-center gap-4 text-center">
+          <div className="border-[3px] border-destructive border-t-transparent rounded-full w-12 h-12 animate-spin" />
+          <h3 className="text-lg font-semibold">Stopping...</h3>
+          <p className="text-muted-foreground text-sm max-w-xs">
+            Please wait while your assistant is being stopped
+          </p>
+        </div>
+      ) : (
+        <div className="flex flex-col items-center gap-5 text-center max-w-sm w-full px-6">
+          <div className="flex flex-col items-center gap-1">
+            <span className="text-3xl font-bold">✨ Almost Ready!</span>
+            <p className="text-muted-foreground text-sm">
+              OpenClaw is preparing your assistant
+            </p>
+          </div>
+
+          <div className="w-16 h-16 rounded-full bg-destructive/10 flex items-center justify-center">
+            <div className="border-[3px] border-primary border-t-transparent rounded-full w-8 h-8 animate-spin" />
+          </div>
+
+          <div className="w-full flex flex-col gap-2">
+            <div className="flex items-center gap-2 justify-center text-sm text-muted-foreground">
+              <div className="w-3 h-3 border-2 border-muted-foreground border-t-transparent rounded-full animate-spin" />
+              Just a moment...
+            </div>
+            <div className="w-full h-2 rounded-full bg-muted overflow-hidden">
+              <div
+                className={cn(
+                  'h-full bg-destructive rounded-full transition-all duration-500 ease-out',
+                )}
+                style={{ width: `${Math.min(progress, 95)}%` }}
+              />
+            </div>
+            <div className="flex justify-between text-xs text-muted-foreground">
+              <span>{Math.round(Math.min(progress, 95))}% complete</span>
+              <span>~1-2 min remaining</span>
+            </div>
+          </div>
+
+          <p className="text-xs text-muted-foreground">
+            Get ready to supercharge your productivity with AI.
+          </p>
+        </div>
+      )}
+    </div>
+  );
+};

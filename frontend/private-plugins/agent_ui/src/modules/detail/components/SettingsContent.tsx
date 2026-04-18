@@ -7,6 +7,8 @@ import { useDiscordSettings } from '../hooks/useDiscordSettings';
 import { GET_DISCORD_GUILDS } from '../graphql/queries';
 import { DestroyServerDialog } from '../../deploy/components/DestroyServerDialog';
 import { useAgentDestroy } from '../../deploy/hooks/useAgentDestroy';
+import { RestartServerDialog } from './RestartServerDialog';
+import { RestartingOverlay } from './RestartingOverlay';
 
 const TABS = [
   { value: 'discord', label: 'Discord' },
@@ -20,6 +22,7 @@ export const SettingsContent = ({
 }) => {
   const [activeTab, setActiveTab] = useState<string>(TABS[0].value);
   const [destroyOpen, setDestroyOpen] = useState(false);
+  const [restartOpen, setRestartOpen] = useState(false);
   const { restart, loading: restarting } = useFixAndRestart();
   const { destroyAgent, loading: destroyLoading } = useAgentDestroy();
   const {
@@ -53,6 +56,10 @@ export const SettingsContent = ({
     });
   };
 
+  const handleRestartConfirm = () => {
+    handleRestart();
+  };
+
   const handleSaveDiscord = () => {
     updateDiscordSettings(botToken, undefined, {
       onCompleted: () =>
@@ -83,7 +90,8 @@ export const SettingsContent = ({
   };
 
   return (
-    <div className="flex flex-col h-full p-4 gap-4">
+    <div className="relative flex flex-col h-full p-4 gap-4">
+      <RestartingOverlay visible={restarting} />
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="flex items-center gap-2">
           <ToggleGroup
@@ -187,7 +195,7 @@ export const SettingsContent = ({
 
       {activeTab === 'restart-openclaw' && (
         <div className="flex flex-1 items-center justify-center gap-4">
-          <Button disabled={restarting} onClick={handleRestart}>
+          <Button disabled={restarting} onClick={() => setRestartOpen(true)}>
             {restarting ? 'Restarting...' : 'Restart AI BOT'}
           </Button>
           <Button
@@ -200,6 +208,12 @@ export const SettingsContent = ({
         </div>
       )}
 
+      <RestartServerDialog
+        open={restartOpen}
+        onOpenChange={setRestartOpen}
+        onConfirm={handleRestartConfirm}
+        loading={restarting}
+      />
       <DestroyServerDialog
         open={destroyOpen}
         onOpenChange={setDestroyOpen}
