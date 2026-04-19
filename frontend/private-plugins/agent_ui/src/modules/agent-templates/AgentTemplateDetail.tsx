@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { IconUser } from '@tabler/icons-react';
 
-const AGENT_TEMPLATES_URL = 'http://localhost:3100';
+const AGENT_TEMPLATES_URL = 'https://agent-template-five.vercel.app';
 
 const SOUL_TYPES = [
   'AGENTS',

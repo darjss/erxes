@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { IconUser, IconExternalLink } from '@tabler/icons-react';
 
-const AGENT_TEMPLATES_URL = 'http://localhost:3100';
+const AGENT_TEMPLATES_URL = 'https://agent-template-five.vercel.app';
 
 interface Agent {
   id: string;
