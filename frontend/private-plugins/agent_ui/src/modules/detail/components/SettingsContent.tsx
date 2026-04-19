@@ -46,7 +46,7 @@ export const SettingsContent = ({
   const handleRestart = () => {
     restart({
       onCompleted: () =>
-        toast({ variant: 'success', title: 'AI BOT restarted successfully' }),
+        toast({ variant: 'success', title: 'AI Assistant restarted successfully' }),
       onError: (error) =>
         toast({
           title: 'Restart failed',
@@ -196,7 +196,7 @@ export const SettingsContent = ({
       {activeTab === 'restart-openclaw' && (
         <div className="flex flex-1 items-center justify-center gap-4">
           <Button disabled={restarting} onClick={() => setRestartOpen(true)}>
-            {restarting ? 'Restarting...' : 'Restart AI BOT'}
+            {restarting ? 'Restarting...' : 'Restart AI Assistant'}
           </Button>
           <Button
             variant="destructive"

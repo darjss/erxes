@@ -247,6 +247,21 @@ export const listDiscordGuilds = async (
   }));
 };
 
+export const getGatewayToken = async (serverName: string): Promise<string> => {
+  const DEPLOYER = getEnv({ name: 'DEPLOYER_URL' });
+  const response = await fetch(
+    `${DEPLOYER}/agents/${serverName}/gateway-token`,
+  );
+
+  if (!response.ok) {
+    const message = await response.text();
+    throw new Error(`Failed to get gateway token: ${message}`);
+  }
+
+  const data = (await response.json()) as { token: string };
+  return data.token;
+};
+
 export const fixAndRestartServer = async (
   serverName: string,
 ): Promise<void> => {

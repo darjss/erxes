@@ -1,6 +1,7 @@
 import { IContext } from '~/connectionResolvers';
 import {
   getAgentDetails,
+  getGatewayToken,
   listAgents,
   listDiscordGuilds,
 } from '~/modules/agent/utils';
@@ -17,7 +18,12 @@ export const agentQueries = {
       throw new Error('Agent not found');
     }
 
-    return agent;
+    try {
+      const token = await getGatewayToken(agent.name);
+      return { ...agent, token };
+    } catch {
+      return agent;
+    }
   },
 
   getAgentsList: async (

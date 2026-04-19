@@ -28,10 +28,10 @@ export const RestartServerDialog = ({
           </div>
           <div className="flex flex-col gap-2 text-left">
             <AlertDialog.Title className="text-base font-semibold">
-              Restart AI BOT?
+              Restart AI Assistant?
             </AlertDialog.Title>
             <AlertDialog.Description className="text-muted-foreground text-sm">
-              This will stop and restart your assistant. It may take 1–2
+              This will stop and restart your AI assistant. It may take up to 10
               minutes. You won't be able to chat during this time.
             </AlertDialog.Description>
           </div>

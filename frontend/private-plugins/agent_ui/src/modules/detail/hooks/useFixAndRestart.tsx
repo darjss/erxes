@@ -9,6 +9,7 @@ export const useFixAndRestart = () => {
     onError?: (error: Error) => void;
   }) => {
     await fixAndRestart({
+      context: { timeout: 0 },
       onCompleted: callbacks?.onCompleted,
       onError: callbacks?.onError,
     });
