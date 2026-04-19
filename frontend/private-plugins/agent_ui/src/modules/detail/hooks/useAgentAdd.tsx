@@ -8,7 +8,7 @@ export const useAgentAdd = () => {
   });
 
   const mutate = async (options: MutationHookOptions<any, any>) => {
-    await addAgent(options);
+    await addAgent({ context: { timeout: 0 }, ...options });
   };
 
   return { addAgent: mutate, loading };
