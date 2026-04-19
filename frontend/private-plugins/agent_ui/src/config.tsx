@@ -24,7 +24,12 @@ export const CONFIG: IUIConfig = {
     {
       name: 'ai assistand',
       icon: IconSparkles,
-      path: 'agent',
+      path: 'agent/agent',
+    },
+    {
+      name: 'templates',
+      icon: IconSparkles,
+      path: 'agent/templates',
     },
   ],
 };
