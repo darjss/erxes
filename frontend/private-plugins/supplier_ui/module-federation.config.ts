@@ -16,7 +16,7 @@ const config: ModuleFederationConfig = {
   name: 'supplier_ui',
   exposes: {
     './config': './src/config.tsx',
-    './supplier': './src/modules/supplierMain.tsx',
+    './supplier': './src/modules/SupplierMain.tsx',
     './widgets': './src/widgets/Widgets.tsx',
   },
 
