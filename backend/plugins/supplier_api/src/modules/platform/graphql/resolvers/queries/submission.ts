@@ -4,7 +4,7 @@ import { cursorPaginate } from 'erxes-api-shared/utils';
 import { ICursorPaginateParams } from 'erxes-api-shared/core-types';
 
 export const submissionQueries = {
-  submissions: async (
+  supplierSubmissions: async (
     _root: undefined,
     {
       platform,

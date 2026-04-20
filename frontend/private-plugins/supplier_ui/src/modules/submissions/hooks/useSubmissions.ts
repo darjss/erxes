@@ -16,10 +16,10 @@ export const useSubmissions = () => {
   const variables = { status: status || undefined, limit: LIMIT };
 
   const { data, loading, fetchMore, refetch } = useQuery<{
-    submissions: ISubmissionList;
+    supplierSubmissions: ISubmissionList;
   }>(PLATFORM_SUBMISSIONS, { variables });
 
-  const { list: submissions, totalCount, pageInfo } = data?.submissions || {};
+  const { list: submissions, totalCount, pageInfo } = data?.supplierSubmissions || {};
 
   const handleFetchMore = (
     direction: EnumCursorDirection = EnumCursorDirection.FORWARD,
@@ -38,10 +38,10 @@ export const useSubmissions = () => {
       updateQuery: (prev, { fetchMoreResult }) => {
         if (!fetchMoreResult) return prev;
         return {
-          submissions: mergeCursorData({
+          supplierSubmissions: mergeCursorData({
             direction,
-            fetchMoreResult: fetchMoreResult.submissions,
-            prevResult: prev.submissions,
+            fetchMoreResult: fetchMoreResult.supplierSubmissions,
+            prevResult: prev.supplierSubmissions,
           }),
         };
       },

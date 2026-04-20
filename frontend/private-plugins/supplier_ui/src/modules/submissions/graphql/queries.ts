@@ -1,12 +1,11 @@
 import { gql } from '@apollo/client';
 
 export const PLATFORM_SUBMISSIONS = gql`
-  query Submissions($status: String, $limit: Int, $cursor: String, $direction: String) {
-    submissions(status: $status, limit: $limit, cursor: $cursor, direction: $direction) {
+  query SupplierSubmissions($status: String, $limit: Int, $cursor: String, $direction: String) {
+    supplierSubmissions(status: $status, limit: $limit, cursor: $cursor, direction: $direction) {
       list {
         _id
         productId
-        supplierId
         status
         note
         offering {
