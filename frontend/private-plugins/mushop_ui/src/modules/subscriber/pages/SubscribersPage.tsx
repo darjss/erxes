@@ -8,7 +8,7 @@ import { SubscriberDetailSheet } from '../components/SubscriberDetailSheet';
 
 export const SubscribersPage = () => {
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col">
       <PageHeader>
         <PageHeader.Start>
           <Breadcrumb>

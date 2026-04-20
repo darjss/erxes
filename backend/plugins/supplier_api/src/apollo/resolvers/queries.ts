@@ -1,7 +1,7 @@
 import { supplierQueries } from '@/supplier/graphql/resolvers/queries/supplier';
-import { inventoryQueries } from '@/inventories/graphql/resolvers/queries/inventory';
+import { submissionQueries } from '@/platform/graphql/resolvers/queries/submission';
 
 export const queries = {
   ...supplierQueries,
-  ...inventoryQueries,
+  ...submissionQueries,
 };

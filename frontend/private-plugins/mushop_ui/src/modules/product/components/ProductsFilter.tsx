@@ -1,15 +1,18 @@
 import {
   IconProgress,
   IconSearch,
+  IconTruck,
 } from '@tabler/icons-react';
 import { Combobox, Command, Filter, useMultiQueryState } from 'erxes-ui';
+import { SelectSupplier } from '@/supplier/components/select/SelectSupplier';
 import { SelectProductStatus } from './SelectProductStatus';
 
 const ProductsFilterPopover = () => {
   const [queries] = useMultiQueryState<{
     searchValue: string;
     status: string;
-  }>(['searchValue', 'status']);
+    supplierId: string;
+  }>(['searchValue', 'status', 'supplierId']);
 
   const hasFilters = Object.values(queries || {}).some((v) => v !== null);
 
@@ -34,10 +37,15 @@ const ProductsFilterPopover = () => {
                   <IconProgress />
                   Status
                 </Filter.Item>
+                <Filter.Item value="supplierId">
+                  <IconTruck />
+                  Supplier
+                </Filter.Item>
               </Command.List>
             </Command>
           </Filter.View>
           <SelectProductStatus.FilterView />
+          <SelectSupplier.FilterView />
         </Combobox.Content>
       </Filter.Popover>
       <Filter.Dialog>
@@ -52,7 +60,8 @@ const ProductsFilterPopover = () => {
 export const ProductsFilter = () => {
   const [queries] = useMultiQueryState<{
     searchValue: string;
-  }>(['searchValue']);
+    supplierId: string;
+  }>(['searchValue', 'supplierId']);
 
   return (
     <Filter id="products-filter">
@@ -72,6 +81,13 @@ export const ProductsFilter = () => {
             Status
           </Filter.BarName>
           <SelectProductStatus.FilterBar />
+        </Filter.BarItem>
+        <Filter.BarItem queryKey="supplierId">
+          <Filter.BarName>
+            <IconTruck />
+            Supplier
+          </Filter.BarName>
+          <SelectSupplier.FilterBar />
         </Filter.BarItem>
         <ProductsFilterPopover />
       </Filter.Bar>

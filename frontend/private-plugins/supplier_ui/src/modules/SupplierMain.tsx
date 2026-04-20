@@ -7,9 +7,9 @@ const IndexPage = lazy(() =>
   })),
 );
 
-const InventoryPage = lazy(() =>
-  import('~/pages/inventory/InventoryPage').then((module) => ({
-    default: module.InventoryPage,
+const SubmissionsPage = lazy(() =>
+  import('~/pages/submissions/SubmissionsPage').then((module) => ({
+    default: module.SubmissionsPage,
   })),
 );
 
@@ -19,7 +19,7 @@ const SupplierMain = () => {
       <Routes>
         <Route path="/" element={<IndexPage />} />
         <Route path="profile" element={<IndexPage />} />
-        <Route path="inventory" element={<InventoryPage />} />
+        <Route path="submissions" element={<SubmissionsPage />} />
       </Routes>
     </Suspense>
   );

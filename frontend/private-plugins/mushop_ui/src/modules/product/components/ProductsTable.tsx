@@ -2,8 +2,11 @@ import { RecordTable } from 'erxes-ui';
 import { useMushopProducts } from '../hooks/useMushopProducts';
 import { productColumns } from './ProductColumns';
 
+const PRODUCTS_CURSOR_SESSION_KEY = 'mushop-products-cursor';
+
 export const ProductsTable = () => {
-  const { products, loading } = useMushopProducts();
+  const { products, loading, pageInfo, handleFetchMore } = useMushopProducts();
+  const { hasPreviousPage, hasNextPage } = pageInfo || {};
 
   return (
     <RecordTable.Provider
@@ -11,13 +14,26 @@ export const ProductsTable = () => {
       data={products || []}
       className="m-3"
     >
-      <RecordTable>
-        <RecordTable.Header />
-        <RecordTable.Body>
-          {loading && <RecordTable.RowSkeleton rows={20} />}
-          <RecordTable.RowList />
-        </RecordTable.Body>
-      </RecordTable>
+      <RecordTable.CursorProvider
+        hasPreviousPage={hasPreviousPage}
+        hasNextPage={hasNextPage}
+        dataLength={products?.length}
+        sessionKey={PRODUCTS_CURSOR_SESSION_KEY}
+      >
+        <RecordTable>
+          <RecordTable.Header />
+          <RecordTable.Body>
+            <RecordTable.CursorBackwardSkeleton
+              handleFetchMore={handleFetchMore}
+            />
+            {loading && <RecordTable.RowSkeleton rows={20} />}
+            <RecordTable.RowList />
+            <RecordTable.CursorForwardSkeleton
+              handleFetchMore={handleFetchMore}
+            />
+          </RecordTable.Body>
+        </RecordTable>
+      </RecordTable.CursorProvider>
     </RecordTable.Provider>
   );
 };

@@ -57,16 +57,16 @@ startPlugin({
           return;
         }
 
-        const existing = await models.CustomerSubscription.getActiveSubscription(
-          contentTypeId,
-        );
+        const existing =
+          await models.CustomerSubscription.getActiveSubscription(
+            contentTypeId,
+          );
 
         if (existing) {
           await models.CustomerSubscription.extendSubscription(existing._id);
         } else {
           await models.CustomerSubscription.createSubscription({
-            cpUserId: cpUser._id,
-            erxesCustomerId: cpUser?.erxesCustomerId,
+            subscriberId: cpUser?.erxesCustomerId || cpUser._id,
             amount: data.amount,
             currency: data.currency,
             invoiceId: data._id,

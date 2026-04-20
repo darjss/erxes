@@ -21,6 +21,7 @@ import {
 } from '@tabler/icons-react';
 import { IMushopProduct } from '../types';
 import { ProductStatusAction } from './ProductStatusAction';
+import { ProductCategoryAssign } from './ProductCategoryAssign';
 
 const statusVariant = (status?: string) => {
   if (status === 'approved') return 'success';
@@ -103,11 +104,16 @@ export const productColumns: ColumnDef<IMushopProduct>[] = [
       <RecordTable.InlineHead label="Category" icon={IconCategory} />
     ),
     cell: ({ row }) => (
-      <RecordTableInlineCell>
-        <TextOverflowTooltip value={row.original.category?.name || '-'} />
-      </RecordTableInlineCell>
+      <ProductCategoryAssign.Provider
+        productId={row.original._id}
+        categoryId={row.original.categoryId}
+        category={row.original.category}
+        initialCategory={row.original.initialCategory}
+      >
+        <ProductCategoryAssign.InlineCell />
+      </ProductCategoryAssign.Provider>
     ),
-    size: 160,
+    size: 200,
   },
   {
     id: 'supplier',

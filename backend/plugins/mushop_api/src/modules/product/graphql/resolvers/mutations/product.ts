@@ -1,28 +1,66 @@
 import { IContext } from '~/connectionResolvers';
 import { MUSHOP_PRODUCT_STATUS } from '@/product/db/definitions/product';
+import { sendDecisionToSupplier } from '~/utils/sendDecision';
+import { sendTRPCMessage } from 'erxes-api-shared/utils';
 
 export const productMutations = {
   mushopAssignProductCategory: async (
     _root: undefined,
-    { _id, mushopCategoryId }: { _id: string; mushopCategoryId?: string },
+    { _id, categoryId }: { _id: string; categoryId?: string },
+    { models, subdomain }: IContext,
+  ) => {
+    const product = await models.MushopProduct.assignCategory(_id, categoryId || null);
+
+    if (product?.entityId) {
+      await sendTRPCMessage({
+        subdomain,
+        pluginName: 'core',
+        module: 'products',
+        action: 'updateProduct',
+        input: {
+          _id: product.entityId,
+          doc: { categoryId: categoryId || null },
+        },
+      });
+
+    }
+
+    return product;
+  },
+
+  mushopRemoveProduct: async (
+    _root: undefined,
+    { _id }: { _id: string },
     { models }: IContext,
   ) => {
-    return models.MushopProduct.assignCategory(_id, mushopCategoryId || null);
+    await models.MushopProduct.removeProduct(_id);
+    return { success: true };
   },
 
   mushopUpdateProductStatus: async (
     _root: undefined,
-    { _id, status }: { _id: string; status: string },
+    { _id, status, note }: { _id: string; status: string; note?: string },
     { models }: IContext,
   ) => {
     if (!MUSHOP_PRODUCT_STATUS.ALL.includes(status)) {
       throw new Error('Invalid product status');
     }
 
-    return models.MushopProduct.findOneAndUpdate(
+    const product = await models.MushopProduct.findOneAndUpdate(
       { _id },
-      { $set: { status } },
+      { $set: { status, note: status === 'rejected' ? (note ?? null) : null } },
       { new: true },
     );
+
+    if (product) {
+      sendDecisionToSupplier({
+        subdomain: product.subdomain,
+        entityId: product.entityId,
+        status,
+        note,
+      });
+    }
+
+    return product;
   },
 };

@@ -10,8 +10,7 @@ export interface ICustomerSubscriptionModel
     subscriptionId: string,
   ): Promise<ICustomerSubscriptionDocument | null>;
   createSubscription(doc: {
-    cpUserId: string;
-    erxesCustomerId?: string;
+    subscriberId: string;
     amount?: number;
     currency?: string;
     invoiceId?: string;
@@ -29,7 +28,7 @@ export const loadCustomerSubscriptionClass = (models: IModels) => {
   class CustomerSubscription {
     public static async getActiveSubscription(subscriptionId: string) {
       const subscription = await models.CustomerSubscription.findOne({
-        subscriptionId,
+        subscriberId: subscriptionId,
         status: SUBSCRIPTION_STATUS.ACTIVE,
       }).lean();
 
@@ -38,7 +37,7 @@ export const loadCustomerSubscriptionClass = (models: IModels) => {
           { _id: subscription._id },
           { $set: { status: SUBSCRIPTION_STATUS.EXPIRED } },
         );
-        
+
         return null;
       }
 
@@ -46,8 +45,7 @@ export const loadCustomerSubscriptionClass = (models: IModels) => {
     }
 
     public static async createSubscription(doc: {
-      cpUserId: string;
-      erxesCustomerId?: string;
+      subscriberId: string;
       amount?: number;
       currency?: string;
       invoiceId?: string;
@@ -68,7 +66,8 @@ export const loadCustomerSubscriptionClass = (models: IModels) => {
       const existing = await models.CustomerSubscription.findOne({ _id });
       if (!existing) throw new Error('Subscription not found');
 
-      const base = existing.endDate > new Date() ? existing.endDate : new Date();
+      const base =
+        existing.endDate > new Date() ? existing.endDate : new Date();
       const newEndDate = new Date(base);
       newEndDate.setFullYear(newEndDate.getFullYear() + 1);
 

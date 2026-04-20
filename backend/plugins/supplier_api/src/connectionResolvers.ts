@@ -7,20 +7,20 @@ import {
   loadSupplierClass,
   ISupplierModel,
 } from '@/supplier/db/models/Supplier';
-
-import { IInventoryItemDocument } from '@/inventories/@types/inventory';
+import { ISubmissionDocument } from '@/platform/@types/submission';
 import {
-  loadInventoryItemClass,
-  IInventoryItemModel,
-} from '@/inventories/db/models/Inventory';
+  loadSubmissionClass,
+  ISubmissionModel,
+} from '@/platform/db/models/Submission';
 
 export interface IModels {
   Supplier: ISupplierModel;
-  InventoryItem: IInventoryItemModel;
+  Submission: ISubmissionModel;
 }
 
 export interface IContext extends IMainContext {
   models: IModels;
+  subdomain: string;
 }
 
 export const loadClasses = (db: mongoose.Connection): IModels => {
@@ -31,9 +31,9 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
     loadSupplierClass(models),
   );
 
-  models.InventoryItem = db.model<IInventoryItemDocument, IInventoryItemModel>(
-    'inventory_items',
-    loadInventoryItemClass(models),
+  models.Submission = db.model<ISubmissionDocument, ISubmissionModel>(
+    'supplier_submissions',
+    loadSubmissionClass(models),
   );
 
   return models;

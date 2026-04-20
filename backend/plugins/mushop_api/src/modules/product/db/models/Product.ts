@@ -4,7 +4,6 @@ import { mushopProductSchema } from '@/product/db/definitions/product';
 import {
   IMushopProduct,
   IMushopProductMushopDocument,
-  ProductQueryParams,
 } from '@/product/@types/product';
 
 export interface IMushopProductModel
@@ -14,15 +13,12 @@ export interface IMushopProductModel
     entityId: string,
     doc: IMushopProduct,
   ): Promise<IMushopProductMushopDocument>;
-  listProducts(params: ProductQueryParams): Promise<{
-    list: IMushopProductMushopDocument[];
-    totalCount: number;
-  }>;
   getProduct(_id: string): Promise<IMushopProductMushopDocument>;
   assignCategory(
     _id: string,
-    mushopCategoryId: string | null,
+    categoryId: string | null,
   ): Promise<IMushopProductMushopDocument>;
+  removeProduct(_id: string): Promise<IMushopProductMushopDocument | null>;
 }
 
 export const loadMushopProductClass = (models: IModels) => {
@@ -32,46 +28,19 @@ export const loadMushopProductClass = (models: IModels) => {
       entityId: string,
       doc: IMushopProduct,
     ) {
+      const { initialCategory, ...rest } = doc;
+
       return models.MushopProduct.findOneAndUpdate(
         { subdomain, entityId },
         {
-          $set: { ...doc },
+          $set: {
+            ...rest,
+            ...(initialCategory ? { initialCategory } : {}),
+          },
           $setOnInsert: { subdomain, entityId },
         },
         { upsert: true, new: true, setDefaultsOnInsert: true },
       );
-    }
-
-    public static async listProducts(params: ProductQueryParams) {
-      const {
-        supplierId,
-        categoryId,
-        status,
-        searchValue,
-        page = 1,
-        perPage = 20,
-      } = params;
-      const filter: any = {};
-
-      if (supplierId) filter.vendorId = supplierId;
-      if (categoryId) filter.categoryId = categoryId;
-      if (status) filter.status = status;
-      if (searchValue) {
-        filter.$or = [
-          { name: { $regex: searchValue, $options: 'i' } },
-          { code: { $regex: searchValue, $options: 'i' } },
-        ];
-      }
-
-      const list = await models.MushopProduct.find(filter)
-        .sort({ createdAt: -1 })
-        .skip((page - 1) * perPage)
-        .limit(perPage)
-        .lean();
-
-      const totalCount = await models.MushopProduct.countDocuments(filter);
-
-      return { list, totalCount };
     }
 
     public static async getProduct(_id: string) {
@@ -80,13 +49,21 @@ export const loadMushopProductClass = (models: IModels) => {
       return product;
     }
 
-    public static async assignCategory(
-      _id: string,
-      mushopCategoryId: string | null,
-    ) {
+    public static async removeProduct(_id: string) {
+      const product = await models.MushopProduct.findOne({ _id }).lean();
+      if (!product) throw new Error('Product not found');
+      await models.MushopProduct.deleteOne({ _id });
+      return product;
+    }
+
+    public static async assignCategory(_id: string, categoryId: string | null) {
       const product = await models.MushopProduct.findOneAndUpdate(
         { _id },
-        { $set: { mushopCategoryId: mushopCategoryId || null } },
+        {
+          $set: {
+            categoryId: categoryId || null,
+          },
+        },
         { new: true },
       );
       if (!product) throw new Error('Product not found');

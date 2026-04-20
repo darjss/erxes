@@ -3,26 +3,27 @@ import {
   queries as SupplierQueries,
   types as SupplierTypes,
 } from '@/supplier/graphql/schemas/supplier';
-
 import {
-  mutations as InventoryMutations,
-  queries as InventoryQueries,
-  types as InventoryTypes,
-} from '@/inventories/graphql/schemas/inventory';
+  mutations as SubmissionMutations,
+  queries as SubmissionQueries,
+  types as SubmissionTypes,
+  inputTypes as SubmissionInputTypes,
+} from '@/platform/graphql/schemas/submission';
 
 export const types = `
   ${SupplierTypes}
-  ${InventoryTypes}
+  ${SubmissionTypes}
+  ${SubmissionInputTypes}
 `;
 
 export const queries = `
   ${SupplierQueries}
-  ${InventoryQueries}
+  ${SubmissionQueries}
 `;
 
 export const mutations = `
   ${SupplierMutations}
-  ${InventoryMutations}
+  ${SubmissionMutations}
 `;
 
 export default { types, queries, mutations };

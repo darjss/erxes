@@ -1,4 +1,5 @@
 import { gql } from '@apollo/client';
+import { GQL_CURSOR_PARAM_DEFS, GQL_CURSOR_PARAMS } from 'erxes-ui';
 
 const MUSHOP_PRODUCT_FRAGMENT = gql`
   fragment MushopProductFields on MushopProduct {
@@ -12,6 +13,7 @@ const MUSHOP_PRODUCT_FRAGMENT = gql`
     variants
     barcodeDescription
     unitPrice
+    initialCategory
     categoryId
     category {
       _id
@@ -34,12 +36,6 @@ const MUSHOP_PRODUCT_FRAGMENT = gql`
     currency
     pdfAttachment
     status
-    mushopCategoryId
-    mushopCategory {
-      _id
-      name
-      code
-    }
     createdAt
     updatedAt
   }
@@ -47,7 +43,10 @@ const MUSHOP_PRODUCT_FRAGMENT = gql`
 
 export const MUSHOP_CORE_PRODUCT_CATEGORIES = gql`
   query MushopCoreProductCategories($parentId: String, $searchValue: String) {
-    mushopCoreProductCategories(parentId: $parentId, searchValue: $searchValue) {
+    mushopCoreProductCategories(
+      parentId: $parentId
+      searchValue: $searchValue
+    ) {
       _id
       name
       code
@@ -57,20 +56,29 @@ export const MUSHOP_CORE_PRODUCT_CATEGORIES = gql`
 
 export const MUSHOP_PRODUCTS = gql`
   query MushopProducts(
+    $supplierId: String
     $categoryId: String
     $status: String
     $searchValue: String
-    $page: Int
-    $perPage: Int
+    ${GQL_CURSOR_PARAM_DEFS}
   ) {
     mushopProducts(
+      supplierId: $supplierId
       categoryId: $categoryId
       status: $status
       searchValue: $searchValue
-      page: $page
-      perPage: $perPage
+      ${GQL_CURSOR_PARAMS}
     ) {
-      ...MushopProductFields
+      list {
+        ...MushopProductFields
+      }
+      pageInfo {
+        hasNextPage
+        hasPreviousPage
+        startCursor
+        endCursor
+      }
+      totalCount
     }
   }
   ${MUSHOP_PRODUCT_FRAGMENT}

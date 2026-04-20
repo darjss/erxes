@@ -11,14 +11,8 @@ export interface IMushopProduct {
   variants?: any;
   barcodeDescription?: string;
   unitPrice?: number;
+  initialCategory?: any;
   categoryId?: string;
-  category?: {
-    _id?: string;
-    name?: string;
-    code?: string;
-    order?: string;
-    parentId?: string;
-  };
   vendorId?: string;
   propertiesData?: any;
   tagIds?: string[];
@@ -30,7 +24,7 @@ export interface IMushopProduct {
   currency?: string;
   pdfAttachment?: any;
   status?: string;
-  mushopCategoryId?: string;
+  note?: string;
 }
 
 export interface IMushopProductDocument extends IMushopProduct, Document {
@@ -48,6 +42,4 @@ export interface ProductQueryParams {
   categoryId?: string;
   status?: string;
   searchValue?: string;
-  page?: number;
-  perPage?: number;
 }

@@ -10,6 +10,17 @@ export interface IMushopProductSupplier {
   logo?: string;
 }
 
+export interface IProductList {
+  list: IMushopProduct[];
+  pageInfo: {
+    hasNextPage: boolean;
+    hasPreviousPage: boolean;
+    startCursor: string;
+    endCursor: string;
+  };
+  totalCount?: number;
+}
+
 export interface IMushopProduct {
   _id: string;
   name?: string;
@@ -21,8 +32,8 @@ export interface IMushopProduct {
   variants?: any;
   barcodeDescription?: string;
   unitPrice?: number;
+  initialCategory?: IMushopProductCategory;
   categoryId?: string;
-  category?: IMushopProductCategory;
   vendorId?: string;
   supplier?: IMushopProductSupplier;
   propertiesData?: any;
@@ -35,8 +46,7 @@ export interface IMushopProduct {
   currency?: string;
   pdfAttachment?: any;
   status?: string;
-  mushopCategoryId?: string;
-  mushopCategory?: IMushopProductCategory;
+  category?: IMushopProductCategory;
   createdAt?: string;
   updatedAt?: string;
 }

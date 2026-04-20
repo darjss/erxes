@@ -60,8 +60,22 @@ const ProductInfo = ({ product }: { product: IMushopProduct }) => {
               />
               <Row label="UOM" value={product.uom} />
               <Row label="Currency" value={product.currency} />
-              <Row label="Category" value={product.category?.name || product.categoryId} />
               <Row label="Supplier" value={product.supplier?.name || product.vendorId} />
+              <Table.Row>
+                <Table.Cell className="bg-sidebar p-2 w-44 h-auto min-h-10 text-muted-foreground">
+                  Category
+                </Table.Cell>
+                <Table.Cell className="p-1 px-2 h-auto min-h-10">
+                  <ProductCategoryAssign.Provider
+                    productId={product._id}
+                    categoryId={product.categoryId}
+                    category={product.category}
+                    initialCategory={product.initialCategory}
+                  >
+                    <ProductCategoryAssign.DetailTrigger />
+                  </ProductCategoryAssign.Provider>
+                </Table.Cell>
+              </Table.Row>
               <Row
                 label="Barcodes"
                 value={product.barcodes?.join(', ') || null}
@@ -88,22 +102,10 @@ const ProductInfo = ({ product }: { product: IMushopProduct }) => {
                     productId={product._id}
                     status={product.status}
                   >
-                    <Badge variant={statusVariant(product.status)}>
+                    <Badge variant={statusVariant(product.status)} className='cursor-pointer'>
                       {product.status || 'pending'}
                     </Badge>
                   </ProductStatusAction>
-                </Table.Cell>
-              </Table.Row>
-              <Table.Row>
-                <Table.Cell className="bg-sidebar p-2 w-44 h-auto min-h-10 text-muted-foreground">
-                  Mushop Category
-                </Table.Cell>
-                <Table.Cell className="p-1 px-2 h-auto min-h-10">
-                  <ProductCategoryAssign
-                    productId={product._id}
-                    mushopCategoryId={product.mushopCategoryId}
-                    mushopCategory={product.mushopCategory}
-                  />
                 </Table.Cell>
               </Table.Row>
               <Row

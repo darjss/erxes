@@ -5,7 +5,11 @@ import {
 } from 'erxes-api-shared/utils';
 import { sendMessage } from '~/modules/admin/utils';
 
-const mutationNames = ['productsAdd', 'productsEdit', 'productsRemove'];
+const mutationNames = [
+  'productsEdit',
+  'productsRemove',
+  'productCategoriesEdit',
+];
 
 const allRules: IAfterProcessRule[] = [
   {
@@ -19,8 +23,6 @@ export const afterProcess: AfterProcessConfigs = {
   afterMutation: async (ctx, input) => {
     const { mutationName, args, result } = input?.data ?? {};
 
-    console.log('input?.data', input?.data);
-
     if (!mutationNames.includes(mutationName)) {
       return;
     }
@@ -28,20 +30,44 @@ export const afterProcess: AfterProcessConfigs = {
     if (mutationName === 'productsRemove') {
       const productIds: string[] = args?.productIds || [];
 
-      for (const productId of productIds) {
-        sendMessage({
-          subdomain: ctx.subdomain,
-          path: 'syncProduct',
-          payload: {
-            entityId: productId,
-            data: { action: 'delete' },
-          },
-        });
-      }
+      sendMessage({
+        subdomain: ctx.subdomain,
+        path: 'syncProduct',
+        payload: {
+          entityIds: productIds,
+          data: { action: 'delete' },
+        },
+      });
 
       return;
     }
 
+    if (mutationName === 'productCategoriesEdit') {
+      const category = result;
+
+      if (!category?._id) return;
+
+      sendMessage({
+        subdomain: ctx.subdomain,
+        path: 'syncProductCategory',
+        payload: {
+          entityId: category._id,
+          data: {
+            category: {
+              _id: category._id,
+              name: category.name,
+              code: category.code,
+              order: category.order,
+              parentId: category.parentId,
+            },
+          },
+        },
+      });
+
+      return;
+    }
+
+    // productsEdit
     const product = result;
 
     let category: any = null;
@@ -97,7 +123,7 @@ export const afterProcess: AfterProcessConfigs = {
             currency: product.currency,
             pdfAttachment: product.pdfAttachment,
           },
-          action: mutationName === 'productsAdd' ? 'create' : 'update',
+          action: 'update',
         },
       },
     });

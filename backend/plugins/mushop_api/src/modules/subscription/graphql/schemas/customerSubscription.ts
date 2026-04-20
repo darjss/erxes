@@ -1,8 +1,9 @@
+import { GQL_CURSOR_PARAM_DEFS } from 'erxes-api-shared/utils';
+
 export const types = `
   type MushopCustomerSubscription {
     _id: String!
-    cpUserId: String!
-    erxesCustomerId: String
+    subscriberId: String!
     status: String
     startDate: Date
     endDate: Date
@@ -23,7 +24,7 @@ export const types = `
 export const queries = `
   mushopMySubscription: MushopCustomerSubscription
   mushopIsSubscribed: Boolean
-  mushopSubscriptions(searchValue: String, status: String, limit: Int, cursor: String, direction: CURSOR_DIRECTION): MushopCustomerSubscriptionListResponse
+  mushopSubscriptions(searchValue: String, status: String, ${GQL_CURSOR_PARAM_DEFS}): MushopCustomerSubscriptionListResponse
   mushopSubscriptionDetail(_id: String!): MushopCustomerSubscription
 `;
 

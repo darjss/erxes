@@ -1,24 +1,40 @@
 import { IContext } from '~/connectionResolvers';
 import { ProductQueryParams } from '@/product/@types/product';
-import { sendTRPCMessage } from 'erxes-api-shared/utils';
+import { ICursorPaginateParams } from 'erxes-api-shared/core-types';
+import { cursorPaginate, sendTRPCMessage } from 'erxes-api-shared/utils';
 
 export const productQueries = {
   mushopProducts: async (
     _root: undefined,
-    params: ProductQueryParams,
+    params: ProductQueryParams & ICursorPaginateParams,
     { models }: IContext,
   ) => {
-    const { list } = await models.MushopProduct.listProducts(params);
-    return list;
-  },
+    const { supplierId, categoryId, status, searchValue } = params;
 
-  mushopProductsTotalCount: async (
-    _root: undefined,
-    params: ProductQueryParams,
-    { models }: IContext,
-  ) => {
-    const { totalCount } = await models.MushopProduct.listProducts(params);
-    return totalCount;
+    const filter: any = {};
+
+    if (supplierId) {
+      const supplier = await models.Supplier.getSupplier(supplierId);
+
+      filter.subdomain = supplier.subdomain;
+    }
+
+    if (categoryId) filter.categoryId = categoryId;
+
+    if (status) filter.status = status;
+
+    if (searchValue) {
+      filter.$or = [
+        { name: { $regex: searchValue, $options: 'i' } },
+        { code: { $regex: searchValue, $options: 'i' } },
+      ];
+    }
+
+    return cursorPaginate({
+      model: models.MushopProduct,
+      params,
+      query: filter,
+    });
   },
 
   mushopProductDetail: async (

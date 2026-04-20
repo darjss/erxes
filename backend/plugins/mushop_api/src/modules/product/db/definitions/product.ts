@@ -23,20 +23,8 @@ export const mushopProductSchema = schemaWrapper(
       variants: { type: Object },
       barcodeDescription: { type: String },
       unitPrice: { type: Number },
+      initialCategory: { type: Schema.Types.Mixed },
       categoryId: { type: String, index: true },
-      category: {
-        type: new Schema(
-          {
-            _id: { type: String },
-            name: { type: String },
-            code: { type: String },
-            order: { type: String },
-            parentId: { type: String },
-          },
-          { _id: false },
-        ),
-      },
-      vendorId: { type: String, index: true },
       propertiesData: { type: Object },
       tagIds: { type: [String], default: [] },
       attachment: { type: Object },
@@ -46,12 +34,12 @@ export const mushopProductSchema = schemaWrapper(
       subUoms: { type: Object },
       currency: { type: String },
       pdfAttachment: { type: Object },
-      mushopCategoryId: { type: String, index: true },
       status: {
         type: String,
         enum: MUSHOP_PRODUCT_STATUS.ALL,
         default: MUSHOP_PRODUCT_STATUS.PENDING,
       },
+      note: { type: String },
     },
     {
       timestamps: true,

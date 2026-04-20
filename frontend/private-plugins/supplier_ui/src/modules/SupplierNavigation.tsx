@@ -1,5 +1,5 @@
 import { NavigationMenuLinkItem } from 'erxes-ui';
-import { IconClipboardList, IconUser } from '@tabler/icons-react';
+import { IconClipboardList, IconSend, IconUser } from '@tabler/icons-react';
 
 export const SupplierNavigation = () => {
   return (
@@ -11,9 +11,9 @@ export const SupplierNavigation = () => {
         pathPrefix="supplier"
       />
       <NavigationMenuLinkItem
-        name="inventory"
-        icon={IconClipboardList}
-        path="inventory"
+        name="submissions"
+        icon={IconSend}
+        path="submissions"
         pathPrefix="supplier"
       />
     </>

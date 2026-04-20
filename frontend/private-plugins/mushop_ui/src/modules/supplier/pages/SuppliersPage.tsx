@@ -8,7 +8,7 @@ import { SupplierDetailSheet } from '../components/SupplierDetailSheet';
 
 export const SuppliersPage = () => {
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col">
       <PageHeader>
         <PageHeader.Start>
           <Breadcrumb>

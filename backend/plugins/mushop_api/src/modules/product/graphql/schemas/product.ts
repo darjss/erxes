@@ -1,3 +1,5 @@
+import { GQL_CURSOR_PARAM_DEFS } from 'erxes-api-shared/utils';
+
 export const types = `
   type MushopProductCategory {
     _id: String
@@ -18,6 +20,7 @@ export const types = `
     variants: JSON
     barcodeDescription: String
     unitPrice: Float
+    initialCategory: JSON
     categoryId: String
     category: MushopProductCategory
     vendorId: String
@@ -32,10 +35,14 @@ export const types = `
     currency: String
     pdfAttachment: JSON
     status: String
-    mushopCategoryId: String
-    mushopCategory: MushopProductCategory
     createdAt: Date
     updatedAt: Date
+  }
+
+  type MushopProductListResponse {
+    list: [MushopProduct]
+    pageInfo: PageInfo
+    totalCount: Int
   }
 `;
 
@@ -44,18 +51,18 @@ const productQueryParams = `
   categoryId: String
   status: String
   searchValue: String
-  page: Int
-  perPage: Int
+  ${GQL_CURSOR_PARAM_DEFS}
 `;
 
 export const queries = `
-  mushopProducts(${productQueryParams}): [MushopProduct]
-  mushopProductsTotalCount(${productQueryParams}): Int
+  mushopProducts(${productQueryParams}): MushopProductListResponse
   mushopProductDetail(_id: String!): MushopProduct
   mushopCoreProductCategories(parentId: String, searchValue: String): [MushopProductCategory]
 `;
 
 export const mutations = `
-  mushopUpdateProductStatus(_id: String!, status: String!): MushopProduct
-  mushopAssignProductCategory(_id: String!, mushopCategoryId: String): MushopProduct
+  mushopUpdateProductStatus(_id: String!, status: String!, note: String): MushopProduct
+  mushopAssignProductCategory(_id: String!, categoryId: String): MushopProduct
+  mushopRemoveProduct(_id: String!): JSON
+  mushopApproveProduct(_id: String!): MushopProduct
 `;

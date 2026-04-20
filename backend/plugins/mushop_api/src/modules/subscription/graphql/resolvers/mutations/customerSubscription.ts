@@ -1,7 +1,6 @@
 import { IContext } from '~/connectionResolvers';
-import { Resolver } from 'erxes-api-shared/core-types';
 
-const mushopCancelMySubscription: Resolver = async (
+const mushopCancelMySubscription = async (
   _root,
   { _id }: { _id: string },
   { models, cpUser }: IContext,
@@ -17,9 +16,12 @@ const mushopCancelMySubscription: Resolver = async (
 
   return models.CustomerSubscription.cancelSubscription(_id);
 };
-mushopCancelMySubscription.wrapperConfig = { forClientPortal: true, cpUserRequired: true };
+mushopCancelMySubscription.wrapperConfig = {
+  forClientPortal: true,
+  cpUserRequired: true,
+};
 
-const mushopCancelSubscription: Resolver = async (
+const mushopCancelSubscription = async (
   _root,
   { _id }: { _id: string },
   { models }: IContext,
