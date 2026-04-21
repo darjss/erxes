@@ -81,6 +81,10 @@ interface ImportOptions {
 interface ImportStats {
   processedUserIds: number;
   customersNotFound: number;
+  customersNotFoundHasPhone: number;
+  customersNotFoundHasEmail: number;
+  customersNotFoundHasPhoneAndEmail: number;
+  customersNotFoundSamePhoneExistsInOneFitCustomer: number;
   createdCpUsers: number;
   existingCpUsers: number;
   createdMembershipPurchases: number;
@@ -174,12 +178,20 @@ interface OneFitCustomerLike {
   lastName?: string;
 }
 
+interface ExternalUserLike {
+  _id: string;
+  primaryEmail?: string;
+  emails?: string[];
+  primaryPhone?: string;
+  phones?: string[];
+}
+
 async function buildUsedPersistentFitPointContext(
   externalDb: mongoose.mongo.Db,
 ): Promise<UsedPersistentFitPointContext> {
   const reservationCollection = externalDb.collection('Reservation');
   const activityCollection = externalDb.collection('Activity');
-  const checkInCollection = externalDb.collection('CheckIn');
+  const checkInCollection = externalDb.collection('Checkin');
 
   const reservations = (await reservationCollection
     .find({ status: 0 })
@@ -213,7 +225,7 @@ async function buildUsedPersistentFitPointContext(
     if (!activityId || !memberId) {
       continue;
     }
-
+    console.log('checkIn', `${memberId}:${activityId}`);
     checkedInReservationKeys.add(`${memberId}:${activityId}`);
   }
 
@@ -379,6 +391,10 @@ interface UserProcessingCounters {
   skippedMembershipPurchases: number;
   membershipPurchaseErrors: number;
   customersNotFound: number;
+  customersNotFoundHasPhone: number;
+  customersNotFoundHasEmail: number;
+  customersNotFoundHasPhoneAndEmail: number;
+  customersNotFoundSamePhoneExistsInOneFitCustomer: number;
 }
 
 interface UserProcessingContext {
@@ -386,6 +402,7 @@ interface UserProcessingContext {
   existingHistoryIds: Set<string>;
   includeExpired: boolean;
   models: IModels;
+  externalDb: mongoose.mongo.Db;
   CPUserModel: mongoose.Model<unknown>;
   clientPortalId: string;
   purchasesToInsert: any[];
@@ -397,11 +414,14 @@ async function processUsersAndHistories({
   existingHistoryIds,
   includeExpired,
   models,
+  externalDb,
   CPUserModel,
   clientPortalId,
   purchasesToInsert,
   counters,
 }: UserProcessingContext): Promise<void> {
+  const externalUserCollection = externalDb.collection('_User');
+
   for (const [userId, histories] of historiesByUserId) {
     counters.processedUserIds += 1;
 
@@ -409,6 +429,35 @@ async function processUsersAndHistories({
 
     if (!customer) {
       counters.customersNotFound += 1;
+
+      const externalUser = (await externalUserCollection.findOne({
+        _id: userId,
+      } as any)) as ExternalUserLike | null;
+
+      const phone =
+        externalUser?.primaryPhone ??
+        (externalUser?.phones && externalUser.phones[0]);
+      const email =
+        externalUser?.primaryEmail ??
+        (externalUser?.emails && externalUser.emails[0]);
+
+      if (phone) {
+        counters.customersNotFoundHasPhone += 1;
+
+        const samePhoneCustomer = await models.OneFitCustomer.findOne({
+          $or: [{ primaryPhone: phone }, { phones: phone }],
+        }).lean();
+        if (samePhoneCustomer) {
+          counters.customersNotFoundSamePhoneExistsInOneFitCustomer += 1;
+        }
+      }
+
+      if (email) {
+        counters.customersNotFoundHasEmail += 1;
+      }
+      if (phone && email) {
+        counters.customersNotFoundHasPhoneAndEmail += 1;
+      }
       continue;
     }
 
@@ -609,6 +658,7 @@ function buildBookingDocument({
   bookingEndDateTime.setHours(endHour || 0, endMinute || 0, 0, 0);
 
   const reservationKey = `${reservation.memberId}:${reservation.activityId}`;
+
   const isCompleted = checkedInReservationKeys.has(reservationKey);
   const isPast = bookingEndDateTime < now;
 
@@ -625,7 +675,7 @@ function buildBookingDocument({
     attendanceStatus: isPast
       ? isCompleted
         ? 'attended'
-        : 'not_attended'
+        : 'no_show'
       : 'pending',
     attendedAt: isCompleted ? bookingEndDateTime : undefined,
     bookingId: reservation.reservationId,
@@ -691,7 +741,7 @@ function processOneHistory(
     expiresAt,
     amount,
     externalHistoryId: historyId,
-    createdAt: new Date(),
+    createdAt: purchasedAt,
   };
 
   return {
@@ -712,6 +762,18 @@ function printImportSummary(stats: ImportStats): void {
   );
   process.stdout.write(
     `Customers not found (run user import first): ${stats.customersNotFound}\n`,
+  );
+  process.stdout.write(
+    `Customers not found with phone: ${stats.customersNotFoundHasPhone}\n`,
+  );
+  process.stdout.write(
+    `Customers not found with email: ${stats.customersNotFoundHasEmail}\n`,
+  );
+  process.stdout.write(
+    `Customers not found with phone+email: ${stats.customersNotFoundHasPhoneAndEmail}\n`,
+  );
+  process.stdout.write(
+    `Customers not found where same phone exists in OneFitCustomer: ${stats.customersNotFoundSamePhoneExistsInOneFitCustomer}\n`,
   );
   process.stdout.write(
     `Client portal users created: ${stats.createdCpUsers}\n`,
@@ -821,6 +883,10 @@ async function importOnefit2SubscriptionHistory(
       skippedMembershipPurchases: 0,
       membershipPurchaseErrors: 0,
       customersNotFound: 0,
+      customersNotFoundHasPhone: 0,
+      customersNotFoundHasEmail: 0,
+      customersNotFoundHasPhoneAndEmail: 0,
+      customersNotFoundSamePhoneExistsInOneFitCustomer: 0,
     };
 
     const purchasesToInsert: any[] = [];
@@ -829,6 +895,7 @@ async function importOnefit2SubscriptionHistory(
       existingHistoryIds,
       includeExpired,
       models,
+      externalDb,
       CPUserModel: CPUserModel as unknown as mongoose.Model<unknown>,
       clientPortalId,
       purchasesToInsert,
@@ -859,6 +926,12 @@ async function importOnefit2SubscriptionHistory(
     const stats: ImportStats = {
       processedUserIds: counters.processedUserIds,
       customersNotFound: counters.customersNotFound,
+      customersNotFoundHasPhone: counters.customersNotFoundHasPhone,
+      customersNotFoundHasEmail: counters.customersNotFoundHasEmail,
+      customersNotFoundHasPhoneAndEmail:
+        counters.customersNotFoundHasPhoneAndEmail,
+      customersNotFoundSamePhoneExistsInOneFitCustomer:
+        counters.customersNotFoundSamePhoneExistsInOneFitCustomer,
       createdCpUsers: counters.createdCpUsers,
       existingCpUsers: counters.existingCpUsers,
       createdMembershipPurchases: purchaseResult.inserted,
