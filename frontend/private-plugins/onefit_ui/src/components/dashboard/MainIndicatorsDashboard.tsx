@@ -9,7 +9,7 @@ import {
   IconTrendingUp,
   IconUsers,
 } from '@tabler/icons-react';
-import { Button, ChartContainer, Select, Skeleton, cn } from 'erxes-ui';
+import { Button, ChartContainer, Input, Select, Skeleton, cn } from 'erxes-ui';
 import {
   addMonths,
   endOfDay,
@@ -57,9 +57,14 @@ interface PackageStatItem {
   planId: string;
   planName: string;
   activeCustomerCount: number;
+  currentCreditTotal: number;
   totalCredit: number;
   consumedCredit: number;
-  checkInCount: number;
+  checkInCount: {
+    attended: number;
+    noShow: number;
+    cancelled: number;
+  };
   usagePercent: number;
 }
 
@@ -190,6 +195,23 @@ function getRangeByPreset(preset: DashboardPreset): { from: Date; to: Date } {
   return { from: startOfDay(subYears(now, 1)), to };
 }
 
+function toDateInputValue(date: Date): string {
+  return format(date, 'yyyy-MM-dd');
+}
+
+function parseDateInputValue(value: string): Date | null {
+  if (!value) {
+    return null;
+  }
+
+  const parsedDate = new Date(`${value}T00:00:00`);
+  if (Number.isNaN(parsedDate.getTime())) {
+    return null;
+  }
+
+  return parsedDate;
+}
+
 export function MainIndicatorsDashboard() {
   const { mode, loading: modeLoading } = useOneFitMode();
   const isMaster = mode === 'master';
@@ -199,8 +221,24 @@ export function MainIndicatorsDashboard() {
     [],
   );
   const range = useMemo(() => getRangeByPreset(preset), [preset]);
-  const from = range.from;
-  const to = range.to;
+  const [startDate, setStartDate] = useState<string>(toDateInputValue(range.from));
+  const [endDate, setEndDate] = useState<string>(toDateInputValue(range.to));
+  const from = useMemo(() => {
+    const parsedDate = parseDateInputValue(startDate);
+    if (!parsedDate) {
+      return range.from;
+    }
+
+    return startOfDay(parsedDate);
+  }, [range.from, startDate]);
+  const to = useMemo(() => {
+    const parsedDate = parseDateInputValue(endDate);
+    if (!parsedDate) {
+      return range.to;
+    }
+
+    return endOfDay(parsedDate);
+  }, [endDate, range.to]);
 
   const { data, loading, error } = useQuery(ONE_FIT_DASHBOARD_STATS, {
     variables: {
@@ -382,7 +420,13 @@ export function MainIndicatorsDashboard() {
           <div className="flex items-center gap-2">
             <Select
               value={preset}
-              onValueChange={(value) => setPreset(value as DashboardPreset)}
+              onValueChange={(value) => {
+                const selectedPreset = value as DashboardPreset;
+                const selectedRange = getRangeByPreset(selectedPreset);
+                setPreset(selectedPreset);
+                setStartDate(toDateInputValue(selectedRange.from));
+                setEndDate(toDateInputValue(selectedRange.to));
+              }}
             >
               <Select.Trigger className="min-w-[220px] border-gray-200">
                 <Select.Value />
@@ -403,6 +447,18 @@ export function MainIndicatorsDashboard() {
               <IconCalendar className="size-4 text-gray-500" />
               {rangeLabel}
             </Button>
+            <Input
+              type="date"
+              value={startDate}
+              onChange={(event) => setStartDate(event.target.value || '')}
+              className="w-[170px]"
+            />
+            <Input
+              type="date"
+              value={endDate}
+              onChange={(event) => setEndDate(event.target.value || '')}
+              className="w-[170px]"
+            />
           </div>
         </div>
       </div>
@@ -757,6 +813,8 @@ export function MainIndicatorsDashboard() {
               <thead>
                 <tr className="text-left text-gray-600">
                   <th className="py-3 pr-4 font-medium">Багц нэр</th>
+                  <th className="py-3 pr-4 font-medium">Идэвхтэй хэрэглэгч</th>
+                  <th className="py-3 pr-4 font-medium">Одоогийн кредит</th>
                   <th className="py-3 pr-4 font-medium">Нийт кредит</th>
                   <th className="py-3 pr-4 font-medium">Кредит ашиглалт</th>
                   <th className="py-3 pr-4 font-medium">Check-in тоо</th>
@@ -774,13 +832,32 @@ export function MainIndicatorsDashboard() {
                     <tr key={item.planId} className="text-gray-900">
                       <td className="py-3 pr-4">{item.planName}</td>
                       <td className="py-3 pr-4 tabular-nums">
+                        {Math.round(item.activeCustomerCount).toLocaleString()}
+                      </td>
+                      <td className="py-3 pr-4 tabular-nums">
+                        {Math.round(item.currentCreditTotal).toLocaleString()}
+                      </td>
+                      <td className="py-3 pr-4 tabular-nums">
                         {Math.round(item.totalCredit).toLocaleString()}
                       </td>
                       <td className="py-3 pr-4 tabular-nums">
                         {Math.round(item.consumedCredit).toLocaleString()}
                       </td>
                       <td className="py-3 pr-4 tabular-nums">
-                        {Math.round(item.checkInCount).toLocaleString()}
+                        <div className="flex flex-col gap-1 text-xs sm:text-sm">
+                          <span>
+                            attended:{' '}
+                            {Math.round(item.checkInCount.attended).toLocaleString()}
+                          </span>
+                          <span>
+                            no_show:{' '}
+                            {Math.round(item.checkInCount.noShow).toLocaleString()}
+                          </span>
+                          <span>
+                            cancelled:{' '}
+                            {Math.round(item.checkInCount.cancelled).toLocaleString()}
+                          </span>
+                        </div>
                       </td>
                       <td className="py-3">
                         <div className="flex min-w-[180px] items-center gap-3">

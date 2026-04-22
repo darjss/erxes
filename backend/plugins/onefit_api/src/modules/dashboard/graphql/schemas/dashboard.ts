@@ -1,4 +1,10 @@
 export const types = `
+  type OneFitDashboardCheckInCount {
+    attended: Int!
+    noShow: Int!
+    cancelled: Int!
+  }
+
   type OneFitDashboardMetric {
     value: Float!
     previousValue: Float
@@ -18,9 +24,10 @@ export const types = `
     planId: String!
     planName: String!
     activeCustomerCount: Int!
+    currentCreditTotal: Float!
     totalCredit: Float!
     consumedCredit: Float!
-    checkInCount: Int!
+    checkInCount: OneFitDashboardCheckInCount!
     usagePercent: Float!
   }
 

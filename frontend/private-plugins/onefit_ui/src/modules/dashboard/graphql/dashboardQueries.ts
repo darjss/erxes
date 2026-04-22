@@ -52,9 +52,14 @@ export const ONE_FIT_DASHBOARD_STATS = gql`
         planId
         planName
         activeCustomerCount
+        currentCreditTotal
         totalCredit
         consumedCredit
-        checkInCount
+        checkInCount {
+          attended
+          noShow
+          cancelled
+        }
         usagePercent
       }
     }
