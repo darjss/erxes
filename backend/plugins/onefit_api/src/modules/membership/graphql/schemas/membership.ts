@@ -50,6 +50,25 @@ export const types = `
     totalCount: Int
   }
 
+  enum OneFitMembershipPurchaseReportInterval {
+    day
+    week
+    month
+  }
+
+  type OneFitMembershipPurchaseReportBucket {
+    periodKey: String!
+    purchaseCount: Int!
+    totalAmount: Float!
+  }
+
+  type OneFitMembershipPurchasePlanShare {
+    planId: String!
+    planName: String!
+    purchaseCount: Int!
+    percent: Float!
+  }
+
   type OneFitPromoDiscountCheck {
     valid: Boolean!
     originalPrice: Float
@@ -93,6 +112,8 @@ export const queries = `
   oneFitActiveMembershipPlans: [OneFitMembershipPlan]
   oneFitMembershipPurchases(${membershipPurchaseQueryParams}, ${GQL_CURSOR_PARAM_DEFS}): OneFitMembershipPurchaseListResponse
   oneFitMembershipPurchase(_id: String): OneFitMembershipPurchase
+  oneFitMembershipPurchaseReport(startDate: Date!, endDate: Date!, interval: OneFitMembershipPurchaseReportInterval!): [OneFitMembershipPurchaseReportBucket!]!
+  oneFitMembershipPurchasePlanShares(startDate: Date!, endDate: Date!): [OneFitMembershipPurchasePlanShare!]!
   cpOneFitMembershipPurchases(${cpMembershipPurchaseQueryParams}, ${GQL_CURSOR_PARAM_DEFS}): OneFitMembershipPurchaseListResponse
   cpOneFitMembershipPurchase(_id: String!): OneFitMembershipPurchase
 

@@ -10,10 +10,10 @@ import {
   IconCoins,
   IconUsers,
   IconBuildingStore,
-  IconBuilding,
   IconPhoto,
   IconTicket,
   IconReportMoney,
+  IconChartBar,
 } from '@tabler/icons-react';
 import { useOneFitMode } from './config/hooks/useOneFitMode';
 
@@ -83,6 +83,14 @@ export const OneFitNavigation = () => {
           icon={IconShoppingCart}
           pathPrefix="onefit"
           path="membership-purchases"
+        />
+      )}
+      {!isSlaveMode && (
+        <NavigationMenuLinkItem
+          name="Purchase reports"
+          icon={IconChartBar}
+          pathPrefix="onefit"
+          path="reports/membership-purchases"
         />
       )}
       {!isSlaveMode && (
