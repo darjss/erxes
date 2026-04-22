@@ -68,6 +68,11 @@ export const membershipPurchaseSchema = new Schema(
       label: 'Promo Code ID',
       index: true,
     },
+    removePreviousCredits: {
+      type: Boolean,
+      label: 'Clear existing credits on activation',
+      default: false,
+    },
   },
   {
     timestamps: true,

@@ -35,6 +35,7 @@ export const ONE_FIT_MEMBERSHIP_PURCHASES = gql`
         amount
         invoiceId
         promoCodeId
+        removePreviousCredits
         promoCode {
           _id
           code
@@ -83,6 +84,7 @@ export const ONE_FIT_MEMBERSHIP_PURCHASE = gql`
       amount
       invoiceId
       promoCodeId
+      removePreviousCredits
       promoCode {
         _id
         code

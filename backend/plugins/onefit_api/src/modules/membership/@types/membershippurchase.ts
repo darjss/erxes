@@ -18,13 +18,13 @@ export interface IMembershipPurchase {
   amount: number;
   invoiceId?: string;
   promoCodeId?: string;
+  removePreviousCredits?: boolean;
   createdAt?: Date;
   modifiedAt?: Date;
 }
 
 export interface IMembershipPurchaseDocument
-  extends Document,
-    IMembershipPurchase {
+  extends Document, IMembershipPurchase {
   _id: string;
   createdAt: Date;
   modifiedAt: Date;
