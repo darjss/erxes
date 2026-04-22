@@ -59,6 +59,12 @@ const MembershipPurchasesPage = lazy(() =>
   })),
 );
 
+const MembershipPurchaseReportPage = lazy(() =>
+  import('~/pages/MembershipPurchaseReportPage').then((module) => ({
+    default: module.MembershipPurchaseReportPage,
+  })),
+);
+
 const OneFitCustomersPage = lazy(() =>
   import('~/pages/OneFitCustomersPage').then((module) => ({
     default: module.OneFitCustomersPage,
@@ -145,6 +151,12 @@ const OneFitMain = () => {
           <Route
             path="/membership-purchases"
             element={<MembershipPurchasesPage />}
+          />
+        )}
+        {!isSlaveMode && (
+          <Route
+            path="/reports/membership-purchases"
+            element={<MembershipPurchaseReportPage />}
           />
         )}
         {!isSlaveMode && (

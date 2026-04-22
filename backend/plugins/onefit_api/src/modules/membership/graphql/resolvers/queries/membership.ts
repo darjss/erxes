@@ -1,7 +1,12 @@
 import { ICursorPaginateParams, Resolver } from 'erxes-api-shared/core-types';
 import { cursorPaginate, markResolvers } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
-import { generatePlanFilter, generatePurchaseFilter } from '../utils/filters';
+import { generatePlanFilter } from '../utils/filters';
+import {
+  aggregateMembershipPurchasePlanShares,
+  aggregateMembershipPurchaseReport,
+  OneFitMembershipPurchaseReportInterval,
+} from '../utils/membershipPurchaseReport';
 
 export interface IPlanQueryParams extends ICursorPaginateParams {
   searchValue?: string;
@@ -21,8 +26,7 @@ export interface IMembershipPurchaseQueryParams extends ICursorPaginateParams {
   planId?: string;
 }
 
-export interface ICPMembershipPurchaseQueryParams
-  extends ICursorPaginateParams {
+export interface ICPMembershipPurchaseQueryParams extends ICursorPaginateParams {
   status?: string;
   planId?: string;
 }
@@ -101,6 +105,35 @@ export const membershipQueries: Record<string, Resolver> = {
     { models }: IContext,
   ) {
     return models.MembershipPurchase.getPurchase(_id);
+  },
+
+  async oneFitMembershipPurchaseReport(
+    _root: undefined,
+    {
+      startDate,
+      endDate,
+      interval,
+    }: {
+      startDate: Date;
+      endDate: Date;
+      interval: OneFitMembershipPurchaseReportInterval;
+    },
+    context: IContext,
+  ) {
+    return aggregateMembershipPurchaseReport(
+      context,
+      startDate,
+      endDate,
+      interval,
+    );
+  },
+
+  async oneFitMembershipPurchasePlanShares(
+    _root: undefined,
+    { startDate, endDate }: { startDate: Date; endDate: Date },
+    context: IContext,
+  ) {
+    return aggregateMembershipPurchasePlanShares(context, startDate, endDate);
   },
 
   async cpOneFitMembershipPurchases(
