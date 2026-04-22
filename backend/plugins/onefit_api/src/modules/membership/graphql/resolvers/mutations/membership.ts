@@ -63,17 +63,20 @@ export const membershipMutations: Record<string, Resolver> = {
       planId,
       promoCode,
       promoCodeId,
+      removePreviousCredits,
     }: {
       userId: string;
       planId: string;
       promoCode?: string;
       promoCodeId?: string;
+      removePreviousCredits?: boolean;
     },
     context: IContext,
   ) {
     return await createMembershipPurchaseInvoice(userId, planId, context, {
       promoCode,
       promoCodeId,
+      removePreviousCredits,
     });
   },
 
@@ -91,10 +94,12 @@ export const membershipMutations: Record<string, Resolver> = {
       planId,
       promoCode,
       promoCodeId,
+      removePreviousCredits,
     }: {
       planId: string;
       promoCode?: string;
       promoCodeId?: string;
+      removePreviousCredits?: boolean;
     },
     context: IContext,
   ) {
@@ -108,6 +113,7 @@ export const membershipMutations: Record<string, Resolver> = {
     return await createMembershipPurchaseInvoice(userId, planId, context, {
       promoCode,
       promoCodeId,
+      removePreviousCredits,
     });
   },
 

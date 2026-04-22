@@ -41,6 +41,7 @@ export const types = `
     promoCode: OneFitPromoCode
     plan: OneFitMembershipPlan
     invoice: JSON
+    removePreviousCredits: Boolean
   }
 
   type OneFitMembershipPurchaseListResponse {
@@ -122,12 +123,14 @@ const purchaseInput = `
   planId: String!
   promoCode: String
   promoCodeId: String
+  removePreviousCredits: Boolean
 `;
 
 const cpPurchaseInput = `
   planId: String!
   promoCode: String
   promoCodeId: String
+  removePreviousCredits: Boolean
 `;
 
 export const mutations = `

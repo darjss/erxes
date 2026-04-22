@@ -18,6 +18,7 @@ export interface IMembershipPurchase {
   amount: number;
   invoiceId?: string;
   promoCodeId?: string;
+  removePreviousCredits?: boolean;
   createdAt?: Date;
   modifiedAt?: Date;
 }

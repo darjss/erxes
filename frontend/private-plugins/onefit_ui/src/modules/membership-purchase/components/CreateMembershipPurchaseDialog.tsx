@@ -1,12 +1,25 @@
 import { useQuery } from '@apollo/client';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { IconPlus } from '@tabler/icons-react';
-import { Button, Dialog, Form, Input, Select, Spinner } from 'erxes-ui';
+import {
+  Button,
+  Checkbox,
+  Dialog,
+  Form,
+  Input,
+  Label,
+  Select,
+  Spinner,
+} from 'erxes-ui';
 import { useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
-import { ONE_FIT_ACTIVE_MEMBERSHIP_PLANS } from '~/modules/membership/graphql/membershipPlanQueries';
+import {
+  ONE_FIT_ACTIVE_MEMBERSHIP_PLANS,
+  ONE_FIT_MEMBERSHIP_PLAN,
+} from '~/modules/membership/graphql/membershipPlanQueries';
 import { OneFitMembershipPlan } from '~/modules/membership/types/membership';
+import { ONE_FIT_CUSTOMER } from '~/modules/onefitCustomer/graphql/onefitCustomerQueries';
 import { SelectOneFitCustomer } from '~/modules/onefitCustomer/components/SelectOneFitCustomer';
 import { useCreateMembershipPurchase } from '../hooks/useMembershipPurchaseMutations';
 
@@ -14,6 +27,7 @@ const createMembershipPurchaseSchema = z.object({
   userId: z.string().min(1, { message: 'Customer is required' }),
   planId: z.string().min(1, { message: 'Membership plan is required' }),
   promoCode: z.string().optional(),
+  removePreviousCredits: z.boolean().optional(),
 });
 
 type CreateMembershipPurchaseFormData = z.infer<
@@ -46,6 +60,7 @@ export function CreateMembershipPurchaseDialog({
       userId: defaultUserId || '',
       planId: '',
       promoCode: '',
+      removePreviousCredits: false,
     },
   });
 
@@ -55,6 +70,7 @@ export function CreateMembershipPurchaseDialog({
         userId: defaultUserId || '',
         planId: '',
         promoCode: '',
+        removePreviousCredits: false,
       });
     }
   }, [defaultUserId, form, open]);
@@ -68,6 +84,33 @@ export function CreateMembershipPurchaseDialog({
     return plans.find((p) => p._id === planId);
   }, [planId, plans]);
 
+  const userId = form.watch('userId');
+  const { data: customerData, loading: customerLoading } = useQuery(
+    ONE_FIT_CUSTOMER,
+    {
+      variables: { _id: userId },
+      skip: !userId,
+    },
+  );
+  const oneFitCustomer = customerData?.oneFitCustomer;
+  const currentPlanId = oneFitCustomer?.oneFitMembershipPlanId;
+  const { data: currentPlanData } = useQuery(ONE_FIT_MEMBERSHIP_PLAN, {
+    variables: { _id: currentPlanId || '' },
+    skip: !currentPlanId,
+  });
+  const currentPlanName = currentPlanId
+    ? currentPlanData?.oneFitMembershipPlan?.name ?? '…'
+    : 'None';
+
+  const creditBalance = oneFitCustomer?.oneFitCurrentCreditBalance ?? 0;
+  const canClearCredits = creditBalance > 0;
+
+  useEffect(() => {
+    if (!canClearCredits && form.getValues('removePreviousCredits')) {
+      form.setValue('removePreviousCredits', false);
+    }
+  }, [canClearCredits, form]);
+
   const { createMembershipPurchase, loading } = useCreateMembershipPurchase();
 
   function handleClose() {
@@ -76,6 +119,7 @@ export function CreateMembershipPurchaseDialog({
       userId: defaultUserId || '',
       planId: '',
       promoCode: '',
+      removePreviousCredits: false,
     });
   }
 
@@ -85,6 +129,8 @@ export function CreateMembershipPurchaseDialog({
         userId: values.userId,
         planId: values.planId,
         ...(values.promoCode?.trim() && { promoCode: values.promoCode.trim() }),
+        ...(values.removePreviousCredits &&
+          canClearCredits && { removePreviousCredits: true }),
       },
       onCompleted: () => handleClose(),
     });
@@ -134,6 +180,72 @@ export function CreateMembershipPurchaseDialog({
                 </Form.Item>
               )}
             />
+
+            {userId ? (
+              <div className="rounded-lg border bg-muted/20 p-4 text-sm space-y-2">
+                <div className="font-medium">Current membership</div>
+                {customerLoading ? (
+                  <div className="flex items-center gap-2 text-muted-foreground">
+                    <Spinner show />
+                    Loading customer…
+                  </div>
+                ) : (
+                  <>
+                    <div className="grid grid-cols-2 gap-2">
+                      <div className="text-muted-foreground">Plan</div>
+                      <div className="font-medium">{currentPlanName}</div>
+                      <div className="text-muted-foreground">Credits</div>
+                      <div className="font-medium">{creditBalance}</div>
+                      {oneFitCustomer?.oneFitMembershipStatus ? (
+                        <>
+                          <div className="text-muted-foreground">Status</div>
+                          <div className="font-medium">
+                            {oneFitCustomer.oneFitMembershipStatus}
+                          </div>
+                        </>
+                      ) : null}
+                      {oneFitCustomer?.oneFitMembershipExpiresAt ? (
+                        <>
+                          <div className="text-muted-foreground">Expires</div>
+                          <div className="font-medium">
+                            {new Date(
+                              oneFitCustomer.oneFitMembershipExpiresAt,
+                            ).toLocaleString()}
+                          </div>
+                        </>
+                      ) : null}
+                    </div>
+                    <Form.Field
+                      control={form.control}
+                      name="removePreviousCredits"
+                      render={({ field }) => (
+                        <Form.Item className="flex flex-row items-start gap-2 pt-2 border-t mt-2">
+                          <Checkbox
+                            checked={Boolean(field.value)}
+                            onCheckedChange={(v) =>
+                              field.onChange(v === true)
+                            }
+                            disabled={!canClearCredits}
+                          />
+                          <div className="space-y-1">
+                            <Label className="font-normal leading-snug cursor-pointer">
+                              When this purchase is activated, clear existing
+                              credits first, then grant this plan&apos;s credits.
+                            </Label>
+                            {!canClearCredits ? (
+                              <p className="text-xs text-muted-foreground">
+                                No credits to clear.
+                              </p>
+                            ) : null}
+                            <Form.Message />
+                          </div>
+                        </Form.Item>
+                      )}
+                    />
+                  </>
+                )}
+              </div>
+            ) : null}
 
             <Form.Field
               control={form.control}

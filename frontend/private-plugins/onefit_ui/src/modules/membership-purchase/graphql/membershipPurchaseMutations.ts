@@ -6,12 +6,14 @@ export const ONE_FIT_MEMBERSHIP_PURCHASE_CREATE = gql`
     $planId: String!
     $promoCode: String
     $promoCodeId: String
+    $removePreviousCredits: Boolean
   ) {
     oneFitMembershipPurchaseCreate(
       userId: $userId
       planId: $planId
       promoCode: $promoCode
       promoCodeId: $promoCodeId
+      removePreviousCredits: $removePreviousCredits
     ) {
       _id
       createdAt
@@ -33,6 +35,7 @@ export const ONE_FIT_MEMBERSHIP_PURCHASE_CREATE = gql`
       amount
       invoiceId
       promoCodeId
+      removePreviousCredits
       plan {
         _id
         name

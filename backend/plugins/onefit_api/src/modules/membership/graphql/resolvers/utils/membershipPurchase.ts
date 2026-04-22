@@ -5,8 +5,13 @@ import {
   CreditSource,
 } from '@/membership/@types/credittransaction';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
+import { findCpUsersByCustomerId } from '~/utils/findCpUsersByCustomerId';
 import { MembershipPurchaseStatus } from '@/membership/@types/membershippurchase';
 import { validateAndDiscount } from '@/promoCode/utils/validateAndDiscount';
+
+const CP_NOTIFICATIONS_MEMBERSHIP_ACTIVATION_FAILED = Symbol(
+  'cpNotificationsMembershipActivationFailed',
+);
 
 export function isCreditOnlyPlan(plan: { planType?: string }): boolean {
   return plan.planType === 'credit';
@@ -129,9 +134,46 @@ export async function updateCustomerCreditBalance(
   }
 }
 
+async function clearExistingCreditsBeforeActivation(
+  userId: string,
+  removePreviousCredits: boolean | undefined,
+  context: IContext,
+) {
+  if (!removePreviousCredits) {
+    return;
+  }
+
+  const { models } = context;
+  const balanceBefore = await models.CreditTransaction.getUserBalance(userId);
+  if (balanceBefore <= 0) {
+    return;
+  }
+
+  await models.CreditTransaction.createTransaction({
+    userId,
+    amount: -balanceBefore,
+    transactionType: CreditTransactionType.EXPIRATION,
+    source: CreditSource.INDIVIDUAL,
+    description: 'Cleared before membership purchase activation',
+    balanceAfter: 0,
+  });
+
+  const oneFitCustomer = await models.OneFitCustomer.getOneFitCustomer(
+    userId,
+  ).catch(() => null);
+  if (oneFitCustomer) {
+    await models.OneFitCustomer.updateCreditBalanceAndUsed(
+      userId,
+      0,
+      balanceBefore,
+    );
+  }
+}
+
 export interface ICreateMembershipPurchaseInvoiceOptions {
   promoCode?: string;
   promoCodeId?: string;
+  removePreviousCredits?: boolean;
 }
 
 export async function createMembershipPurchaseInvoice(
@@ -185,6 +227,9 @@ export async function createMembershipPurchaseInvoice(
     purchasedAt: new Date(),
     amount,
     ...(promoCodeId && { promoCodeId }),
+    ...(options?.removePreviousCredits && {
+      removePreviousCredits: true,
+    }),
   });
 
   if (amount <= 0) {
@@ -294,11 +339,64 @@ export async function calculateMembershipExpiry(
   return new Date(now.getTime() + planDuration * 24 * 60 * 60 * 1000);
 }
 
+async function notifyMembershipPurchaseActivatedCp(
+  subdomain: string,
+  customerId: string,
+  planName: string,
+  purchaseId: string,
+): Promise<void> {
+  try {
+    const cpUsers = await findCpUsersByCustomerId(subdomain, customerId);
+    if (cpUsers.length === 0) {
+      return;
+    }
+
+    const byPortalId = new Map<string, string[]>();
+    for (const { cpUserId, clientPortalId } of cpUsers) {
+      const list = byPortalId.get(clientPortalId) || [];
+      list.push(cpUserId);
+      byPortalId.set(clientPortalId, list);
+    }
+
+    for (const [clientPortalId, cpUserIds] of byPortalId.entries()) {
+      const result = await sendTRPCMessage({
+        subdomain,
+        pluginName: 'core',
+        method: 'mutation',
+        module: 'cpNotifications',
+        action: 'create',
+        input: {
+          cpUserIds,
+          clientPortalId,
+          data: {
+            title: 'Гишүүнчлэл идэвхжлээ',
+            message: `Таны "${planName}" гишүүнчлэл амжилттай идэвхжлээ.`,
+            type: 'success',
+            contentType: 'onefit:membership:membershippurchase',
+            contentTypeId: purchaseId,
+          },
+        },
+        defaultValue: CP_NOTIFICATIONS_MEMBERSHIP_ACTIVATION_FAILED,
+      });
+      if (result === CP_NOTIFICATIONS_MEMBERSHIP_ACTIVATION_FAILED) {
+        console.warn(
+          `[onefit] cpNotifications.create failed (membership activation) purchaseId=${purchaseId} clientPortalId=${clientPortalId}`,
+        );
+      }
+    }
+  } catch (err) {
+    console.warn(
+      `[onefit] cpNotifications (membership activation) purchaseId=${purchaseId}`,
+      err,
+    );
+  }
+}
+
 export async function activateMembershipPurchase(
   purchaseId: string,
   context: IContext,
 ) {
-  const { models } = context;
+  const { models, subdomain } = context;
 
   const purchase = await models.MembershipPurchase.getPurchase(purchaseId);
 
@@ -315,7 +413,16 @@ export async function activateMembershipPurchase(
     throw new Error('Membership plan not found');
   }
 
+  await clearExistingCreditsBeforeActivation(
+    purchase.userId,
+    purchase.removePreviousCredits,
+    context,
+  );
+
   const creditOnly = isCreditOnlyPlan(plan);
+
+  const planName = plan.name ?? 'membership';
+  let updated;
 
   if (creditOnly) {
     // Credit-only: add credits only; do not update customer membership or expire date
@@ -330,37 +437,46 @@ export async function activateMembershipPurchase(
       plan.creditAmount,
       context,
     );
-    return await models.MembershipPurchase.updatePurchase(purchaseId, {
+    updated = await models.MembershipPurchase.updatePurchase(purchaseId, {
       activatedAt: new Date(),
+    });
+  } else {
+    // Normal: require duration and update membership + expire date
+    const duration = plan.duration ?? 30;
+    const expiresAt = await calculateMembershipExpiry(
+      purchase.userId,
+      duration,
+      context,
+    );
+    await updateCustomerMembership(
+      purchase.userId,
+      purchase.planId,
+      expiresAt,
+      context,
+    );
+    const { balanceAfter } = await createCreditTransactionForPurchase(
+      purchase.userId,
+      plan,
+      context,
+    );
+    await updateCustomerCreditBalance(
+      purchase.userId,
+      balanceAfter,
+      plan.creditAmount,
+      context,
+    );
+    updated = await models.MembershipPurchase.updatePurchase(purchaseId, {
+      activatedAt: new Date(),
+      expiresAt,
     });
   }
 
-  // Normal: require duration and update membership + expire date
-  const duration = plan.duration ?? 30;
-  const expiresAt = await calculateMembershipExpiry(
+  await notifyMembershipPurchaseActivatedCp(
+    subdomain,
     purchase.userId,
-    duration,
-    context,
+    planName,
+    purchaseId,
   );
-  await updateCustomerMembership(
-    purchase.userId,
-    purchase.planId,
-    expiresAt,
-    context,
-  );
-  const { balanceAfter } = await createCreditTransactionForPurchase(
-    purchase.userId,
-    plan,
-    context,
-  );
-  await updateCustomerCreditBalance(
-    purchase.userId,
-    balanceAfter,
-    plan.creditAmount,
-    context,
-  );
-  return await models.MembershipPurchase.updatePurchase(purchaseId, {
-    activatedAt: new Date(),
-    expiresAt,
-  });
+
+  return updated;
 }
