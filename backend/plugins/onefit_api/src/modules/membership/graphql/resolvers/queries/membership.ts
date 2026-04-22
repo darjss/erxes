@@ -26,8 +26,7 @@ export interface IMembershipPurchaseQueryParams extends ICursorPaginateParams {
   planId?: string;
 }
 
-export interface ICPMembershipPurchaseQueryParams
-  extends ICursorPaginateParams {
+export interface ICPMembershipPurchaseQueryParams extends ICursorPaginateParams {
   status?: string;
   planId?: string;
 }

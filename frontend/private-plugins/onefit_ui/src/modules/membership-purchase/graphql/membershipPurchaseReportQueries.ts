@@ -14,7 +14,10 @@ export const ONE_FIT_MEMBERSHIP_PURCHASE_REPORT = gql`
       periodKey
       purchaseCount
     }
-    oneFitMembershipPurchasePlanShares(startDate: $startDate, endDate: $endDate) {
+    oneFitMembershipPurchasePlanShares(
+      startDate: $startDate
+      endDate: $endDate
+    ) {
       planId
       planName
       purchaseCount

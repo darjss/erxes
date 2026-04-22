@@ -1,12 +1,7 @@
 import { useMemo, useState } from 'react';
 import { useQuery } from '@apollo/client';
 import { IconChartBar } from '@tabler/icons-react';
-import {
-  ChartContainer,
-  DatePicker,
-  Select,
-  Skeleton,
-} from 'erxes-ui';
+import { ChartContainer, DatePicker, Select, Skeleton } from 'erxes-ui';
 import {
   addDays,
   addMonths,
@@ -18,14 +13,7 @@ import {
   subWeeks,
   subYears,
 } from 'date-fns';
-import {
-  Bar,
-  BarChart,
-  CartesianGrid,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from 'recharts';
+import { Bar, BarChart, CartesianGrid, Tooltip, XAxis, YAxis } from 'recharts';
 import { OneFitPageLayout } from '~/components/OneFitPageLayout';
 import { ONE_FIT_MEMBERSHIP_PURCHASE_REPORT } from '~/modules/membership-purchase/graphql/membershipPurchaseReportQueries';
 
@@ -63,7 +51,10 @@ function getRangeByPreset(preset: ReportPreset): { from: Date; to: Date } {
   return { from: startOfDay(subYears(now, 1)), to };
 }
 
-function formatPeriodLabel(periodKey: string, interval: ReportInterval): string {
+function formatPeriodLabel(
+  periodKey: string,
+  interval: ReportInterval,
+): string {
   if (interval === 'month') {
     const d = parse(`${periodKey}-01`, 'yyyy-MM-dd', new Date());
     return Number.isNaN(d.getTime()) ? periodKey : format(d, 'MMM yyyy');
@@ -183,8 +174,7 @@ export function MembershipPurchaseReportPage() {
     fetchPolicy: 'cache-and-network',
   });
 
-  const rawRows: ReportBucketRow[] =
-    data?.oneFitMembershipPurchaseReport ?? [];
+  const rawRows: ReportBucketRow[] = data?.oneFitMembershipPurchaseReport ?? [];
 
   const planShares: PlanShareRow[] =
     data?.oneFitMembershipPurchasePlanShares ?? [];

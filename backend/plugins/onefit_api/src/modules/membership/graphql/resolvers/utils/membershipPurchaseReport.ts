@@ -2,10 +2,7 @@ import { getPureDate } from 'erxes-api-shared/utils';
 import { MembershipPurchaseStatus } from '@/membership/@types/membershippurchase';
 import { IContext } from '~/connectionResolvers';
 
-export type OneFitMembershipPurchaseReportInterval =
-  | 'day'
-  | 'week'
-  | 'month';
+export type OneFitMembershipPurchaseReportInterval = 'day' | 'week' | 'month';
 
 function getReportDateBounds(startDate: Date, endDate: Date) {
   const gte = getPureDate(startDate);
