@@ -244,9 +244,8 @@ export async function createMembershipPurchaseInvoice(
   }
 
   // Get paymentIds from config
-  const selectedPaymentsConfig = await models.SystemConfig.getConfig(
-    'selectedPayments',
-  );
+  const selectedPaymentsConfig =
+    await models.SystemConfig.getConfig('selectedPayments');
   const paymentIds: string[] =
     (selectedPaymentsConfig?.value as string[]) || [];
 

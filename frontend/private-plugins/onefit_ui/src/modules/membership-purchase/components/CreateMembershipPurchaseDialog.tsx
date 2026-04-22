@@ -99,7 +99,7 @@ export function CreateMembershipPurchaseDialog({
     skip: !currentPlanId,
   });
   const currentPlanName = currentPlanId
-    ? currentPlanData?.oneFitMembershipPlan?.name ?? '…'
+    ? (currentPlanData?.oneFitMembershipPlan?.name ?? '…')
     : 'None';
 
   const creditBalance = oneFitCustomer?.oneFitCurrentCreditBalance ?? 0;
@@ -222,15 +222,14 @@ export function CreateMembershipPurchaseDialog({
                         <Form.Item className="flex flex-row items-start gap-2 pt-2 border-t mt-2">
                           <Checkbox
                             checked={Boolean(field.value)}
-                            onCheckedChange={(v) =>
-                              field.onChange(v === true)
-                            }
+                            onCheckedChange={(v) => field.onChange(v === true)}
                             disabled={!canClearCredits}
                           />
                           <div className="space-y-1">
                             <Label className="font-normal leading-snug cursor-pointer">
                               When this purchase is activated, clear existing
-                              credits first, then grant this plan&apos;s credits.
+                              credits first, then grant this plan&apos;s
+                              credits.
                             </Label>
                             {!canClearCredits ? (
                               <p className="text-xs text-muted-foreground">

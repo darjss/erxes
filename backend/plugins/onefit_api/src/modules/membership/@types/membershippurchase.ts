@@ -24,8 +24,7 @@ export interface IMembershipPurchase {
 }
 
 export interface IMembershipPurchaseDocument
-  extends Document,
-    IMembershipPurchase {
+  extends Document, IMembershipPurchase {
   _id: string;
   createdAt: Date;
   modifiedAt: Date;
