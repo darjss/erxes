@@ -220,6 +220,9 @@ export function MainIndicatorsDashboard() {
   const [collapsedCategoryIds, setCollapsedCategoryIds] = useState<string[]>(
     [],
   );
+  const [activeCategoryParentId, setActiveCategoryParentId] = useState<
+    string | null
+  >(null);
   const range = useMemo(() => getRangeByPreset(preset), [preset]);
   const [startDate, setStartDate] = useState<string>(toDateInputValue(range.from));
   const [endDate, setEndDate] = useState<string>(toDateInputValue(range.to));
@@ -252,6 +255,15 @@ export function MainIndicatorsDashboard() {
   const stats = data?.oneFitDashboardStats;
   const categoryDistribution = (stats?.categoryDistribution ||
     []) as CategoryDistributionItem[];
+  const rootLevelCategoryDistribution = useMemo(() => {
+    if (!categoryDistribution.length) {
+      return [];
+    }
+
+    const minDepth = Math.min(...categoryDistribution.map((item) => item.depth));
+
+    return categoryDistribution.filter((item) => item.depth === minDepth);
+  }, [categoryDistribution]);
   const packageStats = (stats?.packageStats || []) as PackageStatItem[];
   const b2bB2cSales = stats?.b2bB2cSales as B2bB2cSalesStats | undefined;
   const hasCategoryData = categoryDistribution.length > 0;
@@ -311,9 +323,29 @@ export function MainIndicatorsDashboard() {
       return true;
     });
   }, [categoryById, categoryDistribution, collapsedCategoryIds]);
+  const categoryChartSource = useMemo(() => {
+    if (!activeCategoryParentId) {
+      return rootLevelCategoryDistribution;
+    }
+
+    if (collapsedCategoryIds.includes(activeCategoryParentId)) {
+      return rootLevelCategoryDistribution;
+    }
+
+    const children = categoryDistribution.filter(
+      (category) => category.parentId === activeCategoryParentId,
+    );
+
+    return children.length ? children : rootLevelCategoryDistribution;
+  }, [
+    activeCategoryParentId,
+    categoryDistribution,
+    collapsedCategoryIds,
+    rootLevelCategoryDistribution,
+  ]);
   const categoryChartItems = useMemo(
-    () => visibleCategoryDistribution.slice(0, 8),
-    [visibleCategoryDistribution],
+    () => categoryChartSource.slice(0, 8),
+    [categoryChartSource],
   );
   const categoryChartData = useMemo(
     () =>
@@ -399,6 +431,20 @@ export function MainIndicatorsDashboard() {
         ? prev.filter((id) => id !== categoryId)
         : [...prev, categoryId],
     );
+  };
+  const handleCategoryToggle = (categoryId: string, hasChildren: boolean) => {
+    if (!hasChildren) {
+      return;
+    }
+
+    const isCurrentlyCollapsed = collapsedCategoryIds.includes(categoryId);
+    if (isCurrentlyCollapsed) {
+      setActiveCategoryParentId(categoryId);
+    } else if (activeCategoryParentId === categoryId) {
+      setActiveCategoryParentId(null);
+    }
+
+    toggleCollapse(categoryId);
   };
 
   if (modeLoading) {
@@ -758,7 +804,9 @@ export function MainIndicatorsDashboard() {
                           variant="ghost"
                           size="icon"
                           className="size-6"
-                          onClick={() => toggleCollapse(category.categoryId)}
+                          onClick={() =>
+                            handleCategoryToggle(category.categoryId, hasChildren)
+                          }
                         >
                           <IconChevronRight
                             className={cn(
