@@ -4,21 +4,26 @@ import {
   IScheduleException,
   IScheduleTemplateDocument,
 } from '@/schedule/@types/schedule';
+import { requirePermission } from '~/utils/onefitPermissionCheck';
 
 export const scheduleMutations = {
   async oneFitScheduleTemplateCreate(
     _root: undefined,
     doc: IScheduleTemplate,
-    { models }: IContext,
+    context: IContext,
   ) {
+    await requirePermission(context, 'scheduleManage');
+    const { models } = context;
     return await models.ScheduleTemplate.createTemplate({ ...doc });
   },
 
   async oneFitScheduleTemplateUpdate(
     _root: undefined,
     { _id, ...doc }: { _id: string } & Partial<IScheduleTemplate>,
-    { models }: IContext,
+    context: IContext,
   ) {
+    await requirePermission(context, 'scheduleManage');
+    const { models } = context;
     return await models.ScheduleTemplate.updateTemplate(_id, doc);
   },
 
@@ -37,8 +42,10 @@ export const scheduleMutations = {
       toYear: number;
       toMonth: number;
     },
-    { models }: IContext,
+    context: IContext,
   ) {
+    await requirePermission(context, 'scheduleManage');
+    const { models } = context;
     const outcomes = await Promise.all(
       providerIds.map(async (providerId) => {
         const template = await models.ScheduleTemplate.copyPreviousMonth(
@@ -69,32 +76,40 @@ export const scheduleMutations = {
   async oneFitScheduleTemplatesRemove(
     _root: undefined,
     { ids }: { ids: string[] },
-    { models }: IContext,
+    context: IContext,
   ) {
+    await requirePermission(context, 'scheduleManage');
+    const { models } = context;
     return await models.ScheduleTemplate.removeTemplates(ids);
   },
 
   async oneFitScheduleExceptionCreate(
     _root: undefined,
     doc: IScheduleException,
-    { models }: IContext,
+    context: IContext,
   ) {
+    await requirePermission(context, 'scheduleManage');
+    const { models } = context;
     return await models.ScheduleException.createException({ ...doc });
   },
 
   async oneFitScheduleExceptionRemove(
     _root: undefined,
     { _id }: { _id: string },
-    { models }: IContext,
+    context: IContext,
   ) {
+    await requirePermission(context, 'scheduleManage');
+    const { models } = context;
     return await models.ScheduleException.removeException(_id);
   },
 
   async oneFitScheduleExceptionsRemove(
     _root: undefined,
     { ids }: { ids: string[] },
-    { models }: IContext,
+    context: IContext,
   ) {
+    await requirePermission(context, 'scheduleManage');
+    const { models } = context;
     return await models.ScheduleException.removeExceptions(ids);
   },
 };

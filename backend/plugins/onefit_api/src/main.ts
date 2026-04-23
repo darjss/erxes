@@ -23,6 +23,7 @@ import {
   activateMembershipPurchase,
   isCreditOnlyPlan,
 } from '@/membership/graphql/resolvers/utils/membershipPurchase';
+import { permissions } from '~/meta/permissions';
 
 const DOMAIN = getEnv({ name: 'DOMAIN' });
 const ALLOWED_ORIGINS = getEnv({ name: 'ALLOWED_ORIGINS' });
@@ -194,5 +195,6 @@ startPlugin({
         }
       },
     },
+    permissions,
   },
 });

@@ -1,6 +1,7 @@
 import { ICursorPaginateParams } from 'erxes-api-shared/core-types';
 import { cursorPaginate, encodeCursor, PageInfo } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
+import { requirePermission } from '~/utils/onefitPermissionCheck';
 import {
   CreditTransactionType,
   CreditSource,
@@ -102,8 +103,10 @@ export const creditTransactionQueries = {
   async oneFitCreditTransactions(
     _root: undefined,
     params: ICreditTransactionQueryParams,
-    { models }: IContext,
+    context: IContext,
   ) {
+    await requirePermission(context, 'transactionRead');
+    const { models } = context;
     const filter = await generateFilter(params);
 
     // Order by createdAt only (newest first)
@@ -120,8 +123,10 @@ export const creditTransactionQueries = {
   async oneFitCreditTransactionsCount(
     _root: undefined,
     params: ICreditTransactionQueryParams,
-    { models }: IContext,
+    context: IContext,
   ) {
+    await requirePermission(context, 'transactionRead');
+    const { models } = context;
     const filter = await generateFilter(params);
     return models.CreditTransaction.find(filter).countDocuments();
   },
@@ -129,16 +134,20 @@ export const creditTransactionQueries = {
   async oneFitCreditTransaction(
     _root: undefined,
     { _id }: { _id: string },
-    { models }: IContext,
+    context: IContext,
   ) {
+    await requirePermission(context, 'transactionRead');
+    const { models } = context;
     return models.CreditTransaction.findOne({ _id });
   },
 
   async oneFitUserCreditBalance(
     _root: undefined,
     { userId }: { userId: string },
-    { models }: IContext,
+    context: IContext,
   ) {
+    await requirePermission(context, 'transactionRead');
+    const { models } = context;
     const totalBalance = await models.CreditTransaction.getUserBalance(userId);
 
     // Calculate individual and corporate balances separately
@@ -176,8 +185,10 @@ export const creditTransactionQueries = {
   async oneFitUserCreditTransactions(
     _root: undefined,
     { userId, limit }: { userId: string; limit?: number },
-    { models }: IContext,
+    context: IContext,
   ) {
+    await requirePermission(context, 'transactionRead');
+    const { models } = context;
     return models.CreditTransaction.getUserTransactions(userId, limit);
   },
 };

@@ -1,6 +1,7 @@
 import { Resolver } from 'erxes-api-shared/core-types';
 import { IContext } from '~/connectionResolvers';
 import { validateProviderOwnershipByProvider } from '~/utils/ownershipValidator';
+import { requirePermission } from '~/utils/onefitPermissionCheck';
 
 const MIN_RATING = 1;
 const MAX_RATING = 5;
@@ -224,6 +225,7 @@ export const providerReviewMutations: Record<string, Resolver> = {
     },
     context: IContext,
   ) {
+    await requirePermission(context, 'providerUpdate');
     const { models } = context;
 
     const provider = await models.Provider.findOne({ _id: providerId }).lean();

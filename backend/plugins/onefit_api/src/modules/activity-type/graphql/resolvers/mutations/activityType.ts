@@ -1,13 +1,16 @@
 import { IContext } from '~/connectionResolvers';
 import { IActivityType } from '@/activity-type/@types/activityType';
 import { updateProviderCategoriesFromActivityTypes } from '~/modules/activity-type/utils/updateProviderCategories';
+import { requirePermission } from '~/utils/onefitPermissionCheck';
 
 export const activityTypeMutations = {
   async oneFitActivityTypeCreate(
     _root: undefined,
     doc: IActivityType,
-    { models }: IContext,
+    context: IContext,
   ) {
+    await requirePermission(context, 'activityTypeManage');
+    const { models } = context;
     if (!doc.name || !doc.name.en || !doc.name.mn) {
       throw new Error('Name must have both en and mn properties');
     }
@@ -45,8 +48,10 @@ export const activityTypeMutations = {
   async oneFitActivityTypeUpdate(
     _root: undefined,
     { _id, ...doc }: { _id: string } & Partial<IActivityType>,
-    { models }: IContext,
+    context: IContext,
   ) {
+    await requirePermission(context, 'activityTypeManage');
+    const { models } = context;
     const activityType = await models.ActivityType.findOne({ _id });
 
     if (!activityType) {
@@ -88,8 +93,10 @@ export const activityTypeMutations = {
   async oneFitActivityTypesRemove(
     _root: undefined,
     { ids }: { ids: string[] },
-    { models }: IContext,
+    context: IContext,
   ) {
+    await requirePermission(context, 'activityTypeManage');
+    const { models } = context;
     // Get provider IDs before removing activity-types
     const activityTypesToRemove = await models.ActivityType.find({
       _id: { $in: ids },

@@ -43,8 +43,9 @@ export const configQueries = {
   async systemConfigs(
     _root: undefined,
     params: IConfigQueryParams,
-    { models }: IContext,
+    context: IContext,
   ) {
+    const { models } = context;
     const filter = await generateFilter(params);
 
     return await cursorPaginate({
@@ -57,8 +58,9 @@ export const configQueries = {
   async systemConfigsCount(
     _root: undefined,
     params: IConfigQueryParams,
-    { models }: IContext,
+    context: IContext,
   ) {
+    const { models } = context;
     const filter = await generateFilter(params);
     return models.SystemConfig.find(filter).countDocuments();
   },
@@ -66,32 +68,36 @@ export const configQueries = {
   async systemConfig(
     _root: undefined,
     { _id }: { _id: string },
-    { models }: IContext,
+    context: IContext,
   ) {
+    const { models } = context;
     return models.SystemConfig.findOne({ _id });
   },
 
   async systemConfigByKey(
     _root: undefined,
     { key }: { key: string },
-    { models }: IContext,
+    context: IContext,
   ) {
+    const { models } = context;
     return models.SystemConfig.getConfig(key);
   },
 
   async oneFitSystemConfigByKey(
     _root: undefined,
     { key }: { key: string },
-    { models }: IContext,
+    context: IContext,
   ) {
+    const { models } = context;
     return models.SystemConfig.getConfig(key);
   },
 
   async allSystemConfigs(
     _root: undefined,
     _params: undefined,
-    { models }: IContext,
+    context: IContext,
   ) {
+    const { models } = context;
     return models.SystemConfig.getAllConfigs();
   },
 

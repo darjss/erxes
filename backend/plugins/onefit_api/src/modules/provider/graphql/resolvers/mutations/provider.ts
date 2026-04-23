@@ -1,6 +1,7 @@
 import { IContext } from '~/connectionResolvers';
 import { IProvider, ProviderStatus } from '@/provider/@types/provider';
 import { validateProviderOwnershipByProvider } from '~/utils/ownershipValidator';
+import { requirePermission } from '~/utils/onefitPermissionCheck';
 
 interface IMultilingualInput {
   en?: string | null;
@@ -42,6 +43,7 @@ export const providerMutations = {
     doc: IProvider,
     context: IContext,
   ) {
+    await requirePermission(context, 'providerCreate');
     const { models } = context;
 
     if (doc.categoryIds && doc.categoryIds.length > 0) {
@@ -69,6 +71,7 @@ export const providerMutations = {
     { _id, ...doc }: { _id: string } & Partial<IProvider>,
     context: IContext,
   ) {
+    await requirePermission(context, 'providerUpdate');
     const { models } = context;
     const provider = await models.Provider.findOne({ _id });
 
@@ -100,6 +103,7 @@ export const providerMutations = {
     { _id, approvedBy }: { _id: string; approvedBy: string },
     context: IContext,
   ) {
+    await requirePermission(context, 'providerUpdate');
     const { models } = context;
     const provider = await models.Provider.findOne({ _id });
 
@@ -125,6 +129,7 @@ export const providerMutations = {
     }: { _id: string; rejectionReason: string; rejectedBy: string },
     context: IContext,
   ) {
+    await requirePermission(context, 'providerUpdate');
     const { models } = context;
     const provider = await models.Provider.findOne({ _id });
 
@@ -150,6 +155,7 @@ export const providerMutations = {
     { ids }: { ids: string[] },
     context: IContext,
   ) {
+    await requirePermission(context, 'providerRemove');
     const { models } = context;
 
     if (ids && ids.length > 0) {
@@ -176,6 +182,7 @@ export const providerMutations = {
     },
     context: IContext,
   ) {
+    await requirePermission(context, 'providerCreate');
     const { models } = context;
     const normalized = ensureMultilingualName(name);
 
@@ -203,6 +210,7 @@ export const providerMutations = {
     },
     context: IContext,
   ) {
+    await requirePermission(context, 'providerUpdate');
     const { models } = context;
     const update: any = {};
 
@@ -231,6 +239,7 @@ export const providerMutations = {
     { _id }: { _id: string },
     context: IContext,
   ) {
+    await requirePermission(context, 'providerRemove');
     const { models } = context;
 
     await models.District.deleteMany({ cityId: _id });
@@ -256,6 +265,7 @@ export const providerMutations = {
     },
     context: IContext,
   ) {
+    await requirePermission(context, 'providerCreate');
     const { models } = context;
 
     const city = await models.City.findOne({ _id: cityId }).lean();
@@ -291,6 +301,7 @@ export const providerMutations = {
     },
     context: IContext,
   ) {
+    await requirePermission(context, 'providerUpdate');
     const { models } = context;
     const update: any = {};
 
@@ -327,6 +338,7 @@ export const providerMutations = {
     { _id }: { _id: string },
     context: IContext,
   ) {
+    await requirePermission(context, 'providerRemove');
     const { models } = context;
 
     const result = await models.District.deleteOne({ _id });

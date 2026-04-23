@@ -1,6 +1,6 @@
 import { IContext } from '~/connectionResolvers';
 import { IBanner, BannerStatus } from '@/banner/@types/banner';
-import { markResolvers } from 'erxes-api-shared/utils';
+import { requirePermission } from '~/utils/onefitPermissionCheck';
 
 export const bannerMutations = {
   async oneFitBannerCreate(
@@ -8,6 +8,7 @@ export const bannerMutations = {
     doc: IBanner,
     context: IContext,
   ) {
+    await requirePermission(context, 'bannerManage');
     const { models } = context;
 
     // Validate provider exists
@@ -30,6 +31,7 @@ export const bannerMutations = {
     { _id, ...doc }: { _id: string } & Partial<IBanner>,
     context: IContext,
   ) {
+    await requirePermission(context, 'bannerManage');
     const { models } = context;
     const banner = await models.Banner.findOne({ _id });
 
@@ -57,6 +59,7 @@ export const bannerMutations = {
     { ids }: { ids: string[] },
     context: IContext,
   ) {
+    await requirePermission(context, 'bannerManage');
     const { models, instanceId } = context;
 
     if (ids && ids.length > 0 && instanceId) {

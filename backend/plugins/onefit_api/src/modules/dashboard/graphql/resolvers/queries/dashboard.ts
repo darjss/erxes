@@ -4,6 +4,7 @@ import { BookingStatus } from '@/booking/@types/booking';
 import { MembershipPurchaseStatus } from '@/membership/@types/membershippurchase';
 import { IContext } from '~/connectionResolvers';
 import { addInstanceIdFilter } from '~/utils/providerFilter';
+import { ifTeamUserCheck } from '~/utils/onefitPermissionCheck';
 
 interface OneFitDashboardMetricResult {
   value: number;
@@ -841,6 +842,7 @@ export const dashboardQueries: Record<string, Resolver> = {
     { startDate, endDate }: { startDate: Date; endDate: Date },
     context: IContext,
   ) {
+    await ifTeamUserCheck(context, 'dashboardRead');
     const prev = getPreviousPeriodBounds(startDate, endDate);
 
     const [
