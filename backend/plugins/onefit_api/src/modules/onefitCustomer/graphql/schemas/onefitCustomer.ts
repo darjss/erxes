@@ -45,6 +45,8 @@ export const types = `
     primaryPhone: String
     firstName: String
     lastName: String
+    sex: Int
+    birthDate: Date
 
     # Membership information
     oneFitMembershipPlanId: String

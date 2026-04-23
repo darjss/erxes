@@ -1,8 +1,18 @@
-import { Resolver } from 'erxes-api-shared/core-types';
-import { getPureDate, sendTRPCMessage } from 'erxes-api-shared/utils';
+import { ICursorPaginateParams, Resolver } from 'erxes-api-shared/core-types';
+import { cursorPaginate, getPureDate } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 import { BookingStatus } from '@/booking/@types/booking';
 import { addInstanceIdFilter } from '~/utils/providerFilter';
+import {
+  buildOneFitCreditConsumptionFilter,
+  IOneFitCreditConsumptionFilterParams,
+} from './creditConsumptionFilter';
+
+interface IOneFitCreditConsumptionBookingsParams
+  extends IOneFitCreditConsumptionFilterParams,
+    ICursorPaginateParams {
+  orderBy?: Record<string, 'asc' | 'desc' | 1 | -1>;
+}
 
 export const accountStatementQueries: Record<string, Resolver> = {
   async oneFitAccountStatement(
@@ -134,56 +144,19 @@ export const accountStatementQueries: Record<string, Resolver> = {
 
   async oneFitCreditConsumption(
     _root: undefined,
-    params: {
-      providerId?: string;
-      userId?: string;
-      companyId?: string;
-      startDate: Date;
-      endDate: Date;
-    },
+    params: IOneFitCreditConsumptionFilterParams,
     context: IContext,
   ) {
-    const { models, subdomain } = context;
+    const { models } = context;
     const { providerId, userId, companyId, startDate, endDate } = params;
 
-    const filter: any = {
-      status: { $in: [BookingStatus.COMPLETED, BookingStatus.NO_SHOW] },
-      bookingDate: {
-        $gte: getPureDate(startDate),
-        $lte: (() => {
-          const end = new Date(getPureDate(endDate));
-          end.setHours(23, 59, 59, 999);
-          return end;
-        })(),
-      },
-    };
-
-    if (providerId) {
-      filter.providerId = providerId;
-    }
-
-    if (userId) {
-      filter.userId = userId;
-    } else if (companyId) {
-      const customerIds = (await sendTRPCMessage({
-        subdomain,
-        pluginName: 'core',
-        method: 'query',
-        module: 'relation',
-        action: 'getRelationIds',
-        input: {
-          contentType: 'core:company',
-          contentId: companyId,
-          relatedContentType: 'core:customer',
-        },
-        defaultValue: [] as string[],
-      })) as string[];
-
-      const ids = customerIds?.filter((id) => id && id.trim()) ?? [];
-      filter.userId = ids.length > 0 ? { $in: ids } : { $in: [] };
-    }
-
-    const resolvedFilter = await addInstanceIdFilter(context, filter);
+    const resolvedFilter = await buildOneFitCreditConsumptionFilter(context, {
+      providerId,
+      userId,
+      companyId,
+      startDate,
+      endDate,
+    });
 
     const aggregated = await models.Booking.aggregate([
       { $match: resolvedFilter },
@@ -244,5 +217,36 @@ export const accountStatementQueries: Record<string, Resolver> = {
     );
 
     return { rows, totalCreditsConsumed, totalBookings };
+  },
+
+  async oneFitCreditConsumptionBookings(
+    _root: undefined,
+    params: IOneFitCreditConsumptionBookingsParams,
+    context: IContext,
+  ) {
+    const { models } = context;
+    const { providerId, userId, companyId, startDate, endDate } = params;
+
+    const filter = await buildOneFitCreditConsumptionFilter(context, {
+      providerId,
+      userId,
+      companyId,
+      startDate,
+      endDate,
+    });
+
+    const orderBy: IOneFitCreditConsumptionBookingsParams['orderBy'] =
+      params.orderBy && Object.keys(params.orderBy).length > 0
+        ? params.orderBy
+        : { bookingDate: 'desc' as const };
+
+    return await cursorPaginate({
+      model: models.Booking,
+      params: {
+        ...params,
+        orderBy,
+      },
+      query: filter,
+    });
   },
 };

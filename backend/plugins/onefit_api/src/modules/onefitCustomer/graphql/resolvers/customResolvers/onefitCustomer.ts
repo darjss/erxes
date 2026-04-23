@@ -104,6 +104,8 @@ export default {
   },
 
   OneFitCustomer: {
+    sex: (customer: IOneFitCustomerDocument) => customer?.sex ?? null,
+    birthDate: (customer: IOneFitCustomerDocument) => customer?.birthDate ?? null,
     oneFitMembershipPlanId: (customer: IOneFitCustomerDocument) =>
       customer?.membershipPlanId ?? null,
     oneFitMembershipExpiresAt: (customer: IOneFitCustomerDocument) =>

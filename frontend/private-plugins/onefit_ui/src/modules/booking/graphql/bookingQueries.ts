@@ -204,3 +204,69 @@ export const ONE_FIT_CREDIT_CONSUMPTION = gql`
     }
   }
 `;
+
+export const ONE_FIT_CREDIT_CONSUMPTION_BOOKINGS = gql`
+  query OneFitCreditConsumptionBookings(
+    $startDate: Date!
+    $endDate: Date!
+    $providerId: String
+    $userId: String
+    $companyId: String
+    ${GQL_CURSOR_PARAM_DEFS}
+    $orderBy: JSON
+  ) {
+    oneFitCreditConsumptionBookings(
+      startDate: $startDate
+      endDate: $endDate
+      providerId: $providerId
+      userId: $userId
+      companyId: $companyId
+      orderBy: $orderBy
+      ${GQL_CURSOR_PARAMS}
+    ) {
+      list {
+        _id
+        userId
+        createdAt
+        user {
+          _id
+          firstName
+          lastName
+          primaryEmail
+          primaryPhone
+          sex
+          birthDate
+          oneFitMembershipPlanId
+        }
+        provider {
+          _id
+          businessName {
+            en
+            mn
+          }
+        }
+        activityType {
+          _id
+          name {
+            en
+            mn
+          }
+        }
+        bookingDate
+        startTime
+        endTime
+        creditCost
+        price
+        status
+        bookingId
+      }
+      totalCount
+      pageInfo {
+        hasNextPage
+        hasPreviousPage
+        startCursor
+        endCursor
+      }
+    }
+  }
+`;

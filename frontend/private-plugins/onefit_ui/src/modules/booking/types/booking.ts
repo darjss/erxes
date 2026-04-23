@@ -24,6 +24,9 @@ export interface OneFitBooking {
     lastName?: string;
     primaryEmail?: string;
     primaryPhone?: string;
+    sex?: number | null;
+    birthDate?: string | null;
+    oneFitMembershipPlanId?: string | null;
   };
   provider?: {
     _id: string;
