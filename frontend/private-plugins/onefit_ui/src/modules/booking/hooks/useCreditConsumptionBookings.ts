@@ -40,8 +40,11 @@ export function useCreditConsumptionBookings(args: {
     },
   );
 
-  const { list: bookings, totalCount, pageInfo } =
-    data?.oneFitCreditConsumptionBookings || {};
+  const {
+    list: bookings,
+    totalCount,
+    pageInfo,
+  } = data?.oneFitCreditConsumptionBookings || {};
 
   const hasNextPage = Boolean(pageInfo?.hasNextPage);
   const isInitialLoading = networkStatus === NetworkStatus.loading;

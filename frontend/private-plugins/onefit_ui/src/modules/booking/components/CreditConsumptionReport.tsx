@@ -69,7 +69,10 @@ function formatBirthDateYmd(value: string | null | undefined): string {
   return d.toISOString().slice(0, 10);
 }
 
-function formatReservationDateTime(createdAt: string | undefined, bookingDate: string): string {
+function formatReservationDateTime(
+  createdAt: string | undefined,
+  bookingDate: string,
+): string {
   const raw = createdAt || bookingDate;
   const d = new Date(raw);
   if (Number.isNaN(d.getTime())) return '—';
@@ -148,8 +151,7 @@ function individualReservationToCsvRow(row: AugmentedCreditBooking) {
       ? '—'
       : Math.round(Number(p)).toLocaleString();
   const id = u?.oneFitMembershipPlanId;
-  const plan =
-    id && String(id).trim() ? String(id) : '—';
+  const plan = id && String(id).trim() ? String(id) : '—';
   const start = formatYmd(row.bookingDate);
   const end = formatYmd(row.bookingDate);
   const credits =
@@ -181,14 +183,17 @@ export function CreditConsumptionReport() {
   const [companyId, setCompanyId] = useState<string>('');
   const [showIndividualBookings, setShowIndividualBookings] = useState(false);
 
-  const { data, loading: loadingAggregate } = useQuery(ONE_FIT_CREDIT_CONSUMPTION, {
-    variables: {
-      startDate: startDate || undefined,
-      endDate: endDate || undefined,
-      companyId: companyId || undefined,
+  const { data, loading: loadingAggregate } = useQuery(
+    ONE_FIT_CREDIT_CONSUMPTION,
+    {
+      variables: {
+        startDate: startDate || undefined,
+        endDate: endDate || undefined,
+        companyId: companyId || undefined,
+      },
+      skip: !startDate || !endDate,
     },
-    skip: !startDate || !endDate,
-  });
+  );
 
   const {
     bookings,
@@ -312,13 +317,7 @@ export function CreditConsumptionReport() {
     link.download = `credit-consumption-${startDate}-${endDate}.csv`;
     link.click();
     URL.revokeObjectURL(url);
-  }, [
-    rows,
-    startDate,
-    endDate,
-    showIndividualBookings,
-    detailDisplayRows,
-  ]);
+  }, [rows, startDate, endDate, showIndividualBookings, detailDisplayRows]);
 
   /** Narrow layout: erxes RecordTable defaultColumn maxSize is 800px; we cap and shrink sizes. */
   /** Passed to RecordTable to override erxes defaultColumn.maxSize (800px). */
@@ -450,8 +449,7 @@ export function CreditConsumptionReport() {
 
   /** Keep column width; avoid w-0 (broke column layout for later users). */
   const uBlank = 'text-xs p-1 min-h-[1.25rem]';
-  const uTop =
-    'text-xs max-w-[5.5rem] truncate border-t border-border p-1';
+  const uTop = 'text-xs max-w-[5.5rem] truncate border-t border-border p-1';
 
   const mergedColumns: ColumnDef<AugmentedCreditBooking>[] = useMemo(
     () => [
@@ -505,9 +503,7 @@ export function CreditConsumptionReport() {
             return <RecordTableInlineCell className={uBlank} />;
           }
           return (
-            <RecordTableInlineCell
-              className={`${uTop} capitalize`}
-            >
+            <RecordTableInlineCell className={`${uTop} capitalize`}>
               {formatCustomerSex(user?.sex ?? undefined)}
             </RecordTableInlineCell>
           );
@@ -523,9 +519,7 @@ export function CreditConsumptionReport() {
             return <RecordTableInlineCell className={uBlank} />;
           }
           return (
-            <RecordTableInlineCell
-              className={`${uTop} tabular-nums`}
-            >
+            <RecordTableInlineCell className={`${uTop} tabular-nums`}>
               {formatBirthDateYmd(user?.birthDate)}
             </RecordTableInlineCell>
           );
@@ -552,10 +546,7 @@ export function CreditConsumptionReport() {
         maxSize: 160,
         cell: ({ row }) => {
           const name = row.original.provider?.businessName
-            ? getLocalizedString(
-                row.original.provider.businessName,
-                detailLang,
-              )
+            ? getLocalizedString(row.original.provider.businessName, detailLang)
             : '—';
           return (
             <RecordTableInlineCell
@@ -692,7 +683,9 @@ export function CreditConsumptionReport() {
     startDate &&
     endDate;
 
-  const tableLoading = showIndividualBookings ? loadingBookings : loadingAggregate;
+  const tableLoading = showIndividualBookings
+    ? loadingBookings
+    : loadingAggregate;
 
   return (
     <div className="flex min-h-0 min-w-0 flex-1 flex-col gap-4 p-4">
@@ -744,19 +737,32 @@ export function CreditConsumptionReport() {
           <IconDownload className="size-4" />
           Export CSV
         </Button>
-        {showIndividualBookings && loadingAllBookings && bookings.length > 0 && (
-          <p className="basis-full text-xs text-muted-foreground" role="status">
-            Loading all reservations…
-          </p>
-        )}
+        {showIndividualBookings &&
+          loadingAllBookings &&
+          bookings.length > 0 && (
+            <p
+              className="basis-full text-xs text-muted-foreground"
+              role="status"
+            >
+              Loading all reservations…
+            </p>
+          )}
       </div>
 
       <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden rounded-md border">
         <div className="min-h-0 flex-1 overflow-auto">
           <RecordTable.Provider
             tableOptions={tableLayoutOptions as never}
-            columns={showIndividualBookings ? (mergedColumns as ColumnDef<unknown>[]) : (aggregateColumns as ColumnDef<unknown>[])}
-            data={showIndividualBookings ? (detailDisplayRows as unknown[]) : (rows as unknown[])}
+            columns={
+              showIndividualBookings
+                ? (mergedColumns as ColumnDef<unknown>[])
+                : (aggregateColumns as ColumnDef<unknown>[])
+            }
+            data={
+              showIndividualBookings
+                ? (detailDisplayRows as unknown[])
+                : (rows as unknown[])
+            }
             className="m-0 w-full min-w-0 max-w-full"
           >
             {showIndividualBookings ? (

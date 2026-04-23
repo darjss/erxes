@@ -131,7 +131,10 @@ function getPreviousPeriodBounds(startDate: Date, endDate: Date) {
   return { startDate: prevStart, endDate: prevEnd };
 }
 
-function getMonthKeysOverlappingRange(startDate: Date, endDate: Date): string[] {
+function getMonthKeysOverlappingRange(
+  startDate: Date,
+  endDate: Date,
+): string[] {
   const start = getPureDate(startDate);
   const end = getPureDate(endDate);
   if (start.getTime() > end.getTime()) {
@@ -606,7 +609,10 @@ async function getPackageStats(
       };
 
       const totalCredit = activeSummary.activeCustomerCount * planCreditAmount;
-      const consumedCredit = Math.max(consumedCreditByPlanId.get(planId) || 0, 0);
+      const consumedCredit = Math.max(
+        consumedCreditByPlanId.get(planId) || 0,
+        0,
+      );
       const usagePercent =
         totalCredit > 0 ? (consumedCredit / totalCredit) * 100 : 0;
       const planCheckInSummary = checkInsByPlanId.get(planId) || {
@@ -738,7 +744,11 @@ async function getUserGrowthByMonth(
     {
       $group: {
         _id: {
-          $dateToString: { format: '%Y-%m', date: '$createdAt', timezone: 'UTC' },
+          $dateToString: {
+            format: '%Y-%m',
+            date: '$createdAt',
+            timezone: 'UTC',
+          },
         },
         count: { $sum: 1 },
       },

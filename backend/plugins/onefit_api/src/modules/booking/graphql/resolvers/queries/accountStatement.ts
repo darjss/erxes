@@ -9,8 +9,7 @@ import {
 } from './creditConsumptionFilter';
 
 interface IOneFitCreditConsumptionBookingsParams
-  extends IOneFitCreditConsumptionFilterParams,
-    ICursorPaginateParams {
+  extends IOneFitCreditConsumptionFilterParams, ICursorPaginateParams {
   orderBy?: Record<string, 'asc' | 'desc' | 1 | -1>;
 }
 

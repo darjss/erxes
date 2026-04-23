@@ -224,7 +224,9 @@ export function MainIndicatorsDashboard() {
     string | null
   >(null);
   const range = useMemo(() => getRangeByPreset(preset), [preset]);
-  const [startDate, setStartDate] = useState<string>(toDateInputValue(range.from));
+  const [startDate, setStartDate] = useState<string>(
+    toDateInputValue(range.from),
+  );
   const [endDate, setEndDate] = useState<string>(toDateInputValue(range.to));
   const from = useMemo(() => {
     const parsedDate = parseDateInputValue(startDate);
@@ -260,7 +262,9 @@ export function MainIndicatorsDashboard() {
       return [];
     }
 
-    const minDepth = Math.min(...categoryDistribution.map((item) => item.depth));
+    const minDepth = Math.min(
+      ...categoryDistribution.map((item) => item.depth),
+    );
 
     return categoryDistribution.filter((item) => item.depth === minDepth);
   }, [categoryDistribution]);
@@ -805,7 +809,10 @@ export function MainIndicatorsDashboard() {
                           size="icon"
                           className="size-6"
                           onClick={() =>
-                            handleCategoryToggle(category.categoryId, hasChildren)
+                            handleCategoryToggle(
+                              category.categoryId,
+                              hasChildren,
+                            )
                           }
                         >
                           <IconChevronRight
@@ -895,15 +902,21 @@ export function MainIndicatorsDashboard() {
                         <div className="flex flex-col gap-1 text-xs sm:text-sm">
                           <span>
                             attended:{' '}
-                            {Math.round(item.checkInCount.attended).toLocaleString()}
+                            {Math.round(
+                              item.checkInCount.attended,
+                            ).toLocaleString()}
                           </span>
                           <span>
                             no_show:{' '}
-                            {Math.round(item.checkInCount.noShow).toLocaleString()}
+                            {Math.round(
+                              item.checkInCount.noShow,
+                            ).toLocaleString()}
                           </span>
                           <span>
                             cancelled:{' '}
-                            {Math.round(item.checkInCount.cancelled).toLocaleString()}
+                            {Math.round(
+                              item.checkInCount.cancelled,
+                            ).toLocaleString()}
                           </span>
                         </div>
                       </td>
