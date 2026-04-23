@@ -15,6 +15,7 @@ import { DayOfWeek } from '@/schedule/@types/schedule';
 import { Resolver } from 'erxes-api-shared/core-types';
 import { ProviderStatus } from '@/provider/@types/provider';
 import { getLocalizedString } from '@/activity-type/utils/localization';
+import { requirePermission } from '~/utils/onefitPermissionCheck';
 
 function getDayOfWeek(date: Date): DayOfWeek {
   const days = [
@@ -568,8 +569,10 @@ export const bookingMutations: Record<string, Resolver> = {
       startTime: string;
       endTime: string;
     },
-    { models, subdomain }: IContext,
+    context: IContext,
   ) {
+    await requirePermission(context, 'bookingCreate');
+    const { models, subdomain } = context;
     return createBookingLogic(
       userId,
       activityTypeId,
@@ -583,8 +586,10 @@ export const bookingMutations: Record<string, Resolver> = {
   async oneFitBookingCancel(
     _root: undefined,
     { _id, reason }: { _id: string; reason?: string },
-    { models, user, subdomain }: IContext,
+    context: IContext,
   ) {
+    await requirePermission(context, 'bookingCancel');
+    const { models, user, subdomain } = context;
     const booking = await models.Booking.findOne({ _id });
     if (!booking) {
       throw new Error('Booking not found');
@@ -611,8 +616,10 @@ export const bookingMutations: Record<string, Resolver> = {
       _id,
       attendanceStatus,
     }: { _id: string; attendanceStatus: AttendanceStatus },
-    { models, user, instanceId }: IContext,
+    context: IContext,
   ) {
+    await requirePermission(context, 'bookingMarkAttendance');
+    const { models, user, instanceId } = context;
     const booking = await models.Booking.findOne({ _id });
     if (!booking) {
       throw new Error('Booking not found');
@@ -642,8 +649,10 @@ export const bookingMutations: Record<string, Resolver> = {
       ids,
       attendanceStatus,
     }: { ids: string[]; attendanceStatus: AttendanceStatus },
-    { models, user, instanceId }: IContext,
+    context: IContext,
   ) {
+    await requirePermission(context, 'bookingMarkAttendance');
+    const { models, user, instanceId } = context;
     if (!ids.length) {
       return [];
     }
@@ -696,8 +705,10 @@ export const bookingMutations: Record<string, Resolver> = {
   async oneFitBookingsRemove(
     _root: undefined,
     { ids }: { ids: string[] },
-    { models }: IContext,
+    context: IContext,
   ) {
+    await requirePermission(context, 'bookingCancel');
+    const { models } = context;
     return await models.Booking.removeBookings(ids);
   },
 

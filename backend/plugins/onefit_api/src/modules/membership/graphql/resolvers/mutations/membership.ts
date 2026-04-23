@@ -6,6 +6,7 @@ import {
 } from '../utils/membershipPurchase';
 import { validateAndDiscount } from '@/promoCode/utils/validateAndDiscount';
 import { Resolver } from 'erxes-api-shared/core-types';
+import { requirePermission } from '~/utils/onefitPermissionCheck';
 
 const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000;
 
@@ -24,8 +25,10 @@ export const membershipMutations: Record<string, Resolver> = {
   async oneFitMembershipPlanCreate(
     _root: undefined,
     doc: IMembershipPlan,
-    { models }: IContext,
+    context: IContext,
   ) {
+    await requirePermission(context, 'membershipManage');
+    const { models } = context;
     const planType = doc.planType ?? 'normal';
     validatePlanForNormal(planType, doc.duration);
     return await models.MembershipPlan.createPlan({
@@ -37,8 +40,10 @@ export const membershipMutations: Record<string, Resolver> = {
   async oneFitMembershipPlanUpdate(
     _root: undefined,
     { _id, ...doc }: { _id: string } & Partial<IMembershipPlan>,
-    { models }: IContext,
+    context: IContext,
   ) {
+    await requirePermission(context, 'membershipManage');
+    const { models } = context;
     const existing = await models.MembershipPlan.findById(_id).lean();
     if (existing) {
       const planType = doc.planType ?? existing.planType ?? 'normal';
@@ -51,8 +56,10 @@ export const membershipMutations: Record<string, Resolver> = {
   async oneFitMembershipPlansRemove(
     _root: undefined,
     { ids }: { ids: string[] },
-    { models }: IContext,
+    context: IContext,
   ) {
+    await requirePermission(context, 'membershipManage');
+    const { models } = context;
     return await models.MembershipPlan.removePlans(ids);
   },
 
@@ -73,6 +80,7 @@ export const membershipMutations: Record<string, Resolver> = {
     },
     context: IContext,
   ) {
+    await requirePermission(context, 'membershipPurchaseManage');
     return await createMembershipPurchaseInvoice(userId, planId, context, {
       promoCode,
       promoCodeId,
@@ -85,6 +93,7 @@ export const membershipMutations: Record<string, Resolver> = {
     { _id }: { _id: string },
     context: IContext,
   ) {
+    await requirePermission(context, 'membershipPurchaseManage');
     return await activateMembershipPurchase(_id, context);
   },
 

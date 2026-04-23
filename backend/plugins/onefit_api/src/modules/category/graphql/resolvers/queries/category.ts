@@ -14,8 +14,9 @@ export const categoryQueries: Record<string, Resolver> = {
   async oneFitActivityCategories(
     _root: undefined,
     params: ICategoryQueryParams,
-    { models }: IContext,
+    context: IContext,
   ) {
+    const { models } = context;
     const filter = generateFilter(params);
     return await models.ActivityCategory.find(filter).lean();
   },
@@ -23,8 +24,9 @@ export const categoryQueries: Record<string, Resolver> = {
   async oneFitActivityCategoriesCount(
     _root: undefined,
     params: ICategoryQueryParams,
-    { models }: IContext,
+    context: IContext,
   ) {
+    const { models } = context;
     const filter = generateFilter(params);
     return models.ActivityCategory.find(filter).countDocuments();
   },
@@ -32,8 +34,9 @@ export const categoryQueries: Record<string, Resolver> = {
   async oneFitActivityCategory(
     _root: undefined,
     { _id }: { _id: string },
-    { models }: IContext,
+    context: IContext,
   ) {
+    const { models } = context;
     return models.ActivityCategory.findOne({ _id });
   },
 };

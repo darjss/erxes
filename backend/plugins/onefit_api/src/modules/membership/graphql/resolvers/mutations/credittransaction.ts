@@ -7,13 +7,16 @@ import {
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { recomputeOneFitCustomerCreditFields } from '@/membership/graphql/resolvers/utils/creditTransactionUtils';
 import { isCreditOnlyPlan } from '@/membership/graphql/resolvers/utils/membershipPurchase';
+import { requirePermission } from '~/utils/onefitPermissionCheck';
 
 export const creditTransactionMutations = {
   async oneFitCreditTransactionsRemove(
     _root: undefined,
     { ids }: { ids: string[] },
-    { models }: IContext,
+    context: IContext,
   ) {
+    await requirePermission(context, 'transactionRemove');
+    const { models } = context;
     if (!ids.length) {
       return { n: 0, ok: 0 };
     }
@@ -88,8 +91,10 @@ export const creditTransactionMutations = {
       membershipPlanId?: string;
       description?: string;
     },
-    { models, subdomain }: IContext,
+    context: IContext,
   ) {
+    await requirePermission(context, 'transactionCreate');
+    const { models, subdomain } = context;
     const currentBalance = await models.CreditTransaction.getUserBalance(
       userId,
     );
@@ -252,6 +257,7 @@ export const creditTransactionMutations = {
     },
     context: IContext,
   ) {
+    await requirePermission(context, 'transactionCreate');
     if (!userIds.length) {
       return [];
     }

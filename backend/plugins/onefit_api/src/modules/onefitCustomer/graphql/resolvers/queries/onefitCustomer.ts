@@ -6,6 +6,7 @@ import {
   sendTRPCMessage,
 } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
+import { ifTeamUserCheck } from '~/utils/onefitPermissionCheck';
 
 export interface IOneFitCustomerQueryParams extends ICursorPaginateParams {
   searchValue?: string;
@@ -108,8 +109,9 @@ export const oneFitCustomerQueries: Record<string, Resolver> = {
   async oneFitCustomers(
     _root: undefined,
     params: IOneFitCustomerQueryParams,
-    { models }: IContext,
+    context: IContext,
   ) {
+    const { models } = context;
     const filter = await generateFilter(params);
 
     return await cursorPaginate({
@@ -122,16 +124,18 @@ export const oneFitCustomerQueries: Record<string, Resolver> = {
   async oneFitCustomer(
     _root: undefined,
     { _id }: { _id: string },
-    { models }: IContext,
+    context: IContext,
   ) {
+    const { models } = context;
     return await models.OneFitCustomer.findOne({ _id, __t: 'OneFitCustomer' });
   },
 
   async oneFitCustomersCount(
     _root: undefined,
     params: IOneFitCustomerQueryParams,
-    { models }: IContext,
+    context: IContext,
   ) {
+    const { models } = context;
     const filter = await generateFilter(params);
     return models.OneFitCustomer.find(filter).countDocuments();
   },
@@ -139,8 +143,9 @@ export const oneFitCustomerQueries: Record<string, Resolver> = {
   async oneFitCustomersByCompanyId(
     _root: undefined,
     { companyId }: { companyId: string },
-    { subdomain }: IContext,
+    context: IContext,
   ) {
+    const { subdomain } = context;
     const customerIds = (await sendTRPCMessage({
       subdomain,
       pluginName: 'core',

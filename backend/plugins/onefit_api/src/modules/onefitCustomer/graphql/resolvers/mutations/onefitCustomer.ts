@@ -1,4 +1,5 @@
 import { IContext } from '~/connectionResolvers';
+import { requirePermission } from '~/utils/onefitPermissionCheck';
 
 const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000;
 
@@ -10,8 +11,10 @@ export const oneFitCustomerMutations = {
       membershipPlanId,
       expiresAt,
     }: { _id: string; membershipPlanId: string; expiresAt: Date },
-    { models }: IContext,
+    context: IContext,
   ) {
+    await requirePermission(context, 'onefitCustomerManage');
+    const { models } = context;
     return await models.OneFitCustomer.updateMembership(
       _id,
       membershipPlanId,
@@ -22,16 +25,20 @@ export const oneFitCustomerMutations = {
   async oneFitCustomerUpdateCreditBalance(
     _root: undefined,
     { _id, balance }: { _id: string; balance: number },
-    { models }: IContext,
+    context: IContext,
   ) {
+    await requirePermission(context, 'onefitCustomerManage');
+    const { models } = context;
     return await models.OneFitCustomer.updateCreditBalance(_id, balance);
   },
 
   async oneFitCustomerUpdateBookingPreferences(
     _root: undefined,
     { _id, preferences }: { _id: string; preferences: any },
-    { models }: IContext,
+    context: IContext,
   ) {
+    await requirePermission(context, 'onefitCustomerManage');
+    const { models } = context;
     return await models.OneFitCustomer.updateBookingPreferences(
       _id,
       preferences,
@@ -41,8 +48,10 @@ export const oneFitCustomerMutations = {
   async oneFitMembershipHoldStart(
     _root: undefined,
     { userId, holdDays }: { userId: string; holdDays: number },
-    { models }: IContext,
+    context: IContext,
   ) {
+    await requirePermission(context, 'onefitCustomerManage');
+    const { models } = context;
     const customer = await models.OneFitCustomer.getOneFitCustomer(userId);
     if (!customer) {
       throw new Error('Customer not found');
@@ -80,8 +89,10 @@ export const oneFitCustomerMutations = {
   async oneFitMembershipHoldCancel(
     _root: undefined,
     { userId }: { userId: string },
-    { models }: IContext,
+    context: IContext,
   ) {
+    await requirePermission(context, 'onefitCustomerManage');
+    const { models } = context;
     const customer = await models.OneFitCustomer.getOneFitCustomer(userId);
     if (!customer) {
       throw new Error('Customer not found');

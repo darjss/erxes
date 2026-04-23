@@ -35,8 +35,9 @@ export const membershipQueries: Record<string, Resolver> = {
   async oneFitMembershipPlans(
     _root: undefined,
     params: IPlanQueryParams,
-    { models }: IContext,
+    context: IContext,
   ) {
+    const { models } = context;
     const filter = generatePlanFilter(params);
 
     return await cursorPaginate({
@@ -49,8 +50,9 @@ export const membershipQueries: Record<string, Resolver> = {
   async oneFitMembershipPlansCount(
     _root: undefined,
     params: IPlanQueryParams,
-    { models }: IContext,
+    context: IContext,
   ) {
+    const { models } = context;
     const filter = generatePlanFilter(params);
     return models.MembershipPlan.find(filter).countDocuments();
   },
@@ -58,24 +60,27 @@ export const membershipQueries: Record<string, Resolver> = {
   async oneFitMembershipPlan(
     _root: undefined,
     { _id }: { _id: string },
-    { models }: IContext,
+    context: IContext,
   ) {
+    const { models } = context;
     return models.MembershipPlan.findOne({ _id });
   },
 
   async oneFitActiveMembershipPlans(
     _root: undefined,
     _params: undefined,
-    { models }: IContext,
+    context: IContext,
   ) {
+    const { models } = context;
     return models.MembershipPlan.findActivePlans();
   },
 
   async oneFitMembershipPurchases(
     _root: undefined,
     params: IMembershipPurchaseQueryParams,
-    { models }: IContext,
+    context: IContext,
   ) {
+    const { models } = context;
     const { userId, status, planId, ...paginationParams } = params;
 
     const filter: any = {};
@@ -102,8 +107,9 @@ export const membershipQueries: Record<string, Resolver> = {
   async oneFitMembershipPurchase(
     _root: undefined,
     { _id }: { _id: string },
-    { models }: IContext,
+    context: IContext,
   ) {
+    const { models } = context;
     return models.MembershipPurchase.getPurchase(_id);
   },
 

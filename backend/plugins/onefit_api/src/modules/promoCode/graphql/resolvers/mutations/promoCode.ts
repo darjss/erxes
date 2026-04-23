@@ -3,7 +3,7 @@ import {
   IPromoCode,
   PromoCodeDiscountType,
 } from '@/promoCode/@types/promoCode';
-import { markResolvers } from 'erxes-api-shared/utils';
+import { requirePermission } from '~/utils/onefitPermissionCheck';
 
 export const promoCodeMutations = {
   async oneFitPromoCodeCreate(
@@ -11,6 +11,7 @@ export const promoCodeMutations = {
     doc: IPromoCode,
     context: IContext,
   ) {
+    await requirePermission(context, 'promoCodeManage');
     const { models } = context;
 
     const normalizedCode = doc.code?.trim().toUpperCase();
@@ -41,6 +42,7 @@ export const promoCodeMutations = {
     { _id, ...doc }: { _id: string } & Partial<IPromoCode>,
     context: IContext,
   ) {
+    await requirePermission(context, 'promoCodeManage');
     const { models } = context;
     const promoCode = await models.PromoCode.findOne({ _id });
 
@@ -71,13 +73,8 @@ export const promoCodeMutations = {
     { ids }: { ids: string[] },
     context: IContext,
   ) {
+    await requirePermission(context, 'promoCodeManage');
     const { models } = context;
     return await models.PromoCode.removePromoCodes(ids);
   },
 };
-
-markResolvers(promoCodeMutations, {
-  wrapperConfig: {
-    skipPermission: true,
-  },
-});

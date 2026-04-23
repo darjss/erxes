@@ -5,40 +5,45 @@ export const configMutations = {
   async systemConfigCreate(
     _root: undefined,
     doc: ISystemConfig,
-    { models }: IContext,
+    context: IContext,
   ) {
+    const { models } = context;
     return await models.SystemConfig.createConfig({ ...doc });
   },
 
   async systemConfigUpdate(
     _root: undefined,
     { key, value }: { key: string; value: any },
-    { models }: IContext,
+    context: IContext,
   ) {
+    const { models } = context;
     return await models.SystemConfig.updateConfig(key, value);
   },
 
   async oneFitSystemConfigUpdate(
     _root: undefined,
     { key, value }: { key: string; value: any },
-    { models }: IContext,
+    context: IContext,
   ) {
+    const { models } = context;
     return await models.SystemConfig.updateConfig(key, value);
   },
 
   async systemConfigsRemove(
     _root: undefined,
     { keys }: { keys: string[] },
-    { models }: IContext,
+    context: IContext,
   ) {
+    const { models } = context;
     return await models.SystemConfig.removeConfigs(keys);
   },
 
   async oneFitSystemConfigUpdateSelectedPayments(
     _root: undefined,
     { paymentIds }: { paymentIds: string[] },
-    { models }: IContext,
+    context: IContext,
   ) {
+    const { models } = context;
     return await models.SystemConfig.updateConfig(
       'selectedPayments',
       paymentIds,

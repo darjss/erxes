@@ -1,6 +1,7 @@
 import { ICursorPaginateParams, Resolver } from 'erxes-api-shared/core-types';
 import { cursorPaginate, markResolvers } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
+import { ifTeamUserCheck } from '~/utils/onefitPermissionCheck';
 
 export interface IPromoCodeQueryParams extends ICursorPaginateParams {
   code?: string;
@@ -48,6 +49,7 @@ export const promoCodeQueries: Record<string, Resolver> = {
     params: IPromoCodeQueryParams,
     context: IContext,
   ) {
+    await ifTeamUserCheck(context, 'promoCodeManage');
     const { models } = context;
     const filter = generateFilter(params);
 
@@ -66,6 +68,7 @@ export const promoCodeQueries: Record<string, Resolver> = {
     params: IPromoCodeQueryParams,
     context: IContext,
   ) {
+    await ifTeamUserCheck(context, 'promoCodeManage');
     const { models } = context;
     const filter = generateFilter(params);
     return models.PromoCode.find(filter).countDocuments();
@@ -76,6 +79,7 @@ export const promoCodeQueries: Record<string, Resolver> = {
     { _id }: { _id: string },
     context: IContext,
   ) {
+    await ifTeamUserCheck(context, 'promoCodeManage');
     const { models } = context;
     return models.PromoCode.findOne({ _id });
   },
