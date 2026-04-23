@@ -71,6 +71,7 @@ const PROXY_TO_MASTER_OPERATIONS = [
   // Account statement
   'oneFitAccountStatement',
   'oneFitCreditConsumption',
+  'oneFitCreditConsumptionBookings',
 
   //Categories
   'oneFitActivityCategories',

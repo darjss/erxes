@@ -1,4 +1,7 @@
+import { useQuery } from '@apollo/client';
 import { Input, Select } from 'erxes-ui';
+import { ONE_FIT_ACTIVE_MEMBERSHIP_PLANS } from '~/modules/membership/graphql/membershipPlanQueries';
+import { OneFitMembershipPlan } from '~/modules/membership/types/membership';
 import {
   OneFitCustomerFilters,
   OneFitMembershipStatus,
@@ -15,6 +18,10 @@ export const OneFitCustomerFiltersComponent = ({
   filters,
   onFiltersChange,
 }: OneFitCustomerFiltersProps) => {
+  const { data } = useQuery(ONE_FIT_ACTIVE_MEMBERSHIP_PLANS);
+  const membershipPlans: OneFitMembershipPlan[] =
+    data?.oneFitActiveMembershipPlans || [];
+
   const handleFilterChange = (key: keyof OneFitCustomerFilters, value: any) => {
     onFiltersChange({
       ...filters,
@@ -43,13 +50,27 @@ export const OneFitCustomerFiltersComponent = ({
         />
       </FilterField>
       <FilterField label="Membership Plan ID">
-        <Input
-          value={filters.membershipPlanId || ''}
-          onChange={(e) =>
-            handleFilterChange('membershipPlanId', e.target.value || undefined)
+        <Select
+          value={filters.membershipPlanId || '__all__'}
+          onValueChange={(value) =>
+            handleFilterChange(
+              'membershipPlanId',
+              value === '__all__' ? undefined : value,
+            )
           }
-          placeholder="Filter by membership plan ID"
-        />
+        >
+          <Select.Trigger>
+            <Select.Value placeholder="All membership plans" />
+          </Select.Trigger>
+          <Select.Content>
+            <Select.Item value="__all__">All membership plans</Select.Item>
+            {membershipPlans.map((plan) => (
+              <Select.Item key={plan._id} value={plan._id}>
+                {plan.name}
+              </Select.Item>
+            ))}
+          </Select.Content>
+        </Select>
       </FilterField>
       <FilterField label="Membership Status">
         <Select

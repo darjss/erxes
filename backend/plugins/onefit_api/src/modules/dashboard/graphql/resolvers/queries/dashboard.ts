@@ -1,5 +1,6 @@
 import { Resolver } from 'erxes-api-shared/core-types';
 import { getPureDate, markResolvers } from 'erxes-api-shared/utils';
+import { BookingStatus } from '@/booking/@types/booking';
 import { MembershipPurchaseStatus } from '@/membership/@types/membershippurchase';
 import { IContext } from '~/connectionResolvers';
 import { addInstanceIdFilter } from '~/utils/providerFilter';
@@ -51,9 +52,14 @@ interface OneFitDashboardPackageStat {
   planId: string;
   planName: string;
   activeCustomerCount: number;
+  currentCreditTotal: number;
   totalCredit: number;
   consumedCredit: number;
-  checkInCount: number;
+  checkInCount: {
+    attended: number;
+    noShow: number;
+    cancelled: number;
+  };
   usagePercent: number;
 }
 
@@ -125,7 +131,10 @@ function getPreviousPeriodBounds(startDate: Date, endDate: Date) {
   return { startDate: prevStart, endDate: prevEnd };
 }
 
-function getMonthKeysOverlappingRange(startDate: Date, endDate: Date): string[] {
+function getMonthKeysOverlappingRange(
+  startDate: Date,
+  endDate: Date,
+): string[] {
   const start = getPureDate(startDate);
   const end = getPureDate(endDate);
   if (start.getTime() > end.getTime()) {
@@ -523,33 +532,71 @@ async function getPackageStats(
     startDate,
     endDate,
   );
-  const bookingsByUser = await models.Booking.aggregate([
+  const bookingsByUserByStatus = await models.Booking.aggregate([
     {
       $match: {
         ...bookingFilter,
         userId: { $in: customerIds },
+        status: {
+          $in: [
+            BookingStatus.COMPLETED,
+            BookingStatus.NO_SHOW,
+            BookingStatus.CANCELLED,
+          ],
+        },
       },
     },
     {
       $group: {
-        _id: '$userId',
+        _id: { userId: '$userId', status: '$status' },
         count: { $sum: 1 },
+        consumedCredit: { $sum: '$creditCost' },
       },
     },
   ]);
 
-  const checkInsByPlanId = new Map<string, number>();
-  for (const item of bookingsByUser) {
-    const userId = String(item._id);
+  const checkInsByPlanId = new Map<
+    string,
+    { attended: number; noShow: number; cancelled: number }
+  >();
+  const consumedCreditByPlanId = new Map<string, number>();
+  for (const item of bookingsByUserByStatus) {
+    const userId = String(item._id.userId);
+    const status = String(item._id.status);
     const user = customerById.get(userId);
     if (!user?.membershipPlanId) {
       continue;
     }
 
-    checkInsByPlanId.set(
-      user.membershipPlanId,
-      (checkInsByPlanId.get(user.membershipPlanId) || 0) + (item.count || 0),
-    );
+    const planSummary = checkInsByPlanId.get(user.membershipPlanId) || {
+      attended: 0,
+      noShow: 0,
+      cancelled: 0,
+    };
+
+    if (status === BookingStatus.COMPLETED) {
+      planSummary.attended += item.count || 0;
+      consumedCreditByPlanId.set(
+        user.membershipPlanId,
+        (consumedCreditByPlanId.get(user.membershipPlanId) || 0) +
+          (item.consumedCredit || 0),
+      );
+    }
+
+    if (status === BookingStatus.NO_SHOW) {
+      planSummary.noShow += item.count || 0;
+      consumedCreditByPlanId.set(
+        user.membershipPlanId,
+        (consumedCreditByPlanId.get(user.membershipPlanId) || 0) +
+          (item.consumedCredit || 0),
+      );
+    }
+
+    if (status === BookingStatus.CANCELLED) {
+      planSummary.cancelled += item.count || 0;
+    }
+
+    checkInsByPlanId.set(user.membershipPlanId, planSummary);
   }
 
   const packageStats = planIds
@@ -563,19 +610,25 @@ async function getPackageStats(
 
       const totalCredit = activeSummary.activeCustomerCount * planCreditAmount;
       const consumedCredit = Math.max(
-        totalCredit - activeSummary.currentCreditTotal,
+        consumedCreditByPlanId.get(planId) || 0,
         0,
       );
       const usagePercent =
         totalCredit > 0 ? (consumedCredit / totalCredit) * 100 : 0;
+      const planCheckInSummary = checkInsByPlanId.get(planId) || {
+        attended: 0,
+        noShow: 0,
+        cancelled: 0,
+      };
 
       return {
         planId,
         planName: plan?.name || 'Unknown plan',
         activeCustomerCount: activeSummary.activeCustomerCount,
+        currentCreditTotal: activeSummary.currentCreditTotal,
         totalCredit,
         consumedCredit,
-        checkInCount: checkInsByPlanId.get(planId) || 0,
+        checkInCount: planCheckInSummary,
         usagePercent,
       };
     })
@@ -691,7 +744,11 @@ async function getUserGrowthByMonth(
     {
       $group: {
         _id: {
-          $dateToString: { format: '%Y-%m', date: '$createdAt', timezone: 'UTC' },
+          $dateToString: {
+            format: '%Y-%m',
+            date: '$createdAt',
+            timezone: 'UTC',
+          },
         },
         count: { $sum: 1 },
       },
