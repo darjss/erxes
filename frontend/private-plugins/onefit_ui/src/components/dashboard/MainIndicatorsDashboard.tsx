@@ -9,7 +9,17 @@ import {
   IconTrendingUp,
   IconUsers,
 } from '@tabler/icons-react';
-import { Button, ChartContainer, Input, Select, Skeleton, cn } from 'erxes-ui';
+import {
+  Button,
+  ChartContainer,
+  Command,
+  Input,
+  Popover,
+  Select,
+  SelectTree,
+  Skeleton,
+  cn,
+} from 'erxes-ui';
 import {
   addMonths,
   endOfDay,
@@ -26,6 +36,7 @@ import {
   CartesianGrid,
   Cell,
   Legend,
+  LabelList,
   Line,
   LineChart,
   Pie,
@@ -68,6 +79,19 @@ interface PackageStatItem {
   usagePercent: number;
 }
 
+interface CompanyUserStatItem {
+  companyId: string;
+  companyName: string;
+  userId: string;
+  userName: string;
+  userPhone: string;
+  planId: string;
+  planName: string;
+  planCredit: number;
+  currentCredit: number;
+  usedCredit: number;
+}
+
 interface B2bB2cSalesStats {
   b2bCount: number;
   b2cCount: number;
@@ -85,10 +109,6 @@ interface UserGrowthMonthRow {
 const B2B_COLOR = '#4285F4';
 const B2C_COLOR = '#10B981';
 const NEW_USERS_COLOR = '#F97316';
-
-function formatPercentage(value: number): string {
-  return `${Math.round(value)}%`;
-}
 
 function formatMetricValue(value: number, isAverage: boolean): string {
   if (isAverage) {
@@ -220,9 +240,10 @@ export function MainIndicatorsDashboard() {
   const [collapsedCategoryIds, setCollapsedCategoryIds] = useState<string[]>(
     [],
   );
-  const [activeCategoryParentId, setActiveCategoryParentId] = useState<
-    string | null
-  >(null);
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(
+    null,
+  );
+  const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(false);
   const range = useMemo(() => getRangeByPreset(preset), [preset]);
   const [startDate, setStartDate] = useState<string>(
     toDateInputValue(range.from),
@@ -269,9 +290,11 @@ export function MainIndicatorsDashboard() {
     return categoryDistribution.filter((item) => item.depth === minDepth);
   }, [categoryDistribution]);
   const packageStats = (stats?.packageStats || []) as PackageStatItem[];
+  const companyUserStats = (stats?.companyUserStats || []) as CompanyUserStatItem[];
   const b2bB2cSales = stats?.b2bB2cSales as B2bB2cSalesStats | undefined;
   const hasCategoryData = categoryDistribution.length > 0;
   const hasPackageData = packageStats.length > 0;
+  const hasCompanyUserStats = companyUserStats.length > 0;
   const totalSalesCount =
     (b2bB2cSales?.b2bCount || 0) + (b2bB2cSales?.b2cCount || 0);
   const hasB2bB2cSales = totalSalesCount > 0;
@@ -328,21 +351,30 @@ export function MainIndicatorsDashboard() {
     });
   }, [categoryById, categoryDistribution, collapsedCategoryIds]);
   const categoryChartSource = useMemo(() => {
-    if (!activeCategoryParentId) {
+    if (!selectedCategoryId) {
       return rootLevelCategoryDistribution;
     }
 
-    if (collapsedCategoryIds.includes(activeCategoryParentId)) {
+    if (collapsedCategoryIds.includes(selectedCategoryId))
       return rootLevelCategoryDistribution;
-    }
 
     const children = categoryDistribution.filter(
-      (category) => category.parentId === activeCategoryParentId,
+      (category) => category.parentId === selectedCategoryId,
     );
 
-    return children.length ? children : rootLevelCategoryDistribution;
+    if (children.length) {
+      return children;
+    }
+
+    const selectedCategory = categoryDistribution.filter(
+      (category) => category.categoryId === selectedCategoryId,
+    );
+
+    return selectedCategory.length
+      ? selectedCategory
+      : rootLevelCategoryDistribution;
   }, [
-    activeCategoryParentId,
+    selectedCategoryId,
     categoryDistribution,
     collapsedCategoryIds,
     rootLevelCategoryDistribution,
@@ -356,9 +388,21 @@ export function MainIndicatorsDashboard() {
       categoryChartItems.map((category) => ({
         name: category.label,
         value: category.count,
+        percent: category.percent,
       })),
     [categoryChartItems],
   );
+  const selectedCategoryLabel = useMemo(() => {
+    if (!selectedCategoryId) {
+      return 'Бүх категори';
+    }
+
+    const selected = categoryDistribution.find(
+      (category) => category.categoryId === selectedCategoryId,
+    );
+
+    return selected?.label || 'Бүх категори';
+  }, [categoryDistribution, selectedCategoryId]);
   const categoryChartConfig = {
     value: {
       label: 'Count',
@@ -370,22 +414,12 @@ export function MainIndicatorsDashboard() {
     []) as UserGrowthMonthRow[];
 
   const growthMonthKeys = useMemo(() => {
-    if (!from || !to || from.getTime() > to.getTime()) {
-      return [];
-    }
+    const keys = Array.from(
+      new Set(userGrowthByMonth.map((row) => row.monthKey).filter(Boolean)),
+    );
 
-    const start = new Date(from.getFullYear(), from.getMonth(), 1);
-    const end = new Date(to.getFullYear(), to.getMonth(), 1);
-    const keys: string[] = [];
-    let cursor = start;
-
-    while (cursor.getTime() <= end.getTime()) {
-      keys.push(format(cursor, 'yyyy-MM'));
-      cursor = addMonths(cursor, 1);
-    }
-
-    return keys;
-  }, [from, to]);
+    return keys.sort((a, b) => a.localeCompare(b));
+  }, [userGrowthByMonth]);
 
   const growthChartData = useMemo(() => {
     const growthByMonthKey = new Map(
@@ -442,10 +476,8 @@ export function MainIndicatorsDashboard() {
     }
 
     const isCurrentlyCollapsed = collapsedCategoryIds.includes(categoryId);
-    if (isCurrentlyCollapsed) {
-      setActiveCategoryParentId(categoryId);
-    } else if (activeCategoryParentId === categoryId) {
-      setActiveCategoryParentId(null);
+    if (!isCurrentlyCollapsed && selectedCategoryId === categoryId) {
+      setSelectedCategoryId(null);
     }
 
     toggleCollapse(categoryId);
@@ -489,14 +521,6 @@ export function MainIndicatorsDashboard() {
                 <Select.Item value="1y">1 year ago</Select.Item>
               </Select.Content>
             </Select>
-            <Button
-              type="button"
-              variant="outline"
-              className="min-w-[240px] justify-start gap-2 border-gray-200 font-normal"
-            >
-              <IconCalendar className="size-4 text-gray-500" />
-              {rangeLabel}
-            </Button>
             <Input
               type="date"
               value={startDate}
@@ -566,22 +590,11 @@ export function MainIndicatorsDashboard() {
       </div>
 
       <div className="mt-8 rounded-xl border border-gray-200 bg-white p-5">
-        <div className="mb-4 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div className="mb-4">
           <h3 className="text-base font-semibold text-gray-900">
             Хэрэглэгчийн өсөлтийн динамик
           </h3>
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="text-sm text-gray-600">Шүүлт:</span>
-            <Button
-              type="button"
-              variant="outline"
-              className="min-w-[240px] justify-start gap-2 border-gray-200 font-normal"
-              disabled
-            >
-              <IconCalendar className="size-4 text-gray-500" />
-              {rangeLabel}
-            </Button>
-          </div>
+          <p className="mt-1 text-sm text-gray-500">All time</p>
         </div>
 
         {loading && !stats ? (
@@ -663,86 +676,189 @@ export function MainIndicatorsDashboard() {
         )}
       </div>
 
-      <div className="mt-8 rounded-xl border border-gray-200 bg-white p-5">
-        <h3 className="text-base font-semibold text-gray-900">
-          B2B болон B2C борлуулт
-        </h3>
+      <div className="mt-8 grid grid-cols-1 gap-4 xl:grid-cols-2">
+        <div className="rounded-xl border border-gray-200 bg-white p-5">
+          <h3 className="text-base font-semibold text-gray-900">
+            B2B болон B2C борлуулт
+          </h3>
 
-        {loading && !stats ? (
-          <div className="mt-4 space-y-3">
-            <Skeleton className="h-60 w-full max-w-xl" />
-            <Skeleton className="h-6 w-full max-w-sm" />
-            <Skeleton className="h-6 w-full max-w-sm" />
-          </div>
-        ) : !hasB2bB2cSales ? (
-          <p className="mt-4 text-sm text-gray-500">
-            Сонгосон хугацаанд B2B/B2C борлуулалтын өгөгдөл алга байна.
-          </p>
-        ) : (
-          <div className="mt-4">
-            <div className="h-72 w-full max-w-xl">
-              <PieChart width={460} height={280}>
-                <Pie
-                  data={b2bB2cChartData}
-                  dataKey="value"
-                  nameKey="name"
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={0}
-                  outerRadius={100}
-                  label={({ name, percent }) =>
-                    `${name}: ${(percent ?? 0).toFixed(1)}%`
-                  }
-                  labelLine={false}
-                >
-                  {b2bB2cChartData.map((entry) => (
-                    <Cell key={entry.name} fill={entry.color} />
-                  ))}
-                </Pie>
-                <Tooltip
-                  formatter={(value: number) => value.toLocaleString()}
-                  cursor={{ fill: '#f4f4f5' }}
-                />
-              </PieChart>
+          {loading && !stats ? (
+            <div className="mt-4 space-y-3">
+              <Skeleton className="h-60 w-full max-w-xl" />
+              <Skeleton className="h-6 w-full max-w-sm" />
+              <Skeleton className="h-6 w-full max-w-sm" />
             </div>
-
-            <div className="mt-2 max-w-sm space-y-3">
-              <div className="flex items-center justify-between text-base">
-                <span className="text-gray-700">B2B борлуулт:</span>
-                <span className="font-semibold tabular-nums text-gray-900">
-                  {(b2bB2cSales?.b2bCount || 0).toLocaleString()} (
-                  {(b2bB2cSales?.b2bPercent || 0).toFixed(1)}%)
-                </span>
+          ) : !hasB2bB2cSales ? (
+            <p className="mt-4 text-sm text-gray-500">
+              Сонгосон хугацаанд B2B/B2C борлуулалтын өгөгдөл алга байна.
+            </p>
+          ) : (
+            <div className="mt-4">
+              <div className="h-72 w-full max-w-xl">
+                <PieChart width={460} height={280}>
+                  <Pie
+                    data={b2bB2cChartData}
+                    dataKey="value"
+                    nameKey="name"
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={0}
+                    outerRadius={100}
+                    label={({ name, percent }) =>
+                      `${name}: ${(percent ?? 0).toFixed(1)}%`
+                    }
+                    labelLine={false}
+                  >
+                    {b2bB2cChartData.map((entry) => (
+                      <Cell key={entry.name} fill={entry.color} />
+                    ))}
+                  </Pie>
+                  <Tooltip
+                    formatter={(value: number) => value.toLocaleString()}
+                    cursor={{ fill: '#f4f4f5' }}
+                  />
+                </PieChart>
               </div>
-              <div className="flex items-center justify-between text-base">
-                <span className="text-gray-700">B2C борлуулт:</span>
-                <span className="font-semibold tabular-nums text-gray-900">
-                  {(b2bB2cSales?.b2cCount || 0).toLocaleString()} (
-                  {(b2bB2cSales?.b2cPercent || 0).toFixed(1)}%)
-                </span>
+
+              <div className="mt-2 max-w-sm space-y-3">
+                <div className="flex items-center justify-between text-base">
+                  <span className="text-gray-700">B2B борлуулт:</span>
+                  <span className="font-semibold tabular-nums text-gray-900">
+                    {(b2bB2cSales?.b2bCount || 0).toLocaleString()} (
+                    {(b2bB2cSales?.b2bPercent || 0).toFixed(1)}%)
+                  </span>
+                </div>
+                <div className="flex items-center justify-between text-base">
+                  <span className="text-gray-700">B2C борлуулт:</span>
+                  <span className="font-semibold tabular-nums text-gray-900">
+                    {(b2bB2cSales?.b2cCount || 0).toLocaleString()} (
+                    {(b2bB2cSales?.b2cPercent || 0).toFixed(1)}%)
+                  </span>
+                </div>
               </div>
             </div>
-          </div>
-        )}
-      </div>
+          )}
+        </div>
 
-      <div className="mt-8 rounded-xl border border-gray-200 bg-white p-5">
-        <h3 className="text-base font-semibold text-gray-900">
-          Үйлчилгээний категори
-        </h3>
+        <div className="rounded-xl border border-gray-200 bg-white p-5">
+          <h3 className="text-base font-semibold text-gray-900">
+            Үйлчилгээний категори
+          </h3>
 
-        {loading && !stats ? (
-          <div className="mt-4 space-y-3">
-            <Skeleton className="h-12 w-full" />
-            <Skeleton className="h-12 w-full" />
-            <Skeleton className="h-12 w-full" />
-          </div>
-        ) : !hasCategoryData ? (
-          <p className="mt-4 text-sm text-gray-500">
-            Сонгосон хугацаанд категорийн өгөгдөл алга байна.
-          </p>
-        ) : (
-          <div className="mt-4 space-y-4">
+          {loading && !stats ? (
+            <div className="mt-4 space-y-3">
+              <Skeleton className="h-12 w-full" />
+              <Skeleton className="h-12 w-full" />
+              <Skeleton className="h-12 w-full" />
+            </div>
+          ) : !hasCategoryData ? (
+            <p className="mt-4 text-sm text-gray-500">
+              Сонгосон хугацаанд категорийн өгөгдөл алга байна.
+            </p>
+          ) : (
+            <div className="mt-4 space-y-4">
+            <SelectTree.Provider
+              id="dashboard-category-distribution-select"
+              ordered
+              length={categoryDistribution.length}
+            >
+              <Popover
+                open={categoryDropdownOpen}
+                onOpenChange={setCategoryDropdownOpen}
+              >
+                <Popover.Trigger asChild>
+                  <Button
+                    variant="outline"
+                    role="combobox"
+                    aria-expanded={categoryDropdownOpen}
+                    className="w-full max-w-md justify-between border-gray-200 font-normal"
+                  >
+                    <span className="truncate">{selectedCategoryLabel}</span>
+                    <IconChevronRight className="size-4 -rotate-90 text-gray-500" />
+                  </Button>
+                </Popover.Trigger>
+                <Popover.Content className="w-[420px] p-0" align="start">
+                  <Command shouldFilter={false}>
+                    <Command.List className="max-h-[300px] overflow-y-auto p-1">
+                      <Command.Item
+                        value="__all__"
+                        onSelect={() => {
+                          setSelectedCategoryId(null);
+                          setCategoryDropdownOpen(false);
+                        }}
+                      >
+                        Бүх категори
+                      </Command.Item>
+                      {visibleCategoryDistribution.map((category) => {
+                        const safeDepth = Math.max(category.depth || 0, 0);
+                        const hasChildren = Boolean(
+                          categoryChildrenByParentId.get(category.categoryId),
+                        );
+                        const isCollapsed = collapsedCategoryIds.includes(
+                          category.categoryId,
+                        );
+                        const isSelected =
+                          selectedCategoryId === category.categoryId;
+
+                        return (
+                          <SelectTree.Item
+                            key={category.categoryId}
+                            _id={category.categoryId}
+                            order={category.categoryId}
+                            hasChildren={hasChildren}
+                            name={category.label}
+                            value={category.categoryId}
+                            selected={isSelected}
+                            onSelect={() => {
+                              setSelectedCategoryId(category.categoryId);
+                              setCategoryDropdownOpen(false);
+                            }}
+                          >
+                            <div
+                              className={cn(
+                                'flex w-full items-center gap-1 rounded-md px-2 py-1.5',
+                                isSelected && 'bg-gray-100',
+                              )}
+                              style={{ paddingLeft: `${safeDepth * 16}px` }}
+                            >
+                              {hasChildren ? (
+                                <Button
+                                  type="button"
+                                  variant="ghost"
+                                  size="icon"
+                                  className="size-6"
+                                  onClick={(event) => {
+                                    event.preventDefault();
+                                    event.stopPropagation();
+                                    handleCategoryToggle(
+                                      category.categoryId,
+                                      true,
+                                    );
+                                  }}
+                                >
+                                  <IconChevronRight
+                                    className={cn(
+                                      'size-4 transition-transform',
+                                      !isCollapsed && 'rotate-90',
+                                    )}
+                                  />
+                                </Button>
+                              ) : (
+                                <span className="inline-block size-6" />
+                              )}
+                              <span className="truncate text-sm text-gray-900">
+                                {category.label}
+                              </span>
+                            </div>
+                          </SelectTree.Item>
+                        );
+                      })}
+                    </Command.List>
+                  </Command>
+                </Popover.Content>
+              </Popover>
+            </SelectTree.Provider>
+
             {categoryChartItems.length > 0 && (
               <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
                 <ChartContainer
@@ -779,72 +895,23 @@ export function MainIndicatorsDashboard() {
                       dataKey="value"
                       fill="var(--color-value)"
                       radius={[2, 2, 0, 0]}
-                    />
+                    >
+                      <LabelList
+                        dataKey="percent"
+                        position="top"
+                        formatter={(value) =>
+                          `${Math.round(Number(value) || 0)}%`
+                        }
+                        className="fill-gray-600 text-xs"
+                      />
+                    </Bar>
                   </BarChart>
                 </ChartContainer>
               </div>
             )}
-
-            {visibleCategoryDistribution.map((category) => {
-              const safePercent = Math.min(Math.max(category.percent, 0), 100);
-              const safeDepth = Math.max(category.depth || 0, 0);
-              const hasChildren = Boolean(
-                categoryChildrenByParentId.get(category.categoryId),
-              );
-              const isCollapsed = collapsedCategoryIds.includes(
-                category.categoryId,
-              );
-
-              return (
-                <div key={category.categoryId} className="space-y-2">
-                  <div
-                    className="flex items-center justify-between gap-3"
-                    style={{ paddingLeft: `${safeDepth * 16}px` }}
-                  >
-                    <div className="flex items-center gap-1">
-                      {hasChildren ? (
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="icon"
-                          className="size-6"
-                          onClick={() =>
-                            handleCategoryToggle(
-                              category.categoryId,
-                              hasChildren,
-                            )
-                          }
-                        >
-                          <IconChevronRight
-                            className={cn(
-                              'size-4 transition-transform',
-                              !isCollapsed && 'rotate-90',
-                            )}
-                          />
-                        </Button>
-                      ) : (
-                        <span className="inline-block size-6" />
-                      )}
-                      <span className="text-base text-gray-900">
-                        {category.label}
-                      </span>
-                    </div>
-                    <span className="text-base tabular-nums text-gray-900">
-                      {formatPercentage(category.percent)} (
-                      {category.count.toLocaleString()})
-                    </span>
-                  </div>
-                  <div className="h-2 w-full rounded-full bg-gray-200">
-                    <div
-                      className="h-2 rounded-full bg-[#04051f]"
-                      style={{ width: `${safePercent}%` }}
-                    />
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
+            </div>
+          )}
+        </div>
       </div>
 
       <div className="mt-8 rounded-xl border border-gray-200 bg-white p-5">
@@ -930,6 +997,105 @@ export function MainIndicatorsDashboard() {
                           </div>
                           <span className="min-w-[40px] text-right tabular-nums">
                             {Math.round(safeUsagePercent)}%
+                          </span>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+
+      <div className="mt-8 rounded-xl border border-gray-200 bg-white p-5">
+        <h3 className="text-base font-semibold text-gray-900">
+          Компанийн хэрэглэгчийн кредит ашиглалт
+        </h3>
+
+        {loading && !stats ? (
+          <div className="mt-4 space-y-3">
+            <Skeleton className="h-10 w-full" />
+            <Skeleton className="h-10 w-full" />
+            <Skeleton className="h-10 w-full" />
+          </div>
+        ) : !hasCompanyUserStats ? (
+          <p className="mt-4 text-sm text-gray-500">
+            Компанийн хэрэглэгчийн кредитийн өгөгдөл алга байна.
+          </p>
+        ) : (
+          <div className="mt-4 overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200 text-sm">
+              <thead>
+                <tr className="text-left text-gray-600">
+                  <th className="py-3 pr-4 font-medium">Компани</th>
+                  <th className="py-3 pr-4 font-medium">Хэрэглэгч</th>
+                  <th className="py-3 pr-4 font-medium">Багц</th>
+                  <th className="py-3 pr-4 font-medium">Багцын кредит</th>
+                  <th className="py-3 pr-4 font-medium">Одоогийн кредит</th>
+                  <th className="py-3 pr-4 font-medium">Ашигласан кредит</th>
+                  <th className="py-3 font-medium">Ашиглалтын хувь</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-100">
+                {companyUserStats.map((item) => {
+                  const safeUsedCredit = Math.max(item.usedCredit || 0, 0);
+                  const usagePercent =
+                    item.planCredit > 0
+                      ? Math.min(
+                          Math.max((safeUsedCredit / item.planCredit) * 100, 0),
+                          100,
+                        )
+                      : 0;
+                  const usageBarColorClass =
+                    usagePercent >= 80
+                      ? 'bg-red-500'
+                      : usagePercent >= 50
+                        ? 'bg-amber-500'
+                        : 'bg-emerald-500';
+                  const usageTextColorClass =
+                    usagePercent >= 80
+                      ? 'text-red-600'
+                      : usagePercent >= 50
+                        ? 'text-amber-600'
+                        : 'text-emerald-600';
+
+                  return (
+                    <tr
+                      key={`${item.companyId}-${item.userId}-${item.planId}`}
+                      className="text-gray-900"
+                    >
+                      <td className="py-3 pr-4">{item.companyName}</td>
+                      <td className="py-3 pr-4">
+                        {item.userName}
+                        {item.userPhone ? ` (${item.userPhone})` : ''}
+                      </td>
+                      <td className="py-3 pr-4">{item.planName}</td>
+                      <td className="py-3 pr-4 tabular-nums">
+                        {Math.round(item.planCredit || 0).toLocaleString()}
+                      </td>
+                      <td className="py-3 pr-4 tabular-nums">
+                        {Math.round(item.currentCredit || 0).toLocaleString()}
+                      </td>
+                      <td className="py-3 tabular-nums">
+                        {Math.round(safeUsedCredit).toLocaleString()}
+                      </td>
+                      <td className="py-3">
+                        <div className="flex min-w-[180px] items-center gap-3">
+                          <div className="h-2 w-full rounded-full bg-gray-200">
+                            <div
+                              className={cn('h-2 rounded-full', usageBarColorClass)}
+                              style={{ width: `${usagePercent}%` }}
+                            />
+                          </div>
+                          <span
+                            className={cn(
+                              'min-w-[40px] text-right tabular-nums font-medium',
+                              usageTextColorClass,
+                            )}
+                          >
+                            {Math.round(usagePercent)}%
                           </span>
                         </div>
                       </td>

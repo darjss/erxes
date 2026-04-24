@@ -1,5 +1,9 @@
 import { Resolver } from 'erxes-api-shared/core-types';
-import { getPureDate, markResolvers } from 'erxes-api-shared/utils';
+import {
+  getPureDate,
+  markResolvers,
+  sendTRPCMessage,
+} from 'erxes-api-shared/utils';
 import { BookingStatus } from '@/booking/@types/booking';
 import { MembershipPurchaseStatus } from '@/membership/@types/membershippurchase';
 import { IContext } from '~/connectionResolvers';
@@ -39,6 +43,10 @@ interface OneFitDashboardCategoryStat {
 
 interface IActiveCustomerProjection {
   _id: string;
+  firstName?: string;
+  lastName?: string;
+  primaryEmail?: string;
+  primaryPhone?: string;
   membershipPlanId?: string;
   currentCreditBalance?: number;
 }
@@ -47,6 +55,13 @@ interface IMembershipPlanProjection {
   _id: string;
   name?: string;
   creditAmount?: number;
+}
+
+interface ICoreCompanyProjection {
+  _id: string;
+  primaryName?: string;
+  names?: string[];
+  name?: string;
 }
 
 interface OneFitDashboardPackageStat {
@@ -62,6 +77,19 @@ interface OneFitDashboardPackageStat {
     cancelled: number;
   };
   usagePercent: number;
+}
+
+interface OneFitDashboardCompanyUserStat {
+  companyId: string;
+  companyName: string;
+  userId: string;
+  userName: string;
+  userPhone: string;
+  planId: string;
+  planName: string;
+  planCredit: number;
+  currentCredit: number;
+  usedCredit: number;
 }
 
 interface OneFitDashboardB2bB2cSales {
@@ -638,6 +666,197 @@ async function getPackageStats(
   return packageStats;
 }
 
+function getCustomerDisplayName(customer: IActiveCustomerProjection): string {
+  const fullName = [customer.firstName, customer.lastName]
+    .filter(Boolean)
+    .join(' ')
+    .trim();
+
+  if (fullName) {
+    return fullName;
+  }
+
+  if (customer.primaryEmail) {
+    return customer.primaryEmail;
+  }
+
+  if (customer.primaryPhone) {
+    return customer.primaryPhone;
+  }
+
+  return 'Unknown user';
+}
+
+function getCompanyDisplayName(company: ICoreCompanyProjection): string {
+  if (company.primaryName) {
+    return company.primaryName;
+  }
+
+  if (Array.isArray(company.names) && company.names.length > 0) {
+    const firstNonEmptyName = company.names.find((name) =>
+      Boolean(name?.trim()),
+    );
+    if (firstNonEmptyName) {
+      return firstNonEmptyName;
+    }
+  }
+
+  if (company.name) {
+    return company.name;
+  }
+
+  return 'Unknown company';
+}
+
+async function getCompanyUserStats(
+  context: IContext,
+): Promise<OneFitDashboardCompanyUserStat[]> {
+  const { models, subdomain } = context;
+
+  const companies = (await sendTRPCMessage({
+    subdomain,
+    pluginName: 'core',
+    method: 'query',
+    module: 'companies',
+    action: 'find',
+    input: {
+      query: {
+        status: { $ne: 'deleted' },
+      },
+    },
+    defaultValue: [] as ICoreCompanyProjection[],
+  })) as ICoreCompanyProjection[];
+
+  const companyIds = companies.map((company) => String(company._id));
+  if (!companyIds.length) {
+    return [];
+  }
+
+  const companyIdByCustomerId = new Map<string, string>();
+  for (const companyId of companyIds) {
+    const companyCustomerRelations = (await sendTRPCMessage({
+      subdomain,
+      pluginName: 'core',
+      method: 'query',
+      module: 'relation',
+      action: 'getRelationIds',
+      input: {
+        contentType: 'core:company',
+        contentId: companyId,
+        relatedContentType: 'core:customer',
+      },
+      defaultValue: [] as string[],
+    })) as string[];
+
+    for (const relatedCustomerId of companyCustomerRelations) {
+      if (!relatedCustomerId) {
+        continue;
+      }
+
+      if (!companyIdByCustomerId.has(relatedCustomerId)) {
+        companyIdByCustomerId.set(relatedCustomerId, companyId);
+      }
+    }
+  }
+
+  const customerIds = Array.from(new Set(companyIdByCustomerId.keys()));
+  if (!customerIds.length) {
+    return [];
+  }
+
+  const activeCustomers = (await models.OneFitCustomer.find(
+    {
+      __t: 'OneFitCustomer',
+      _id: { $in: customerIds },
+      membershipStatus: 'active',
+      membershipPlanId: { $exists: true, $ne: '' },
+    },
+    {
+      _id: 1,
+      firstName: 1,
+      lastName: 1,
+      primaryEmail: 1,
+      primaryPhone: 1,
+      membershipPlanId: 1,
+      currentCreditBalance: 1,
+    },
+  ).lean()) as IActiveCustomerProjection[];
+
+  if (!activeCustomers.length) {
+    return [];
+  }
+
+  const companyById = new Map(
+    companies.map((company) => [String(company._id), company]),
+  );
+
+  const planIds = Array.from(
+    new Set(
+      activeCustomers
+        .map((customer) => customer.membershipPlanId)
+        .filter((planId): planId is string => Boolean(planId)),
+    ),
+  );
+
+  if (!planIds.length) {
+    return [];
+  }
+
+  const plans = (await models.MembershipPlan.find(
+    { _id: { $in: planIds } },
+    { _id: 1, name: 1, creditAmount: 1 },
+  ).lean()) as IMembershipPlanProjection[];
+
+  const planById = new Map(plans.map((plan) => [String(plan._id), plan]));
+
+  return activeCustomers
+    .map((customer) => {
+      const userId = String(customer._id);
+      const planId = customer.membershipPlanId;
+
+      if (!planId) {
+        return null;
+      }
+
+      const companyId = companyIdByCustomerId.get(userId);
+      if (!companyId) {
+        return null;
+      }
+
+      const company = companyById.get(companyId);
+      const plan = planById.get(planId);
+
+      if (!company || !plan) {
+        return null;
+      }
+
+      const planCredit = plan.creditAmount || 0;
+      const currentCredit = customer.currentCreditBalance || 0;
+      const usedCredit = Math.max(planCredit - currentCredit, 0);
+
+      return {
+        companyId,
+        companyName: getCompanyDisplayName(company),
+        userId,
+        userName: getCustomerDisplayName(customer),
+        userPhone: customer.primaryPhone || '',
+        planId,
+        planName: plan.name || 'Unknown plan',
+        planCredit,
+        currentCredit,
+        usedCredit,
+      };
+    })
+    .filter((row): row is OneFitDashboardCompanyUserStat => Boolean(row))
+    .sort((left, right) => {
+      if (left.companyName === right.companyName) {
+        return left.userName.localeCompare(right.userName);
+      }
+
+      return left.companyName.localeCompare(right.companyName);
+    });
+}
+
 async function getB2bB2cSalesCounts(
   context: IContext,
   startDate: Date,
@@ -856,6 +1075,7 @@ export const dashboardQueries: Record<string, Resolver> = {
       bookingsPrev,
       categoryDistribution,
       packageStats,
+      companyUserStats,
       b2bB2cSales,
       userGrowthByMonth,
     ] = await Promise.all([
@@ -869,6 +1089,7 @@ export const dashboardQueries: Record<string, Resolver> = {
       countBookingsInRange(context, prev.startDate, prev.endDate),
       getCategoryDistribution(context, startDate, endDate),
       getPackageStats(context, startDate, endDate),
+      getCompanyUserStats(context),
       getB2bB2cSalesCounts(context, startDate, endDate),
       getUserGrowthByMonth(context, startDate, endDate),
     ]);
@@ -887,6 +1108,7 @@ export const dashboardQueries: Record<string, Resolver> = {
       userGrowthByMonth,
       categoryDistribution,
       packageStats,
+      companyUserStats,
     };
   },
 };

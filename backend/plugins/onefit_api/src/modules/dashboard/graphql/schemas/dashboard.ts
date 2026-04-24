@@ -31,6 +31,19 @@ export const types = `
     usagePercent: Float!
   }
 
+  type OneFitDashboardCompanyUserStat {
+    companyId: String!
+    companyName: String!
+    userId: String!
+    userName: String!
+    userPhone: String
+    planId: String!
+    planName: String!
+    planCredit: Float!
+    currentCredit: Float!
+    usedCredit: Float!
+  }
+
   type OneFitDashboardB2bB2cSales {
     b2bCount: Int!
     b2cCount: Int!
@@ -55,6 +68,7 @@ export const types = `
     userGrowthByMonth: [OneFitDashboardUserGrowthMonth!]!
     categoryDistribution: [OneFitDashboardCategoryStat!]!
     packageStats: [OneFitDashboardPackageStat!]!
+    companyUserStats: [OneFitDashboardCompanyUserStat!]!
   }
 `;
 
