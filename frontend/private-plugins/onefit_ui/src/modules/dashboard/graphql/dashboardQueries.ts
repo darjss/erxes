@@ -62,6 +62,18 @@ export const ONE_FIT_DASHBOARD_STATS = gql`
         }
         usagePercent
       }
+      companyUserStats {
+        companyId
+        companyName
+        userId
+        userName
+        userPhone
+        planId
+        planName
+        planCredit
+        currentCredit
+        usedCredit
+      }
     }
   }
 `;

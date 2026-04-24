@@ -3,11 +3,7 @@ import { IBanner, BannerStatus } from '@/banner/@types/banner';
 import { requirePermission } from '~/utils/onefitPermissionCheck';
 
 export const bannerMutations = {
-  async oneFitBannerCreate(
-    _root: undefined,
-    doc: IBanner,
-    context: IContext,
-  ) {
+  async oneFitBannerCreate(_root: undefined, doc: IBanner, context: IContext) {
     await requirePermission(context, 'bannerManage');
     const { models } = context;
 
@@ -39,7 +35,11 @@ export const bannerMutations = {
       throw new Error('Banner not found');
     }
 
-    if (banner.instanceId && context.instanceId && banner.instanceId !== context.instanceId) {
+    if (
+      banner.instanceId &&
+      context.instanceId &&
+      banner.instanceId !== context.instanceId
+    ) {
       throw new Error('Banner not found');
     }
 
@@ -63,13 +63,15 @@ export const bannerMutations = {
     const { models, instanceId } = context;
 
     if (ids && ids.length > 0 && instanceId) {
-      const banners = await models.Banner.find({ 
+      const banners = await models.Banner.find({
         _id: { $in: ids },
-        instanceId 
+        instanceId,
       });
 
       if (banners.length !== ids.length) {
-        throw new Error('One or more banners not found or do not belong to this instance');
+        throw new Error(
+          'One or more banners not found or do not belong to this instance',
+        );
       }
     }
 

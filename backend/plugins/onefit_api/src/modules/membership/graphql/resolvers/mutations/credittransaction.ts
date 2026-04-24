@@ -95,9 +95,8 @@ export const creditTransactionMutations = {
   ) {
     await requirePermission(context, 'transactionCreate');
     const { models, subdomain } = context;
-    const currentBalance = await models.CreditTransaction.getUserBalance(
-      userId,
-    );
+    const currentBalance =
+      await models.CreditTransaction.getUserBalance(userId);
     const balanceAfter = currentBalance + amount;
 
     const defaultDescription =
@@ -272,9 +271,8 @@ export const creditTransactionMutations = {
     const finalDescription = description?.trim() ?? defaultDescription;
 
     for (const userId of userIds) {
-      const currentBalance = await models.CreditTransaction.getUserBalance(
-        userId,
-      );
+      const currentBalance =
+        await models.CreditTransaction.getUserBalance(userId);
       const balanceAfter = currentBalance + amount;
 
       const transaction = await models.CreditTransaction.createTransaction({

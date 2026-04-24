@@ -39,20 +39,20 @@ export function OneFitListPageLayout<TFilters>({
         </>
       }
     >
-      <div className="flex flex-auto overflow-hidden flex-col">
-        <PageSubHeader>
-          <div className="flex items-center gap-2">
-            <FiltersComponent
-              filters={filters}
-              onFiltersChange={onFiltersChange}
-            />
-            {!createDialogInHeader && createDialog}
-          </div>
-        </PageSubHeader>
-        <ScrollArea className="flex-auto">
-          <ListComponent filters={filters} />
-        </ScrollArea>
-      </div>
+      {/* <div className="flex flex-auto overflow-hidden flex-col"> */}
+      <PageSubHeader>
+        <div className="flex items-center gap-2">
+          <FiltersComponent
+            filters={filters}
+            onFiltersChange={onFiltersChange}
+          />
+          {!createDialogInHeader && createDialog}
+        </div>
+      </PageSubHeader>
+      {/* <ScrollArea className="flex-auto"> */}
+      <ListComponent filters={filters} />
+      {/* </ScrollArea> */}
+      {/* </div> */}
     </OneFitPageLayout>
   );
 }
