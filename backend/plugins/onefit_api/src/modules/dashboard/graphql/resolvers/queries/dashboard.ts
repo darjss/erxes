@@ -99,14 +99,9 @@ interface OneFitDashboardB2bB2cSales {
   b2cPercent: number;
 }
 
-interface IPromoCodeProjection {
-  _id: string;
-  isCompanyTag?: boolean;
-}
-
 interface IPurchaseProjection {
   _id: string;
-  promoCodeId?: string;
+  companyId?: string;
 }
 
 interface IPurchaseProjectionWithDates extends IPurchaseProjection {
@@ -204,7 +199,10 @@ function formatDayKeyUtc(date: Date): string {
   const y = date.getUTCFullYear();
   const month = date.getUTCMonth() + 1;
   const day = date.getUTCDate();
-  return `${y}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+  return `${y}-${String(month).padStart(2, '0')}-${String(day).padStart(
+    2,
+    '0',
+  )}`;
 }
 
 function getDayKeysOverlappingRange(startDate: Date, endDate: Date): string[] {
@@ -898,25 +896,52 @@ async function getB2bB2cSalesCounts(
   const { models } = context;
   const { gte, lte } = getBookingDateBounds(startDate, endDate);
 
-  const purchases = (await models.MembershipPurchase.find(
-    {
-      status: MembershipPurchaseStatus.PAID,
-      $or: [
-        { paidAt: { $gte: gte, $lte: lte } },
-        {
-          paidAt: { $exists: false },
-          purchasedAt: { $gte: gte, $lte: lte },
-        },
-        {
-          paidAt: null,
-          purchasedAt: { $gte: gte, $lte: lte },
-        },
-      ],
-    },
-    { _id: 1, promoCodeId: 1 },
-  ).lean()) as IPurchaseProjection[];
+  const purchaseMatch = {
+    status: MembershipPurchaseStatus.PAID,
+    $or: [
+      { paidAt: { $gte: gte, $lte: lte } },
+      {
+        paidAt: { $exists: false },
+        purchasedAt: { $gte: gte, $lte: lte },
+      },
+      {
+        paidAt: null,
+        purchasedAt: { $gte: gte, $lte: lte },
+      },
+    ],
+  };
 
-  if (!purchases.length) {
+  const [countResult] = await models.MembershipPurchase.aggregate([
+    { $match: purchaseMatch },
+    {
+      $group: {
+        _id: null,
+        total: { $sum: 1 },
+        b2bCount: {
+          $sum: {
+            $cond: [
+              {
+                $gt: [
+                  {
+                    $strLenCP: {
+                      $trim: {
+                        input: { $ifNull: ['$companyId', ''] },
+                      },
+                    },
+                  },
+                  0,
+                ],
+              },
+              1,
+              0,
+            ],
+          },
+        },
+      },
+    },
+  ]);
+
+  if (!countResult?.total) {
     return {
       b2bCount: 0,
       b2cCount: 0,
@@ -925,40 +950,8 @@ async function getB2bB2cSalesCounts(
     };
   }
 
-  const promoCodeIds = [
-    ...new Set(
-      purchases
-        .map((purchase) => purchase.promoCodeId)
-        .filter((promoCodeId): promoCodeId is string => Boolean(promoCodeId)),
-    ),
-  ];
-
-  const promoCodes = promoCodeIds.length
-    ? ((await models.PromoCode.find(
-        { _id: { $in: promoCodeIds } },
-        { _id: 1, isCompanyTag: 1 },
-      ).lean()) as IPromoCodeProjection[])
-    : [];
-
-  const companyTagByPromoCodeId = new Map(
-    promoCodes.map((promoCode) => [
-      String(promoCode._id),
-      !!promoCode.isCompanyTag,
-    ]),
-  );
-
-  let b2bCount = 0;
-  for (const purchase of purchases) {
-    if (!purchase.promoCodeId) {
-      continue;
-    }
-
-    if (companyTagByPromoCodeId.get(String(purchase.promoCodeId))) {
-      b2bCount += 1;
-    }
-  }
-
-  const total = purchases.length;
+  const total = countResult.total;
+  const b2bCount = countResult.b2bCount || 0;
   const b2cCount = Math.max(total - b2bCount, 0);
 
   return {
@@ -1032,30 +1025,8 @@ async function getUserGrowthByMonth(
         },
       ],
     },
-    { _id: 1, promoCodeId: 1, paidAt: 1, purchasedAt: 1 },
+    { _id: 1, companyId: 1, paidAt: 1, purchasedAt: 1 },
   ).lean()) as IPurchaseProjectionWithDates[];
-
-  const promoCodeIds = [
-    ...new Set(
-      purchases
-        .map((purchase) => purchase.promoCodeId)
-        .filter((promoCodeId): promoCodeId is string => Boolean(promoCodeId)),
-    ),
-  ];
-
-  const promoCodes = promoCodeIds.length
-    ? ((await models.PromoCode.find(
-        { _id: { $in: promoCodeIds } },
-        { _id: 1, isCompanyTag: 1 },
-      ).lean()) as IPromoCodeProjection[])
-    : [];
-
-  const companyTagByPromoCodeId = new Map(
-    promoCodes.map((promoCode) => [
-      String(promoCode._id),
-      !!promoCode.isCompanyTag,
-    ]),
-  );
 
   for (const purchase of purchases) {
     const effectiveDate = getEffectivePurchaseDate(purchase);
@@ -1067,10 +1038,7 @@ async function getUserGrowthByMonth(
       continue;
     }
     const entry = countsByMonth.get(key)!;
-    if (
-      purchase.promoCodeId &&
-      companyTagByPromoCodeId.get(String(purchase.promoCodeId))
-    ) {
+    if (purchase.companyId) {
       entry.b2bUsers += 1;
     } else {
       entry.b2cUsers += 1;
