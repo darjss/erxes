@@ -40,6 +40,12 @@ export const ONE_FIT_DASHBOARD_STATS = gql`
         b2cUsers
         newUsers
       }
+      bookingStatusByDay {
+        dayKey
+        bookings
+        completed
+        noShow
+      }
       categoryDistribution {
         categoryId
         label

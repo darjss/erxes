@@ -121,6 +121,13 @@ interface OneFitDashboardUserGrowthMonth {
   newUsers: number;
 }
 
+interface OneFitDashboardBookingStatusDay {
+  dayKey: string;
+  bookings: number;
+  completed: number;
+  noShow: number;
+}
+
 function buildMetric(
   value: number,
   previousValue: number | null,
@@ -191,6 +198,32 @@ function formatMonthKeyUtc(date: Date): string {
   const y = date.getUTCFullYear();
   const month = date.getUTCMonth() + 1;
   return `${y}-${String(month).padStart(2, '0')}`;
+}
+
+function formatDayKeyUtc(date: Date): string {
+  const y = date.getUTCFullYear();
+  const month = date.getUTCMonth() + 1;
+  const day = date.getUTCDate();
+  return `${y}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+}
+
+function getDayKeysOverlappingRange(startDate: Date, endDate: Date): string[] {
+  const start = getPureDate(startDate);
+  const end = getPureDate(endDate);
+
+  if (start.getTime() > end.getTime()) {
+    return [];
+  }
+
+  const keys: string[] = [];
+  const current = new Date(start);
+
+  while (current.getTime() <= end.getTime()) {
+    keys.push(formatDayKeyUtc(current));
+    current.setUTCDate(current.getUTCDate() + 1);
+  }
+
+  return keys;
 }
 
 function getEffectivePurchaseDate(
@@ -1055,6 +1088,76 @@ async function getUserGrowthByMonth(
   });
 }
 
+async function getBookingStatusByDay(
+  context: IContext,
+  startDate: Date,
+  endDate: Date,
+): Promise<OneFitDashboardBookingStatusDay[]> {
+  const { models } = context;
+  const filter = await buildBookingFilterForRange(context, startDate, endDate);
+  const dayKeys = getDayKeysOverlappingRange(startDate, endDate);
+
+  const countsByDay = new Map<
+    string,
+    { bookings: number; completed: number; noShow: number }
+  >();
+
+  for (const dayKey of dayKeys) {
+    countsByDay.set(dayKey, { bookings: 0, completed: 0, noShow: 0 });
+  }
+
+  const rows = await models.Booking.aggregate([
+    {
+      $match: filter,
+    },
+    {
+      $group: {
+        _id: {
+          $dateToString: {
+            format: '%Y-%m-%d',
+            date: '$bookingDate',
+            timezone: 'UTC',
+          },
+        },
+        bookings: { $sum: 1 },
+        completed: {
+          $sum: {
+            $cond: [{ $eq: ['$status', BookingStatus.COMPLETED] }, 1, 0],
+          },
+        },
+        noShow: {
+          $sum: {
+            $cond: [{ $eq: ['$status', BookingStatus.NO_SHOW] }, 1, 0],
+          },
+        },
+      },
+    },
+  ]);
+
+  for (const row of rows) {
+    const key = row._id as string;
+    if (!countsByDay.has(key)) {
+      continue;
+    }
+
+    countsByDay.set(key, {
+      bookings: row.bookings || 0,
+      completed: row.completed || 0,
+      noShow: row.noShow || 0,
+    });
+  }
+
+  return dayKeys.map((dayKey) => {
+    const counts = countsByDay.get(dayKey)!;
+    return {
+      dayKey,
+      bookings: counts.bookings,
+      completed: counts.completed,
+      noShow: counts.noShow,
+    };
+  });
+}
+
 export const dashboardQueries: Record<string, Resolver> = {
   async oneFitDashboardStats(
     _root: undefined,
@@ -1078,6 +1181,7 @@ export const dashboardQueries: Record<string, Resolver> = {
       companyUserStats,
       b2bB2cSales,
       userGrowthByMonth,
+      bookingStatusByDay,
     ] = await Promise.all([
       countTotalOneFitUsers(context),
       countTotalOneFitUsersAsOf(context, prev.endDate),
@@ -1092,6 +1196,7 @@ export const dashboardQueries: Record<string, Resolver> = {
       getCompanyUserStats(context),
       getB2bB2cSalesCounts(context, startDate, endDate),
       getUserGrowthByMonth(context, startDate, endDate),
+      getBookingStatusByDay(context, startDate, endDate),
     ]);
 
     const avgCurrent = activeCurrent > 0 ? bookingsCurrent / activeCurrent : 0;
@@ -1106,6 +1211,7 @@ export const dashboardQueries: Record<string, Resolver> = {
       averageBookingsPerActiveUserInPeriod: buildMetric(avgCurrent, avgPrev),
       b2bB2cSales,
       userGrowthByMonth,
+      bookingStatusByDay,
       categoryDistribution,
       packageStats,
       companyUserStats,
