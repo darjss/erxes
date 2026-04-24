@@ -106,4 +106,3 @@ export function useMembershipPurchases(filters?: MembershipPurchaseFilters) {
     refetch: handleRefetch,
   };
 }
-

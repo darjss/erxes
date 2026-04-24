@@ -55,7 +55,10 @@ export function MembershipPurchaseFiltersComponent({
         <Select
           value={filters.planId || '__all__'}
           onValueChange={(value) =>
-            handleFilterChange('planId', value === '__all__' ? undefined : value)
+            handleFilterChange(
+              'planId',
+              value === '__all__' ? undefined : value,
+            )
           }
         >
           <Select.Trigger>
@@ -188,4 +191,3 @@ export function MembershipPurchaseFiltersComponent({
     </OneFitFilterBase>
   );
 }
-

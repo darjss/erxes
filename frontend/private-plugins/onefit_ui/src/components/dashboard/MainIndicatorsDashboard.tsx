@@ -496,10 +496,7 @@ export function MainIndicatorsDashboard() {
     () =>
       bookingStatusByDay.map((row) => ({
         ...row,
-        dayLabel: format(
-          parse(row.dayKey, 'yyyy-MM-dd', new Date()),
-          'MMM dd',
-        ),
+        dayLabel: format(parse(row.dayKey, 'yyyy-MM-dd', new Date()), 'MMM dd'),
       })),
     [bookingStatusByDay],
   );
@@ -685,7 +682,10 @@ export function MainIndicatorsDashboard() {
                 formatter={(value: number) => value.toLocaleString()}
                 labelFormatter={(label) => String(label)}
               />
-              <Legend verticalAlign="bottom" wrapperStyle={{ paddingTop: 16 }} />
+              <Legend
+                verticalAlign="bottom"
+                wrapperStyle={{ paddingTop: 16 }}
+              />
               <Line
                 type="monotone"
                 name="Bookings"
@@ -693,7 +693,11 @@ export function MainIndicatorsDashboard() {
                 stroke={BOOKINGS_COLOR}
                 strokeWidth={2}
                 dot={{ r: 3, fill: BOOKINGS_COLOR, stroke: BOOKINGS_COLOR }}
-                activeDot={{ r: 5, fill: BOOKINGS_COLOR, stroke: BOOKINGS_COLOR }}
+                activeDot={{
+                  r: 5,
+                  fill: BOOKINGS_COLOR,
+                  stroke: BOOKINGS_COLOR,
+                }}
               />
               <Line
                 type="monotone"
@@ -702,7 +706,11 @@ export function MainIndicatorsDashboard() {
                 stroke={COMPLETED_COLOR}
                 strokeWidth={2}
                 dot={{ r: 3, fill: COMPLETED_COLOR, stroke: COMPLETED_COLOR }}
-                activeDot={{ r: 5, fill: COMPLETED_COLOR, stroke: COMPLETED_COLOR }}
+                activeDot={{
+                  r: 5,
+                  fill: COMPLETED_COLOR,
+                  stroke: COMPLETED_COLOR,
+                }}
               />
               <Line
                 type="monotone"
