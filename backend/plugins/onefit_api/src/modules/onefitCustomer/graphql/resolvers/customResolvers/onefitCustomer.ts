@@ -101,6 +101,21 @@ export default {
       }
       return customer.totalBookings || 0;
     },
+    oneFitPaidNotActivatedPurchasesCount: async (
+      customer: IOneFitCustomerDocument,
+      _args: undefined,
+      { models }: IContext,
+    ) => {
+      if (!customer?._id) {
+        return 0;
+      }
+
+      return models.MembershipPurchase.countDocuments({
+        userId: customer._id,
+        status: 'paid',
+        activatedAt: null,
+      });
+    },
   },
 
   OneFitCustomer: {
@@ -137,5 +152,20 @@ export default {
       customer?.lastBookingDate ?? null,
     oneFitTotalBookings: (customer: IOneFitCustomerDocument) =>
       customer?.totalBookings ?? 0,
+    oneFitPaidNotActivatedPurchasesCount: async (
+      customer: IOneFitCustomerDocument,
+      _args: undefined,
+      { models }: IContext,
+    ) => {
+      if (!customer?._id) {
+        return 0;
+      }
+
+      return models.MembershipPurchase.countDocuments({
+        userId: customer._id,
+        status: 'paid',
+        activatedAt: null,
+      });
+    },
   },
 };

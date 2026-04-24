@@ -1,4 +1,5 @@
 import { ColumnDef } from '@tanstack/table-core';
+import { useQuery } from '@apollo/client';
 import {
   Badge,
   Button,
@@ -8,6 +9,7 @@ import {
 } from 'erxes-ui';
 import { useMemo, useState } from 'react';
 import { OneFitCustomersInline } from '~/modules/onefitCustomer/components/OneFitCustomersInline';
+import { ONE_FIT_MEMBERSHIP_PURCHASES } from '../graphql/membershipPurchaseQueries';
 import { useMembershipPurchases } from '../hooks/useMembershipPurchases';
 import {
   MembershipPurchaseFilters,
@@ -19,6 +21,7 @@ import { QrCodeDialog } from './QrCodeDialog';
 
 interface MembershipPurchasesListProps {
   filters?: MembershipPurchaseFilters;
+  onFiltersChange?: (filters: MembershipPurchaseFilters) => void;
 }
 
 function getStatusBadgeVariant(status?: OneFitMembershipPurchase['status']) {
@@ -38,9 +41,20 @@ function getStatusBadgeVariant(status?: OneFitMembershipPurchase['status']) {
 
 export function MembershipPurchasesList({
   filters,
+  onFiltersChange,
 }: MembershipPurchasesListProps) {
   const { membershipPurchases, handleFetchMore, loading, pageInfo } =
     useMembershipPurchases(filters);
+  const { data: needActivationData } = useQuery(ONE_FIT_MEMBERSHIP_PURCHASES, {
+    variables: {
+      isNeedActivation: true,
+      limit: 1,
+    },
+  });
+
+  const needActivationCount =
+    needActivationData?.oneFitMembershipPurchases?.totalCount || 0;
+  const isNeedActivationFiltered = filters?.isNeedActivation === true;
 
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
 
@@ -280,6 +294,28 @@ export function MembershipPurchasesList({
 
   return (
     <>
+      {needActivationCount > 0 && (
+        <div className="mx-3 mt-3 rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-900">
+          <button
+            type="button"
+            className="font-medium underline underline-offset-2"
+            onClick={() =>
+              onFiltersChange?.({
+                ...(filters || {}),
+                status: undefined,
+                isActivated: undefined,
+                isPaidNotActivated: undefined,
+                isNeedActivation: !isNeedActivationFiltered,
+              })
+            }
+          >
+            {needActivationCount} customer
+            {needActivationCount > 1 ? 's' : ''} need activation
+          </button>{' '}
+          (expires today or past due)
+        </div>
+      )}
+
       <RecordTable.Provider
         columns={columns}
         data={membershipPurchases || []}

@@ -12,16 +12,40 @@ import { MembershipPurchaseFilters } from '../types/membershipPurchase';
 
 const MEMBERSHIP_PURCHASES_PER_PAGE = 20;
 
+function buildOrderBy(filters?: MembershipPurchaseFilters) {
+  const sortField = filters?.sortField || 'createdAt';
+  const sortDirection = filters?.sortDirection || 'desc';
+  const sortOrder = sortDirection === 'asc' ? 1 : -1;
+
+  return {
+    [sortField]: sortOrder,
+  };
+}
+
 export function useMembershipPurchases(filters?: MembershipPurchaseFilters) {
   const { cursor } = useRecordTableCursor({
     sessionKey: MEMBERSHIP_PURCHASES_CURSOR_SESSION_KEY,
   });
+  const orderBy = buildOrderBy(filters);
+
+  const queryFilters =
+    filters?.isPaidNotActivated === true
+      ? {
+          ...filters,
+          status: 'paid',
+          isActivated: false,
+          orderBy,
+        }
+      : {
+          ...filters,
+          orderBy,
+        };
 
   const { data, loading, error, fetchMore, refetch } = useQuery(
     ONE_FIT_MEMBERSHIP_PURCHASES,
     {
       variables: {
-        ...filters,
+        ...queryFilters,
         cursor,
         limit: MEMBERSHIP_PURCHASES_PER_PAGE,
       },
@@ -43,7 +67,7 @@ export function useMembershipPurchases(filters?: MembershipPurchaseFilters) {
 
     fetchMore({
       variables: {
-        ...filters,
+        ...queryFilters,
         cursor:
           direction === EnumCursorDirection.FORWARD
             ? pageInfo?.endCursor
@@ -66,11 +90,11 @@ export function useMembershipPurchases(filters?: MembershipPurchaseFilters) {
 
   const handleRefetch = useCallback(() => {
     return refetch({
-      ...filters,
+      ...queryFilters,
       cursor,
       limit: MEMBERSHIP_PURCHASES_PER_PAGE,
     });
-  }, [refetch, filters, cursor]);
+  }, [refetch, queryFilters, cursor]);
 
   return {
     membershipPurchases,

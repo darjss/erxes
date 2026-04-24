@@ -96,6 +96,9 @@ const membershipPurchaseQueryParams = `
   userId: String,
   status: String,
   planId: String,
+  isActivated: Boolean,
+  isNeedActivation: Boolean,
+  orderBy: JSON,
 `;
 
 const cpMembershipPurchaseQueryParams = `

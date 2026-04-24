@@ -6,12 +6,18 @@ export const ONE_FIT_MEMBERSHIP_PURCHASES = gql`
     $userId: String
     $status: String
     $planId: String
+    $isActivated: Boolean
+    $isNeedActivation: Boolean
+    $orderBy: JSON
     ${GQL_CURSOR_PARAM_DEFS}
   ) {
     oneFitMembershipPurchases(
       userId: $userId
       status: $status
       planId: $planId
+      isActivated: $isActivated
+      isNeedActivation: $isNeedActivation
+      orderBy: $orderBy
       ${GQL_CURSOR_PARAMS}
     ) {
       list {

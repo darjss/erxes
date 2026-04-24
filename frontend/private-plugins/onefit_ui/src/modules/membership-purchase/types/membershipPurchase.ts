@@ -48,4 +48,15 @@ export interface MembershipPurchaseFilters {
   userId?: string;
   status?: string;
   planId?: string;
+  isActivated?: boolean;
+  isPaidNotActivated?: boolean;
+  isNeedActivation?: boolean;
+  sortField?:
+    | 'createdAt'
+    | 'purchasedAt'
+    | 'paidAt'
+    | 'activatedAt'
+    | 'expiresAt'
+    | 'amount';
+  sortDirection?: 'asc' | 'desc';
 }

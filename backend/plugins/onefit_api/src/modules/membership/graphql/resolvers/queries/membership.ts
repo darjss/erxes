@@ -24,6 +24,9 @@ export interface IMembershipPurchaseQueryParams extends ICursorPaginateParams {
   userId?: string;
   status?: string;
   planId?: string;
+  isActivated?: boolean;
+  isNeedActivation?: boolean;
+  orderBy?: Record<string, 1 | -1>;
 }
 
 export interface ICPMembershipPurchaseQueryParams extends ICursorPaginateParams {
@@ -81,7 +84,15 @@ export const membershipQueries: Record<string, Resolver> = {
     context: IContext,
   ) {
     const { models } = context;
-    const { userId, status, planId, ...paginationParams } = params;
+    const {
+      userId,
+      status,
+      planId,
+      isActivated,
+      isNeedActivation,
+      orderBy,
+      ...paginationParams
+    } = params;
 
     const filter: any = {};
     if (userId) {
@@ -93,12 +104,20 @@ export const membershipQueries: Record<string, Resolver> = {
     if (planId) {
       filter.planId = planId;
     }
+    if (isActivated !== undefined) {
+      filter.activatedAt = isActivated ? { $ne: null } : null;
+    }
+    if (isNeedActivation) {
+      filter.status = 'paid';
+      filter.activatedAt = null;
+      filter.expiresAt = { $lte: new Date() };
+    }
 
     return await cursorPaginate({
       model: models.MembershipPurchase,
       params: {
         ...paginationParams,
-        orderBy: { createdAt: -1 },
+        orderBy: orderBy || { createdAt: -1 },
       },
       query: filter,
     });
