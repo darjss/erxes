@@ -21,6 +21,11 @@ export const membershipPurchaseSchema = new Schema(
       index: true,
       label: 'User ID',
     },
+    companyId: {
+      type: String,
+      index: true,
+      label: 'Company ID',
+    },
     planId: {
       type: String,
       required: true,

@@ -14,6 +14,7 @@ interface SelectCompanyProps {
   onValueChange: (value: string) => void;
   placeholder?: string;
   disabled?: boolean;
+  valueLabel?: string;
 }
 
 export function SelectCompany({
@@ -21,6 +22,7 @@ export function SelectCompany({
   onValueChange,
   placeholder = 'Select company',
   disabled,
+  valueLabel,
 }: SelectCompanyProps) {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState('');
@@ -43,10 +45,12 @@ export function SelectCompany({
       setSelectedLabel('');
     } else if (selectedFromList?.primaryName) {
       setSelectedLabel(selectedFromList.primaryName);
+    } else if (valueLabel) {
+      setSelectedLabel(valueLabel);
     } else {
       setSelectedLabel((prev) => prev || value);
     }
-  }, [value, selectedFromList?.primaryName, selectedFromList?._id]);
+  }, [value, valueLabel, selectedFromList?.primaryName, selectedFromList?._id]);
 
   useEffect(() => {
     if (!open) {

@@ -99,14 +99,9 @@ interface OneFitDashboardB2bB2cSales {
   b2cPercent: number;
 }
 
-interface IPromoCodeProjection {
-  _id: string;
-  isCompanyTag?: boolean;
-}
-
 interface IPurchaseProjection {
   _id: string;
-  promoCodeId?: string;
+  companyId?: string;
 }
 
 interface IPurchaseProjectionWithDates extends IPurchaseProjection {
@@ -119,6 +114,13 @@ interface OneFitDashboardUserGrowthMonth {
   b2bUsers: number;
   b2cUsers: number;
   newUsers: number;
+}
+
+interface OneFitDashboardBookingStatusDay {
+  dayKey: string;
+  bookings: number;
+  completed: number;
+  noShow: number;
 }
 
 function buildMetric(
@@ -191,6 +193,35 @@ function formatMonthKeyUtc(date: Date): string {
   const y = date.getUTCFullYear();
   const month = date.getUTCMonth() + 1;
   return `${y}-${String(month).padStart(2, '0')}`;
+}
+
+function formatDayKeyUtc(date: Date): string {
+  const y = date.getUTCFullYear();
+  const month = date.getUTCMonth() + 1;
+  const day = date.getUTCDate();
+  return `${y}-${String(month).padStart(2, '0')}-${String(day).padStart(
+    2,
+    '0',
+  )}`;
+}
+
+function getDayKeysOverlappingRange(startDate: Date, endDate: Date): string[] {
+  const start = getPureDate(startDate);
+  const end = getPureDate(endDate);
+
+  if (start.getTime() > end.getTime()) {
+    return [];
+  }
+
+  const keys: string[] = [];
+  const current = new Date(start);
+
+  while (current.getTime() <= end.getTime()) {
+    keys.push(formatDayKeyUtc(current));
+    current.setUTCDate(current.getUTCDate() + 1);
+  }
+
+  return keys;
 }
 
 function getEffectivePurchaseDate(
@@ -865,25 +896,52 @@ async function getB2bB2cSalesCounts(
   const { models } = context;
   const { gte, lte } = getBookingDateBounds(startDate, endDate);
 
-  const purchases = (await models.MembershipPurchase.find(
-    {
-      status: MembershipPurchaseStatus.PAID,
-      $or: [
-        { paidAt: { $gte: gte, $lte: lte } },
-        {
-          paidAt: { $exists: false },
-          purchasedAt: { $gte: gte, $lte: lte },
-        },
-        {
-          paidAt: null,
-          purchasedAt: { $gte: gte, $lte: lte },
-        },
-      ],
-    },
-    { _id: 1, promoCodeId: 1 },
-  ).lean()) as IPurchaseProjection[];
+  const purchaseMatch = {
+    status: MembershipPurchaseStatus.PAID,
+    $or: [
+      { paidAt: { $gte: gte, $lte: lte } },
+      {
+        paidAt: { $exists: false },
+        purchasedAt: { $gte: gte, $lte: lte },
+      },
+      {
+        paidAt: null,
+        purchasedAt: { $gte: gte, $lte: lte },
+      },
+    ],
+  };
 
-  if (!purchases.length) {
+  const [countResult] = await models.MembershipPurchase.aggregate([
+    { $match: purchaseMatch },
+    {
+      $group: {
+        _id: null,
+        total: { $sum: 1 },
+        b2bCount: {
+          $sum: {
+            $cond: [
+              {
+                $gt: [
+                  {
+                    $strLenCP: {
+                      $trim: {
+                        input: { $ifNull: ['$companyId', ''] },
+                      },
+                    },
+                  },
+                  0,
+                ],
+              },
+              1,
+              0,
+            ],
+          },
+        },
+      },
+    },
+  ]);
+
+  if (!countResult?.total) {
     return {
       b2bCount: 0,
       b2cCount: 0,
@@ -892,40 +950,8 @@ async function getB2bB2cSalesCounts(
     };
   }
 
-  const promoCodeIds = [
-    ...new Set(
-      purchases
-        .map((purchase) => purchase.promoCodeId)
-        .filter((promoCodeId): promoCodeId is string => Boolean(promoCodeId)),
-    ),
-  ];
-
-  const promoCodes = promoCodeIds.length
-    ? ((await models.PromoCode.find(
-        { _id: { $in: promoCodeIds } },
-        { _id: 1, isCompanyTag: 1 },
-      ).lean()) as IPromoCodeProjection[])
-    : [];
-
-  const companyTagByPromoCodeId = new Map(
-    promoCodes.map((promoCode) => [
-      String(promoCode._id),
-      !!promoCode.isCompanyTag,
-    ]),
-  );
-
-  let b2bCount = 0;
-  for (const purchase of purchases) {
-    if (!purchase.promoCodeId) {
-      continue;
-    }
-
-    if (companyTagByPromoCodeId.get(String(purchase.promoCodeId))) {
-      b2bCount += 1;
-    }
-  }
-
-  const total = purchases.length;
+  const total = countResult.total;
+  const b2bCount = countResult.b2bCount || 0;
   const b2cCount = Math.max(total - b2bCount, 0);
 
   return {
@@ -999,30 +1025,8 @@ async function getUserGrowthByMonth(
         },
       ],
     },
-    { _id: 1, promoCodeId: 1, paidAt: 1, purchasedAt: 1 },
+    { _id: 1, companyId: 1, paidAt: 1, purchasedAt: 1 },
   ).lean()) as IPurchaseProjectionWithDates[];
-
-  const promoCodeIds = [
-    ...new Set(
-      purchases
-        .map((purchase) => purchase.promoCodeId)
-        .filter((promoCodeId): promoCodeId is string => Boolean(promoCodeId)),
-    ),
-  ];
-
-  const promoCodes = promoCodeIds.length
-    ? ((await models.PromoCode.find(
-        { _id: { $in: promoCodeIds } },
-        { _id: 1, isCompanyTag: 1 },
-      ).lean()) as IPromoCodeProjection[])
-    : [];
-
-  const companyTagByPromoCodeId = new Map(
-    promoCodes.map((promoCode) => [
-      String(promoCode._id),
-      !!promoCode.isCompanyTag,
-    ]),
-  );
 
   for (const purchase of purchases) {
     const effectiveDate = getEffectivePurchaseDate(purchase);
@@ -1034,10 +1038,7 @@ async function getUserGrowthByMonth(
       continue;
     }
     const entry = countsByMonth.get(key)!;
-    if (
-      purchase.promoCodeId &&
-      companyTagByPromoCodeId.get(String(purchase.promoCodeId))
-    ) {
+    if (purchase.companyId) {
       entry.b2bUsers += 1;
     } else {
       entry.b2cUsers += 1;
@@ -1051,6 +1052,76 @@ async function getUserGrowthByMonth(
       b2bUsers: bucket.b2bUsers,
       b2cUsers: bucket.b2cUsers,
       newUsers: bucket.newUsers,
+    };
+  });
+}
+
+async function getBookingStatusByDay(
+  context: IContext,
+  startDate: Date,
+  endDate: Date,
+): Promise<OneFitDashboardBookingStatusDay[]> {
+  const { models } = context;
+  const filter = await buildBookingFilterForRange(context, startDate, endDate);
+  const dayKeys = getDayKeysOverlappingRange(startDate, endDate);
+
+  const countsByDay = new Map<
+    string,
+    { bookings: number; completed: number; noShow: number }
+  >();
+
+  for (const dayKey of dayKeys) {
+    countsByDay.set(dayKey, { bookings: 0, completed: 0, noShow: 0 });
+  }
+
+  const rows = await models.Booking.aggregate([
+    {
+      $match: filter,
+    },
+    {
+      $group: {
+        _id: {
+          $dateToString: {
+            format: '%Y-%m-%d',
+            date: '$bookingDate',
+            timezone: 'UTC',
+          },
+        },
+        bookings: { $sum: 1 },
+        completed: {
+          $sum: {
+            $cond: [{ $eq: ['$status', BookingStatus.COMPLETED] }, 1, 0],
+          },
+        },
+        noShow: {
+          $sum: {
+            $cond: [{ $eq: ['$status', BookingStatus.NO_SHOW] }, 1, 0],
+          },
+        },
+      },
+    },
+  ]);
+
+  for (const row of rows) {
+    const key = row._id as string;
+    if (!countsByDay.has(key)) {
+      continue;
+    }
+
+    countsByDay.set(key, {
+      bookings: row.bookings || 0,
+      completed: row.completed || 0,
+      noShow: row.noShow || 0,
+    });
+  }
+
+  return dayKeys.map((dayKey) => {
+    const counts = countsByDay.get(dayKey)!;
+    return {
+      dayKey,
+      bookings: counts.bookings,
+      completed: counts.completed,
+      noShow: counts.noShow,
     };
   });
 }
@@ -1078,6 +1149,7 @@ export const dashboardQueries: Record<string, Resolver> = {
       companyUserStats,
       b2bB2cSales,
       userGrowthByMonth,
+      bookingStatusByDay,
     ] = await Promise.all([
       countTotalOneFitUsers(context),
       countTotalOneFitUsersAsOf(context, prev.endDate),
@@ -1092,6 +1164,7 @@ export const dashboardQueries: Record<string, Resolver> = {
       getCompanyUserStats(context),
       getB2bB2cSalesCounts(context, startDate, endDate),
       getUserGrowthByMonth(context, startDate, endDate),
+      getBookingStatusByDay(context, startDate, endDate),
     ]);
 
     const avgCurrent = activeCurrent > 0 ? bookingsCurrent / activeCurrent : 0;
@@ -1106,6 +1179,7 @@ export const dashboardQueries: Record<string, Resolver> = {
       averageBookingsPerActiveUserInPeriod: buildMetric(avgCurrent, avgPrev),
       b2bB2cSales,
       userGrowthByMonth,
+      bookingStatusByDay,
       categoryDistribution,
       packageStats,
       companyUserStats,

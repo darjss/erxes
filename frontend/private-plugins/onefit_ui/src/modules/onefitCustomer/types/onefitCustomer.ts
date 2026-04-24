@@ -35,6 +35,7 @@ export interface OneFitCustomer {
   oneFitBookingPreferences?: OneFitBookingPreferences;
   oneFitLastBookingDate?: string;
   oneFitTotalBookings?: number;
+  oneFitPaidNotActivatedPurchasesCount?: number;
 }
 
 export interface OneFitCustomerListResponse {

@@ -36,6 +36,7 @@ export const types = `
     oneFitBookingPreferences: OneFitBookingPreferences
     oneFitLastBookingDate: Date
     oneFitTotalBookings: Int
+    oneFitPaidNotActivatedPurchasesCount: Int
   }
 
   # Parallel type for use in booking/credit consumption (OneFit-specific customer view)
@@ -70,6 +71,7 @@ export const types = `
     oneFitBookingPreferences: OneFitBookingPreferences
     oneFitLastBookingDate: Date
     oneFitTotalBookings: Int
+    oneFitPaidNotActivatedPurchasesCount: Int
     createdAt: Date
     updatedAt: Date
   }

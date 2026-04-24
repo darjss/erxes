@@ -44,6 +44,9 @@ const getMembershipStatusBadgeVariant = (status?: OneFitMembershipStatus) => {
 export const OneFitCustomersList = ({ filters }: OneFitCustomersListProps) => {
   const { customers, handleFetchMore, loading, pageInfo, totalCount } =
     useOneFitCustomers(filters);
+  const [paidNotActivatedSortDir, setPaidNotActivatedSortDir] = useState<
+    'asc' | 'desc' | null
+  >(null);
   const [selectedCustomer, setSelectedCustomer] = useState<string | null>(null);
   const [detailSheetOpen, setDetailSheetOpen] = useState(false);
   const [membershipDialogOpen, setMembershipDialogOpen] = useState(false);
@@ -99,6 +102,25 @@ export const OneFitCustomersList = ({ filters }: OneFitCustomersListProps) => {
     });
     return map;
   }, [membershipPlans]);
+
+  const sortedCustomers = useMemo(() => {
+    const baseCustomers = customers || [];
+
+    if (!paidNotActivatedSortDir) {
+      return baseCustomers;
+    }
+
+    return [...baseCustomers].sort((a: any, b: any) => {
+      const aCount = Number(a.oneFitPaidNotActivatedPurchasesCount) || 0;
+      const bCount = Number(b.oneFitPaidNotActivatedPurchasesCount) || 0;
+
+      if (paidNotActivatedSortDir === 'asc') {
+        return aCount - bCount;
+      }
+
+      return bCount - aCount;
+    });
+  }, [customers, paidNotActivatedSortDir]);
 
   const columns: ColumnDef<any>[] = useMemo(
     () => [
@@ -293,6 +315,37 @@ export const OneFitCustomersList = ({ filters }: OneFitCustomersListProps) => {
         },
       },
       {
+        accessorKey: 'oneFitPaidNotActivatedPurchasesCount',
+        header: () => (
+          <button
+            type="button"
+            className="relative z-20 pointer-events-auto inline-flex items-center gap-1 text-xs font-medium"
+            onClick={() =>
+              setPaidNotActivatedSortDir((prev) =>
+                prev === 'desc' ? 'asc' : prev === 'asc' ? null : 'desc',
+              )
+            }
+          >
+            <span>Paid Not Activated</span>
+            <span className="text-muted-foreground">
+              {paidNotActivatedSortDir === 'desc'
+                ? '↓'
+                : paidNotActivatedSortDir === 'asc'
+                  ? '↑'
+                  : '↕'}
+            </span>
+          </button>
+        ),
+        cell: ({ cell }) => {
+          const count = cell.getValue() as number;
+          return (
+            <RecordTableInlineCell className="text-xs font-medium">
+              {count ?? 0}
+            </RecordTableInlineCell>
+          );
+        },
+      },
+      {
         accessorKey: 'oneFitLastBookingDate',
         header: 'Last Booking',
         cell: ({ cell }) => {
@@ -333,7 +386,7 @@ export const OneFitCustomersList = ({ filters }: OneFitCustomersListProps) => {
       //   },
       // },
     ],
-    [membershipPlanMap],
+    [membershipPlanMap, paidNotActivatedSortDir],
   );
 
   const customerCountLabel =
@@ -353,7 +406,7 @@ export const OneFitCustomersList = ({ filters }: OneFitCustomersListProps) => {
         </div> */}
       <RecordTable.Provider
         columns={columns}
-        data={customers || []}
+        data={sortedCustomers}
         stickyColumns={['firstName']}
         className="m-3 overflow-x-auto"
       >

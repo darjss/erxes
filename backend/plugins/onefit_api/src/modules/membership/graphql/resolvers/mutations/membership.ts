@@ -97,6 +97,21 @@ export const membershipMutations: Record<string, Resolver> = {
     return await activateMembershipPurchase(_id, context);
   },
 
+  async oneFitMembershipPurchaseCompanyUpdate(
+    _root: undefined,
+    { _id, companyId }: { _id: string; companyId?: string },
+    context: IContext,
+  ) {
+    await requirePermission(context, 'membershipPurchaseManage');
+    const { models } = context;
+
+    await models.MembershipPurchase.getPurchase(_id);
+
+    return await models.MembershipPurchase.updatePurchase(_id, {
+      companyId: companyId || undefined,
+    });
+  },
+
   async cpOneFitMembershipPurchaseCreate(
     _root: undefined,
     {

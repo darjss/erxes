@@ -14,6 +14,29 @@ const resolvers = {
       }
       return await models.OneFitCustomer.findOne({ _id: purchase.userId });
     },
+    company: async (
+      purchase: IMembershipPurchaseDocument,
+      _params: undefined,
+      context: IContext,
+    ) => {
+      const { subdomain } = context;
+
+      if (purchase.companyId) {
+        return await sendTRPCMessage({
+          subdomain,
+          pluginName: 'core',
+          method: 'query',
+          module: 'companies',
+          action: 'findOne',
+          input: {
+            query: { _id: purchase.companyId },
+          },
+          defaultValue: null,
+        });
+      }
+
+      return null;
+    },
     plan: async (
       purchase: IMembershipPurchaseDocument,
       _params: undefined,

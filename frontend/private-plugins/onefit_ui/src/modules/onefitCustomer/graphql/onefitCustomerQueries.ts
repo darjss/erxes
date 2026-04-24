@@ -55,6 +55,7 @@ export const ONE_FIT_CUSTOMERS = gql`
         }
         oneFitLastBookingDate
         oneFitTotalBookings
+        oneFitPaidNotActivatedPurchasesCount
       }
       totalCount
       pageInfo {
@@ -95,6 +96,7 @@ export const ONE_FIT_CUSTOMER = gql`
       }
       oneFitLastBookingDate
       oneFitTotalBookings
+      oneFitPaidNotActivatedPurchasesCount
     }
   }
 `;

@@ -2,6 +2,7 @@ import { useQuery } from '@apollo/client';
 import { Select } from 'erxes-ui';
 import { OneFitFilterBase } from '~/components/OneFitFilterBase';
 import { FilterField } from '~/components/shared/FilterField';
+import { SelectCompany } from '~/modules/credit/components/SelectCompany';
 import { ONE_FIT_ACTIVE_MEMBERSHIP_PLANS } from '~/modules/membership/graphql/membershipPlanQueries';
 import { OneFitMembershipPlan } from '~/modules/membership/types/membership';
 import { SelectOneFitCustomer } from '~/modules/onefitCustomer/components/SelectOneFitCustomer';
@@ -25,7 +26,7 @@ export function MembershipPurchaseFiltersComponent({
   ) {
     onFiltersChange({
       ...filters,
-      [key]: value || undefined,
+      [key]: value === '' || value === null ? undefined : value,
     });
   }
 
@@ -42,11 +43,22 @@ export function MembershipPurchaseFiltersComponent({
         />
       </FilterField>
 
+      <FilterField label="Company">
+        <SelectCompany
+          value={filters.companyId || ''}
+          onValueChange={(value) => handleFilterChange('companyId', value)}
+          placeholder="All companies"
+        />
+      </FilterField>
+
       <FilterField label="Plan">
         <Select
           value={filters.planId || '__all__'}
           onValueChange={(value) =>
-            handleFilterChange('planId', value === '__all__' ? undefined : value)
+            handleFilterChange(
+              'planId',
+              value === '__all__' ? undefined : value,
+            )
           }
         >
           <Select.Trigger>
@@ -85,7 +97,97 @@ export function MembershipPurchaseFiltersComponent({
           </Select.Content>
         </Select>
       </FilterField>
+
+      <FilterField label="Activation / Check-in">
+        <Select
+          value={
+            filters.isActivated === undefined
+              ? '__all__'
+              : filters.isActivated
+                ? 'activated'
+                : 'not_activated'
+          }
+          onValueChange={(value) =>
+            handleFilterChange(
+              'isActivated',
+              value === '__all__'
+                ? undefined
+                : value === 'activated'
+                  ? true
+                  : false,
+            )
+          }
+        >
+          <Select.Trigger>
+            <Select.Value placeholder="All" />
+          </Select.Trigger>
+          <Select.Content>
+            <Select.Item value="__all__">All</Select.Item>
+            <Select.Item value="activated">Activated</Select.Item>
+            <Select.Item value="not_activated">
+              Not activated / Not checked in
+            </Select.Item>
+          </Select.Content>
+        </Select>
+      </FilterField>
+
+      <FilterField label="Paid + Not activated">
+        <Select
+          value={filters.isPaidNotActivated ? 'yes' : '__all__'}
+          onValueChange={(value) =>
+            handleFilterChange(
+              'isPaidNotActivated',
+              value === '__all__' ? undefined : true,
+            )
+          }
+        >
+          <Select.Trigger>
+            <Select.Value placeholder="All" />
+          </Select.Trigger>
+          <Select.Content>
+            <Select.Item value="__all__">All</Select.Item>
+            <Select.Item value="yes">Paid and not activated</Select.Item>
+          </Select.Content>
+        </Select>
+      </FilterField>
+
+      <FilterField label="Sort by">
+        <Select
+          value={filters.sortField || 'createdAt'}
+          onValueChange={(value) =>
+            handleFilterChange('sortField', value || 'createdAt')
+          }
+        >
+          <Select.Trigger>
+            <Select.Value placeholder="Created date" />
+          </Select.Trigger>
+          <Select.Content>
+            <Select.Item value="createdAt">Created date</Select.Item>
+            <Select.Item value="purchasedAt">Purchased date</Select.Item>
+            <Select.Item value="paidAt">Paid date</Select.Item>
+            <Select.Item value="activatedAt">Activated date</Select.Item>
+            <Select.Item value="expiresAt">Expires date</Select.Item>
+            <Select.Item value="amount">Amount</Select.Item>
+          </Select.Content>
+        </Select>
+      </FilterField>
+
+      <FilterField label="Sort direction">
+        <Select
+          value={filters.sortDirection || 'desc'}
+          onValueChange={(value) =>
+            handleFilterChange('sortDirection', value || 'desc')
+          }
+        >
+          <Select.Trigger>
+            <Select.Value placeholder="Descending" />
+          </Select.Trigger>
+          <Select.Content>
+            <Select.Item value="desc">Descending</Select.Item>
+            <Select.Item value="asc">Ascending</Select.Item>
+          </Select.Content>
+        </Select>
+      </FilterField>
     </OneFitFilterBase>
   );
 }
-

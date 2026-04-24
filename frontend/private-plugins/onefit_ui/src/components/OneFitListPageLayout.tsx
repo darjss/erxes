@@ -13,7 +13,10 @@ interface OneFitListPageLayoutProps<TFilters> {
   }>;
   createDialog?: ReactNode;
   createDialogInHeader?: boolean;
-  listComponent: React.ComponentType<{ filters: TFilters }>;
+  listComponent: React.ComponentType<{
+    filters: TFilters;
+    onFiltersChange?: (filters: TFilters) => void;
+  }>;
   headerActions?: ReactNode;
 }
 
@@ -50,7 +53,7 @@ export function OneFitListPageLayout<TFilters>({
         </div>
       </PageSubHeader>
       {/* <ScrollArea className="flex-auto"> */}
-      <ListComponent filters={filters} />
+      <ListComponent filters={filters} onFiltersChange={onFiltersChange} />
       {/* </ScrollArea> */}
       {/* </div> */}
     </OneFitPageLayout>

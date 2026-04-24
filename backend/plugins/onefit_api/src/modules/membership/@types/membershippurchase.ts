@@ -9,6 +9,7 @@ export enum MembershipPurchaseStatus {
 
 export interface IMembershipPurchase {
   userId: string;
+  companyId?: string;
   planId: string;
   status: MembershipPurchaseStatus;
   purchasedAt: Date;

@@ -58,6 +58,13 @@ export const types = `
     newUsers: Int!
   }
 
+  type OneFitDashboardBookingStatusDay {
+    dayKey: String!
+    bookings: Int!
+    completed: Int!
+    noShow: Int!
+  }
+
   type OneFitDashboardStats {
     totalOneFitUsers: OneFitDashboardMetric!
     activeUsersInPeriod: OneFitDashboardMetric!
@@ -66,6 +73,7 @@ export const types = `
     averageBookingsPerActiveUserInPeriod: OneFitDashboardMetric!
     b2bB2cSales: OneFitDashboardB2bB2cSales!
     userGrowthByMonth: [OneFitDashboardUserGrowthMonth!]!
+    bookingStatusByDay: [OneFitDashboardBookingStatusDay!]!
     categoryDistribution: [OneFitDashboardCategoryStat!]!
     packageStats: [OneFitDashboardPackageStat!]!
     companyUserStats: [OneFitDashboardCompanyUserStat!]!
