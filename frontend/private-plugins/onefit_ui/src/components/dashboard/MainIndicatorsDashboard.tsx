@@ -291,7 +291,8 @@ export function MainIndicatorsDashboard() {
     return categoryDistribution.filter((item) => item.depth === minDepth);
   }, [categoryDistribution]);
   const packageStats = (stats?.packageStats || []) as PackageStatItem[];
-  const companyUserStats = (stats?.companyUserStats || []) as CompanyUserStatItem[];
+  const companyUserStats = (stats?.companyUserStats ||
+    []) as CompanyUserStatItem[];
   const companyFilterOptions = useMemo(() => {
     const uniqueCompanies = Array.from(
       new Map(
@@ -779,158 +780,158 @@ export function MainIndicatorsDashboard() {
             </p>
           ) : (
             <div className="mt-4 space-y-4">
-            <SelectTree.Provider
-              id="dashboard-category-distribution-select"
-              ordered
-              length={categoryDistribution.length}
-            >
-              <Popover
-                open={categoryDropdownOpen}
-                onOpenChange={setCategoryDropdownOpen}
+              <SelectTree.Provider
+                id="dashboard-category-distribution-select"
+                ordered
+                length={categoryDistribution.length}
               >
-                <Popover.Trigger asChild>
-                  <Button
-                    variant="outline"
-                    role="combobox"
-                    aria-expanded={categoryDropdownOpen}
-                    className="w-full max-w-md justify-between border-gray-200 font-normal"
-                  >
-                    <span className="truncate">{selectedCategoryLabel}</span>
-                    <IconChevronRight className="size-4 -rotate-90 text-gray-500" />
-                  </Button>
-                </Popover.Trigger>
-                <Popover.Content className="w-[420px] p-0" align="start">
-                  <Command shouldFilter={false}>
-                    <Command.List className="max-h-[300px] overflow-y-auto p-1">
-                      <Command.Item
-                        value="__all__"
-                        onSelect={() => {
-                          setSelectedCategoryId(null);
-                          setCategoryDropdownOpen(false);
-                        }}
-                      >
-                        Бүх категори
-                      </Command.Item>
-                      {visibleCategoryDistribution.map((category) => {
-                        const safeDepth = Math.max(category.depth || 0, 0);
-                        const hasChildren = Boolean(
-                          categoryChildrenByParentId.get(category.categoryId),
-                        );
-                        const isCollapsed = collapsedCategoryIds.includes(
-                          category.categoryId,
-                        );
-                        const isSelected =
-                          selectedCategoryId === category.categoryId;
-
-                        return (
-                          <SelectTree.Item
-                            key={category.categoryId}
-                            _id={category.categoryId}
-                            order={category.categoryId}
-                            hasChildren={hasChildren}
-                            name={category.label}
-                            value={category.categoryId}
-                            selected={isSelected}
-                            onSelect={() => {
-                              setSelectedCategoryId(category.categoryId);
-                              setCategoryDropdownOpen(false);
-                            }}
-                          >
-                            <div
-                              className={cn(
-                                'flex w-full items-center gap-1 rounded-md px-2 py-1.5',
-                                isSelected && 'bg-gray-100',
-                              )}
-                              style={{ paddingLeft: `${safeDepth * 16}px` }}
-                            >
-                              {hasChildren ? (
-                                <Button
-                                  type="button"
-                                  variant="ghost"
-                                  size="icon"
-                                  className="size-6"
-                                  onClick={(event) => {
-                                    event.preventDefault();
-                                    event.stopPropagation();
-                                    handleCategoryToggle(
-                                      category.categoryId,
-                                      true,
-                                    );
-                                  }}
-                                >
-                                  <IconChevronRight
-                                    className={cn(
-                                      'size-4 transition-transform',
-                                      !isCollapsed && 'rotate-90',
-                                    )}
-                                  />
-                                </Button>
-                              ) : (
-                                <span className="inline-block size-6" />
-                              )}
-                              <span className="truncate text-sm text-gray-900">
-                                {category.label}
-                              </span>
-                            </div>
-                          </SelectTree.Item>
-                        );
-                      })}
-                    </Command.List>
-                  </Command>
-                </Popover.Content>
-              </Popover>
-            </SelectTree.Provider>
-
-            {categoryChartItems.length > 0 && (
-              <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
-                <ChartContainer
-                  config={categoryChartConfig}
-                  className="h-52 w-full max-w-2xl"
+                <Popover
+                  open={categoryDropdownOpen}
+                  onOpenChange={setCategoryDropdownOpen}
                 >
-                  <BarChart
-                    data={categoryChartData}
-                    margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
-                  >
-                    <CartesianGrid
-                      strokeDasharray="3 3"
-                      vertical
-                      stroke="#d4d4d8"
-                    />
-                    <XAxis
-                      dataKey="name"
-                      tick={{ fill: '#52525b', fontSize: 12 }}
-                      axisLine={{ stroke: '#a1a1aa' }}
-                      tickLine={false}
-                    />
-                    <YAxis
-                      allowDecimals={false}
-                      tick={{ fill: '#52525b', fontSize: 12 }}
-                      axisLine={{ stroke: '#a1a1aa' }}
-                      tickLine={false}
-                      width={36}
-                    />
-                    <Tooltip
-                      formatter={(value: number) => value.toLocaleString()}
-                      cursor={{ fill: '#f4f4f5' }}
-                    />
-                    <Bar
-                      dataKey="value"
-                      fill="var(--color-value)"
-                      radius={[2, 2, 0, 0]}
+                  <Popover.Trigger asChild>
+                    <Button
+                      variant="outline"
+                      role="combobox"
+                      aria-expanded={categoryDropdownOpen}
+                      className="w-full max-w-md justify-between border-gray-200 font-normal"
                     >
-                      <LabelList
-                        dataKey="percent"
-                        position="top"
-                        formatter={(value) =>
-                          `${Math.round(Number(value) || 0)}%`
-                        }
-                        className="fill-gray-600 text-xs"
+                      <span className="truncate">{selectedCategoryLabel}</span>
+                      <IconChevronRight className="size-4 -rotate-90 text-gray-500" />
+                    </Button>
+                  </Popover.Trigger>
+                  <Popover.Content className="w-[420px] p-0" align="start">
+                    <Command shouldFilter={false}>
+                      <Command.List className="max-h-[300px] overflow-y-auto p-1">
+                        <Command.Item
+                          value="__all__"
+                          onSelect={() => {
+                            setSelectedCategoryId(null);
+                            setCategoryDropdownOpen(false);
+                          }}
+                        >
+                          Бүх категори
+                        </Command.Item>
+                        {visibleCategoryDistribution.map((category) => {
+                          const safeDepth = Math.max(category.depth || 0, 0);
+                          const hasChildren = Boolean(
+                            categoryChildrenByParentId.get(category.categoryId),
+                          );
+                          const isCollapsed = collapsedCategoryIds.includes(
+                            category.categoryId,
+                          );
+                          const isSelected =
+                            selectedCategoryId === category.categoryId;
+
+                          return (
+                            <SelectTree.Item
+                              key={category.categoryId}
+                              _id={category.categoryId}
+                              order={category.categoryId}
+                              hasChildren={hasChildren}
+                              name={category.label}
+                              value={category.categoryId}
+                              selected={isSelected}
+                              onSelect={() => {
+                                setSelectedCategoryId(category.categoryId);
+                                setCategoryDropdownOpen(false);
+                              }}
+                            >
+                              <div
+                                className={cn(
+                                  'flex w-full items-center gap-1 rounded-md px-2 py-1.5',
+                                  isSelected && 'bg-gray-100',
+                                )}
+                                style={{ paddingLeft: `${safeDepth * 16}px` }}
+                              >
+                                {hasChildren ? (
+                                  <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="icon"
+                                    className="size-6"
+                                    onClick={(event) => {
+                                      event.preventDefault();
+                                      event.stopPropagation();
+                                      handleCategoryToggle(
+                                        category.categoryId,
+                                        true,
+                                      );
+                                    }}
+                                  >
+                                    <IconChevronRight
+                                      className={cn(
+                                        'size-4 transition-transform',
+                                        !isCollapsed && 'rotate-90',
+                                      )}
+                                    />
+                                  </Button>
+                                ) : (
+                                  <span className="inline-block size-6" />
+                                )}
+                                <span className="truncate text-sm text-gray-900">
+                                  {category.label}
+                                </span>
+                              </div>
+                            </SelectTree.Item>
+                          );
+                        })}
+                      </Command.List>
+                    </Command>
+                  </Popover.Content>
+                </Popover>
+              </SelectTree.Provider>
+
+              {categoryChartItems.length > 0 && (
+                <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
+                  <ChartContainer
+                    config={categoryChartConfig}
+                    className="h-52 w-full max-w-2xl"
+                  >
+                    <BarChart
+                      data={categoryChartData}
+                      margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
+                    >
+                      <CartesianGrid
+                        strokeDasharray="3 3"
+                        vertical
+                        stroke="#d4d4d8"
                       />
-                    </Bar>
-                  </BarChart>
-                </ChartContainer>
-              </div>
-            )}
+                      <XAxis
+                        dataKey="name"
+                        tick={{ fill: '#52525b', fontSize: 12 }}
+                        axisLine={{ stroke: '#a1a1aa' }}
+                        tickLine={false}
+                      />
+                      <YAxis
+                        allowDecimals={false}
+                        tick={{ fill: '#52525b', fontSize: 12 }}
+                        axisLine={{ stroke: '#a1a1aa' }}
+                        tickLine={false}
+                        width={36}
+                      />
+                      <Tooltip
+                        formatter={(value: number) => value.toLocaleString()}
+                        cursor={{ fill: '#f4f4f5' }}
+                      />
+                      <Bar
+                        dataKey="value"
+                        fill="var(--color-value)"
+                        radius={[2, 2, 0, 0]}
+                      >
+                        <LabelList
+                          dataKey="percent"
+                          position="top"
+                          formatter={(value) =>
+                            `${Math.round(Number(value) || 0)}%`
+                          }
+                          className="fill-gray-600 text-xs"
+                        />
+                      </Bar>
+                    </BarChart>
+                  </ChartContainer>
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -1036,7 +1037,10 @@ export function MainIndicatorsDashboard() {
           <h3 className="text-base font-semibold text-gray-900">
             Компанийн хэрэглэгчийн кредит ашиглалт
           </h3>
-          <Select value={selectedCompanyId} onValueChange={setSelectedCompanyId}>
+          <Select
+            value={selectedCompanyId}
+            onValueChange={setSelectedCompanyId}
+          >
             <Select.Trigger className="min-w-[240px] border-gray-200">
               <Select.Value placeholder="Компани сонгох" />
             </Select.Trigger>
@@ -1126,7 +1130,10 @@ export function MainIndicatorsDashboard() {
                         <div className="flex min-w-[180px] items-center gap-3">
                           <div className="h-2 w-full rounded-full bg-gray-200">
                             <div
-                              className={cn('h-2 rounded-full', usageBarColorClass)}
+                              className={cn(
+                                'h-2 rounded-full',
+                                usageBarColorClass,
+                              )}
                               style={{ width: `${usagePercent}%` }}
                             />
                           </div>

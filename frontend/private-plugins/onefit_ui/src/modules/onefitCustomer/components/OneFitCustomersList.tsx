@@ -253,8 +253,8 @@ export const OneFitCustomersList = ({ filters }: OneFitCustomersListProps) => {
             usagePercent >= 80
               ? '#ef4444'
               : usagePercent >= 50
-              ? '#f59e0b'
-              : '#10b981';
+                ? '#f59e0b'
+                : '#10b981';
           const fillWidth = usagePercent > 0 ? Math.max(2, usagePercent) : 0;
 
           return (
@@ -340,10 +340,10 @@ export const OneFitCustomersList = ({ filters }: OneFitCustomersListProps) => {
     loading && totalCount === undefined
       ? 'Loading…'
       : totalCount === undefined
-      ? '—'
-      : `${totalCount.toLocaleString()} ${
-          totalCount === 1 ? 'customer' : 'customers'
-        }`;
+        ? '—'
+        : `${totalCount.toLocaleString()} ${
+            totalCount === 1 ? 'customer' : 'customers'
+          }`;
 
   return (
     <>
