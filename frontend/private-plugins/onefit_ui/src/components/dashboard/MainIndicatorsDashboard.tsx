@@ -243,6 +243,7 @@ export function MainIndicatorsDashboard() {
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(
     null,
   );
+  const [selectedCompanyId, setSelectedCompanyId] = useState<string>('all');
   const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(false);
   const range = useMemo(() => getRangeByPreset(preset), [preset]);
   const [startDate, setStartDate] = useState<string>(
@@ -291,10 +292,31 @@ export function MainIndicatorsDashboard() {
   }, [categoryDistribution]);
   const packageStats = (stats?.packageStats || []) as PackageStatItem[];
   const companyUserStats = (stats?.companyUserStats || []) as CompanyUserStatItem[];
+  const companyFilterOptions = useMemo(() => {
+    const uniqueCompanies = Array.from(
+      new Map(
+        companyUserStats.map((item) => [item.companyId, item.companyName]),
+      ).entries(),
+    )
+      .map(([companyId, companyName]) => ({ companyId, companyName }))
+      .sort((a, b) => a.companyName.localeCompare(b.companyName));
+
+    return uniqueCompanies;
+  }, [companyUserStats]);
+  const filteredCompanyUserStats = useMemo(() => {
+    if (selectedCompanyId === 'all') {
+      return companyUserStats;
+    }
+
+    return companyUserStats.filter(
+      (item) => item.companyId === selectedCompanyId,
+    );
+  }, [companyUserStats, selectedCompanyId]);
   const b2bB2cSales = stats?.b2bB2cSales as B2bB2cSalesStats | undefined;
   const hasCategoryData = categoryDistribution.length > 0;
   const hasPackageData = packageStats.length > 0;
   const hasCompanyUserStats = companyUserStats.length > 0;
+  const hasFilteredCompanyUserStats = filteredCompanyUserStats.length > 0;
   const totalSalesCount =
     (b2bB2cSales?.b2bCount || 0) + (b2bB2cSales?.b2cCount || 0);
   const hasB2bB2cSales = totalSalesCount > 0;
@@ -1010,9 +1032,24 @@ export function MainIndicatorsDashboard() {
       </div>
 
       <div className="mt-8 rounded-xl border border-gray-200 bg-white p-5">
-        <h3 className="text-base font-semibold text-gray-900">
-          Компанийн хэрэглэгчийн кредит ашиглалт
-        </h3>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <h3 className="text-base font-semibold text-gray-900">
+            Компанийн хэрэглэгчийн кредит ашиглалт
+          </h3>
+          <Select value={selectedCompanyId} onValueChange={setSelectedCompanyId}>
+            <Select.Trigger className="min-w-[240px] border-gray-200">
+              <Select.Value placeholder="Компани сонгох" />
+            </Select.Trigger>
+            <Select.Content>
+              <Select.Item value="all">Бүх компани</Select.Item>
+              {companyFilterOptions.map((company) => (
+                <Select.Item key={company.companyId} value={company.companyId}>
+                  {company.companyName}
+                </Select.Item>
+              ))}
+            </Select.Content>
+          </Select>
+        </div>
 
         {loading && !stats ? (
           <div className="mt-4 space-y-3">
@@ -1023,6 +1060,10 @@ export function MainIndicatorsDashboard() {
         ) : !hasCompanyUserStats ? (
           <p className="mt-4 text-sm text-gray-500">
             Компанийн хэрэглэгчийн кредитийн өгөгдөл алга байна.
+          </p>
+        ) : !hasFilteredCompanyUserStats ? (
+          <p className="mt-4 text-sm text-gray-500">
+            Сонгосон компанид тохирох кредитийн өгөгдөл алга байна.
           </p>
         ) : (
           <div className="mt-4 overflow-x-auto">
@@ -1039,7 +1080,7 @@ export function MainIndicatorsDashboard() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
-                {companyUserStats.map((item) => {
+                {filteredCompanyUserStats.map((item) => {
                   const safeUsedCredit = Math.max(item.usedCredit || 0, 0);
                   const usagePercent =
                     item.planCredit > 0
