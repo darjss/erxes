@@ -28,7 +28,9 @@ export const types = `
     createdAt: Date
     modifiedAt: Date
     userId: String
+    companyId: String
     user: Customer
+    company: Company
     planId: String
     status: String
     purchasedAt: Date
@@ -94,6 +96,7 @@ const purchaseQueryParams = `
 
 const membershipPurchaseQueryParams = `
   userId: String,
+  companyId: String,
   status: String,
   planId: String,
   isActivated: Boolean,
@@ -163,6 +166,7 @@ export const mutations = `
   oneFitMembershipPlansRemove(ids: [String]!): JSON
   oneFitMembershipPurchaseCreate(${purchaseInput}): OneFitMembershipPurchase
   oneFitMembershipPurchaseActivate(_id: String!): OneFitMembershipPurchase
+  oneFitMembershipPurchaseCompanyUpdate(_id: String!, companyId: String): OneFitMembershipPurchase
   cpOneFitMembershipPurchaseCreate(${cpPurchaseInput}): OneFitMembershipPurchase
   cpOneFitMembershipPurchaseActivate(_id: String!): OneFitMembershipPurchase
   cpOneFitMembershipHoldStart(holdDays: Int!): Customer

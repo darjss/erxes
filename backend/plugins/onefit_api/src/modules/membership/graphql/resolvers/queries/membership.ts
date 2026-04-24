@@ -1,5 +1,9 @@
 import { ICursorPaginateParams, Resolver } from 'erxes-api-shared/core-types';
-import { cursorPaginate, markResolvers } from 'erxes-api-shared/utils';
+import {
+  cursorPaginate,
+  markResolvers,
+  sendTRPCMessage,
+} from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 import { generatePlanFilter } from '../utils/filters';
 import {
@@ -22,6 +26,7 @@ export interface IPurchaseQueryParams extends ICursorPaginateParams {
 
 export interface IMembershipPurchaseQueryParams extends ICursorPaginateParams {
   userId?: string;
+  companyId?: string;
   status?: string;
   planId?: string;
   isActivated?: boolean;
@@ -86,6 +91,7 @@ export const membershipQueries: Record<string, Resolver> = {
     const { models } = context;
     const {
       userId,
+      companyId,
       status,
       planId,
       isActivated,
@@ -97,6 +103,31 @@ export const membershipQueries: Record<string, Resolver> = {
     const filter: any = {};
     if (userId) {
       filter.userId = userId;
+    }
+
+    if (companyId) {
+      const { subdomain } = context;
+      const relatedCustomerIds = (await sendTRPCMessage({
+        subdomain,
+        pluginName: 'core',
+        method: 'query',
+        module: 'relation',
+        action: 'getRelationIds',
+        input: {
+          contentType: 'core:company',
+          contentId: companyId,
+          relatedContentType: 'core:customer',
+        },
+        defaultValue: [] as string[],
+      })) as string[];
+
+      const companyConditions: any[] = [{ companyId }];
+
+      if (relatedCustomerIds.length) {
+        companyConditions.push({ userId: { $in: relatedCustomerIds } });
+      }
+
+      filter.$or = companyConditions;
     }
     if (status) {
       filter.status = status;

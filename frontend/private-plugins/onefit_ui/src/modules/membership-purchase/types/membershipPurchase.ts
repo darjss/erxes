@@ -13,12 +13,19 @@ export interface OneFitMembershipPurchasePromoCode {
   code: string;
 }
 
+export interface OneFitMembershipPurchaseCompany {
+  _id: string;
+  primaryName?: string;
+}
+
 export interface OneFitMembershipPurchase {
   _id: string;
   createdAt: string;
   modifiedAt: string;
   userId: string;
+  companyId?: string;
   user?: OneFitMembershipPurchaseUser;
+  company?: OneFitMembershipPurchaseCompany;
   planId: string;
   status: 'pending' | 'paid' | 'cancelled' | 'failed';
   purchasedAt: string;
@@ -46,6 +53,7 @@ export interface OneFitMembershipPurchaseListResponse {
 
 export interface MembershipPurchaseFilters {
   userId?: string;
+  companyId?: string;
   status?: string;
   planId?: string;
   isActivated?: boolean;

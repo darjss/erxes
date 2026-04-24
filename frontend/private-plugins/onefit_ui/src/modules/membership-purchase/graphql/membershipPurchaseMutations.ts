@@ -77,3 +77,20 @@ export const ONE_FIT_MEMBERSHIP_PURCHASE_ACTIVATE = gql`
     }
   }
 `;
+
+export const ONE_FIT_MEMBERSHIP_PURCHASE_COMPANY_UPDATE = gql`
+  mutation OneFitMembershipPurchaseCompanyUpdate(
+    $_id: String!
+    $companyId: String
+  ) {
+    oneFitMembershipPurchaseCompanyUpdate(_id: $_id, companyId: $companyId) {
+      _id
+      modifiedAt
+      companyId
+      company {
+        _id
+        primaryName
+      }
+    }
+  }
+`;

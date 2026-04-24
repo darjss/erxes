@@ -1,14 +1,18 @@
 import { ColumnDef } from '@tanstack/table-core';
-import { useQuery } from '@apollo/client';
+import { useMutation, useQuery } from '@apollo/client';
 import {
   Badge,
   Button,
+  Dialog,
   RecordTable,
   RecordTableInlineCell,
   RelativeDateDisplay,
+  toast,
 } from 'erxes-ui';
 import { useMemo, useState } from 'react';
 import { OneFitCustomersInline } from '~/modules/onefitCustomer/components/OneFitCustomersInline';
+import { SelectCompany } from '~/modules/credit/components/SelectCompany';
+import { ONE_FIT_MEMBERSHIP_PURCHASE_COMPANY_UPDATE } from '../graphql/membershipPurchaseMutations';
 import { ONE_FIT_MEMBERSHIP_PURCHASES } from '../graphql/membershipPurchaseQueries';
 import { useMembershipPurchases } from '../hooks/useMembershipPurchases';
 import {
@@ -43,8 +47,11 @@ export function MembershipPurchasesList({
   filters,
   onFiltersChange,
 }: MembershipPurchasesListProps) {
-  const { membershipPurchases, handleFetchMore, loading, pageInfo } =
+  const { membershipPurchases, handleFetchMore, loading, pageInfo, refetch } =
     useMembershipPurchases(filters);
+  const [updatePurchaseCompany, { loading: updatingCompany }] = useMutation(
+    ONE_FIT_MEMBERSHIP_PURCHASE_COMPANY_UPDATE,
+  );
   const { data: needActivationData } = useQuery(ONE_FIT_MEMBERSHIP_PURCHASES, {
     variables: {
       isNeedActivation: true,
@@ -64,6 +71,10 @@ export function MembershipPurchasesList({
   const [activateDialogOpen, setActivateDialogOpen] = useState(false);
   const [qrDialogOpen, setQrDialogOpen] = useState(false);
   const [selectedQrData, setSelectedQrData] = useState<string | null>(null);
+  const [companyDialogOpen, setCompanyDialogOpen] = useState(false);
+  const [companyDialogPurchase, setCompanyDialogPurchase] =
+    useState<OneFitMembershipPurchase | null>(null);
+  const [selectedCompanyId, setSelectedCompanyId] = useState('');
 
   const columns: ColumnDef<OneFitMembershipPurchase>[] = useMemo(
     () => [
@@ -103,6 +114,38 @@ export function MembershipPurchasesList({
               ) : (
                 <OneFitCustomersInline customerIds={[userId]} />
               )}
+            </RecordTableInlineCell>
+          );
+        },
+      },
+      {
+        id: 'company',
+        header: 'Company',
+        cell: ({ row }) => {
+          const purchase = row.original;
+          const hasCompany = Boolean(
+            purchase?.company?._id || purchase?.companyId,
+          );
+
+          return (
+            <RecordTableInlineCell className="min-w-[220px]">
+              <button
+                type="button"
+                className={
+                  hasCompany
+                    ? 'text-left hover:underline'
+                    : 'text-left text-muted-foreground hover:text-foreground/80 hover:underline'
+                }
+                onClick={() => {
+                  setCompanyDialogPurchase(purchase);
+                  setSelectedCompanyId(
+                    purchase?.company?._id || purchase?.companyId || '',
+                  );
+                  setCompanyDialogOpen(true);
+                }}
+              >
+                {purchase.company?.primaryName || 'Change company'}
+              </button>
             </RecordTableInlineCell>
           );
         },
@@ -366,6 +409,79 @@ export function MembershipPurchasesList({
           }}
         />
       )}
+
+      <Dialog
+        open={companyDialogOpen}
+        onOpenChange={(open) => {
+          setCompanyDialogOpen(open);
+          if (!open) {
+            setCompanyDialogPurchase(null);
+            setSelectedCompanyId('');
+          }
+        }}
+      >
+        <Dialog.Content className="max-w-md">
+          <Dialog.Header>
+            <Dialog.Title>Select company</Dialog.Title>
+            <Dialog.Description>
+              Update company for this membership purchase item.
+            </Dialog.Description>
+          </Dialog.Header>
+          <div className="py-2">
+            <SelectCompany
+              value={selectedCompanyId}
+              // valueLabel={companyDialogPurchase?.company?.primaryName}
+              onValueChange={setSelectedCompanyId}
+              disabled={updatingCompany}
+              placeholder="No company"
+            />
+          </div>
+          <Dialog.Footer>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setCompanyDialogOpen(false)}
+              disabled={updatingCompany}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              disabled={!companyDialogPurchase?._id || updatingCompany}
+              onClick={async () => {
+                if (!companyDialogPurchase?._id) {
+                  return;
+                }
+                try {
+                  await updatePurchaseCompany({
+                    variables: {
+                      _id: companyDialogPurchase._id,
+                      companyId: selectedCompanyId || null,
+                    },
+                  });
+                  await refetch();
+                  toast({
+                    title: 'Success',
+                    description: 'Company updated successfully',
+                  });
+                  setCompanyDialogOpen(false);
+                } catch (error) {
+                  toast({
+                    title: 'Error',
+                    description:
+                      error instanceof Error
+                        ? error.message
+                        : 'Failed to update company',
+                    variant: 'destructive',
+                  });
+                }
+              }}
+            >
+              Save
+            </Button>
+          </Dialog.Footer>
+        </Dialog.Content>
+      </Dialog>
     </>
   );
 }

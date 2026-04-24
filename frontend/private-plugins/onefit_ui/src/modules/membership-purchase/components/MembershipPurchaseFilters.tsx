@@ -2,6 +2,7 @@ import { useQuery } from '@apollo/client';
 import { Select } from 'erxes-ui';
 import { OneFitFilterBase } from '~/components/OneFitFilterBase';
 import { FilterField } from '~/components/shared/FilterField';
+import { SelectCompany } from '~/modules/credit/components/SelectCompany';
 import { ONE_FIT_ACTIVE_MEMBERSHIP_PLANS } from '~/modules/membership/graphql/membershipPlanQueries';
 import { OneFitMembershipPlan } from '~/modules/membership/types/membership';
 import { SelectOneFitCustomer } from '~/modules/onefitCustomer/components/SelectOneFitCustomer';
@@ -39,6 +40,14 @@ export function MembershipPurchaseFiltersComponent({
           }
           mode="single"
           type="erxes"
+        />
+      </FilterField>
+
+      <FilterField label="Company">
+        <SelectCompany
+          value={filters.companyId || ''}
+          onValueChange={(value) => handleFilterChange('companyId', value)}
+          placeholder="All companies"
         />
       </FilterField>
 

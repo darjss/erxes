@@ -4,6 +4,7 @@ import { GQL_CURSOR_PARAM_DEFS, GQL_CURSOR_PARAMS } from 'erxes-ui';
 export const ONE_FIT_MEMBERSHIP_PURCHASES = gql`
   query OneFitMembershipPurchases(
     $userId: String
+    $companyId: String
     $status: String
     $planId: String
     $isActivated: Boolean
@@ -13,6 +14,7 @@ export const ONE_FIT_MEMBERSHIP_PURCHASES = gql`
   ) {
     oneFitMembershipPurchases(
       userId: $userId
+      companyId: $companyId
       status: $status
       planId: $planId
       isActivated: $isActivated
@@ -25,12 +27,17 @@ export const ONE_FIT_MEMBERSHIP_PURCHASES = gql`
         createdAt
         modifiedAt
         userId
+        companyId
         user {
           _id
           firstName
           lastName
           primaryEmail
           primaryPhone
+        }
+        company {
+          _id
+          primaryName
         }
         planId
         status
@@ -74,12 +81,17 @@ export const ONE_FIT_MEMBERSHIP_PURCHASE = gql`
       createdAt
       modifiedAt
       userId
+      companyId
       user {
         _id
         firstName
         lastName
         primaryEmail
         primaryPhone
+      }
+      company {
+        _id
+        primaryName
       }
       planId
       status
