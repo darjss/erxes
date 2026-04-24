@@ -242,6 +242,45 @@ export const OneFitCustomersList = ({ filters }: OneFitCustomersListProps) => {
         },
       },
       {
+        id: 'creditUsagePercent',
+        header: 'Credit Usage ',
+        cell: ({ row }) => {
+          const used = Number(row.original.oneFitTotalCreditsUsed) || 0;
+          const earned = Number(row.original.oneFitTotalCreditsEarned) || 0;
+          const usagePercentRaw = earned > 0 ? (used / earned) * 100 : 0;
+          const usagePercent = Math.max(0, Math.min(100, usagePercentRaw));
+          const usageBarColor =
+            usagePercent >= 80
+              ? '#ef4444'
+              : usagePercent >= 50
+              ? '#f59e0b'
+              : '#10b981';
+          const fillWidth = usagePercent > 0 ? Math.max(2, usagePercent) : 0;
+
+          return (
+            <RecordTableInlineCell>
+              <div
+                className="flex items-center gap-2"
+                style={{ width: 120, minWidth: 120 }}
+              >
+                <div className="h-2 w-full rounded-full bg-gray-200">
+                  <div
+                    className="h-2 rounded-full"
+                    style={{
+                      width: `${fillWidth}%`,
+                      backgroundColor: usageBarColor,
+                    }}
+                  />
+                </div>
+                <span className="min-w-[40px] text-right text-xs font-medium tabular-nums">
+                  {Math.round(usagePercent)}%
+                </span>
+              </div>
+            </RecordTableInlineCell>
+          );
+        },
+      },
+      {
         accessorKey: 'oneFitTotalBookings',
         header: 'Total Bookings',
         cell: ({ cell }) => {
@@ -301,45 +340,45 @@ export const OneFitCustomersList = ({ filters }: OneFitCustomersListProps) => {
     loading && totalCount === undefined
       ? 'Loading…'
       : totalCount === undefined
-        ? '—'
-        : `${totalCount.toLocaleString()} ${
-            totalCount === 1 ? 'customer' : 'customers'
-          }`;
+      ? '—'
+      : `${totalCount.toLocaleString()} ${
+          totalCount === 1 ? 'customer' : 'customers'
+        }`;
 
   return (
     <>
-      <div className="flex flex-col overflow-hidden h-full relative">
+      {/* <div className="flex flex-col overflow-hidden h-full relative">
         <div className="px-3 pt-3 text-sm text-muted-foreground shrink-0">
           {customerCountLabel}
-        </div>
-        <RecordTable.Provider
-          columns={columns}
-          data={customers || []}
-          stickyColumns={['firstName']}
-          className="m-3 mt-2"
+        </div> */}
+      <RecordTable.Provider
+        columns={columns}
+        data={customers || []}
+        stickyColumns={['firstName']}
+        className="m-3 overflow-x-auto"
+      >
+        <RecordTable.CursorProvider
+          hasPreviousPage={hasPreviousPage}
+          hasNextPage={hasNextPage}
+          dataLength={customers?.length}
+          sessionKey={ONEFIT_CUSTOMERS_CURSOR_SESSION_KEY}
         >
-          <RecordTable.CursorProvider
-            hasPreviousPage={hasPreviousPage}
-            hasNextPage={hasNextPage}
-            dataLength={customers?.length}
-            sessionKey={ONEFIT_CUSTOMERS_CURSOR_SESSION_KEY}
-          >
-            <RecordTable>
-              <RecordTable.Header />
-              <RecordTable.Body>
-                <RecordTable.CursorBackwardSkeleton
-                  handleFetchMore={handleFetchMore}
-                />
-                {loading && <RecordTable.RowSkeleton rows={40} />}
-                <RecordTable.RowList />
-                <RecordTable.CursorForwardSkeleton
-                  handleFetchMore={handleFetchMore}
-                />
-              </RecordTable.Body>
-            </RecordTable>
-          </RecordTable.CursorProvider>
-        </RecordTable.Provider>
-      </div>
+          <RecordTable>
+            <RecordTable.Header />
+            <RecordTable.Body>
+              <RecordTable.CursorBackwardSkeleton
+                handleFetchMore={handleFetchMore}
+              />
+              {loading && <RecordTable.RowSkeleton rows={40} />}
+              <RecordTable.RowList />
+              <RecordTable.CursorForwardSkeleton
+                handleFetchMore={handleFetchMore}
+              />
+            </RecordTable.Body>
+          </RecordTable>
+        </RecordTable.CursorProvider>
+      </RecordTable.Provider>
+      {/* </div> */}
       <Sheet open={detailSheetOpen} onOpenChange={closeDetailSheet}>
         <Sheet.View className="w-full sm:max-w-[min(56rem,calc(100vw-2rem))]">
           <Sheet.Header>
