@@ -13,9 +13,10 @@ export function useCreditConsumptionBookings(args: {
   startDate: string;
   endDate: string;
   companyId: string;
+  planId: string;
   enabled: boolean;
 }) {
-  const { startDate, endDate, companyId, enabled } = args;
+  const { startDate, endDate, companyId, planId, enabled } = args;
   const fetchInFlight = useRef(false);
 
   const baseVariables = useMemo(
@@ -23,9 +24,10 @@ export function useCreditConsumptionBookings(args: {
       startDate,
       endDate,
       companyId: companyId || undefined,
+      planId: planId || undefined,
       orderBy: defaultOrderBy,
     }),
-    [startDate, endDate, companyId],
+    [startDate, endDate, companyId, planId],
   );
 
   const { data, error, fetchMore, refetch, networkStatus } = useQuery(

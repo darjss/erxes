@@ -147,12 +147,14 @@ export const accountStatementQueries: Record<string, Resolver> = {
     context: IContext,
   ) {
     const { models } = context;
-    const { providerId, userId, companyId, startDate, endDate } = params;
+    const { providerId, userId, companyId, planId, startDate, endDate } =
+      params;
 
     const resolvedFilter = await buildOneFitCreditConsumptionFilter(context, {
       providerId,
       userId,
       companyId,
+      planId,
       startDate,
       endDate,
     });
@@ -224,12 +226,14 @@ export const accountStatementQueries: Record<string, Resolver> = {
     context: IContext,
   ) {
     const { models } = context;
-    const { providerId, userId, companyId, startDate, endDate } = params;
+    const { providerId, userId, companyId, planId, startDate, endDate } =
+      params;
 
     const filter = await buildOneFitCreditConsumptionFilter(context, {
       providerId,
       userId,
       companyId,
+      planId,
       startDate,
       endDate,
     });

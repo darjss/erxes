@@ -369,9 +369,26 @@ async function getCategoryDistribution(
   context: IContext,
   startDate: Date,
   endDate: Date,
+  planId?: string,
 ): Promise<OneFitDashboardCategoryStat[]> {
   const { models } = context;
   const filter = await buildBookingFilterForRange(context, startDate, endDate);
+
+  if (planId) {
+    const planCustomerIds = await models.OneFitCustomer.distinct('_id', {
+      __t: 'OneFitCustomer',
+      membershipPlanId: planId,
+    });
+
+    if (!planCustomerIds.length) {
+      return [];
+    }
+
+    filter.userId = {
+      $in: planCustomerIds.map((customerId) => String(customerId)),
+    };
+  }
+
   const bookings = await models.Booking.find(filter, {
     activityTypeId: 1,
   }).lean();
@@ -1129,7 +1146,11 @@ async function getBookingStatusByDay(
 export const dashboardQueries: Record<string, Resolver> = {
   async oneFitDashboardStats(
     _root: undefined,
-    { startDate, endDate }: { startDate: Date; endDate: Date },
+    {
+      startDate,
+      endDate,
+      planId,
+    }: { startDate: Date; endDate: Date; planId?: string },
     context: IContext,
   ) {
     await ifTeamUserCheck(context, 'dashboardRead');
@@ -1159,7 +1180,7 @@ export const dashboardQueries: Record<string, Resolver> = {
       countNewOneFitCustomersInRange(context, prev.startDate, prev.endDate),
       countBookingsInRange(context, startDate, endDate),
       countBookingsInRange(context, prev.startDate, prev.endDate),
-      getCategoryDistribution(context, startDate, endDate),
+      getCategoryDistribution(context, startDate, endDate, planId),
       getPackageStats(context, startDate, endDate),
       getCompanyUserStats(context),
       getB2bB2cSalesCounts(context, startDate, endDate),

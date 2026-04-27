@@ -22,7 +22,7 @@ export function CreditTransactionsPage() {
       headerActions={
         <BulkCreditTransactionDialog
           trigger={
-            <Button variant="outline" size="sm">
+            <Button variant="outline" size="sm" disabled>
               <IconBuilding />
               Bulk credit (corporate)
             </Button>

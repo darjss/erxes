@@ -9,6 +9,7 @@ import {
   Label,
   RecordTable,
   RecordTableInlineCell,
+  Select,
   Switch,
 } from 'erxes-ui';
 import { ONE_FIT_CREDIT_CONSUMPTION } from '~/modules/booking/graphql/bookingQueries';
@@ -19,6 +20,7 @@ import {
 } from '~/modules/booking/types/booking';
 import { FilterField } from '~/components/shared/FilterField';
 import { SelectCompany } from '~/modules/credit/components/SelectCompany';
+import { ONE_FIT_ACTIVE_MEMBERSHIP_PLANS } from '~/modules/membership/graphql/membershipPlanQueries';
 import {
   getLocalizedString,
   type ActivityLanguage,
@@ -181,7 +183,10 @@ export function CreditConsumptionReport() {
   const [startDate, setStartDate] = useState(startOfMonth(now));
   const [endDate, setEndDate] = useState(endOfMonth(now));
   const [companyId, setCompanyId] = useState<string>('');
+  const [planId, setPlanId] = useState<string>('');
   const [showIndividualBookings, setShowIndividualBookings] = useState(false);
+  const { data: plansData } = useQuery(ONE_FIT_ACTIVE_MEMBERSHIP_PLANS);
+  const activeMembershipPlans = plansData?.oneFitActiveMembershipPlans ?? [];
 
   const { data, loading: loadingAggregate } = useQuery(
     ONE_FIT_CREDIT_CONSUMPTION,
@@ -190,6 +195,7 @@ export function CreditConsumptionReport() {
         startDate: startDate || undefined,
         endDate: endDate || undefined,
         companyId: companyId || undefined,
+        planId: planId || undefined,
       },
       skip: !startDate || !endDate,
     },
@@ -206,6 +212,7 @@ export function CreditConsumptionReport() {
     startDate,
     endDate,
     companyId,
+    planId,
     enabled: showIndividualBookings,
   });
 
@@ -709,6 +716,28 @@ export function CreditConsumptionReport() {
             value={companyId}
             onValueChange={(value) => setCompanyId(value ?? '')}
           />
+        </FilterField>
+        <FilterField label="Plan" optional>
+          <Select
+            value={planId || '__all__'}
+            onValueChange={(value) =>
+              setPlanId(value === '__all__' ? '' : value)
+            }
+          >
+            <Select.Trigger className="min-w-[220px]">
+              <Select.Value placeholder="All plans" />
+            </Select.Trigger>
+            <Select.Content>
+              <Select.Item value="__all__">All plans</Select.Item>
+              {activeMembershipPlans.map(
+                (plan: { _id: string; name?: string }) => (
+                  <Select.Item key={plan._id} value={plan._id}>
+                    {plan.name || 'Unnamed plan'}
+                  </Select.Item>
+                ),
+              )}
+            </Select.Content>
+          </Select>
         </FilterField>
         <div className="flex items-center gap-2 self-center pb-0.5">
           <Switch

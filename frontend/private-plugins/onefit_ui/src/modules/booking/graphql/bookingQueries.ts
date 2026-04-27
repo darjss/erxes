@@ -183,6 +183,7 @@ export const ONE_FIT_CREDIT_CONSUMPTION = gql`
     $providerId: String
     $userId: String
     $companyId: String
+    $planId: String
   ) {
     oneFitCreditConsumption(
       startDate: $startDate
@@ -190,6 +191,7 @@ export const ONE_FIT_CREDIT_CONSUMPTION = gql`
       providerId: $providerId
       userId: $userId
       companyId: $companyId
+      planId: $planId
     ) {
       rows {
         year
@@ -212,6 +214,7 @@ export const ONE_FIT_CREDIT_CONSUMPTION_BOOKINGS = gql`
     $providerId: String
     $userId: String
     $companyId: String
+    $planId: String
     ${GQL_CURSOR_PARAM_DEFS}
     $orderBy: JSON
   ) {
@@ -221,6 +224,7 @@ export const ONE_FIT_CREDIT_CONSUMPTION_BOOKINGS = gql`
       providerId: $providerId
       userId: $userId
       companyId: $companyId
+      planId: $planId
       orderBy: $orderBy
       ${GQL_CURSOR_PARAMS}
     ) {
