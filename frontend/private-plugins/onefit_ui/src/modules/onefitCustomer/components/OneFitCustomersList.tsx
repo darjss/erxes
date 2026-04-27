@@ -28,6 +28,12 @@ interface OneFitCustomersListProps {
   filters?: OneFitCustomerFilters;
 }
 
+type MembershipPlanOption = {
+  _id: string;
+  name: string;
+  creditAmount?: number | null;
+};
+
 const getMembershipStatusBadgeVariant = (status?: OneFitMembershipStatus) => {
   switch (status) {
     case OneFitMembershipStatus.ACTIVE:
@@ -92,13 +98,21 @@ export const OneFitCustomersList = ({ filters }: OneFitCustomersListProps) => {
   const { data: membershipPlansData } = useQuery(ONE_FIT_MEMBERSHIP_PLANS, {
     variables: { limit: 100 },
   });
-  const membershipPlans =
+  const membershipPlans: MembershipPlanOption[] =
     membershipPlansData?.oneFitMembershipPlans?.list || [];
 
   const membershipPlanMap = useMemo(() => {
     const map = new Map();
     membershipPlans.forEach((plan) => {
       map.set(plan._id, plan.name);
+    });
+    return map;
+  }, [membershipPlans]);
+
+  const membershipPlanCreditMap = useMemo(() => {
+    const map = new Map();
+    membershipPlans.forEach((plan) => {
+      map.set(plan._id, Number(plan.creditAmount) || 0);
     });
     return map;
   }, [membershipPlans]);
@@ -267,9 +281,15 @@ export const OneFitCustomersList = ({ filters }: OneFitCustomersListProps) => {
         id: 'creditUsagePercent',
         header: 'Credit Usage ',
         cell: ({ row }) => {
-          const used = Number(row.original.oneFitTotalCreditsUsed) || 0;
-          const earned = Number(row.original.oneFitTotalCreditsEarned) || 0;
-          const usagePercentRaw = earned > 0 ? (used / earned) * 100 : 0;
+          const planId = row.original.oneFitMembershipPlanId;
+          const currentPlanCredit = planId
+            ? Number(membershipPlanCreditMap.get(planId)) || 0
+            : 0;
+          const currentBalance =
+            Number(row.original.oneFitCurrentCreditBalance) || 0;
+          const used = Math.max(0, currentPlanCredit - currentBalance);
+          const usagePercentRaw =
+            currentPlanCredit > 0 ? (used / currentPlanCredit) * 100 : 0;
           const usagePercent = Math.max(0, Math.min(100, usagePercentRaw));
           const usageBarColor =
             usagePercent >= 80
@@ -386,7 +406,7 @@ export const OneFitCustomersList = ({ filters }: OneFitCustomersListProps) => {
       //   },
       // },
     ],
-    [membershipPlanMap, paidNotActivatedSortDir],
+    [membershipPlanMap, membershipPlanCreditMap, paidNotActivatedSortDir],
   );
 
   const customerCountLabel =
