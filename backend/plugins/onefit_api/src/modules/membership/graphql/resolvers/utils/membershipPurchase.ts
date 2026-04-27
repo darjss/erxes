@@ -322,7 +322,9 @@ export async function createMembershipPurchasesBulkInvoice(
   context: IContext,
   options: IBulkCreateMembershipPurchaseInvoiceOptions,
 ) {
-  const createdPurchases = [];
+  const createdPurchases: Awaited<
+    ReturnType<typeof createMembershipPurchaseInvoice>
+  >[] = [];
 
   if (!options.userIds.length) {
     return createdPurchases;
