@@ -58,10 +58,13 @@ export async function buildOneFitCreditConsumptionFilter(
 
   if (planId) {
     const existingUserFilter = filter.userId;
-    const planCustomerIds = await context.models.OneFitCustomer.distinct('_id', {
-      __t: 'OneFitCustomer',
-      membershipPlanId: planId,
-    });
+    const planCustomerIds = await context.models.OneFitCustomer.distinct(
+      '_id',
+      {
+        __t: 'OneFitCustomer',
+        membershipPlanId: planId,
+      },
+    );
     const planUserIds = planCustomerIds.map((id) => String(id));
 
     if (!planUserIds.length) {

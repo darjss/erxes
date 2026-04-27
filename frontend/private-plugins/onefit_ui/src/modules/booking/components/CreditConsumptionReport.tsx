@@ -720,7 +720,9 @@ export function CreditConsumptionReport() {
         <FilterField label="Plan" optional>
           <Select
             value={planId || '__all__'}
-            onValueChange={(value) => setPlanId(value === '__all__' ? '' : value)}
+            onValueChange={(value) =>
+              setPlanId(value === '__all__' ? '' : value)
+            }
           >
             <Select.Trigger className="min-w-[220px]">
               <Select.Value placeholder="All plans" />

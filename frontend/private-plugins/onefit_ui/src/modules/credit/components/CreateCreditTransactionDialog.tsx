@@ -402,8 +402,8 @@ const CreateCreditTransactionForm = ({ onClose }: { onClose: () => void }) => {
                         isAmountPositive
                           ? 'Enter positive amount'
                           : isAmountNegative
-                          ? 'Enter negative amount'
-                          : 'Enter amount'
+                            ? 'Enter negative amount'
+                            : 'Enter amount'
                       }
                       onChange={(e) => {
                         const inputValue = e.target.value;
