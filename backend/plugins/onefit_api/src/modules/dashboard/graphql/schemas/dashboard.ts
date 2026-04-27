@@ -81,5 +81,9 @@ export const types = `
 `;
 
 export const queries = `
-  oneFitDashboardStats(startDate: Date!, endDate: Date!): OneFitDashboardStats
+  oneFitDashboardStats(
+    startDate: Date!
+    endDate: Date!
+    planId: String
+  ): OneFitDashboardStats
 `;

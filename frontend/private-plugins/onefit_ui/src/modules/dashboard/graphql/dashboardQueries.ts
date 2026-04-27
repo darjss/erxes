@@ -1,8 +1,16 @@
 import { gql } from '@apollo/client';
 
 export const ONE_FIT_DASHBOARD_STATS = gql`
-  query OneFitDashboardStats($startDate: Date!, $endDate: Date!) {
-    oneFitDashboardStats(startDate: $startDate, endDate: $endDate) {
+  query OneFitDashboardStats(
+    $startDate: Date!
+    $endDate: Date!
+    $planId: String
+  ) {
+    oneFitDashboardStats(
+      startDate: $startDate
+      endDate: $endDate
+      planId: $planId
+    ) {
       totalOneFitUsers {
         value
         previousValue

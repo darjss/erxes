@@ -108,8 +108,8 @@ export const queries = `
   oneFitBooking(_id: String): OneFitBooking
   oneFitBookingByBookingId(bookingId: String!): OneFitBooking
   oneFitAccountStatement(providerId: String, startDate: Date!, endDate: Date!): OneFitAccountStatementResponse
-  oneFitCreditConsumption(startDate: Date!, endDate: Date!, providerId: String, userId: String, companyId: String): OneFitCreditConsumptionResponse
-  oneFitCreditConsumptionBookings(startDate: Date!, endDate: Date!, providerId: String, userId: String, companyId: String, orderBy: JSON, ${GQL_CURSOR_PARAM_DEFS}): OneFitBookingListResponse
+  oneFitCreditConsumption(startDate: Date!, endDate: Date!, providerId: String, userId: String, companyId: String, planId: String): OneFitCreditConsumptionResponse
+  oneFitCreditConsumptionBookings(startDate: Date!, endDate: Date!, providerId: String, userId: String, companyId: String, planId: String, orderBy: JSON, ${GQL_CURSOR_PARAM_DEFS}): OneFitBookingListResponse
   cpOneFitBookings(${cpBookingQueryParams}, ${GQL_CURSOR_PARAM_DEFS}): OneFitBookingListResponse
   cpOneFitBookingsCount(${cpBookingQueryParams}): Int
   cpOneFitBooking(_id: String!): OneFitBooking

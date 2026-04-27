@@ -253,6 +253,7 @@ export function MainIndicatorsDashboard() {
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(
     null,
   );
+  const [selectedPlanId, setSelectedPlanId] = useState<string>('all');
   const [selectedCompanyId, setSelectedCompanyId] = useState<string>('all');
   const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(false);
   const range = useMemo(() => getRangeByPreset(preset), [preset]);
@@ -281,6 +282,7 @@ export function MainIndicatorsDashboard() {
     variables: {
       startDate: from.toISOString(),
       endDate: to.toISOString(),
+      planId: selectedPlanId === 'all' ? null : selectedPlanId,
     },
     skip: !isMaster || modeLoading,
     fetchPolicy: 'cache-and-network',
@@ -301,6 +303,16 @@ export function MainIndicatorsDashboard() {
     return categoryDistribution.filter((item) => item.depth === minDepth);
   }, [categoryDistribution]);
   const packageStats = (stats?.packageStats || []) as PackageStatItem[];
+  const categoryPlanOptions = useMemo(
+    () =>
+      packageStats
+        .map((item) => ({
+          value: item.planId,
+          label: item.planName,
+        }))
+        .sort((a, b) => a.label.localeCompare(b.label)),
+    [packageStats],
+  );
   const companyUserStats = (stats?.companyUserStats ||
     []) as CompanyUserStatItem[];
   const companyFilterOptions = useMemo(() => {
@@ -878,9 +890,24 @@ export function MainIndicatorsDashboard() {
         </div>
 
         <div className="rounded-xl border border-gray-200 bg-white p-5">
-          <h3 className="text-base font-semibold text-gray-900">
-            Үйлчилгээний категори
-          </h3>
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <h3 className="text-base font-semibold text-gray-900">
+              Үйлчилгээний категори
+            </h3>
+            <Select value={selectedPlanId} onValueChange={setSelectedPlanId}>
+              <Select.Trigger className="min-w-[220px] border-gray-200">
+                <Select.Value placeholder="Багц сонгох" />
+              </Select.Trigger>
+              <Select.Content>
+                <Select.Item value="all">Бүх багц</Select.Item>
+                {categoryPlanOptions.map((plan) => (
+                  <Select.Item key={plan.value} value={plan.value}>
+                    {plan.label}
+                  </Select.Item>
+                ))}
+              </Select.Content>
+            </Select>
+          </div>
 
           {loading && !stats ? (
             <div className="mt-4 space-y-3">

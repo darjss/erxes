@@ -7,6 +7,7 @@ export interface IOneFitCreditConsumptionFilterParams {
   providerId?: string;
   userId?: string;
   companyId?: string;
+  planId?: string;
   startDate: Date;
   endDate: Date;
 }
@@ -16,7 +17,7 @@ export async function buildOneFitCreditConsumptionFilter(
   params: IOneFitCreditConsumptionFilterParams,
 ) {
   const { subdomain } = context;
-  const { providerId, userId, companyId, startDate, endDate } = params;
+  const { providerId, userId, companyId, planId, startDate, endDate } = params;
 
   const filter: any = {
     status: { $in: [BookingStatus.COMPLETED, BookingStatus.NO_SHOW] },
@@ -53,6 +54,37 @@ export async function buildOneFitCreditConsumptionFilter(
 
     const ids = customerIds?.filter((id) => id && id.trim()) ?? [];
     filter.userId = ids.length > 0 ? { $in: ids } : { $in: [] };
+  }
+
+  if (planId) {
+    const existingUserFilter = filter.userId;
+    const planCustomerIds = await context.models.OneFitCustomer.distinct('_id', {
+      __t: 'OneFitCustomer',
+      membershipPlanId: planId,
+    });
+    const planUserIds = planCustomerIds.map((id) => String(id));
+
+    if (!planUserIds.length) {
+      filter.userId = { $in: [] };
+    } else if (!existingUserFilter) {
+      filter.userId = { $in: planUserIds };
+    } else if (typeof existingUserFilter === 'string') {
+      filter.userId = planUserIds.includes(existingUserFilter)
+        ? existingUserFilter
+        : { $in: [] };
+    } else if (
+      existingUserFilter &&
+      typeof existingUserFilter === 'object' &&
+      '$in' in existingUserFilter &&
+      Array.isArray(existingUserFilter.$in)
+    ) {
+      const intersectedIds = existingUserFilter.$in.filter((id: string) =>
+        planUserIds.includes(id),
+      );
+      filter.userId = { $in: intersectedIds };
+    } else {
+      filter.userId = { $in: planUserIds };
+    }
   }
 
   return addInstanceIdFilter(context, filter);
