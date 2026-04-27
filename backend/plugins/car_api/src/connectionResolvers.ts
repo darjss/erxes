@@ -4,7 +4,7 @@ import { ICarDocument } from '@/car/@types/car';
 
 import mongoose from 'mongoose';
 
-import { loadCarClass, ICarModel } from '@/car/db/models/car';
+import { loadCarClass, ICarModel } from '@/car/db/models/Car';
 
 export interface IModels {
   Car: ICarModel;

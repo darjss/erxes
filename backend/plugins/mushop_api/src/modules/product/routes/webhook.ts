@@ -1,6 +1,5 @@
 import { Router, Request, Response } from 'express';
 import { generateModels } from '~/connectionResolvers';
-import { setEventHandlerRuntimeContext } from 'erxes-api-shared/core-modules/common/eventHandlers/runtimeContext';
 
 const router: Router = Router();
 
@@ -13,7 +12,6 @@ router.post('/syncProduct', async (req: Request, res: Response) => {
     if (!subdomain) return res.status(400).json({ error: 'subdomain is required' });
     if (!entityId) return res.status(400).json({ error: 'payload.entityId is required' });
 
-    setEventHandlerRuntimeContext(subdomain, { subdomain, userId: '' });
     const models = await generateModels(subdomain);
 
     if (entityIds?.length && action === 'delete') {

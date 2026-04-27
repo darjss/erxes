@@ -3,7 +3,6 @@ import { generateModels } from '~/connectionResolvers';
 import { SubmissionPlatform } from '@/platform/@types/submission';
 import { SUBMISSION_PLATFORMS } from '@/platform/db/definitions/submission';
 import { SUPPLIER_VERIFICATION_STATUS } from '~/constants';
-import { setEventHandlerRuntimeContext } from 'erxes-api-shared/core-modules/common/eventHandlers/runtimeContext';
 
 const router: Router = Router();
 
@@ -30,7 +29,6 @@ router.post('/:platform/submission', async (req: Request, res: Response) => {
     if (!status)
       return res.status(400).json({ error: 'payload.data.status is required' });
 
-    setEventHandlerRuntimeContext(subdomain, { subdomain, userId: '' });
     const models = await generateModels(subdomain);
     await models.Submission.receiveDecision(platform, entityId, status, note);
 
@@ -59,7 +57,6 @@ router.post('/:platform/product', async (req: Request, res: Response) => {
     if (!action)
       return res.status(400).json({ error: 'payload.data.action is required' });
 
-    setEventHandlerRuntimeContext(subdomain, { subdomain, userId: '' });
     const models = await generateModels(subdomain);
     await models.Submission.receiveProductUpdate(entityId, action);
 
@@ -80,14 +77,21 @@ router.post('/supplier', async (req: Request, res: Response) => {
     if (!entityId)
       return res.status(400).json({ error: 'payload.entityId is required' });
     if (!verificationStatus)
-      return res.status(400).json({ error: 'payload.data.verificationStatus is required' });
+      return res
+        .status(400)
+        .json({ error: 'payload.data.verificationStatus is required' });
     if (!SUPPLIER_VERIFICATION_STATUS.ALL.includes(verificationStatus)) {
-      return res.status(400).json({ error: `Invalid verificationStatus: ${verificationStatus}` });
+      return res
+        .status(400)
+        .json({ error: `Invalid verificationStatus: ${verificationStatus}` });
     }
 
-    setEventHandlerRuntimeContext(subdomain, { subdomain, userId: '' });
     const models = await generateModels(subdomain);
-    await models.Supplier.updateVerificationStatus(entityId, verificationStatus, note);
+    await models.Supplier.updateVerificationStatus(
+      entityId,
+      verificationStatus,
+      note,
+    );
 
     return res.status(200).json({ success: true });
   } catch (e: any) {
