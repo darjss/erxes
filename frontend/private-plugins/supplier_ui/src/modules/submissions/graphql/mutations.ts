@@ -1,10 +1,9 @@
 import { gql } from '@apollo/client';
 
 const SUBMISSION_FIELDS = gql`
-  fragment SubmissionFields on Submission {
+  fragment SubmissionFields on SupplierSubmission {
     _id
     productId
-    supplierId
     status
     note
     offering {
@@ -22,8 +21,8 @@ const SUBMISSION_FIELDS = gql`
 `;
 
 export const SUBMIT_PRODUCTS_BULK = gql`
-  mutation SubmitProductsBulk($items: [SubmitProductInput!]!) {
-    submitProductsBulk(items: $items) {
+  mutation SupplierSubmitProductsBulk($platform: String!, $items: [SubmitProductInput!]!) {
+    supplierSubmitProductsBulk(platform: $platform, items: $items) {
       ...SubmissionFields
     }
   }
@@ -31,11 +30,12 @@ export const SUBMIT_PRODUCTS_BULK = gql`
 `;
 
 export const RESUBMIT_PRODUCT_TO_PLATFORM = gql`
-  mutation ResubmitProductToPlatform(
+  mutation SupplierResubmitProduct(
+    $platform: String!
     $productId: String!
     $offering: SubmitOfferingInput
   ) {
-    resubmitProductToPlatform(productId: $productId offering: $offering) {
+    supplierResubmitProduct(platform: $platform, productId: $productId, offering: $offering) {
       ...SubmissionFields
     }
   }

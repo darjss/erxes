@@ -50,6 +50,7 @@ export interface ISupplier {
   dateFounded?: string;
   website?: string;
   verificationStatus?: string;
+  verificationNote?: string;
   tierLevel?: number;
   socialLinks?: ISupplierSocialLink;
   ownerUserId?: string;

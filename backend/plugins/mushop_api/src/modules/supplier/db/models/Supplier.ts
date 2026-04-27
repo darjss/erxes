@@ -1,8 +1,8 @@
 import { Model } from 'mongoose';
+import { EventDispatcherReturn } from 'erxes-api-shared/core-modules';
 import { IModels } from '~/connectionResolvers';
 import { supplierSchema } from '@/supplier/db/definitions/supplier';
 import {
-  ISupplier,
   IMushopSupplierDocument,
   SupplierQueryParams,
 } from '@/supplier/@types/supplier';
@@ -10,32 +10,41 @@ import { SUPPLIER_VERIFICATION_STATUS } from '~/constants';
 import { generateFilter } from '@/supplier/utils';
 import { cursorPaginate } from 'erxes-api-shared/utils';
 import { ICursorPaginateParams } from 'erxes-api-shared/core-types';
+import {
+  buildSupplierStatusChangedLog,
+  buildSupplierProfileUpdatedLog,
+  buildSupplierRegisteredLog,
+} from '~/meta/activity-log/supplier';
 
 export interface ISupplierModel extends Model<IMushopSupplierDocument> {
   getSupplier(_id: string): Promise<IMushopSupplierDocument>;
-  listSuppliers(
-    params: SupplierQueryParams & ICursorPaginateParams,
-  ): Promise<{
+  listSuppliers(params: SupplierQueryParams & ICursorPaginateParams): Promise<{
     list: IMushopSupplierDocument[];
     pageInfo: any;
     totalCount: number;
   }>;
-  adminUpdateSupplier(
-    _id: string,
-    doc: ISupplier,
-  ): Promise<IMushopSupplierDocument | null>;
   updateVerificationStatus(
     _id: string,
     status: string,
+    note?: string,
   ): Promise<IMushopSupplierDocument | null>;
   updateTierLevel(
     _id: string,
     tierLevel: number,
   ): Promise<IMushopSupplierDocument | null>;
+  syncFromSupplier(
+    entityId: string,
+    subdomain: string,
+    input: any,
+    userId?: string,
+  ): Promise<IMushopSupplierDocument | null>;
   removeSupplier(_id: string): Promise<{ ok?: number }>;
 }
 
-export const loadSupplierClass = (models: IModels) => {
+export const loadSupplierClass = (
+  models: IModels,
+  { createActivityLog }: EventDispatcherReturn,
+) => {
   class Supplier {
     public static async getSupplier(_id: string) {
       const supplier = await models.Supplier.findOne({ _id }).lean();
@@ -54,31 +63,74 @@ export const loadSupplierClass = (models: IModels) => {
       });
     }
 
-    public static async adminUpdateSupplier(_id: string, doc: ISupplier) {
-      return models.Supplier.findOneAndUpdate(
-        { _id },
-        { $set: doc },
-        { new: true },
-      );
-    }
-
-    public static async updateVerificationStatus(_id: string, status: string) {
+    public static async updateVerificationStatus(
+      _id: string,
+      status: string,
+      note?: string,
+    ) {
       if (!SUPPLIER_VERIFICATION_STATUS.ALL.includes(status)) {
         throw new Error('Invalid verification status');
       }
-      return models.Supplier.findOneAndUpdate(
+      const supplier = await models.Supplier.findOneAndUpdate(
         { _id },
-        { $set: { verificationStatus: status } },
+        {
+          $set: { verificationStatus: status, verificationNote: note ?? null },
+        },
         { new: true },
       );
+
+      if (supplier) {
+        createActivityLog(
+          buildSupplierStatusChangedLog(supplier, status, note),
+        );
+      }
+
+      return supplier;
     }
 
     public static async updateTierLevel(_id: string, tierLevel: number) {
+      if (!Number.isInteger(tierLevel) || tierLevel < 0) {
+        throw new Error('tierLevel must be a non-negative integer');
+      }
       return models.Supplier.findOneAndUpdate(
         { _id },
         { $set: { tierLevel } },
         { new: true },
       );
+    }
+
+    public static async syncFromSupplier(
+      entityId: string,
+      subdomain: string,
+      input: any,
+      userId?: string,
+    ) {
+      const existing = await models.Supplier.findOne({
+        subdomain,
+        entityId,
+      }).lean();
+
+      const supplier = await models.Supplier.findOneAndUpdate(
+        { subdomain, entityId },
+        {
+          $set: {
+            ...(input || {}),
+            ...(userId ? { ownerUserId: userId } : {}),
+          },
+          $setOnInsert: { subdomain, entityId },
+        },
+        { upsert: true, new: true, setDefaultsOnInsert: true },
+      );
+
+      if (supplier) {
+        createActivityLog(
+          existing
+            ? buildSupplierProfileUpdatedLog(supplier, input)
+            : buildSupplierRegisteredLog(supplier),
+        );
+      }
+
+      return supplier;
     }
 
     public static async removeSupplier(_id: string) {

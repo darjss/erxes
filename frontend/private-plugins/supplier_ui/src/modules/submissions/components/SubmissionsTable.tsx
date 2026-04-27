@@ -2,6 +2,7 @@ import { RecordTable } from 'erxes-ui';
 import { useSubmissions } from '../hooks/useSubmissions';
 import { submissionColumns } from './submissionColumns';
 import { SubmissionDetailSheet } from './SubmissionDetailSheet';
+import { SubmissionsCommandBar } from './SubmissionsCommandBar';
 
 const CURSOR_SESSION_KEY = 'supplier-submissions-cursor';
 
@@ -32,6 +33,7 @@ export const SubmissionsTable = () => {
             </RecordTable.Body>
           </RecordTable>
         </RecordTable.CursorProvider>
+        <SubmissionsCommandBar />
       </RecordTable.Provider>
 
       <SubmissionDetailSheet />

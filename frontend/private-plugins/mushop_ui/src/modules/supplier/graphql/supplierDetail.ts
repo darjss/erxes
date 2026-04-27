@@ -27,7 +27,6 @@ export const MUSHOP_SUPPLIER_DETAIL = gql`
         youtube
         website
       }
-      ownerUserId
       createdAt
       updatedAt
     }

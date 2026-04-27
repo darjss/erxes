@@ -12,6 +12,7 @@ export const SuppliersTable = () => {
     <RecordTable.Provider
       columns={suppliersColumns}
       data={suppliers || []}
+      stickyColumns={['checkbox', 'avatar', 'name']}
       className="m-3"
     >
       <RecordTable.CursorProvider

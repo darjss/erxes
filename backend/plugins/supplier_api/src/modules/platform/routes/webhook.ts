@@ -2,14 +2,16 @@ import { Router, Request, Response } from 'express';
 import { generateModels } from '~/connectionResolvers';
 import { SubmissionPlatform } from '@/platform/@types/submission';
 import { SUBMISSION_PLATFORMS } from '@/platform/db/definitions/submission';
+import { SUPPLIER_VERIFICATION_STATUS } from '~/constants';
+import { setEventHandlerRuntimeContext } from 'erxes-api-shared/core-modules/common/eventHandlers/runtimeContext';
 
 const router: Router = Router();
 
 // Routes are mounted at /webhook/:platform/...
-// e.g. POST /webhook/mushop/receiveDecision
-//      POST /webhook/blockadmin/receiveDecision
+// e.g. POST /webhook/mushop/submission
+//      POST /webhook/blockadmin/submission
 
-router.post('/:platform/receiveDecision', async (req: Request, res: Response) => {
+router.post('/:platform/submission', async (req: Request, res: Response) => {
   try {
     const platform = req.params.platform as SubmissionPlatform;
 
@@ -21,10 +23,14 @@ router.post('/:platform/receiveDecision', async (req: Request, res: Response) =>
     const { entityId, data } = payload || {};
     const { status, note } = data || {};
 
-    if (!subdomain) return res.status(400).json({ error: 'subdomain is required' });
-    if (!entityId) return res.status(400).json({ error: 'payload.entityId is required' });
-    if (!status) return res.status(400).json({ error: 'payload.data.status is required' });
+    if (!subdomain)
+      return res.status(400).json({ error: 'subdomain is required' });
+    if (!entityId)
+      return res.status(400).json({ error: 'payload.entityId is required' });
+    if (!status)
+      return res.status(400).json({ error: 'payload.data.status is required' });
 
+    setEventHandlerRuntimeContext(subdomain, { subdomain, userId: '' });
     const models = await generateModels(subdomain);
     await models.Submission.receiveDecision(platform, entityId, status, note);
 
@@ -34,7 +40,7 @@ router.post('/:platform/receiveDecision', async (req: Request, res: Response) =>
   }
 });
 
-router.post('/:platform/receiveProductUpdate', async (req: Request, res: Response) => {
+router.post('/:platform/product', async (req: Request, res: Response) => {
   try {
     const platform = req.params.platform as SubmissionPlatform;
 
@@ -46,12 +52,42 @@ router.post('/:platform/receiveProductUpdate', async (req: Request, res: Respons
     const { entityId, data } = payload || {};
     const { action } = data || {};
 
-    if (!subdomain) return res.status(400).json({ error: 'subdomain is required' });
-    if (!entityId) return res.status(400).json({ error: 'payload.entityId is required' });
-    if (!action) return res.status(400).json({ error: 'payload.data.action is required' });
+    if (!subdomain)
+      return res.status(400).json({ error: 'subdomain is required' });
+    if (!entityId)
+      return res.status(400).json({ error: 'payload.entityId is required' });
+    if (!action)
+      return res.status(400).json({ error: 'payload.data.action is required' });
 
+    setEventHandlerRuntimeContext(subdomain, { subdomain, userId: '' });
     const models = await generateModels(subdomain);
     await models.Submission.receiveProductUpdate(entityId, action);
+
+    return res.status(200).json({ success: true });
+  } catch (e: any) {
+    return res.status(400).json({ error: e.message });
+  }
+});
+
+router.post('/supplier', async (req: Request, res: Response) => {
+  try {
+    const { subdomain, payload } = req.body || {};
+    const { entityId, data } = payload || {};
+    const { verificationStatus, note } = data || {};
+
+    if (!subdomain)
+      return res.status(400).json({ error: 'subdomain is required' });
+    if (!entityId)
+      return res.status(400).json({ error: 'payload.entityId is required' });
+    if (!verificationStatus)
+      return res.status(400).json({ error: 'payload.data.verificationStatus is required' });
+    if (!SUPPLIER_VERIFICATION_STATUS.ALL.includes(verificationStatus)) {
+      return res.status(400).json({ error: `Invalid verificationStatus: ${verificationStatus}` });
+    }
+
+    setEventHandlerRuntimeContext(subdomain, { subdomain, userId: '' });
+    const models = await generateModels(subdomain);
+    await models.Supplier.updateVerificationStatus(entityId, verificationStatus, note);
 
     return res.status(200).json({ success: true });
   } catch (e: any) {

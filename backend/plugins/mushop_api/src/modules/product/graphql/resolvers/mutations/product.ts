@@ -1,6 +1,6 @@
 import { IContext } from '~/connectionResolvers';
 import { MUSHOP_PRODUCT_STATUS } from '@/product/db/definitions/product';
-import { sendDecisionToSupplier } from '~/utils/sendDecision';
+import { sendMessageToSupplier } from '~/utils/sendDecision';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 
 export const productMutations = {
@@ -17,12 +17,8 @@ export const productMutations = {
         pluginName: 'core',
         module: 'products',
         action: 'updateProduct',
-        input: {
-          _id: product.entityId,
-          doc: { categoryId: categoryId || null },
-        },
+        input: { _id: product.entityId, doc: { categoryId: categoryId || null } },
       });
-
     }
 
     return product;
@@ -46,14 +42,10 @@ export const productMutations = {
       throw new Error('Invalid product status');
     }
 
-    const product = await models.MushopProduct.findOneAndUpdate(
-      { _id },
-      { $set: { status, note: status === 'rejected' ? (note ?? null) : null } },
-      { new: true },
-    );
+    const product = await models.MushopProduct.updateStatus(_id, status, note);
 
     if (product) {
-      sendDecisionToSupplier({
+      await sendMessageToSupplier({
         subdomain: product.subdomain,
         entityId: product.entityId,
         status,

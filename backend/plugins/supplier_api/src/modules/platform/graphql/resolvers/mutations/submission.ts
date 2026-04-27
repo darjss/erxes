@@ -19,6 +19,7 @@ const fetchProductPayload = async (subdomain: string, productId: string) => {
   if (!product) throw new Error('Product not found');
 
   let category: any = null;
+
   if (product.categoryId) {
     try {
       category = await sendTRPCMessage({
@@ -66,15 +67,15 @@ const fetchProductPayload = async (subdomain: string, productId: string) => {
   };
 };
 
-const syncToPlatform = (
+const sendMessageToPlatform = async (
   subdomain: string,
   platform: SubmissionPlatform,
   productId: string,
   product: any,
   offering: ISubmissionOffering,
   action: 'create' | 'update',
-) => {
-  sendMessage({
+): Promise<void> => {
+  await sendMessage({
     subdomain,
     platform,
     path: 'syncProduct',
@@ -85,8 +86,22 @@ const syncToPlatform = (
   });
 };
 
+const assertSupplierCanSubmit = async (
+  models: IContext['models'],
+  user: IContext['user'],
+) => {
+  const supplier = await models.Supplier.getGetSupplier(user._id);
+  if (!supplier) throw new Error('Supplier profile not found');
+  if (supplier.verificationStatus === 'unverified') {
+    const reason = supplier.verificationNote
+      ? `Your profile was rejected: ${supplier.verificationNote}`
+      : 'Your supplier profile has been rejected. You cannot submit products.';
+    throw new Error(reason);
+  }
+};
+
 export const submissionMutations = {
-  resubmitProductToPlatform: async (
+  supplierResubmitProduct: async (
     _root: undefined,
     {
       platform,
@@ -97,28 +112,19 @@ export const submissionMutations = {
       productId: string;
       offering?: ISubmissionOffering;
     },
-    { models, subdomain }: IContext,
+    { models, subdomain, user }: IContext,
   ) => {
-    const product = await fetchProductPayload(subdomain, productId);
-    const submission = await models.Submission.submitProduct(
-      platform,
-      productId,
-      offering,
-    );
+    await assertSupplierCanSubmit(models, user);
 
-    syncToPlatform(
-      subdomain,
-      platform,
-      productId,
-      product,
-      offering || {},
-      'update',
-    );
+    const product = await fetchProductPayload(subdomain, productId);
+    const submission = await models.Submission.resubmitProduct(platform, productId, offering);
+
+    await sendMessageToPlatform(subdomain, platform, productId, product, offering || {}, 'update');
 
     return submission;
   },
 
-  submitProductsBulk: async (
+  supplierSubmitProductsBulk: async (
     _root: undefined,
     {
       platform,
@@ -127,25 +133,15 @@ export const submissionMutations = {
       platform: SubmissionPlatform;
       items: Array<{ productId: string; offering?: ISubmissionOffering }>;
     },
-    { models, subdomain }: IContext,
+    { models, subdomain, user }: IContext,
   ) => {
+    await assertSupplierCanSubmit(models, user);
     return Promise.all(
       items.map(async ({ productId, offering }) => {
         const product = await fetchProductPayload(subdomain, productId);
-        const submission = await models.Submission.submitProduct(
-          platform,
-          productId,
-          offering,
-        );
+        const submission = await models.Submission.submitProduct(platform, productId, offering);
 
-        syncToPlatform(
-          subdomain,
-          platform,
-          productId,
-          product,
-          offering || {},
-          'create',
-        );
+        await sendMessageToPlatform(subdomain, platform, productId, product, offering || {}, 'create');
 
         return submission;
       }),

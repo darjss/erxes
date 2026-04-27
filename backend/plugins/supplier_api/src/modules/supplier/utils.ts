@@ -51,7 +51,12 @@ export const generateFilter = (params: SupplierQueryParams) => {
   }
 
   if (dateFilters) {
-    const dateFilter = JSON.parse(dateFilters);
+    let dateFilter: Record<string, any>;
+    try {
+      dateFilter = JSON.parse(dateFilters);
+    } catch {
+      throw new Error('Invalid dateFilters: must be valid JSON');
+    }
 
     for (const key in dateFilter) {
       if (!Object.prototype.hasOwnProperty.call(dateFilter, key)) continue;

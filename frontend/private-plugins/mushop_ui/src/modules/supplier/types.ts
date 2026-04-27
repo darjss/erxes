@@ -4,20 +4,24 @@ export interface ISupplier {
   _id: string;
   name?: string;
   description?: string;
+  about?: string;
   logo?: string;
   coverImage?: string;
   registrationNumber?: string;
   primaryEmail?: string;
   primaryPhone?: string;
+  emails?: string[];
+  phones?: string[];
   website?: string;
   dateFounded?: string;
   verificationStatus?: string;
-  tierLevel?: string;
+  tierLevel?: number;
   address?: {
     short?: string;
     details?: { city?: string; city_district?: string };
   };
   createdAt?: string;
+  updatedAt?: string;
   socialLinks?: Record<string, string>;
 }
 

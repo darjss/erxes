@@ -1,4 +1,5 @@
 import { Model } from 'mongoose';
+import { EventDispatcherReturn } from 'erxes-api-shared/core-modules';
 import { IModels } from '~/connectionResolvers';
 import { supplierSchema } from '@/supplier/db/definitions/supplier';
 import {
@@ -10,6 +11,7 @@ import { SUPPLIER_VERIFICATION_STATUS } from '~/constants';
 import { generateFilter } from '@/supplier/utils';
 import { cursorPaginate } from 'erxes-api-shared/utils';
 import { ICursorPaginateParams } from 'erxes-api-shared/core-types';
+import { buildSupplierVerificationChangedLog } from '~/meta/activity-log/supplier';
 
 // Fields a supplier user is NOT allowed to set on themselves
 const ADMIN_ONLY_FIELDS = ['verificationStatus', 'tierLevel', 'ownerUserId'];
@@ -52,6 +54,7 @@ export interface ISupplierModel extends Model<ISupplierDocument> {
   updateVerificationStatus(
     _id: string,
     status: string,
+    note?: string,
   ): Promise<ISupplierDocument | null>;
   updateTierLevel(
     _id: string,
@@ -60,7 +63,10 @@ export interface ISupplierModel extends Model<ISupplierDocument> {
   removeSupplier(_id: string): Promise<{ ok?: number }>;
 }
 
-export const loadSupplierClass = (models: IModels) => {
+export const loadSupplierClass = (
+  models: IModels,
+  { createActivityLog }: EventDispatcherReturn,
+) => {
   class Supplier {
     public static async getSupplier(_id: string) {
       const supplier = await models.Supplier.findOne({ _id }).lean();
@@ -113,18 +119,27 @@ export const loadSupplierClass = (models: IModels) => {
       );
     }
 
-    public static async updateVerificationStatus(_id: string, status: string) {
+    public static async updateVerificationStatus(_id: string, status: string, note?: string) {
       if (!SUPPLIER_VERIFICATION_STATUS.ALL.includes(status)) {
         throw new Error('Invalid verification status');
       }
-      return models.Supplier.findOneAndUpdate(
+      const supplier = await models.Supplier.findOneAndUpdate(
         { _id },
-        { $set: { verificationStatus: status } },
+        { $set: { verificationStatus: status, verificationNote: note ?? null } },
         { new: true },
       );
+
+      if (supplier) {
+        createActivityLog(buildSupplierVerificationChangedLog(supplier, status, note));
+      }
+
+      return supplier;
     }
 
     public static async updateTierLevel(_id: string, tierLevel: number) {
+      if (!Number.isInteger(tierLevel) || tierLevel < 0) {
+        throw new Error('tierLevel must be a non-negative integer');
+      }
       return models.Supplier.findOneAndUpdate(
         { _id },
         { $set: { tierLevel } },

@@ -1,10 +1,16 @@
 import { Model } from 'mongoose';
+import { EventDispatcherReturn } from 'erxes-api-shared/core-modules';
 import { IModels } from '~/connectionResolvers';
 import { mushopProductSchema } from '@/product/db/definitions/product';
 import {
   IMushopProduct,
   IMushopProductMushopDocument,
 } from '@/product/@types/product';
+import {
+  buildProductSubmittedLog,
+  buildProductResubmittedLog,
+  buildProductStatusChangedLog,
+} from '~/meta/activity-log/product';
 
 export interface IMushopProductModel
   extends Model<IMushopProductMushopDocument> {
@@ -12,6 +18,7 @@ export interface IMushopProductModel
     subdomain: string,
     entityId: string,
     doc: IMushopProduct,
+    action?: 'create' | 'update',
   ): Promise<IMushopProductMushopDocument>;
   getProduct(_id: string): Promise<IMushopProductMushopDocument>;
   assignCategory(
@@ -19,18 +26,32 @@ export interface IMushopProductModel
     categoryId: string | null,
   ): Promise<IMushopProductMushopDocument>;
   removeProduct(_id: string): Promise<IMushopProductMushopDocument | null>;
+  updateStatus(
+    _id: string,
+    status: string,
+    note?: string,
+  ): Promise<IMushopProductMushopDocument | null>;
 }
 
-export const loadMushopProductClass = (models: IModels) => {
+export const loadMushopProductClass = (
+  models: IModels,
+  { createActivityLog }: EventDispatcherReturn,
+) => {
   class MushopProduct {
     public static async syncProduct(
       subdomain: string,
       entityId: string,
       doc: IMushopProduct,
+      action?: 'create' | 'update',
     ) {
       const { initialCategory, ...rest } = doc;
 
-      return models.MushopProduct.findOneAndUpdate(
+      const existing = await models.MushopProduct.findOne({
+        subdomain,
+        entityId,
+      }).lean();
+
+      const synced = await models.MushopProduct.findOneAndUpdate(
         { subdomain, entityId },
         {
           $set: {
@@ -41,6 +62,16 @@ export const loadMushopProductClass = (models: IModels) => {
         },
         { upsert: true, new: true, setDefaultsOnInsert: true },
       );
+
+      if (synced) {
+        if (!existing) {
+          createActivityLog(buildProductSubmittedLog(synced));
+        } else if (action === 'update') {
+          createActivityLog(buildProductResubmittedLog(synced));
+        }
+      }
+
+      return synced;
     }
 
     public static async getProduct(_id: string) {
@@ -59,14 +90,28 @@ export const loadMushopProductClass = (models: IModels) => {
     public static async assignCategory(_id: string, categoryId: string | null) {
       const product = await models.MushopProduct.findOneAndUpdate(
         { _id },
-        {
-          $set: {
-            categoryId: categoryId || null,
-          },
-        },
+        { $set: { categoryId: categoryId || null } },
         { new: true },
       );
       if (!product) throw new Error('Product not found');
+      return product;
+    }
+
+    public static async updateStatus(
+      _id: string,
+      status: string,
+      note?: string,
+    ) {
+      const product = await models.MushopProduct.findOneAndUpdate(
+        { _id },
+        { $set: { status, note: status === 'rejected' ? note ?? null : null } },
+        { new: true },
+      );
+
+      if (product) {
+        createActivityLog(buildProductStatusChangedLog(product, status, note));
+      }
+
       return product;
     }
   }

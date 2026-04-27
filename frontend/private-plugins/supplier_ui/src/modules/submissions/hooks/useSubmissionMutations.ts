@@ -9,16 +9,16 @@ export const useSubmissionMutations = () => {
   const [submitBulk, { loading: submittingBulk }] = useMutation(SUBMIT_PRODUCTS_BULK, {
     refetchQueries,
     onCompleted: (data) =>
-      toast.success(`${data.submitProductsBulk?.length ?? 0} product(s) submitted`),
-    onError: (err) => toast.error(err.message),
+      toast({ title: `${data.supplierSubmitProductsBulk?.length ?? 0} product(s) submitted` }),
+    onError: (err) => toast({ title: 'Error', description: err.message, variant: 'destructive' }),
   });
 
   const [resubmitProduct, { loading: resubmitting }] = useMutation(
     RESUBMIT_PRODUCT_TO_PLATFORM,
     {
       refetchQueries,
-      onCompleted: () => toast.success('Product resubmitted'),
-      onError: (err) => toast.error(err.message),
+      onCompleted: () => toast({ title: 'Product resubmitted' }),
+      onError: (err) => toast({ title: 'Error', description: err.message, variant: 'destructive' }),
     },
   );
 

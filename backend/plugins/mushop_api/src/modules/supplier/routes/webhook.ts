@@ -9,24 +9,13 @@ router.post('/updateSupplier', async (req: Request, res: Response) => {
     const { entityId, data } = payload || {};
     const { input, userId } = data || {};
 
-    if (!subdomain) {
+    if (!subdomain)
       return res.status(400).json({ error: 'subdomain is required' });
-    }
-
-    if (!entityId) {
+    if (!entityId)
       return res.status(400).json({ error: 'payload.entityId is required' });
-    }
 
     const models = await generateModels(subdomain);
-
-    await models.Supplier.findOneAndUpdate(
-      { subdomain, entityId },
-      {
-        $set: { ...(input || {}), ...(userId ? { ownerUserId: userId } : {}) },
-        $setOnInsert: { subdomain, entityId },
-      },
-      { upsert: true, setDefaultsOnInsert: true },
-    );
+    await models.Supplier.syncFromSupplier(entityId, subdomain, input, userId);
 
     return res.status(200).json({ success: true });
   } catch (e: any) {

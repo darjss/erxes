@@ -50,6 +50,7 @@ export const supplierSchema = schemaWrapper(
         default: SUPPLIER_VERIFICATION_STATUS.PENDING,
       },
       tierLevel: { type: Number, default: 0 },
+      verificationNote: { type: String },
 
       socialLinks: { type: supplierSocialLinkSchema },
 

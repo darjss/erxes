@@ -23,6 +23,7 @@ export interface IMushopProduct {
   subUoms?: any;
   currency?: string;
   pdfAttachment?: any;
+  offering?: any;
   status?: string;
   note?: string;
 }

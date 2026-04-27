@@ -1,11 +1,12 @@
 import { apolloCustomScalars } from 'erxes-api-shared/utils';
 import { customResolvers } from './resolvers';
-import { WrappedMutation, DirectMutation } from './mutations';
+import { mutations } from './mutations';
 import { queries } from './queries';
 
 const resolvers: any = {
-  WrappedMutation,
-  DirectMutation,
+  Mutation: {
+    ...mutations,
+  },
   Query: {
     ...queries,
   },

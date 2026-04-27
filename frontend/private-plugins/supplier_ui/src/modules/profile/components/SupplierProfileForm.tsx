@@ -119,6 +119,12 @@ export const SupplierProfileForm = () => {
           {supplier?.verificationStatus || 'pending'}
         </Badge>
       </div>
+      {supplier?.verificationStatus === 'unverified' && supplier?.verificationNote && (
+        <div className="rounded-lg border border-destructive/50 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+          <p className="font-medium mb-1">Profile rejected</p>
+          <p>{supplier.verificationNote}</p>
+        </div>
+      )}
 
       <Form {...form}>
         <form
@@ -288,8 +294,7 @@ export const SupplierProfileForm = () => {
                   value={field.value}
                   onValueChange={(value) => {
                     field.onChange(value);
-
-                    form.setValue('address.details.city', value);
+                    form.setValue('address.details.city_district', '');
                   }}
                 >
                   <Form.Control>
@@ -317,7 +322,8 @@ export const SupplierProfileForm = () => {
               <Form.Item>
                 <Form.Label>District</Form.Label>
                 <Select
-                  value={field.value}
+                  key={city}
+                  value={field.value || ''}
                   onValueChange={field.onChange}
                   disabled={!city}
                 >

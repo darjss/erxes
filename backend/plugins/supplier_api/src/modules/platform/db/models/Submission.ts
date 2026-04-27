@@ -1,4 +1,5 @@
 import { Model } from 'mongoose';
+import { EventDispatcherReturn } from 'erxes-api-shared/core-modules';
 import { IModels } from '~/connectionResolvers';
 import { submissionSchema } from '@/platform/db/definitions/submission';
 import {
@@ -6,6 +7,11 @@ import {
   ISubmissionOffering,
   SubmissionPlatform,
 } from '@/platform/@types/submission';
+import {
+  buildSubmissionSubmittedLog,
+  buildSubmissionResubmittedLog,
+  buildSubmissionDecisionLog,
+} from '~/meta/activity-log/submission';
 
 export interface ISubmissionModel extends Model<ISubmissionDocument> {
   submitProduct(
@@ -13,6 +19,11 @@ export interface ISubmissionModel extends Model<ISubmissionDocument> {
     productId: string,
     offering?: ISubmissionOffering,
   ): Promise<ISubmissionDocument>;
+  resubmitProduct(
+    platform: SubmissionPlatform,
+    productId: string,
+    offering?: ISubmissionOffering,
+  ): Promise<ISubmissionDocument | null>;
   receiveDecision(
     platform: SubmissionPlatform,
     productId: string,
@@ -25,26 +36,48 @@ export interface ISubmissionModel extends Model<ISubmissionDocument> {
   ): Promise<void>;
 }
 
-export const loadSubmissionClass = (models: IModels) => {
+export const loadSubmissionClass = (
+  models: IModels,
+  { createActivityLog }: EventDispatcherReturn,
+) => {
   class Submission {
     public static async submitProduct(
       platform: SubmissionPlatform,
       productId: string,
       offering: ISubmissionOffering = {},
     ) {
-      return models.Submission.findOneAndUpdate(
+      const submission = await models.Submission.findOneAndUpdate(
         { platform, productId },
         {
-          $set: {
-            status: 'submitted',
-            note: null,
-            offering,
-            submittedAt: new Date(),
-          },
+          $set: { status: 'submitted', note: null, offering, submittedAt: new Date() },
           $setOnInsert: { platform, productId },
         },
         { upsert: true, new: true, setDefaultsOnInsert: true },
       );
+
+      if (submission) {
+        createActivityLog(buildSubmissionSubmittedLog(submission));
+      }
+
+      return submission;
+    }
+
+    public static async resubmitProduct(
+      platform: SubmissionPlatform,
+      productId: string,
+      offering: ISubmissionOffering = {},
+    ) {
+      const submission = await models.Submission.findOneAndUpdate(
+        { platform, productId },
+        { $set: { status: 'pending', note: null, offering, submittedAt: new Date() } },
+        { new: true },
+      );
+
+      if (submission) {
+        createActivityLog(buildSubmissionResubmittedLog(submission));
+      }
+
+      return submission;
     }
 
     public static async receiveDecision(
@@ -53,7 +86,7 @@ export const loadSubmissionClass = (models: IModels) => {
       status: string,
       note?: string,
     ) {
-      return models.Submission.findOneAndUpdate(
+      const submission = await models.Submission.findOneAndUpdate(
         { platform, productId },
         {
           $set: {
@@ -64,6 +97,12 @@ export const loadSubmissionClass = (models: IModels) => {
         },
         { new: true },
       );
+
+      if (submission) {
+        createActivityLog(buildSubmissionDecisionLog(submission, status, note));
+      }
+
+      return submission;
     }
 
     public static async receiveProductUpdate(
@@ -72,6 +111,14 @@ export const loadSubmissionClass = (models: IModels) => {
     ) {
       if (action === 'delete') {
         await models.Submission.deleteMany({ productId });
+        return;
+      }
+
+      if (action === 'update') {
+        await models.Submission.updateMany(
+          { productId },
+          { $set: { updatedAt: new Date() } },
+        );
       }
     }
   }

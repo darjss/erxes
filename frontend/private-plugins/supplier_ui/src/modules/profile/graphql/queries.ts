@@ -17,6 +17,7 @@ export const SUPPLIER_FRAGMENT = gql`
     dateFounded
     website
     verificationStatus
+    verificationNote
     tierLevel
     socialLinks {
       facebook

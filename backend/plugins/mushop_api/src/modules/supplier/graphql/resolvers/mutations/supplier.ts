@@ -1,28 +1,32 @@
 import { IContext } from '~/connectionResolvers';
-import { ISupplier } from '@/supplier/@types/supplier';
+import { sendSupplierStatusToSupplier } from '~/utils/sendSupplierStatus';
 
 export const supplierMutations = {
-  mushopUpdateSupplier: async (
-    _root: undefined,
-    { _id, input }: { _id: string; input: ISupplier },
-    { models }: IContext,
-  ) => {
-    return models.Supplier.adminUpdateSupplier(_id, input);
-  },
-
   mushopUpdateSupplierVerificationStatus: async (
     _root: undefined,
-    { _id, verificationStatus }: { _id: string; verificationStatus: string },
-    { models }: IContext,
+    { _id, verificationStatus, note }: { _id: string; verificationStatus: string; note?: string },
+    { models, user, subdomain }: IContext,
   ) => {
-    return models.Supplier.updateVerificationStatus(_id, verificationStatus);
+    if (!user) throw new Error('Login required');
+
+    const existing = await models.Supplier.getSupplier(_id);
+
+    await sendSupplierStatusToSupplier({
+      subdomain,
+      entityId: existing.entityId,
+      verificationStatus,
+      note,
+    });
+
+    return models.Supplier.updateVerificationStatus(_id, verificationStatus, note);
   },
 
   mushopUpdateSupplierTier: async (
     _root: undefined,
     { _id, tierLevel }: { _id: string; tierLevel: number },
-    { models }: IContext,
+    { models, user }: IContext,
   ) => {
+    if (!user) throw new Error('Login required');
     return models.Supplier.updateTierLevel(_id, tierLevel);
   },
 };

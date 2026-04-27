@@ -4,13 +4,16 @@ export const MUSHOP_UPDATE_SUPPLIER_VERIFICATION_STATUS = gql`
   mutation MushopUpdateSupplierVerificationStatus(
     $_id: String!
     $verificationStatus: String!
+    $note: String
   ) {
     mushopUpdateSupplierVerificationStatus(
       _id: $_id
       verificationStatus: $verificationStatus
+      note: $note
     ) {
       _id
       verificationStatus
+      verificationNote
     }
   }
 `;

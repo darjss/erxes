@@ -49,12 +49,12 @@ const getConsumers = (): ConsumerConfig[] => {
   return consumers;
 };
 
-const sendToConsumer = (
+const sendToConsumer = async (
   consumer: ConsumerConfig,
   subdomain: string,
   path: string,
   payload: IPayload,
-) => {
+): Promise<void> => {
   const endpoint = `${consumer.url}/webhook/${path}`;
 
   try {
@@ -64,33 +64,35 @@ const sendToConsumer = (
       .update(body)
       .digest('hex');
 
-    fetch(endpoint, {
+    const res = await fetch(endpoint, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'X-Signature': `sha256=${signature}`,
       },
       body,
-    }).catch((e) => {
-      console.error(`Failed to send message to ${consumer.name}: ${e}`);
+      signal: AbortSignal.timeout(5000),
     });
+
+    if (!res.ok) {
+      console.error(`Failed to send message to ${consumer.name}: HTTP ${res.status}`);
+    }
   } catch (e) {
     console.error(`Failed to send message to ${consumer.name}: ${e}`);
   }
 };
 
-export const sendMessage = ({ subdomain, path, payload, platform }: SendMessagePayload) => {
+export const sendMessage = async ({ subdomain, path, payload, platform }: SendMessagePayload): Promise<void> => {
   const consumers = getConsumers();
 
   if (!consumers.length) {
-    return console.error('No consumers configured (MUSHOP_API_URL / BLOCKADMIN_API_URL)');
+    console.error('No consumers configured (MUSHOP_API_URL / BLOCKADMIN_API_URL)');
+    return;
   }
 
   const targets = platform ? consumers.filter((c) => c.name === platform) : consumers;
 
-  for (const consumer of targets) {
-    sendToConsumer(consumer, subdomain, path, payload);
-  }
+  await Promise.all(targets.map((consumer) => sendToConsumer(consumer, subdomain, path, payload)));
 };
 
 const buildPayload = (
@@ -137,7 +139,7 @@ export const wrapMutationResolver = (mutations: Record<string, Resolver>) => {
       const entity = await resolver(root, args, context, info);
 
       if (entity) {
-        sendMessage({
+        await sendMessage({
           subdomain: context.subdomain,
           path,
           payload: buildPayload(

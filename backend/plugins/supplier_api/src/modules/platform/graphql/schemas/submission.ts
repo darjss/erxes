@@ -34,8 +34,8 @@ export const queries = `
 `;
 
 export const mutations = `
-  submitProductsBulk(platform: String!, items: [SubmitProductInput!]!): [SupplierSubmission]
-  resubmitProductToPlatform(platform: String!, productId: String!, offering: SubmitOfferingInput): SupplierSubmission
+  supplierSubmitProductsBulk(platform: String!, items: [SubmitProductInput!]!): [SupplierSubmission]
+  supplierResubmitProduct(platform: String!, productId: String!, offering: SubmitOfferingInput): SupplierSubmission
 `;
 
 export const inputTypes = `

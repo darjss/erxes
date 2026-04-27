@@ -1,5 +1,6 @@
 import { createGenerateModels } from 'erxes-api-shared/utils';
 import { IMainContext } from 'erxes-api-shared/core-types';
+import { ScopedEventHandlers } from 'erxes-api-shared/core-modules';
 import mongoose from 'mongoose';
 
 import { ISupplierDocument } from '@/supplier/@types/supplier';
@@ -23,17 +24,25 @@ export interface IContext extends IMainContext {
   subdomain: string;
 }
 
-export const loadClasses = (db: mongoose.Connection): IModels => {
+export const loadClasses = (
+  db: mongoose.Connection,
+  subdomain: string,
+  eventHandlers: ScopedEventHandlers,
+): IModels => {
   const models = {} as IModels;
+  const supplierEventHandlers = eventHandlers('supplier');
 
   models.Supplier = db.model<ISupplierDocument, ISupplierModel>(
     'suppliers',
-    loadSupplierClass(models),
+    loadSupplierClass(models, supplierEventHandlers('suppliers', 'suppliers')),
   );
 
   models.Submission = db.model<ISubmissionDocument, ISubmissionModel>(
     'supplier_submissions',
-    loadSubmissionClass(models),
+    loadSubmissionClass(
+      models,
+      supplierEventHandlers('submissions', 'supplier_submissions'),
+    ),
   );
 
   return models;

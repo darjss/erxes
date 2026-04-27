@@ -14,8 +14,8 @@ export const useUpdateSupplierVerification = () => {
     },
   );
 
-  const updateVerification = (_id: string, verificationStatus: string) =>
-    mutate({ variables: { _id, verificationStatus } });
+  const updateVerification = (_id: string, verificationStatus: string, note?: string) =>
+    mutate({ variables: { _id, verificationStatus, note } });
 
   return { updateVerification, loading };
 };

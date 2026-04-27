@@ -9,19 +9,18 @@ interface SendDecisionPayload {
   note?: string;
 }
 
-export const sendDecisionToSupplier = ({
+export const sendMessageToSupplier = async ({
   subdomain,
   entityId,
   status,
   note,
-}: SendDecisionPayload) => {
+}: SendDecisionPayload): Promise<void> => {
   if (!SUPPLIER_API_URL || !MUSHOP_SECRET) {
-    return console.error(
-      'SUPPLIER_API_URL or MUSHOP_SECRET is not set',
-    );
+    console.error('SUPPLIER_API_URL or MUSHOP_SECRET is not set');
+    return;
   }
 
-  const API_ENDPOINT = `${SUPPLIER_API_URL}/webhook/receiveDecision`;
+  const API_ENDPOINT = `${SUPPLIER_API_URL}/webhook/mushop/submission`;
 
   try {
     const body = JSON.stringify({
@@ -37,16 +36,19 @@ export const sendDecisionToSupplier = ({
       .update(body)
       .digest('hex');
 
-    fetch(API_ENDPOINT, {
+    const res = await fetch(API_ENDPOINT, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'X-Signature': `sha256=${signature}`,
       },
       body,
-    }).catch((e) => {
-      console.error(`Failed to send decision to supplier: ${e}`);
+      signal: AbortSignal.timeout(5000),
     });
+
+    if (!res.ok) {
+      console.error(`Failed to send decision to supplier: HTTP ${res.status}`);
+    }
   } catch (e) {
     console.error(`Failed to send decision to supplier: ${e}`);
   }

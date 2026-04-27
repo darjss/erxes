@@ -47,6 +47,7 @@ export const types = `
     dateFounded: String
     website: String
     verificationStatus: String
+    verificationNote: String
     tierLevel: Int
     socialLinks: SupplierSocialLink
     ownerUserId: String
@@ -95,7 +96,7 @@ export const queries = `
 `;
 
 export const mutations = `
-  updateSupplier(input: SupplierInput!): Supplier
+  supplierUpdateProfile(input: SupplierInput!): Supplier
   supplierUpdateVerificationStatus(_id: String!, status: String!): Supplier
   supplierUpdateTierLevel(_id: String!, tierLevel: Int!): Supplier
 `;

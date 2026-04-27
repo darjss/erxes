@@ -9,17 +9,18 @@ interface SendProductPayload {
   product?: Record<string, any>;
 }
 
-export const sendProductToSupplier = ({
+export const sendProductToSupplier = async ({
   subdomain,
   entityId,
   action,
   product,
-}: SendProductPayload) => {
+}: SendProductPayload): Promise<void> => {
   if (!SUPPLIER_API_URL || !MUSHOP_SECRET) {
-    return console.error('SUPPLIER_API_URL or MUSHOP_SECRET is not set');
+    console.error('SUPPLIER_API_URL or MUSHOP_SECRET is not set');
+    return;
   }
 
-  const API_ENDPOINT = `${SUPPLIER_API_URL}/webhook/receiveProductUpdate`;
+  const API_ENDPOINT = `${SUPPLIER_API_URL}/webhook/mushop/product`;
 
   try {
     const body = JSON.stringify({
@@ -35,16 +36,19 @@ export const sendProductToSupplier = ({
       .update(body)
       .digest('hex');
 
-    fetch(API_ENDPOINT, {
+    const res = await fetch(API_ENDPOINT, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'X-Signature': `sha256=${signature}`,
       },
       body,
-    }).catch((e) => {
-      console.error(`Failed to send product to supplier: ${e}`);
+      signal: AbortSignal.timeout(5000),
     });
+
+    if (!res.ok) {
+      console.error(`Failed to send product to supplier: HTTP ${res.status}`);
+    }
   } catch (e) {
     console.error(`Failed to send product to supplier: ${e}`);
   }

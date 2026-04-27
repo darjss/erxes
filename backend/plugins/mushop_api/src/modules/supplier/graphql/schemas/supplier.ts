@@ -26,6 +26,7 @@ export const types = `
     dateFounded: String
     website: String
     verificationStatus: String
+    verificationNote: String
     tierLevel: Int
     socialLinks: MushopSupplierSocialLink
     ownerUserId: String
@@ -39,22 +40,6 @@ export const types = `
     totalCount: Int
   }
 
-  input MushopSupplierInput {
-    name: String
-    description: String
-    about: String
-    logo: String
-    coverImage: String
-    registrationNumber: String
-    address: JSON
-    primaryEmail: String
-    primaryPhone: String
-    emails: [String]
-    phones: [String]
-    dateFounded: String
-    website: String
-    socialLinks: JSON
-  }
 `;
 
 const supplierQueryParams = `
@@ -73,7 +58,6 @@ export const queries = `
 `;
 
 export const mutations = `
-  mushopUpdateSupplier(_id: String!, input: MushopSupplierInput!): MushopSupplier
-  mushopUpdateSupplierVerificationStatus(_id: String!, verificationStatus: String!): MushopSupplier
+  mushopUpdateSupplierVerificationStatus(_id: String!, verificationStatus: String!, note: String): MushopSupplier
   mushopUpdateSupplierTier(_id: String!, tierLevel: Int!): MushopSupplier
 `;

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import {
   Button,
   FocusSheet,
@@ -9,8 +9,13 @@ import {
   Sheet,
 } from 'erxes-ui';
 import { useFieldArray, useForm } from 'react-hook-form';
-import { IconPlus } from '@tabler/icons-react';
+import {
+  IconLayoutSidebarLeftCollapse,
+  IconLayoutSidebarLeftExpand,
+  IconPlus,
+} from '@tabler/icons-react';
 import { ProductsInline } from 'ui-modules';
+import type { ImperativePanelHandle } from 'react-resizable-panels';
 import { SelectProductContent, SelectProductProvider } from './SelectProduct';
 import { useSubmissionMutations } from '../hooks/useSubmissionMutations';
 import { ISubmissionOffering } from '../types';
@@ -51,7 +56,7 @@ const OFFERING_FIELDS: {
     name: 'groupBuyDiscount',
     label: 'Group discount %',
     placeholder: '0-100 %',
-    max:100,
+    max: 100,
     maxLength: 3,
     minLength: 1,
   },
@@ -64,6 +69,8 @@ export const SubmitProductSheet = ({
   onCompleted,
 }: Props) => {
   const [open, setOpen] = useState(false);
+  const [collapsed, setCollapsed] = useState(false);
+  const panelRef = useRef<ImperativePanelHandle>(null);
   const isResubmit = Boolean(defaultProductId);
 
   const { submitBulk, resubmitProduct, submittingBulk, resubmitting } =
@@ -116,10 +123,14 @@ export const SubmitProductSheet = ({
 
     if (isResubmit) {
       const { productId, offering } = valid[0];
-      await resubmitProduct({ variables: { productId, offering } });
+
+      await resubmitProduct({
+        variables: { platform: 'mushop', productId, offering },
+      });
     } else {
       await submitBulk({
         variables: {
+          platform: 'mushop',
           items: valid.map(({ productId, offering }) => ({
             productId,
             offering,
@@ -142,12 +153,33 @@ export const SubmitProductSheet = ({
   return (
     <FocusSheet open={open} onOpenChange={handleOpen}>
       <Sheet.Trigger asChild>{trigger ?? defaultTrigger}</Sheet.Trigger>
-      <FocusSheet.View>
-        <FocusSheet.Header
-          title={
-            isResubmit ? 'Resubmit product' : 'Submit products to platform'
-          }
-        />
+      <FocusSheet.View className="md:w-[calc(100vw-1rem)] lg:w-[calc(100vw-1rem)] sm:max-w-[calc(100vw-1rem)]">
+        <Sheet.Header className="gap-2">
+          {!isResubmit && (
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              onClick={() => {
+                if (collapsed) {
+                  panelRef.current?.expand();
+                } else {
+                  panelRef.current?.collapse();
+                }
+              }}
+            >
+              {collapsed ? (
+                <IconLayoutSidebarLeftExpand />
+              ) : (
+                <IconLayoutSidebarLeftCollapse />
+              )}
+            </Button>
+          )}
+          <Sheet.Title>
+            {isResubmit ? 'Resubmit product' : 'Submit products to platform'}
+          </Sheet.Title>
+          <Sheet.Close className="ml-auto" />
+        </Sheet.Header>
 
         <FocusSheet.Content className="flex-1 min-h-0">
           <Form {...form}>
@@ -159,135 +191,149 @@ export const SubmitProductSheet = ({
                 direction="horizontal"
                 className="flex-1 min-h-0"
               >
-              {/* Sidebar: product list */}
-              {!isResubmit && (
-                <>
-                  <Resizable.Panel
-                    defaultSize={25}
-                    minSize={15}
-                    maxSize={35}
-                    className="min-h-0"
-                  >
-                    <div className="flex h-full min-h-0 flex-col p-2">
-                      <InfoCard title="Products" className="h-full">
-                        <InfoCard.Content className="flex-1 p-0 min-h-0 overflow-hidden">
-                          <SelectProductProvider
-                            value={selectedIds}
-                            onProductSelect={handleProductSelect}
-                          >
-                            <SelectProductContent className="h-full" />
-                          </SelectProductProvider>
+                {/* Sidebar: product list */}
+                {!isResubmit && (
+                  <>
+                    <Resizable.Panel
+                      ref={panelRef}
+                      defaultSize={20}
+                      minSize={20}
+                      maxSize={40}
+                      collapsible
+                      collapsedSize={0}
+                      onCollapse={() => setCollapsed(true)}
+                      onExpand={() => setCollapsed(false)}
+                      className="min-h-0"
+                    >
+                      <div className="flex flex-col p-2 h-full min-h-0">
+                        <InfoCard title="Products" className="h-full">
+                          <InfoCard.Content className="flex-1 p-0 min-h-0 overflow-hidden">
+                            <SelectProductProvider
+                              value={selectedIds}
+                              onProductSelect={handleProductSelect}
+                            >
+                              <SelectProductContent className="h-full" />
+                            </SelectProductProvider>
+                          </InfoCard.Content>
+                        </InfoCard>
+                      </div>
+                    </Resizable.Panel>
+                    <Resizable.Handle />
+                  </>
+                )}
+
+                {/* Offering fields */}
+                <Resizable.Panel className="min-h-0">
+                  <div className="flex flex-col bg-background h-full min-h-0">
+                    <div className="flex-1 p-4 min-h-0">
+                      <InfoCard title="Offering" className="h-full">
+                        <InfoCard.Content className="flex flex-col flex-1 gap-0 p-0 min-h-0 overflow-hidden">
+                          <div className="px-5 py-2 shrink-0">
+                            <div className="flex items-center gap-3">
+                              <div className="w-40 font-medium text-[11px] text-muted-foreground text-center uppercase tracking-wide shrink-0">
+                                Product
+                              </div>
+                              <div className="flex flex-1 gap-2 min-w-0">
+                                {OFFERING_FIELDS.map(({ name, label }) => (
+                                  <div
+                                    key={name}
+                                    className="flex-1 min-w-0 font-medium text-[11px] text-muted-foreground text-center uppercase tracking-wide"
+                                  >
+                                    <span className="block truncate">
+                                      {label}
+                                    </span>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="flex-1 px-2 divide-y min-h-0 overflow-y-auto">
+                            {fields.length === 0 ? (
+                              <p className="py-10 text-muted-foreground text-sm text-center">
+                                {isResubmit
+                                  ? 'Fill in the offering details below'
+                                  : 'Select products from the left panel'}
+                              </p>
+                            ) : (
+                              fields.map((field, index) => (
+                                <div
+                                  key={field.id}
+                                  className="flex items-center gap-3 px-3 py-2"
+                                >
+                                  <div className="w-40 font-medium text-sm truncate shrink-0">
+                                    <ProductsInline
+                                      productIds={[field.productId]}
+                                      placeholder="Product"
+                                    />
+                                  </div>
+                                  <div className="flex flex-1 items-start gap-2 min-w-0">
+                                    {OFFERING_FIELDS.map(
+                                      ({
+                                        name,
+                                        placeholder,
+                                        ...attributes
+                                      }) => (
+                                        <Form.Field
+                                          key={name}
+                                          control={form.control}
+                                          name={`items.${index}.offering.${name}`}
+                                          render={({ field: f }) => (
+                                            <Form.Item className="flex-1 space-y-1 min-w-0">
+                                              <Form.Control>
+                                                <NumberInput
+                                                  value={f.value}
+                                                  onChange={f.onChange}
+                                                  placeholder={placeholder}
+                                                  disabled={name === 'price'}
+                                                  {...attributes}
+                                                />
+                                              </Form.Control>
+                                              <Form.Message className="text-[10px] leading-tight" />
+                                            </Form.Item>
+                                          )}
+                                        />
+                                      ),
+                                    )}
+                                  </div>
+                                </div>
+                              ))
+                            )}
+                          </div>
                         </InfoCard.Content>
                       </InfoCard>
                     </div>
-                  </Resizable.Panel>
-                  <Resizable.Handle />
-                </>
-              )}
 
-              {/* Offering fields */}
-              <Resizable.Panel className="min-h-0">
-                <div className="flex h-full min-h-0 flex-col bg-background">
-                  <div className="flex-1 p-4 min-h-0">
-                    <InfoCard title="Offering" className="h-full">
-                      <InfoCard.Content className="flex flex-col gap-0 p-0 overflow-hidden">
-                        <div className="shrink-0 px-3 py-2">
-                          <div className="flex items-center gap-3">
-                            <div className="w-40 shrink-0 text-center text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
-                              Product
-                            </div>
-                            <div className="flex min-w-0 flex-1 gap-2">
-                              {OFFERING_FIELDS.map(({ name, label }) => (
-                                <div
-                                  key={name}
-                                  className="flex-1 min-w-0 text-center text-[11px] font-medium uppercase tracking-wide text-muted-foreground"
-                                >
-                                  <span className="block truncate">{label}</span>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                        </div>
-
-                        <div className="flex-1 divide-y overflow-y-auto">
-                          {fields.length === 0 ? (
-                            <p className="py-10 text-muted-foreground text-sm text-center">
-                              {isResubmit
-                                ? 'Fill in the offering details below'
-                                : 'Select products from the left panel'}
-                            </p>
-                          ) : (
-                            fields.map((field, index) => (
-                              <div
-                                key={field.id}
-                                className="flex items-center gap-3 px-3 py-2"
-                              >
-                                <div className="w-40 font-medium text-sm truncate shrink-0">
-                                  <ProductsInline
-                                    productIds={[field.productId]}
-                                    placeholder="Product"
-                                  />
-                                </div>
-                                <div className="flex flex-1 gap-2 min-w-0 items-start">
-                                  {OFFERING_FIELDS.map(
-                                    ({ name, placeholder, ...attributes }) => (
-                                      <Form.Field
-                                        key={name}
-                                        control={form.control}
-                                        name={`items.${index}.offering.${name}`}
-                                        render={({ field: f }) => (
-                                          <Form.Item className="flex-1 min-w-0 space-y-1">
-                                            <Form.Control>
-                                              <NumberInput
-                                                value={f.value}
-                                                onChange={f.onChange}
-                                                placeholder={placeholder}
-                                                disabled={name === 'price'}
-                                                {...attributes}
-                                              />
-                                            </Form.Control>
-                                            <Form.Message className="text-[10px] leading-tight" />
-                                          </Form.Item>
-                                        )}
-                                      />
-                                    ),
-                                  )}
-                                </div>
-                              </div>
-                            ))
-                          )}
-                        </div>
-                      </InfoCard.Content>
-                    </InfoCard>
+                    <Sheet.Footer className="bg-background px-5 py-4 border-t shrink-0">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => setOpen(false)}
+                      >
+                        Cancel
+                      </Button>
+                      <Button
+                        type="submit"
+                        disabled={loading || !fields.length}
+                      >
+                        {loading
+                          ? isResubmit
+                            ? 'Resubmitting…'
+                            : 'Submitting…'
+                          : isResubmit
+                          ? 'Resubmit'
+                          : `Submit${
+                              fields.length > 1
+                                ? ` ${fields.length} products`
+                                : ''
+                            }`}
+                      </Button>
+                    </Sheet.Footer>
                   </div>
-
-                  <Sheet.Footer className="bg-background px-5 py-4 border-t shrink-0">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={() => setOpen(false)}
-                    >
-                      Cancel
-                    </Button>
-                    <Button type="submit" disabled={loading || !fields.length}>
-                      {loading
-                        ? isResubmit
-                          ? 'Resubmitting…'
-                          : 'Submitting…'
-                        : isResubmit
-                        ? 'Resubmit'
-                        : `Submit${
-                            fields.length > 1
-                              ? ` ${fields.length} products`
-                              : ''
-                          }`}
-                    </Button>
-                  </Sheet.Footer>
-                </div>
-              </Resizable.Panel>
-            </Resizable.PanelGroup>
-          </form>
-        </Form>
+                </Resizable.Panel>
+              </Resizable.PanelGroup>
+            </form>
+          </Form>
         </FocusSheet.Content>
       </FocusSheet.View>
     </FocusSheet>
