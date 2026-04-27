@@ -269,7 +269,9 @@ export function BulkMembershipPurchaseDialog({
                     <Input
                       placeholder="Search by phone or email"
                       value={customerSearch}
-                      onChange={(event) => setCustomerSearch(event.target.value)}
+                      onChange={(event) =>
+                        setCustomerSearch(event.target.value)
+                      }
                       className="mb-2"
                     />
                     <div className="mb-2 flex gap-2">
@@ -344,7 +346,9 @@ export function BulkMembershipPurchaseDialog({
                         value={field.value ?? []}
                         onValueChange={(value) =>
                           field.onChange(
-                            Array.isArray(value) ? value : [value].filter(Boolean),
+                            Array.isArray(value)
+                              ? value
+                              : [value].filter(Boolean),
                           )
                         }
                       />
@@ -409,8 +413,8 @@ export function BulkMembershipPurchaseDialog({
                   />
                   <div className="space-y-1">
                     <Form.Label className="font-normal leading-snug">
-                      When purchases are activated, clear existing credits first,
-                      then grant selected plan credits.
+                      When purchases are activated, clear existing credits
+                      first, then grant selected plan credits.
                     </Form.Label>
                     <Form.Message />
                   </div>

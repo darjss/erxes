@@ -177,8 +177,7 @@ export interface ICreateMembershipPurchaseInvoiceOptions {
   removePreviousCredits?: boolean;
 }
 
-export interface IBulkCreateMembershipPurchaseInvoiceOptions
-  extends ICreateMembershipPurchaseInvoiceOptions {
+export interface IBulkCreateMembershipPurchaseInvoiceOptions extends ICreateMembershipPurchaseInvoiceOptions {
   userIds: string[];
 }
 
