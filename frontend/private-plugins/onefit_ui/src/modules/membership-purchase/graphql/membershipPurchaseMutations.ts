@@ -49,6 +49,57 @@ export const ONE_FIT_MEMBERSHIP_PURCHASE_CREATE = gql`
   }
 `;
 
+export const ONE_FIT_MEMBERSHIP_PURCHASES_BULK_CREATE = gql`
+  mutation OneFitMembershipPurchasesBulkCreate(
+    $userIds: [String]!
+    $planId: String!
+    $companyId: String
+    $promoCode: String
+    $promoCodeId: String
+    $removePreviousCredits: Boolean
+  ) {
+    oneFitMembershipPurchasesBulkCreate(
+      userIds: $userIds
+      planId: $planId
+      companyId: $companyId
+      promoCode: $promoCode
+      promoCodeId: $promoCodeId
+      removePreviousCredits: $removePreviousCredits
+    ) {
+      _id
+      createdAt
+      modifiedAt
+      userId
+      user {
+        _id
+        firstName
+        lastName
+        primaryEmail
+        primaryPhone
+      }
+      planId
+      status
+      purchasedAt
+      paidAt
+      activatedAt
+      expiresAt
+      amount
+      invoiceId
+      promoCodeId
+      removePreviousCredits
+      plan {
+        _id
+        name
+        creditAmount
+        duration
+        price
+        isActive
+      }
+      invoice
+    }
+  }
+`;
+
 export const ONE_FIT_MEMBERSHIP_PURCHASE_ACTIVATE = gql`
   mutation OneFitMembershipPurchaseActivate($_id: String!) {
     oneFitMembershipPurchaseActivate(_id: $_id) {

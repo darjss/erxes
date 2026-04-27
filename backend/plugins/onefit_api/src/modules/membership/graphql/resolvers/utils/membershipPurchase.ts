@@ -24,7 +24,7 @@ export async function ensureOneFitCustomerExists(
   let oneFitCustomer;
   try {
     oneFitCustomer = await models.OneFitCustomer.getOneFitCustomer(userId);
-  } catch (error) {
+  } catch {
     oneFitCustomer = null;
   }
 
@@ -171,9 +171,14 @@ async function clearExistingCreditsBeforeActivation(
 }
 
 export interface ICreateMembershipPurchaseInvoiceOptions {
+  companyId?: string;
   promoCode?: string;
   promoCodeId?: string;
   removePreviousCredits?: boolean;
+}
+
+export interface IBulkCreateMembershipPurchaseInvoiceOptions extends ICreateMembershipPurchaseInvoiceOptions {
+  userIds: string[];
 }
 
 export async function createMembershipPurchaseInvoice(
@@ -223,6 +228,7 @@ export async function createMembershipPurchaseInvoice(
   const membershipPurchase = await models.MembershipPurchase.createPurchase({
     userId,
     planId,
+    ...(options?.companyId && { companyId: options.companyId }),
     status: MembershipPurchaseStatus.PENDING,
     purchasedAt: new Date(),
     amount,
@@ -309,6 +315,42 @@ export async function createMembershipPurchaseInvoice(
   );
 
   return updatedPurchase;
+}
+
+export async function createMembershipPurchasesBulkInvoice(
+  planId: string,
+  context: IContext,
+  options: IBulkCreateMembershipPurchaseInvoiceOptions,
+) {
+  const createdPurchases: Awaited<
+    ReturnType<typeof createMembershipPurchaseInvoice>
+  >[] = [];
+
+  if (!options.userIds.length) {
+    return createdPurchases;
+  }
+
+  for (const userId of options.userIds) {
+    try {
+      const createdPurchase = await createMembershipPurchaseInvoice(
+        userId,
+        planId,
+        context,
+        {
+          promoCode: options.promoCode,
+          promoCodeId: options.promoCodeId,
+          companyId: options.companyId,
+          removePreviousCredits: options.removePreviousCredits,
+        },
+      );
+
+      createdPurchases.push(createdPurchase);
+    } catch {
+      continue;
+    }
+  }
+
+  return createdPurchases;
 }
 
 export async function calculateMembershipExpiry(

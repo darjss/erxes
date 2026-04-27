@@ -2,6 +2,7 @@ import { MutationFunctionOptions, useMutation } from '@apollo/client';
 import { toast } from 'erxes-ui';
 import {
   ONE_FIT_MEMBERSHIP_PURCHASE_ACTIVATE,
+  ONE_FIT_MEMBERSHIP_PURCHASES_BULK_CREATE,
   ONE_FIT_MEMBERSHIP_PURCHASE_CREATE,
 } from '../graphql/membershipPurchaseMutations';
 import { ONE_FIT_MEMBERSHIP_PURCHASES } from '../graphql/membershipPurchaseQueries';
@@ -66,3 +67,35 @@ export function useActivateMembershipPurchase() {
   return { activateMembershipPurchase, loading };
 }
 
+export function useBulkCreateMembershipPurchases() {
+  const [bulkCreateMembershipPurchasesMutation, { loading }] = useMutation(
+    ONE_FIT_MEMBERSHIP_PURCHASES_BULK_CREATE,
+  );
+
+  function bulkCreateMembershipPurchases(options: MutationFunctionOptions) {
+    return bulkCreateMembershipPurchasesMutation({
+      ...options,
+      refetchQueries: [{ query: ONE_FIT_MEMBERSHIP_PURCHASES }],
+      awaitRefetchQueries: true,
+      onCompleted: (data) => {
+        options.onCompleted?.(data);
+        const createdCount =
+          (data?.oneFitMembershipPurchasesBulkCreate as unknown[])?.length ?? 0;
+        toast({
+          title: 'Success',
+          description: `${createdCount} membership purchase(s) created successfully`,
+        });
+      },
+      onError: (error) => {
+        options.onError?.(error);
+        toast({
+          title: 'Error',
+          description: error.message,
+          variant: 'destructive',
+        });
+      },
+    });
+  }
+
+  return { bulkCreateMembershipPurchases, loading };
+}
