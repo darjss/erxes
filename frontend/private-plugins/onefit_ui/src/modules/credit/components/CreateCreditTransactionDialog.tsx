@@ -306,7 +306,10 @@ const CreateCreditTransactionForm = ({ onClose }: { onClose: () => void }) => {
                     <Select.Value placeholder="Select transaction type" />
                   </Select.Trigger>
                   <Select.Content>
-                    <Select.Item value={OneFitCreditTransactionType.PURCHASE}>
+                    <Select.Item
+                      value={OneFitCreditTransactionType.PURCHASE}
+                      disabled
+                    >
                       Purchase
                     </Select.Item>
                     <Select.Item value={OneFitCreditTransactionType.USAGE}>
