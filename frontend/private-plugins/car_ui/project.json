@@ -33,7 +33,7 @@
       "executor": "@nx/rspack:module-federation-dev-server",
       "options": {
         "buildTarget": "car_ui:build:development",
-        "port": 3005
+        "port": 3012
       },
       "configurations": {
         "development": {},
@@ -55,6 +55,18 @@
         "production": {
           "serveTarget": "car_ui:serve:production"
         }
+      }
+    },
+    "test": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "pnpm exec jest --config frontend/private-plugins/car_ui/jest.config.ts --runInBand"
+      }
+    },
+    "lint": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "pnpm exec eslint frontend/private-plugins/car_ui"
       }
     }
   }

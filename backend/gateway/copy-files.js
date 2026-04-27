@@ -24,3 +24,11 @@ if (fs.existsSync(rhaiSource)) {
   fs.cpSync(rhaiSource, rhaiDest, { recursive: true });
   console.log('✓ Copied rhai folder');
 }
+
+// Copy locale assets used by the frontend i18n HTTP backend.
+const localesSource = path.join(__dirname, 'src', 'locales');
+const localesDest = path.join(__dirname, 'dist', 'src', 'locales');
+if (fs.existsSync(localesSource)) {
+  fs.cpSync(localesSource, localesDest, { recursive: true });
+  console.log('✓ Copied locales folder');
+}
