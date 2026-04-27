@@ -9,7 +9,7 @@ export const MainNavigation = () => {
   return (
     <NavigationMenuLinkItem
       name={t('Cars', { defaultValue: 'Cars' })}
-      path="cars"
+      path="car"
       icon={IconCarSuv}
     />
   );

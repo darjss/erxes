@@ -19,8 +19,8 @@ const Main = () => {
   return (
     <Suspense fallback={<Spinner />}>
       <Routes>
-        <Route path="/car" element={<CarsIndexPage />} />
-        <Route path="/car/:carId" element={<CarDetailPage />} />
+        <Route path="/" element={<CarsIndexPage />} />
+        <Route path="/:carId" element={<CarDetailPage />} />
       </Routes>
     </Suspense>
   );

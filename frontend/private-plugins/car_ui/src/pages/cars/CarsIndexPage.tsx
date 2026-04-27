@@ -85,12 +85,17 @@ export const CarsIndexPage = () => {
 
   useEffect(() => {
     const normalizedSearch = debouncedSearch.trim();
+    const normalizedInput = searchInput.trim();
     const currentSearch = filters.searchValue || '';
+
+    if (normalizedSearch !== normalizedInput) {
+      return;
+    }
 
     if (normalizedSearch !== currentSearch) {
       setSearchValue(normalizedSearch || null);
     }
-  }, [debouncedSearch, filters.searchValue, setSearchValue]);
+  }, [debouncedSearch, filters.searchValue, searchInput, setSearchValue]);
 
   const selectedCategory = useMemo(
     () =>
@@ -107,6 +112,11 @@ export const CarsIndexPage = () => {
   const handleOpenCategoryCreate = () => {
     setEditingCategory(null);
     setCategoryDialogOpen(true);
+  };
+
+  const handleClearFilters = () => {
+    setSearchInput('');
+    clearFilters();
   };
 
   const handleDeleteCategory = async (category: ICarCategory) => {
@@ -181,7 +191,7 @@ export const CarsIndexPage = () => {
           filters.tag ||
           filters.segment ||
           filters.categoryId ? (
-            <Button variant="ghost" size="sm" onClick={clearFilters}>
+            <Button variant="ghost" size="sm" onClick={handleClearFilters}>
               <IconX className="size-4" />
               {t('Clear filters', { defaultValue: 'Clear filters' })}
             </Button>
