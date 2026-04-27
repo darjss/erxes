@@ -153,6 +153,15 @@ const purchaseInput = `
   removePreviousCredits: Boolean
 `;
 
+const bulkPurchaseInput = `
+  userIds: [String]!
+  planId: String!
+  companyId: String
+  promoCode: String
+  promoCodeId: String
+  removePreviousCredits: Boolean
+`;
+
 const cpPurchaseInput = `
   planId: String!
   promoCode: String
@@ -165,6 +174,7 @@ export const mutations = `
   oneFitMembershipPlanUpdate(_id: String!, ${planUpdateInput}): OneFitMembershipPlan
   oneFitMembershipPlansRemove(ids: [String]!): JSON
   oneFitMembershipPurchaseCreate(${purchaseInput}): OneFitMembershipPurchase
+  oneFitMembershipPurchasesBulkCreate(${bulkPurchaseInput}): [OneFitMembershipPurchase]
   oneFitMembershipPurchaseActivate(_id: String!): OneFitMembershipPurchase
   oneFitMembershipPurchaseCompanyUpdate(_id: String!, companyId: String): OneFitMembershipPurchase
   cpOneFitMembershipPurchaseCreate(${cpPurchaseInput}): OneFitMembershipPurchase
