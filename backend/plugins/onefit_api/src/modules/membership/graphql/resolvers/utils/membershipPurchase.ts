@@ -269,8 +269,18 @@ export async function createMembershipPurchaseInvoice(
   const membershipPurchases: Awaited<
     ReturnType<typeof models.MembershipPurchase.createPurchase>
   >[] = [];
+  const durationDays = plan.duration ?? 30;
+  const initialExpiresAt = isCreditOnlyPlan(plan)
+    ? undefined
+    : await calculateMembershipExpiry(userId, durationDays, context);
 
-  for (const purchaseAmount of purchaseAmounts) {
+  for (const [index, purchaseAmount] of purchaseAmounts.entries()) {
+    const provisionalExpiresAt = initialExpiresAt
+      ? new Date(
+          initialExpiresAt.getTime() +
+            index * durationDays * 24 * 60 * 60 * 1000,
+        )
+      : undefined;
     const membershipPurchase = await models.MembershipPurchase.createPurchase({
       userId,
       planId,
@@ -278,6 +288,7 @@ export async function createMembershipPurchaseInvoice(
       status: MembershipPurchaseStatus.PENDING,
       purchasedAt: new Date(),
       amount: purchaseAmount,
+      ...(provisionalExpiresAt && { expiresAt: provisionalExpiresAt }),
       ...(promoCodeId && { promoCodeId }),
       ...(options?.removePreviousCredits && {
         removePreviousCredits: true,
