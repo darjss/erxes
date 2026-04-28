@@ -10,7 +10,7 @@ import {
   Spinner,
   toast,
 } from 'erxes-ui';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { ONE_FIT_CUSTOMERS_BY_COMPANY_ID } from '~/modules/credit/graphql/companyQueries';
@@ -20,6 +20,8 @@ import { OneFitMembershipPlan } from '~/modules/membership/types/membership';
 import { SelectOneFitCustomer } from '~/modules/onefitCustomer/components/SelectOneFitCustomer';
 import { useBulkCreateMembershipPurchases } from '../hooks/useMembershipPurchaseMutations';
 
+const DEFAULT_QUANTITY_VALUE = '__default_quantity__';
+
 const bulkMembershipPurchaseSchema = z
   .object({
     companyId: z.string().optional(),
@@ -28,6 +30,11 @@ const bulkMembershipPurchaseSchema = z
       .array(z.string())
       .min(1, { message: 'Select at least one customer' }),
     planId: z.string().min(1, { message: 'Membership plan is required' }),
+    quantity: z
+      .number()
+      .int()
+      .min(1, { message: 'Quantity must be at least 1' })
+      .optional(),
     promoCode: z.string().optional(),
     removePreviousCredits: z.boolean().optional(),
   })
@@ -77,6 +84,7 @@ export function BulkMembershipPurchaseDialog({
       registerCompanyType: 'b2b',
       userIds: [],
       planId: '',
+      quantity: undefined,
       promoCode: '',
       removePreviousCredits: false,
     },
@@ -86,6 +94,8 @@ export function BulkMembershipPurchaseDialog({
   const registerCompanyType = form.watch('registerCompanyType');
   const userIds = form.watch('userIds') ?? [];
   const planId = form.watch('planId');
+  const selectedQuantity = form.watch('quantity');
+  const quantity = selectedQuantity ?? 1;
 
   const { data: customersData, loading: customersLoading } = useQuery(
     ONE_FIT_CUSTOMERS_BY_COMPANY_ID,
@@ -101,6 +111,14 @@ export function BulkMembershipPurchaseDialog({
   const plans: OneFitMembershipPlan[] =
     plansData?.oneFitActiveMembershipPlans ?? [];
   const selectedPlan = plans.find((plan) => plan._id === planId);
+  const availableSaleQuantities = useMemo(() => {
+    const options = selectedPlan?.saleOptions ?? [];
+    const quantities = options
+      .map((option) => option.quantity)
+      .filter((value) => Number.isInteger(value) && value >= 1);
+
+    return Array.from(new Set(quantities)).sort((a, b) => a - b);
+  }, [selectedPlan]);
 
   const filteredRelatedCustomers = useMemo(() => {
     if (!customerSearch.trim()) {
@@ -118,6 +136,24 @@ export function BulkMembershipPurchaseDialog({
   const { bulkCreateMembershipPurchases, loading: submitLoading } =
     useBulkCreateMembershipPurchases();
 
+  useEffect(() => {
+    if (!selectedPlan) {
+      return;
+    }
+
+    if (!availableSaleQuantities.length) {
+      form.setValue('quantity', 1);
+      return;
+    }
+
+    if (
+      selectedQuantity !== undefined &&
+      !availableSaleQuantities.includes(selectedQuantity)
+    ) {
+      form.setValue('quantity', undefined);
+    }
+  }, [selectedPlan, availableSaleQuantities, selectedQuantity, form]);
+
   function handleClose() {
     setOpen(false);
     setCustomerSearch('');
@@ -126,6 +162,7 @@ export function BulkMembershipPurchaseDialog({
       registerCompanyType: 'b2b',
       userIds: [],
       planId: '',
+      quantity: undefined,
       promoCode: '',
       removePreviousCredits: false,
     });
@@ -155,6 +192,7 @@ export function BulkMembershipPurchaseDialog({
     const variables: Record<string, unknown> = {
       userIds: values.userIds,
       planId: values.planId,
+      ...(values.quantity ? { quantity: values.quantity } : {}),
       ...(values.promoCode?.trim() && { promoCode: values.promoCode.trim() }),
       ...(values.removePreviousCredits && { removePreviousCredits: true }),
     };
@@ -184,7 +222,49 @@ export function BulkMembershipPurchaseDialog({
 
   const hasCompanyForB2B =
     registerCompanyType === 'b2c' || Boolean(companyId?.trim());
-  const isValid = hasCompanyForB2B && Boolean(planId) && userIds.length > 0;
+  const hasSaleOptions = availableSaleQuantities.length > 0;
+  const hasValidSaleQuantity = !selectedPlan
+    ? true
+    : hasSaleOptions
+      ? selectedQuantity === undefined ||
+        availableSaleQuantities.includes(selectedQuantity)
+      : quantity === 1;
+  const isValid =
+    hasCompanyForB2B &&
+    Boolean(planId) &&
+    userIds.length > 0 &&
+    hasValidSaleQuantity;
+  const selectedTier = selectedPlan?.saleOptions?.find(
+    (option) => option.quantity === quantity,
+  );
+  const tierPrice = useMemo(() => {
+    if (!selectedPlan) {
+      return 0;
+    }
+
+    if (quantity <= 1) {
+      return selectedPlan.price;
+    }
+
+    const tier = selectedPlan.saleOptions?.find(
+      (option) => option.quantity === quantity,
+    );
+    if (!tier) {
+      return selectedPlan.price;
+    }
+
+    if (tier.finalPrice != null) {
+      return tier.finalPrice;
+    }
+
+    if (tier.discountPercent != null) {
+      return Math.max(0, selectedPlan.price * (1 - tier.discountPercent / 100));
+    }
+
+    return selectedPlan.price;
+  }, [quantity, selectedPlan]);
+
+  const totalAmount = tierPrice * userIds.length;
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -383,6 +463,62 @@ export function BulkMembershipPurchaseDialog({
                 </Form.Item>
               )}
             />
+            <Form.Field
+              control={form.control}
+              name="quantity"
+              render={({ field }) => (
+                <Form.Item>
+                  <Form.Label>Quantity</Form.Label>
+                  <Form.Control>
+                    <Select
+                      value={
+                        field.value
+                          ? String(field.value)
+                          : DEFAULT_QUANTITY_VALUE
+                      }
+                      onValueChange={(value) =>
+                        field.onChange(
+                          value === DEFAULT_QUANTITY_VALUE
+                            ? undefined
+                            : parseInt(value, 10),
+                        )
+                      }
+                      disabled={!selectedPlan || !hasSaleOptions}
+                    >
+                      <Select.Trigger>
+                        <Select.Value placeholder="Default (1)" />
+                      </Select.Trigger>
+                      <Select.Content>
+                        {hasSaleOptions ? (
+                          <>
+                            <Select.Item value={DEFAULT_QUANTITY_VALUE}>
+                              Default (1)
+                            </Select.Item>
+                            {availableSaleQuantities.map((saleQuantity) => (
+                              <Select.Item
+                                key={saleQuantity}
+                                value={String(saleQuantity)}
+                              >
+                                {saleQuantity}
+                              </Select.Item>
+                            ))}
+                          </>
+                        ) : (
+                          <Select.Item value="1">1</Select.Item>
+                        )}
+                      </Select.Content>
+                    </Select>
+                  </Form.Control>
+                  {selectedPlan && !hasSaleOptions ? (
+                    <p className="text-xs text-muted-foreground">
+                      This plan has no configured sale quantities. Quantity is
+                      fixed to 1.
+                    </p>
+                  ) : null}
+                  <Form.Message />
+                </Form.Item>
+              )}
+            />
 
             <Form.Field
               control={form.control}
@@ -428,12 +564,30 @@ export function BulkMembershipPurchaseDialog({
                 <div className="grid grid-cols-2 gap-2">
                   <div className="text-muted-foreground">Plan</div>
                   <div className="font-medium">{selectedPlan.name}</div>
-                  <div className="text-muted-foreground">Price per user</div>
+                  <div className="text-muted-foreground">Base price per user</div>
                   <div className="font-medium">
                     {selectedPlan.price.toLocaleString()} MNT
                   </div>
+                  <div className="text-muted-foreground">Price per user</div>
+                  <div className="font-medium">
+                    {tierPrice.toLocaleString()} MNT
+                  </div>
+                  <div className="text-muted-foreground">Quantity</div>
+                  <div className="font-medium">{quantity}</div>
+                  <div className="text-muted-foreground">Applied sale option</div>
+                  <div className="font-medium">
+                    {selectedTier
+                      ? selectedTier.finalPrice != null
+                        ? `Fixed ${selectedTier.finalPrice.toLocaleString()} MNT`
+                        : `${selectedTier.discountPercent}% off`
+                      : 'Default price'}
+                  </div>
                   <div className="text-muted-foreground">Users selected</div>
                   <div className="font-medium">{userIds.length}</div>
+                  <div className="text-muted-foreground">Total amount</div>
+                  <div className="font-semibold">
+                    {totalAmount.toLocaleString()} MNT
+                  </div>
                 </div>
               </div>
             )}

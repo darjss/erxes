@@ -1,5 +1,8 @@
 import { IContext } from '~/connectionResolvers';
-import { IMembershipPlan } from '@/membership/@types/membership';
+import {
+  IMembershipPlan,
+  IMembershipSaleOption,
+} from '@/membership/@types/membership';
 import {
   createMembershipPurchaseInvoice,
   createMembershipPurchasesBulkInvoice,
@@ -22,6 +25,57 @@ function validatePlanForNormal(
   }
 }
 
+function normalizeSaleOptions(
+  saleOptions?: IMembershipSaleOption[],
+): IMembershipSaleOption[] | undefined {
+  if (!saleOptions) {
+    return undefined;
+  }
+
+  const quantities = new Set<number>();
+  const normalized = saleOptions.map((option, index) => {
+    const { quantity, discountPercent, finalPrice } = option;
+    const hasDiscountPercent = discountPercent != null;
+    const hasFinalPrice = finalPrice != null;
+
+    if (!Number.isInteger(quantity) || quantity < 2) {
+      throw new Error(
+        `Sale option #${index + 1} quantity must be an integer greater than or equal to 2`,
+      );
+    }
+
+    if (quantities.has(quantity)) {
+      throw new Error(`Duplicate sale option quantity: ${quantity}`);
+    }
+
+    quantities.add(quantity);
+
+    if ((hasDiscountPercent && hasFinalPrice) || (!hasDiscountPercent && !hasFinalPrice)) {
+      throw new Error(
+        `Sale option #${index + 1} must define either discountPercent or finalPrice`,
+      );
+    }
+
+    if (hasDiscountPercent && (discountPercent < 0 || discountPercent > 100)) {
+      throw new Error(
+        `Sale option #${index + 1} discountPercent must be between 0 and 100`,
+      );
+    }
+
+    if (hasFinalPrice && finalPrice < 0) {
+      throw new Error(`Sale option #${index + 1} finalPrice must be 0 or greater`);
+    }
+
+    return {
+      quantity,
+      ...(hasDiscountPercent ? { discountPercent } : {}),
+      ...(hasFinalPrice ? { finalPrice } : {}),
+    };
+  });
+
+  return normalized.sort((a, b) => a.quantity - b.quantity);
+}
+
 export const membershipMutations: Record<string, Resolver> = {
   async oneFitMembershipPlanCreate(
     _root: undefined,
@@ -32,8 +86,10 @@ export const membershipMutations: Record<string, Resolver> = {
     const { models } = context;
     const planType = doc.planType ?? 'normal';
     validatePlanForNormal(planType, doc.duration);
+    const saleOptions = normalizeSaleOptions(doc.saleOptions);
     return await models.MembershipPlan.createPlan({
       ...doc,
+      saleOptions,
       planType: planType as 'normal' | 'credit',
     });
   },
@@ -51,7 +107,10 @@ export const membershipMutations: Record<string, Resolver> = {
       const duration = doc.duration ?? existing.duration;
       validatePlanForNormal(planType, duration);
     }
-    return await models.MembershipPlan.updatePlan(_id, doc);
+    return await models.MembershipPlan.updatePlan(_id, {
+      ...doc,
+      ...(doc.saleOptions ? { saleOptions: normalizeSaleOptions(doc.saleOptions) } : {}),
+    });
   },
 
   async oneFitMembershipPlansRemove(
@@ -69,12 +128,14 @@ export const membershipMutations: Record<string, Resolver> = {
     {
       userId,
       planId,
+      quantity,
       promoCode,
       promoCodeId,
       removePreviousCredits,
     }: {
       userId: string;
       planId: string;
+      quantity?: number;
       promoCode?: string;
       promoCodeId?: string;
       removePreviousCredits?: boolean;
@@ -83,6 +144,7 @@ export const membershipMutations: Record<string, Resolver> = {
   ) {
     await requirePermission(context, 'membershipPurchaseManage');
     return await createMembershipPurchaseInvoice(userId, planId, context, {
+      quantity,
       promoCode,
       promoCodeId,
       removePreviousCredits,
@@ -94,6 +156,7 @@ export const membershipMutations: Record<string, Resolver> = {
     {
       userIds,
       planId,
+      quantity,
       companyId,
       promoCode,
       promoCodeId,
@@ -101,6 +164,7 @@ export const membershipMutations: Record<string, Resolver> = {
     }: {
       userIds: string[];
       planId: string;
+      quantity?: number;
       companyId?: string;
       promoCode?: string;
       promoCodeId?: string;
@@ -116,6 +180,7 @@ export const membershipMutations: Record<string, Resolver> = {
 
     return await createMembershipPurchasesBulkInvoice(planId, context, {
       userIds,
+      quantity,
       promoCode,
       promoCodeId,
       companyId,
@@ -151,11 +216,13 @@ export const membershipMutations: Record<string, Resolver> = {
     _root: undefined,
     {
       planId,
+      quantity,
       promoCode,
       promoCodeId,
       removePreviousCredits,
     }: {
       planId: string;
+      quantity?: number;
       promoCode?: string;
       promoCodeId?: string;
       removePreviousCredits?: boolean;
@@ -170,6 +237,7 @@ export const membershipMutations: Record<string, Resolver> = {
     const userId = cpUser.erxesCustomerId || cpUser._id;
 
     return await createMembershipPurchaseInvoice(userId, planId, context, {
+      quantity,
       promoCode,
       promoCodeId,
       removePreviousCredits,

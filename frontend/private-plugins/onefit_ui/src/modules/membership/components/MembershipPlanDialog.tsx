@@ -1,10 +1,10 @@
 import {
   Button,
   Checkbox,
-  Dialog,
   Form,
   Input,
   Select,
+  Sheet,
   Spinner,
   Textarea,
 } from 'erxes-ui';
@@ -34,19 +34,78 @@ const membershipPlanSchema = z
     planType: z.enum(['normal', 'credit']),
     duration: z.number().min(1).optional(),
     price: z.number().min(0, { message: 'Price must be 0 or greater' }),
+    saleOptions: z.array(
+      z.object({
+        quantity: z.number().int().min(2, { message: 'Quantity must be at least 2' }),
+        pricingType: z.enum(['percent', 'price']),
+        value: z.number().min(0, { message: 'Value must be 0 or greater' }),
+      }),
+    ),
     isActive: z.boolean().optional(),
   })
-  .refine(
-    (data) =>
-      data.planType !== 'normal' ||
-      (data.duration != null && data.duration >= 1),
-    {
-      message: 'Duration must be at least 1 day for normal plans',
-      path: ['duration'],
-    },
-  );
+  .superRefine((data, ctx) => {
+    if (
+      data.planType === 'normal' &&
+      (data.duration == null || data.duration < 1)
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Duration must be at least 1 day for normal plans',
+        path: ['duration'],
+      });
+    }
+
+    const quantitySet = new Set<number>();
+    data.saleOptions.forEach((option, index) => {
+      if (quantitySet.has(option.quantity)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Quantity must be unique',
+          path: ['saleOptions', index, 'quantity'],
+        });
+      }
+      quantitySet.add(option.quantity);
+
+      if (option.pricingType === 'percent' && option.value > 100) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Percent must be 100 or less',
+          path: ['saleOptions', index, 'value'],
+        });
+      }
+    });
+  });
 
 type MembershipPlanFormData = z.infer<typeof membershipPlanSchema>;
+type SalePricingType = 'percent' | 'price';
+
+function mapSaleOptionsToForm(
+  saleOptions?: Array<{
+    quantity: number;
+    discountPercent?: number | null;
+    finalPrice?: number | null;
+  }>,
+) {
+  return (saleOptions || []).map((option) => ({
+    quantity: option.quantity,
+    pricingType: option.discountPercent != null ? 'percent' : ('price' as SalePricingType),
+    value:
+      option.discountPercent != null
+        ? option.discountPercent
+        : (option.finalPrice ?? 0),
+  }));
+}
+
+function mapSaleOptionsToApi(
+  saleOptions: MembershipPlanFormData['saleOptions'],
+) {
+  return saleOptions.map((option) => ({
+    quantity: option.quantity,
+    ...(option.pricingType === 'percent'
+      ? { discountPercent: option.value }
+      : { finalPrice: option.value }),
+  }));
+}
 
 interface MembershipPlanDialogProps {
   planId?: string;
@@ -69,7 +128,7 @@ export function MembershipPlanDialog({
 
   const open = isControlled ? controlledOpen : internalOpen;
   const setOpen = isControlled
-    ? controlledOnOpenChange || (() => {})
+    ? (nextOpen: boolean) => controlledOnOpenChange?.(nextOpen)
     : setInternalOpen;
 
   const handleClose = () => {
@@ -78,23 +137,26 @@ export function MembershipPlanDialog({
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Sheet open={open} onOpenChange={setOpen}>
       {!isControlled && trigger && (
-        <Dialog.Trigger asChild>{trigger}</Dialog.Trigger>
+        <Sheet.Trigger asChild>{trigger}</Sheet.Trigger>
       )}
-      <Dialog.Content>
-        <Dialog.Header>
-          <Dialog.Title>
+      <Sheet.View className="w-full sm:max-w-3xl">
+        <Sheet.Header>
+          <Sheet.Title>
             {isEditMode ? 'Edit Membership Plan' : 'Create Membership Plan'}
-          </Dialog.Title>
-        </Dialog.Header>
-        <MembershipPlanForm
-          planId={planId}
-          onClose={handleClose}
-          isEditMode={isEditMode}
-        />
-      </Dialog.Content>
-    </Dialog>
+          </Sheet.Title>
+          <Sheet.Close />
+        </Sheet.Header>
+        <Sheet.Content className="overflow-y-auto p-6">
+          <MembershipPlanForm
+            planId={planId}
+            onClose={handleClose}
+            isEditMode={isEditMode}
+          />
+        </Sheet.Content>
+      </Sheet.View>
+    </Sheet>
   );
 }
 
@@ -125,6 +187,7 @@ function MembershipPlanForm({
       planType: 'normal',
       duration: 30,
       price: 0,
+      saleOptions: [],
       isActive: true,
     },
   });
@@ -140,6 +203,7 @@ function MembershipPlanForm({
         planType: (plan.planType as 'normal' | 'credit') || 'normal',
         duration: plan.duration ?? 30,
         price: plan.price,
+        saleOptions: mapSaleOptionsToForm(plan.saleOptions),
         isActive: plan.isActive,
       });
     } else if (!isEditMode) {
@@ -150,6 +214,7 @@ function MembershipPlanForm({
         planType: 'normal',
         duration: 30,
         price: 0,
+        saleOptions: [],
         isActive: true,
       });
     }
@@ -172,6 +237,7 @@ function MembershipPlanForm({
           ? data.duration
           : undefined,
       price: data.price,
+      saleOptions: mapSaleOptionsToApi(data.saleOptions),
       isActive: data.isActive !== undefined ? data.isActive : true,
     };
 
@@ -219,6 +285,131 @@ function MembershipPlanForm({
             </Form.Item>
           )}
         />
+        <div className="space-y-3 rounded-md border p-4">
+          <div className="flex items-center justify-between">
+            <div className="text-sm font-medium">Multi-purchase sale options</div>
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              onClick={() => {
+                const current = form.getValues('saleOptions');
+                form.setValue('saleOptions', [
+                  ...current,
+                  { quantity: 2, pricingType: 'percent', value: 0 },
+                ]);
+              }}
+            >
+              Add option
+            </Button>
+          </div>
+          {(form.watch('saleOptions') || []).length === 0 ? (
+            <p className="text-sm text-muted-foreground">
+              No tiered sale options yet. Base price is used for all quantities.
+            </p>
+          ) : (
+            <div className="space-y-3">
+              <div className="flex gap-2 text-xs font-medium text-muted-foreground px-1">
+                <div className="w-24">Quantity</div>
+                <div className="w-40">Mode</div>
+                <div className="flex-1">Value</div>
+                <div className="w-20" />
+              </div>
+              {form.watch('saleOptions').map((_, index) => (
+                <div key={index} className="flex items-start gap-2">
+                  <Form.Field
+                    control={form.control}
+                    name={`saleOptions.${index}.quantity`}
+                    render={({ field }) => (
+                      <Form.Item className="w-24">
+                        <Form.Control>
+                          <Input
+                            {...field}
+                            type="number"
+                            min="2"
+                            placeholder="2"
+                            value={field.value ?? ''}
+                            onChange={(e) =>
+                              field.onChange(
+                                e.target.value ? parseInt(e.target.value, 10) : 2,
+                              )
+                            }
+                          />
+                        </Form.Control>
+                        <Form.Message />
+                      </Form.Item>
+                    )}
+                  />
+                  <Form.Field
+                    control={form.control}
+                    name={`saleOptions.${index}.pricingType`}
+                    render={({ field }) => (
+                      <Form.Item className="w-40">
+                        <Select value={field.value} onValueChange={field.onChange}>
+                          <Form.Control>
+                            <Select.Trigger>
+                              <Select.Value placeholder="Select mode" />
+                            </Select.Trigger>
+                          </Form.Control>
+                          <Select.Content>
+                            <Select.Item value="percent">Percent</Select.Item>
+                            <Select.Item value="price">Fixed price</Select.Item>
+                          </Select.Content>
+                        </Select>
+                        <Form.Message />
+                      </Form.Item>
+                    )}
+                  />
+                  <Form.Field
+                    control={form.control}
+                    name={`saleOptions.${index}.value`}
+                    render={({ field }) => (
+                      <Form.Item className="flex-1">
+                        <Form.Control>
+                          <Input
+                            {...field}
+                            type="number"
+                            min="0"
+                            step="0.01"
+                            placeholder={
+                              form.watch(`saleOptions.${index}.pricingType`) ===
+                              'percent'
+                                ? 'Discount %'
+                                : 'Final price'
+                            }
+                            value={field.value ?? ''}
+                            onChange={(e) =>
+                              field.onChange(
+                                e.target.value ? parseFloat(e.target.value) : 0,
+                              )
+                            }
+                          />
+                        </Form.Control>
+                        <Form.Message />
+                      </Form.Item>
+                    )}
+                  />
+                  <div className="flex items-end pt-1 shrink-0">
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="outline"
+                      onClick={() => {
+                        const current = form.getValues('saleOptions');
+                        form.setValue(
+                          'saleOptions',
+                          current.filter((__, currentIndex) => currentIndex !== index),
+                        );
+                      }}
+                    >
+                      Remove
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
         <Form.Field
           control={form.control}
           name="description"
@@ -354,7 +545,7 @@ function MembershipPlanForm({
             </Form.Item>
           )}
         />
-        <Dialog.Footer>
+        <Sheet.Footer>
           {isEditMode && (
             <Button
               type="button"
@@ -369,7 +560,7 @@ function MembershipPlanForm({
             <Spinner show={loading} />
             {isEditMode ? 'Update Membership Plan' : 'Create Membership Plan'}
           </Button>
-        </Dialog.Footer>
+        </Sheet.Footer>
       </form>
     </Form>
   );

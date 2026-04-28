@@ -14,7 +14,20 @@ export const types = `
     planType: OneFitMembershipPlanType
     duration: Int
     price: Float
+    saleOptions: [OneFitMembershipSaleOption!]
     isActive: Boolean
+  }
+
+  type OneFitMembershipSaleOption {
+    quantity: Int!
+    discountPercent: Float
+    finalPrice: Float
+  }
+
+  input OneFitMembershipSaleOptionInput {
+    quantity: Int!
+    discountPercent: Float
+    finalPrice: Float
   }
 
   type OneFitMembershipPlanListResponse {
@@ -132,6 +145,7 @@ const planInput = `
   planType: OneFitMembershipPlanType
   duration: Int
   price: Float!
+  saleOptions: [OneFitMembershipSaleOptionInput!]
   isActive: Boolean
 `;
 
@@ -142,12 +156,14 @@ const planUpdateInput = `
   planType: OneFitMembershipPlanType
   duration: Int
   price: Float
+  saleOptions: [OneFitMembershipSaleOptionInput!]
   isActive: Boolean
 `;
 
 const purchaseInput = `
   userId: String!
   planId: String!
+  quantity: Int
   promoCode: String
   promoCodeId: String
   removePreviousCredits: Boolean
@@ -156,6 +172,7 @@ const purchaseInput = `
 const bulkPurchaseInput = `
   userIds: [String]!
   planId: String!
+  quantity: Int
   companyId: String
   promoCode: String
   promoCodeId: String
@@ -164,6 +181,7 @@ const bulkPurchaseInput = `
 
 const cpPurchaseInput = `
   planId: String!
+  quantity: Int
   promoCode: String
   promoCodeId: String
   removePreviousCredits: Boolean

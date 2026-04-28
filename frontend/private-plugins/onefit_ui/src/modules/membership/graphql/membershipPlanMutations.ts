@@ -8,6 +8,7 @@ export const ONE_FIT_MEMBERSHIP_PLAN_CREATE = gql`
     $planType: OneFitMembershipPlanType
     $duration: Int
     $price: Float!
+    $saleOptions: [OneFitMembershipSaleOptionInput!]
     $isActive: Boolean
   ) {
     oneFitMembershipPlanCreate(
@@ -17,6 +18,7 @@ export const ONE_FIT_MEMBERSHIP_PLAN_CREATE = gql`
       planType: $planType
       duration: $duration
       price: $price
+      saleOptions: $saleOptions
       isActive: $isActive
     ) {
       _id
@@ -28,6 +30,11 @@ export const ONE_FIT_MEMBERSHIP_PLAN_CREATE = gql`
       planType
       duration
       price
+      saleOptions {
+        quantity
+        discountPercent
+        finalPrice
+      }
       isActive
     }
   }
@@ -42,6 +49,7 @@ export const ONE_FIT_MEMBERSHIP_PLAN_UPDATE = gql`
     $planType: OneFitMembershipPlanType
     $duration: Int
     $price: Float
+    $saleOptions: [OneFitMembershipSaleOptionInput!]
     $isActive: Boolean
   ) {
     oneFitMembershipPlanUpdate(
@@ -52,6 +60,7 @@ export const ONE_FIT_MEMBERSHIP_PLAN_UPDATE = gql`
       planType: $planType
       duration: $duration
       price: $price
+      saleOptions: $saleOptions
       isActive: $isActive
     ) {
       _id
@@ -62,6 +71,11 @@ export const ONE_FIT_MEMBERSHIP_PLAN_UPDATE = gql`
       planType
       duration
       price
+      saleOptions {
+        quantity
+        discountPercent
+        finalPrice
+      }
       isActive
     }
   }

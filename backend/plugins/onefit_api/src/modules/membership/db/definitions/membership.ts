@@ -22,6 +22,18 @@ export const membershipPlanSchema = new Schema(
       label: 'Duration (days)',
     },
     price: { type: Number, required: true, label: 'Price' },
+    saleOptions: [
+      {
+        quantity: { type: Number, required: true, min: 2, label: 'Quantity' },
+        discountPercent: {
+          type: Number,
+          min: 0,
+          max: 100,
+          label: 'Discount Percent',
+        },
+        finalPrice: { type: Number, min: 0, label: 'Final Price' },
+      },
+    ],
     isActive: { type: Boolean, default: true, label: 'Is Active' },
     gracePeriodDuration: {
       type: Number,

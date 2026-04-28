@@ -17,7 +17,14 @@ export interface OneFitMembershipPlan {
   planType?: OneFitMembershipPlanTypeValue;
   duration?: number;
   price: number;
+  saleOptions?: OneFitMembershipSaleOption[];
   isActive: boolean;
+}
+
+export interface OneFitMembershipSaleOption {
+  quantity: number;
+  discountPercent?: number;
+  finalPrice?: number;
 }
 
 export interface OneFitMembershipPlanListResponse {
