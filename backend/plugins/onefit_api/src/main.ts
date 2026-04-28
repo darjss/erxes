@@ -148,25 +148,39 @@ startPlugin({
           return;
         }
 
-        // Update purchase status to paid
-        await models.MembershipPurchase.markAsPaid(membershipPurchase._id);
+        const purchasesToProcess = membershipPurchase.invoiceId
+          ? await models.MembershipPurchase.find({
+              invoiceId: membershipPurchase.invoiceId,
+            })
+          : [membershipPurchase];
 
-        if (membershipPurchase.promoCodeId) {
-          await models.PromoCode.updateOne(
-            { _id: membershipPurchase.promoCodeId },
-            { $inc: { usedCount: 1 } },
-          );
+        for (const purchase of purchasesToProcess) {
+          if (purchase.status !== 'paid') {
+            await models.MembershipPurchase.markAsPaid(purchase._id);
+
+            if (purchase.promoCodeId) {
+              await models.PromoCode.updateOne(
+                { _id: purchase.promoCodeId },
+                { $inc: { usedCount: 1 } },
+              );
+            }
+          }
+
+          const plan = await models.MembershipPlan.findOne({
+            _id: purchase.planId,
+          });
+
+          if (plan && isCreditOnlyPlan(plan) && !purchase.activatedAt) {
+            await activateMembershipPurchase(purchase._id, {
+              models,
+              subdomain,
+            } as IContext);
+          }
         }
 
         const plan = await models.MembershipPlan.findOne({
           _id: membershipPurchase.planId,
         });
-        if (plan && isCreditOnlyPlan(plan)) {
-          await activateMembershipPurchase(membershipPurchase._id, {
-            models,
-            subdomain,
-          } as IContext);
-        }
 
         const cpUserId = data.data?.cpUserId;
         const clientPortalId = data.data?.clientPortalId;
