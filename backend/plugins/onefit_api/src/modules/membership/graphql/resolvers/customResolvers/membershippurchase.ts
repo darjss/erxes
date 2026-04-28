@@ -24,7 +24,9 @@ const resolvers = {
           ...(option.discountPercent != null
             ? { discountPercent: option.discountPercent }
             : {}),
-          ...(option.finalPrice != null ? { finalPrice: option.finalPrice } : {}),
+          ...(option.finalPrice != null
+            ? { finalPrice: option.finalPrice }
+            : {}),
         }));
     },
   },
