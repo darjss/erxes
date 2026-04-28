@@ -564,7 +564,9 @@ export function BulkMembershipPurchaseDialog({
                 <div className="grid grid-cols-2 gap-2">
                   <div className="text-muted-foreground">Plan</div>
                   <div className="font-medium">{selectedPlan.name}</div>
-                  <div className="text-muted-foreground">Base price per user</div>
+                  <div className="text-muted-foreground">
+                    Base price per user
+                  </div>
                   <div className="font-medium">
                     {selectedPlan.price.toLocaleString()} MNT
                   </div>
@@ -574,7 +576,9 @@ export function BulkMembershipPurchaseDialog({
                   </div>
                   <div className="text-muted-foreground">Quantity</div>
                   <div className="font-medium">{quantity}</div>
-                  <div className="text-muted-foreground">Applied sale option</div>
+                  <div className="text-muted-foreground">
+                    Applied sale option
+                  </div>
                   <div className="font-medium">
                     {selectedTier
                       ? selectedTier.finalPrice != null

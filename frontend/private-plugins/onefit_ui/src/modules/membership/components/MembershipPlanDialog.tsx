@@ -36,7 +36,10 @@ const membershipPlanSchema = z
     price: z.number().min(0, { message: 'Price must be 0 or greater' }),
     saleOptions: z.array(
       z.object({
-        quantity: z.number().int().min(2, { message: 'Quantity must be at least 2' }),
+        quantity: z
+          .number()
+          .int()
+          .min(2, { message: 'Quantity must be at least 2' }),
         pricingType: z.enum(['percent', 'price']),
         value: z.number().min(0, { message: 'Value must be 0 or greater' }),
       }),
@@ -88,7 +91,8 @@ function mapSaleOptionsToForm(
 ) {
   return (saleOptions || []).map((option) => ({
     quantity: option.quantity,
-    pricingType: option.discountPercent != null ? 'percent' : ('price' as SalePricingType),
+    pricingType:
+      option.discountPercent != null ? 'percent' : ('price' as SalePricingType),
     value:
       option.discountPercent != null
         ? option.discountPercent
@@ -287,7 +291,9 @@ function MembershipPlanForm({
         />
         <div className="space-y-3 rounded-md border p-4">
           <div className="flex items-center justify-between">
-            <div className="text-sm font-medium">Multi-purchase sale options</div>
+            <div className="text-sm font-medium">
+              Multi-purchase sale options
+            </div>
             <Button
               type="button"
               size="sm"
@@ -331,7 +337,9 @@ function MembershipPlanForm({
                             value={field.value ?? ''}
                             onChange={(e) =>
                               field.onChange(
-                                e.target.value ? parseInt(e.target.value, 10) : 2,
+                                e.target.value
+                                  ? parseInt(e.target.value, 10)
+                                  : 2,
                               )
                             }
                           />
@@ -345,7 +353,10 @@ function MembershipPlanForm({
                     name={`saleOptions.${index}.pricingType`}
                     render={({ field }) => (
                       <Form.Item className="w-40">
-                        <Select value={field.value} onValueChange={field.onChange}>
+                        <Select
+                          value={field.value}
+                          onValueChange={field.onChange}
+                        >
                           <Form.Control>
                             <Select.Trigger>
                               <Select.Value placeholder="Select mode" />
@@ -398,7 +409,9 @@ function MembershipPlanForm({
                         const current = form.getValues('saleOptions');
                         form.setValue(
                           'saleOptions',
-                          current.filter((__, currentIndex) => currentIndex !== index),
+                          current.filter(
+                            (__, currentIndex) => currentIndex !== index,
+                          ),
                         );
                       }}
                     >

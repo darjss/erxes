@@ -50,7 +50,10 @@ function normalizeSaleOptions(
 
     quantities.add(quantity);
 
-    if ((hasDiscountPercent && hasFinalPrice) || (!hasDiscountPercent && !hasFinalPrice)) {
+    if (
+      (hasDiscountPercent && hasFinalPrice) ||
+      (!hasDiscountPercent && !hasFinalPrice)
+    ) {
       throw new Error(
         `Sale option #${index + 1} must define either discountPercent or finalPrice`,
       );
@@ -63,7 +66,9 @@ function normalizeSaleOptions(
     }
 
     if (hasFinalPrice && finalPrice < 0) {
-      throw new Error(`Sale option #${index + 1} finalPrice must be 0 or greater`);
+      throw new Error(
+        `Sale option #${index + 1} finalPrice must be 0 or greater`,
+      );
     }
 
     return {
@@ -109,7 +114,9 @@ export const membershipMutations: Record<string, Resolver> = {
     }
     return await models.MembershipPlan.updatePlan(_id, {
       ...doc,
-      ...(doc.saleOptions ? { saleOptions: normalizeSaleOptions(doc.saleOptions) } : {}),
+      ...(doc.saleOptions
+        ? { saleOptions: normalizeSaleOptions(doc.saleOptions) }
+        : {}),
     });
   },
 
