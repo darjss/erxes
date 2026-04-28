@@ -1,10 +1,4 @@
-import {
-  Button,
-  cn,
-  Collapsible,
-  InfoCard,
-  Spinner,
-} from 'erxes-ui';
+import { Button, cn, Collapsible, InfoCard, Spinner } from 'erxes-ui';
 import {
   FieldsInGroup,
   MultipleFieldsInGroup,

@@ -432,7 +432,8 @@ export const loadCarClass = (
         }
 
         if (rollbackErrors.length) {
-          const message = error instanceof Error ? error.message : String(error);
+          const message =
+            error instanceof Error ? error.message : String(error);
           throw new Error(
             `Cars merge failed: ${message}. Rollback also failed: ${rollbackErrors.join('; ')}`,
           );

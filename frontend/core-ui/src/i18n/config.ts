@@ -41,9 +41,7 @@ i18nInstance.on('languageChanged', (lng) => {
 
 const savedLanguage = localStorage.getItem('lng');
 const lng =
-  savedLanguage && supportedLngs.includes(savedLanguage)
-    ? savedLanguage
-    : 'en';
+  savedLanguage && supportedLngs.includes(savedLanguage) ? savedLanguage : 'en';
 
 i18nInstance
   .use(HttpBackend)
