@@ -178,8 +178,7 @@ export interface ICreateMembershipPurchaseInvoiceOptions {
   removePreviousCredits?: boolean;
 }
 
-export interface IBulkCreateMembershipPurchaseInvoiceOptions
-  extends ICreateMembershipPurchaseInvoiceOptions {
+export interface IBulkCreateMembershipPurchaseInvoiceOptions extends ICreateMembershipPurchaseInvoiceOptions {
   userIds: string[];
 }
 
@@ -278,7 +277,8 @@ export async function createMembershipPurchaseInvoice(
   for (const [index, purchaseAmount] of purchaseAmounts.entries()) {
     const provisionalExpiresAt = initialExpiresAt
       ? new Date(
-          initialExpiresAt.getTime() + index * durationDays * 24 * 60 * 60 * 1000,
+          initialExpiresAt.getTime() +
+            index * durationDays * 24 * 60 * 60 * 1000,
         )
       : undefined;
     const membershipPurchase = await models.MembershipPurchase.createPurchase({
@@ -326,9 +326,8 @@ export async function createMembershipPurchaseInvoice(
   }
 
   // Get paymentIds from config
-  const selectedPaymentsConfig = await models.SystemConfig.getConfig(
-    'selectedPayments',
-  );
+  const selectedPaymentsConfig =
+    await models.SystemConfig.getConfig('selectedPayments');
   const paymentIds: string[] =
     (selectedPaymentsConfig?.value as string[]) || [];
 
