@@ -3,6 +3,7 @@ import { escapeRegExp } from 'erxes-api-shared/utils';
 import { Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
 import { ICarCategory, ICarCategoryDocument } from '../../@types/car';
+import { getActiveCarsSelector } from '../../utils';
 import { carCategorySchema } from '../definitions/car';
 
 export interface ICarCategoryModel extends Model<ICarCategoryDocument> {
@@ -193,6 +194,7 @@ export const loadCarCategoryClass = (
       const category = await models.CarCategories.getCarCategory({ _id });
 
       const relatedCarsCount = await models.Cars.countDocuments({
+        ...getActiveCarsSelector(),
         categoryId: _id,
       });
       const childCategoriesCount = await models.CarCategories.countDocuments({
