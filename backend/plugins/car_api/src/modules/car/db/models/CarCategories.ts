@@ -104,10 +104,7 @@ export const loadCarCategoryClass = (
       const descendantOrderPattern = new RegExp(
         `^${previousOrderPrefix}(?:/|$)`,
       );
-      const nextParentId = Object.prototype.hasOwnProperty.call(
-        doc,
-        'parentId',
-      )
+      const nextParentId = Object.prototype.hasOwnProperty.call(doc, 'parentId')
         ? doc.parentId
         : previousCategory.parentId;
 
