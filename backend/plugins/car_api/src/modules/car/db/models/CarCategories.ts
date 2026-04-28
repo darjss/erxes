@@ -104,12 +104,18 @@ export const loadCarCategoryClass = (
       const descendantOrderPattern = new RegExp(
         `^${previousOrderPrefix}(?:/|$)`,
       );
+      const nextParentId = Object.prototype.hasOwnProperty.call(
+        doc,
+        'parentId',
+      )
+        ? doc.parentId
+        : previousCategory.parentId;
 
-      const parentCategory = doc.parentId
-        ? await models.CarCategories.findOne({ _id: doc.parentId })
+      const parentCategory = nextParentId
+        ? await models.CarCategories.findOne({ _id: nextParentId })
         : null;
 
-      if (doc.parentId && !parentCategory) {
+      if (nextParentId && !parentCategory) {
         throw new Error('Parent car category not found');
       }
 

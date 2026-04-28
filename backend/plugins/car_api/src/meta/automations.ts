@@ -3,7 +3,7 @@ export default {
     triggers: [
       {
         moduleName: 'car',
-        collectionName: 'car',
+        collectionName: 'cars',
         icon: 'IconCar',
         label: 'Car',
         description:
