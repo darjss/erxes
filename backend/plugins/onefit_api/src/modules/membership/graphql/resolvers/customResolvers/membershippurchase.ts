@@ -1,8 +1,33 @@
 import { IMembershipPurchaseDocument } from '@/membership/@types/membershippurchase';
+import { IMembershipPlanDocument } from '@/membership/@types/membership';
 import { IContext } from '~/connectionResolvers';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 
 const resolvers = {
+  OneFitMembershipPlan: {
+    saleOptions: (plan: IMembershipPlanDocument) => {
+      if (!Array.isArray(plan.saleOptions)) {
+        return [];
+      }
+
+      return plan.saleOptions
+        .filter(
+          (option) =>
+            option &&
+            Number.isInteger(option.quantity) &&
+            option.quantity >= 2 &&
+            ((option.discountPercent != null && option.finalPrice == null) ||
+              (option.finalPrice != null && option.discountPercent == null)),
+        )
+        .map((option) => ({
+          quantity: option.quantity,
+          ...(option.discountPercent != null
+            ? { discountPercent: option.discountPercent }
+            : {}),
+          ...(option.finalPrice != null ? { finalPrice: option.finalPrice } : {}),
+        }));
+    },
+  },
   OneFitMembershipPurchase: {
     user: async (
       purchase: IMembershipPurchaseDocument,

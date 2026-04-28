@@ -24,6 +24,11 @@ export const ONE_FIT_MEMBERSHIP_PLANS = gql`
         planType
         duration
         price
+        saleOptions {
+          quantity
+          discountPercent
+          finalPrice
+        }
         isActive
       }
       totalCount
@@ -63,6 +68,11 @@ export const ONE_FIT_MEMBERSHIP_PLAN = gql`
       planType
       duration
       price
+      saleOptions {
+        quantity
+        discountPercent
+        finalPrice
+      }
       isActive
     }
   }
@@ -80,6 +90,11 @@ export const ONE_FIT_ACTIVE_MEMBERSHIP_PLANS = gql`
       planType
       duration
       price
+      saleOptions {
+        quantity
+        discountPercent
+        finalPrice
+      }
       isActive
     }
   }

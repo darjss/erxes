@@ -1,6 +1,7 @@
 import { Document } from 'mongoose';
 
 export interface IMembershipPlan {
+  saleOptions?: IMembershipSaleOption[];
   name: string;
   description?: string;
   creditAmount: number; // Number of credits
@@ -11,6 +12,12 @@ export interface IMembershipPlan {
   gracePeriodDuration: number;
   createdAt?: Date;
   modifiedAt?: Date;
+}
+
+export interface IMembershipSaleOption {
+  quantity: number;
+  discountPercent?: number;
+  finalPrice?: number;
 }
 
 export interface IMembershipPlanDocument extends Document, IMembershipPlan {

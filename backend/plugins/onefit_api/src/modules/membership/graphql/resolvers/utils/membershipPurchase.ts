@@ -172,13 +172,45 @@ async function clearExistingCreditsBeforeActivation(
 
 export interface ICreateMembershipPurchaseInvoiceOptions {
   companyId?: string;
+  quantity?: number;
   promoCode?: string;
   promoCodeId?: string;
   removePreviousCredits?: boolean;
 }
 
-export interface IBulkCreateMembershipPurchaseInvoiceOptions extends ICreateMembershipPurchaseInvoiceOptions {
+export interface IBulkCreateMembershipPurchaseInvoiceOptions
+  extends ICreateMembershipPurchaseInvoiceOptions {
   userIds: string[];
+}
+
+function getPlanPriceByQuantity(
+  planPrice: number,
+  quantity: number,
+  saleOptions?: Array<{
+    quantity: number;
+    discountPercent?: number;
+    finalPrice?: number;
+  }>,
+): number {
+  if (quantity <= 1 || !saleOptions?.length) {
+    return planPrice;
+  }
+
+  const tier = saleOptions.find((option) => option.quantity === quantity);
+  if (!tier) {
+    return planPrice;
+  }
+
+  if (tier.finalPrice != null) {
+    return tier.finalPrice;
+  }
+
+  if (tier.discountPercent != null) {
+    const discounted = planPrice * (1 - tier.discountPercent / 100);
+    return Math.max(0, discounted);
+  }
+
+  return planPrice;
 }
 
 export async function createMembershipPurchaseInvoice(
@@ -188,20 +220,30 @@ export async function createMembershipPurchaseInvoice(
   options?: ICreateMembershipPurchaseInvoiceOptions,
 ) {
   const { models, subdomain } = context;
+  const quantity = options?.quantity ?? 1;
+
+  if (!Number.isInteger(quantity) || quantity < 1) {
+    throw new Error('Quantity must be an integer greater than or equal to 1');
+  }
 
   const plan = await models.MembershipPlan.findOne({ _id: planId });
   if (!plan) {
     throw new Error('Membership plan not found');
   }
 
-  let amount = plan.price;
+  const basePrice = getPlanPriceByQuantity(
+    plan.price,
+    quantity,
+    plan.saleOptions,
+  );
+  let amount = basePrice;
   let promoCodeId: string | undefined;
 
   if (options?.promoCode || options?.promoCodeId) {
     const result = await validateAndDiscount(context, {
       promoCode: options.promoCode,
       promoCodeId: options.promoCodeId,
-      originalPrice: plan.price,
+      originalPrice: basePrice,
     });
     amount = result.discountedAmount;
     promoCodeId = result.promoCodeId;
@@ -224,34 +266,59 @@ export async function createMembershipPurchaseInvoice(
     throw new Error('Customer not found');
   }
 
-  // Create membership purchase record
-  const membershipPurchase = await models.MembershipPurchase.createPurchase({
-    userId,
-    planId,
-    ...(options?.companyId && { companyId: options.companyId }),
-    status: MembershipPurchaseStatus.PENDING,
-    purchasedAt: new Date(),
-    amount,
-    ...(promoCodeId && { promoCodeId }),
-    ...(options?.removePreviousCredits && {
-      removePreviousCredits: true,
-    }),
-  });
+  const purchaseAmounts = Array.from({ length: quantity }, () => amount);
+  const membershipPurchases: Awaited<
+    ReturnType<typeof models.MembershipPurchase.createPurchase>
+  >[] = [];
+
+  for (const purchaseAmount of purchaseAmounts) {
+    const membershipPurchase = await models.MembershipPurchase.createPurchase({
+      userId,
+      planId,
+      ...(options?.companyId && { companyId: options.companyId }),
+      status: MembershipPurchaseStatus.PENDING,
+      purchasedAt: new Date(),
+      amount: purchaseAmount,
+      ...(promoCodeId && { promoCodeId }),
+      ...(options?.removePreviousCredits && {
+        removePreviousCredits: true,
+      }),
+    });
+    membershipPurchases.push(membershipPurchase);
+  }
 
   if (amount <= 0) {
-    await models.MembershipPurchase.markAsPaid(membershipPurchase._id);
-    if (promoCodeId) {
-      await models.PromoCode.updateOne(
-        { _id: promoCodeId },
-        { $inc: { usedCount: 1 } },
+    let firstActivated: Awaited<
+      ReturnType<typeof activateMembershipPurchase>
+    > | null = null;
+    for (const membershipPurchase of membershipPurchases) {
+      await models.MembershipPurchase.markAsPaid(membershipPurchase._id);
+      if (promoCodeId) {
+        await models.PromoCode.updateOne(
+          { _id: promoCodeId },
+          { $inc: { usedCount: 1 } },
+        );
+      }
+      const activated = await activateMembershipPurchase(
+        membershipPurchase._id,
+        context,
       );
+      if (!firstActivated) {
+        firstActivated = activated;
+      }
     }
-    return await activateMembershipPurchase(membershipPurchase._id, context);
+
+    if (!firstActivated) {
+      throw new Error('Failed to activate membership purchases');
+    }
+
+    return firstActivated;
   }
 
   // Get paymentIds from config
-  const selectedPaymentsConfig =
-    await models.SystemConfig.getConfig('selectedPayments');
+  const selectedPaymentsConfig = await models.SystemConfig.getConfig(
+    'selectedPayments',
+  );
   const paymentIds: string[] =
     (selectedPaymentsConfig?.value as string[]) || [];
 
@@ -263,14 +330,14 @@ export async function createMembershipPurchaseInvoice(
 
   // Create invoice using tRPC
   const invoiceInput: any = {
-    amount,
+    amount: amount * quantity,
     currency: 'MNT',
     description: `Membership purchase: ${plan.name}`,
     status: 'pending',
     customerType: 'customer',
     customerId: userId,
     contentType: 'onefit:membership:membershippurchase',
-    contentTypeId: membershipPurchase._id,
+    contentTypeId: membershipPurchases[0]._id,
     paymentIds,
   };
 
@@ -306,15 +373,26 @@ export async function createMembershipPurchaseInvoice(
     throw new Error('Failed to create invoice');
   }
 
-  // Update membership purchase with invoiceId
-  const updatedPurchase = await models.MembershipPurchase.updatePurchase(
-    membershipPurchase._id,
-    {
-      invoiceId: invoice._id,
-    },
-  );
+  let firstUpdated: Awaited<
+    ReturnType<typeof models.MembershipPurchase.updatePurchase>
+  > | null = null;
+  for (const membershipPurchase of membershipPurchases) {
+    const updatedPurchase = await models.MembershipPurchase.updatePurchase(
+      membershipPurchase._id,
+      {
+        invoiceId: invoice._id,
+      },
+    );
+    if (!firstUpdated) {
+      firstUpdated = updatedPurchase;
+    }
+  }
 
-  return updatedPurchase;
+  if (!firstUpdated) {
+    throw new Error('Failed to create membership purchases');
+  }
+
+  return firstUpdated;
 }
 
 export async function createMembershipPurchasesBulkInvoice(
@@ -339,6 +417,7 @@ export async function createMembershipPurchasesBulkInvoice(
         {
           promoCode: options.promoCode,
           promoCodeId: options.promoCodeId,
+          quantity: options.quantity,
           companyId: options.companyId,
           removePreviousCredits: options.removePreviousCredits,
         },

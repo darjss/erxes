@@ -23,9 +23,16 @@ import { ONE_FIT_CUSTOMER } from '~/modules/onefitCustomer/graphql/onefitCustome
 import { SelectOneFitCustomer } from '~/modules/onefitCustomer/components/SelectOneFitCustomer';
 import { useCreateMembershipPurchase } from '../hooks/useMembershipPurchaseMutations';
 
+const DEFAULT_QUANTITY_VALUE = '__default_quantity__';
+
 const createMembershipPurchaseSchema = z.object({
   userId: z.string().min(1, { message: 'Customer is required' }),
   planId: z.string().min(1, { message: 'Membership plan is required' }),
+  quantity: z
+    .number()
+    .int()
+    .min(1, { message: 'Quantity must be at least 1' })
+    .optional(),
   promoCode: z.string().optional(),
   removePreviousCredits: z.boolean().optional(),
 });
@@ -51,7 +58,7 @@ export function CreateMembershipPurchaseDialog({
   const isControlled = controlledOpen !== undefined;
   const open = isControlled ? (controlledOpen as boolean) : internalOpen;
   const setOpen = isControlled
-    ? controlledOnOpenChange || (() => {})
+    ? (nextOpen: boolean) => controlledOnOpenChange?.(nextOpen)
     : setInternalOpen;
 
   const form = useForm<CreateMembershipPurchaseFormData>({
@@ -59,6 +66,7 @@ export function CreateMembershipPurchaseDialog({
     defaultValues: {
       userId: defaultUserId || '',
       planId: '',
+      quantity: undefined,
       promoCode: '',
       removePreviousCredits: false,
     },
@@ -69,6 +77,7 @@ export function CreateMembershipPurchaseDialog({
       form.reset({
         userId: defaultUserId || '',
         planId: '',
+        quantity: undefined,
         promoCode: '',
         removePreviousCredits: false,
       });
@@ -83,6 +92,14 @@ export function CreateMembershipPurchaseDialog({
     if (!planId) return undefined;
     return plans.find((p) => p._id === planId);
   }, [planId, plans]);
+  const availableSaleQuantities = useMemo(() => {
+    const options = selectedPlan?.saleOptions ?? [];
+    const quantities = options
+      .map((option) => option.quantity)
+      .filter((value) => Number.isInteger(value) && value >= 1);
+
+    return Array.from(new Set(quantities)).sort((a, b) => a - b);
+  }, [selectedPlan]);
 
   const userId = form.watch('userId');
   const { data: customerData, loading: customerLoading } = useQuery(
@@ -118,16 +135,40 @@ export function CreateMembershipPurchaseDialog({
     form.reset({
       userId: defaultUserId || '',
       planId: '',
+      quantity: undefined,
       promoCode: '',
       removePreviousCredits: false,
     });
   }
+
+  const selectedQuantity = form.watch('quantity');
+  const quantity = selectedQuantity ?? 1;
+  const hasSaleOptions = availableSaleQuantities.length > 0;
+
+  useEffect(() => {
+    if (!selectedPlan) {
+      return;
+    }
+
+    if (!availableSaleQuantities.length) {
+      form.setValue('quantity', 1);
+      return;
+    }
+
+    if (
+      selectedQuantity !== undefined &&
+      !availableSaleQuantities.includes(selectedQuantity)
+    ) {
+      form.setValue('quantity', undefined);
+    }
+  }, [selectedPlan, availableSaleQuantities, selectedQuantity, form]);
 
   function onSubmit(values: CreateMembershipPurchaseFormData) {
     createMembershipPurchase({
       variables: {
         userId: values.userId,
         planId: values.planId,
+        ...(values.quantity ? { quantity: values.quantity } : {}),
         ...(values.promoCode?.trim() && { promoCode: values.promoCode.trim() }),
         ...(values.removePreviousCredits &&
           canClearCredits && { removePreviousCredits: true }),
@@ -135,6 +176,36 @@ export function CreateMembershipPurchaseDialog({
       onCompleted: () => handleClose(),
     });
   }
+  const tierPrice = useMemo(() => {
+    if (!selectedPlan) {
+      return 0;
+    }
+
+    if (quantity <= 1) {
+      return selectedPlan.price;
+    }
+
+    const tier = selectedPlan.saleOptions?.find(
+      (option) => option.quantity === quantity,
+    );
+    if (!tier) {
+      return selectedPlan.price;
+    }
+
+    if (tier.finalPrice != null) {
+      return tier.finalPrice;
+    }
+
+    if (tier.discountPercent != null) {
+      return Math.max(0, selectedPlan.price * (1 - tier.discountPercent / 100));
+    }
+
+    return selectedPlan.price;
+  }, [quantity, selectedPlan]);
+
+  const hasTier = Boolean(
+    selectedPlan?.saleOptions?.some((option) => option.quantity === quantity),
+  );
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -270,6 +341,62 @@ export function CreateMembershipPurchaseDialog({
                 </Form.Item>
               )}
             />
+            <Form.Field
+              control={form.control}
+              name="quantity"
+              render={({ field }) => (
+                <Form.Item>
+                  <Form.Label>Quantity</Form.Label>
+                  <Form.Control>
+                    <Select
+                      value={
+                        field.value
+                          ? String(field.value)
+                          : DEFAULT_QUANTITY_VALUE
+                      }
+                      onValueChange={(value) =>
+                        field.onChange(
+                          value === DEFAULT_QUANTITY_VALUE
+                            ? undefined
+                            : parseInt(value, 10),
+                        )
+                      }
+                      disabled={!selectedPlan || !hasSaleOptions}
+                    >
+                      <Select.Trigger>
+                        <Select.Value placeholder="Default (1)" />
+                      </Select.Trigger>
+                      <Select.Content>
+                        {hasSaleOptions ? (
+                          <>
+                            <Select.Item value={DEFAULT_QUANTITY_VALUE}>
+                              Default (1)
+                            </Select.Item>
+                            {availableSaleQuantities.map((saleQuantity) => (
+                              <Select.Item
+                                key={saleQuantity}
+                                value={String(saleQuantity)}
+                              >
+                                {saleQuantity}
+                              </Select.Item>
+                            ))}
+                          </>
+                        ) : (
+                          <Select.Item value="1">1</Select.Item>
+                        )}
+                      </Select.Content>
+                    </Select>
+                  </Form.Control>
+                  {selectedPlan && !hasSaleOptions ? (
+                    <p className="text-xs text-muted-foreground">
+                      This plan has no configured sale quantities. Quantity is
+                      fixed to 1.
+                    </p>
+                  ) : null}
+                  <Form.Message />
+                </Form.Item>
+              )}
+            />
 
             <Form.Field
               control={form.control}
@@ -295,8 +422,17 @@ export function CreateMembershipPurchaseDialog({
                 <div className="grid grid-cols-2 gap-2">
                   <div className="text-muted-foreground">Price</div>
                   <div className="font-medium">
-                    {selectedPlan.price.toLocaleString()} MNT
+                    {tierPrice.toLocaleString()} MNT
                   </div>
+                  <div className="text-muted-foreground">Quantity</div>
+                  <div className="font-medium">{quantity}</div>
+                  {hasTier && quantity > 1 ? (
+                    <>
+                      <div className="text-muted-foreground col-span-2">
+                        Tiered sale option applied
+                      </div>
+                    </>
+                  ) : null}
                   {form.watch('promoCode')?.trim() && (
                     <>
                       <div className="text-muted-foreground col-span-2">

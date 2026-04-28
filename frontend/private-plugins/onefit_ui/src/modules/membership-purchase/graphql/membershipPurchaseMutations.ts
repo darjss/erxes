@@ -4,6 +4,7 @@ export const ONE_FIT_MEMBERSHIP_PURCHASE_CREATE = gql`
   mutation OneFitMembershipPurchaseCreate(
     $userId: String!
     $planId: String!
+    $quantity: Int
     $promoCode: String
     $promoCodeId: String
     $removePreviousCredits: Boolean
@@ -11,6 +12,7 @@ export const ONE_FIT_MEMBERSHIP_PURCHASE_CREATE = gql`
     oneFitMembershipPurchaseCreate(
       userId: $userId
       planId: $planId
+      quantity: $quantity
       promoCode: $promoCode
       promoCodeId: $promoCodeId
       removePreviousCredits: $removePreviousCredits
@@ -53,6 +55,7 @@ export const ONE_FIT_MEMBERSHIP_PURCHASES_BULK_CREATE = gql`
   mutation OneFitMembershipPurchasesBulkCreate(
     $userIds: [String]!
     $planId: String!
+    $quantity: Int
     $companyId: String
     $promoCode: String
     $promoCodeId: String
@@ -61,6 +64,7 @@ export const ONE_FIT_MEMBERSHIP_PURCHASES_BULK_CREATE = gql`
     oneFitMembershipPurchasesBulkCreate(
       userIds: $userIds
       planId: $planId
+      quantity: $quantity
       companyId: $companyId
       promoCode: $promoCode
       promoCodeId: $promoCodeId
