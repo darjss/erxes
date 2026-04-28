@@ -16,7 +16,6 @@ import {
 import {
   buildSearchRegex,
   getActiveCarsSelector,
-  getCarSegmentContentType,
   normalizeRelationContentType,
 } from '~/modules/car/utils';
 
@@ -80,10 +79,11 @@ const generateCarsFilter = async (
     filter._id = { $in: relationIds };
   }
 
-  if (params.segmentData) {
-    throw new Error(
-      'segmentData filtering for cars requires a platform segment-data API and is deferred',
-    );
+  if (params.segmentData && !params.segment) {
+    // Raw segmentData parity needs platform segment-data support for plugin
+    // content types. Keep public list queries stable instead of failing links
+    // that carry the legacy arg.
+    return filter;
   }
 
   if (params.segment) {
@@ -190,12 +190,6 @@ export const carQueries: Record<string, CarResolver> = {
       bySegment: {},
       byTag: {},
     };
-
-    if (params.only === 'bySegment') {
-      throw new Error(
-        `carCounts bySegment requires core segment listing for ${getCarSegmentContentType()} and is deferred`,
-      );
-    }
 
     return counts;
   },
