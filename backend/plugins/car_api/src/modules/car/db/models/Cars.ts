@@ -9,11 +9,16 @@ import {
   extractMergeRelations,
   getActiveCarsSelector,
   getCarDisplayName,
+  normalizeMergeCarIds,
 } from '../../utils';
 import { carSchema } from '../definitions/car';
 
 type RelationDoc = {
   entities?: Array<{ contentType: string; contentId: string }>;
+};
+
+type CreateCarOptions = {
+  idsToExclude?: string[];
 };
 
 export interface ICarModel extends Model<ICarDocument> {
@@ -22,7 +27,11 @@ export interface ICarModel extends Model<ICarDocument> {
     idsToExclude?: string[],
   ): Promise<void>;
   getCar(_id: string): Promise<ICarDocument>;
-  createCar(doc: ICar, user?: any): Promise<ICarDocument>;
+  createCar(
+    doc: ICar,
+    user?: any,
+    options?: CreateCarOptions,
+  ): Promise<ICarDocument>;
   updateCar(_id: string, doc: ICar): Promise<ICarDocument>;
   removeCars(carIds: string[]): Promise<{ deletedCount?: number }>;
   mergeCars(carIds: string[], carFields: Partial<ICar>): Promise<ICarDocument>;
@@ -94,8 +103,12 @@ export const loadCarClass = (
       return car;
     }
 
-    public static async createCar(doc: ICar, user?: any) {
-      await models.Cars.checkDuplication(doc);
+    public static async createCar(
+      doc: ICar,
+      user?: any,
+      options: CreateCarOptions = {},
+    ) {
+      await models.Cars.checkDuplication(doc, options.idsToExclude || []);
 
       const preparedDoc = {
         ...doc,
@@ -209,19 +222,22 @@ export const loadCarClass = (
     }
 
     public static async mergeCars(carIds: string[], carFields: Partial<ICar>) {
-      if (!carIds?.length) {
-        throw new Error('Cars not found');
+      const sourceCarIds = normalizeMergeCarIds(carIds);
+
+      if (sourceCarIds.length < 2) {
+        throw new Error('At least two cars are required to merge');
       }
 
       const sourceCars = await models.Cars.find({
-        _id: { $in: carIds },
+        ...getActiveCarsSelector(),
+        _id: { $in: sourceCarIds },
       }).lean();
 
-      if (!sourceCars.length) {
-        throw new Error('Cars not found');
+      if (sourceCars.length !== sourceCarIds.length) {
+        throw new Error('One or more source cars were not found');
       }
 
-      await models.Cars.checkDuplication(carFields, carIds);
+      await models.Cars.checkDuplication(carFields, sourceCarIds);
 
       const relationDocs = (
         await Promise.all(
@@ -255,87 +271,175 @@ export const loadCarClass = (
 
       const mergedIds = Array.from(
         new Set([
-          ...carIds,
+          ...sourceCarIds,
           ...sourceCars.flatMap((car) => car.mergedIds || []),
         ]),
       );
 
-      const mergedCar = await models.Cars.createCar({
-        ...carFields,
-        tagIds: mergedTagIds,
-        mergedIds,
-      });
+      let mergedCar: ICarDocument | null = null;
+      let sourcesSoftDeleted = false;
 
-      const relationsToCarry = extractMergeRelations(relationDocs, carIds);
-
-      if (relationsToCarry.length) {
-        // Preserve non-car relations before soft-deleting merge source cars.
-        requireArrayResult(
-          await requireCoreTRPC({
-            subdomain,
-            method: 'mutation',
-            module: 'relation',
-            action: 'createMultipleRelations',
-            input: {
-              relations: relationsToCarry.map((relation) => ({
-                entities: [
-                  {
-                    contentType: ROOT_CAR_CONTENT_TYPE,
-                    contentId: mergedCar._id,
-                  },
-                  relation,
-                ],
-              })),
-            },
-          }),
-          'Core relation.createMultipleRelations',
-        );
-      }
-
-      await models.Cars.updateMany(
-        { _id: { $in: carIds } },
-        { $set: { status: 'Deleted' } },
-      );
-
-      const mergeCleanResult = await requireCoreTRPC<string>({
-        subdomain,
-        method: 'mutation',
-        module: 'relation',
-        action: 'cleanRelation',
-        input: {
-          contentType: ROOT_CAR_CONTENT_TYPE,
-          contentIds: carIds,
-        },
-      });
-
-      if (mergeCleanResult !== 'success') {
-        throw new Error(
-          'Core relation.cleanRelation returned an invalid result',
-        );
-      }
-
-      for (const sourceCar of sourceCars) {
-        sendDbEventLog?.({
-          action: 'update',
-          docId: sourceCar._id,
-          currentDocument: {
-            ...sourceCar,
-            status: 'Deleted',
+      try {
+        mergedCar = await models.Cars.createCar(
+          {
+            ...carFields,
+            tagIds: mergedTagIds,
+            mergedIds,
           },
-          prevDocument: sourceCar,
+          undefined,
+          { idsToExclude: sourceCarIds },
+        );
+        const mergedCarId = mergedCar._id;
+
+        const relationsToCarry = extractMergeRelations(
+          relationDocs,
+          sourceCarIds,
+        );
+
+        if (relationsToCarry.length) {
+          // Preserve non-car relations before soft-deleting merge source cars.
+          requireArrayResult(
+            await requireCoreTRPC({
+              subdomain,
+              method: 'mutation',
+              module: 'relation',
+              action: 'createMultipleRelations',
+              input: {
+                relations: relationsToCarry.map((relation) => ({
+                  entities: [
+                    {
+                      contentType: ROOT_CAR_CONTENT_TYPE,
+                      contentId: mergedCarId,
+                    },
+                    relation,
+                  ],
+                })),
+              },
+            }),
+            'Core relation.createMultipleRelations',
+          );
+        }
+
+        await models.Cars.updateMany(
+          { _id: { $in: sourceCarIds } },
+          { $set: { status: 'Deleted' } },
+        );
+        sourcesSoftDeleted = true;
+
+        const mergeCleanResult = await requireCoreTRPC<string>({
+          subdomain,
+          method: 'mutation',
+          module: 'relation',
+          action: 'cleanRelation',
+          input: {
+            contentType: ROOT_CAR_CONTENT_TYPE,
+            contentIds: sourceCarIds,
+          },
         });
+
+        if (mergeCleanResult !== 'success') {
+          throw new Error(
+            'Core relation.cleanRelation returned an invalid result',
+          );
+        }
+
+        for (const sourceCar of sourceCars) {
+          sendDbEventLog?.({
+            action: 'update',
+            docId: sourceCar._id,
+            currentDocument: {
+              ...sourceCar,
+              status: 'Deleted',
+            },
+            prevDocument: sourceCar,
+          });
+        }
+
+        createActivityLog?.(
+          makeActivityLog(
+            'merge',
+            mergedCar._id,
+            `"${getCarDisplayName(mergedCar)}" has been created from a merge`,
+            { mergedIds },
+          ),
+        );
+
+        return mergedCar;
+      } catch (error) {
+        const rollbackErrors: string[] = [];
+
+        if (sourcesSoftDeleted) {
+          try {
+            await models.Cars.bulkWrite(
+              sourceCars.map((sourceCar) => ({
+                updateOne: {
+                  filter: { _id: sourceCar._id },
+                  update:
+                    sourceCar.status === undefined
+                      ? { $unset: { status: '' } }
+                      : { $set: { status: sourceCar.status } },
+                },
+              })),
+            );
+          } catch (rollbackError) {
+            rollbackErrors.push(
+              rollbackError instanceof Error
+                ? rollbackError.message
+                : String(rollbackError),
+            );
+          }
+        }
+
+        if (mergedCar?._id) {
+          try {
+            const targetCleanResult = await requireCoreTRPC<string>({
+              subdomain,
+              method: 'mutation',
+              module: 'relation',
+              action: 'cleanRelation',
+              input: {
+                contentType: ROOT_CAR_CONTENT_TYPE,
+                contentIds: [mergedCar._id],
+              },
+            });
+
+            if (targetCleanResult !== 'success') {
+              rollbackErrors.push(
+                'Core relation.cleanRelation returned an invalid result for merged car rollback',
+              );
+            }
+          } catch (rollbackError) {
+            rollbackErrors.push(
+              rollbackError instanceof Error
+                ? rollbackError.message
+                : String(rollbackError),
+            );
+          }
+
+          try {
+            await models.Cars.deleteOne({ _id: mergedCar._id });
+            sendDbEventLog?.({
+              action: 'delete',
+              docId: mergedCar._id,
+            });
+          } catch (rollbackError) {
+            rollbackErrors.push(
+              rollbackError instanceof Error
+                ? rollbackError.message
+                : String(rollbackError),
+            );
+          }
+        }
+
+        if (rollbackErrors.length) {
+          const message = error instanceof Error ? error.message : String(error);
+          throw new Error(
+            `Cars merge failed: ${message}. Rollback also failed: ${rollbackErrors.join('; ')}`,
+          );
+        }
+
+        throw error;
       }
-
-      createActivityLog?.(
-        makeActivityLog(
-          'merge',
-          mergedCar._id,
-          `"${getCarDisplayName(mergedCar)}" has been created from a merge`,
-          { mergedIds },
-        ),
-      );
-
-      return mergedCar;
     }
   }
 

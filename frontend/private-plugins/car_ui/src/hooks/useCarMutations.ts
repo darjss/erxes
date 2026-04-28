@@ -12,20 +12,7 @@ import {
   REMOVE_CARS_MUTATION,
 } from '~/graphql/documents';
 
-const listRefetchQueries = [
-  'CarsMain',
-  'Cars',
-  'CarCategories',
-  'CarCounts',
-  'CarCountByTags',
-  'getRelationsByEntity',
-];
-
-const detailRefetchQueries = [
-  ...listRefetchQueries,
-  'CarDetail',
-  'CarCategoryDetail',
-];
+const activeRefetchQueries = 'active' as const;
 
 const removeCarsFromCache = (
   cache: ApolloCache<unknown>,
@@ -95,7 +82,7 @@ export const useCarMutations = () => {
   const { t } = useTranslation('car');
 
   const [carsAdd, carsAddState] = useMutation(ADD_CAR_MUTATION, {
-    refetchQueries: detailRefetchQueries,
+    refetchQueries: activeRefetchQueries,
     onCompleted: () => {
       toast({
         title: t('Car saved', { defaultValue: 'Car saved' }),
@@ -117,7 +104,7 @@ export const useCarMutations = () => {
   });
 
   const [carsEdit, carsEditState] = useMutation(EDIT_CAR_MUTATION, {
-    refetchQueries: detailRefetchQueries,
+    refetchQueries: activeRefetchQueries,
     onCompleted: () => {
       toast({
         title: t('Car updated', { defaultValue: 'Car updated' }),
@@ -139,8 +126,7 @@ export const useCarMutations = () => {
   });
 
   const [carsRemove, carsRemoveState] = useMutation(REMOVE_CARS_MUTATION, {
-    // Deleted records cannot be refetched by detail queries; refresh list surfaces only.
-    refetchQueries: listRefetchQueries,
+    refetchQueries: activeRefetchQueries,
     awaitRefetchQueries: true,
     update: (cache, _result, { variables }) => {
       removeCarsFromCache(cache, variables?.carIds as string[] | undefined);
@@ -166,7 +152,7 @@ export const useCarMutations = () => {
   });
 
   const [carsMerge, carsMergeState] = useMutation(MERGE_CARS_MUTATION, {
-    refetchQueries: detailRefetchQueries,
+    refetchQueries: activeRefetchQueries,
     onCompleted: () => {
       toast({
         title: t('Cars merged', { defaultValue: 'Cars merged' }),
@@ -190,7 +176,7 @@ export const useCarMutations = () => {
   const [carCategoriesAdd, carCategoriesAddState] = useMutation(
     ADD_CAR_CATEGORY_MUTATION,
     {
-      refetchQueries: detailRefetchQueries,
+      refetchQueries: activeRefetchQueries,
       onCompleted: () => {
         toast({
           title: t('Category saved', { defaultValue: 'Category saved' }),
@@ -215,7 +201,7 @@ export const useCarMutations = () => {
   const [carCategoriesEdit, carCategoriesEditState] = useMutation(
     EDIT_CAR_CATEGORY_MUTATION,
     {
-      refetchQueries: detailRefetchQueries,
+      refetchQueries: activeRefetchQueries,
       onCompleted: () => {
         toast({
           title: t('Category updated', { defaultValue: 'Category updated' }),
@@ -240,7 +226,7 @@ export const useCarMutations = () => {
   const [carCategoriesRemove, carCategoriesRemoveState] = useMutation(
     REMOVE_CAR_CATEGORY_MUTATION,
     {
-      refetchQueries: listRefetchQueries,
+      refetchQueries: activeRefetchQueries,
       onCompleted: () => {
         toast({
           title: t('Category deleted', { defaultValue: 'Category deleted' }),

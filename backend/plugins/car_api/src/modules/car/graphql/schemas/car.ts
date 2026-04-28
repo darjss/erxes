@@ -91,7 +91,7 @@ export const queries = `
   carCategories(parentId: String, searchValue: String): [CarCategory]
   carCategoriesTotalCount: Int
   carCategoryDetail(_id: String): CarCategory
-  cpCarDetail(_id: String!): Car
+  cpCarDetail(_id: String!, customerId: String, companyId: String): Car
   cpCarCategories(parentId: String, searchValue: String): [CarCategory]
   cpCarCategoriesTotalCount: Int
   cpCarCategoryDetail(_id: String): CarCategory

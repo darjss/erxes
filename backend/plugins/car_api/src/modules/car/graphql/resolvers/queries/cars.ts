@@ -10,6 +10,10 @@ import {
 import { ROOT_CAR_CONTENT_TYPE } from '~/modules/car/constants';
 import { requireArrayResult, requireCoreTRPC } from '~/modules/car/core';
 import {
+  assertCanManageClientPortalCar,
+  resolveClientPortalEntityIds,
+} from '~/modules/car/clientPortal';
+import {
   buildSearchRegex,
   getActiveCarsSelector,
   getCarSegmentContentType,
@@ -260,7 +264,21 @@ export const carQueries: Record<string, CarResolver> = {
     return await models.CarCategories.findOne({ _id });
   },
 
-  async cpCarDetail(_root, { _id }: { _id: string }, { models }: IContext) {
+  async cpCarDetail(
+    _root,
+    {
+      _id,
+      customerId,
+      companyId,
+    }: { _id: string; customerId?: string; companyId?: string },
+    { models, subdomain, cpUser }: IContext,
+  ) {
+    const entityIds = resolveClientPortalEntityIds(cpUser, {
+      customerId,
+      companyId,
+    });
+    await assertCanManageClientPortalCar(subdomain, _id, entityIds);
+
     return await models.Cars.getCar(_id);
   },
 
@@ -348,7 +366,10 @@ export const carQueries: Record<string, CarResolver> = {
   },
 };
 
-carQueries.cpCarDetail.wrapperConfig = { forClientPortal: true };
+carQueries.cpCarDetail.wrapperConfig = {
+  forClientPortal: true,
+  cpUserRequired: true,
+};
 carQueries.cpCarCategories.wrapperConfig = { forClientPortal: true };
 carQueries.cpCarCategoriesTotalCount.wrapperConfig = { forClientPortal: true };
 carQueries.cpCarCategoryDetail.wrapperConfig = { forClientPortal: true };

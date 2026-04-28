@@ -58,6 +58,9 @@ export const CarsCommandBar = ({
       options: {
         variant: 'destructive',
         okLabel: t('Delete', { defaultValue: 'Delete' }),
+        description: t('This permanently removes the selected car records.', {
+          defaultValue: 'This permanently removes the selected car records.',
+        }),
       },
     });
 
@@ -105,12 +108,7 @@ export const CarsCommandBar = ({
             targetIds={selectedIds}
             value={selectedTagIds}
             options={() => ({
-              refetchQueries: [
-                'CarsMain',
-                'Cars',
-                'CarDetail',
-                'CarCountByTags',
-              ],
+              refetchQueries: 'active',
             })}
           >
             <TagsSelect.Trigger

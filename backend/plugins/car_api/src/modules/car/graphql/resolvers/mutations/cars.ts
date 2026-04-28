@@ -4,157 +4,15 @@ import { ICar, ICarDocument, ICarCategory } from '~/modules/car/@types/car';
 import {
   CORE_COMPANY_CONTENT_TYPE,
   CORE_CUSTOMER_CONTENT_TYPE,
-  ROOT_CAR_CONTENT_TYPE,
 } from '~/modules/car/constants';
-import { requireArrayResult, requireCoreTRPC } from '~/modules/car/core';
+import {
+  assertCanManageClientPortalCar,
+  ensureCarEntityRelation,
+  removeCarEntityRelations,
+  resolveClientPortalEntityIds,
+} from '~/modules/car/clientPortal';
 
 type CarResolver = Resolver<any, any, IContext>;
-
-const ensureCarEntityRelation = async (
-  subdomain: string,
-  carId: string,
-  relatedContentType: string,
-  relatedContentId?: string,
-) => {
-  if (!relatedContentId) {
-    return;
-  }
-
-  const existingIds = requireArrayResult<string>(
-    await requireCoreTRPC({
-      subdomain,
-      module: 'relation',
-      action: 'getRelationIds',
-      input: {
-        contentType: ROOT_CAR_CONTENT_TYPE,
-        contentId: carId,
-        relatedContentType,
-      },
-    }),
-    'Core relation.getRelationIds',
-  );
-
-  if (existingIds.includes(relatedContentId)) {
-    return;
-  }
-
-  return await requireCoreTRPC({
-    subdomain,
-    method: 'mutation',
-    module: 'relation',
-    action: 'createRelation',
-    input: {
-      relation: {
-        entities: [
-          {
-            contentType: ROOT_CAR_CONTENT_TYPE,
-            contentId: carId,
-          },
-          {
-            contentType: relatedContentType,
-            contentId: relatedContentId,
-          },
-        ],
-      },
-    },
-  });
-};
-
-const hasCarEntityRelation = async (
-  subdomain: string,
-  carId: string,
-  relatedContentType: string,
-  relatedContentId?: string,
-) => {
-  if (!relatedContentId) {
-    return false;
-  }
-
-  const existingIds = requireArrayResult<string>(
-    await requireCoreTRPC({
-      subdomain,
-      module: 'relation',
-      action: 'getRelationIds',
-      input: {
-        contentType: ROOT_CAR_CONTENT_TYPE,
-        contentId: carId,
-        relatedContentType,
-      },
-    }),
-    'Core relation.getRelationIds',
-  );
-
-  return existingIds.includes(relatedContentId);
-};
-
-const canManageClientPortalCar = async (
-  subdomain: string,
-  carId: string,
-  customerId?: string,
-  companyId?: string,
-) => {
-  const [matchesCustomer, matchesCompany] = await Promise.all([
-    hasCarEntityRelation(
-      subdomain,
-      carId,
-      CORE_CUSTOMER_CONTENT_TYPE,
-      customerId,
-    ),
-    hasCarEntityRelation(
-      subdomain,
-      carId,
-      CORE_COMPANY_CONTENT_TYPE,
-      companyId,
-    ),
-  ]);
-
-  return matchesCustomer || matchesCompany;
-};
-
-const removeCarEntityRelations = async (
-  subdomain: string,
-  carIds: string[],
-  relatedContentType: string,
-  relatedContentId?: string,
-) => {
-  if (!relatedContentId || !carIds.length) {
-    return;
-  }
-
-  const relations = requireArrayResult<any>(
-    await requireCoreTRPC({
-      subdomain,
-      module: 'relation',
-      action: 'filterRelations',
-      input: {
-        contentType: ROOT_CAR_CONTENT_TYPE,
-        contentIds: carIds,
-        relatedContentType,
-      },
-    }),
-    'Core relation.filterRelations',
-  );
-
-  const targetRelationIds = relations
-    .filter((relation) =>
-      relation.entities?.some(
-        (entity) =>
-          entity.contentType === relatedContentType &&
-          entity.contentId === relatedContentId,
-      ),
-    )
-    .map((relation) => relation._id);
-
-  for (const relationId of targetRelationIds) {
-    await requireCoreTRPC({
-      subdomain,
-      method: 'mutation',
-      module: 'relation',
-      action: 'deleteRelation',
-      input: { _id: relationId },
-    });
-  }
-};
 
 export const carMutations: Record<string, CarResolver> = {
   async carsAdd(
@@ -239,8 +97,12 @@ export const carMutations: Record<string, CarResolver> = {
       companyId,
       ...doc
     }: ICar & { customerId?: string; companyId?: string },
-    { models, subdomain, user, __ }: IContext,
+    { models, subdomain, user, cpUser, __ }: IContext,
   ) {
+    const entityIds = resolveClientPortalEntityIds(cpUser, {
+      customerId,
+      companyId,
+    });
     const carsOrFilter: Record<string, any>[] = [];
 
     if (doc.plateNumber) {
@@ -260,22 +122,12 @@ export const carMutations: Record<string, CarResolver> = {
       $or: carsOrFilter,
     }).lean();
 
-    if (existingCar && !customerId && !companyId) {
-      throw new Error(
-        'Cant update this car, customerId or companyId is required',
-      );
-    }
-
-    if (
-      existingCar &&
-      !(await canManageClientPortalCar(
+    if (existingCar) {
+      await assertCanManageClientPortalCar(
         subdomain,
         existingCar._id,
-        customerId,
-        companyId,
-      ))
-    ) {
-      throw new Error('Cant update this car, not a customer or company car');
+        entityIds,
+      );
     }
 
     const car = existingCar
@@ -286,14 +138,14 @@ export const carMutations: Record<string, CarResolver> = {
       subdomain,
       car._id,
       CORE_CUSTOMER_CONTENT_TYPE,
-      customerId,
+      entityIds.customerId,
     );
 
     await ensureCarEntityRelation(
       subdomain,
       car._id,
       CORE_COMPANY_CONTENT_TYPE,
-      companyId,
+      entityIds.companyId,
     );
 
     return car;
@@ -307,25 +159,14 @@ export const carMutations: Record<string, CarResolver> = {
       companyId,
       ...doc
     }: ICarDocument & { customerId?: string; companyId?: string },
-    { models, subdomain, __ }: IContext,
+    { models, subdomain, cpUser, __ }: IContext,
   ) {
-    if (!customerId && !companyId) {
-      throw new Error(
-        'Cant edit this car, customerId or companyId is required',
-      );
-    }
-
-    const car = await models.Cars.getCar(_id);
-    const canEdit = await canManageClientPortalCar(
-      subdomain,
-      car._id,
+    const entityIds = resolveClientPortalEntityIds(cpUser, {
       customerId,
       companyId,
-    );
-
-    if (!canEdit) {
-      throw new Error('Cant edit this car, not a customer or company car');
-    }
+    });
+    const car = await models.Cars.getCar(_id);
+    await assertCanManageClientPortalCar(subdomain, car._id, entityIds);
 
     return await models.Cars.updateCar(_id, __(doc));
   },
@@ -337,26 +178,44 @@ export const carMutations: Record<string, CarResolver> = {
       customerId,
       companyId,
     }: { carIds: string[]; customerId?: string; companyId?: string },
-    { subdomain }: IContext,
+    { subdomain, cpUser }: IContext,
   ) {
+    const entityIds = resolveClientPortalEntityIds(cpUser, {
+      customerId,
+      companyId,
+    });
+
+    for (const carId of carIds) {
+      await assertCanManageClientPortalCar(subdomain, carId, entityIds);
+    }
+
     await removeCarEntityRelations(
       subdomain,
       carIds,
       CORE_CUSTOMER_CONTENT_TYPE,
-      customerId,
+      entityIds.customerId,
     );
 
     await removeCarEntityRelations(
       subdomain,
       carIds,
       CORE_COMPANY_CONTENT_TYPE,
-      companyId,
+      entityIds.companyId,
     );
 
     return carIds;
   },
 };
 
-carMutations.cpCarsAdd.wrapperConfig = { forClientPortal: true };
-carMutations.cpCarsEdit.wrapperConfig = { forClientPortal: true };
-carMutations.cpCarsRemove.wrapperConfig = { forClientPortal: true };
+carMutations.cpCarsAdd.wrapperConfig = {
+  forClientPortal: true,
+  cpUserRequired: true,
+};
+carMutations.cpCarsEdit.wrapperConfig = {
+  forClientPortal: true,
+  cpUserRequired: true,
+};
+carMutations.cpCarsRemove.wrapperConfig = {
+  forClientPortal: true,
+  cpUserRequired: true,
+};

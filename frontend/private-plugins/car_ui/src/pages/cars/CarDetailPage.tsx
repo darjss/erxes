@@ -135,6 +135,9 @@ export const CarDetailPage = () => {
       options: {
         variant: 'destructive',
         okLabel: t('Delete', { defaultValue: 'Delete' }),
+        description: t('This permanently removes the car record.', {
+          defaultValue: 'This permanently removes the car record.',
+        }),
       },
     });
 
@@ -474,12 +477,7 @@ export const CarDetailPage = () => {
                         targetIds={[car._id]}
                         value={car.tagIds || []}
                         options={() => ({
-                          refetchQueries: [
-                            'CarDetail',
-                            'CarsMain',
-                            'Cars',
-                            'CarCountByTags',
-                          ],
+                          refetchQueries: 'active',
                         })}
                       >
                         <div className="flex flex-wrap items-center gap-2">

@@ -104,4 +104,7 @@ export const extractMergeRelations = (
   return Array.from(relationMap.values());
 };
 
+export const normalizeMergeCarIds = (carIds: string[] = []) =>
+  Array.from(new Set(carIds.filter(Boolean)));
+
 export const getCarSegmentContentType = () => CAR_SEGMENT_CONTENT_TYPE;

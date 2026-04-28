@@ -20,8 +20,10 @@ import {
   buildCarSearchText,
   extractMergeRelations,
   getCarSegmentContentType,
+  normalizeMergeCarIds,
   normalizeRelationContentType,
 } from '../utils';
+import { resolveClientPortalEntityIds } from '../clientPortal';
 import {
   CAR_SEGMENT_CONTENT_TYPE,
   CORE_COMPANY_CONTENT_TYPE,
@@ -94,5 +96,35 @@ describe('car utils', () => {
 
   it('exposes the cars segment content type', () => {
     expect(getCarSegmentContentType()).toBe(CAR_SEGMENT_CONTENT_TYPE);
+  });
+
+  it('normalizes merge source ids before model work starts', () => {
+    expect(normalizeMergeCarIds(['car-1', '', 'car-2', 'car-1'])).toEqual([
+      'car-1',
+      'car-2',
+    ]);
+  });
+
+  it('resolves client portal relation ids from the authenticated cp user', () => {
+    expect(
+      resolveClientPortalEntityIds(
+        {
+          _id: 'cp-user-1',
+          erxesCustomerId: 'customer-1',
+          erxesCompanyId: 'company-1',
+        },
+        { customerId: 'customer-1' },
+      ),
+    ).toEqual({
+      customerId: 'customer-1',
+      companyId: undefined,
+    });
+
+    expect(() =>
+      resolveClientPortalEntityIds(
+        { _id: 'cp-user-1', erxesCustomerId: 'customer-1' },
+        { customerId: 'customer-2' },
+      ),
+    ).toThrow('Client portal customer mismatch');
   });
 });

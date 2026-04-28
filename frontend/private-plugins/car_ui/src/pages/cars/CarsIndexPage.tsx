@@ -128,6 +128,13 @@ export const CarsIndexPage = () => {
       options: {
         variant: 'destructive',
         okLabel: t('Delete', { defaultValue: 'Delete' }),
+        description: t(
+          'This category can only be deleted when it has no child categories or cars.',
+          {
+            defaultValue:
+              'This category can only be deleted when it has no child categories or cars.',
+          },
+        ),
       },
     });
 

@@ -9,14 +9,40 @@ export type CarsTRPCContext = ITRPCContext<{ models: IModels }>;
 
 const t = initTRPC.context<CarsTRPCContext>().create();
 
+const stringQueryCondition = z.union([
+  z.string(),
+  z
+    .object({
+      $in: z.array(z.string()).optional(),
+      $nin: z.array(z.string()).optional(),
+      $ne: z.string().optional(),
+    })
+    .strict(),
+]);
+
+const carFindQuerySchema = z
+  .object({
+    _id: stringQueryCondition.optional(),
+    ownerId: stringQueryCondition.optional(),
+    categoryId: stringQueryCondition.optional(),
+    plateNumber: stringQueryCondition.optional(),
+    vinNumber: stringQueryCondition.optional(),
+    tagIds: stringQueryCondition.optional(),
+    status: stringQueryCondition.optional(),
+  })
+  .strict();
+
 export const appRouter = t.router({
   car: t.router({
     find: t.procedure
-      .input(z.object({ query: z.any() }))
+      .input(z.object({ query: carFindQuerySchema.optional() }))
       .query(async ({ ctx, input }) => {
         const { models } = ctx;
+        const query = input.query || {};
 
-        return await models.Cars.find(input.query).lean();
+        return await models.Cars.find({
+          $and: [query, getActiveCarsSelector()],
+        }).lean();
       }),
     tag: t.procedure
       .input(
@@ -38,12 +64,23 @@ export const appRouter = t.router({
           });
         }
 
+        if (!ctx.userId) {
+          throw new Error('Authenticated user context is required to tag cars');
+        }
+
+        if (!targetIds.length) {
+          throw new Error('targetIds are required to tag cars');
+        }
+
         await models.Cars.updateMany(
-          { _id: { $in: targetIds } },
+          { ...getActiveCarsSelector(), _id: { $in: targetIds } },
           { $set: { tagIds } },
         );
 
-        return await models.Cars.find({ _id: { $in: targetIds } }).lean();
+        return await models.Cars.find({
+          ...getActiveCarsSelector(),
+          _id: { $in: targetIds },
+        }).lean();
       }),
   }),
   fields: t.router({

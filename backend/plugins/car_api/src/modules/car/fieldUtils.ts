@@ -94,6 +94,7 @@ export const generateCarFields = async (models: IModels) => {
     'mergedIds',
     'searchText',
     'processId',
+    'tagIds',
     'customFieldsData.field',
     'customFieldsData.value',
     'customFieldsData.stringValue',
