@@ -208,6 +208,11 @@ export const CarFormSheet = ({
               ? t('Edit car', { defaultValue: 'Edit car' })
               : t('Add car', { defaultValue: 'Add car' })}
           </Sheet.Title>
+          <Sheet.Description className="sr-only">
+            {t('Create or update a car record.', {
+              defaultValue: 'Create or update a car record.',
+            })}
+          </Sheet.Description>
           <Sheet.Close />
         </Sheet.Header>
 
