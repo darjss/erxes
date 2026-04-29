@@ -864,7 +864,9 @@ async function getCompanyUserStats(
   ).lean()) as IMembershipPlanProjection[];
 
   const planById = new Map(plans.map((plan) => [String(plan._id), plan]));
-  const activeCustomerIds = activeCustomers.map((customer) => String(customer._id));
+  const activeCustomerIds = activeCustomers.map((customer) =>
+    String(customer._id),
+  );
   const latestPurchaseCreditTransactions = (await models.CreditTransaction.find(
     {
       userId: { $in: activeCustomerIds },
@@ -879,7 +881,10 @@ async function getCompanyUserStats(
   )
     .sort({ createdAt: -1 })
     .lean()) as ILatestPurchaseCreditTransactionProjection[];
-  const latestPurchaseTransactionByUserId = new Map<string, ILatestPurchaseCreditTransactionProjection>();
+  const latestPurchaseTransactionByUserId = new Map<
+    string,
+    ILatestPurchaseCreditTransactionProjection
+  >();
 
   for (const transaction of latestPurchaseCreditTransactions) {
     const userId = String(transaction.userId || '');
@@ -889,20 +894,24 @@ async function getCompanyUserStats(
 
     latestPurchaseTransactionByUserId.set(userId, transaction);
   }
-  const latestExpirationCreditTransactions = (await models.CreditTransaction.find(
-    {
-      userId: { $in: activeCustomerIds },
-      transactionType: CreditTransactionType.EXPIRATION,
-    },
-    {
-      userId: 1,
-      amount: 1,
-      createdAt: 1,
-    },
-  )
-    .sort({ createdAt: -1 })
-    .lean()) as ILatestPurchaseCreditTransactionProjection[];
-  const latestExpirationTransactionByUserId = new Map<string, ILatestPurchaseCreditTransactionProjection>();
+  const latestExpirationCreditTransactions =
+    (await models.CreditTransaction.find(
+      {
+        userId: { $in: activeCustomerIds },
+        transactionType: CreditTransactionType.EXPIRATION,
+      },
+      {
+        userId: 1,
+        amount: 1,
+        createdAt: 1,
+      },
+    )
+      .sort({ createdAt: -1 })
+      .lean()) as ILatestPurchaseCreditTransactionProjection[];
+  const latestExpirationTransactionByUserId = new Map<
+    string,
+    ILatestPurchaseCreditTransactionProjection
+  >();
 
   for (const transaction of latestExpirationCreditTransactions) {
     const userId = String(transaction.userId || '');
@@ -934,11 +943,16 @@ async function getCompanyUserStats(
       continue;
     }
 
-    const latestPurchaseTransaction = latestPurchaseTransactionByUserId.get(userId);
+    const latestPurchaseTransaction =
+      latestPurchaseTransactionByUserId.get(userId);
     const latestPurchaseDate = latestPurchaseTransaction?.createdAt;
     const usageCreatedAt = transaction.createdAt;
 
-    if (!latestPurchaseDate || !usageCreatedAt || usageCreatedAt <= latestPurchaseDate) {
+    if (
+      !latestPurchaseDate ||
+      !usageCreatedAt ||
+      usageCreatedAt <= latestPurchaseDate
+    ) {
       continue;
     }
 
@@ -973,9 +987,8 @@ async function getCompanyUserStats(
       const planCredit = plan.creditAmount || 0;
       const currentCredit = customer.currentCreditBalance || 0;
       const usedCredit = Math.max(usageCreditByUserId.get(userId) || 0, 0);
-      const latestPurchaseCreditTransaction = latestPurchaseTransactionByUserId.get(
-        userId,
-      );
+      const latestPurchaseCreditTransaction =
+        latestPurchaseTransactionByUserId.get(userId);
       const creditBeforeLastPurchase = latestPurchaseCreditTransaction
         ? Math.max(
             (latestPurchaseCreditTransaction.balanceAfter || 0) -
@@ -983,7 +996,8 @@ async function getCompanyUserStats(
             0,
           )
         : 0;
-      const lastPurchaseDate = latestPurchaseCreditTransaction?.createdAt || null;
+      const lastPurchaseDate =
+        latestPurchaseCreditTransaction?.createdAt || null;
       const latestExpirationCreditTransaction =
         latestExpirationTransactionByUserId.get(userId);
       const lastExpirationCredit = latestExpirationCreditTransaction

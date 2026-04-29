@@ -1,7 +1,19 @@
 import { format, parse } from 'date-fns';
 import { Skeleton } from 'erxes-ui';
-import { CartesianGrid, Legend, Line, LineChart, Tooltip, XAxis, YAxis } from 'recharts';
-import { B2B_COLOR, B2C_COLOR, NEW_USERS_COLOR } from '~/components/dashboard/main-indicators-dashboard/constants';
+import {
+  CartesianGrid,
+  Legend,
+  Line,
+  LineChart,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from 'recharts';
+import {
+  B2B_COLOR,
+  B2C_COLOR,
+  NEW_USERS_COLOR,
+} from '~/components/dashboard/main-indicators-dashboard/constants';
 import { type UserGrowthMonthRow } from '~/components/dashboard/main-indicators-dashboard/types';
 
 interface UserGrowthChartSectionProps {
@@ -19,7 +31,9 @@ export function UserGrowthChartSection({
     new Set(userGrowthByMonth.map((row) => row.monthKey).filter(Boolean)),
   ).sort((a, b) => a.localeCompare(b));
 
-  const growthByMonthKey = new Map(userGrowthByMonth.map((row) => [row.monthKey, row]));
+  const growthByMonthKey = new Map(
+    userGrowthByMonth.map((row) => [row.monthKey, row]),
+  );
 
   let cumulativeB2bUsers = 0;
   let cumulativeB2cUsers = 0;
@@ -37,7 +51,10 @@ export function UserGrowthChartSection({
 
     return {
       monthKey,
-      monthLabel: format(parse(`${monthKey}-01`, 'yyyy-MM-dd', new Date()), 'MMM yyyy'),
+      monthLabel: format(
+        parse(`${monthKey}-01`, 'yyyy-MM-dd', new Date()),
+        'MMM yyyy',
+      ),
       cumulativeB2bUsers,
       cumulativeB2cUsers,
       cumulativeNewUsers,
@@ -49,7 +66,9 @@ export function UserGrowthChartSection({
   return (
     <div className="mt-8 rounded-xl border border-gray-200 bg-white p-5">
       <div className="mb-4">
-        <h3 className="text-base font-semibold text-gray-900">Хэрэглэгчийн өсөлтийн динамик</h3>
+        <h3 className="text-base font-semibold text-gray-900">
+          Хэрэглэгчийн өсөлтийн динамик
+        </h3>
         <p className="mt-1 text-sm text-gray-500">All time</p>
       </div>
 
@@ -83,7 +102,10 @@ export function UserGrowthChartSection({
               width={40}
               domain={[0, 'dataMax + 1']}
             />
-            <Tooltip formatter={(value: number) => value.toLocaleString()} labelFormatter={(label) => String(label)} />
+            <Tooltip
+              formatter={(value: number) => value.toLocaleString()}
+              labelFormatter={(label) => String(label)}
+            />
             <Legend verticalAlign="bottom" wrapperStyle={{ paddingTop: 16 }} />
             <Line
               type="monotone"
@@ -110,7 +132,11 @@ export function UserGrowthChartSection({
               stroke={NEW_USERS_COLOR}
               strokeWidth={2}
               dot={{ r: 4, fill: NEW_USERS_COLOR, stroke: NEW_USERS_COLOR }}
-              activeDot={{ r: 5, fill: NEW_USERS_COLOR, stroke: NEW_USERS_COLOR }}
+              activeDot={{
+                r: 5,
+                fill: NEW_USERS_COLOR,
+                stroke: NEW_USERS_COLOR,
+              }}
             />
           </LineChart>
         </div>

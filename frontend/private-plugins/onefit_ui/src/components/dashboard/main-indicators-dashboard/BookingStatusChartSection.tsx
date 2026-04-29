@@ -1,7 +1,19 @@
 import { format, parse } from 'date-fns';
 import { Skeleton } from 'erxes-ui';
-import { CartesianGrid, Legend, Line, LineChart, Tooltip, XAxis, YAxis } from 'recharts';
-import { BOOKINGS_COLOR, COMPLETED_COLOR, NO_SHOW_COLOR } from '~/components/dashboard/main-indicators-dashboard/constants';
+import {
+  CartesianGrid,
+  Legend,
+  Line,
+  LineChart,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from 'recharts';
+import {
+  BOOKINGS_COLOR,
+  COMPLETED_COLOR,
+  NO_SHOW_COLOR,
+} from '~/components/dashboard/main-indicators-dashboard/constants';
 import { type BookingStatusDayRow } from '~/components/dashboard/main-indicators-dashboard/types';
 
 interface BookingStatusChartSectionProps {
@@ -29,7 +41,9 @@ export function BookingStatusChartSection({
   return (
     <div className="mt-8 rounded-xl border border-gray-200 bg-white p-5">
       <div className="mb-4">
-        <h3 className="text-base font-semibold text-gray-900">Захиалгын төлөвийн динамик</h3>
+        <h3 className="text-base font-semibold text-gray-900">
+          Захиалгын төлөвийн динамик
+        </h3>
         <p className="mt-1 text-sm text-gray-500">{rangeLabel}</p>
       </div>
 
@@ -63,7 +77,10 @@ export function BookingStatusChartSection({
               width={40}
               domain={[0, 'dataMax + 1']}
             />
-            <Tooltip formatter={(value: number) => value.toLocaleString()} labelFormatter={(label) => String(label)} />
+            <Tooltip
+              formatter={(value: number) => value.toLocaleString()}
+              labelFormatter={(label) => String(label)}
+            />
             <Legend verticalAlign="bottom" wrapperStyle={{ paddingTop: 16 }} />
             <Line
               type="monotone"
@@ -81,7 +98,11 @@ export function BookingStatusChartSection({
               stroke={COMPLETED_COLOR}
               strokeWidth={2}
               dot={{ r: 3, fill: COMPLETED_COLOR, stroke: COMPLETED_COLOR }}
-              activeDot={{ r: 5, fill: COMPLETED_COLOR, stroke: COMPLETED_COLOR }}
+              activeDot={{
+                r: 5,
+                fill: COMPLETED_COLOR,
+                stroke: COMPLETED_COLOR,
+              }}
             />
             <Line
               type="monotone"

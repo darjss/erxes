@@ -44,7 +44,9 @@ export function CompanyCreditUsageSection({
   const filteredCompanyUserStats =
     selectedPlanId === 'all'
       ? companyFilteredUserStats
-      : companyFilteredUserStats.filter((item) => item.planId === selectedPlanId);
+      : companyFilteredUserStats.filter(
+          (item) => item.planId === selectedPlanId,
+        );
   const hasFilteredCompanyUserStats = filteredCompanyUserStats.length > 0;
 
   return (
@@ -111,7 +113,9 @@ export function CompanyCreditUsageSection({
                 <th className="py-3 pr-4 font-medium">Компани</th>
                 <th className="py-3 pr-4 font-medium">Хэрэглэгч</th>
                 <th className="py-3 pr-4 font-medium">Багц</th>
-                <th className="py-3 pr-4 font-medium">Сүүлийн худалдан авалт</th>
+                <th className="py-3 pr-4 font-medium">
+                  Сүүлийн худалдан авалт
+                </th>
                 <th className="py-3 pr-4 font-medium">Багцын кредит</th>
                 <th className="py-3 pr-4 font-medium">
                   Сүүлийн худалдан <br />
@@ -140,14 +144,14 @@ export function CompanyCreditUsageSection({
                   usagePercent >= 80
                     ? 'bg-red-500'
                     : usagePercent >= 50
-                    ? 'bg-amber-500'
-                    : 'bg-emerald-500';
+                      ? 'bg-amber-500'
+                      : 'bg-emerald-500';
                 const usageTextColorClass =
                   usagePercent >= 80
                     ? 'text-red-600'
                     : usagePercent >= 50
-                    ? 'text-amber-600'
-                    : 'text-emerald-600';
+                      ? 'text-amber-600'
+                      : 'text-emerald-600';
 
                 return (
                   <tr
@@ -174,7 +178,9 @@ export function CompanyCreditUsageSection({
                       ).toLocaleString()}
                     </td>
                     <td className="py-3 pr-4 tabular-nums">
-                      {Math.round(item.lastExpirationCredit || 0).toLocaleString()}
+                      {Math.round(
+                        item.lastExpirationCredit || 0,
+                      ).toLocaleString()}
                     </td>
                     <td className="py-3 pr-4 tabular-nums">
                       {Math.round(item.currentCredit || 0).toLocaleString()}

@@ -1,6 +1,23 @@
 import { IconChevronRight } from '@tabler/icons-react';
-import { Bar, BarChart, CartesianGrid, LabelList, Tooltip, XAxis, YAxis } from 'recharts';
-import { Button, ChartContainer, Command, Popover, Select, SelectTree, Skeleton, cn } from 'erxes-ui';
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  LabelList,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from 'recharts';
+import {
+  Button,
+  ChartContainer,
+  Command,
+  Popover,
+  Select,
+  SelectTree,
+  Skeleton,
+  cn,
+} from 'erxes-ui';
 import { type CategoryDistributionItem } from '~/components/dashboard/main-indicators-dashboard/types';
 
 interface CategoryPlanOption {
@@ -58,7 +75,9 @@ export function CategoryDistributionSection({
   return (
     <div className="rounded-xl border border-gray-200 bg-white p-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h3 className="text-base font-semibold text-gray-900">Үйлчилгээний категори</h3>
+        <h3 className="text-base font-semibold text-gray-900">
+          Үйлчилгээний категори
+        </h3>
         <Select value={selectedPlanId} onValueChange={onSelectedPlanIdChange}>
           <Select.Trigger className="min-w-[220px] border-gray-200">
             <Select.Value placeholder="Багц сонгох" />
@@ -81,11 +100,20 @@ export function CategoryDistributionSection({
           <Skeleton className="h-12 w-full" />
         </div>
       ) : !hasCategoryData ? (
-        <p className="mt-4 text-sm text-gray-500">Сонгосон хугацаанд категорийн өгөгдөл алга байна.</p>
+        <p className="mt-4 text-sm text-gray-500">
+          Сонгосон хугацаанд категорийн өгөгдөл алга байна.
+        </p>
       ) : (
         <div className="mt-4 space-y-4">
-          <SelectTree.Provider id="dashboard-category-distribution-select" ordered length={categoryDistribution.length}>
-            <Popover open={categoryDropdownOpen} onOpenChange={onCategoryDropdownOpenChange}>
+          <SelectTree.Provider
+            id="dashboard-category-distribution-select"
+            ordered
+            length={categoryDistribution.length}
+          >
+            <Popover
+              open={categoryDropdownOpen}
+              onOpenChange={onCategoryDropdownOpenChange}
+            >
               <Popover.Trigger asChild>
                 <Button
                   variant="outline"
@@ -111,9 +139,14 @@ export function CategoryDistributionSection({
                     </Command.Item>
                     {visibleCategoryDistribution.map((category) => {
                       const safeDepth = Math.max(category.depth || 0, 0);
-                      const hasChildren = Boolean(categoryChildrenByParentId.get(category.categoryId));
-                      const isCollapsed = collapsedCategoryIds.includes(category.categoryId);
-                      const isSelected = selectedCategoryId === category.categoryId;
+                      const hasChildren = Boolean(
+                        categoryChildrenByParentId.get(category.categoryId),
+                      );
+                      const isCollapsed = collapsedCategoryIds.includes(
+                        category.categoryId,
+                      );
+                      const isSelected =
+                        selectedCategoryId === category.categoryId;
 
                       return (
                         <SelectTree.Item
@@ -149,13 +182,18 @@ export function CategoryDistributionSection({
                                 }}
                               >
                                 <IconChevronRight
-                                  className={cn('size-4 transition-transform', !isCollapsed && 'rotate-90')}
+                                  className={cn(
+                                    'size-4 transition-transform',
+                                    !isCollapsed && 'rotate-90',
+                                  )}
                                 />
                               </Button>
                             ) : (
                               <span className="inline-block size-6" />
                             )}
-                            <span className="truncate text-sm text-gray-900">{category.label}</span>
+                            <span className="truncate text-sm text-gray-900">
+                              {category.label}
+                            </span>
                           </div>
                         </SelectTree.Item>
                       );
@@ -168,9 +206,19 @@ export function CategoryDistributionSection({
 
           {categoryChartItems.length > 0 && (
             <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
-              <ChartContainer config={categoryChartConfig} className="h-52 w-full max-w-2xl">
-                <BarChart data={categoryChartData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" vertical stroke="#d4d4d8" />
+              <ChartContainer
+                config={categoryChartConfig}
+                className="h-52 w-full max-w-2xl"
+              >
+                <BarChart
+                  data={categoryChartData}
+                  margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
+                >
+                  <CartesianGrid
+                    strokeDasharray="3 3"
+                    vertical
+                    stroke="#d4d4d8"
+                  />
                   <XAxis
                     dataKey="name"
                     tick={{ fill: '#52525b', fontSize: 12 }}
@@ -184,12 +232,21 @@ export function CategoryDistributionSection({
                     tickLine={false}
                     width={36}
                   />
-                  <Tooltip formatter={(value: number) => value.toLocaleString()} cursor={{ fill: '#f4f4f5' }} />
-                  <Bar dataKey="value" fill="var(--color-value)" radius={[2, 2, 0, 0]}>
+                  <Tooltip
+                    formatter={(value: number) => value.toLocaleString()}
+                    cursor={{ fill: '#f4f4f5' }}
+                  />
+                  <Bar
+                    dataKey="value"
+                    fill="var(--color-value)"
+                    radius={[2, 2, 0, 0]}
+                  >
                     <LabelList
                       dataKey="percent"
                       position="top"
-                      formatter={(value) => `${Math.round(Number(value) || 0)}%`}
+                      formatter={(value) =>
+                        `${Math.round(Number(value) || 0)}%`
+                      }
                       className="fill-gray-600 text-xs"
                     />
                   </Bar>

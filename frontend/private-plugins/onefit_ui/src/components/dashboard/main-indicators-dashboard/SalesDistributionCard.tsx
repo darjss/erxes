@@ -1,6 +1,9 @@
 import { Skeleton } from 'erxes-ui';
 import { Cell, Pie, PieChart, Tooltip } from 'recharts';
-import { B2B_COLOR, B2C_COLOR } from '~/components/dashboard/main-indicators-dashboard/constants';
+import {
+  B2B_COLOR,
+  B2C_COLOR,
+} from '~/components/dashboard/main-indicators-dashboard/constants';
 import { type B2bB2cSalesStats } from '~/components/dashboard/main-indicators-dashboard/types';
 
 interface SalesDistributionCardProps {
@@ -34,7 +37,9 @@ export function SalesDistributionCard({
 
   return (
     <div className="rounded-xl border border-gray-200 bg-white p-5">
-      <h3 className="text-base font-semibold text-gray-900">B2B болон B2C борлуулт</h3>
+      <h3 className="text-base font-semibold text-gray-900">
+        B2B болон B2C борлуулт
+      </h3>
 
       {loading && !hasStats ? (
         <div className="mt-4 space-y-3">
@@ -58,14 +63,19 @@ export function SalesDistributionCard({
                 cy="50%"
                 innerRadius={0}
                 outerRadius={100}
-                label={({ name, percent }) => `${name}: ${(percent ?? 0).toFixed(1)}%`}
+                label={({ name, percent }) =>
+                  `${name}: ${(percent ?? 0).toFixed(1)}%`
+                }
                 labelLine={false}
               >
                 {chartData.map((entry) => (
                   <Cell key={entry.name} fill={entry.color} />
                 ))}
               </Pie>
-              <Tooltip formatter={(value: number) => value.toLocaleString()} cursor={{ fill: '#f4f4f5' }} />
+              <Tooltip
+                formatter={(value: number) => value.toLocaleString()}
+                cursor={{ fill: '#f4f4f5' }}
+              />
             </PieChart>
           </div>
 
@@ -73,13 +83,15 @@ export function SalesDistributionCard({
             <div className="flex items-center justify-between text-base">
               <span className="text-gray-700">B2B борлуулт:</span>
               <span className="font-semibold tabular-nums text-gray-900">
-                {(sales?.b2bCount || 0).toLocaleString()} ({(sales?.b2bPercent || 0).toFixed(1)}%)
+                {(sales?.b2bCount || 0).toLocaleString()} (
+                {(sales?.b2bPercent || 0).toFixed(1)}%)
               </span>
             </div>
             <div className="flex items-center justify-between text-base">
               <span className="text-gray-700">B2C борлуулт:</span>
               <span className="font-semibold tabular-nums text-gray-900">
-                {(sales?.b2cCount || 0).toLocaleString()} ({(sales?.b2cPercent || 0).toFixed(1)}%)
+                {(sales?.b2cCount || 0).toLocaleString()} (
+                {(sales?.b2cPercent || 0).toFixed(1)}%)
               </span>
             </div>
           </div>

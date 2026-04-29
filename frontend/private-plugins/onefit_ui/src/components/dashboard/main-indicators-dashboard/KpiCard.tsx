@@ -30,7 +30,9 @@ export function KpiCard({
         <Icon className="size-5 shrink-0 text-gray-400" stroke={1.5} />
       </div>
       <div className="text-3xl font-bold tabular-nums text-gray-900">
-        {metric ? formatMetricValue(metric.value, Boolean(valueIsAverage)) : '—'}
+        {metric
+          ? formatMetricValue(metric.value, Boolean(valueIsAverage))
+          : '—'}
       </div>
       <p className="text-xs text-gray-500">{subtitle}</p>
       <div className="flex items-center gap-1 text-sm">

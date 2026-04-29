@@ -1,7 +1,17 @@
-import { endOfDay, format, startOfDay, subMonths, subWeeks, subYears } from 'date-fns';
+import {
+  endOfDay,
+  format,
+  startOfDay,
+  subMonths,
+  subWeeks,
+  subYears,
+} from 'date-fns';
 import { type DashboardPreset } from '~/components/dashboard/main-indicators-dashboard/types';
 
-export function getRangeByPreset(preset: DashboardPreset): { from: Date; to: Date } {
+export function getRangeByPreset(preset: DashboardPreset): {
+  from: Date;
+  to: Date;
+} {
   const now = new Date();
   const to = endOfDay(now);
 
