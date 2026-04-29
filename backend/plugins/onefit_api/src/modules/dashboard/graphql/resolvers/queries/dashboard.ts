@@ -103,6 +103,13 @@ interface ILatestPurchaseCreditTransactionProjection {
   createdAt?: Date;
 }
 
+interface IUsageCreditTransactionProjection {
+  userId: string;
+  amount?: number;
+  transactionType?: CreditTransactionType;
+  createdAt?: Date;
+}
+
 interface OneFitDashboardB2bB2cSales {
   b2bCount: number;
   b2cCount: number;
@@ -905,6 +912,45 @@ async function getCompanyUserStats(
 
     latestExpirationTransactionByUserId.set(userId, transaction);
   }
+  const usageCreditTransactions = (await models.CreditTransaction.find(
+    {
+      userId: { $in: activeCustomerIds },
+      transactionType: {
+        $in: [CreditTransactionType.USAGE, CreditTransactionType.REFUND],
+      },
+    },
+    {
+      userId: 1,
+      amount: 1,
+      transactionType: 1,
+      createdAt: 1,
+    },
+  ).lean()) as IUsageCreditTransactionProjection[];
+  const usageCreditByUserId = new Map<string, number>();
+
+  for (const transaction of usageCreditTransactions) {
+    const userId = String(transaction.userId || '');
+    if (!userId) {
+      continue;
+    }
+
+    const latestPurchaseTransaction = latestPurchaseTransactionByUserId.get(userId);
+    const latestPurchaseDate = latestPurchaseTransaction?.createdAt;
+    const usageCreatedAt = transaction.createdAt;
+
+    if (!latestPurchaseDate || !usageCreatedAt || usageCreatedAt <= latestPurchaseDate) {
+      continue;
+    }
+
+    const transactionAmount = Math.abs(transaction.amount || 0);
+    const previousUsedAmount = usageCreditByUserId.get(userId) || 0;
+    const signedAmount =
+      transaction.transactionType === CreditTransactionType.REFUND
+        ? -transactionAmount
+        : transactionAmount;
+
+    usageCreditByUserId.set(userId, previousUsedAmount + signedAmount);
+  }
 
   return activeCustomers
     .map((customer) => {
@@ -926,7 +972,7 @@ async function getCompanyUserStats(
 
       const planCredit = plan.creditAmount || 0;
       const currentCredit = customer.currentCreditBalance || 0;
-      const usedCredit = Math.max(planCredit - currentCredit, 0);
+      const usedCredit = Math.max(usageCreditByUserId.get(userId) || 0, 0);
       const latestPurchaseCreditTransaction = latestPurchaseTransactionByUserId.get(
         userId,
       );
