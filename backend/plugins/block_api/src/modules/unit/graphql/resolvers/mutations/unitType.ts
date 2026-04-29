@@ -17,4 +17,12 @@ export const unitTypesMutations = {
   ) => {
     return models.UnitType.updateUnitType(_id, input, user?._id || '');
   },
+
+  blockRemoveUnitType: async (
+    _parent: undefined,
+    { _id }: { _id: string },
+    { models }: IContext,
+  ) => {
+    return models.UnitType.removeUnitType(_id);
+  },
 };

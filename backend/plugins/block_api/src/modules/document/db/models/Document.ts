@@ -2,12 +2,15 @@ import { IBlockDocumentDocument } from '@/document/@types/document';
 import { IModels } from '~/connectionResolvers';
 import { documentSchema } from '@/document/db/definitions/document';
 import { Model } from 'mongoose';
+import { IUserDocument } from 'erxes-api-shared/core-types';
 
 export interface IBlockDocumentModel extends Model<IBlockDocumentDocument> {
   createBlockDocument({
     input,
+    user,
   }: {
     input: IBlockDocumentDocument;
+    user: IUserDocument;
   }): Promise<IBlockDocumentDocument>;
   updateBlockDocument({
     _id,
@@ -27,10 +30,12 @@ export const loadBlockDocumentClass = (models: IModels) => {
   class BlockDocument {
     public static async createBlockDocument({
       input,
+      user,
     }: {
       input: IBlockDocumentDocument;
+      user: IUserDocument;
     }) {
-      return models.BlockDocument.create(input);
+      return models.BlockDocument.create({ ...input, createdBy: user._id });
     }
 
     public static async updateBlockDocument({

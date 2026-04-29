@@ -61,13 +61,19 @@ export const AddUnitType = ({ onClose }: { onClose: () => void }) => {
       tenureTypes: [],
       content: '',
       price: undefined,
-      prices: [
-        {
-          price: 0,
-          priceType: 'priceBySize',
-          currency: mainCurrency || 'MNT',
-        },
-      ],
+      prices: project?.prices?.length
+        ? project.prices.map((p) => ({
+            currency: p.currency,
+            price: p.price,
+            priceType: p.priceType,
+          }))
+        : [
+            {
+              price: 0,
+              priceType: 'priceBySize',
+              currency: mainCurrency || 'MNT',
+            },
+          ],
       status: '',
       rooms: [],
       roomsCount: undefined,

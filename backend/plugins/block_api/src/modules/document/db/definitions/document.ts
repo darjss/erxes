@@ -16,8 +16,8 @@ export const documentSchema = new Schema(
       enum: DOCUMENT_VISIBILITIES.ALL,
     },
     createdBy: { type: String, required: true },
-    attachment: { type: String, required: true },
-    description: { type: String, required: true },
+    attachment: { type: String },
+    description: { type: String },
   },
   {
     timestamps: true,

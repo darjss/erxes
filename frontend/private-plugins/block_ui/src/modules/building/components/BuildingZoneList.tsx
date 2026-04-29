@@ -44,7 +44,7 @@ export const BuildingZoneCard = ({ building }: { building: IBuilding }) => {
         buildingZonings?.length
       } floors`}
     >
-      <InfoCardContent>
+      <InfoCardContent className='space-y-3'>
         {loading ? (
           <Spinner containerClassName="py-32" />
         ) : (

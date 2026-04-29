@@ -87,3 +87,11 @@ export const BLOCK_UPDATE_UNIT_TYPE = gql`
     }
   }
 `;
+
+export const BLOCK_REMOVE_UNIT_TYPE = gql`
+  mutation BlockRemoveUnitType($id: String!) {
+    blockRemoveUnitType(_id: $id) {
+      _id
+    }
+  }
+`;

@@ -16,7 +16,7 @@ export const ProjectDetailMembers = () => {
   return (
     <div className="p-8">
       <InfoCard title="Members">
-        <InfoCardContent>
+        <InfoCardContent className='space-y-3'>
           <div className="grid grid-cols-3 gap-3">
             <Label asChild>
               <span>Member</span>

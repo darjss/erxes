@@ -24,42 +24,44 @@ export const ProjectBankPartners = () => {
 
   return (
     <InfoCard title="BANK PARTNERS" description="Bank partners">
-      <InfoCardContent>
-        {bankPartners?.map((bankPartner, index) => (
-          <div className="flex gap-2" key={bankPartner || index}>
-            <Select
-              value={bankPartner}
-              onValueChange={(value) =>
-                handleUpdateBankPartners(
-                  bankPartners.map((bank, i) => (i === index ? value : bank)),
-                )
-              }
-            >
-              <Select.Trigger className="h-8">
-                <Select.Value placeholder="Select bank partners" />
-              </Select.Trigger>
-              <Select.Content>
-                {BANKS.filter(
-                  (bank) =>
-                    !bankPartners.includes(bank.short) ||
-                    bankPartner === bank.short,
-                ).map((bank) => (
-                  <Select.Item value={bank.short}>{bank.name}</Select.Item>
-                ))}
-              </Select.Content>
-            </Select>
-            <Button
-              variant="secondary"
-              size="icon"
-              className="flex-none size-8 text-destructive bg-destructive/10 hover:bg-destructive/20"
-              onClick={() =>
-                setBankPartners(bankPartners.filter((_, i) => i !== index))
-              }
-            >
-              <IconTrash />
-            </Button>
-          </div>
-        ))}
+      <InfoCardContent className='space-y-3'>
+        <div className='space-y-2'>
+          {bankPartners?.map((bankPartner, index) => (
+            <div className="flex gap-2" key={bankPartner || index}>
+              <Select
+                value={bankPartner}
+                onValueChange={(value) =>
+                  handleUpdateBankPartners(
+                    bankPartners.map((bank, i) => (i === index ? value : bank)),
+                  )
+                }
+              >
+                <Select.Trigger className="h-8">
+                  <Select.Value placeholder="Select bank partners" />
+                </Select.Trigger>
+                <Select.Content>
+                  {BANKS.filter(
+                    (bank) =>
+                      !bankPartners.includes(bank.short) ||
+                      bankPartner === bank.short,
+                  ).map((bank) => (
+                    <Select.Item value={bank.short}>{bank.name}</Select.Item>
+                  ))}
+                </Select.Content>
+              </Select>
+              <Button
+                variant="secondary"
+                size="icon"
+                className="flex-none size-8 text-destructive bg-destructive/10 hover:bg-destructive/20"
+                onClick={() =>
+                  setBankPartners(bankPartners.filter((_, i) => i !== index))
+                }
+              >
+                <IconTrash />
+              </Button>
+            </div>
+          ))}
+        </div>
         <Button
           variant="secondary"
           onClick={() => setBankPartners([...(bankPartners || []), ''])}

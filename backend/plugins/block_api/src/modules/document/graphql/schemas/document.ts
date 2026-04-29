@@ -6,9 +6,11 @@ export const types = `
     itemType: String
     itemId: String
     visibility: BlockDocumentVisibility
-    createdBy: String
     attachment: String
     description: String
+    createdBy: String
+    createdAt: Date
+    updatedAt: Date
   }
 
   input BlockDocumentInput {
@@ -17,9 +19,8 @@ export const types = `
     itemType: String!
     itemId: String!
     visibility: BlockDocumentVisibility!
-    createdBy: String!
-    attachment: String!
-    description: String!
+    attachment: String
+    description: String
   }
 
   enum BlockDocumentVisibility {

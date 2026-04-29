@@ -17,7 +17,7 @@ import { useState } from 'react';
 
 export const ProjectDetailMedia = () => {
   return (
-    <div className="p-8 blk:lg:grid-cols-2 grid gap-6">
+    <div className="gap-6 grid blk:lg:grid-cols-2 p-8">
       <ProjectImage field="coverImage" />
       <ProjectImage field="logo" />
       <ProjectImages />
@@ -46,7 +46,7 @@ export const ProjectImage = ({ field }: { field: 'coverImage' | 'logo' }) => {
       onValueChange={onValueChange}
       fit="cover"
     >
-      <div className="grid grid-cols-2 gap-2">
+      <div className="gap-2 grid grid-cols-2">
         <UploadButton value={imageValue} />
         <RemoveButton value={imageValue} />
       </div>
@@ -83,57 +83,59 @@ export const ProjectImages = () => {
             });
           }}
         >
-          <div className="grid gap-3 grid-cols-6">
-            {images.length > 0 ? (
-              images.map((image) => (
-                <div
-                  key={image}
-                  className="relative aspect-square bg-muted rounded-lg flex items-center justify-center group"
-                >
-                  <img
-                    src={readImage(image)}
-                    className="size-full absolute inset-0 object-cover rounded-lg"
-                    alt="project"
-                  />
-                  <Dialog>
-                    <Dialog.Trigger asChild>
-                      <div className="absolute inset-0 border border-foreground/10 rounded-lg" />
-                    </Dialog.Trigger>
-                    <Dialog.Content className="p-0 max-w-screen-xl w-auto border-0 bg-transparent">
-                      <img
-                        src={readImage(image)}
-                        alt="project"
-                        className="rounded-lg max-h-[90vh] max-w-[90vw] object-contain mx-auto"
-                      />
-                      <div className="absolute inset-0 border border-foreground/10 rounded-lg" />
-                    </Dialog.Content>
-                  </Dialog>
-                  <UploadRemoveButton url={image}>
-                    <Button
-                      variant="secondary"
-                      size="icon"
-                      className="size-6 absolute -top-2 -right-2 opacity-0 group-hover:opacity-100 transition-opacity"
-                    >
-                      <IconX />
-                    </Button>
-                  </UploadRemoveButton>
+          <div className="flex flex-col gap-3 w-full">
+            <div className="gap-3 grid grid-cols-6">
+              {images.length > 0 ? (
+                images.map((image) => (
+                  <div
+                    key={image}
+                    className="group relative flex justify-center items-center bg-muted rounded-lg aspect-square"
+                  >
+                    <img
+                      src={readImage(image)}
+                      className="absolute inset-0 rounded-lg size-full object-cover"
+                      alt="project"
+                    />
+                    <Dialog>
+                      <Dialog.Trigger asChild>
+                        <div className="absolute inset-0 border border-foreground/10 rounded-lg" />
+                      </Dialog.Trigger>
+                      <Dialog.Content className="bg-transparent p-0 border-0 w-auto max-w-screen-xl">
+                        <img
+                          src={readImage(image)}
+                          alt="project"
+                          className="mx-auto rounded-lg max-w-[90vw] max-h-[90vh] object-contain"
+                        />
+                        <div className="absolute inset-0 border border-foreground/10 rounded-lg" />
+                      </Dialog.Content>
+                    </Dialog>
+                    <UploadRemoveButton url={image}>
+                      <Button
+                        variant="secondary"
+                        size="icon"
+                        className="-top-2 -right-2 absolute opacity-0 group-hover:opacity-100 size-6 transition-opacity"
+                      >
+                        <IconX />
+                      </Button>
+                    </UploadRemoveButton>
+                  </div>
+                ))
+              ) : (
+                <div className="relative flex justify-center items-center bg-muted rounded-lg aspect-square overflow-hidden">
+                  <IconPhotoCirclePlus className="size-8 text-scroll" />
                 </div>
-              ))
-            ) : (
-              <div className="relative aspect-square bg-muted rounded-lg flex items-center justify-center overflow-hidden">
-                <IconPhotoCirclePlus className="size-8 text-scroll" />
-              </div>
-            )}
-          </div>
+              )}
+            </div>
 
-          <Upload>
-            <Button asChild className="w-full" variant="secondary">
-              <div>
-                <IconUpload />
-                Add images
-              </div>
-            </Button>
-          </Upload>
+            <Upload className='w-full'>
+              <Button asChild className="w-full" variant="secondary">
+                <div>
+                  <IconUpload />
+                  Add images
+                </div>
+              </Button>
+            </Upload>
+          </div>
         </UploadProvider>
       </InfoCardContent>
     </InfoCard>
@@ -151,7 +153,7 @@ export const ProjectVideo = () => {
   return (
     <div>
       <InfoCard title="Project video">
-        <InfoCardContent>
+        <InfoCardContent className='flex flex-col gap-3'>
           <Input
             type="text"
             placeholder="Video URL"
@@ -177,7 +179,7 @@ export const ProjectVideo = () => {
                 title="Project video"
                 referrerPolicy="strict-origin-when-cross-origin"
                 allowFullScreen
-                className="w-full h-full aspect-video rounded-lg overflow-hidden"
+                className="rounded-lg w-full h-full aspect-video overflow-hidden"
               />
               <div className="w-full">
                 <Dialog.Close asChild>

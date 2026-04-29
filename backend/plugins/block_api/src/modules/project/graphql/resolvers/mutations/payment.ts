@@ -17,5 +17,13 @@ export const paymentMutations = {
   ) => {
     return models.ProjectPaymentPlan.updateProjectPaymentPlan({ _id, input });
   },
+
+  blockRemoveProjectPaymentPlan: async (
+    _parent: undefined,
+    { _id }: { _id: string },
+    { models }: IContext,
+    ) => {
+      return models.ProjectPaymentPlan.removeProjectPaymentPlan(_id);
+  },
 };
 

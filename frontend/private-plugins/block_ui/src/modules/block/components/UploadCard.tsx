@@ -31,7 +31,7 @@ export const UploadCard = ({
 }) => {
   return (
     <InfoCard title={title}>
-      <InfoCardContent>
+      <InfoCardContent className='space-y-3'>
         <UploadProvider
           value={value}
           onValueChange={(value) => onValueChange(value as string)}

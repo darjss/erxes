@@ -69,4 +69,5 @@ export const queries = `
 export const mutations = `
   blockCreateProjectPaymentPlan(input: BlockProjectPaymentPlanInput!): BlockProjectPaymentPlan
   blockUpdateProjectPaymentPlan(_id: String!, input: BlockProjectPaymentPlanInput!): BlockProjectPaymentPlan
+  blockRemoveProjectPaymentPlan(_id: String!): BlockProjectPaymentPlan
 `;

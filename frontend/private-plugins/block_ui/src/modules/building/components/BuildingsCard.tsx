@@ -28,7 +28,7 @@ export const BuildingsCard = ({ project }: { project: IProject }) => {
   const { buildings, loading } = useBuildings({ projectId: project._id });
   return (
     <InfoCard title="Buildings" description="Buildings">
-      <InfoCardContent>
+      <InfoCardContent className='space-y-3'>
         <div className="gap-3 grid grid-cols-12">
           <Label asChild>
             <div className="col-span-2">Image</div>

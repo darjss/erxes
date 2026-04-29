@@ -5,9 +5,9 @@ export const documentMutations = {
   blockCreateDocument: async (
     _parent: undefined,
     { input }: { input: IBlockDocumentDocument },
-    { models }: IContext,
+    { models, user }: IContext,
   ) => {
-    return models.BlockDocument.createBlockDocument({ input });
+    return models.BlockDocument.createBlockDocument({ input, user });
   },
 
   blockUpdateDocument: async (
@@ -43,7 +43,6 @@ export const documentMutations = {
       }
     }
 
-    return models.BlockDocument.findByIdAndDelete({ _id });
+    return models.BlockDocument.removeBlockDocument({ _id });
   },
 };
-

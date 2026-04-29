@@ -22,7 +22,7 @@ export const PaymentPlans = () => {
       description="Payment plans"
       className="col-span-2"
     >
-      <InfoCardContent>
+      <InfoCardContent className='space-y-3'>
         <div className="grid grid-cols-12 gap-3">
           <div className="blk:col-span-11 grid blk:grid-cols-8 gap-3 px-2">
             <Label asChild>
@@ -56,9 +56,11 @@ export const PaymentPlans = () => {
         {loading ? (
           <Spinner containerClassName="py-32" />
         ) : (
-          paymentPlans?.map((paymentPlan) => (
-            <PaymentPlanItem key={paymentPlan._id} paymentPlan={paymentPlan} />
-          ))
+          <div className='space-y-2'>
+            {paymentPlans?.map((paymentPlan) => (
+              <PaymentPlanItem key={paymentPlan._id} paymentPlan={paymentPlan} />
+            ))}
+          </div>
         )}
 
         <PaymentPlansAdd />

@@ -19,6 +19,7 @@ export interface IProjectPaymentPlanModel
     _id: string;
     input: IProjectPaymentPlan;
   }): Promise<IProjectPaymentPlanDocument>;
+  removeProjectPaymentPlan(_id: string): Promise<IProjectPaymentPlanDocument>;
 }
 
 export const loadProjectPaymentPlanClass = (models: IModels) => {
@@ -43,6 +44,10 @@ export const loadProjectPaymentPlanClass = (models: IModels) => {
         { $set: input },
         { new: true },
       );
+    }
+
+    public static async removeProjectPaymentPlan(_id: string) {
+      return models.ProjectPaymentPlan.findOneAndReplace({ _id });
     }
   }
 

@@ -64,7 +64,7 @@ export const BuildingZone = ({ zone }: { zone: IZoning }) => {
         zone.usageTypes?.length ? `• ${zone.usageTypes.join(', ')}` : ''
       } ${zone.tenureTypes?.length ? `• ${zone.tenureTypes.join(', ')}` : ''}`}
     >
-      <InfoCardContent>
+      <InfoCardContent className='space-y-3'>
         <UnitsList zone={zone} setUnitsCount={setUnitsCount} />
       </InfoCardContent>
     </InfoCard>

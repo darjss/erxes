@@ -56,4 +56,5 @@ export const queries = `
 export const mutations = `
   blockCreateUnitType(input: UnitTypeInput!): UnitType
   blockUpdateUnitType(_id: String!, input: UnitTypeInput!): UnitType
+  blockRemoveUnitType(_id: String!): UnitType
 `;

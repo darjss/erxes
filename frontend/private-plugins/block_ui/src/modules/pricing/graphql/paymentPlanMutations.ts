@@ -23,6 +23,8 @@ export const UPDATE_PAYMENT_PLAN = gql`
 
 export const REMOVE_PAYMENT_PLAN = gql`
   mutation BlockRemoveProjectPaymentPlan($id: String!) {
-    blockRemoveProjectPaymentPlan(_id: $id)
+    blockRemoveProjectPaymentPlan(_id: $id) {
+      _id
+    }
   }
 `;
