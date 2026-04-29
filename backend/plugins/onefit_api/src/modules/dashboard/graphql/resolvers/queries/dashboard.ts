@@ -5,6 +5,7 @@ import {
   sendTRPCMessage,
 } from 'erxes-api-shared/utils';
 import { BookingStatus } from '@/booking/@types/booking';
+import { CreditTransactionType } from '@/membership/@types/credittransaction';
 import { MembershipPurchaseStatus } from '@/membership/@types/membershippurchase';
 import { IContext } from '~/connectionResolvers';
 import { addInstanceIdFilter } from '~/utils/providerFilter';
@@ -87,9 +88,26 @@ interface OneFitDashboardCompanyUserStat {
   userPhone: string;
   planId: string;
   planName: string;
+  lastPurchaseDate: Date | null;
   planCredit: number;
+  creditBeforeLastPurchase: number;
+  lastExpirationCredit: number;
   currentCredit: number;
   usedCredit: number;
+}
+
+interface ILatestPurchaseCreditTransactionProjection {
+  userId: string;
+  amount?: number;
+  balanceAfter?: number;
+  createdAt?: Date;
+}
+
+interface IUsageCreditTransactionProjection {
+  userId: string;
+  amount?: number;
+  transactionType?: CreditTransactionType;
+  createdAt?: Date;
 }
 
 interface OneFitDashboardB2bB2cSales {
@@ -775,13 +793,9 @@ async function getCompanyUserStats(
     defaultValue: [] as ICoreCompanyProjection[],
   })) as ICoreCompanyProjection[];
 
-  const companyIds = companies.map((company) => String(company._id));
-  if (!companyIds.length) {
-    return [];
-  }
-
   const companyIdByCustomerId = new Map<string, string>();
-  for (const companyId of companyIds) {
+  for (const company of companies) {
+    const companyId = String(company._id);
     const companyCustomerRelations = (await sendTRPCMessage({
       subdomain,
       pluginName: 'core',
@@ -807,15 +821,9 @@ async function getCompanyUserStats(
     }
   }
 
-  const customerIds = Array.from(new Set(companyIdByCustomerId.keys()));
-  if (!customerIds.length) {
-    return [];
-  }
-
   const activeCustomers = (await models.OneFitCustomer.find(
     {
       __t: 'OneFitCustomer',
-      _id: { $in: customerIds },
       membershipStatus: 'active',
       membershipPlanId: { $exists: true, $ne: '' },
     },
@@ -856,6 +864,107 @@ async function getCompanyUserStats(
   ).lean()) as IMembershipPlanProjection[];
 
   const planById = new Map(plans.map((plan) => [String(plan._id), plan]));
+  const activeCustomerIds = activeCustomers.map((customer) =>
+    String(customer._id),
+  );
+  const latestPurchaseCreditTransactions = (await models.CreditTransaction.find(
+    {
+      userId: { $in: activeCustomerIds },
+      transactionType: CreditTransactionType.PURCHASE,
+    },
+    {
+      userId: 1,
+      amount: 1,
+      balanceAfter: 1,
+      createdAt: 1,
+    },
+  )
+    .sort({ createdAt: -1 })
+    .lean()) as ILatestPurchaseCreditTransactionProjection[];
+  const latestPurchaseTransactionByUserId = new Map<
+    string,
+    ILatestPurchaseCreditTransactionProjection
+  >();
+
+  for (const transaction of latestPurchaseCreditTransactions) {
+    const userId = String(transaction.userId || '');
+    if (!userId || latestPurchaseTransactionByUserId.has(userId)) {
+      continue;
+    }
+
+    latestPurchaseTransactionByUserId.set(userId, transaction);
+  }
+  const latestExpirationCreditTransactions =
+    (await models.CreditTransaction.find(
+      {
+        userId: { $in: activeCustomerIds },
+        transactionType: CreditTransactionType.EXPIRATION,
+      },
+      {
+        userId: 1,
+        amount: 1,
+        createdAt: 1,
+      },
+    )
+      .sort({ createdAt: -1 })
+      .lean()) as ILatestPurchaseCreditTransactionProjection[];
+  const latestExpirationTransactionByUserId = new Map<
+    string,
+    ILatestPurchaseCreditTransactionProjection
+  >();
+
+  for (const transaction of latestExpirationCreditTransactions) {
+    const userId = String(transaction.userId || '');
+    if (!userId || latestExpirationTransactionByUserId.has(userId)) {
+      continue;
+    }
+
+    latestExpirationTransactionByUserId.set(userId, transaction);
+  }
+  const usageCreditTransactions = (await models.CreditTransaction.find(
+    {
+      userId: { $in: activeCustomerIds },
+      transactionType: {
+        $in: [CreditTransactionType.USAGE, CreditTransactionType.REFUND],
+      },
+    },
+    {
+      userId: 1,
+      amount: 1,
+      transactionType: 1,
+      createdAt: 1,
+    },
+  ).lean()) as IUsageCreditTransactionProjection[];
+  const usageCreditByUserId = new Map<string, number>();
+
+  for (const transaction of usageCreditTransactions) {
+    const userId = String(transaction.userId || '');
+    if (!userId) {
+      continue;
+    }
+
+    const latestPurchaseTransaction =
+      latestPurchaseTransactionByUserId.get(userId);
+    const latestPurchaseDate = latestPurchaseTransaction?.createdAt;
+    const usageCreatedAt = transaction.createdAt;
+
+    if (
+      !latestPurchaseDate ||
+      !usageCreatedAt ||
+      usageCreatedAt <= latestPurchaseDate
+    ) {
+      continue;
+    }
+
+    const transactionAmount = Math.abs(transaction.amount || 0);
+    const previousUsedAmount = usageCreditByUserId.get(userId) || 0;
+    const signedAmount =
+      transaction.transactionType === CreditTransactionType.REFUND
+        ? -transactionAmount
+        : transactionAmount;
+
+    usageCreditByUserId.set(userId, previousUsedAmount + signedAmount);
+  }
 
   return activeCustomers
     .map((customer) => {
@@ -866,31 +975,49 @@ async function getCompanyUserStats(
         return null;
       }
 
-      const companyId = companyIdByCustomerId.get(userId);
-      if (!companyId) {
-        return null;
-      }
-
+      const relatedCompanyId = companyIdByCustomerId.get(userId);
+      const companyId = relatedCompanyId || 'no-company';
       const company = companyById.get(companyId);
       const plan = planById.get(planId);
 
-      if (!company || !plan) {
+      if (!plan) {
         return null;
       }
 
       const planCredit = plan.creditAmount || 0;
       const currentCredit = customer.currentCreditBalance || 0;
-      const usedCredit = Math.max(planCredit - currentCredit, 0);
+      const usedCredit = Math.max(usageCreditByUserId.get(userId) || 0, 0);
+      const latestPurchaseCreditTransaction =
+        latestPurchaseTransactionByUserId.get(userId);
+      const creditBeforeLastPurchase = latestPurchaseCreditTransaction
+        ? Math.max(
+            (latestPurchaseCreditTransaction.balanceAfter || 0) -
+              (latestPurchaseCreditTransaction.amount || 0),
+            0,
+          )
+        : 0;
+      const lastPurchaseDate =
+        latestPurchaseCreditTransaction?.createdAt || null;
+      const latestExpirationCreditTransaction =
+        latestExpirationTransactionByUserId.get(userId);
+      const lastExpirationCredit = latestExpirationCreditTransaction
+        ? Math.abs(latestExpirationCreditTransaction.amount || 0)
+        : 0;
 
       return {
         companyId,
-        companyName: getCompanyDisplayName(company),
+        companyName: company
+          ? getCompanyDisplayName(company)
+          : 'Хувь хэрэглэгч',
         userId,
         userName: getCustomerDisplayName(customer),
         userPhone: customer.primaryPhone || '',
         planId,
         planName: plan.name || 'Unknown plan',
+        lastPurchaseDate,
         planCredit,
+        creditBeforeLastPurchase,
+        lastExpirationCredit,
         currentCredit,
         usedCredit,
       };
