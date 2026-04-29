@@ -1,3 +1,4 @@
+import { useMemo, useState } from 'react';
 import { Select, Skeleton, cn } from 'erxes-ui';
 import { type CompanyUserStatItem } from '~/components/dashboard/main-indicators-dashboard/types';
 
@@ -23,11 +24,27 @@ export function CompanyCreditUsageSection({
   companyFilterOptions,
   companyUserStats,
 }: CompanyCreditUsageSectionProps) {
+  const [selectedPlanId, setSelectedPlanId] = useState<string>('all');
   const hasCompanyUserStats = companyUserStats.length > 0;
-  const filteredCompanyUserStats =
+  const companyFilteredUserStats =
     selectedCompanyId === 'all'
       ? companyUserStats
       : companyUserStats.filter((item) => item.companyId === selectedCompanyId);
+  const planFilterOptions = useMemo(
+    () =>
+      Array.from(
+        new Map(
+          companyFilteredUserStats.map((item) => [item.planId, item.planName]),
+        ).entries(),
+      )
+        .map(([planId, planName]) => ({ planId, planName }))
+        .sort((a, b) => a.planName.localeCompare(b.planName)),
+    [companyFilteredUserStats],
+  );
+  const filteredCompanyUserStats =
+    selectedPlanId === 'all'
+      ? companyFilteredUserStats
+      : companyFilteredUserStats.filter((item) => item.planId === selectedPlanId);
   const hasFilteredCompanyUserStats = filteredCompanyUserStats.length > 0;
 
   return (
@@ -36,22 +53,40 @@ export function CompanyCreditUsageSection({
         <h3 className="text-base font-semibold text-gray-900">
           Компанийн хэрэглэгчийн кредит ашиглалт
         </h3>
-        <Select
-          value={selectedCompanyId}
-          onValueChange={onSelectedCompanyIdChange}
-        >
-          <Select.Trigger className="min-w-[240px] border-gray-200">
-            <Select.Value placeholder="Компани сонгох" />
-          </Select.Trigger>
-          <Select.Content>
-            <Select.Item value="all">Бүх компани</Select.Item>
-            {companyFilterOptions.map((company) => (
-              <Select.Item key={company.companyId} value={company.companyId}>
-                {company.companyName}
-              </Select.Item>
-            ))}
-          </Select.Content>
-        </Select>
+        <div className="flex flex-wrap items-center gap-2">
+          <Select
+            value={selectedCompanyId}
+            onValueChange={(value) => {
+              onSelectedCompanyIdChange(value);
+              setSelectedPlanId('all');
+            }}
+          >
+            <Select.Trigger className="min-w-[220px] border-gray-200">
+              <Select.Value placeholder="Компани сонгох" />
+            </Select.Trigger>
+            <Select.Content>
+              <Select.Item value="all">Бүх компани</Select.Item>
+              {companyFilterOptions.map((company) => (
+                <Select.Item key={company.companyId} value={company.companyId}>
+                  {company.companyName}
+                </Select.Item>
+              ))}
+            </Select.Content>
+          </Select>
+          <Select value={selectedPlanId} onValueChange={setSelectedPlanId}>
+            <Select.Trigger className="min-w-[220px] border-gray-200">
+              <Select.Value placeholder="Багц сонгох" />
+            </Select.Trigger>
+            <Select.Content>
+              <Select.Item value="all">Бүх багц</Select.Item>
+              {planFilterOptions.map((plan) => (
+                <Select.Item key={plan.planId} value={plan.planId}>
+                  {plan.planName}
+                </Select.Item>
+              ))}
+            </Select.Content>
+          </Select>
+        </div>
       </div>
 
       {loading && !hasStats ? (
