@@ -88,6 +88,7 @@ interface OneFitDashboardCompanyUserStat {
   userPhone: string;
   planId: string;
   planName: string;
+  lastPurchaseDate: Date | null;
   planCredit: number;
   creditBeforeLastPurchase: number;
   lastExpirationCredit: number;
@@ -936,6 +937,7 @@ async function getCompanyUserStats(
             0,
           )
         : 0;
+      const lastPurchaseDate = latestPurchaseCreditTransaction?.createdAt || null;
       const latestExpirationCreditTransaction =
         latestExpirationTransactionByUserId.get(userId);
       const lastExpirationCredit = latestExpirationCreditTransaction
@@ -952,6 +954,7 @@ async function getCompanyUserStats(
         userPhone: customer.primaryPhone || '',
         planId,
         planName: plan.name || 'Unknown plan',
+        lastPurchaseDate,
         planCredit,
         creditBeforeLastPurchase,
         lastExpirationCredit,

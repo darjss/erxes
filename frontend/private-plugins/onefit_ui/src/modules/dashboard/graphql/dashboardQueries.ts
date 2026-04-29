@@ -84,6 +84,7 @@ export const ONE_FIT_DASHBOARD_STATS = gql`
         userPhone
         planId
         planName
+        lastPurchaseDate
         planCredit
         creditBeforeLastPurchase
         lastExpirationCredit

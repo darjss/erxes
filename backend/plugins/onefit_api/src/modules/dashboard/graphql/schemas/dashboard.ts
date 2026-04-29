@@ -39,6 +39,7 @@ export const types = `
     userPhone: String
     planId: String!
     planName: String!
+    lastPurchaseDate: Date
     planCredit: Float!
     creditBeforeLastPurchase: Float!
     lastExpirationCredit: Float!

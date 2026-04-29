@@ -76,6 +76,7 @@ export function CompanyCreditUsageSection({
                 <th className="py-3 pr-4 font-medium">Компани</th>
                 <th className="py-3 pr-4 font-medium">Хэрэглэгч</th>
                 <th className="py-3 pr-4 font-medium">Багц</th>
+                <th className="py-3 pr-4 font-medium">Сүүлийн худалдан авалт</th>
                 <th className="py-3 pr-4 font-medium">Багцын кредит</th>
                 <th className="py-3 pr-4 font-medium">
                   Сүүлийн худалдан <br />
@@ -124,6 +125,11 @@ export function CompanyCreditUsageSection({
                       {item.userPhone ? ` (${item.userPhone})` : ''}
                     </td>
                     <td className="py-3 pr-4">{item.planName}</td>
+                    <td className="py-3 pr-4 tabular-nums">
+                      {item.lastPurchaseDate
+                        ? new Date(item.lastPurchaseDate).toLocaleDateString()
+                        : '-'}
+                    </td>
                     <td className="py-3 pr-4 tabular-nums">
                       {Math.round(item.planCredit || 0).toLocaleString()}
                     </td>

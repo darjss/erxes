@@ -36,6 +36,7 @@ export interface CompanyUserStatItem {
   userPhone: string;
   planId: string;
   planName: string;
+  lastPurchaseDate: string | null;
   planCredit: number;
   creditBeforeLastPurchase: number;
   lastExpirationCredit: number;
