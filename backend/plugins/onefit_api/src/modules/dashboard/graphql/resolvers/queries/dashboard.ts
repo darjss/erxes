@@ -785,13 +785,9 @@ async function getCompanyUserStats(
     defaultValue: [] as ICoreCompanyProjection[],
   })) as ICoreCompanyProjection[];
 
-  const companyIds = companies.map((company) => String(company._id));
-  if (!companyIds.length) {
-    return [];
-  }
-
   const companyIdByCustomerId = new Map<string, string>();
-  for (const companyId of companyIds) {
+  for (const company of companies) {
+    const companyId = String(company._id);
     const companyCustomerRelations = (await sendTRPCMessage({
       subdomain,
       pluginName: 'core',
@@ -817,15 +813,9 @@ async function getCompanyUserStats(
     }
   }
 
-  const customerIds = Array.from(new Set(companyIdByCustomerId.keys()));
-  if (!customerIds.length) {
-    return [];
-  }
-
   const activeCustomers = (await models.OneFitCustomer.find(
     {
       __t: 'OneFitCustomer',
-      _id: { $in: customerIds },
       membershipStatus: 'active',
       membershipPlanId: { $exists: true, $ne: '' },
     },
@@ -924,15 +914,12 @@ async function getCompanyUserStats(
         return null;
       }
 
-      const companyId = companyIdByCustomerId.get(userId);
-      if (!companyId) {
-        return null;
-      }
-
+      const relatedCompanyId = companyIdByCustomerId.get(userId);
+      const companyId = relatedCompanyId || 'no-company';
       const company = companyById.get(companyId);
       const plan = planById.get(planId);
 
-      if (!company || !plan) {
+      if (!plan) {
         return null;
       }
 
@@ -957,7 +944,9 @@ async function getCompanyUserStats(
 
       return {
         companyId,
-        companyName: getCompanyDisplayName(company),
+        companyName: company
+          ? getCompanyDisplayName(company)
+          : 'Хувь хэрэглэгч',
         userId,
         userName: getCustomerDisplayName(customer),
         userPhone: customer.primaryPhone || '',
