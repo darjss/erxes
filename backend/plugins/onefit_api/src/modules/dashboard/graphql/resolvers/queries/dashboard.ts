@@ -5,6 +5,7 @@ import {
   sendTRPCMessage,
 } from 'erxes-api-shared/utils';
 import { BookingStatus } from '@/booking/@types/booking';
+import { CreditTransactionType } from '@/membership/@types/credittransaction';
 import { MembershipPurchaseStatus } from '@/membership/@types/membershippurchase';
 import { IContext } from '~/connectionResolvers';
 import { addInstanceIdFilter } from '~/utils/providerFilter';
@@ -88,8 +89,17 @@ interface OneFitDashboardCompanyUserStat {
   planId: string;
   planName: string;
   planCredit: number;
+  creditBeforeLastPurchase: number;
+  lastExpirationCredit: number;
   currentCredit: number;
   usedCredit: number;
+}
+
+interface ILatestPurchaseCreditTransactionProjection {
+  userId: string;
+  amount?: number;
+  balanceAfter?: number;
+  createdAt?: Date;
 }
 
 interface OneFitDashboardB2bB2cSales {
@@ -856,6 +866,54 @@ async function getCompanyUserStats(
   ).lean()) as IMembershipPlanProjection[];
 
   const planById = new Map(plans.map((plan) => [String(plan._id), plan]));
+  const activeCustomerIds = activeCustomers.map((customer) => String(customer._id));
+  const latestPurchaseCreditTransactions = (await models.CreditTransaction.find(
+    {
+      userId: { $in: activeCustomerIds },
+      transactionType: CreditTransactionType.PURCHASE,
+    },
+    {
+      userId: 1,
+      amount: 1,
+      balanceAfter: 1,
+      createdAt: 1,
+    },
+  )
+    .sort({ createdAt: -1 })
+    .lean()) as ILatestPurchaseCreditTransactionProjection[];
+  const latestPurchaseTransactionByUserId = new Map<string, ILatestPurchaseCreditTransactionProjection>();
+
+  for (const transaction of latestPurchaseCreditTransactions) {
+    const userId = String(transaction.userId || '');
+    if (!userId || latestPurchaseTransactionByUserId.has(userId)) {
+      continue;
+    }
+
+    latestPurchaseTransactionByUserId.set(userId, transaction);
+  }
+  const latestExpirationCreditTransactions = (await models.CreditTransaction.find(
+    {
+      userId: { $in: activeCustomerIds },
+      transactionType: CreditTransactionType.EXPIRATION,
+    },
+    {
+      userId: 1,
+      amount: 1,
+      createdAt: 1,
+    },
+  )
+    .sort({ createdAt: -1 })
+    .lean()) as ILatestPurchaseCreditTransactionProjection[];
+  const latestExpirationTransactionByUserId = new Map<string, ILatestPurchaseCreditTransactionProjection>();
+
+  for (const transaction of latestExpirationCreditTransactions) {
+    const userId = String(transaction.userId || '');
+    if (!userId || latestExpirationTransactionByUserId.has(userId)) {
+      continue;
+    }
+
+    latestExpirationTransactionByUserId.set(userId, transaction);
+  }
 
   return activeCustomers
     .map((customer) => {
@@ -881,6 +939,21 @@ async function getCompanyUserStats(
       const planCredit = plan.creditAmount || 0;
       const currentCredit = customer.currentCreditBalance || 0;
       const usedCredit = Math.max(planCredit - currentCredit, 0);
+      const latestPurchaseCreditTransaction = latestPurchaseTransactionByUserId.get(
+        userId,
+      );
+      const creditBeforeLastPurchase = latestPurchaseCreditTransaction
+        ? Math.max(
+            (latestPurchaseCreditTransaction.balanceAfter || 0) -
+              (latestPurchaseCreditTransaction.amount || 0),
+            0,
+          )
+        : 0;
+      const latestExpirationCreditTransaction =
+        latestExpirationTransactionByUserId.get(userId);
+      const lastExpirationCredit = latestExpirationCreditTransaction
+        ? Math.abs(latestExpirationCreditTransaction.amount || 0)
+        : 0;
 
       return {
         companyId,
@@ -891,6 +964,8 @@ async function getCompanyUserStats(
         planId,
         planName: plan.name || 'Unknown plan',
         planCredit,
+        creditBeforeLastPurchase,
+        lastExpirationCredit,
         currentCredit,
         usedCredit,
       };

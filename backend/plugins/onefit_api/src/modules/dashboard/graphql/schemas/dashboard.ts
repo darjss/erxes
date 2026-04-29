@@ -40,6 +40,8 @@ export const types = `
     planId: String!
     planName: String!
     planCredit: Float!
+    creditBeforeLastPurchase: Float!
+    lastExpirationCredit: Float!
     currentCredit: Float!
     usedCredit: Float!
   }
