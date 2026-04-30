@@ -9,15 +9,15 @@ const toFileUrl = (
 
   if (key.startsWith('http://') || key.startsWith('https://')) return key;
 
-  const DOMAIN = getEnv({
-    name: 'DOMAIN',
+  const SUPPLIER_DOMAIN = getEnv({
+    name: 'SUPPLIER_API_URL',
     subdomain,
     defaultValue: 'http://localhost:4000',
   });
 
-  if (!DOMAIN) return null;
+  if (!SUPPLIER_DOMAIN) return null;
 
-  const domain = DOMAIN.replace('<subdomain>', subdomain);
+  const domain = SUPPLIER_DOMAIN.replace('<subdomain>', subdomain);
 
   return `${domain}/read-file?key=${key}`;
 };

@@ -1,4 +1,5 @@
 import crypto from 'crypto';
+import { isDev } from 'erxes-api-shared/utils';
 
 const { SUPPLIER_API_URL, MUSHOP_SECRET } = process.env;
 
@@ -20,7 +21,11 @@ export const sendMessageToSupplier = async ({
     return;
   }
 
-  const API_ENDPOINT = `${SUPPLIER_API_URL}/webhook/mushop/submission`;
+  const SUPPLIER_DOMAIN = isDev
+    ? SUPPLIER_API_URL
+    : SUPPLIER_API_URL.replace('<subdomain>', subdomain);
+
+  const API_ENDPOINT = `${SUPPLIER_DOMAIN}/pl:supplier/webhook/mushop/submission`;
 
   try {
     const body = JSON.stringify({

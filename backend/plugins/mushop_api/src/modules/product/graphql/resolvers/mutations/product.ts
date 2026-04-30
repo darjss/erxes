@@ -9,7 +9,10 @@ export const productMutations = {
     { _id, categoryId }: { _id: string; categoryId?: string },
     { models, subdomain }: IContext,
   ) => {
-    const product = await models.MushopProduct.assignCategory(_id, categoryId || null);
+    const product = await models.MushopProduct.assignCategory(
+      _id,
+      categoryId || null,
+    );
 
     if (product?.entityId) {
       await sendTRPCMessage({
@@ -17,7 +20,10 @@ export const productMutations = {
         pluginName: 'core',
         module: 'products',
         action: 'updateProduct',
-        input: { _id: product.entityId, doc: { categoryId: categoryId || null } },
+        input: {
+          _id: product.entityId,
+          doc: { categoryId: categoryId || null },
+        },
       });
     }
 
@@ -42,17 +48,15 @@ export const productMutations = {
       throw new Error('Invalid product status');
     }
 
-    const product = await models.MushopProduct.updateStatus(_id, status, note);
+    const existing = await models.MushopProduct.getProduct(_id);
 
-    if (product) {
-      await sendMessageToSupplier({
-        subdomain: product.subdomain,
-        entityId: product.entityId,
-        status,
-        note,
-      });
-    }
+    await sendMessageToSupplier({
+      subdomain: existing.subdomain,
+      entityId: existing.entityId,
+      status,
+      note,
+    });
 
-    return product;
+    return await models.MushopProduct.updateStatus(_id, status, note);
   },
 };
