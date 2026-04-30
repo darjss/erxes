@@ -20,7 +20,7 @@ export const sendProductToSupplier = async ({
     return;
   }
 
-  const API_ENDPOINT = `${SUPPLIER_API_URL}/webhook/mushop/product`;
+  const API_ENDPOINT = `${SUPPLIER_API_URL}/pl:supplier/webhook/mushop/product`;
 
   try {
     const body = JSON.stringify({
@@ -47,9 +47,9 @@ export const sendProductToSupplier = async ({
     });
 
     if (!res.ok) {
-      console.error(`Failed to send product to supplier: HTTP ${res.status}`);
+      throw new Error(`Failed to send product to supplier: HTTP ${res.status}`);
     }
   } catch (e) {
-    console.error(`Failed to send product to supplier: ${e}`);
+    throw new Error(`Failed to send product to supplier: ${e}`);
   }
 };
