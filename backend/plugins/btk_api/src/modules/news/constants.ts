@@ -1,8 +1,10 @@
 export const BTK_VERIFICATION_STATUS = {
-  VERIFIED: 'verified',
-  UNVERIFIED: 'unverified',
   PENDING: 'pending',
-  ALL: ['verified', 'unverified', 'pending'],
+  NEED_INFO: 'need_info',
+  APPROVED: 'approved',
+  REJECTED: 'rejected',
+  VIOLATION: 'violation',
+  ALL: ['pending', 'need_info', 'approved', 'rejected', 'violation'],
 };
 
 export const BTK_PROJECT_STATUS = {

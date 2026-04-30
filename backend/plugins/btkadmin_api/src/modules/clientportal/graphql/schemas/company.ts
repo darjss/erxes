@@ -16,12 +16,12 @@ export const types = `
     coverImage: String
     phones: [String]
     socialLinks: BtkAdminCompanySocialLink
-    isVerified: Boolean
+    verificationStatus: String
   }
 `;
 
 const queryParams = `
-  isVerified: Boolean
+  verificationStatus: String
   searchValue: String
   location: JSON
 

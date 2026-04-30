@@ -1,8 +1,26 @@
 import { IconMapPinFilled, IconPhotoCirclePlus } from '@tabler/icons-react';
-import { Slider } from 'erxes-ui';
 import { Link } from 'react-router-dom';
 
-export const BtkCompanyCard = ({ name, _id, coverImage, location }: any) => {
+const STATUS_CONFIG: Record<string, { label: string; className: string }> = {
+  pending: { label: 'Шалгаж байна', className: 'bg-yellow-100 text-yellow-800' },
+  need_info: { label: 'Нэмэлт мэдээлэл', className: 'bg-orange-100 text-orange-800' },
+  approved: { label: 'Зөвшөөрөгдсөн', className: 'bg-green-100 text-green-800' },
+  rejected: { label: 'Зөвшөөрөгдөөгүй', className: 'bg-red-100 text-red-800' },
+  violation: { label: 'Дүрэм зөрчсөн', className: 'bg-red-200 text-red-900' },
+};
+
+export const VerificationStatusBadge = ({ status }: { status?: string }) => {
+  if (!status) return null;
+  const config = STATUS_CONFIG[status];
+  if (!config) return null;
+  return (
+    <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${config.className}`}>
+      {config.label}
+    </span>
+  );
+};
+
+export const BtkCompanyCard = ({ name, _id, coverImage, address, verificationStatus }: any) => {
   return (
     <Link
       to={`/btkadmin/companies/${_id}`}
@@ -21,20 +39,19 @@ export const BtkCompanyCard = ({ name, _id, coverImage, location }: any) => {
         <div className="absolute inset-0 border border-foreground/10 rounded-xl" />
       </div>
       <div className="p-3 pt-0 space-y-2">
-        <h3 className="font-medium text-lg leading-6">{name}</h3>
+        <div className="flex items-center justify-between gap-2">
+          <h3 className="font-medium text-lg leading-6 truncate">{name}</h3>
+          <VerificationStatusBadge status={verificationStatus} />
+        </div>
         <div className="flex items-center gap-2 text-accent-foreground">
           <IconMapPinFilled className=" size-4" />
           <p className="text-sm">
-            {location
-              ? `${location?.address}, ${location?.district}, ${
-                  location?.city || 'Улаанбаатар'
+            {address
+              ? `${address?.address}, ${address?.district}, ${
+                  address?.city || 'Улаанбаатар'
                 }`
               : 'No address'}
           </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <Slider value={[80]} max={100} hideThumb />
-          <p className="text-sm ml-1 text-accent-foreground font-medium">85%</p>
         </div>
       </div>
     </Link>

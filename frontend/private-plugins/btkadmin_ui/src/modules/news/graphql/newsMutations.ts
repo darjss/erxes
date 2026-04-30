@@ -17,6 +17,21 @@ export const BTK_PUBLISH_NEWS = gql`
   }
 `;
 
+export const BTK_ADMIN_UPDATE_NEWS_VERIFICATION_STATUS = gql`
+  mutation BtkAdminUpdateNewsVerificationStatus(
+    $id: String!
+    $verificationStatus: NewsVerificationStatus!
+  ) {
+    btkAdminUpdateNewsVerificationStatus(
+      _id: $id
+      verificationStatus: $verificationStatus
+    ) {
+      _id
+      verificationStatus
+    }
+  }
+`;
+
 export const BTK_REMOVE_NEWS = gql`
   mutation BtkRemoveNews($id: String!) {
     btkRemoveNews(_id: $id) {

@@ -7,6 +7,7 @@ export const BTK_GET_NEWS = gql`
       name
       coverImage
       title
+      verificationStatus
       location {
         address
         city
@@ -89,7 +90,7 @@ export const BTK_GET_COMPANY = gql`
         youtube
         website
       }
-      isVerified
+      verificationStatus
     }
   }
 `;

@@ -3,11 +3,19 @@ export interface INews {
   content: string;
   title: string;
   name: string;
+  companyId?: string;
   coverImage?: string;
   video?: string;
   logo?: string;
   images?: string[];
   location?: INewsLocation;
+  verificationStatus?: string;
+}
+
+export interface ICompany {
+  _id: string;
+  name: string;
+  logo: string;
 }
 
 export interface INewsLocation {
@@ -27,7 +35,8 @@ export interface INewsPrice {
 
 export interface INewsDetail extends INews {
   isPublished: boolean;
-  status: 'verified' | 'unverified' | 'pending';
+  verificationStatus: 'pending' | 'need_info' | 'approved' | 'rejected' | 'violation';
+  status: string;
   description: string;
   logo: string;
   images: string[];

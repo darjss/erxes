@@ -1,8 +1,25 @@
-import { Badge, Spinner, cn } from 'erxes-ui';
+import { Spinner, cn } from 'erxes-ui';
 import { useNewsDetail } from '../hooks/useNewsDetail';
-import { IconClockFilled, IconShieldFilled } from '@tabler/icons-react';
+import { IconClockFilled } from '@tabler/icons-react';
 import { NewsDetailName } from './NewsDetailName';
 import { NewsDetailActions } from '~/modules/news/components/NewsDetailActions';
+
+const STATUS_CONFIG: Record<string, { label: string; className: string }> = {
+  pending:    { label: 'Шалгаж байна',             className: 'bg-yellow-100 text-yellow-800' },
+  need_info:  { label: 'Нэмэлт мэдээлэл',          className: 'bg-blue-100 text-blue-800' },
+  approved:   { label: 'Зөвшөөрөгдсөн',            className: 'bg-green-100 text-green-800' },
+  rejected:   { label: 'Зөвшөөрөгдөөгүй',          className: 'bg-red-100 text-red-800' },
+  violation:  { label: 'Дүрэм зөрчсөн',            className: 'bg-orange-100 text-orange-800' },
+};
+
+export const VerificationStatusBadge = ({ status }: { status?: string }) => {
+  const config = STATUS_CONFIG[status || 'pending'] || STATUS_CONFIG['pending'];
+  return (
+    <span className={cn('inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium', config.className)}>
+      {config.label}
+    </span>
+  );
+};
 
 export const NewsDetailProfile = () => {
   const { news, loading } = useNewsDetail();
@@ -14,17 +31,7 @@ export const NewsDetailProfile = () => {
       <div className="p-8 space-y-3">
         <div className="flex items-center gap-3">
           <NewsDetailName id={news?._id || ''} name={news?.name || ''} />
-          <Badge
-            variant={news?.status === 'verified' ? 'default' : 'secondary'}
-          >
-            <IconShieldFilled
-              className={cn(
-                'size-3.5',
-                news?.status !== 'verified' && 'text-accent-foreground',
-              )}
-            />
-            {news?.status}
-          </Badge>
+          <VerificationStatusBadge status={news?.verificationStatus} />
         </div>
         <div className="flex items-center gap-2 text-accent-foreground">
           <IconClockFilled className="size-4" />

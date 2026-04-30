@@ -18,9 +18,11 @@ export const types = `
   }
 
   enum BtkAdminNewsVerificationStatus {
-    verified
-    unverified
     pending
+    need_info
+    approved
+    rejected
+    violation
   }
   enum BtkAdminNewsStatus {
     planned

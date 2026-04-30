@@ -4,6 +4,7 @@ export const BTK_GET_COMPANY_INFO = gql`
   query BtkAdminCompanyInfo($_id: String) {
     btkAdminCompanyInfo(_id: $_id) {
       _id
+      entityId
       name
       description
       about
@@ -23,7 +24,7 @@ export const BTK_GET_COMPANY_INFO = gql`
         youtube
         website
       }
-      isVerified
+      verificationStatus
     }
   }
 `;
@@ -33,7 +34,10 @@ export const BTK_GET_COMPANIES = gql`
     btkAdminCompanies {
       _id
       name
+      logo
       coverImage
+      address
+      verificationStatus
     }
   }
 `;

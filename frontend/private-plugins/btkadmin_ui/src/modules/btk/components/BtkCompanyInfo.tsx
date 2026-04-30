@@ -2,7 +2,8 @@ import { companyInfoSchema } from '@/btk/constants/companyInfoSchema';
 import { useCompanyInfo } from '@/btk/hooks/useCompanyInfo';
 import { useUpdateCompanyInfo } from '@/btk/hooks/useUpdateCompanyInfo';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Form, Input, Select, Textarea, toast } from 'erxes-ui';
+import { useMutation } from '@apollo/client';
+import { Button, Form, Input, Select, Textarea, toast } from 'erxes-ui';
 import { useCallback, useEffect } from 'react';
 import { Path, useForm, UseFormReturn } from 'react-hook-form';
 import { useParams } from 'react-router-dom';
@@ -15,6 +16,66 @@ import { SOCIAL_LINKS } from '../constants/socialLinks';
 import { BtkEditorField } from './BtkEditor';
 import { BtkPhones } from './BtkPhones';
 import { UploadImage } from './upload';
+import { VerificationStatusBadge } from './BtkCompanyCard';
+import {
+  BTK_UPDATE_COMPANY_VERIFICATION_STATUS,
+} from '@/btk/graphql/btkMutations';
+import { BTK_GET_COMPANY_INFO } from '@/btk/graphql/btkQueries';
+
+const VERIFICATION_STATUSES = [
+  { value: 'pending', label: 'Шалгаж байна' },
+  { value: 'need_info', label: 'Нэмэлт мэдээлэл хэрэгтэй' },
+  { value: 'approved', label: 'Зөвшөөрөгдсөн' },
+  { value: 'rejected', label: 'Зөвшөөрөгдөөгүй' },
+  { value: 'violation', label: 'Дүрэм зөрчсөн' },
+];
+
+const BtkCompanyVerificationStatus = ({
+  adminId,
+  verificationStatus,
+}: {
+  adminId: string;
+  verificationStatus?: string;
+}) => {
+  const [updateStatus, { loading }] = useMutation(
+    BTK_UPDATE_COMPANY_VERIFICATION_STATUS,
+    {
+      refetchQueries: [
+        { query: BTK_GET_COMPANY_INFO, variables: { _id: adminId } },
+      ],
+    },
+  );
+
+  const handleChange = (value: string) => {
+    updateStatus({
+      variables: { _id: adminId, verificationStatus: value },
+      onError: (error) => {
+        toast({ title: 'Error', description: error.message, variant: 'destructive' });
+      },
+    });
+  };
+
+  return (
+    <div className="flex items-center gap-3 p-4 border rounded-xl bg-accent">
+      <span className="text-sm font-medium text-muted-foreground">Статус:</span>
+      <VerificationStatusBadge status={verificationStatus} />
+      <div className="ml-auto">
+        <Select value={verificationStatus} onValueChange={handleChange} disabled={loading}>
+          <Select.Trigger className="w-52">
+            <Select.Value placeholder="Статус сонгох" />
+          </Select.Trigger>
+          <Select.Content>
+            {VERIFICATION_STATUSES.map((s) => (
+              <Select.Item key={s.value} value={s.value}>
+                {s.label}
+              </Select.Item>
+            ))}
+          </Select.Content>
+        </Select>
+      </div>
+    </div>
+  );
+};
 
 export const BtkCompanyInfo = () => {
   const { id } = useParams();
@@ -22,9 +83,15 @@ export const BtkCompanyInfo = () => {
 
   return (
     <div className="p-6 mx-auto w-full max-w-lg flex flex-col gap-6">
-      <h1 className="text-lg font-bold mb-4">Developer Info</h1>
+      <h1 className="text-lg font-bold">Developer Info</h1>
       {!loading && companyInfo && (
-        <BtkCompanyInfoForm companyInfo={companyInfo} />
+        <>
+          <BtkCompanyVerificationStatus
+            adminId={id || ''}
+            verificationStatus={companyInfo.verificationStatus}
+          />
+          <BtkCompanyInfoForm companyInfo={companyInfo} />
+        </>
       )}
     </div>
   );
@@ -33,7 +100,7 @@ export const BtkCompanyInfo = () => {
 export const BtkCompanyInfoForm = ({
   companyInfo,
 }: {
-  companyInfo: z.infer<typeof companyInfoSchema>;
+  companyInfo: z.infer<typeof companyInfoSchema> & { _id?: string; entityId?: string };
 }) => {
   const getDefaultValues = useCallback(() => {
     return {
@@ -68,7 +135,7 @@ export const BtkCompanyInfoForm = ({
     resolver: zodResolver(companyInfoSchema),
     defaultValues: getDefaultValues(),
   });
-  const { updateCompanyInfo } = useUpdateCompanyInfo();
+  const { updateCompanyInfo } = useUpdateCompanyInfo(companyInfo._id);
 
   useEffect(() => {
     if (companyInfo) {
@@ -77,9 +144,11 @@ export const BtkCompanyInfoForm = ({
   }, [companyInfo, form, getDefaultValues]);
 
   const onSubmit = (data: z.infer<typeof companyInfoSchema>) => {
+    const { _id: _, ...input } = data;
     updateCompanyInfo({
       variables: {
-        input: data,
+        _id: companyInfo.entityId,
+        input,
       },
       onCompleted: () => {
         toast({
@@ -187,28 +256,78 @@ export const BtkCompanyInfoForm = ({
         <Form.Field
           name="dateFounded"
           control={form.control}
-          render={({ field }) => (
-            <Form.Item>
-              <Form.Label>Date Founded</Form.Label>
-              <Form.Control>
-                <Select value={field.value} onValueChange={field.onChange}>
-                  <Select.Trigger>
-                    <Select.Value placeholder="Select date" />
-                  </Select.Trigger>
-                  <Select.Content>
-                    {Array.from({ length: 100 }).map((_, index) => (
-                      <Select.Item
-                        value={`${new Date().getFullYear() - index}-${
-                          index + 1
-                        }`}
-                      >{`${new Date().getFullYear() - index}`}</Select.Item>
-                    ))}
-                  </Select.Content>
-                </Select>
-              </Form.Control>
-              <Form.Message />
-            </Form.Item>
-          )}
+          render={({ field }) => {
+            const dateStr = field.value?.split('T')[0] || '';
+            const parts = dateStr.split('-');
+            const year = parts[0] || '';
+            const month = parts[1] ? String(parseInt(parts[1])) : '';
+            const day = parts[2] ? String(parseInt(parts[2])) : '';
+            const daysInMonth =
+              year && month
+                ? new Date(parseInt(year), parseInt(month), 0).getDate()
+                : 31;
+            return (
+              <Form.Item className="col-span-2">
+                <Form.Label>Date Founded</Form.Label>
+                <div className="flex gap-1">
+                  <div className="flex-1">
+                    <Select value={year} onValueChange={(y) => field.onChange(y)}>
+                      <Select.Trigger className="w-full">
+                        <Select.Value placeholder="Он" />
+                      </Select.Trigger>
+                      <Select.Content>
+                        {Array.from({ length: 100 }).map((_, i) => {
+                          const y = `${new Date().getFullYear() - i}`;
+                          return <Select.Item key={y} value={y}>{y}</Select.Item>;
+                        })}
+                      </Select.Content>
+                    </Select>
+                  </div>
+                  <div className="flex-1">
+                    <Select
+                      value={month}
+                      onValueChange={(m) => field.onChange(`${year}-${m.padStart(2, '0')}`)}
+                      disabled={!year}
+                    >
+                      <Select.Trigger className="w-full">
+                        <Select.Value placeholder="Сар" />
+                      </Select.Trigger>
+                      <Select.Content>
+                        {Array.from({ length: 12 }).map((_, i) => (
+                          <Select.Item key={i + 1} value={`${i + 1}`}>
+                            {i + 1}-р сар
+                          </Select.Item>
+                        ))}
+                      </Select.Content>
+                    </Select>
+                  </div>
+                  <div className="flex-1">
+                    <Select
+                      value={day}
+                      onValueChange={(d) =>
+                        field.onChange(
+                          `${year}-${month.padStart(2, '0')}-${d.padStart(2, '0')}`,
+                        )
+                      }
+                      disabled={!month}
+                    >
+                      <Select.Trigger className="w-full">
+                        <Select.Value placeholder="Өдөр" />
+                      </Select.Trigger>
+                      <Select.Content>
+                        {Array.from({ length: daysInMonth }).map((_, i) => (
+                          <Select.Item key={i + 1} value={`${i + 1}`}>
+                            {i + 1}
+                          </Select.Item>
+                        ))}
+                      </Select.Content>
+                    </Select>
+                  </div>
+                </div>
+                <Form.Message />
+              </Form.Item>
+            );
+          }}
         />
         <Form.Field
           name="description"
@@ -303,6 +422,11 @@ export const BtkCompanyInfoForm = ({
               )}
             />
           ))}
+        </div>
+        <div className="col-span-2 flex gap-2 justify-end">
+          <Button type="submit" disabled={!form.formState.isDirty}>
+            Save
+          </Button>
         </div>
       </form>
     </Form>

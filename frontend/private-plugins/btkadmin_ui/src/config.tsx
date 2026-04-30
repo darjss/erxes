@@ -10,6 +10,7 @@ const BtkAdminNavigation = lazy(() =>
 
 export const CONFIG: IUIConfig = {
   name: 'btkadmin',
+  path: 'btkadmin',
   modules: [
     {
       name: 'btkadmin',

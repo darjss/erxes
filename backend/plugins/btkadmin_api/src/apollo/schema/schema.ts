@@ -1,6 +1,7 @@
 import {
   queries as NewsQueries,
   types as NewsTypes,
+  mutations as NewsMutations,
 } from '~/modules/news/graphql/schemas/news';
 
 import {
@@ -21,6 +22,7 @@ import {
 import {
   queries as CompanyQueries,
   types as CompanyTypes,
+  mutations as CompanyMutations,
 } from '~/modules/company/graphql/schemas/company';
 
 import {
@@ -68,6 +70,8 @@ export const queries = `
 
 export const mutations = `
   ${SubmissionMutations}
+  ${CompanyMutations}
+  ${NewsMutations}
   `;
 
 export default { types, queries, mutations };
