@@ -22,7 +22,15 @@ export const types = `
     coverImage: String
     phones: [String]
     socialLinks: CompanySocialLink
-    isVerified: Boolean
+    verificationStatus: String
+  }
+
+  enum CompanyVerificationStatus {
+    pending
+    need_info
+    approved
+    rejected
+    violation
   }
 
   input CompanySocialLinkInput {

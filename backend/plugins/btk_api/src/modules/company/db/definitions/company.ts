@@ -35,6 +35,10 @@ export const companySchema = new Schema<ICompanyDocument>({
   primaryPhone: { type: String },
   phones: { type: [String] },
   socialLinks: { type: CompanySocialLinkSchema },
-  isVerified: { type: Boolean, default: false },
+  verificationStatus: {
+    type: String,
+    enum: ['pending', 'need_info', 'approved', 'rejected', 'violation'],
+    default: 'pending',
+  },
   coverImage: { type: String },
 });

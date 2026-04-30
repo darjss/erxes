@@ -9,6 +9,7 @@ export const BTK_GET_NEWS = gql`
       logo
       createdAt
       updatedAt
+      verificationStatus
       location {
         address
         city

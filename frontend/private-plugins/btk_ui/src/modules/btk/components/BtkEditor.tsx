@@ -1,31 +1,30 @@
-import type React from 'react';
 import { Form, Editor } from 'erxes-ui';
-import { Control, UseFormSetValue } from 'react-hook-form';
+import { Control, FieldValues, Path, UseFormSetValue } from 'react-hook-form';
 import { Block } from '@blocknote/core';
-import { companyInfoSchema } from '../constants/companyInfoSchema';
-import { z } from 'zod';
 
-interface BtkEditorFieldProps {
-  control: Control<z.infer<typeof companyInfoSchema>>;
-  setValue: UseFormSetValue<z.infer<typeof companyInfoSchema>>;
-  name: keyof z.infer<typeof companyInfoSchema>;
+interface BtkEditorFieldProps<T extends FieldValues> {
+  control: Control<T>;
+  setValue: UseFormSetValue<T>;
+  name: Path<T>;
   label: string;
   initialContent?: string;
+  editorClassName?: string;
 }
 
-export const BtkEditorField: React.FC<BtkEditorFieldProps> = ({
+export const BtkEditorField = <T extends FieldValues>({
   control,
   setValue,
   name,
   label,
   initialContent,
-}) => {
+  editorClassName,
+}: BtkEditorFieldProps<T>) => {
   const handleEditorChange = async (value: string, editorInstance?: any) => {
     try {
       const btks: Block[] = JSON.parse(value);
       if (editorInstance?.btksToHTMLLossy) {
         const htmlContent = await editorInstance.btksToHTMLLossy(btks);
-        setValue(name, htmlContent);
+        setValue(name, htmlContent as any);
       } else {
         const htmlContent = btks
           .map((btk: Block) => {
@@ -47,7 +46,7 @@ export const BtkEditorField: React.FC<BtkEditorFieldProps> = ({
           .filter(Boolean)
           .join('');
 
-        setValue(name, htmlContent, {
+        setValue(name, htmlContent as any, {
           shouldDirty: true,
           shouldTouch: true,
           shouldValidate: false,
@@ -62,7 +61,7 @@ export const BtkEditorField: React.FC<BtkEditorFieldProps> = ({
         hasBtksToHTMLLossy: !!editorInstance?.btksToHTMLLossy,
       });
 
-      setValue(name as keyof z.infer<typeof companyInfoSchema>, '', {
+      setValue(name, '' as any, {
         shouldDirty: true,
         shouldTouch: true,
         shouldValidate: false,
@@ -199,7 +198,7 @@ export const BtkEditorField: React.FC<BtkEditorFieldProps> = ({
   return (
     <Form.Field
       control={control}
-      name={name as keyof z.infer<typeof companyInfoSchema>}
+      name={name}
       render={() => (
         <Form.Item className="col-span-2">
           <Form.Label>{label}</Form.Label>
@@ -207,6 +206,7 @@ export const BtkEditorField: React.FC<BtkEditorFieldProps> = ({
             <Editor
               initialContent={formatInitialContent(initialContent)}
               onChange={handleEditorChange}
+              className={editorClassName}
             />
           </Form.Control>
           <Form.Description>

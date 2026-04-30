@@ -4,14 +4,14 @@ import { IModels } from '~/connectionResolvers';
 
 export const generateFilter = async (
   params: CompanyQueryParams,
-  models: IModels,
+  _models: IModels,
 ) => {
-  const { searchValue, isVerified, location } = params;
+  const { searchValue, verificationStatus, location } = params;
 
   const filter: FilterQuery<IBtkCompanyDocument> = {};
 
-  if (isVerified) {
-    filter.isVerified = isVerified;
+  if (verificationStatus) {
+    filter.verificationStatus = verificationStatus;
   }
 
   if (searchValue) {

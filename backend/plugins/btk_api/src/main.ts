@@ -3,10 +3,12 @@ import { typeDefs } from '~/apollo/typeDefs';
 import { wrapMutationResolver } from '~/modules/admin/utils';
 import resolvers from './apollo/resolvers';
 import { generateModels } from './connectionResolvers';
+import { router } from './routes';
 
 startPlugin({
   name: 'btk',
   port: 33013,
+
   graphql: async () => ({
     typeDefs: await typeDefs(),
     resolvers: {
@@ -21,4 +23,5 @@ startPlugin({
 
     return context;
   },
+  expressRouter: router,
 });

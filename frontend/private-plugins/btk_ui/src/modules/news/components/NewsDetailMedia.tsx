@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { InfoCard, InfoCardContent } from '@/btk/components/card';
 import {
   Upload,
@@ -28,7 +28,7 @@ export const NewsDetailMedia = () => {
     <div className="p-8 blk:lg:grid-cols-2 grid gap-6">
       <NewsCompanySelect />
       <NewsDetailAmenities />
-      <NewsImage field="coverImage" />
+      {/* <NewsImage field="coverImage" /> */}
       <NewsImages field="images" />
       <NewsVideo />
       <NewsDetailText />
@@ -158,7 +158,8 @@ export const NewsImage = ({ field }: { field: 'coverImage' | 'logo' }) => {
           <UploadButton value={imageValue} />
           <RemoveButton value={imageValue} />
         </div>
-      </UploadProvider>
+      </UploadProvider>const NewsDetailMedia: () => JSX.Element
+
     </UploadCard>
   );
 };
@@ -166,6 +167,7 @@ export const NewsImage = ({ field }: { field: 'coverImage' | 'logo' }) => {
 export const NewsDetailText = () => {
   const { news } = useNewsDetail();
   const { updateNewsGeneralInfo } = useUpdateNewsGeneralInfo();
+  const [showAll, setShowAll] = React.useState(false);
 
   const form = useForm<z.infer<typeof btkNewsSchema>>({
     defaultValues: {
@@ -182,13 +184,25 @@ export const NewsDetailText = () => {
     <InfoCard title="News Text">
       <InfoCardContent className="space-y-4">
         <Form {...form}>
-          <BtkEditorField
-            control={form.control}
-            setValue={form.setValue}
-            name="content"
-            label="Content"
-            initialContent={news?.content || ''}
-          />
+          <div className="relative">
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="absolute top-0 right-0 h-auto p-0 text-xs text-primary z-10"
+              onClick={() => setShowAll((v) => !v)}
+            >
+              {showAll ? 'Show less' : 'Show all'}
+            </Button>
+            <BtkEditorField
+              control={form.control}
+              setValue={form.setValue}
+              name="content"
+              label="Content"
+              initialContent={news?.content || ''}
+              editorClassName={showAll ? 'h-auto' : 'min-h-56'}
+            />
+          </div>
           <Button type="button" className="mt-2" onClick={saveContent}>
             Save Content
           </Button>
@@ -405,8 +419,7 @@ export const NewsDetailAmenities = () => {
   }, [open, isChanged, newsAmenities, news?._id, updateNewsGeneralInfo]);
 
   return (
-    <div className="p-8 grid-cols-2 grid gap-6">
-      <InfoCard title="CATEGORY" description="Amenities" className="col-span-2">
+    <InfoCard title="CATEGORY" description="Amenities">
         <InfoCardContent>
           <div className="space-y-2">
             <Popover open={open} onOpenChange={setOpen}>
@@ -478,6 +491,5 @@ export const NewsDetailAmenities = () => {
           </div>
         </InfoCardContent>
       </InfoCard>
-    </div>
   );
 };

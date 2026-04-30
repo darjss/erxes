@@ -1,9 +1,9 @@
 import { IconMapPinFilled, IconPhotoCirclePlus } from '@tabler/icons-react';
-import { Slider } from 'erxes-ui';
 import { Link } from 'react-router-dom';
 import { INews } from '../types/newsTypes';
+import { VerificationStatusBadge } from './NewsDetailProfile';
 
-export const NewsCard = ({ name, _id, coverImage, location }: INews) => {
+export const NewsCard = ({ name, _id, coverImage, location, verificationStatus }: INews) => {
   return (
     <Link
       to={`/btkadmin/news/${_id}`}
@@ -22,7 +22,10 @@ export const NewsCard = ({ name, _id, coverImage, location }: INews) => {
         <div className="absolute inset-0 border border-foreground/10 rounded-xl" />
       </div>
       <div className="p-3 pt-0 space-y-2">
-        <h3 className="font-medium text-lg leading-6">{name}</h3>
+        <div className="flex items-center justify-between gap-2">
+          <h3 className="font-medium text-lg leading-6">{name}</h3>
+          <VerificationStatusBadge status={verificationStatus} />
+        </div>
         <div className="flex items-center gap-2 text-accent-foreground">
           <IconMapPinFilled className=" size-4" />
           <p className="text-sm">
@@ -33,10 +36,7 @@ export const NewsCard = ({ name, _id, coverImage, location }: INews) => {
               : 'No address'}
           </p>
         </div>
-        <div className="flex items-center gap-2">
-          <Slider value={[100]} max={100} hideThumb />
-          <p className="text-sm ml-1 text-accent-foreground font-medium">85%</p>
-        </div>
+
       </div>
     </Link>
   );

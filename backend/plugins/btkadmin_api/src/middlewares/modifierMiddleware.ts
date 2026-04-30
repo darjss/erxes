@@ -22,7 +22,7 @@ export const modifierMiddleware = (
 
     const BTK_DOMAIN = BTK_API_URL.replace('<subdomain>', subdomain);
 
-    if (IMAGE_FIELDS.some((image_field) => input.hasOwnProperty(image_field))) {
+    if (input && IMAGE_FIELDS.some((image_field) => input.hasOwnProperty(image_field))) {
       for (const field of IMAGE_FIELDS) {
         if (!Object.prototype.hasOwnProperty.call(input, field)) continue;
 

@@ -10,6 +10,7 @@ const BtkNavigation = lazy(() =>
 
 export const CONFIG: IUIConfig = {
   name: 'btk',
+  path: 'btk',
   modules: [
     {
       name: 'btk',

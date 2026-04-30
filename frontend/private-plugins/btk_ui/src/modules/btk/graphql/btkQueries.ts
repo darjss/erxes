@@ -23,7 +23,7 @@ export const BTK_GET_COMPANY_INFO = gql`
         youtube
         website
       }
-      isVerified
+      verificationStatus
     }
   }
 `;
@@ -42,6 +42,9 @@ export const BTK_GET_COMPANIES = gql`
     getCompanyCompanies {
       _id
       name
+      coverImage
+      address
+      verificationStatus
     }
   }
 `;

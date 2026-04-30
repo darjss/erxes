@@ -10,6 +10,6 @@ export const newsQueries = {
     _args: undefined,
     { models }: IContext,
   ) => {
-    return models.News.getAllNews();
+    return models.News.find({ verificationStatus: 'approved' }).lean();
   },
 };

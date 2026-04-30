@@ -1,4 +1,5 @@
 import { useCompanyInfo } from '@/btk/hooks/useCompanyInfo';
+import { VerificationStatusBadge } from './BtkCompanyCard';
 import { UploadImage } from './upload';
 import { Button, Form, Input, Select, Textarea, toast } from 'erxes-ui';
 import { Path, useForm, UseFormReturn } from 'react-hook-form';
@@ -22,7 +23,12 @@ export const BtkCompanyInfo = () => {
 
   return (
     <div className="p-6 mx-auto w-full max-w-lg flex flex-col gap-6">
-      <h1 className="text-lg font-bold mb-4">Company info</h1>
+      <div className="flex items-center justify-between">
+        <h1 className="text-lg font-bold">Company info</h1>
+        {companyInfo && (
+          <VerificationStatusBadge status={companyInfo.verificationStatus} />
+        )}
+      </div>
       {!loading && companyInfo && (
         <BtkCompanyInfoForm companyInfo={companyInfo} />
       )}
@@ -202,29 +208,78 @@ export const BtkCompanyInfoForm = ({
         <Form.Field
           name="dateFounded"
           control={form.control}
-          render={({ field }) => (
-            <Form.Item>
-              <Form.Label>Date Founded</Form.Label>
-              <Form.Control>
-                <Select value={field.value} onValueChange={field.onChange}>
-                  <Select.Trigger>
-                    <Select.Value placeholder="Select date" />
-                  </Select.Trigger>
-                  <Select.Content>
-                    {Array.from({ length: 100 }).map((_, index) => (
-                      <Select.Item
-                        key={index}
-                        value={`${new Date().getFullYear() - index}`}
-                      >
-                        {new Date().getFullYear() - index}
-                      </Select.Item>
-                    ))}
-                  </Select.Content>
-                </Select>
-              </Form.Control>
-              <Form.Message />
-            </Form.Item>
-          )}
+          render={({ field }) => {
+            const dateStr = field.value?.split('T')[0] || '';
+            const parts = dateStr.split('-');
+            const year = parts[0] || '';
+            const month = parts[1] ? String(parseInt(parts[1])) : '';
+            const day = parts[2] ? String(parseInt(parts[2])) : '';
+            const daysInMonth =
+              year && month
+                ? new Date(parseInt(year), parseInt(month), 0).getDate()
+                : 31;
+            return (
+              <Form.Item className="col-span-2">
+                <Form.Label>Date Founded</Form.Label>
+                <div className="flex gap-1">
+                  <div className="flex-1">
+                    <Select value={year} onValueChange={(y) => field.onChange(y)}>
+                      <Select.Trigger className="w-full">
+                        <Select.Value placeholder="Он" />
+                      </Select.Trigger>
+                      <Select.Content>
+                        {Array.from({ length: 100 }).map((_, i) => {
+                          const y = `${new Date().getFullYear() - i}`;
+                          return <Select.Item key={y} value={y}>{y}</Select.Item>;
+                        })}
+                      </Select.Content>
+                    </Select>
+                  </div>
+                  <div className="flex-1">
+                    <Select
+                      value={month}
+                      onValueChange={(m) => field.onChange(`${year}-${m.padStart(2, '0')}`)}
+                      disabled={!year}
+                    >
+                      <Select.Trigger className="w-full">
+                        <Select.Value placeholder="Сар" />
+                      </Select.Trigger>
+                      <Select.Content>
+                        {Array.from({ length: 12 }).map((_, i) => (
+                          <Select.Item key={i + 1} value={`${i + 1}`}>
+                            {i + 1}-р сар
+                          </Select.Item>
+                        ))}
+                      </Select.Content>
+                    </Select>
+                  </div>
+                  <div className="flex-1">
+                    <Select
+                      value={day}
+                      onValueChange={(d) =>
+                        field.onChange(
+                          `${year}-${month.padStart(2, '0')}-${d.padStart(2, '0')}`,
+                        )
+                      }
+                      disabled={!month}
+                    >
+                      <Select.Trigger className="w-full">
+                        <Select.Value placeholder="Өдөр" />
+                      </Select.Trigger>
+                      <Select.Content>
+                        {Array.from({ length: daysInMonth }).map((_, i) => (
+                          <Select.Item key={i + 1} value={`${i + 1}`}>
+                            {i + 1}
+                          </Select.Item>
+                        ))}
+                      </Select.Content>
+                    </Select>
+                  </div>
+                </div>
+                <Form.Message />
+              </Form.Item>
+            );
+          }}
         />
 
         <Form.Field

@@ -22,7 +22,7 @@ export interface ICompany {
   primaryPhone: string;
   phones: string[];
   socialLinks: ICompanySocialLink;
-  isVerified: boolean;
+  verificationStatus: 'pending' | 'need_info' | 'approved' | 'rejected' | 'violation';
   coverImage: string;
 }
 

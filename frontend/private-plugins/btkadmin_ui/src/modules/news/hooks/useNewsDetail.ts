@@ -3,8 +3,9 @@ import {
   BTK_GET_NEWS_DETAIL,
   BTK_GET_NEWS_MEMBERS,
 } from '../graphql/newsQueries';
-import { INewsDetail, INewsMember } from '../types/newsTypes';
+import { INewsDetail, INewsMember, ICompany } from '../types/newsTypes';
 import { useParams } from 'react-router-dom';
+import { BTK_GET_COMPANIES } from '~/modules/btk/graphql/btkQueries';
 
 export const useNewsDetail = () => {
   const { id } = useParams();
@@ -13,6 +14,13 @@ export const useNewsDetail = () => {
     { variables: { id } },
   );
   return { news: data?.btkAdminGetNews, loading };
+};
+
+export const useCompany = () => {
+  const { data, loading } = useQuery<{ btkAdminCompanies: ICompany[] }>(
+    BTK_GET_COMPANIES,
+  );
+  return { companies: data?.btkAdminCompanies || [], loading };
 };
 
 export const useNewsMembers = () => {

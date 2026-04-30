@@ -8,6 +8,7 @@ export interface INews {
   logo?: string;
   images?: string[];
   location?: INewsLocation;
+  verificationStatus?: string;
 }
 
 export interface INewsLocation {
@@ -21,7 +22,8 @@ export interface INewsLocation {
 
 export interface INewsDetail extends INews {
   isPublished: boolean;
-  status: 'verified' | 'unverified' | 'pending';
+  verificationStatus: 'pending' | 'need_info' | 'approved' | 'rejected' | 'violation';
+  status: string;
   description: string;
   logo: string;
   images: string[];
@@ -64,7 +66,7 @@ export interface ICompany {
     youtube: string;
     website: string;
   };
-  isVerified: boolean;
+  verificationStatus: string;
 }
 
 export interface INewsMember {

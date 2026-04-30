@@ -18,9 +18,19 @@ export const types = `
   }
 
   enum btkAdminAdminNewsVerificationStatus {
-    verified
-    unverified
     pending
+    need_info
+    approved
+    rejected
+    violation
+  }
+
+  enum NewsVerificationStatus {
+    pending
+    need_info
+    approved
+    rejected
+    violation
   }
   enum btkAdminAdminNewsStatus {
     planned
@@ -66,4 +76,11 @@ export const types = `
 export const queries = `
   btkAdminGetNews(_id: String!): btkAdminNews
   btkAdminGetAllNews: [btkAdminNews]
+`;
+
+export const mutations = `
+  btkAdminUpdateNewsVerificationStatus(
+    _id: String!
+    verificationStatus: NewsVerificationStatus!
+  ): btkAdminNews
 `;

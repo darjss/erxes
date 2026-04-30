@@ -24,7 +24,7 @@ export interface IBtkCompany extends IBtk {
   primaryPhone: string;
   phones: string[];
   socialLinks: IBtkCompanySocialLink;
-  isVerified: boolean;
+  verificationStatus: 'pending' | 'need_info' | 'approved' | 'rejected' | 'violation';
   coverImage: string;
 }
 
@@ -36,6 +36,6 @@ export interface IBtkCompanyDocument extends IBtkCompany, Document {
 
 export interface CompanyQueryParams {
   searchValue?: string;
-  isVerified?: string;
+  verificationStatus?: string;
   location?: IAddress;
 }
