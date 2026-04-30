@@ -1,42 +1,40 @@
-import { IconSandbox } from '@tabler/icons-react';
+import { IconCarSuv } from '@tabler/icons-react';
 import { lazy, Suspense } from 'react';
 import { IUIConfig } from 'erxes-ui';
 
-const CarSettingsNavigation = lazy(() =>
-  import('@/CarSettingsNavigation').then((module) => ({
-    default: module.CarSettingsNavigation,
-  })),
-);
-
-const CarNavigation = lazy(() =>
-  import('@/CarNavigation').then((module) => ({
-    default: module.CarNavigation,
+const MainNavigation = lazy(() =>
+  import('./modules/MainNavigation').then((module) => ({
+    default: module.MainNavigation,
   })),
 );
 
 export const CONFIG: IUIConfig = {
   name: 'car',
   path: 'car',
-  settingsNavigation: () => (
-    <Suspense fallback={<div />}>
-      <CarSettingsNavigation />
-    </Suspense>
-  ),
   navigationGroup: {
     name: 'car',
-    icon: IconSandbox,
+    icon: IconCarSuv,
     content: () => (
       <Suspense fallback={<div />}>
-        <CarNavigation />
+        <MainNavigation />
       </Suspense>
     ),
   },
-
   modules: [
     {
       name: 'car',
-      icon: IconSandbox,
+      icon: IconCarSuv,
       path: 'car',
+      hasRelationWidget: true,
+      hasSegmentConfigWidget: true,
     },
   ],
+  widgets: {
+    relationWidgets: [
+      {
+        name: 'car',
+        icon: IconCarSuv,
+      },
+    ],
+  },
 };

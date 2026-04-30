@@ -7,7 +7,11 @@ export const Widgets = ({
   contentId: string;
   contentType: string;
 }) => {
-  return <div>car Widget</div>;
+  void module;
+  void contentId;
+  void contentType;
+
+  return null;
 };
 
 export default Widgets;

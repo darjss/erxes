@@ -15,19 +15,8 @@
         ]
       },
       "dependsOn": [
-        "^build",
-        "build:packageJson"
+        "^build"
       ]
-    },
-    "build:packageJson": {
-      "executor": "@nx/js:tsc",
-      "options": {
-        "main": "backend/plugins/car_api/dist/src/main.js",
-        "tsConfig": "backend/plugins/car_api/tsconfig.build.json",
-        "outputPath": "backend/plugins/car_api/dist",
-        "updateBuildableProjectDepsInPackageJson": true,
-        "buildableProjectDepsInPackageJsonType": "dependencies"
-      }
     },
     "start": {
       "executor": "nx:run-commands",
@@ -45,6 +34,19 @@
       "options": {
         "cwd": "backend/plugins/car_api",
         "command": "NODE_ENV=development pnpm dev"
+      }
+    },
+    "test": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "backend/plugins/car_api",
+        "command": "pnpm exec jest --config jest.config.ts --runInBand"
+      }
+    },
+    "lint": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "pnpm exec eslint backend/plugins/car_api"
       }
     },
     "docker-build": {

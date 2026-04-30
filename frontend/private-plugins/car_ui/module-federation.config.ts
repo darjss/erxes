@@ -16,9 +16,11 @@ const config: ModuleFederationConfig = {
   name: 'car_ui',
   exposes: {
     './config': './src/config.tsx',
-    './car': './src/modules/carMain.tsx',
-    './carSettings': './src/modules/carSettings.tsx',
+    './car': './src/modules/Main.tsx',
     './widgets': './src/widgets/Widgets.tsx',
+    './relationWidget': './src/widgets/relation/RelationWidgets.tsx',
+    './notificationWidget':
+      './src/widgets/notifications/NotificationWidget.tsx',
   },
 
   shared: (libraryName, defaultConfig) => {
