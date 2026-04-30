@@ -24,7 +24,7 @@ export const sendSupplierStatusToSupplier = async ({
     ? SUPPLIER_API_URL
     : SUPPLIER_API_URL.replace('<subdomain>', subdomain);
 
-  const API_ENDPOINT = `${SUPPLIER_DOMAIN}/pl:supplier/webhook/supplier`;
+  const API_ENDPOINT = `${SUPPLIER_DOMAIN}/webhook/supplier`;
 
   const body = JSON.stringify({
     subdomain,

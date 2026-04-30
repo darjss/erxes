@@ -25,7 +25,7 @@ export const sendMessageToSupplier = async ({
     ? SUPPLIER_API_URL
     : SUPPLIER_API_URL.replace('<subdomain>', subdomain);
 
-  const API_ENDPOINT = `${SUPPLIER_DOMAIN}/pl:supplier/webhook/mushop/submission`;
+  const API_ENDPOINT = `${SUPPLIER_DOMAIN}/webhook/mushop/submission`;
 
   try {
     const body = JSON.stringify({
