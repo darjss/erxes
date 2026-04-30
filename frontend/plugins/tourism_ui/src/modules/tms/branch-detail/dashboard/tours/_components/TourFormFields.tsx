@@ -1,4 +1,9 @@
-import { Control, useFieldArray } from 'react-hook-form';
+import {
+  Control,
+  FieldPath,
+  FieldPathByValue,
+  useFieldArray,
+} from 'react-hook-form';
 import {
   Form,
   Input,
@@ -12,7 +17,7 @@ import {
   Label,
   Badge,
 } from 'erxes-ui';
-import { TourCreateFormType } from '../constants/formSchema';
+import { TourFormValues } from '../constants/formSchema';
 import {
   IconPlus,
   IconTrash,
@@ -21,6 +26,7 @@ import {
 } from '@tabler/icons-react';
 import { useState } from 'react';
 import { useAtomValue } from 'jotai';
+import { nanoid } from 'nanoid';
 import { SelectItinerary } from '../../itinerary/_components/SelectItinerary';
 import { ImageUploadGrid } from '../../../components';
 import { SelectTourCategory } from './SelectTourCategory';
@@ -28,19 +34,28 @@ import { toOptionalString, toOptionalNumber } from '../utils/fieldConverters';
 import { LANGUAGES } from '@/tms/constants/languages';
 import { activeLangAtom } from '@/tms/atoms/activeLangAtom';
 
+type TourTextFieldPath = FieldPathByValue<TourFormValues, string | undefined>;
+
+interface TourTextFieldProps {
+  control: Control<TourFormValues>;
+  name?: TourTextFieldPath;
+  labelSuffix?: string;
+}
+
 export const TourNameField = ({
   control,
-}: {
-  control: Control<TourCreateFormType>;
-}) => {
+  name = 'name',
+  labelSuffix = '',
+}: TourTextFieldProps) => {
   return (
     <Form.Field
       control={control}
-      name="name"
+      name={name}
       render={({ field }) => (
         <Form.Item>
           <Form.Label>
-            Name <span className="text-destructive">*</span>
+            Name<span className="text-primary">{labelSuffix}</span>{' '}
+            <span className="text-destructive">*</span>
           </Form.Label>
           <Form.Control>
             <Input placeholder="Tour name" {...field} />
@@ -54,17 +69,18 @@ export const TourNameField = ({
 
 export const TourRefNumberField = ({
   control,
-}: {
-  control: Control<TourCreateFormType>;
-}) => {
+  name = 'refNumber',
+  labelSuffix = '',
+}: TourTextFieldProps) => {
   return (
     <Form.Field
       control={control}
-      name="refNumber"
+      name={name}
       render={({ field }) => (
         <Form.Item>
           <Form.Label>
-            Ref Number <span className="text-destructive">*</span>
+            Ref Number<span className="text-primary">{labelSuffix}</span>{' '}
+            <span className="text-destructive">*</span>
           </Form.Label>
           <Form.Control>
             <Input placeholder="Ref number" {...field} />
@@ -84,7 +100,7 @@ const TOUR_STATUS_OPTIONS = [
 export const TourStatusField = ({
   control,
 }: {
-  control: Control<TourCreateFormType>;
+  control: Control<TourFormValues>;
 }) => {
   return (
     <Form.Field
@@ -123,16 +139,18 @@ export const TourStatusField = ({
 
 export const TourDescriptionField = ({
   control,
-}: {
-  control: Control<TourCreateFormType>;
-}) => {
+  name = 'content',
+  labelSuffix = '',
+}: TourTextFieldProps) => {
   return (
     <Form.Field
       control={control}
-      name="content"
+      name={name}
       render={({ field }) => (
         <Form.Item>
-          <Form.Label>Content</Form.Label>
+          <Form.Label>
+            Content<span className="text-primary">{labelSuffix}</span>{' '}
+          </Form.Label>
           <Form.Control>
             <Editor
               initialContent={field.value}
@@ -150,7 +168,7 @@ export const TourDescriptionField = ({
 export const TourDurationField = ({
   control,
 }: {
-  control: Control<TourCreateFormType>;
+  control: Control<TourFormValues>;
 }) => {
   return (
     <Form.Field
@@ -172,7 +190,7 @@ export const TourDurationField = ({
 export const TourGroupSizeField = ({
   control,
 }: {
-  control: Control<TourCreateFormType>;
+  control: Control<TourFormValues>;
 }) => {
   return (
     <Form.Field
@@ -193,13 +211,12 @@ export const TourGroupSizeField = ({
 
 export const TourInfo1Field = ({
   control,
-}: {
-  control: Control<TourCreateFormType>;
-}) => {
+  name = 'info1',
+}: Omit<TourTextFieldProps, 'labelSuffix'>) => {
   return (
     <Form.Field
       control={control}
-      name="info1"
+      name={name}
       render={({ field }) => (
         <Form.Item>
           <Form.Control>
@@ -218,13 +235,12 @@ export const TourInfo1Field = ({
 
 export const TourInfo2Field = ({
   control,
-}: {
-  control: Control<TourCreateFormType>;
-}) => {
+  name = 'info2',
+}: Omit<TourTextFieldProps, 'labelSuffix'>) => {
   return (
     <Form.Field
       control={control}
-      name="info2"
+      name={name}
       render={({ field }) => (
         <Form.Item>
           <Form.Control>
@@ -243,13 +259,12 @@ export const TourInfo2Field = ({
 
 export const TourInfo3Field = ({
   control,
-}: {
-  control: Control<TourCreateFormType>;
-}) => {
+  name = 'info3',
+}: Omit<TourTextFieldProps, 'labelSuffix'>) => {
   return (
     <Form.Field
       control={control}
-      name="info3"
+      name={name}
       render={({ field }) => (
         <Form.Item>
           <Form.Control>
@@ -268,13 +283,12 @@ export const TourInfo3Field = ({
 
 export const TourInfo4Field = ({
   control,
-}: {
-  control: Control<TourCreateFormType>;
-}) => {
+  name = 'info4',
+}: Omit<TourTextFieldProps, 'labelSuffix'>) => {
   return (
     <Form.Field
       control={control}
-      name="info4"
+      name={name}
       render={({ field }) => (
         <Form.Item>
           <Form.Control>
@@ -293,13 +307,12 @@ export const TourInfo4Field = ({
 
 export const TourInfo5Field = ({
   control,
-}: {
-  control: Control<TourCreateFormType>;
-}) => {
+  name = 'info5',
+}: Omit<TourTextFieldProps, 'labelSuffix'>) => {
   return (
     <Form.Field
       control={control}
-      name="info5"
+      name={name}
       render={({ field }) => (
         <Form.Item>
           <Form.Description>
@@ -322,7 +335,7 @@ export const TourInfo5Field = ({
 export const TourAdvanceCheckField = ({
   control,
 }: {
-  control: Control<TourCreateFormType>;
+  control: Control<TourFormValues>;
 }) => {
   return (
     <Form.Field
@@ -345,7 +358,7 @@ export const TourAdvanceCheckField = ({
 export const TourAdvancePercentField = ({
   control,
 }: {
-  control: Control<TourCreateFormType>;
+  control: Control<TourFormValues>;
 }) => {
   return (
     <Form.Field
@@ -367,7 +380,7 @@ export const TourAdvancePercentField = ({
 export const TourJoinPercentField = ({
   control,
 }: {
-  control: Control<TourCreateFormType>;
+  control: Control<TourFormValues>;
 }) => {
   return (
     <Form.Field
@@ -389,9 +402,11 @@ export const TourJoinPercentField = ({
 export const TourItineraryIdField = ({
   control,
   branchId,
+  language,
 }: {
-  control: Control<TourCreateFormType>;
+  control: Control<TourFormValues>;
   branchId?: string;
+  language?: string;
 }) => {
   return (
     <Form.Field
@@ -402,14 +417,13 @@ export const TourItineraryIdField = ({
           <Form.Label>
             Itinerary <span className="text-destructive">*</span>
           </Form.Label>
-          <Form.Control>
-            <SelectItinerary
-              value={field.value}
-              onValueChange={field.onChange}
-              branchId={branchId}
-              placeholder="Select itinerary"
-            />
-          </Form.Control>
+          <SelectItinerary.FormItem
+            value={field.value}
+            onValueChange={field.onChange}
+            branchId={branchId}
+            language={language}
+            placeholder="Select itinerary"
+          />
           <Form.Message className="text-destructive" />
         </Form.Item>
       )}
@@ -420,9 +434,11 @@ export const TourItineraryIdField = ({
 export const TourCategoryField = ({
   control,
   branchId,
+  language,
 }: {
-  control: Control<TourCreateFormType>;
+  control: Control<TourFormValues>;
   branchId?: string;
+  language?: string;
 }) => {
   return (
     <Form.Field
@@ -437,6 +453,7 @@ export const TourCategoryField = ({
               onValueChange={field.onChange}
               placeholder="Select categories"
               branchId={branchId}
+              language={language}
             />
           </Form.Control>
           <Form.Message className="text-destructive" />
@@ -449,7 +466,7 @@ export const TourCategoryField = ({
 export const TourImageThumbnailField = ({
   control,
 }: {
-  control: Control<TourCreateFormType>;
+  control: Control<TourFormValues>;
 }) => {
   const [isLoading, setIsLoading] = useState(false);
 
@@ -541,7 +558,7 @@ const MAX_IMAGES = 10;
 export const TourImagesField = ({
   control,
 }: {
-  control: Control<TourCreateFormType>;
+  control: Control<TourFormValues>;
 }) => {
   return (
     <Form.Field
@@ -569,7 +586,7 @@ export const TourImagesField = ({
 export const TourAttachmentsField = ({
   control,
 }: {
-  control: Control<TourCreateFormType>;
+  control: Control<TourFormValues>;
 }) => {
   const [isLoading, setIsLoading] = useState(false);
 
@@ -655,11 +672,19 @@ export { TourDateSchedulingField } from './TourDateSchedulingField';
 
 const TourPricingOptionsFieldContent = ({
   control,
+  translationIndex,
+  labelSuffix = '',
+  currencySymbol,
 }: {
   control: Control<any>;
+  translationIndex?: number;
+  labelSuffix?: string;
+  currencySymbol?: string;
 }) => {
   const lang = useAtomValue(activeLangAtom);
-  const symbol = LANGUAGES.find((l) => l.value === lang)?.symbol ?? '$';
+  const symbol =
+    currencySymbol ?? LANGUAGES.find((l) => l.value === lang)?.symbol ?? '$';
+  const isTranslation = translationIndex !== undefined && translationIndex >= 0;
 
   const { fields, append, remove } = useFieldArray({
     control,
@@ -668,10 +693,13 @@ const TourPricingOptionsFieldContent = ({
 
   const handleAdd = () => {
     append({
+      _id: nanoid(8),
       title: '',
       minPersons: '',
       maxPersons: '',
-      pricePerPerson: '',
+      adultPrice: '',
+      childPrice: '',
+      infantPrice: '',
       accommodationType: '',
       domesticFlightPerPerson: '',
       singleSupplement: '',
@@ -683,6 +711,13 @@ const TourPricingOptionsFieldContent = ({
     if (fields.length > 1) {
       remove(index);
     }
+  };
+
+  const getFieldName = (index: number, field: string) => {
+    if (isTranslation) {
+      return `translations.${translationIndex}.pricingOptions.${index}.${field}` as FieldPath<TourFormValues>;
+    }
+    return `pricingOptions.${index}.${field}` as FieldPath<TourFormValues>;
   };
 
   return (
@@ -730,16 +765,19 @@ const TourPricingOptionsFieldContent = ({
             <div className="grid grid-cols-2 gap-3">
               <Form.Field
                 control={control}
-                name={`pricingOptions.${index}.title`}
+                name={getFieldName(index, 'title')}
                 render={({ field, fieldState }) => (
                   <div className="space-y-2">
                     <Form.Label
                       className={fieldState.error ? 'text-destructive' : ''}
                     >
-                      Package Title <span className="text-destructive">*</span>
+                      Package Title
+                      <span className="text-primary">{labelSuffix}</span>{' '}
+                      <span className="text-destructive">*</span>
                     </Form.Label>
                     <Input
                       {...field}
+                      value={field.value ?? ''}
                       placeholder="e.g., Standard - Solo, Standard - Group"
                     />
                     <Form.Message>{fieldState.error?.message}</Form.Message>
@@ -790,39 +828,41 @@ const TourPricingOptionsFieldContent = ({
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
-              <Form.Field
-                control={control}
-                name={`pricingOptions.${index}.accommodationType`}
-                render={({ field, fieldState }) => (
-                  <div className="space-y-2">
-                    <Form.Label
-                      className={fieldState.error ? 'text-destructive' : ''}
-                    >
-                      Accommodation Type
-                    </Form.Label>
-                    <Input
-                      {...field}
-                      value={field.value ?? ''}
-                      onChange={(e) =>
-                        field.onChange(toOptionalString(e.target.value))
-                      }
-                      placeholder="e.g., Hotel, Resort, etc."
-                    />
-                    <Form.Message>{fieldState.error?.message}</Form.Message>
-                  </div>
-                )}
-              />
+            <Form.Field
+              control={control}
+              name={getFieldName(index, 'accommodationType')}
+              render={({ field, fieldState }) => (
+                <div className="space-y-2">
+                  <Form.Label
+                    className={fieldState.error ? 'text-destructive' : ''}
+                  >
+                    Accommodation Type
+                    <span className="text-primary">{labelSuffix}</span>
+                  </Form.Label>
+                  <Input
+                    {...field}
+                    value={field.value ?? ''}
+                    onChange={(e) =>
+                      field.onChange(toOptionalString(e.target.value))
+                    }
+                    placeholder="e.g., Hotel, Resort, etc."
+                  />
+                  <Form.Message>{fieldState.error?.message}</Form.Message>
+                </div>
+              )}
+            />
 
+            <div className="grid grid-cols-3 gap-3">
               <Form.Field
                 control={control}
-                name={`pricingOptions.${index}.pricePerPerson`}
+                name={getFieldName(index, 'adultPrice')}
                 render={({ field, fieldState }) => (
                   <div className="space-y-2">
                     <Form.Label
                       className={fieldState.error ? 'text-destructive' : ''}
                     >
-                      Price per Person{' '}
+                      Adult Price
+                      <span className="text-primary">{labelSuffix}</span>{' '}
                       <span className="text-destructive">*</span>
                     </Form.Label>
                     <div className="relative">
@@ -834,7 +874,77 @@ const TourPricingOptionsFieldContent = ({
                         step="0.01"
                         min="0.01"
                         {...field}
+                        value={field.value ?? ''}
+                        onChange={(e) =>
+                          field.onChange(toOptionalNumber(e.target.value))
+                        }
                         placeholder="0.00"
+                        className="pl-7"
+                      />
+                    </div>
+                    <Form.Message>{fieldState.error?.message}</Form.Message>
+                  </div>
+                )}
+              />
+
+              <Form.Field
+                control={control}
+                name={getFieldName(index, 'childPrice')}
+                render={({ field, fieldState }) => (
+                  <div className="space-y-2">
+                    <Form.Label
+                      className={fieldState.error ? 'text-destructive' : ''}
+                    >
+                      Child Price
+                      <span className="text-primary">{labelSuffix}</span>
+                    </Form.Label>
+                    <div className="relative">
+                      <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-sm text-muted-foreground pointer-events-none">
+                        {symbol}
+                      </span>
+                      <Input
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        {...field}
+                        value={field.value ?? ''}
+                        onChange={(e) =>
+                          field.onChange(toOptionalNumber(e.target.value))
+                        }
+                        placeholder="Optional"
+                        className="pl-7"
+                      />
+                    </div>
+                    <Form.Message>{fieldState.error?.message}</Form.Message>
+                  </div>
+                )}
+              />
+
+              <Form.Field
+                control={control}
+                name={getFieldName(index, 'infantPrice')}
+                render={({ field, fieldState }) => (
+                  <div className="space-y-2">
+                    <Form.Label
+                      className={fieldState.error ? 'text-destructive' : ''}
+                    >
+                      Infant Price
+                      <span className="text-primary">{labelSuffix}</span>
+                    </Form.Label>
+                    <div className="relative">
+                      <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-sm text-muted-foreground pointer-events-none">
+                        {symbol}
+                      </span>
+                      <Input
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        {...field}
+                        value={field.value ?? ''}
+                        onChange={(e) =>
+                          field.onChange(toOptionalNumber(e.target.value))
+                        }
+                        placeholder="Optional"
                         className="pl-7"
                       />
                     </div>
@@ -847,7 +957,7 @@ const TourPricingOptionsFieldContent = ({
             <div className="grid grid-cols-2 gap-3">
               <Form.Field
                 control={control}
-                name={`pricingOptions.${index}.domesticFlightPerPerson`}
+                name={getFieldName(index, 'domesticFlightPerPerson')}
                 render={({ field, fieldState }) => (
                   <div className="space-y-2">
                     <Form.Label
@@ -877,7 +987,7 @@ const TourPricingOptionsFieldContent = ({
 
               <Form.Field
                 control={control}
-                name={`pricingOptions.${index}.singleSupplement`}
+                name={getFieldName(index, 'singleSupplement')}
                 render={({ field, fieldState }) => (
                   <div className="space-y-2">
                     <Form.Label
@@ -908,13 +1018,13 @@ const TourPricingOptionsFieldContent = ({
 
             <Form.Field
               control={control}
-              name={`pricingOptions.${index}.note`}
+              name={getFieldName(index, 'note')}
               render={({ field, fieldState }) => (
                 <div className="space-y-2">
                   <Form.Label
                     className={fieldState.error ? 'text-destructive' : ''}
                   >
-                    Note
+                    Note<span className="text-primary">{labelSuffix}</span>
                   </Form.Label>
                   <Textarea
                     {...field}
@@ -937,8 +1047,21 @@ const TourPricingOptionsFieldContent = ({
 
 export const TourPricingOptionsField = ({
   control,
+  translationIndex,
+  labelSuffix,
+  currencySymbol,
 }: {
-  control: Control<TourCreateFormType>;
+  control: Control<TourFormValues>;
+  translationIndex?: number;
+  labelSuffix?: string;
+  currencySymbol?: string;
 }) => {
-  return <TourPricingOptionsFieldContent control={control} />;
+  return (
+    <TourPricingOptionsFieldContent
+      control={control}
+      translationIndex={translationIndex}
+      labelSuffix={labelSuffix}
+      currencySymbol={currencySymbol}
+    />
+  );
 };

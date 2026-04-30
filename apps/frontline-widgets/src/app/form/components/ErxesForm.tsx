@@ -5,22 +5,79 @@ import {
   Form,
   InfoCard,
   Input,
+  Label,
+  RadioGroup,
   Select,
+  Spinner,
   Switch,
   Textarea,
 } from 'erxes-ui';
-import { IFormStep } from '../types/formTypes';
+import { IFormFieldLogic, IFormStep } from '../types/formTypes';
 import { useForm } from 'react-hook-form';
-import { useErxesForm } from '../ context/erxesFormContext';
+import { useErxesForm } from '../context/erxesFormContext';
 import { ErxesSteps } from './steps';
-import { useAtom, useSetAtom } from 'jotai';
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import {
   activeStepAtom,
+  browserInfoAtom,
   formValuesAtom,
   showConfirmationAtom,
 } from '../states/erxesFormStates';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useFormWidgetLead } from '../hooks/useFormWidgetLead';
+
+const checkLogic = (
+  logic: IFormFieldLogic,
+  formValues: Record<string, any>,
+): boolean => {
+  const fieldValue = formValues[logic.fieldId];
+  const logicValue = logic.logicValue;
+
+  switch (logic.logicOperator) {
+    case 'is':
+      return String(fieldValue ?? '') === String(logicValue ?? '');
+    case 'isNot':
+      return String(fieldValue ?? '') !== String(logicValue ?? '');
+    case 'contains':
+      return String(fieldValue ?? '').includes(String(logicValue ?? ''));
+    case 'doesNotContain':
+      return !String(fieldValue ?? '').includes(String(logicValue ?? ''));
+    case 'startsWith':
+      return String(fieldValue ?? '').startsWith(String(logicValue ?? ''));
+    case 'endsWith':
+      return String(fieldValue ?? '').endsWith(String(logicValue ?? ''));
+    case 'isUnknown':
+      return (
+        fieldValue === undefined || fieldValue === null || fieldValue === ''
+      );
+    case 'hasAnyValue':
+      return (
+        fieldValue !== undefined && fieldValue !== null && fieldValue !== ''
+      );
+    case 'greaterThan':
+      return Number(fieldValue) > Number(logicValue);
+    case 'lessThan':
+      return Number(fieldValue) < Number(logicValue);
+    case 'dateGreaterThan':
+      return new Date(fieldValue) > new Date(logicValue);
+    case 'dateLessThan':
+      return new Date(fieldValue) < new Date(logicValue);
+    default:
+      return true;
+  }
+};
+
+const isFieldVisible = (
+  logics: IFormFieldLogic[] | undefined,
+  logicAction: string | undefined,
+  formValues: Record<string, any>,
+): boolean => {
+  if (!logics || logics.length === 0) return true;
+
+  const allFulfilled = logics.every((logic) => checkLogic(logic, formValues));
+  return logicAction === 'hide' ? !allFulfilled : allFulfilled;
+};
 
 export const ErxesForm = ({
   step,
@@ -38,7 +95,9 @@ export const ErxesForm = ({
   const formData = useErxesForm();
   const [activeStep, setActiveStep] = useAtom(activeStepAtom);
   const setShowConfirmation = useSetAtom(showConfirmationAtom);
-  const setFormValues = useSetAtom(formValuesAtom);
+  const [globalFormValues, setFormValues] = useAtom(formValuesAtom);
+  const browserInfo = useAtomValue(browserInfoAtom) || {};
+  const { saveLead, loading: saveLeadLoading } = useFormWidgetLead();
   const fields = formData.fields.filter(
     (field) => field.pageNumber === step.order,
   );
@@ -47,12 +106,53 @@ export const ErxesForm = ({
     resolver: zodResolver(schema),
   });
 
-  const handleSubmit = (values: any) => {
-    setFormValues((prev) => ({ ...(prev || {}), [step.order]: values }));
+  const currentStepValues = form.watch();
 
-    isLastStep
-      ? setShowConfirmation(true)
-      : setActiveStep((prevStep) => prevStep + 1);
+  // Merge saved values from all steps with the current step's live values so
+  // that logic referencing fields on other pages resolves correctly.
+  const formValues = {
+    ...Object.values(globalFormValues || {}).reduce<Record<string, any>>(
+      (acc, stepValues) => ({ ...acc, ...stepValues }),
+      {},
+    ),
+    ...currentStepValues,
+  };
+
+  const handleSubmit = (values: any) => {
+    const updatedFormValues = {
+      ...(globalFormValues || {}),
+      [step.order]: values,
+    };
+    setFormValues(updatedFormValues);
+
+    if (!isLastStep) {
+      setActiveStep((prevStep) => prevStep + 1);
+      return;
+    }
+
+    const submissions = Object.values(updatedFormValues).reduce<
+      Record<string, any>
+    >((acc, curr) => ({ ...acc, ...(curr as Record<string, any>) }), {});
+
+    saveLead({
+      variables: {
+        formId: formData._id,
+        submissions: Object.entries(submissions).map(([key, value]) => {
+          const field = formData.fields.find((f) => f._id === key);
+          return {
+            _id: key,
+            type: field?.type || 'input',
+            text: field?.text || key,
+            value,
+          };
+        }),
+        browserInfo,
+      },
+      onCompleted: () => {
+        setFormValues({});
+        setShowConfirmation(true);
+      },
+    });
   };
 
   return (
@@ -61,7 +161,7 @@ export const ErxesForm = ({
         <InfoCard
           title={formData?.title || ''}
           description={formData?.description || ''}
-          className="p-2"
+          className="p-2 bg-background/40 [&_h3]:text-accent-foreground"
         >
           {stepsLength > 1 && (
             <ErxesSteps
@@ -71,9 +171,18 @@ export const ErxesForm = ({
               description={step.description}
             />
           )}
-          <InfoCard.Content>
+          <InfoCard.Content className="h-full">
             <div className="grid md:grid-cols-2 gap-4 mb-2">
               {fields.map((erxesField) => {
+                if (
+                  !isFieldVisible(
+                    erxesField.logics,
+                    erxesField.logicAction,
+                    formValues,
+                  )
+                ) {
+                  return null;
+                }
                 return (
                   <Form.Field
                     key={erxesField._id}
@@ -165,6 +274,43 @@ export const ErxesForm = ({
                         );
                       }
 
+                      if (erxesField.type === 'radio') {
+                        return (
+                          <ErxesFormItem span={erxesField.column}>
+                            <Form.Label>{erxesField.text}</Form.Label>
+                            <Form.Control>
+                              <RadioGroup
+                                value={field.value}
+                                onValueChange={field.onChange}
+                              >
+                                {erxesField.options.map((option) => (
+                                  <div
+                                    key={option}
+                                    className="flex items-center gap-2"
+                                  >
+                                    <RadioGroup.Item
+                                      value={option}
+                                      id={`${erxesField._id}-${option}`}
+                                    />
+                                    <Label
+                                      htmlFor={`${erxesField._id}-${option}`}
+                                    >
+                                      {option}
+                                    </Label>
+                                  </div>
+                                ))}
+                              </RadioGroup>
+                            </Form.Control>
+                            {erxesField.description && (
+                              <Form.Description>
+                                {erxesField.description}
+                              </Form.Description>
+                            )}
+                            <Form.Message />
+                          </ErxesFormItem>
+                        );
+                      }
+
                       if (erxesField.type === 'date') {
                         return (
                           <ErxesFormItem span={erxesField.column}>
@@ -211,10 +357,15 @@ export const ErxesForm = ({
                 Previous
               </Button>
             )}
-            {stepsLength > activeStep ? (
-              <Button type="submit">Next</Button>
+            {isLastStep ? (
+              <Button type="submit" disabled={saveLeadLoading}>
+                {saveLeadLoading && (
+                  <Spinner containerClassName="size-4 flex-none" />
+                )}
+                {formData.buttonText || 'Submit'}
+              </Button>
             ) : (
-              <Button type="submit">Submit</Button>
+              <Button type="submit">Next</Button>
             )}
           </div>
         </InfoCard>
@@ -227,41 +378,11 @@ export const ErxesFormItem = ({
   span,
   ...props
 }: React.ComponentProps<typeof Form.Item> & { span: number }) => (
-  <Form.Item {...props} className={cn(props.className, span && `col-span-2`)} />
+  <Form.Item
+    {...props}
+    className={cn(props.className, {
+      'col-span-2': span === 2,
+      'col-span-1': span === 1,
+    })}
+  />
 );
-
-// {
-//   "formId": "3wuh4tvP06VTrweVXtBE8",
-//   "browserInfo": {
-//     "remoteAddress": "202.21.102.0/23",
-//     "region": "Ulaanbaatar",
-//     "countryCode": "MN",
-//     "city": "Ulaanbaatar",
-//     "country": "Mongolia",
-//     "url": "//test",
-//     "hostname": "https://w.office.erxes.io",
-//     "language": "en-US",
-//     "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36"
-//   },
-//   "submissions": [
-//     {
-//       "_id": "z-IF2Maz0IYFQwi-cu3Am",
-//       "type": "input",
-//       "text": "asdasdasd",
-//       "value": "ff",
-//       "validation": null,
-//       "associatedFieldId": "",
-//       "column": null
-//     },
-//     {
-//       "_id": "TV_o24TLna-fPhchiv-vN",
-//       "type": "input",
-//       "text": "vfevdfvdfv",
-//       "value": "ff",
-//       "validation": null,
-//       "associatedFieldId": "",
-//       "column": null
-//     }
-//   ],
-//   "cachedCustomerId": "RcZ03QmavkVqcTlolTbHG"
-// }

@@ -26,8 +26,9 @@ export const dealMutations: Record<string, Resolver> = {
   async dealsAdd(
     _root,
     doc: IDeal & { processId: string; aboveItemId: string },
-    { user, models, subdomain }: IContext,
+    { user, models, subdomain, checkPermission }: IContext,
   ) {
+    await checkPermission('dealsAdd');
     return await addDeal({ models, subdomain, user, doc });
   },
 
@@ -45,8 +46,9 @@ export const dealMutations: Record<string, Resolver> = {
   async dealsEdit(
     _root,
     { _id, processId, ...doc }: IDealDocument & { processId: string },
-    { user, models, subdomain }: IContext,
+    { user, models, subdomain, checkPermission }: IContext,
   ) {
+    await checkPermission('dealsEdit');
     return await editDeal({ models, subdomain, _id, processId, doc, user });
   },
 
@@ -70,8 +72,9 @@ export const dealMutations: Record<string, Resolver> = {
       destinationStageId: string;
       sourceStageId: string;
     },
-    { user, models }: IContext,
+    { user, models, subdomain, checkPermission }: IContext,
   ) {
+    await checkPermission('dealsEdit');
     const { itemId, aboveItemId, sourceStageId, destinationStageId } = doc;
 
     const item = await models.Deals.findOne({ _id: itemId });
@@ -99,17 +102,16 @@ export const dealMutations: Record<string, Resolver> = {
 
       checkMovePermission(destinationStage, user);
 
-      //   await doScoreCampaign(subdomain, models, itemId, {
-      //     ...item.toObject(),
-      //     ...extendedDoc,
-      //   });
-
       extendedDoc.stageChangedDate = new Date();
     }
 
     const updatedItem = await models.Deals.updateDeal(itemId, extendedDoc);
 
+    // Do not call mongolian plugin directly from sales.
+    // Instead, emit an event (via logs) that will be handled by afterProcess.
+
     await itemMover(models, user._id, item, destinationStageId);
+
     await subscriptionWrapper(models, {
       action: 'update',
       deal: updatedItem,
@@ -123,11 +125,28 @@ export const dealMutations: Record<string, Resolver> = {
   /**
    * Remove deal
    */
-  async dealsRemove(_root, { _id }: { _id: string }, { models }: IContext) {
+  async dealsRemove(
+    _root,
+    { _id }: { _id: string },
+    { user, models, checkPermission }: IContext,
+  ) {
+    await checkPermission('dealsRemove');
     const item = await models.Deals.findOne({ _id });
 
     if (!item) {
       throw new Error('Deal not found');
+    }
+
+    const stage = await models.Stages.getStage(item.stageId);
+
+    const { canEditMemberIds } = stage;
+
+    if (
+      canEditMemberIds &&
+      canEditMemberIds.length > 0 &&
+      !canEditMemberIds.includes(user._id)
+    ) {
+      throw new Error('Permission denied');
     }
 
     const removed = await models.Deals.removeDeals([item._id]);
@@ -147,16 +166,18 @@ export const dealMutations: Record<string, Resolver> = {
   async dealsWatch(
     _root,
     { _id, isAdd }: { _id: string; isAdd: boolean },
-    { user, models }: IContext,
+    { user, models, checkPermission }: IContext,
   ) {
+    await checkPermission('dealsWatch');
     return models.Deals.watchDeal(_id, isAdd, user._id);
   },
 
   async dealsCopy(
     _root,
     { _id, processId }: { _id: string; processId: string },
-    { user, models, subdomain }: IContext,
+    { user, models, subdomain, checkPermission }: IContext,
   ) {
+    await checkPermission('dealsAdd');
     const item = await models.Deals.findOne({ _id }).lean();
 
     if (!item) {
@@ -228,8 +249,9 @@ export const dealMutations: Record<string, Resolver> = {
   async dealsArchive(
     _root,
     { stageId, processId }: { stageId: string; processId: string },
-    { user, models }: IContext,
+    { user, models, checkPermission }: IContext,
   ) {
+    await checkPermission('dealsArchive');
     const items = await models.Deals.find({
       stageId,
       status: { $ne: SALES_STATUSES.ARCHIVED },
@@ -267,8 +289,9 @@ export const dealMutations: Record<string, Resolver> = {
       dealId: string;
       docs: IProductData[];
     },
-    { models, user }: IContext,
+    { models, user, checkPermission }: IContext,
   ) {
+    await checkPermission('dealsEdit'); 
     const deal = await models.Deals.getDeal(dealId);
     const stage = await models.Stages.getStage(deal.stageId);
 
@@ -359,8 +382,9 @@ export const dealMutations: Record<string, Resolver> = {
       dataId: string;
       doc: IProductData;
     },
-    { models, user }: IContext,
+    { models, user, checkPermission }: IContext,
   ) {
+    await checkPermission('dealsEdit');
     const deal = await models.Deals.getDeal(dealId);
 
     if (!deal.productsData?.length) {
@@ -443,8 +467,9 @@ export const dealMutations: Record<string, Resolver> = {
       dealId: string;
       dataIds: string[];
     },
-    { models, user }: IContext,
+    { models, user, checkPermission }: IContext,
   ) {
+    await checkPermission('dealsEdit');
     const deal = await models.Deals.getDeal(dealId);
 
     const oldPData = (deal.productsData || []).filter(

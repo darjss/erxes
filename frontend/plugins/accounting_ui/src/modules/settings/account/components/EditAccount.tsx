@@ -14,7 +14,7 @@ export const EditAccount = () => {
   const [open, setOpen] = useQueryState<string>('accountId');
   return (
     <Dialog open={open !== null} onOpenChange={() => setOpen(null)}>
-      <AccountingDialog title="Edit Account" description="Edit an account">
+      <AccountingDialog title="Данс засах" description="Данс засах">
         <EditAccountForm />
       </AccountingDialog>
     </Dialog>
@@ -27,13 +27,16 @@ export const EditAccountForm = () => {
 
   const form = useForm<TAccountForm>({
     resolver: zodResolver(accountSchema),
-    defaultValues: ACCOUNT_DEFAULT_VALUES,
+    defaultValues: accountDetail || ACCOUNT_DEFAULT_VALUES,
   });
   const { reset } = form;
 
   useEffect(() => {
     if (accountDetail) {
-      reset(accountDetail);
+      reset({
+        ...ACCOUNT_DEFAULT_VALUES,
+        ...accountDetail,
+      });
     }
   }, [accountDetail, reset]);
 

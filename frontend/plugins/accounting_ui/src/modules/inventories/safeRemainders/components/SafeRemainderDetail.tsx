@@ -8,6 +8,8 @@ import {
   Spinner,
   Tabs,
   useQueryState,
+  RecordTableHotkeyProvider,
+  useSetHotkeyScope,
 } from 'erxes-ui';
 import { useSafeRemainderDetail } from '../hooks/useSafeRemainderDetail';
 import { useSafeRemainderDetails } from '../hooks/useSafeRemainderDetails';
@@ -33,11 +35,11 @@ import { safeRemDetailColumnsIncome } from './SafeRemainderDetailColsIncome';
 import { safeRemDetailColumnsOut } from './SafeRemainderDetailColsOut';
 import { safeRemDetailColumnsSale } from './SafeRemainderDetailColsSale';
 import { EditSafeRemainder } from './SafeRemainderEditForm';
-
+import { AccountingHotkeyScope } from '@/types/AccountingHotkeyScope';
 export const SafeRemainderDetail = () => {
   const [id] = useQueryState<string>('id');
   const [activeTab, setActiveTab] = useAtom(activeTabState);
-
+  const setHotkeyScope = useSetHotkeyScope();
   const { safeRemainder, loading } = useSafeRemainderDetail({
     variables: { _id: id },
     skip: !id,
@@ -175,34 +177,39 @@ export const SafeRemainderDetail = () => {
           </Tabs.List>
         </div>
 
-        <Tabs.Content
-          key={CENSUS_TABS.CENSUS.value}
-          value={CENSUS_TABS.CENSUS.value}
-          className="mt-6"
-        >
-          <RecordTable.Provider
-            columns={safeRemDetailTableColumns}
-            data={safeRemainderItems || []}
-            stickyColumns={[]}
-            className="m-3"
+        <Tabs.Content value={CENSUS_TABS.CENSUS.value} className="mt-6">
+          <RecordTableHotkeyProvider
+            columnLength={3}
+            rowLength={safeRemainderItems?.length || 0}
+            scope={AccountingHotkeyScope.SafeRemainderPage}
           >
-            <RecordTable.Scroll>
-              <RecordTable>
-                <RecordTable.Header />
-                <RecordTable.Body>
-                  <RecordTable.RowList />
-                  {!detailsLoading &&
-                    safeRemainderItemsCount > safeRemainderItems?.length && (
-                      <RecordTable.RowSkeleton
-                        rows={4}
-                        handleInView={handleFetchMore}
-                      />
-                    )}
-                </RecordTable.Body>
-              </RecordTable>
-              <SafeRemDetailCommandbar />
-            </RecordTable.Scroll>
-          </RecordTable.Provider>
+            <RecordTable.Provider
+              columns={safeRemDetailTableColumns}
+              data={safeRemainderItems || []}
+              stickyColumns={[]}
+              className="m-3"
+              onClickCapture={() =>
+                setHotkeyScope(AccountingHotkeyScope.SafeRemainderPage)
+              }
+            >
+              <RecordTable.Scroll>
+                <RecordTable>
+                  <RecordTable.Header />
+                  <RecordTable.Body>
+                    <RecordTable.RowList />
+                    {!detailsLoading &&
+                      safeRemainderItemsCount > safeRemainderItems?.length && (
+                        <RecordTable.RowSkeleton
+                          rows={4}
+                          handleInView={handleFetchMore}
+                        />
+                      )}
+                  </RecordTable.Body>
+                </RecordTable>
+                <SafeRemDetailCommandbar />
+              </RecordTable.Scroll>
+            </RecordTable.Provider>
+          </RecordTableHotkeyProvider>
         </Tabs.Content>
 
         <Tabs.Content
@@ -210,33 +217,39 @@ export const SafeRemainderDetail = () => {
           value={CENSUS_TABS.INCOME.value}
           className="mt-6"
         >
-          <RecordTable.Provider
-            columns={safeRemDetailColumnsIncome}
-            data={
-              safeRemainderItems?.filter(
-                (item) => item.preCount < item.count,
-              ) || []
-            }
-            stickyColumns={[]}
-            className="m-3"
+          <RecordTableHotkeyProvider
+            columnLength={4}
+            rowLength={safeRemainderItems?.length || 0}
+            scope={AccountingHotkeyScope.SafeRemainderPage}
           >
-            <RecordTable.Scroll>
-              <RecordTable>
-                <RecordTable.Header />
-                <RecordTable.Body>
-                  <RecordTable.RowList />
-                  {!detailsLoading &&
-                    safeRemainderItemsCount > safeRemainderItems?.length && (
-                      <RecordTable.RowSkeleton
-                        rows={4}
-                        handleInView={handleFetchMore}
-                      />
-                    )}
-                </RecordTable.Body>
-              </RecordTable>
-              <SafeRemDetailCommandbar />
-            </RecordTable.Scroll>
-          </RecordTable.Provider>
+            <RecordTable.Provider
+              columns={safeRemDetailColumnsIncome}
+              data={
+                safeRemainderItems?.filter(
+                  (item) => item.preCount < item.count,
+                ) || []
+              }
+              stickyColumns={[]}
+              className="m-3"
+            >
+              <RecordTable.Scroll>
+                <RecordTable>
+                  <RecordTable.Header />
+                  <RecordTable.Body>
+                    <RecordTable.RowList />
+                    {!detailsLoading &&
+                      safeRemainderItemsCount > safeRemainderItems?.length && (
+                        <RecordTable.RowSkeleton
+                          rows={4}
+                          handleInView={handleFetchMore}
+                        />
+                      )}
+                  </RecordTable.Body>
+                </RecordTable>
+                <SafeRemDetailCommandbar />
+              </RecordTable.Scroll>
+            </RecordTable.Provider>
+          </RecordTableHotkeyProvider>
         </Tabs.Content>
 
         <Tabs.Content
@@ -244,33 +257,39 @@ export const SafeRemainderDetail = () => {
           value={CENSUS_TABS.OUT.value}
           className="mt-6"
         >
-          <RecordTable.Provider
-            columns={safeRemDetailColumnsOut}
-            data={
-              safeRemainderItems.filter(
-                (item) => item.preCount > item.count && !item.trInfo?.isSale,
-              ) || []
-            }
-            stickyColumns={[]}
-            className="m-3"
+          <RecordTableHotkeyProvider
+            columnLength={3}
+            rowLength={safeRemainderItems?.length || 0}
+            scope={AccountingHotkeyScope.SafeRemainderPage}
           >
-            <RecordTable.Scroll>
-              <RecordTable>
-                <RecordTable.Header />
-                <RecordTable.Body>
-                  <RecordTable.RowList />
-                  {!detailsLoading &&
-                    safeRemainderItemsCount > safeRemainderItems?.length && (
-                      <RecordTable.RowSkeleton
-                        rows={4}
-                        handleInView={handleFetchMore}
-                      />
-                    )}
-                </RecordTable.Body>
-              </RecordTable>
-              <SafeRemDetailCommandbar />
-            </RecordTable.Scroll>
-          </RecordTable.Provider>
+            <RecordTable.Provider
+              columns={safeRemDetailColumnsOut}
+              data={
+                safeRemainderItems.filter(
+                  (item) => item.preCount > item.count && !item.trInfo?.isSale,
+                ) || []
+              }
+              stickyColumns={[]}
+              className="m-3"
+            >
+              <RecordTable.Scroll>
+                <RecordTable>
+                  <RecordTable.Header />
+                  <RecordTable.Body>
+                    <RecordTable.RowList />
+                    {!detailsLoading &&
+                      safeRemainderItemsCount > safeRemainderItems?.length && (
+                        <RecordTable.RowSkeleton
+                          rows={4}
+                          handleInView={handleFetchMore}
+                        />
+                      )}
+                  </RecordTable.Body>
+                </RecordTable>
+                <SafeRemDetailCommandbar />
+              </RecordTable.Scroll>
+            </RecordTable.Provider>
+          </RecordTableHotkeyProvider>
         </Tabs.Content>
 
         <Tabs.Content
@@ -278,35 +297,40 @@ export const SafeRemainderDetail = () => {
           value={CENSUS_TABS.SALE.value}
           className="mt-6"
         >
-          <RecordTable.Provider
-            columns={safeRemDetailColumnsSale}
-            data={
-              safeRemainderItems.filter(
-                (item) => item.preCount > item.count && item.trInfo?.isSale,
-              ) || []
-            }
-            stickyColumns={[]}
-            className="m-3"
+          <RecordTableHotkeyProvider
+            columnLength={3}
+            rowLength={safeRemainderItems?.length || 0}
+            scope={AccountingHotkeyScope.SafeRemainderPage}
           >
-            <RecordTable.Scroll>
-              <RecordTable>
-                <RecordTable.Header />
-                <RecordTable.Body>
-                  <RecordTable.RowList />
-                  {!detailsLoading &&
-                    safeRemainderItemsCount > safeRemainderItems?.length && (
-                      <RecordTable.RowSkeleton
-                        rows={4}
-                        handleInView={handleFetchMore}
-                      />
-                    )}
-                </RecordTable.Body>
-              </RecordTable>
-              <SafeRemDetailCommandbar />
-            </RecordTable.Scroll>
-          </RecordTable.Provider>
+            <RecordTable.Provider
+              columns={safeRemDetailColumnsSale}
+              data={
+                safeRemainderItems.filter(
+                  (item) => item.preCount > item.count && item.trInfo?.isSale,
+                ) || []
+              }
+              stickyColumns={[]}
+              className="m-3"
+            >
+              <RecordTable.Scroll>
+                <RecordTable>
+                  <RecordTable.Header />
+                  <RecordTable.Body>
+                    <RecordTable.RowList />
+                    {!detailsLoading &&
+                      safeRemainderItemsCount > safeRemainderItems?.length && (
+                        <RecordTable.RowSkeleton
+                          rows={4}
+                          handleInView={handleFetchMore}
+                        />
+                      )}
+                  </RecordTable.Body>
+                </RecordTable>
+                <SafeRemDetailCommandbar />
+              </RecordTable.Scroll>
+            </RecordTable.Provider>
+          </RecordTableHotkeyProvider>
         </Tabs.Content>
-
         <Tabs.Content
           key={CENSUS_TABS.CONFIG.value}
           value={CENSUS_TABS.CONFIG.value}
@@ -329,18 +353,24 @@ const StatusBar = ({ safeRemainder }: { safeRemainder: ISafeRemainder }) => {
       </div>
       <div className="flex items-center gap-2 text-sm">
         <Label>Branch:</Label>
-        <span>{`${safeRemainder.branch?.code ?? ''} - ${safeRemainder.branch?.title ?? ''}`}</span>
+        <span>{`${safeRemainder.branch?.code ?? ''} - ${
+          safeRemainder.branch?.title ?? ''
+        }`}</span>
         <span className="text-accent-foreground">{'|'}</span>
       </div>
       <div className="flex items-center gap-2 text-sm">
         <Label>Department:</Label>
-        <span>{`${safeRemainder.department?.code ?? ''} - ${safeRemainder.department?.title ?? ''}`}</span>
+        <span>{`${safeRemainder.department?.code ?? ''} - ${
+          safeRemainder.department?.title ?? ''
+        }`}</span>
         <span className="text-accent-foreground">{'|'}</span>
       </div>
       {safeRemainder.productCategoryId && (
         <div className="flex items-center gap-2 text-sm">
           <Label>Product Category:</Label>
-          <span>{`${safeRemainder.productCategory?.code ?? ''} - ${safeRemainder.productCategory?.name ?? ''}`}</span>
+          <span>{`${safeRemainder.productCategory?.code ?? ''} - ${
+            safeRemainder.productCategory?.name ?? ''
+          }`}</span>
           <span className="text-accent-foreground">{'|'}</span>
         </div>
       )}

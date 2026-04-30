@@ -75,11 +75,18 @@ export const GET_FORM_DETAIL = gql`
         text
         type
         pageNumber
+        logics {
+          fieldId
+          logicOperator
+          logicValue
+        }
+        logicAction
       }
       name
       numberOfPages
       leadData
       title
+      integrationId
     }
   }
 `;

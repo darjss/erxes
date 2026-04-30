@@ -23,6 +23,14 @@ export interface IFormField {
   pageNumber: number;
   text: string;
   type: string;
+  logics?: IFormFieldLogic[];
+  logicAction?: string;
+}
+
+export interface IFormFieldLogic {
+  fieldId: string;
+  logicOperator?: string;
+  logicValue?: any;
 }
 
 export interface IRule {
@@ -40,6 +48,7 @@ export interface LeadData {
   contactsGathered: number;
   appearance: string;
   primaryColor: string;
+  loadType?: string;
   steps: Record<string, { name: string; description: string; order: number }>;
   rules: IRule[];
 }

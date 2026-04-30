@@ -4,6 +4,7 @@ import express from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import * as http from 'http';
+import rateLimit, { type RateLimitRequestHandler } from 'express-rate-limit';
 import { Queue } from 'bullmq';
 import { createBullBoard } from '@bull-board/api';
 import { BullMQAdapter } from '@bull-board/api/bullMQAdapter';
@@ -20,7 +21,15 @@ import {
   proxyReq,
 } from '~/proxy/middleware';
 
-import { getPlugin, getPlugins, getSubdomain, isDev, redis, setActivePlugins } from 'erxes-api-shared/utils';
+import {
+  applyTrustProxy,
+  getPlugin,
+  getPlugins,
+  getSubdomain,
+  isDev,
+  redis,
+  setActivePlugins,
+} from 'erxes-api-shared/utils';
 import { generateModels } from '~/connectionResolver';
 // import * as jwt from 'jsonwebtoken';
 import { applyGraphqlLimiters } from '~/middlewares/graphql-limiter';
@@ -73,8 +82,19 @@ createBullBoard({
 serverAdapter.setBasePath('/bullmq-board');
 
 const app = express();
+applyTrustProxy(app);
 
 app.use(cookieParser());
+
+const gatewayRateLimiter: RateLimitRequestHandler = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 5000, // generous global cap per IP
+  standardHeaders: true,
+  legacyHeaders: false,
+  skip: (req) => req.path === '/health' || req.path.startsWith('/bullmq-board'),
+});
+
+app.use(gatewayRateLimiter);
 
 app.use(async (req, res, next) => {
   const appToken = req.headers['x-app-api-token'] as string;

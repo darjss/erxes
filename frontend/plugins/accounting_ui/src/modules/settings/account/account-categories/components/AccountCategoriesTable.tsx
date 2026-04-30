@@ -29,6 +29,7 @@ export const AccountCategoriesTable = () => {
       ) || {}
     );
   }, [accountCategories]);
+  console.log({ accountCategories });
 
   return (
     <RecordTable.Provider
@@ -147,7 +148,9 @@ const accountCategoryMoreColumn = {
   size: 33,
 };
 
-export const accountCategoriesColumns: ColumnDef<IAccountCategory & { hasChildren: boolean }>[] = [
+export const accountCategoriesColumns: ColumnDef<
+  IAccountCategory & { hasChildren: boolean }
+>[] = [
   accountCategoryMoreColumn,
   RecordTable.checkboxColumn as ColumnDef<
     IAccountCategory & { hasChildren: boolean }
@@ -155,7 +158,7 @@ export const accountCategoriesColumns: ColumnDef<IAccountCategory & { hasChildre
   {
     id: 'code',
     accessorKey: 'code',
-    header: () => <RecordTable.InlineHead label="Code" />,
+    header: () => <RecordTable.InlineHead label="Код" />,
     cell: ({ cell }) => {
       const accountCategory = cell.row.original;
       return (
@@ -178,7 +181,7 @@ export const accountCategoriesColumns: ColumnDef<IAccountCategory & { hasChildre
   {
     id: 'name',
     accessorKey: 'name',
-    header: () => <RecordTable.InlineHead label="Name" />,
+    header: () => <RecordTable.InlineHead label="Нэр" />,
     cell: ({ cell }) => {
       return (
         <AccountTextField
@@ -194,14 +197,14 @@ export const accountCategoriesColumns: ColumnDef<IAccountCategory & { hasChildre
   {
     id: 'parentId',
     accessorKey: 'parentId',
-    header: () => <RecordTable.InlineHead label="Parent" />,
+    header: () => <RecordTable.InlineHead label="Эцэг" />,
     cell: ({ cell }) => <AccountCategoryParentCell cell={cell} />,
     size: 250,
   },
   {
     id: 'description',
     accessorKey: 'description',
-    header: () => <RecordTable.InlineHead label="Description" />,
+    header: () => <RecordTable.InlineHead label="Тайлбар" />,
     cell: ({ cell }) => {
       return (
         <AccountTextField
@@ -215,4 +218,3 @@ export const accountCategoriesColumns: ColumnDef<IAccountCategory & { hasChildre
     size: 300,
   },
 ];
-

@@ -3,6 +3,7 @@ import { locationSchema } from '@/bms/db/definitions/itinerary';
 import { TOUR_STATUS_TYPES } from '@/bms/constants';
 import { getEnum } from '~/modules/bms/utils/utils';
 import { mongooseStringRandomId } from 'erxes-api-shared/utils';
+import type { IPricingOption, ITourDocument } from '@/bms/@types/tour';
 
 export const tourCategorySchema = new Schema({
   _id: mongooseStringRandomId,
@@ -12,6 +13,7 @@ export const tourCategorySchema = new Schema({
   parentId: { type: String, label: 'parentId', index: true },
   branchId: { type: String, optional: true, label: 'branchId', index: true },
   attachment: { type: Object, optional: true, label: 'attachment' },
+  language: { type: String, optional: true, label: 'language' },
   createdAt: {
     type: Date,
     default: Date.now,
@@ -32,55 +34,94 @@ export const guideItemSchema = new Schema(
   { _id: false },
 );
 
-export const pricingOptionSchema = new Schema({
-  title: { type: String, required: true },
-
-  minPersons: {
-    type: Number,
-    required: true,
-    min: 1,
-  },
-
-  maxPersons: {
-    type: Number,
-    min: 1,
-    validate: {
-      validator(value: number) {
-        return !value || value >= this.minPersons;
-      },
-      message: 'Max persons must be greater than or equal to min persons',
+const pricingOptionPriceSchema = new Schema(
+  {
+    type: {
+      type: String,
+      enum: ['adult', 'child', 'infant'],
+      required: true,
+    },
+    price: {
+      type: Number,
+      required: true,
+      min: 0.01,
     },
   },
+  { _id: false },
+);
 
-  pricePerPerson: {
-    type: Number,
-    required: true,
-    min: 0.01,
+export const pricingOptionSchema = new Schema(
+  {
+    _id: { type: String },
+
+    title: { type: String, required: true },
+
+    minPersons: {
+      type: Number,
+      required: true,
+      min: 1,
+    },
+
+    maxPersons: {
+      type: Number,
+      min: 1,
+      validate: {
+        validator: function (this: IPricingOption, value?: number) {
+          return !value || value >= this.minPersons;
+        },
+        message: 'Max persons must be greater than or equal to min persons',
+      },
+    },
+
+    prices: {
+      type: [pricingOptionPriceSchema],
+      default: [],
+      validate: {
+        validator: function (
+          this: IPricingOption,
+          prices: IPricingOption['prices'],
+        ) {
+          // Accept new-style prices array OR legacy pricePerPerson
+          const hasNewPrices =
+            Array.isArray(prices) && prices.some((p) => p.type === 'adult');
+          return hasNewPrices || typeof this.pricePerPerson === 'number';
+        },
+        message: 'Adult price is required',
+      },
+    },
+
+    /** @deprecated Use prices[{type:"adult"}] instead. Kept for backward compat. */
+    pricePerPerson: {
+      type: Number,
+      min: 0.01,
+    },
+
+    accommodationType: {
+      type: String,
+      set: (v: string) => v?.trim().toLowerCase(),
+    },
+
+    domesticFlightPerPerson: {
+      type: Number,
+      min: 0,
+    },
+
+    singleSupplement: {
+      type: Number,
+      min: 0,
+    },
+
+    note: { type: String },
   },
-
-  accommodationType: {
-    type: String,
-    set: (v: string) => v?.trim().toLowerCase(),
-  },
-
-  domesticFlightPerPerson: {
-    type: Number,
-    min: 0,
-  },
-
-  singleSupplement: {
-    type: Number,
-    min: 0,
-  },
-
-  note: { type: String },
-});
+  { _id: false },
+);
 
 export const tourSchema = new Schema({
   _id: mongooseStringRandomId,
 
   createdAt: { type: Date, label: 'Created at' },
   modifiedAt: { type: Date, label: 'Modified at' },
+  language: { type: String, optional: true, label: 'language' },
   refNumber: { type: String, optional: true, label: 'refnumber' },
   name: { type: String, optional: true, label: 'name' },
   groupCode: { type: String, optional: true, label: 'groupCode' },
@@ -117,7 +158,8 @@ export const tourSchema = new Schema({
   },
   date_status: {
     type: String,
-    default: '',
+    enum: getEnum(TOUR_STATUS_TYPES),
+    default: 'unscheduled',
     optional: true,
     label: 'date status',
     selectOptions: getEnum(TOUR_STATUS_TYPES),
@@ -165,7 +207,7 @@ export const tourSchema = new Schema({
     type: [pricingOptionSchema],
     required: true,
     validate: {
-      validator: (v: (typeof pricingOptionSchema)[]) => v.length > 0,
+      validator: (v?: unknown[]) => Array.isArray(v) && v.length > 0,
       message: 'At least one pricing option is required',
     },
   },
@@ -175,17 +217,16 @@ export const tourSchema = new Schema({
   },
 });
 
-tourSchema.pre('save', function (next) {
+tourSchema.pre('save', function (this: ITourDocument, next) {
   if (Array.isArray(this.pricingOptions) && this.pricingOptions.length > 0) {
-    const prices = this.pricingOptions
-      .map((p: { pricePerPerson?: number }) => p.pricePerPerson)
+    const adultPrices = this.pricingOptions
+      .map((p) => {
+        const fromArray = p.prices?.find((pp) => pp.type === 'adult')?.price;
+        return fromArray ?? p.pricePerPerson;
+      })
       .filter((price): price is number => typeof price === 'number');
 
-    if (prices.length > 0) {
-      this.startingPrice = Math.min(...prices);
-    } else {
-      this.startingPrice = undefined;
-    }
+    this.startingPrice = adultPrices.length > 0 ? Math.min(...adultPrices) : undefined;
   } else {
     this.startingPrice = undefined;
   }

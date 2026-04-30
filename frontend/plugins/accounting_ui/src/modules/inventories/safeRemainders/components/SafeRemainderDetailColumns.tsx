@@ -9,6 +9,7 @@ import {
   NumberField,
   RecordTable,
   RecordTableInlineCell,
+  RecordTableHotKeyControl,
 } from 'erxes-ui';
 import { useSafeRemainderItemEdit } from '../hooks/useSafeRemainderItemEdit';
 import { ISafeRemainderItem } from '../types/SafeRemainder';
@@ -115,9 +116,7 @@ export const safeRemDetailTableColumns: ColumnDef<ISafeRemainderItem>[] = [
   RecordTable.checkboxColumn as ColumnDef<ISafeRemainderItem>,
   {
     id: 'product',
-    header: () => (
-      <RecordTable.InlineHead icon={IconMoneybag} label="Product" />
-    ),
+    header: () => <RecordTable.InlineHead icon={IconMoneybag} label="Бараа" />,
     accessorKey: 'product',
     cell: ({ row }) => <ProductCell row={row} />,
     size: 300,
@@ -125,14 +124,16 @@ export const safeRemDetailTableColumns: ColumnDef<ISafeRemainderItem>[] = [
   {
     id: 'preCount',
     header: () => (
-      <RecordTable.InlineHead icon={IconMoneybag} label="Live Remainder" />
+      <RecordTable.InlineHead icon={IconMoneybag} label="Бодит үлдэгдэл" />
     ),
     accessorKey: 'preCount',
     cell: ({ getValue }) => <NumberCell getValue={getValue} />,
   },
   {
     id: 'uom',
-    header: () => <RecordTable.InlineHead icon={IconMoneybag} label="UOM" />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconMoneybag} label="Хэмжих нэгж" />
+    ),
     accessorKey: 'uom',
     cell: ({ row }) => (
       <RecordTableInlineCell>{row.original.uom ?? ''}</RecordTableInlineCell>
@@ -142,44 +143,68 @@ export const safeRemDetailTableColumns: ColumnDef<ISafeRemainderItem>[] = [
     id: 'status',
     accessorKey: 'status',
     header: () => (
-      <RecordTable.InlineHead icon={IconMoneybag} label="Checked" />
+      <RecordTable.InlineHead icon={IconMoneybag} label="Тоолсон" />
     ),
     size: 33,
     cell: ({ row }) => (
-      <StatusField
-        value={row.original.status}
-        field="status"
-        _id={row.original._id}
-        remItem={row.original}
-      />
+      <RecordTableHotKeyControl
+        rowId={row.original._id}
+        rowIndex={row.index}
+        colIndex={0}
+      >
+        <div>
+          <StatusField
+            value={row.original.status}
+            field="status"
+            _id={row.original._id}
+            remItem={row.original}
+          />
+        </div>
+      </RecordTableHotKeyControl>
     ),
   },
   {
     id: 'remainder',
     header: () => (
-      <RecordTable.InlineHead icon={IconMoneybag} label="Remainder" />
+      <RecordTable.InlineHead icon={IconMoneybag} label="Үлдэгдэл" />
     ),
     accessorKey: 'remainder',
     cell: ({ row }) => (
-      <RemainderField
-        value={row.original.count ?? 0}
-        field="count"
-        _id={row.original._id}
-        remItem={row.original}
-      />
+      <RecordTableHotKeyControl
+        rowId={row.original._id}
+        rowIndex={row.index}
+        colIndex={1}
+      >
+        <div>
+          <RemainderField
+            value={row.original.count ?? 0}
+            field="count"
+            _id={row.original._id}
+            remItem={row.original}
+          />
+        </div>
+      </RecordTableHotKeyControl>
     ),
   },
   {
     id: 'diff',
-    header: () => <RecordTable.InlineHead icon={IconMoneybag} label="Diff" />,
+    header: () => <RecordTable.InlineHead icon={IconMoneybag} label="Зөрүү" />,
     accessorKey: 'diff',
     cell: ({ row }) => (
-      <DiffField
-        value={row.original.count - row.original.preCount}
-        field="diff"
-        _id={row.original._id}
-        remItem={row.original}
-      />
+      <RecordTableHotKeyControl
+        rowId={row.original._id}
+        rowIndex={row.index}
+        colIndex={2}
+      >
+        <div>
+          <DiffField
+            value={row.original.count - row.original.preCount}
+            field="diff"
+            _id={row.original._id}
+            remItem={row.original}
+          />
+        </div>
+      </RecordTableHotKeyControl>
     ),
   },
 ];

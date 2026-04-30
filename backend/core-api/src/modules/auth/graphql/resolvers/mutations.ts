@@ -16,7 +16,7 @@ import {
   sendSaasMagicLinkEmail,
 } from '~/modules/auth/utils';
 import { assertSaasEnvironment } from '~/utils/saas';
-import { sendNotification } from 'erxes-api-shared/core-modules';
+import { sendEmail } from '~/utils/email';
 
 type LoginParams = {
   email: string;
@@ -70,6 +70,7 @@ export const authMutations = {
       true,
     );
   },
+
   /*
    * logout
    */
@@ -112,20 +113,20 @@ export const authMutations = {
 
     const link = `${DOMAIN}/reset-password?token=${token}`;
 
-    // await utils.sendEmail(
-    //   subdomain,
-    //   {
-    //     toEmails: [email],
-    //     title: 'Reset password',
-    //     template: {
-    //       name: 'resetPassword',
-    //       data: {
-    //         content: link,
-    //       },
-    //     },
-    //   },
-    //   models
-    // );
+    await sendEmail(
+      subdomain,
+      {
+        toEmails: [email],
+        title: 'Reset password',
+        template: {
+          name: 'resetPassword',
+          data: {
+            content: link,
+          },
+        },
+      },
+      models,
+    );
 
     return 'sent';
   },
@@ -275,7 +276,7 @@ export const authMutations = {
   },
 };
 
-markResolvers(authMutations, {
+markResolvers<IContext>(authMutations, {
   wrapperConfig: {
     skipPermission: true,
   },

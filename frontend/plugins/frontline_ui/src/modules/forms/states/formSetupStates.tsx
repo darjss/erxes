@@ -56,6 +56,7 @@ export const formSetupValuesAtom = atom((get) => {
       numberOfPages: content.steps.length,
       leadData: {
         appearance: general.appearance,
+        loadType: general.loadType,
         thankTitle: confirmation.title,
         thankContent: confirmation.description,
         thankImage: confirmation.image,
@@ -88,6 +89,14 @@ export const formSetupValuesAtom = atom((get) => {
             text: field.label,
             type: field.type,
             validation: field.validation,
+            logics: field.logics?.map(
+              ({ fieldId, logicOperator, logicValue }) => ({
+                fieldId,
+                logicOperator,
+                logicValue,
+              }),
+            ),
+            logicAction: field.logicAction,
           };
         });
       })
@@ -112,6 +121,7 @@ export const formSetSetupAtom = atom(null, (_, set, payload: IForm) => {
     buttonText: payload.buttonText,
     primaryColor: payload.leadData.primaryColor,
     appearance: payload.leadData.appearance,
+    loadType: payload.leadData.loadType || 'embedded',
   };
 
   const content = {
@@ -135,6 +145,8 @@ export const formSetSetupAtom = atom(null, (_, set, payload: IForm) => {
               required: field.isRequired || false,
               order: field.order,
               validation: field.validation,
+              logics: field.logics,
+              logicAction: field.logicAction || '',
               stepId: key,
             })),
         },

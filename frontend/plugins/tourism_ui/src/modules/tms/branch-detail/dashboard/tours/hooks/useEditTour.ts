@@ -5,21 +5,12 @@ import {
   GET_TOUR_GROUPS,
   GET_TOUR_DETAIL,
 } from '../graphql/queries';
-
-export interface IPricingOption {
-  _id?: string;
-  title: string;
-  minPersons: number;
-  maxPersons?: number;
-  pricePerPerson: number;
-  accommodationType?: string;
-  domesticFlightPerPerson?: number;
-  singleSupplement?: number;
-  note?: string;
-}
+import { ITourTranslationInput } from '../utils/translationHelpers';
+import type { PricingOptionInput } from '../utils/pricingOptions';
 
 export interface IEditTourVariables {
   id: string;
+  language?: string;
   dateStatus:
     | 'scheduled'
     | 'unscheduled'
@@ -56,7 +47,8 @@ export interface IEditTourVariables {
   imageThumbnail?: string;
   attachment?: { url: string; name: string; type: string; size: number } | null;
   categoryIds?: string[];
-  pricingOptions?: IPricingOption[];
+  pricingOptions?: PricingOptionInput[];
+  translations?: ITourTranslationInput[];
 }
 
 interface IEditTourResponse {

@@ -23,6 +23,8 @@ interface IQueryParams {
   searchValue?: string;
   number?: string;
   ptrStatus: string;
+  customerType?: string;
+  customerId?: string;
 
   accountIds?: string[];
   accountKind?: string;
@@ -128,6 +130,8 @@ const generateFilter = async (
     number,
     journal,
     journals,
+    customerType,
+    customerId,
     brandId,
     branchId,
     departmentId,
@@ -187,7 +191,9 @@ const generateFilter = async (
     filter.updatedAt = updatedDateQry;
   }
 
-  // filter['details.accountId'] = { $in: await getAccountIds(models, params, user) }
+  filter['details.accountId'] = {
+    $in: await getAccountIds(models, params, user),
+  };
 
   if (journals?.length) {
     filter.journal = { $in: journals };
@@ -263,6 +269,13 @@ const generateFilter = async (
     filter.departmentId = { $in: departments.map((item) => item._id) };
   }
 
+  if (customerType) {
+    filter.customerType = customerType;
+  }
+  if (customerId) {
+    filter.customerId = customerId;
+  }
+
   if (currency) {
     filter['details.currency'] = currency;
   }
@@ -271,7 +284,7 @@ const generateFilter = async (
 };
 
 const transactionCommon = {
-  async accTransactionDetail(
+  async accTransactionsDetail(
     _root,
     params: { _id: string },
     { models, user }: IContext,
@@ -292,6 +305,22 @@ const transactionCommon = {
     }).lean();
 
     return await checkPermissionTrs(models, relatedTrs, user);
+  },
+
+  async accTransactionDetail(
+    _root,
+    params: { _id: string },
+    { models }: IContext,
+  ) {
+    const transaction = await models.Transactions.findOne({
+      _id: params._id,
+    }).lean();
+
+    if (!transaction) {
+      throw new Error('Transaction not found');
+    }
+
+    return transaction;
   },
 
   async accTransactionsMain(

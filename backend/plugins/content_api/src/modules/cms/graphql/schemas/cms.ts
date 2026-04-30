@@ -7,6 +7,7 @@ export const types = `
     content: String
     language: String
     languages: [String]
+    postUrlField: String
     createdAt: Date
     updatedAt: Date
 
@@ -21,6 +22,7 @@ export const inputs = `
     content: String
     language: String
     languages: [String]
+    postUrlField: String
   }
 `;
 
@@ -31,6 +33,7 @@ export const queries = `
 
 export const mutations = `
   contentCreateCMS(input: ContentCMSInput): ContentCMS
+  cpContentCreateCMS(input: ContentCMSInput): ContentCMS
   contentUpdateCMS(id: String!, input: ContentCMSInput): ContentCMS
   contentDeleteCMS(id: String!): JSON
 `;

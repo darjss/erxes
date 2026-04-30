@@ -6,6 +6,7 @@ import {
   Switch,
   DatePicker,
 } from 'erxes-ui';
+import { SpreadsheetInput } from './SpreadsheetInput';
 
 export interface FieldDefinition {
   _id: string;
@@ -52,7 +53,7 @@ export const CustomFieldInput = ({
             placeholder={
               field.placeholder || `Enter ${field.label.toLowerCase()}`
             }
-            rows={3}
+            rows={10}
             value={value || ''}
             onChange={(e) => onChange(e.target.value)}
             className="w-full resize-none"
@@ -134,6 +135,15 @@ export const CustomFieldInput = ({
               </label>
             ))}
           </div>
+        );
+
+      case 'spreadsheet':
+        return (
+          <SpreadsheetInput
+            value={typeof value === 'string' ? value : ''}
+            onChange={onChange}
+            placeholder={field.placeholder}
+          />
         );
 
       case 'multiSelect': {
