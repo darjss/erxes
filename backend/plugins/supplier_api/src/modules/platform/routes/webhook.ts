@@ -66,11 +66,21 @@ router.post('/:platform/product', async (req: Request, res: Response) => {
   }
 });
 
-router.post('/supplier', async (req: Request, res: Response) => {
+router.post('/:platform/supplier', async (req: Request, res: Response) => {
   try {
+    const platform = req.params.platform as SubmissionPlatform;
+
+    console.log('platform', platform)
+
+    if (!SUBMISSION_PLATFORMS.ALL.includes(platform)) {
+      return res.status(400).json({ error: `Unknown platform: ${platform}` });
+    }
+
     const { subdomain, payload } = req.body || {};
     const { entityId, data } = payload || {};
     const { verificationStatus, note } = data || {};
+
+    console.log('payload', JSON.stringify(payload))
 
     if (!subdomain)
       return res.status(400).json({ error: 'subdomain is required' });

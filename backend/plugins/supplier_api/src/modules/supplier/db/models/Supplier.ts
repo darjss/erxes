@@ -123,6 +123,9 @@ export const loadSupplierClass = (
       if (!SUPPLIER_VERIFICATION_STATUS.ALL.includes(status)) {
         throw new Error('Invalid verification status');
       }
+
+      console.log('updateVerificationStatus', { _id, status, note });
+
       const supplier = await models.Supplier.findOneAndUpdate(
         { _id },
         { $set: { verificationStatus: status, verificationNote: note ?? null } },
