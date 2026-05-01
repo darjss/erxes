@@ -1,0 +1,487 @@
+{
+  "source": "backend/plugins/onefit_api/src/modules/**/db/definitions/*.ts",
+  "generatedAt": "2026-04-30",
+  "database": "onefit (code-derived)",
+  "collections": {
+    "onefit_activity_categories": {
+      "required": ["_id", "name"],
+      "properties": {
+        "_id": { "bsonType": "string" },
+        "createdAt": { "bsonType": "date" },
+        "modifiedAt": { "bsonType": "date" },
+        "name": { "bsonType": "object", "description": "localized mixed object (en,mn)" },
+        "description": { "bsonType": "object", "description": "localized mixed object" },
+        "parentId": { "bsonType": "string" },
+        "isActive": { "bsonType": "bool" },
+        "image": { "bsonType": "string" },
+        "icon": { "bsonType": "string" }
+      },
+      "indexes": [
+        { "fields": { "createdAt": 1 } },
+        { "fields": { "name.en": 1, "name.mn": 1 } },
+        { "fields": { "parentId": 1 } }
+      ]
+    },
+    "onefit_activity_types": {
+      "required": [
+        "_id",
+        "providerId",
+        "name",
+        "creditCost",
+        "duration",
+        "genderRestriction",
+        "categoryIds"
+      ],
+      "properties": {
+        "_id": { "bsonType": "string" },
+        "createdAt": { "bsonType": "date" },
+        "modifiedAt": { "bsonType": "date" },
+        "providerId": { "bsonType": "string" },
+        "name": { "bsonType": "object", "description": "localized mixed object (en,mn)" },
+        "description": { "bsonType": "object", "description": "localized mixed object" },
+        "creditCost": { "bsonType": "number" },
+        "price": { "bsonType": "number" },
+        "duration": { "bsonType": "number" },
+        "genderRestriction": { "bsonType": "string" },
+        "categoryIds": { "bsonType": "array", "items": { "bsonType": "string" } },
+        "isActive": { "bsonType": "bool" },
+        "cancellationDeadline": { "bsonType": "number" },
+        "singlePersonLimit": { "bsonType": "number" },
+        "image": { "bsonType": "string" }
+      },
+      "indexes": [
+        { "fields": { "createdAt": 1 } },
+        { "fields": { "providerId": 1 } },
+        { "fields": { "categoryIds": 1 } }
+      ]
+    },
+    "onefit_providers": {
+      "required": [
+        "_id",
+        "businessName",
+        "location",
+        "contactInfo",
+        "categoryIds",
+        "status"
+      ],
+      "properties": {
+        "_id": { "bsonType": "string" },
+        "createdAt": { "bsonType": "date" },
+        "modifiedAt": { "bsonType": "date" },
+        "businessName": { "bsonType": "object", "description": "localized mixed object (en,mn)" },
+        "description": { "bsonType": "object", "description": "localized mixed object" },
+        "location": {
+          "bsonType": "object",
+          "required": ["address", "city"],
+          "properties": {
+            "address": { "bsonType": "object", "description": "localized mixed object (en,mn)" },
+            "city": { "bsonType": "object", "description": "localized mixed object (en,mn)" },
+            "district": { "bsonType": "object", "description": "localized mixed object" },
+            "coordinates": {
+              "bsonType": "object",
+              "properties": {
+                "lat": { "bsonType": "number" },
+                "lng": { "bsonType": "number" }
+              }
+            },
+            "geoPoint": {
+              "bsonType": "object",
+              "properties": {
+                "type": { "bsonType": "string" },
+                "coordinates": { "bsonType": "array", "items": { "bsonType": "number" } }
+              }
+            }
+          }
+        },
+        "contactInfo": {
+          "bsonType": "object",
+          "required": ["phone", "email"],
+          "properties": {
+            "phone": { "bsonType": "string" },
+            "email": { "bsonType": "string" },
+            "website": { "bsonType": "string" }
+          }
+        },
+        "facilities": { "bsonType": "array", "items": { "bsonType": "string" } },
+        "categoryIds": { "bsonType": "array", "items": { "bsonType": "string" } },
+        "singleProviderLimit": { "bsonType": "number" },
+        "status": { "bsonType": "string" },
+        "rejectionReason": { "bsonType": "string" },
+        "approvedAt": { "bsonType": "date" },
+        "approvedBy": { "bsonType": "string" },
+        "rejectedBy": { "bsonType": "string" },
+        "isActive": { "bsonType": "bool" },
+        "icon": { "bsonType": "string" },
+        "coverImages": { "bsonType": "array", "items": { "bsonType": "string" } },
+        "instanceId": { "bsonType": "string" }
+      },
+      "indexes": [
+        { "fields": { "createdAt": 1 } },
+        { "fields": { "instanceId": 1 } },
+        { "fields": { "status": 1 } },
+        { "fields": { "categoryIds": 1 } },
+        { "fields": { "status": 1, "isActive": 1 } },
+        { "fields": { "location.geoPoint": "2dsphere" } }
+      ]
+    },
+    "onefit_provider_reviews": {
+      "required": ["_id", "providerId", "userId", "rating"],
+      "properties": {
+        "_id": { "bsonType": "string" },
+        "providerId": { "bsonType": "string" },
+        "userId": { "bsonType": "string" },
+        "bookingId": { "bsonType": "string" },
+        "activityTypeId": { "bsonType": "string" },
+        "rating": { "bsonType": "number" },
+        "comment": { "bsonType": "string" },
+        "createdAt": { "bsonType": "date" },
+        "updatedAt": { "bsonType": "date" }
+      },
+      "indexes": [
+        { "fields": { "providerId": 1 } },
+        { "fields": { "userId": 1 } },
+        { "fields": { "activityTypeId": 1 } },
+        { "fields": { "providerId": 1, "createdAt": -1 } },
+        {
+          "fields": { "bookingId": 1 },
+          "options": {
+            "unique": true,
+            "partialFilterExpression": { "bookingId": { "$gt": "" } }
+          }
+        }
+      ]
+    },
+    "onefit_cities": {
+      "required": ["_id", "name"],
+      "properties": {
+        "_id": { "bsonType": "string" },
+        "createdAt": { "bsonType": "date" },
+        "modifiedAt": { "bsonType": "date" },
+        "name": { "bsonType": "object", "description": "localized mixed object (en,mn)" },
+        "code": { "bsonType": "string" },
+        "isActive": { "bsonType": "bool" }
+      },
+      "indexes": [
+        { "fields": { "createdAt": 1 } },
+        { "fields": { "isActive": 1 } },
+        { "fields": { "code": 1 } }
+      ]
+    },
+    "onefit_districts": {
+      "required": ["_id", "cityId", "name"],
+      "properties": {
+        "_id": { "bsonType": "string" },
+        "createdAt": { "bsonType": "date" },
+        "modifiedAt": { "bsonType": "date" },
+        "cityId": { "bsonType": "string" },
+        "name": { "bsonType": "object", "description": "localized mixed object (en,mn)" },
+        "code": { "bsonType": "string" },
+        "isActive": { "bsonType": "bool" }
+      },
+      "indexes": [
+        { "fields": { "createdAt": 1 } },
+        { "fields": { "cityId": 1 } },
+        { "fields": { "cityId": 1, "isActive": 1 } },
+        { "fields": { "isActive": 1 } }
+      ]
+    },
+    "onefit_schedule_templates": {
+      "required": ["_id", "providerId", "month", "year", "dailySchedules"],
+      "properties": {
+        "_id": { "bsonType": "string" },
+        "createdAt": { "bsonType": "date" },
+        "modifiedAt": { "bsonType": "date" },
+        "providerId": { "bsonType": "string" },
+        "month": { "bsonType": "number" },
+        "year": { "bsonType": "number" },
+        "dailySchedules": {
+          "bsonType": "array",
+          "items": {
+            "bsonType": "object",
+            "required": [
+              "dayOfWeek",
+              "activityTypeId",
+              "genderRestriction",
+              "startTime",
+              "endTime",
+              "dailyLimit"
+            ],
+            "properties": {
+              "dayOfWeek": { "bsonType": "string" },
+              "activityTypeId": { "bsonType": "string" },
+              "genderRestriction": { "bsonType": "string" },
+              "startTime": { "bsonType": "string" },
+              "endTime": { "bsonType": "string" },
+              "dailyLimit": { "bsonType": "number" }
+            }
+          }
+        }
+      },
+      "indexes": [
+        { "fields": { "createdAt": 1 } },
+        { "fields": { "providerId": 1, "year": 1, "month": 1 }, "options": { "unique": true } }
+      ]
+    },
+    "onefit_schedule_exceptions": {
+      "required": ["_id", "providerId", "date"],
+      "properties": {
+        "_id": { "bsonType": "string" },
+        "createdAt": { "bsonType": "date" },
+        "providerId": { "bsonType": "string" },
+        "date": { "bsonType": "date" },
+        "reason": { "bsonType": "string" },
+        "activityTypeId": { "bsonType": "string" }
+      },
+      "indexes": [{ "fields": { "createdAt": 1 } }]
+    },
+    "onefit_membership_plans": {
+      "required": ["_id", "name", "creditAmount", "price", "gracePeriodDuration"],
+      "properties": {
+        "_id": { "bsonType": "string" },
+        "createdAt": { "bsonType": "date" },
+        "modifiedAt": { "bsonType": "date" },
+        "name": { "bsonType": "string" },
+        "description": { "bsonType": "string" },
+        "creditAmount": { "bsonType": "number" },
+        "planType": { "bsonType": "string" },
+        "duration": { "bsonType": "number" },
+        "price": { "bsonType": "number" },
+        "saleOptions": {
+          "bsonType": "array",
+          "items": {
+            "bsonType": "object",
+            "required": ["quantity"],
+            "properties": {
+              "quantity": { "bsonType": "number" },
+              "discountPercent": { "bsonType": "number" },
+              "finalPrice": { "bsonType": "number" }
+            }
+          }
+        },
+        "isActive": { "bsonType": "bool" },
+        "gracePeriodDuration": { "bsonType": "number" }
+      },
+      "indexes": [{ "fields": { "createdAt": 1 } }]
+    },
+    "onefit_credit_transactions": {
+      "required": ["_id", "userId", "amount", "transactionType", "source", "balanceAfter"],
+      "properties": {
+        "_id": { "bsonType": "string" },
+        "createdAt": { "bsonType": "date" },
+        "userId": { "bsonType": "string" },
+        "amount": { "bsonType": "number" },
+        "transactionType": { "bsonType": "string" },
+        "source": { "bsonType": "string" },
+        "bookingId": { "bsonType": "string" },
+        "corporateCreditId": { "bsonType": "string" },
+        "companyId": { "bsonType": "string" },
+        "description": { "bsonType": "string" },
+        "balanceAfter": { "bsonType": "number" }
+      },
+      "indexes": [
+        { "fields": { "createdAt": 1 } },
+        { "fields": { "userId": 1 } },
+        { "fields": { "corporateCreditId": 1 } },
+        { "fields": { "userId": 1, "createdAt": -1 } },
+        { "fields": { "bookingId": 1 } }
+      ]
+    },
+    "onefit_membership_purchases": {
+      "required": ["_id", "userId", "planId", "status", "purchasedAt", "amount"],
+      "properties": {
+        "_id": { "bsonType": "string" },
+        "createdAt": { "bsonType": "date" },
+        "modifiedAt": { "bsonType": "date" },
+        "externalHistoryId": { "bsonType": "string" },
+        "userId": { "bsonType": "string" },
+        "companyId": { "bsonType": "string" },
+        "planId": { "bsonType": "string" },
+        "status": { "bsonType": "string" },
+        "purchasedAt": { "bsonType": "date" },
+        "paidAt": { "bsonType": "date" },
+        "activatedAt": { "bsonType": "date" },
+        "expiresAt": { "bsonType": "date" },
+        "amount": { "bsonType": "number" },
+        "invoiceId": { "bsonType": "string" },
+        "promoCodeId": { "bsonType": "string" },
+        "removePreviousCredits": { "bsonType": "bool" }
+      },
+      "indexes": [
+        { "fields": { "createdAt": 1 } },
+        { "fields": { "externalHistoryId": 1 } },
+        { "fields": { "userId": 1 } },
+        { "fields": { "companyId": 1 } },
+        { "fields": { "planId": 1 } },
+        { "fields": { "status": 1 } },
+        { "fields": { "invoiceId": 1 } },
+        { "fields": { "promoCodeId": 1 } },
+        { "fields": { "userId": 1, "createdAt": -1 } },
+        { "fields": { "userId": 1, "status": 1 } }
+      ]
+    },
+    "onefit_bookings": {
+      "required": [
+        "_id",
+        "userId",
+        "providerId",
+        "activityTypeId",
+        "bookingDate",
+        "startTime",
+        "endTime",
+        "creditCost",
+        "bookingId"
+      ],
+      "properties": {
+        "_id": { "bsonType": "string" },
+        "createdAt": { "bsonType": "date" },
+        "modifiedAt": { "bsonType": "date" },
+        "userId": { "bsonType": "string" },
+        "providerId": { "bsonType": "string" },
+        "activityTypeId": { "bsonType": "string" },
+        "bookingDate": { "bsonType": "date" },
+        "startTime": { "bsonType": "string" },
+        "endTime": { "bsonType": "string" },
+        "creditCost": { "bsonType": "number" },
+        "price": { "bsonType": "number" },
+        "status": { "bsonType": "string" },
+        "attendanceStatus": { "bsonType": "string" },
+        "bookingId": { "bsonType": "string" },
+        "cancelledAt": { "bsonType": "date" },
+        "cancelledBy": { "bsonType": "string" },
+        "cancellationReason": { "bsonType": "string" },
+        "attendedAt": { "bsonType": "date" },
+        "markedBy": { "bsonType": "string" }
+      },
+      "indexes": [
+        { "fields": { "createdAt": 1 } },
+        { "fields": { "userId": 1 } },
+        { "fields": { "providerId": 1 } },
+        { "fields": { "activityTypeId": 1 } },
+        { "fields": { "bookingId": 1 }, "options": { "unique": true } },
+        { "fields": { "userId": 1, "createdAt": -1 } },
+        { "fields": { "providerId": 1, "bookingDate": 1 } },
+        { "fields": { "userId": 1, "activityTypeId": 1, "bookingDate": 1 } }
+      ]
+    },
+    "onefit_system_configs": {
+      "required": ["_id", "key", "value"],
+      "properties": {
+        "_id": { "bsonType": "string" },
+        "createdAt": { "bsonType": "date" },
+        "modifiedAt": { "bsonType": "date" },
+        "key": { "bsonType": "string" },
+        "value": { "bsonType": "object", "description": "mixed value" },
+        "description": { "bsonType": "string" }
+      },
+      "indexes": [
+        { "fields": { "createdAt": 1 } },
+        { "fields": { "key": 1 }, "options": { "unique": true } }
+      ]
+    },
+    "customers": {
+      "required": ["_id"],
+      "properties": {
+        "_id": { "bsonType": "string" },
+        "state": { "bsonType": "string" },
+        "createdAt": { "bsonType": "date" },
+        "updatedAt": { "bsonType": "date" },
+        "avatar": { "bsonType": "string" },
+        "firstName": { "bsonType": "string" },
+        "lastName": { "bsonType": "string" },
+        "middleName": { "bsonType": "string" },
+        "birthDate": { "bsonType": "date" },
+        "primaryEmail": { "bsonType": "string" },
+        "emails": { "bsonType": "array", "items": { "bsonType": "string" } },
+        "primaryPhone": { "bsonType": "string" },
+        "phones": { "bsonType": "array", "items": { "bsonType": "string" } },
+        "code": { "bsonType": "string" },
+        "searchText": { "bsonType": "string" },
+        "username": { "bsonType": "string" },
+        "gender": { "bsonType": "string" },
+        "crmId": { "bsonType": "number" },
+        "onefit2UserId": { "bsonType": "string" },
+        "status": { "bsonType": "string" },
+        "membershipPlanId": { "bsonType": "string" },
+        "membershipExpiresAt": { "bsonType": "date" },
+        "membershipStatus": { "bsonType": "string" },
+        "currentCreditBalance": { "bsonType": "number" },
+        "totalCreditsEarned": { "bsonType": "number" },
+        "totalCreditsUsed": { "bsonType": "number" },
+        "preferredActivityTypes": { "bsonType": "array", "items": { "bsonType": "string" } },
+        "bookingPreferences": {
+          "bsonType": "object",
+          "properties": {
+            "preferredTimeSlots": { "bsonType": "array", "items": { "bsonType": "string" } },
+            "preferredDays": { "bsonType": "array", "items": { "bsonType": "string" } },
+            "notificationEnabled": { "bsonType": "bool" }
+          }
+        },
+        "lastBookingDate": { "bsonType": "date" },
+        "totalBookings": { "bsonType": "number" },
+        "gracePeriodStart": { "bsonType": "date" },
+        "gracePeriodEnd": { "bsonType": "date" },
+        "isExpired": { "bsonType": "bool" },
+        "isInGracePeriod": { "bsonType": "bool" },
+        "isMembershipOnHold": { "bsonType": "bool" },
+        "membershipHoldStartAt": { "bsonType": "date" },
+        "membershipHoldEndAt": { "bsonType": "date" },
+        "membershipHoldEndedAt": { "bsonType": "date" },
+        "__t": { "bsonType": "string" }
+      },
+      "indexes": [
+        { "fields": { "crmId": 1 } },
+        { "fields": { "onefit2UserId": 1 } },
+        { "fields": { "membershipPlanId": 1 } },
+        { "fields": { "membershipStatus": 1 } },
+        { "fields": { "currentCreditBalance": 1 } },
+        { "fields": { "lastBookingDate": -1 } }
+      ]
+    },
+    "onefit_banners": {
+      "required": ["_id", "image", "providerId", "type", "status"],
+      "properties": {
+        "_id": { "bsonType": "string" },
+        "createdAt": { "bsonType": "date" },
+        "modifiedAt": { "bsonType": "date" },
+        "image": { "bsonType": "string" },
+        "providerId": { "bsonType": "string" },
+        "type": { "bsonType": "string" },
+        "status": { "bsonType": "string" },
+        "instanceId": { "bsonType": "string" }
+      },
+      "indexes": [
+        { "fields": { "createdAt": 1 } },
+        { "fields": { "instanceId": 1 } },
+        { "fields": { "providerId": 1 } },
+        { "fields": { "status": 1 } },
+        { "fields": { "type": 1 } },
+        { "fields": { "providerId": 1, "status": 1 } },
+        { "fields": { "type": 1, "status": 1 } }
+      ]
+    },
+    "onefit_promo_codes": {
+      "required": ["_id", "code", "discountType", "value"],
+      "properties": {
+        "_id": { "bsonType": "string" },
+        "createdAt": { "bsonType": "date" },
+        "modifiedAt": { "bsonType": "date" },
+        "code": { "bsonType": "string" },
+        "discountType": { "bsonType": "string" },
+        "value": { "bsonType": "number" },
+        "isCompanyTag": { "bsonType": "bool" },
+        "validFrom": { "bsonType": "date" },
+        "validTo": { "bsonType": "date" },
+        "usageLimit": { "bsonType": "number" },
+        "usedCount": { "bsonType": "number" },
+        "isActive": { "bsonType": "bool" }
+      },
+      "indexes": [
+        { "fields": { "createdAt": 1 } },
+        { "fields": { "code": 1 }, "options": { "unique": true } },
+        { "fields": { "isActive": 1 } },
+        { "fields": { "validFrom": 1 } },
+        { "fields": { "validTo": 1 } }
+      ]
+    }
+  }
+}

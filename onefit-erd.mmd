@@ -1,0 +1,21 @@
+erDiagram
+  onefit_cities ||--o{ onefit_districts : "cityId"
+  onefit_providers ||--o{ onefit_activity_types : "providerId"
+  onefit_providers ||--o{ onefit_bookings : "providerId"
+  onefit_activity_types ||--o{ onefit_bookings : "activityTypeId"
+
+  onefit_bookings ||--o{ onefit_provider_reviews : "bookingId (optional unique)"
+  onefit_providers ||--o{ onefit_provider_reviews : "providerId"
+  onefit_activity_types ||--o{ onefit_provider_reviews : "activityTypeId"
+
+  onefit_membership_plans ||--o{ onefit_membership_purchases : "planId"
+  onefit_promo_codes ||--o{ onefit_membership_purchases : "promoCodeId (optional)"
+  onefit_bookings ||--o{ onefit_credit_transactions : "bookingId (optional)"
+
+  onefit_providers ||--o{ onefit_banners : "providerId"
+
+  onefit_activity_categories ||--o{ onefit_activity_categories : "parentId"
+  onefit_activity_categories }o--o{ onefit_activity_types : "categoryIds (array)"
+  onefit_activity_categories }o--o{ onefit_providers : "categoryIds (array)"
+
+  onefit_membership_plans ||--o{ customers : "membershipPlanId"

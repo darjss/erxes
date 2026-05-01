@@ -132,7 +132,9 @@ export const BookingsList = ({
       sessionKey,
     },
   );
-  const [selectedBooking, setSelectedBooking] = useState<string | null>(null);
+  const [selectedBooking, setSelectedBooking] = useState<OneFitBooking | null>(
+    null,
+  );
   const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
   const [attendanceDialogOpen, setAttendanceDialogOpen] = useState(false);
   const { isSlaveMode } = useOneFitMode();
@@ -339,32 +341,44 @@ export const BookingsList = ({
               const booking = row.original;
               const isCancelled = booking.status === BookingStatus.CANCELLED;
               const isCompleted = booking.status === BookingStatus.COMPLETED;
+              const isNoShow =
+                booking.status === BookingStatus.NO_SHOW ||
+                booking.attendanceStatus === AttendanceStatus.NO_SHOW;
+              const isNoShowActive =
+                booking.status === BookingStatus.NO_SHOW ||
+                (booking.status === BookingStatus.CONFIRMED &&
+                  booking.attendanceStatus === AttendanceStatus.NO_SHOW);
+              const canMarkAttendance =
+                !isCancelled &&
+                !isCompleted &&
+                (booking.status === BookingStatus.CONFIRMED ||
+                  booking.status === BookingStatus.NO_SHOW);
 
               return (
                 <RecordTableInlineCell>
-                  <div className="flex gap-2">
+                  <div className="flex flex-wrap gap-2">
                     {!isCancelled && !isCompleted && (
                       <Button
                         variant="outline"
                         size="sm"
                         onClick={() => {
-                          setSelectedBooking(booking._id);
+                          setSelectedBooking(booking);
                           setCancelDialogOpen(true);
                         }}
                       >
-                        Cancel
+                        {isNoShow ? 'Cancel & refund' : 'Cancel'}
                       </Button>
                     )}
-                    {booking.status === BookingStatus.CONFIRMED && (
+                    {canMarkAttendance && (
                       <Button
                         variant="outline"
                         size="sm"
                         onClick={() => {
-                          setSelectedBooking(booking._id);
+                          setSelectedBooking(booking);
                           setAttendanceDialogOpen(true);
                         }}
                       >
-                        Mark Attendance
+                        {isNoShowActive ? 'Mark attended' : 'Mark attendance'}
                       </Button>
                     )}
                   </div>
@@ -430,7 +444,11 @@ export const BookingsList = ({
       {selectedBooking && (
         <>
           <CancelBookingDialog
-            bookingId={selectedBooking}
+            bookingId={selectedBooking._id}
+            isNoShowBooking={
+              selectedBooking.status === BookingStatus.NO_SHOW ||
+              selectedBooking.attendanceStatus === AttendanceStatus.NO_SHOW
+            }
             open={cancelDialogOpen}
             onOpenChange={setCancelDialogOpen}
             onClose={() => {
@@ -439,7 +457,11 @@ export const BookingsList = ({
             }}
           />
           <MarkAttendanceDialog
-            bookingId={selectedBooking}
+            bookingId={selectedBooking._id}
+            noShowOverride={
+              selectedBooking.status === BookingStatus.NO_SHOW ||
+              selectedBooking.attendanceStatus === AttendanceStatus.NO_SHOW
+            }
             open={attendanceDialogOpen}
             onOpenChange={setAttendanceDialogOpen}
             onClose={() => {

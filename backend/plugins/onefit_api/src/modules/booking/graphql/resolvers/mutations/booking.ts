@@ -321,13 +321,6 @@ async function cancelBookingLogic(
     throw new Error('Cannot cancel a booking that was already attended');
   }
 
-  if (
-    booking.status === BookingStatus.NO_SHOW ||
-    booking.attendanceStatus === AttendanceStatus.NO_SHOW
-  ) {
-    throw new Error('Cannot cancel a booking that was marked as no-show');
-  }
-
   if (!skipDateTimeCheck) {
     const activityType = await models.ActivityType.findById(
       booking.activityTypeId,
@@ -536,15 +529,27 @@ async function notifyBookingCancelledViaClientPortal(
   }
 }
 
-function validateAttendanceMarkPreconditions(booking: IBookingDocument): void {
+function validateAttendanceMarkPreconditions(
+  booking: IBookingDocument,
+  targetStatus: AttendanceStatus,
+): void {
   if (booking.status === BookingStatus.CANCELLED) {
     throw new Error('Cannot mark attendance for a cancelled booking');
   }
 
   if (
-    booking.status === BookingStatus.COMPLETED ||
-    booking.status === BookingStatus.NO_SHOW
+    targetStatus === AttendanceStatus.ATTENDED &&
+    (booking.status === BookingStatus.NO_SHOW ||
+      booking.attendanceStatus === AttendanceStatus.NO_SHOW)
   ) {
+    return;
+  }
+
+  if (booking.status === BookingStatus.COMPLETED) {
+    throw new Error('Booking attendance has already been finalized');
+  }
+
+  if (booking.status === BookingStatus.NO_SHOW) {
     throw new Error('Booking attendance has already been finalized');
   }
 
@@ -625,7 +630,7 @@ export const bookingMutations: Record<string, Resolver> = {
       throw new Error('Booking not found');
     }
 
-    validateAttendanceMarkPreconditions(booking);
+    validateAttendanceMarkPreconditions(booking, attendanceStatus);
 
     // Verify instanceId ownership if instanceId is set
     if (instanceId) {
@@ -664,7 +669,7 @@ export const bookingMutations: Record<string, Resolver> = {
     }
 
     for (const booking of bookings) {
-      validateAttendanceMarkPreconditions(booking);
+      validateAttendanceMarkPreconditions(booking, attendanceStatus);
     }
 
     if (instanceId) {
@@ -761,6 +766,15 @@ export const bookingMutations: Record<string, Resolver> = {
 
     if (booking.userId !== userId) {
       throw new Error('You do not have permission to cancel this booking');
+    }
+
+    if (
+      booking.status === BookingStatus.NO_SHOW ||
+      booking.attendanceStatus === AttendanceStatus.NO_SHOW
+    ) {
+      throw new Error(
+        'No-show bookings cannot be cancelled from the client portal',
+      );
     }
 
     const cancelledBooking = await cancelBookingLogic(_id, userId, reason, {

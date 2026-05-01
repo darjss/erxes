@@ -12,6 +12,8 @@ type CancelBookingFormData = z.infer<typeof cancelBookingSchema>;
 
 interface CancelBookingDialogProps {
   bookingId: string;
+  /** No-show cancellation refunds credits like a normal staff cancel. */
+  isNoShowBooking?: boolean;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onClose: () => void;
@@ -19,6 +21,7 @@ interface CancelBookingDialogProps {
 
 export const CancelBookingDialog = ({
   bookingId,
+  isNoShowBooking = false,
   open,
   onOpenChange,
   onClose,
@@ -50,8 +53,9 @@ export const CancelBookingDialog = ({
         <Dialog.Header>
           <Dialog.Title>Cancel Booking</Dialog.Title>
           <Dialog.Description>
-            Are you sure you want to cancel this booking? This action cannot be
-            undone. Cancellation must be made at least 24 hours in advance.
+            {isNoShowBooking
+              ? 'Cancel this no-show booking and refund credits to the member. This cannot be undone.'
+              : 'Are you sure you want to cancel this booking? This action cannot be undone. Cancellation must be made at least 24 hours in advance.'}
           </Dialog.Description>
         </Dialog.Header>
         <Form {...form}>
