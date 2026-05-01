@@ -31,6 +31,8 @@ startPlugin({
       callback: async (subdomain, data) => {
         const { contentTypeId, contentType, status } = data;
 
+        console.log('data', JSON.stringify(data, null, 2));
+
         if (contentType !== 'mushop:subscription') {
           return;
         }
@@ -53,6 +55,8 @@ startPlugin({
           },
         });
 
+        console.log('cpUser', JSON.stringify(cpUser, null, 2));
+
         if (!cpUser) {
           return;
         }
@@ -61,6 +65,8 @@ startPlugin({
           await models.CustomerSubscription.getActiveSubscription(
             contentTypeId,
           );
+
+        console.log('existing', JSON.stringify(existing, null, 2));
 
         if (existing) {
           await models.CustomerSubscription.extendSubscription(existing._id);
