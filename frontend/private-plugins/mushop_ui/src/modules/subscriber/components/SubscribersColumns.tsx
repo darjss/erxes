@@ -4,18 +4,17 @@ import {
   Badge,
   RecordTable,
   RecordTableInlineCell,
-  RelativeDateDisplay,
-  TextOverflowTooltip,
   useQueryState,
 } from 'erxes-ui';
 import {
   IconCalendar,
-  IconCalendarOff,
   IconCash,
-  IconId,
+  IconClockHour4,
   IconProgress,
   IconUser,
+  IconPackage,
 } from '@tabler/icons-react';
+import { CustomersInline } from 'ui-modules';
 import { ISubscriber } from '../types';
 import { SelectSubscriberStatus } from './SelectSubscriberStatus';
 
@@ -25,44 +24,39 @@ const statusVariant = (status?: string) => {
   return 'secondary' as const;
 };
 
+const formatDate = (dateStr?: string) => {
+  if (!dateStr) return '?';
+  return new Date(dateStr).toLocaleDateString(undefined, {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+  });
+};
+
 export const subscribersColumns: ColumnDef<ISubscriber>[] = [
   RecordTable.checkboxColumn as ColumnDef<ISubscriber>,
   {
-    id: 'cpUserId',
-    accessorKey: 'cpUserId',
-    header: () => <RecordTable.InlineHead label="CP User ID" icon={IconUser} />,
+    id: 'customerId',
+    accessorKey: 'customerId',
+    header: () => <RecordTable.InlineHead label="Customer" icon={IconUser} />,
     cell: ({ cell, row }) => {
       const [, setActiveSubscriberId] =
         useQueryState<string>('activeSubscriberId');
+      const customerId = cell.getValue() as string;
       return (
         <RecordTableInlineCell
           onClick={() => setActiveSubscriberId(row.original._id)}
         >
-          <TextOverflowTooltip value={cell.getValue() as string} />
+          <CustomersInline customerIds={[customerId]} placeholder="—" />
         </RecordTableInlineCell>
       );
     },
     size: 220,
   },
   {
-    id: 'erxesCustomerId',
-    accessorKey: 'erxesCustomerId',
-    header: () => (
-      <RecordTable.InlineHead label="Customer ID" icon={IconId} />
-    ),
-    cell: ({ cell }) => (
-      <RecordTableInlineCell>
-        <TextOverflowTooltip value={(cell.getValue() as string) || '-'} />
-      </RecordTableInlineCell>
-    ),
-    size: 220,
-  },
-  {
     id: 'status',
     accessorKey: 'status',
-    header: () => (
-      <RecordTable.InlineHead label="Status" icon={IconProgress} />
-    ),
+    header: () => <RecordTable.InlineHead label="Status" icon={IconProgress} />,
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         <Badge variant={statusVariant(cell.getValue() as string)}>
@@ -71,6 +65,19 @@ export const subscribersColumns: ColumnDef<ISubscriber>[] = [
       </RecordTableInlineCell>
     ),
     size: 120,
+  },
+  {
+    id: 'plan',
+    header: () => <RecordTable.InlineHead label="Plan" icon={IconPackage} />,
+    cell: ({ row }) => {
+      const plan = row.original.plan;
+      return (
+        <RecordTableInlineCell>
+          {plan ? `${plan.name} · ${plan.durationMonths}mo` : '-'}
+        </RecordTableInlineCell>
+      );
+    },
+    size: 160,
   },
   {
     id: 'amount',
@@ -88,48 +95,39 @@ export const subscribersColumns: ColumnDef<ISubscriber>[] = [
     size: 140,
   },
   {
-    id: 'startDate',
-    accessorKey: 'startDate',
+    id: 'timeLeft',
     header: () => (
-      <RecordTable.InlineHead label="Start Date" icon={IconCalendar} />
+      <RecordTable.InlineHead label="Time Left" icon={IconClockHour4} />
     ),
-    cell: ({ cell }) => (
-      <RelativeDateDisplay value={cell.getValue() as string} asChild>
-        <RecordTableInlineCell>
-          <RelativeDateDisplay.Value value={cell.getValue() as string} />
-        </RecordTableInlineCell>
-      </RelativeDateDisplay>
-    ),
-    size: 160,
+    cell: ({ row }) => {
+      const { endDate, status } = row.original;
+      if (!endDate || status !== 'active') {
+        return <RecordTableInlineCell>-</RecordTableInlineCell>;
+      }
+      const diff = Math.ceil(
+        (new Date(endDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24),
+      );
+      const label =
+        diff <= 0 ? 'Expires today' : `${diff} day${diff === 1 ? '' : 's'}`;
+      return <RecordTableInlineCell>{label}</RecordTableInlineCell>;
+    },
+    size: 120,
   },
   {
-    id: 'endDate',
-    accessorKey: 'endDate',
+    id: 'duration',
     header: () => (
-      <RecordTable.InlineHead label="End Date" icon={IconCalendarOff} />
+      <RecordTable.InlineHead label="Subscription Period" icon={IconCalendar} />
     ),
-    cell: ({ cell }) => (
-      <RelativeDateDisplay value={cell.getValue() as string} asChild>
+    cell: ({ row }) => {
+      const { startDate, endDate } = row.original;
+      return (
         <RecordTableInlineCell>
-          <RelativeDateDisplay.Value value={cell.getValue() as string} />
+          {startDate && endDate
+            ? `${formatDate(startDate)} → ${formatDate(endDate)}`
+            : '-'}
         </RecordTableInlineCell>
-      </RelativeDateDisplay>
-    ),
-    size: 160,
-  },
-  {
-    id: 'createdAt',
-    accessorKey: 'createdAt',
-    header: () => (
-      <RecordTable.InlineHead label="Created" icon={IconCalendar} />
-    ),
-    cell: ({ cell }) => (
-      <RelativeDateDisplay value={cell.getValue() as string} asChild>
-        <RecordTableInlineCell>
-          <RelativeDateDisplay.Value value={cell.getValue() as string} />
-        </RecordTableInlineCell>
-      </RelativeDateDisplay>
-    ),
-    size: 160,
+      );
+    },
+    size: 260,
   },
 ];

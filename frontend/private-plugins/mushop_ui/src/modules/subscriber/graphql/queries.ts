@@ -3,8 +3,14 @@ import { GQL_CURSOR_PARAM_DEFS, GQL_CURSOR_PARAMS } from 'erxes-ui';
 
 const SUBSCRIBER_FIELDS = `
   _id
-  cpUserId
-  erxesCustomerId
+  customerId
+  plan {
+    _id
+    name
+    price
+    currency
+    durationMonths
+  }
   status
   startDate
   endDate

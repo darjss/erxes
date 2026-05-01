@@ -7,14 +7,14 @@ const mushopCancelMySubscription = async (
 ) => {
   if (!cpUser) throw new Error('Login required');
 
-  const sub = await models.CustomerSubscription.findOne({
+  const sub = await models.MushopSubscription.findOne({
     _id,
-    cpUserId: cpUser._id,
+    customerId: cpUser.erxesCustomerId || cpUser._id,
   });
 
   if (!sub) throw new Error('Subscription not found');
 
-  return models.CustomerSubscription.cancelSubscription(_id);
+  return models.MushopSubscription.cancelSubscription(_id);
 };
 mushopCancelMySubscription.wrapperConfig = {
   forClientPortal: true,
@@ -26,9 +26,9 @@ const mushopCancelSubscription = async (
   { _id }: { _id: string },
   { models }: IContext,
 ) => {
-  const sub = await models.CustomerSubscription.findOne({ _id });
+  const sub = await models.MushopSubscription.findOne({ _id });
   if (!sub) throw new Error('Subscription not found');
-  return models.CustomerSubscription.cancelSubscription(_id);
+  return models.MushopSubscription.cancelSubscription(_id);
 };
 
 export const subscriptionMutations = {

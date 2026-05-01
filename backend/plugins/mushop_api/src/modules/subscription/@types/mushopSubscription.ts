@@ -1,8 +1,8 @@
 import { Document } from 'mongoose';
 
-export interface ICustomerSubscription {
-  cpUserId: string;
-  erxesCustomerId?: string;
+export interface IMushopSubscription {
+  customerId: string;
+  planId?: string;
   status: string;
   startDate: Date;
   endDate: Date;
@@ -11,8 +11,8 @@ export interface ICustomerSubscription {
   invoiceId?: string;
 }
 
-export interface ICustomerSubscriptionDocument
-  extends ICustomerSubscription,
+export interface IMushopSubscriptionDocument
+  extends IMushopSubscription,
     Document {
   _id: string;
   createdAt: Date;

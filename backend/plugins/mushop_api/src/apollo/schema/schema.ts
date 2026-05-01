@@ -12,24 +12,32 @@ import {
   mutations as SubscriptionMutations,
   queries as SubscriptionQueries,
   types as SubscriptionTypes,
-} from '@/subscription/graphql/schemas/customerSubscription';
+} from '@/subscription/graphql/schemas/mushopSubscription';
+import {
+  mutations as SubscriptionPlanMutations,
+  queries as SubscriptionPlanQueries,
+  types as SubscriptionPlanTypes,
+} from '@/subscription/graphql/schemas/mushopSubscriptionPlan';
 
 export const types = `
   ${SupplierTypes}
   ${ProductTypes}
   ${SubscriptionTypes}
+  ${SubscriptionPlanTypes}
 `;
 
 export const queries = `
   ${SupplierQueries}
   ${ProductQueries}
   ${SubscriptionQueries}
+  ${SubscriptionPlanQueries}
 `;
 
 export const mutations = `
   ${SupplierMutations}
   ${ProductMutations}
   ${SubscriptionMutations}
+  ${SubscriptionPlanMutations}
 `;
 
 export default { types, queries, mutations };

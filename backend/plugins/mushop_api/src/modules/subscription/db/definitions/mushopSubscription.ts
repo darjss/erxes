@@ -1,14 +1,14 @@
 import { Schema } from 'mongoose';
 import { mongooseStringRandomId } from 'erxes-api-shared/utils';
-import { ICustomerSubscriptionDocument } from '@/subscription/@types/customerSubscription';
+import { IMushopSubscriptionDocument } from '@/subscription/@types/mushopSubscription';
 import { SUBSCRIPTION_STATUS } from '~/constants';
 
-export const customerSubscriptionSchema =
-  new Schema<ICustomerSubscriptionDocument>(
+export const mushopSubscriptionSchema =
+  new Schema<IMushopSubscriptionDocument>(
     {
       _id: mongooseStringRandomId,
-      cpUserId: { type: String, required: true, index: true },
-      erxesCustomerId: { type: String, index: true },
+      customerId: { type: String, required: true, index: true },
+      planId: { type: String, index: true },
       status: {
         type: String,
         enum: SUBSCRIPTION_STATUS.ALL,

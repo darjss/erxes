@@ -3,6 +3,7 @@ import { MushopSupplier } from '@/supplier/graphql/resolvers/customResolvers/sup
 import { MushopProduct } from '@/product/graphql/resolvers/customResolvers/mushopProduct';
 import { mutations } from './mutations';
 import { queries } from './queries';
+import { subscriptionTypeResolvers } from '@/subscription/graphql/resolvers/queries/mushopSubscription';
 
 const resolvers: any = {
   Mutation: {
@@ -13,6 +14,7 @@ const resolvers: any = {
   },
   MushopSupplier,
   MushopProduct,
+  ...subscriptionTypeResolvers,
   ...apolloCustomScalars,
 };
 

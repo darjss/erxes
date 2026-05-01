@@ -1,9 +1,19 @@
 import { IPageInfo } from 'ui-modules';
 
+export interface ISubscriptionPlan {
+  _id: string;
+  name: string;
+  description?: string;
+  price: number;
+  currency: string;
+  durationMonths: number;
+}
+
 export interface ISubscriber {
   _id: string;
-  cpUserId: string;
-  erxesCustomerId?: string;
+  customerId: string;
+  planId?: string;
+  plan?: ISubscriptionPlan;
   status?: string;
   startDate?: string;
   endDate?: string;

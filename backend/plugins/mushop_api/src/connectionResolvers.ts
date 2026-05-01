@@ -12,16 +12,22 @@ import {
   loadMushopProductClass,
   IMushopProductModel,
 } from '@/product/db/models/Product';
-import { ICustomerSubscriptionDocument } from '@/subscription/@types/customerSubscription';
+import { IMushopSubscriptionDocument } from '@/subscription/@types/mushopSubscription';
 import {
-  loadCustomerSubscriptionClass,
-  ICustomerSubscriptionModel,
-} from '@/subscription/db/models/CustomerSubscription';
+  loadMushopSubscriptionClass,
+  IMushopSubscriptionModel,
+} from '@/subscription/db/models/MushopSubscription';
+import { IMushopSubscriptionPlanDocument } from '@/subscription/@types/mushopSubscriptionPlan';
+import {
+  loadMushopSubscriptionPlanClass,
+  IMushopSubscriptionPlanModel,
+} from '@/subscription/db/models/MushopSubscriptionPlan';
 
 export interface IModels {
   Supplier: ISupplierModel;
   MushopProduct: IMushopProductModel;
-  CustomerSubscription: ICustomerSubscriptionModel;
+  MushopSubscription: IMushopSubscriptionModel;
+  MushopSubscriptionPlan: IMushopSubscriptionPlanModel;
 }
 
 export interface IContext extends IMainContext {
@@ -56,10 +62,15 @@ export const loadClasses = (
     ),
   );
 
-  models.CustomerSubscription = db.model<
-    ICustomerSubscriptionDocument,
-    ICustomerSubscriptionModel
-  >('mushop_customer_subscriptions', loadCustomerSubscriptionClass(models));
+  models.MushopSubscription = db.model<
+    IMushopSubscriptionDocument,
+    IMushopSubscriptionModel
+  >('mushop_subscriptions', loadMushopSubscriptionClass(models));
+
+  models.MushopSubscriptionPlan = db.model<
+    IMushopSubscriptionPlanDocument,
+    IMushopSubscriptionPlanModel
+  >('mushop_subscription_plans', loadMushopSubscriptionPlanClass(models));
 
   return models;
 };

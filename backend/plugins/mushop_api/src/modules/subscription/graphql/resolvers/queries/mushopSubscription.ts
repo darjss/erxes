@@ -1,7 +1,7 @@
 import { IContext } from '~/connectionResolvers';
 import { Resolver } from 'erxes-api-shared/core-types';
 import { cursorPaginate } from 'erxes-api-shared/utils';
-import { ICustomerSubscriptionDocument } from '@/subscription/@types/customerSubscription';
+import { IMushopSubscriptionDocument } from '@/subscription/@types/mushopSubscription';
 
 const mushopMySubscription: Resolver = async (
   _root,
@@ -10,7 +10,9 @@ const mushopMySubscription: Resolver = async (
 ) => {
   if (!cpUser) return null;
 
-  return models.CustomerSubscription.getActiveSubscription(cpUser._id);
+  return models.MushopSubscription.getActiveSubscription(
+    cpUser.erxesCustomerId || cpUser._id,
+  );
 };
 
 mushopMySubscription.wrapperConfig = {
@@ -25,7 +27,7 @@ const mushopIsSubscribed: Resolver = async (
 ) => {
   if (!cpUser) return false;
 
-  const subsription = await models.CustomerSubscription.getActiveSubscription(
+  const subsription = await models.MushopSubscription.getActiveSubscription(
     cpUser._id,
   );
 
@@ -48,14 +50,11 @@ const mushopSubscriptions: Resolver = async (
   if (status) query.status = status;
 
   if (searchValue) {
-    query.$or = [
-      { cpUserId: { $regex: searchValue, $options: 'i' } },
-      { erxesCustomerId: { $regex: searchValue, $options: 'i' } },
-    ];
+    query.customerId = { $regex: searchValue, $options: 'i' };
   }
 
-  return cursorPaginate<ICustomerSubscriptionDocument>({
-    model: models.CustomerSubscription,
+  return cursorPaginate<IMushopSubscriptionDocument>({
+    model: models.MushopSubscription,
     params: cursorParams,
     query,
   });
@@ -66,7 +65,7 @@ const mushopSubscriptionDetail: Resolver = async (
   { _id },
   { models }: IContext,
 ) => {
-  return models.CustomerSubscription.findOne({ _id }).lean();
+  return models.MushopSubscription.findOne({ _id }).lean();
 };
 
 export const subscriptionQueries = {
@@ -74,4 +73,13 @@ export const subscriptionQueries = {
   mushopIsSubscribed,
   mushopSubscriptions,
   mushopSubscriptionDetail,
+};
+
+export const subscriptionTypeResolvers = {
+  MushopSubscription: {
+    plan: async (sub, _args, { models }: IContext) => {
+      if (!sub.planId) return null;
+      return models.MushopSubscriptionPlan.findOne({ _id: sub.planId }).lean();
+    },
+  },
 };

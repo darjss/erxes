@@ -7,7 +7,7 @@ const isSubscribed = async (
   cpUser: any,
 ): Promise<boolean> => {
   if (!cpUser) return false;
-  const sub = await models.CustomerSubscription.getActiveSubscription(
+  const sub = await models.MushopSubscription.getActiveSubscription(
     cpUser._id,
   );
   return !!sub;
