@@ -1,10 +1,9 @@
 import { Schema } from 'mongoose';
 import { mongooseStringRandomId } from 'erxes-api-shared/utils';
-import { schemaWrapper } from '~/utils';
 import { ICustomerSubscriptionDocument } from '@/subscription/@types/customerSubscription';
 import { SUBSCRIPTION_STATUS } from '~/constants';
 
-export const customerSubscriptionSchema = schemaWrapper(
+export const customerSubscriptionSchema =
   new Schema<ICustomerSubscriptionDocument>(
     {
       _id: mongooseStringRandomId,
@@ -22,5 +21,4 @@ export const customerSubscriptionSchema = schemaWrapper(
       invoiceId: { type: String },
     },
     { timestamps: true },
-  ),
-);
+  );
