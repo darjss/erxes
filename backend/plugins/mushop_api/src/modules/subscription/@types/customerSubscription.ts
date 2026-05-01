@@ -1,7 +1,8 @@
 import { Document } from 'mongoose';
 
 export interface ICustomerSubscription {
-  subscriberId: string;
+  cpUserId: string;
+  erxesCustomerId?: string;
   status: string;
   startDate: Date;
   endDate: Date;

@@ -8,7 +8,8 @@ export const customerSubscriptionSchema = schemaWrapper(
   new Schema<ICustomerSubscriptionDocument>(
     {
       _id: mongooseStringRandomId,
-      subscriberId: { type: String, required: true, index: true },
+      cpUserId: { type: String, required: true, index: true },
+      erxesCustomerId: { type: String, index: true },
       status: {
         type: String,
         enum: SUBSCRIPTION_STATUS.ALL,

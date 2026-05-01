@@ -29,7 +29,7 @@ startPlugin({
   meta: {
     payments: {
       callback: async (subdomain, data) => {
-        const { contentTypeId, contentType, status } = data;
+        const { contentType, status } = data;
 
         console.log('data', JSON.stringify(data, null, 2));
 
@@ -62,9 +62,7 @@ startPlugin({
         }
 
         const existing =
-          await models.CustomerSubscription.getActiveSubscription(
-            contentTypeId,
-          );
+          await models.CustomerSubscription.getActiveSubscription(cpUser._id);
 
         console.log('existing', JSON.stringify(existing, null, 2));
 
@@ -72,7 +70,8 @@ startPlugin({
           await models.CustomerSubscription.extendSubscription(existing._id);
         } else {
           await models.CustomerSubscription.createSubscription({
-            subscriberId: cpUser?.erxesCustomerId || cpUser._id,
+            cpUserId: cpUser._id,
+            erxesCustomerId: cpUser.erxesCustomerId,
             amount: data.amount,
             currency: data.currency,
             invoiceId: data._id,

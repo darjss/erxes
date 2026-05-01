@@ -7,10 +7,11 @@ import { SUBSCRIPTION_STATUS } from '~/constants';
 export interface ICustomerSubscriptionModel
   extends Model<ICustomerSubscriptionDocument> {
   getActiveSubscription(
-    subscriptionId: string,
+    cpUserId: string,
   ): Promise<ICustomerSubscriptionDocument | null>;
   createSubscription(doc: {
-    subscriberId: string;
+    cpUserId: string;
+    erxesCustomerId?: string;
     amount?: number;
     currency?: string;
     invoiceId?: string;
@@ -26,9 +27,9 @@ export interface ICustomerSubscriptionModel
 
 export const loadCustomerSubscriptionClass = (models: IModels) => {
   class CustomerSubscription {
-    public static async getActiveSubscription(subscriptionId: string) {
+    public static async getActiveSubscription(cpUserId: string) {
       const subscription = await models.CustomerSubscription.findOne({
-        subscriberId: subscriptionId,
+        cpUserId,
         status: SUBSCRIPTION_STATUS.ACTIVE,
       }).lean();
 
@@ -45,7 +46,8 @@ export const loadCustomerSubscriptionClass = (models: IModels) => {
     }
 
     public static async createSubscription(doc: {
-      subscriberId: string;
+      cpUserId: string;
+      erxesCustomerId?: string;
       amount?: number;
       currency?: string;
       invoiceId?: string;

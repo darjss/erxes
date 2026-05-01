@@ -10,9 +10,7 @@ const mushopMySubscription: Resolver = async (
 ) => {
   if (!cpUser) return null;
 
-  return models.CustomerSubscription.getActiveSubscription(
-    cpUser.erxesCustomerId || cpUser._id,
-  );
+  return models.CustomerSubscription.getActiveSubscription(cpUser._id);
 };
 
 mushopMySubscription.wrapperConfig = {
@@ -28,7 +26,7 @@ const mushopIsSubscribed: Resolver = async (
   if (!cpUser) return false;
 
   const subsription = await models.CustomerSubscription.getActiveSubscription(
-    cpUser.erxesCustomerId || cpUser._id,
+    cpUser._id,
   );
 
   return Boolean(subsription);

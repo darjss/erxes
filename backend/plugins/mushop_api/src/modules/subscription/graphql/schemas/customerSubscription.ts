@@ -3,7 +3,8 @@ import { GQL_CURSOR_PARAM_DEFS } from 'erxes-api-shared/utils';
 export const types = `
   type MushopCustomerSubscription {
     _id: String!
-    subscriberId: String!
+    cpUserId: String!
+    erxesCustomerId: String
     status: String
     startDate: Date
     endDate: Date
