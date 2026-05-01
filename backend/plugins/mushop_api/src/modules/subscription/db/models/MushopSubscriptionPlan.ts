@@ -1,7 +1,13 @@
 import { Model } from 'mongoose';
+import { EventDispatcherReturn } from 'erxes-api-shared/core-modules';
 import { IModels } from '~/connectionResolvers';
 import { mushopSubscriptionPlanSchema } from '@/subscription/db/definitions/mushopSubscriptionPlan';
 import { IMushopSubscriptionPlanDocument } from '@/subscription/@types/mushopSubscriptionPlan';
+import {
+  buildPlanCreatedLog,
+  buildPlanUpdatedLog,
+  buildPlanDeactivatedLog,
+} from '~/meta/activity-log/mushopSubscriptionPlan';
 
 export interface IMushopSubscriptionPlanModel
   extends Model<IMushopSubscriptionPlanDocument> {
@@ -24,7 +30,10 @@ export interface IMushopSubscriptionPlanModel
   deactivatePlan(_id: string): Promise<IMushopSubscriptionPlanDocument | null>;
 }
 
-export const loadMushopSubscriptionPlanClass = (models: IModels) => {
+export const loadMushopSubscriptionPlanClass = (
+  models: IModels,
+  { createActivityLog }: EventDispatcherReturn,
+) => {
   class MushopSubscriptionPlan {
     public static async validateAndGet(
       planId: string,
@@ -60,26 +69,56 @@ export const loadMushopSubscriptionPlanClass = (models: IModels) => {
       currency?: string;
       durationMonths?: number;
     }) {
-      return models.MushopSubscriptionPlan.create({ ...doc, isActive: true });
+      const plan = await models.MushopSubscriptionPlan.create({
+        ...doc,
+        isActive: true,
+      });
+
+      createActivityLog(buildPlanCreatedLog(plan));
+
+      return plan;
     }
 
     public static async updatePlan(
       _id: string,
       doc: Partial<IMushopSubscriptionPlanDocument>,
     ) {
-      return models.MushopSubscriptionPlan.findOneAndUpdate(
+      const prev = await models.MushopSubscriptionPlan.findOne({ _id }).lean();
+      if (!prev) throw new Error(`Plan ${_id} not found`);
+
+      const updated = await models.MushopSubscriptionPlan.findOneAndUpdate(
         { _id },
         { $set: doc },
         { new: true },
       );
+
+      if (updated) {
+        createActivityLog(
+          buildPlanUpdatedLog(updated, {
+            name: prev.name,
+            price: prev.price,
+            currency: prev.currency,
+            durationMonths: prev.durationMonths,
+            description: prev.description,
+          }),
+        );
+      }
+
+      return updated;
     }
 
     public static async deactivatePlan(_id: string) {
-      return models.MushopSubscriptionPlan.findOneAndUpdate(
+      const updated = await models.MushopSubscriptionPlan.findOneAndUpdate(
         { _id },
         { $set: { isActive: false } },
         { new: true },
       );
+
+      if (updated) {
+        createActivityLog(buildPlanDeactivatedLog(updated));
+      }
+
+      return updated;
     }
   }
 

@@ -7,6 +7,7 @@ export interface ISubscriptionPlan {
   price: number;
   currency: string;
   durationMonths: number;
+  isActive?: boolean;
 }
 
 export interface ISubscriber {

@@ -37,7 +37,7 @@ export interface IContext extends IMainContext {
 
 export const loadClasses = (
   db: mongoose.Connection,
-  subdomain: string,
+  _subdomain: string,
   eventHandlers: ScopedEventHandlers,
 ): IModels => {
   const models = {} as IModels;
@@ -65,12 +65,24 @@ export const loadClasses = (
   models.MushopSubscription = db.model<
     IMushopSubscriptionDocument,
     IMushopSubscriptionModel
-  >('mushop_subscriptions', loadMushopSubscriptionClass(models));
+  >(
+    'mushop_subscriptions',
+    loadMushopSubscriptionClass(
+      models,
+      mushopEventHandlers('subscriptions', 'mushop_subscriptions'),
+    ),
+  );
 
   models.MushopSubscriptionPlan = db.model<
     IMushopSubscriptionPlanDocument,
     IMushopSubscriptionPlanModel
-  >('mushop_subscription_plans', loadMushopSubscriptionPlanClass(models));
+  >(
+    'mushop_subscription_plans',
+    loadMushopSubscriptionPlanClass(
+      models,
+      mushopEventHandlers('subscription_plans', 'mushop_subscription_plans'),
+    ),
+  );
 
   return models;
 };

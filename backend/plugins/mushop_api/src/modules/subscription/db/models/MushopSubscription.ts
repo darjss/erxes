@@ -1,8 +1,15 @@
 import { Model } from 'mongoose';
+import { EventDispatcherReturn } from 'erxes-api-shared/core-modules';
 import { IModels } from '~/connectionResolvers';
 import { mushopSubscriptionSchema } from '@/subscription/db/definitions/mushopSubscription';
 import { IMushopSubscriptionDocument } from '@/subscription/@types/mushopSubscription';
 import { SUBSCRIPTION_STATUS } from '~/constants';
+import {
+  buildSubscriptionCreatedLog,
+  buildSubscriptionExtendedLog,
+  buildSubscriptionCancelledLog,
+  buildSubscriptionExpiredLog,
+} from '~/meta/activity-log/mushopSubscription';
 
 export interface IMushopSubscriptionModel
   extends Model<IMushopSubscriptionDocument> {
@@ -14,16 +21,11 @@ export interface IMushopSubscriptionModel
     planId: string;
     amount: number;
     currency: string;
-    invoiceId?: string;
+    invoiceId: string;
   }): Promise<IMushopSubscriptionDocument>;
-  extendSubscription(
+  renewSubscription(
     _id: string,
-    doc: {
-      invoiceId: string;
-      planId: string;
-      amount: number;
-      currency: string;
-    },
+    doc: { planId: string; amount: number; currency: string; invoiceId: string },
   ): Promise<IMushopSubscriptionDocument | null>;
   cancelSubscription(_id: string): Promise<IMushopSubscriptionDocument | null>;
   expireStale(): Promise<void>;
@@ -35,7 +37,10 @@ const addMonths = (date: Date, months: number): Date => {
   return result;
 };
 
-export const loadMushopSubscriptionClass = (models: IModels) => {
+export const loadMushopSubscriptionClass = (
+  models: IModels,
+  { createActivityLog }: EventDispatcherReturn,
+) => {
   class MushopSubscription {
     public static async getActiveSubscription(customerId: string) {
       const subscription = await models.MushopSubscription.findOne({
@@ -48,7 +53,10 @@ export const loadMushopSubscriptionClass = (models: IModels) => {
           { _id: subscription._id },
           { $set: { status: SUBSCRIPTION_STATUS.EXPIRED } },
         );
-
+        const plan = subscription.planId
+          ? await models.MushopSubscriptionPlan.findOne({ _id: subscription.planId }).lean()
+          : null;
+        createActivityLog(buildSubscriptionExpiredLog(subscription, plan?.name || 'Unknown'));
         return null;
       }
 
@@ -60,7 +68,7 @@ export const loadMushopSubscriptionClass = (models: IModels) => {
       planId: string;
       amount: number;
       currency: string;
-      invoiceId?: string;
+      invoiceId: string;
     }) {
       const plan = await models.MushopSubscriptionPlan.validateAndGet(
         doc.planId,
@@ -71,25 +79,23 @@ export const loadMushopSubscriptionClass = (models: IModels) => {
       const startDate = new Date();
       const endDate = addMonths(startDate, plan.durationMonths);
 
-      return models.MushopSubscription.create({
+      const sub = await models.MushopSubscription.create({
         ...doc,
         status: SUBSCRIPTION_STATUS.ACTIVE,
         startDate,
         endDate,
       });
+
+      createActivityLog(buildSubscriptionCreatedLog(sub, plan.name));
+
+      return sub;
     }
 
-    public static async extendSubscription(
+    public static async renewSubscription(
       _id: string,
-      doc: {
-        invoiceId: string;
-        planId: string;
-        amount: number;
-        currency: string;
-      },
+      doc: { planId: string; amount: number; currency: string; invoiceId: string },
     ) {
       const existing = await models.MushopSubscription.findOne({ _id });
-
       if (!existing) throw new Error('Subscription not found');
 
       const plan = await models.MushopSubscriptionPlan.validateAndGet(
@@ -98,30 +104,57 @@ export const loadMushopSubscriptionClass = (models: IModels) => {
         doc.currency,
       );
 
-      const base =
-        existing.endDate > new Date() ? existing.endDate : new Date();
+      const prevEndDate = existing.endDate;
+      const base = existing.endDate > new Date() ? existing.endDate : new Date();
       const newEndDate = addMonths(base, plan.durationMonths);
 
-      return models.MushopSubscription.findOneAndUpdate(
+      const updated = await models.MushopSubscription.findOneAndUpdate(
         { _id },
-        { $set: { endDate: newEndDate, ...doc } },
+        { $set: { endDate: newEndDate, planId: doc.planId, invoiceId: doc.invoiceId } },
         { new: true },
       );
+
+      if (updated) {
+        createActivityLog(buildSubscriptionExtendedLog(updated, plan.name, prevEndDate));
+      }
+
+      return updated;
     }
 
     public static async cancelSubscription(_id: string) {
-      return models.MushopSubscription.findOneAndUpdate(
+      const updated = await models.MushopSubscription.findOneAndUpdate(
         { _id },
         { $set: { status: SUBSCRIPTION_STATUS.CANCELLED } },
         { new: true },
       );
+
+      if (updated) {
+        const plan = updated.planId
+          ? await models.MushopSubscriptionPlan.findOne({ _id: updated.planId }).lean()
+          : null;
+        createActivityLog(buildSubscriptionCancelledLog(updated, plan?.name || 'Unknown'));
+      }
+
+      return updated;
     }
 
     public static async expireStale() {
+      const stale = await models.MushopSubscription.find({
+        status: SUBSCRIPTION_STATUS.ACTIVE,
+        endDate: { $lt: new Date() },
+      }).lean();
+
       await models.MushopSubscription.updateMany(
         { status: SUBSCRIPTION_STATUS.ACTIVE, endDate: { $lt: new Date() } },
         { $set: { status: SUBSCRIPTION_STATUS.EXPIRED } },
       );
+
+      for (const sub of stale) {
+        const plan = sub.planId
+          ? await models.MushopSubscriptionPlan.findOne({ _id: sub.planId }).lean()
+          : null;
+        createActivityLog(buildSubscriptionExpiredLog(sub, plan?.name || 'Unknown'));
+      }
     }
   }
 

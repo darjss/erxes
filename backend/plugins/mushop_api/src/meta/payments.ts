@@ -61,14 +61,14 @@ const handleSubscriptionPayment = async (
     return;
   }
 
-  const subscription = await models.MushopSubscription.getActiveSubscription(
+  const existSubscription = await models.MushopSubscription.getActiveSubscription(
     customerId,
   );
 
-  if (subscription) {
-    await models.MushopSubscription.extendSubscription(subscription._id, {
-      invoiceId: data._id,
+  if (existSubscription) {
+    await models.MushopSubscription.renewSubscription(existSubscription._id, {
       planId,
+      invoiceId: data._id,
       amount: data.amount,
       currency: data.currency,
     });
@@ -76,12 +76,30 @@ const handleSubscriptionPayment = async (
     return;
   }
 
-  await models.MushopSubscription.createSubscription({
+  const subscription = await models.MushopSubscription.createSubscription({
     customerId,
     planId,
     invoiceId: data._id,
     amount: data.amount,
     currency: data.currency,
+  });
+
+  await sendTRPCMessage({
+    subdomain,
+    pluginName: 'core',
+    method: 'mutation',
+    module: 'relation',
+    action: 'createMultipleRelations',
+    input: {
+      relations: [
+        {
+          entities: [
+            { contentType: 'mushop:subscription', contentId: subscription._id },
+            { contentType: 'core:customer', contentId: customerId },
+          ],
+        },
+      ],
+    },
   });
 };
 

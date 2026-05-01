@@ -5,15 +5,21 @@ import {
   InfoCard,
   ScrollArea,
   Sheet,
-  SideMenu,
+  Sidebar,
   Spinner,
   Table,
+  Tabs,
   useQueryState,
 } from 'erxes-ui';
-import { CustomersInline, CustomerWidget, CustomerWidgetTrigger } from 'ui-modules';
+import {
+  ActivityLogs,
+  CustomersInline,
+  RelationWidgetSideTabs,
+} from 'ui-modules';
 import { useSubscriberDetail } from '../hooks/useSubscriberDetail';
 import { ISubscriber } from '../types';
 import { SelectSubscriberStatus } from './SelectSubscriberStatus';
+import { subscriptionCustomActivities } from './SubscriptionActivityRows';
 
 const Row = ({
   label,
@@ -26,7 +32,7 @@ const Row = ({
     <Table.Cell className="bg-sidebar p-2 w-44 h-auto min-h-10 text-muted-foreground">
       {label}
     </Table.Cell>
-    <Table.Cell className="p-2 h-auto min-h-10 whitespace-normal break-all">
+    <Table.Cell className="p-2 h-auto min-h-10 break-all whitespace-normal">
       {value ?? '-'}
     </Table.Cell>
   </Table.Row>
@@ -51,74 +57,156 @@ const daysRemaining = (endDate?: string) => {
   return `${diff} days remaining`;
 };
 
+const SubscriberSidebar = () => {
+  const [selectedTab, setSelectedTab] = useQueryState<string>('tab');
+
+  return (
+    <Sidebar.Content>
+      <Sidebar.Group>
+        <Sidebar.GroupContent className="mt-2">
+          <Sidebar.Menu>
+            {['overview', 'activity'].map((tab) => (
+              <Sidebar.MenuItem key={tab}>
+                <Sidebar.MenuButton
+                  isActive={
+                    selectedTab === tab || (tab === 'overview' && !selectedTab)
+                  }
+                  onClick={() => setSelectedTab(tab)}
+                >
+                  {tab.charAt(0).toUpperCase() + tab.slice(1)}
+                </Sidebar.MenuButton>
+              </Sidebar.MenuItem>
+            ))}
+          </Sidebar.Menu>
+        </Sidebar.GroupContent>
+      </Sidebar.Group>
+    </Sidebar.Content>
+  );
+};
+
 const SubscriberInfo = ({ subscriber }: { subscriber: ISubscriber }) => {
-  const { customerId, plan, status, startDate, endDate, amount, currency, createdAt } =
-    subscriber;
+  const {
+    _id,
+    customerId,
+    plan,
+    status,
+    startDate,
+    endDate,
+    amount,
+    currency,
+    createdAt,
+  } = subscriber;
+
+  const [selectedTab] = useQueryState<string>('tab');
 
   return (
     <CustomersInline.Provider customerIds={[customerId]}>
-    <div className="flex flex-1 overflow-hidden">
-      <ScrollArea className="flex-1">
-        <div className="p-4">
-          <InfoCard title="Subscription">
-            <InfoCard.Content className="shadow-none p-0 overflow-hidden">
-              <Table>
-                <Table.Body className="bt:[&_td]:px-2 bt:[&_tr:first-child_td]:border-t bt:[&_td]:h-10">
-                  <Row
-                    label="Customer"
-                    value={
-                      <span className="inline-flex items-center gap-2">
-                        <CustomersInline.Avatar />
-                        <CustomersInline.Title />
-                      </span>
-                    }
-                  />
-                  <Table.Row>
-                    <Table.Cell className="bg-sidebar p-2 w-44 h-auto min-h-10 text-muted-foreground">
-                      Status
-                    </Table.Cell>
-                    <Table.Cell className="p-1 px-2 h-auto min-h-10">
-                      <Badge variant={SelectSubscriberStatus.statusVariant(status)}>
-                        {status || '-'}
-                      </Badge>
-                    </Table.Cell>
-                  </Table.Row>
-                  <Row
-                    label="Plan"
-                    value={plan ? `${plan.name} · ${plan.durationMonths} months · ${plan.price.toLocaleString()} ${plan.currency}` : '-'}
-                  />
-                  <Row
-                    label="Period"
-                    value={
-                      startDate && endDate
-                        ? `${formatDate(startDate)} → ${formatDate(endDate)}`
-                        : undefined
-                    }
-                  />
-                  <Row label="Time Left" value={daysRemaining(endDate)} />
-                  <Row
-                    label="Amount"
-                    value={
-                      amount != null
-                        ? `${amount.toLocaleString()} ${currency || 'MNT'}`
-                        : undefined
-                    }
-                  />
-                  <Row label="Created" value={formatDate(createdAt)} />
-                </Table.Body>
-              </Table>
-            </InfoCard.Content>
-          </InfoCard>
-        </div>
-      </ScrollArea>
+      <FocusSheet.SideBar>
+        <SubscriberSidebar />
+      </FocusSheet.SideBar>
 
-      <SideMenu defaultValue="customer">
-        <CustomerWidget customerIds={[customerId]} scope="mushop:subscription" />
-        <SideMenu.Sidebar>
-          <CustomerWidgetTrigger />
-        </SideMenu.Sidebar>
-      </SideMenu>
-    </div>
+      <div className="flex flex-1 overflow-hidden">
+        <Tabs
+          value={selectedTab ?? 'overview'}
+          className="flex flex-col flex-1 overflow-hidden"
+        >
+          <Tabs.Content
+            value="overview"
+            className="flex-1 mt-0 overflow-hidden"
+          >
+            <ScrollArea className="h-full">
+              <div className="p-4">
+                <InfoCard title="Subscription">
+                  <InfoCard.Content className="shadow-none p-0 overflow-hidden">
+                    <Table>
+                      <Table.Body className="bt:[&_td]:px-2 bt:[&_tr:first-child_td]:border-t bt:[&_td]:h-10">
+                        <Row
+                          label="Customer"
+                          value={
+                            <span className="inline-flex items-center gap-2">
+                              <CustomersInline.Avatar />
+                              <CustomersInline.Title />
+                            </span>
+                          }
+                        />
+                        <Table.Row>
+                          <Table.Cell className="bg-sidebar p-2 w-44 h-auto min-h-10 text-muted-foreground">
+                            Status
+                          </Table.Cell>
+                          <Table.Cell className="p-1 px-2 h-auto min-h-10">
+                            <Badge
+                              variant={SelectSubscriberStatus.statusVariant(
+                                status,
+                              )}
+                            >
+                              {status || '-'}
+                            </Badge>
+                          </Table.Cell>
+                        </Table.Row>
+                        <Row
+                          label="Plan"
+                          value={
+                            plan
+                              ? `${plan.name} · ${
+                                  plan.durationMonths
+                                } months · ${plan.price.toLocaleString()} ${
+                                  plan.currency
+                                }`
+                              : '-'
+                          }
+                        />
+                        <Row
+                          label="Period"
+                          value={
+                            startDate && endDate
+                              ? `${formatDate(startDate)} → ${formatDate(
+                                  endDate,
+                                )}`
+                              : undefined
+                          }
+                        />
+                        <Row label="Time Left" value={daysRemaining(endDate)} />
+                        <Row
+                          label="Amount"
+                          value={
+                            amount != null
+                              ? `${amount.toLocaleString()} ${
+                                  currency || 'MNT'
+                                }`
+                              : undefined
+                          }
+                        />
+                        <Row label="Created" value={formatDate(createdAt)} />
+                      </Table.Body>
+                    </Table>
+                  </InfoCard.Content>
+                </InfoCard>
+              </div>
+            </ScrollArea>
+          </Tabs.Content>
+
+          <Tabs.Content
+            value="activity"
+            className="flex-1 mt-0 overflow-hidden"
+          >
+            <ScrollArea className="h-full">
+              <div className="pt-3">
+                <ActivityLogs
+                  targetId={_id}
+                  customActivities={subscriptionCustomActivities}
+                  variant="backward"
+                  emptyMessage="No activity yet"
+                />
+              </div>
+            </ScrollArea>
+          </Tabs.Content>
+        </Tabs>
+
+        <RelationWidgetSideTabs
+          contentId={_id}
+          contentType="mushop:subscription"
+        />
+      </div>
     </CustomersInline.Provider>
   );
 };
@@ -133,11 +221,11 @@ export const SubscriberDetailSheet = () => {
       open={!!activeSubscriberId}
       onOpenChange={() => setActiveSubscriberId(null)}
     >
-      <FocusSheet.View className="sm:max-w-4xl">
+      <FocusSheet.View className="sm:max-w-5xl">
         <FocusSheet.Header title="Subscription Detail" />
-        <FocusSheet.Content className="flex flex-auto overflow-hidden p-0">
+        <FocusSheet.Content className="flex flex-auto p-0 overflow-hidden">
           {loading && (
-            <div className="flex flex-1 items-center justify-center">
+            <div className="flex flex-1 justify-center items-center">
               <Spinner />
             </div>
           )}

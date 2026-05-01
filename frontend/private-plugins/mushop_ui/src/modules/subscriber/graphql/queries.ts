@@ -7,9 +7,11 @@ const SUBSCRIBER_FIELDS = `
   plan {
     _id
     name
+    description
     price
     currency
     durationMonths
+    isActive
   }
   status
   startDate

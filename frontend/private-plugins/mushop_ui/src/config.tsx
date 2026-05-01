@@ -1,4 +1,4 @@
-import { IconBuildingStore, IconUsers } from '@tabler/icons-react';
+import { IconBuildingStore, IconFileDescription } from '@tabler/icons-react';
 import { lazy, Suspense } from 'react';
 import { IUIConfig } from 'erxes-ui';
 
@@ -28,4 +28,13 @@ export const CONFIG: IUIConfig = {
       path: 'mushop',
     },
   ],
+
+  widgets: {
+    relationWidgets: [
+      {
+        name: 'subscription_plan',
+        icon: IconFileDescription,
+      },
+    ],
+  },
 };
