@@ -38,6 +38,7 @@ export interface OneFitMembershipPurchase {
   promoCode?: OneFitMembershipPurchasePromoCode;
   plan?: OneFitMembershipPlan;
   invoice?: any;
+  deletedAt?: string;
 }
 
 export interface OneFitMembershipPurchaseListResponse {

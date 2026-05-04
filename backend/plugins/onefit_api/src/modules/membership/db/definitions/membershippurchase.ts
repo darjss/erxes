@@ -78,6 +78,15 @@ export const membershipPurchaseSchema = new Schema(
       label: 'Clear existing credits on activation',
       default: false,
     },
+    deletedAt: {
+      type: Date,
+      label: 'Deleted at',
+      index: true,
+    },
+    deletedBy: {
+      type: String,
+      label: 'Deleted by user id',
+    },
   },
   {
     timestamps: true,

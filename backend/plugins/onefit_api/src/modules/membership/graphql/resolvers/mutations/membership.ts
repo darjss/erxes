@@ -8,6 +8,7 @@ import {
   createMembershipPurchasesBulkInvoice,
   activateMembershipPurchase,
 } from '../utils/membershipPurchase';
+import { revertMembershipPurchaseSideEffects } from '../utils/revertMembershipPurchase';
 import { validateAndDiscount } from '@/promoCode/utils/validateAndDiscount';
 import { Resolver } from 'erxes-api-shared/core-types';
 import { requirePermission } from '~/utils/onefitPermissionCheck';
@@ -217,6 +218,27 @@ export const membershipMutations: Record<string, Resolver> = {
     return await models.MembershipPurchase.updatePurchase(_id, {
       companyId: companyId || undefined,
     });
+  },
+
+  async oneFitMembershipPurchaseRemove(
+    _root: undefined,
+    { _id }: { _id: string },
+    context: IContext,
+  ) {
+    await requirePermission(context, 'membershipPurchaseManage');
+    const { models, user } = context;
+
+    const purchase = await models.MembershipPurchase.getPurchase(_id);
+
+    if (purchase.deletedAt) {
+      throw new Error('Membership purchase already deleted');
+    }
+
+    await revertMembershipPurchaseSideEffects(purchase, context);
+
+    await models.MembershipPurchase.softDeletePurchase(_id, user?._id);
+
+    return { _id, success: true };
   },
 
   async cpOneFitMembershipPurchaseCreate(

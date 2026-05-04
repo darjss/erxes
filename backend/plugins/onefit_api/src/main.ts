@@ -142,6 +142,7 @@ startPlugin({
         // Find the membership purchase
         const membershipPurchase = await models.MembershipPurchase.findOne({
           _id: contentTypeId,
+          deletedAt: null,
         });
 
         if (!membershipPurchase) {
@@ -151,6 +152,7 @@ startPlugin({
         const purchasesToProcess = membershipPurchase.invoiceId
           ? await models.MembershipPurchase.find({
               invoiceId: membershipPurchase.invoiceId,
+              deletedAt: null,
             })
           : [membershipPurchase];
 

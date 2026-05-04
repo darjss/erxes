@@ -25,6 +25,10 @@ export interface IMembershipPurchaseModel
     },
   ): Promise<IMembershipPurchaseDocument[]>;
   markAsPaid(_id: string): Promise<IMembershipPurchaseDocument>;
+  softDeletePurchase(
+    _id: string,
+    deletedBy?: string,
+  ): Promise<IMembershipPurchaseDocument>;
 }
 
 export const loadMembershipPurchaseClass = (models: IModels) => {
@@ -97,6 +101,26 @@ export const loadMembershipPurchaseClass = (models: IModels) => {
         },
         { new: true },
       );
+    }
+
+    public static async softDeletePurchase(_id: string, deletedBy?: string) {
+      const updated = await models.MembershipPurchase.findOneAndUpdate(
+        { _id, deletedAt: { $in: [null, undefined] } },
+        {
+          $set: {
+            deletedAt: new Date(),
+            modifiedAt: new Date(),
+            ...(deletedBy ? { deletedBy } : {}),
+          },
+        },
+        { new: true },
+      );
+
+      if (!updated) {
+        throw new Error('Membership purchase not found or already deleted');
+      }
+
+      return updated;
     }
   }
 

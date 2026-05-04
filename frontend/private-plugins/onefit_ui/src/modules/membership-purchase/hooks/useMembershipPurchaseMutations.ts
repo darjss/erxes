@@ -4,6 +4,7 @@ import {
   ONE_FIT_MEMBERSHIP_PURCHASE_ACTIVATE,
   ONE_FIT_MEMBERSHIP_PURCHASES_BULK_CREATE,
   ONE_FIT_MEMBERSHIP_PURCHASE_CREATE,
+  ONE_FIT_MEMBERSHIP_PURCHASE_REMOVE,
 } from '../graphql/membershipPurchaseMutations';
 import { ONE_FIT_MEMBERSHIP_PURCHASES } from '../graphql/membershipPurchaseQueries';
 
@@ -65,6 +66,37 @@ export function useActivateMembershipPurchase() {
   }
 
   return { activateMembershipPurchase, loading };
+}
+
+export function useDeleteMembershipPurchase() {
+  const [deleteMembershipPurchaseMutation, { loading }] = useMutation(
+    ONE_FIT_MEMBERSHIP_PURCHASE_REMOVE,
+  );
+
+  function deleteMembershipPurchase(options: MutationFunctionOptions) {
+    return deleteMembershipPurchaseMutation({
+      ...options,
+      refetchQueries: [{ query: ONE_FIT_MEMBERSHIP_PURCHASES }],
+      awaitRefetchQueries: true,
+      onCompleted: (data) => {
+        options.onCompleted?.(data);
+        toast({
+          title: 'Success',
+          description: 'Membership purchase deleted successfully',
+        });
+      },
+      onError: (error) => {
+        options.onError?.(error);
+        toast({
+          title: 'Error',
+          description: error.message,
+          variant: 'destructive',
+        });
+      },
+    });
+  }
+
+  return { deleteMembershipPurchase, loading };
 }
 
 export function useBulkCreateMembershipPurchases() {

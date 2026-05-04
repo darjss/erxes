@@ -149,3 +149,9 @@ export const ONE_FIT_MEMBERSHIP_PURCHASE_COMPANY_UPDATE = gql`
     }
   }
 `;
+
+export const ONE_FIT_MEMBERSHIP_PURCHASE_REMOVE = gql`
+  mutation OneFitMembershipPurchaseRemove($_id: String!) {
+    oneFitMembershipPurchaseRemove(_id: $_id)
+  }
+`;

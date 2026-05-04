@@ -195,6 +195,7 @@ export const mutations = `
   oneFitMembershipPurchasesBulkCreate(${bulkPurchaseInput}): [OneFitMembershipPurchase]
   oneFitMembershipPurchaseActivate(_id: String!): OneFitMembershipPurchase
   oneFitMembershipPurchaseCompanyUpdate(_id: String!, companyId: String): OneFitMembershipPurchase
+  oneFitMembershipPurchaseRemove(_id: String!): JSON
   cpOneFitMembershipPurchaseCreate(${cpPurchaseInput}): OneFitMembershipPurchase
   cpOneFitMembershipPurchaseActivate(_id: String!): OneFitMembershipPurchase
   cpOneFitMembershipHoldStart(holdDays: Int!): Customer

@@ -100,7 +100,7 @@ export const membershipQueries: Record<string, Resolver> = {
       ...paginationParams
     } = params;
 
-    const filter: any = {};
+    const filter: any = { deletedAt: null };
     if (userId) {
       filter.userId = userId;
     }
@@ -160,7 +160,11 @@ export const membershipQueries: Record<string, Resolver> = {
     context: IContext,
   ) {
     const { models } = context;
-    return models.MembershipPurchase.getPurchase(_id);
+    const purchase = await models.MembershipPurchase.getPurchase(_id);
+    if (purchase.deletedAt) {
+      throw new Error('Membership purchase not found');
+    }
+    return purchase;
   },
 
   async oneFitMembershipPurchaseReport(
@@ -204,7 +208,7 @@ export const membershipQueries: Record<string, Resolver> = {
     const userId = cpUser.erxesCustomerId || cpUser._id;
     const { status, planId, ...paginationParams } = params;
 
-    const filter: any = { userId };
+    const filter: any = { userId, deletedAt: null };
     if (status) {
       filter.status = status;
     }
@@ -233,6 +237,10 @@ export const membershipQueries: Record<string, Resolver> = {
 
     const userId = cpUser.erxesCustomerId || cpUser._id;
     const purchase = await models.MembershipPurchase.getPurchase(_id);
+
+    if (purchase.deletedAt) {
+      throw new Error('Membership purchase not found');
+    }
 
     if (purchase.userId !== userId) {
       throw new Error('You do not have permission to view this purchase');

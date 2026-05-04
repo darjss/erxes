@@ -1028,6 +1028,7 @@ async function getB2bB2cSalesCounts(
 
   const purchaseMatch = {
     status: MembershipPurchaseStatus.PAID,
+    deletedAt: null,
     $or: [
       { paidAt: { $gte: gte, $lte: lte } },
       {
@@ -1143,6 +1144,7 @@ async function getUserGrowthByMonth(
   const purchases = (await models.MembershipPurchase.find(
     {
       status: MembershipPurchaseStatus.PAID,
+      deletedAt: null,
       $or: [
         { paidAt: { $gte: gte, $lte: lte } },
         {

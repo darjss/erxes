@@ -1,5 +1,6 @@
 import { ColumnDef } from '@tanstack/table-core';
 import { useMutation, useQuery } from '@apollo/client';
+import { IconTrash } from '@tabler/icons-react';
 import {
   Badge,
   Button,
@@ -21,6 +22,7 @@ import {
 } from '../types/membershipPurchase';
 import { MEMBERSHIP_PURCHASES_CURSOR_SESSION_KEY } from '../constants/membershipPurchaseCursorSessionKey';
 import { ActivateMembershipPurchaseDialog } from './ActivateMembershipPurchaseDialog';
+import { DeleteMembershipPurchaseDialog } from './DeleteMembershipPurchaseDialog';
 import { QrCodeDialog } from './QrCodeDialog';
 
 interface MembershipPurchasesListProps {
@@ -75,6 +77,9 @@ export function MembershipPurchasesList({
   const [companyDialogPurchase, setCompanyDialogPurchase] =
     useState<OneFitMembershipPurchase | null>(null);
   const [selectedCompanyId, setSelectedCompanyId] = useState('');
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [deleteDialogPurchase, setDeleteDialogPurchase] =
+    useState<OneFitMembershipPurchase | null>(null);
 
   const columns: ColumnDef<OneFitMembershipPurchase>[] = useMemo(
     () => [
@@ -326,6 +331,16 @@ export function MembershipPurchasesList({
                 >
                   Activate
                 </Button>
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  onClick={() => {
+                    setDeleteDialogPurchase(purchase);
+                    setDeleteDialogOpen(true);
+                  }}
+                >
+                  <IconTrash className="size-4" />
+                </Button>
               </div>
             </RecordTableInlineCell>
           );
@@ -409,6 +424,22 @@ export function MembershipPurchasesList({
           }}
         />
       )}
+
+      <DeleteMembershipPurchaseDialog
+        purchase={deleteDialogPurchase}
+        open={deleteDialogOpen}
+        onOpenChange={(open) => {
+          setDeleteDialogOpen(open);
+          if (!open) {
+            setDeleteDialogPurchase(null);
+          }
+        }}
+        onClose={() => {
+          setDeleteDialogOpen(false);
+          setDeleteDialogPurchase(null);
+        }}
+      />
+
 
       <Dialog
         open={companyDialogOpen}
