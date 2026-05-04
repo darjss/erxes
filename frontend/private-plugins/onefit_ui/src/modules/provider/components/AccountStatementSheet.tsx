@@ -86,9 +86,7 @@ function getStatusLabel(status: BookingStatus): string {
 export const AccountStatementSheet = () => {
   const [open, setOpen] = useQueryState<string>('accountStatementId');
   const [attendanceFilter, setAttendanceFilter] =
-    useState<AccountStatementSheetAttendanceFilter>(
-      SHEET_ATTENDANCE_FILTER_ALL,
-    );
+    useState<AccountStatementSheetAttendanceFilter>(AttendanceStatus.ATTENDED);
   const { mode } = useOneFitMode();
   const isMasterMode = mode === 'master';
 
@@ -108,7 +106,7 @@ export const AccountStatementSheet = () => {
   };
 
   useEffect(() => {
-    setAttendanceFilter(SHEET_ATTENDANCE_FILTER_ALL);
+    setAttendanceFilter(AttendanceStatus.ATTENDED);
   }, [open, year, month, providerId]);
 
   const startDate = useMemo(() => {
@@ -252,8 +250,12 @@ export const AccountStatementSheet = () => {
     if (attendanceFilter === SHEET_ATTENDANCE_FILTER_ALL)
       return `${bookings.length} booking${bookings.length === 1 ? '' : 's'}`;
     if (attendanceFilter === AttendanceStatus.NO_SHOW)
-      return `${bookings.length} no-show booking${bookings.length === 1 ? '' : 's'}`;
-    return `${bookings.length} attended booking${bookings.length === 1 ? '' : 's'}`;
+      return `${bookings.length} no-show booking${
+        bookings.length === 1 ? '' : 's'
+      }`;
+    return `${bookings.length} attended booking${
+      bookings.length === 1 ? '' : 's'
+    }`;
   }, [rowData, attendanceFilter, bookings.length]);
 
   const providerName = rowData?.provider?.businessName
@@ -379,14 +381,14 @@ export const AccountStatementSheet = () => {
                       <Select.Value placeholder="Attendance" />
                     </Select.Trigger>
                     <Select.Content>
-                      <Select.Item value={SHEET_ATTENDANCE_FILTER_ALL}>
-                        All
+                      <Select.Item value={AttendanceStatus.ATTENDED}>
+                        Attended
                       </Select.Item>
                       <Select.Item value={AttendanceStatus.NO_SHOW}>
                         No show
                       </Select.Item>
-                      <Select.Item value={AttendanceStatus.ATTENDED}>
-                        Attended
+                      <Select.Item value={SHEET_ATTENDANCE_FILTER_ALL}>
+                        All
                       </Select.Item>
                     </Select.Content>
                   </Select>
