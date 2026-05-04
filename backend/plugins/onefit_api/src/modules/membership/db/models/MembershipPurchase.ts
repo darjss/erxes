@@ -3,6 +3,7 @@ import {
   IMembershipPurchaseDocument,
   MembershipPurchaseStatus,
 } from '@/membership/@types/membershippurchase';
+import { assertMembershipPurchaseDeletableWithinWindow } from '@/membership/utils/membershipPurchaseDeletePolicy';
 import { Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
 import { membershipPurchaseSchema } from '../definitions/membershippurchase';
@@ -28,6 +29,7 @@ export interface IMembershipPurchaseModel
   softDeletePurchase(
     _id: string,
     deletedBy?: string,
+    opts?: { purchase?: IMembershipPurchaseDocument },
   ): Promise<IMembershipPurchaseDocument>;
 }
 
@@ -103,7 +105,22 @@ export const loadMembershipPurchaseClass = (models: IModels) => {
       );
     }
 
-    public static async softDeletePurchase(_id: string, deletedBy?: string) {
+    public static async softDeletePurchase(
+      _id: string,
+      deletedBy?: string,
+      opts?: { purchase?: IMembershipPurchaseDocument },
+    ) {
+      const purchase =
+        opts?.purchase && String(opts.purchase._id) === String(_id)
+          ? opts.purchase
+          : await models.MembershipPurchase.getPurchase(_id);
+
+      if (purchase.deletedAt) {
+        throw new Error('Membership purchase already deleted');
+      }
+
+      assertMembershipPurchaseDeletableWithinWindow(purchase);
+
       const updated = await models.MembershipPurchase.findOneAndUpdate(
         { _id, deletedAt: { $in: [null, undefined] } },
         {

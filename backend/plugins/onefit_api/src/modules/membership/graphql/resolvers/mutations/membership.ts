@@ -8,6 +8,7 @@ import {
   createMembershipPurchasesBulkInvoice,
   activateMembershipPurchase,
 } from '../utils/membershipPurchase';
+import { assertMembershipPurchaseDeletableWithinWindow } from '@/membership/utils/membershipPurchaseDeletePolicy';
 import { revertMembershipPurchaseSideEffects } from '../utils/revertMembershipPurchase';
 import { validateAndDiscount } from '@/promoCode/utils/validateAndDiscount';
 import { Resolver } from 'erxes-api-shared/core-types';
@@ -234,9 +235,13 @@ export const membershipMutations: Record<string, Resolver> = {
       throw new Error('Membership purchase already deleted');
     }
 
+    assertMembershipPurchaseDeletableWithinWindow(purchase);
+
     await revertMembershipPurchaseSideEffects(purchase, context);
 
-    await models.MembershipPurchase.softDeletePurchase(_id, user?._id);
+    await models.MembershipPurchase.softDeletePurchase(_id, user?._id, {
+      purchase,
+    });
 
     return { _id, success: true };
   },

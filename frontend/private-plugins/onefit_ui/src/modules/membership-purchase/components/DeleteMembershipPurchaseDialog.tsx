@@ -1,4 +1,5 @@
 import { Button, Dialog, Spinner } from 'erxes-ui';
+import { isWithinMembershipPurchaseDeleteWindow } from '../constants/membershipPurchaseDeleteWindow';
 import { useDeleteMembershipPurchase } from '../hooks/useMembershipPurchaseMutations';
 import { OneFitMembershipPurchase } from '../types/membershipPurchase';
 
@@ -19,6 +20,9 @@ export function DeleteMembershipPurchaseDialog({
 
   const isActivated = Boolean(purchase?.activatedAt);
   const hasPromo = Boolean(purchase?.promoCodeId);
+  const canDeleteByPolicy = isWithinMembershipPurchaseDeleteWindow(
+    purchase?.purchasedAt,
+  );
 
   function handleClose() {
     onOpenChange(false);
@@ -36,6 +40,12 @@ export function DeleteMembershipPurchaseDialog({
           </Dialog.Description>
         </Dialog.Header>
         <div className="space-y-2 text-sm text-muted-foreground">
+          {!canDeleteByPolicy && (
+            <p className="text-destructive">
+              Deletion is only allowed within 24 hours of the purchase time. This
+              purchase is outside that window.
+            </p>
+          )}
           {isActivated && (
             <p>
               This purchase is already activated. Granted credits will be
@@ -61,13 +71,13 @@ export function DeleteMembershipPurchaseDialog({
             type="button"
             variant="destructive"
             onClick={() => {
-              if (!purchase?._id) return;
+              if (!purchase?._id || !canDeleteByPolicy) return;
               deleteMembershipPurchase({
                 variables: { _id: purchase._id },
                 onCompleted: () => handleClose(),
               });
             }}
-            disabled={loading || !purchase?._id}
+            disabled={loading || !purchase?._id || !canDeleteByPolicy}
           >
             <Spinner show={loading} />
             Delete

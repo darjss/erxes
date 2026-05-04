@@ -21,6 +21,7 @@ import {
   OneFitMembershipPurchase,
 } from '../types/membershipPurchase';
 import { MEMBERSHIP_PURCHASES_CURSOR_SESSION_KEY } from '../constants/membershipPurchaseCursorSessionKey';
+import { isWithinMembershipPurchaseDeleteWindow } from '../constants/membershipPurchaseDeleteWindow';
 import { ActivateMembershipPurchaseDialog } from './ActivateMembershipPurchaseDialog';
 import { DeleteMembershipPurchaseDialog } from './DeleteMembershipPurchaseDialog';
 import { QrCodeDialog } from './QrCodeDialog';
@@ -304,6 +305,9 @@ export function MembershipPurchasesList({
           const qrData = purchase.invoice?.transactions?.[0]?.response
             ?.qrData as string | undefined;
           const showQrButton = invoicePending && qrData;
+          const canDeleteByPolicy = isWithinMembershipPurchaseDeleteWindow(
+            purchase.purchasedAt,
+          );
 
           return (
             <RecordTableInlineCell>
@@ -334,6 +338,12 @@ export function MembershipPurchasesList({
                 <Button
                   variant="destructive"
                   size="sm"
+                  disabled={!canDeleteByPolicy}
+                  title={
+                    canDeleteByPolicy
+                      ? undefined
+                      : 'Deletion is only allowed within 24 hours of purchase'
+                  }
                   onClick={() => {
                     setDeleteDialogPurchase(purchase);
                     setDeleteDialogOpen(true);
