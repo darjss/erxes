@@ -79,6 +79,7 @@ export interface BookingFilters {
   endDate?: Date;
   status?: BookingStatus;
   attendanceStatus?: AttendanceStatus;
+  bookingId?: string;
 }
 
 /** User is the raw OneFitCustomer document from the API (JSON). */

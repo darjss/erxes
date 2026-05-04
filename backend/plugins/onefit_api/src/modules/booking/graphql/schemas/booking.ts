@@ -88,6 +88,7 @@ const bookingQueryParams = `
   endDate: Date,
   status: OneFitBookingStatus,
   attendanceStatus: OneFitAttendanceStatus,
+  bookingId: String,
 `;
 
 const cpBookingQueryParams = `
@@ -98,6 +99,7 @@ const cpBookingQueryParams = `
   endDate: Date,
   status: OneFitBookingStatus,
   attendanceStatus: OneFitAttendanceStatus,
+  bookingId: String,
 `;
 
 import { GQL_CURSOR_PARAM_DEFS } from 'erxes-api-shared/utils';

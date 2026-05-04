@@ -7,6 +7,7 @@ import {
   RecordTableInlineCell,
   EnumCursorDirection,
   mergeCursorData,
+  Select,
 } from 'erxes-ui';
 import { useQuery } from '@apollo/client';
 import { useEffect, useMemo, useRef, useState } from 'react';
@@ -17,10 +18,22 @@ import { useOneFitMode } from '~/modules/config/hooks/useOneFitMode';
 import { OneFitCustomersInline } from '~/modules/onefitCustomer/components/OneFitCustomersInline';
 import type { OneFitCustomer } from '~/modules/onefitCustomer/types/onefitCustomer';
 import { format, parseISO } from 'date-fns';
-import { BookingStatus, OneFitBooking } from '~/modules/booking/types/booking';
+import {
+  AttendanceStatus,
+  BookingStatus,
+  OneFitBooking,
+} from '~/modules/booking/types/booking';
 import { IconAlertCircle, IconCloudExclamation } from '@tabler/icons-react';
+import { FilterField } from '~/components/shared/FilterField';
 
 const BOOKINGS_PER_PAGE = 100;
+
+const SHEET_ATTENDANCE_FILTER_ALL = '__all__';
+
+type AccountStatementSheetAttendanceFilter =
+  | typeof SHEET_ATTENDANCE_FILTER_ALL
+  | AttendanceStatus.NO_SHOW
+  | AttendanceStatus.ATTENDED;
 
 interface AccountStatementRow {
   year: number;
@@ -72,6 +85,10 @@ function getStatusLabel(status: BookingStatus): string {
 
 export const AccountStatementSheet = () => {
   const [open, setOpen] = useQueryState<string>('accountStatementId');
+  const [attendanceFilter, setAttendanceFilter] =
+    useState<AccountStatementSheetAttendanceFilter>(
+      SHEET_ATTENDANCE_FILTER_ALL,
+    );
   const { mode } = useOneFitMode();
   const isMasterMode = mode === 'master';
 
@@ -90,6 +107,10 @@ export const AccountStatementSheet = () => {
     providerId: '',
   };
 
+  useEffect(() => {
+    setAttendanceFilter(SHEET_ATTENDANCE_FILTER_ALL);
+  }, [open, year, month, providerId]);
+
   const startDate = useMemo(() => {
     if (!year || !month) return undefined;
     return new Date(year, month - 1, 1);
@@ -100,16 +121,27 @@ export const AccountStatementSheet = () => {
     return new Date(year, month, 0, 23, 59, 59, 999);
   }, [year, month]);
 
-  const baseVariables = useMemo(
-    () => ({
+  const baseVariables = useMemo(() => {
+    const vars: {
+      providerId?: string;
+      startDate?: Date;
+      endDate?: Date;
+      limit: number;
+      direction: 'forward';
+      attendanceStatus?: AttendanceStatus;
+    } = {
       providerId: providerId || undefined,
       startDate: startDate ?? undefined,
       endDate: endDate ?? undefined,
       limit: BOOKINGS_PER_PAGE,
       direction: 'forward' as const,
-    }),
-    [providerId, startDate, endDate],
-  );
+    };
+    if (attendanceFilter === AttendanceStatus.NO_SHOW)
+      vars.attendanceStatus = AttendanceStatus.NO_SHOW;
+    if (attendanceFilter === AttendanceStatus.ATTENDED)
+      vars.attendanceStatus = AttendanceStatus.ATTENDED;
+    return vars;
+  }, [providerId, startDate, endDate, attendanceFilter]);
 
   const { data, loading, fetchMore, error } = useQuery(ONE_FIT_BOOKINGS, {
     variables: {
@@ -127,7 +159,7 @@ export const AccountStatementSheet = () => {
   useEffect(() => {
     isFetchingAllPagesRef.current = false;
     hasFetchedAllPagesRef.current = false;
-  }, [open, providerId, year, month]);
+  }, [open, providerId, year, month, attendanceFilter]);
 
   useEffect(() => {
     if (!open || loading || !pageInfo?.hasNextPage || !pageInfo?.endCursor)
@@ -195,15 +227,7 @@ export const AccountStatementSheet = () => {
   ]);
 
   const showLoading = loading || isLoadingAllBookings;
-  const bookings = useMemo(
-    () =>
-      allBookingsRaw.filter(
-        (b: OneFitBooking) =>
-          b.status === BookingStatus.COMPLETED ||
-          b.status === BookingStatus.NO_SHOW,
-      ),
-    [allBookingsRaw],
-  );
+  const bookings = allBookingsRaw;
 
   const totalCredits = useMemo(
     () =>
@@ -213,9 +237,24 @@ export const AccountStatementSheet = () => {
       ),
     [bookings],
   );
-  const totalPriceCompleted = rowData?.amountEarnedCompleted ?? 0;
-  const totalPriceNoShow = rowData?.amountEarnedNoShow ?? 0;
-  const totalPrice = totalPriceCompleted + totalPriceNoShow;
+
+  const totalPriceFromRows = useMemo(
+    () =>
+      bookings.reduce(
+        (sum: number, b: OneFitBooking) => sum + (b.price ?? 0),
+        0,
+      ),
+    [bookings],
+  );
+
+  const sheetSubtitle = useMemo(() => {
+    if (!rowData) return '';
+    if (attendanceFilter === SHEET_ATTENDANCE_FILTER_ALL)
+      return `${bookings.length} booking${bookings.length === 1 ? '' : 's'}`;
+    if (attendanceFilter === AttendanceStatus.NO_SHOW)
+      return `${bookings.length} no-show booking${bookings.length === 1 ? '' : 's'}`;
+    return `${bookings.length} attended booking${bookings.length === 1 ? '' : 's'}`;
+  }, [rowData, attendanceFilter, bookings.length]);
 
   const providerName = rowData?.provider?.businessName
     ? getLocalizedString(rowData.provider.businessName, 'en')
@@ -326,13 +365,39 @@ export const AccountStatementSheet = () => {
         <FocusSheet.Content>
           <div className="flex-1 flex flex-col overflow-hidden">
             <div className="p-6 flex-1 flex flex-col overflow-hidden">
-              <div className="text-sm text-muted-foreground mb-4 flex-shrink-0">
-                {rowData
-                  ? `${
-                      rowData.bookingCountCompleted + rowData.bookingCountNoShow
-                    } completed or no-show bookings`
-                  : ''}
+              <div className="flex flex-wrap items-end gap-4 mb-4 flex-shrink-0">
+                <FilterField label="Attendance">
+                  <Select
+                    value={attendanceFilter}
+                    onValueChange={(value) =>
+                      setAttendanceFilter(
+                        value as AccountStatementSheetAttendanceFilter,
+                      )
+                    }
+                  >
+                    <Select.Trigger className="min-w-[200px]">
+                      <Select.Value placeholder="Attendance" />
+                    </Select.Trigger>
+                    <Select.Content>
+                      <Select.Item value={SHEET_ATTENDANCE_FILTER_ALL}>
+                        All
+                      </Select.Item>
+                      <Select.Item value={AttendanceStatus.NO_SHOW}>
+                        No show
+                      </Select.Item>
+                      <Select.Item value={AttendanceStatus.ATTENDED}>
+                        Attended
+                      </Select.Item>
+                    </Select.Content>
+                  </Select>
+                </FilterField>
               </div>
+
+              {sheetSubtitle ? (
+                <div className="text-sm text-muted-foreground mb-4 flex-shrink-0">
+                  {sheetSubtitle}
+                </div>
+              ) : null}
 
               <div className="flex-1 min-h-0 overflow-hidden">
                 <div className="h-full overflow-y-auto">
@@ -357,25 +422,14 @@ export const AccountStatementSheet = () => {
                       {isMasterMode && (
                         <div>Total credits: {totalCredits.toFixed(2)}</div>
                       )}
-                      <div>
-                        Total amount (completed):{' '}
-                        {totalPriceCompleted.toFixed(2)}
-                      </div>
-                      {isMasterMode && (
-                        <>
-                          <div>
-                            Total amount (no-show):{' '}
-                            {totalPriceNoShow.toFixed(2)}
-                          </div>
-                          <div>Total amount: {totalPrice.toFixed(2)}</div>
-                        </>
-                      )}
+                      <div>Total amount: {totalPriceFromRows.toFixed(2)}</div>
                     </div>
                   )}
 
                   {!showLoading && bookings.length === 0 && (
                     <p className="text-sm text-muted-foreground py-4">
-                      No completed or no-show bookings for this period.
+                      No bookings match the selected attendance filter for this
+                      period.
                     </p>
                   )}
                 </div>
