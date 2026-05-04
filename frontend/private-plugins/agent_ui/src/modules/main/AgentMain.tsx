@@ -1,21 +1,25 @@
 import { AgentDeployScreen } from '../deploy/components/AgentDeployScreen';
-import { SERVER_STATUSES } from '../deploy/constants';
 import { useAgent } from './hooks/useAgent';
 import { useFixAndRestart } from '../detail/hooks/useFixAndRestart';
 import { Card, Spinner } from 'erxes-ui';
-import { IconRefresh } from '@tabler/icons-react';
+import { IconRefresh, IconTrash } from '@tabler/icons-react';
 import { useToast } from 'erxes-ui';
 import { AddAgentTrigger } from '../detail/components/AddAgent';
 import { RestartServerDialog } from '../detail/components/RestartServerDialog';
 import { RestartingOverlay } from '../detail/components/RestartingOverlay';
+import { DestroyServerDialog } from '../deploy/components/DestroyServerDialog';
+import { useAgentDestroy } from '../deploy/hooks/useAgentDestroy';
 import { useState, useCallback } from 'react';
+import { SERVER_STATUSES } from '../deploy/constants';
 
 export const AgentMain = () => {
   const { agent, loading } = useAgent();
   const { restart, loading: restarting } = useFixAndRestart();
+  const { destroyAgent, loading: destroying } = useAgentDestroy();
   const { toast } = useToast();
   const [iframeKey, setIframeKey] = useState(0);
   const [restartOpen, setRestartOpen] = useState(false);
+  const [destroyOpen, setDestroyOpen] = useState(false);
   const refreshIframe = useCallback(() => setIframeKey((k) => k + 1), []);
 
   if (loading) {
@@ -65,6 +69,14 @@ export const AgentMain = () => {
             />
           </button>
           <AddAgentTrigger onSuccess={refreshIframe} />
+          <button
+            onClick={() => setDestroyOpen(true)}
+            disabled={destroying}
+            className="p-1.5 rounded text-destructive hover:bg-destructive/10 transition-colors disabled:opacity-50"
+            title="Destroy server"
+          >
+            <IconTrash className="size-4" />
+          </button>
         </div>
       </div>
       <iframe
@@ -79,6 +91,23 @@ export const AgentMain = () => {
         onOpenChange={setRestartOpen}
         onConfirm={handleRestartConfirm}
         loading={restarting}
+      />
+      <DestroyServerDialog
+        open={destroyOpen}
+        onOpenChange={setDestroyOpen}
+        onConfirm={async () => {
+          try {
+            await destroyAgent();
+            toast({ variant: 'success', title: 'Server destroyed' });
+          } catch (error: any) {
+            toast({
+              title: 'Destroy failed',
+              description: error?.message,
+              variant: 'destructive',
+            });
+          }
+        }}
+        loading={destroying}
       />
     </div>
   );
