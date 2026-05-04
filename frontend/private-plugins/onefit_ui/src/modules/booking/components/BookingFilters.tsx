@@ -52,6 +52,18 @@ export const BookingFiltersComponent = ({
           onValueChange={(value) => handleFilterChange('providerId', value)}
         />
       </FilterField>
+      <FilterField label="Booking ID" optional>
+        <Input
+          placeholder="Search by booking ID"
+          value={filters.bookingId ?? ''}
+          onChange={(e) =>
+            handleFilterChange(
+              'bookingId',
+              e.target.value.trim() || undefined,
+            )
+          }
+        />
+      </FilterField>
       <FilterField label="Activity Type">
         <Select
           value={filters.activityTypeId || '__all__'}

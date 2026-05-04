@@ -4,11 +4,11 @@ import { IconPlus } from '@tabler/icons-react';
 import {
   Button,
   Checkbox,
-  Dialog,
   Form,
   Input,
   Label,
   Select,
+  Sheet,
   Spinner,
 } from 'erxes-ui';
 import { useEffect, useMemo, useState } from 'react';
@@ -116,7 +116,7 @@ export function CreateMembershipPurchaseDialog({
     skip: !currentPlanId,
   });
   const currentPlanName = currentPlanId
-    ? (currentPlanData?.oneFitMembershipPlan?.name ?? '…')
+    ? currentPlanData?.oneFitMembershipPlan?.name ?? '…'
     : 'None';
 
   const creditBalance = oneFitCustomer?.oneFitCurrentCreditBalance ?? 0;
@@ -208,249 +208,266 @@ export function CreateMembershipPurchaseDialog({
   );
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Sheet open={open} onOpenChange={setOpen}>
       {!isControlled && trigger && (
-        <Dialog.Trigger asChild>{trigger}</Dialog.Trigger>
+        <Sheet.Trigger asChild>{trigger}</Sheet.Trigger>
       )}
       {!isControlled && !trigger && (
-        <Dialog.Trigger asChild>
+        <Sheet.Trigger asChild>
           <Button>
             <IconPlus />
             Create purchase
           </Button>
-        </Dialog.Trigger>
+        </Sheet.Trigger>
       )}
-      <Dialog.Content className="max-w-2xl">
-        <Dialog.Header>
-          <Dialog.Title>Create membership purchase</Dialog.Title>
-          <Dialog.Description>
-            This will create a purchase and generate a payment invoice.
-          </Dialog.Description>
-        </Dialog.Header>
+      <Sheet.View className="h-full sm:max-w-2xl">
+        <Sheet.Header className="h-auto min-h-14 items-start gap-3 py-3">
+          <div className="flex min-w-0 flex-1 flex-col gap-1.5 pr-2">
+            <Sheet.Title>Create membership purchase</Sheet.Title>
+            <Sheet.Description className="mt-0">
+              This will create a purchase and generate a payment invoice.
+            </Sheet.Description>
+          </div>
+          <Sheet.Close className="shrink-0" />
+        </Sheet.Header>
 
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
-            className="flex flex-col gap-6"
+            className="flex h-full flex-col overflow-hidden"
           >
-            <Form.Field
-              control={form.control}
-              name="userId"
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label>Customer *</Form.Label>
-                  <Form.Control>
-                    <SelectOneFitCustomer.FormItem
-                      value={field.value ?? ''}
-                      onValueChange={field.onChange}
-                      mode="single"
-                      type="erxes"
-                    />
-                  </Form.Control>
-                  <Form.Message />
-                </Form.Item>
-              )}
-            />
+            <Sheet.Content className="flex-auto overflow-y-auto">
+              <div className="flex flex-col gap-6 p-5">
+                <Form.Field
+                  control={form.control}
+                  name="userId"
+                  render={({ field }) => (
+                    <Form.Item>
+                      <Form.Label>Customer *</Form.Label>
+                      <Form.Control>
+                        <SelectOneFitCustomer.FormItem
+                          value={field.value ?? ''}
+                          onValueChange={field.onChange}
+                          mode="single"
+                          type="erxes"
+                        />
+                      </Form.Control>
+                      <Form.Message />
+                    </Form.Item>
+                  )}
+                />
 
-            {userId ? (
-              <div className="rounded-lg border bg-muted/20 p-4 text-sm space-y-2">
-                <div className="font-medium">Current membership</div>
-                {customerLoading ? (
-                  <div className="flex items-center gap-2 text-muted-foreground">
-                    <Spinner show />
-                    Loading customer…
+                {userId ? (
+                  <div className="rounded-lg border bg-muted/20 p-4 text-sm space-y-2">
+                    <div className="font-medium">Current membership</div>
+                    {customerLoading ? (
+                      <div className="flex items-center gap-2 text-muted-foreground">
+                        <Spinner show />
+                        Loading customer…
+                      </div>
+                    ) : (
+                      <>
+                        <div className="grid grid-cols-2 gap-2">
+                          <div className="text-muted-foreground">Plan</div>
+                          <div className="font-medium">{currentPlanName}</div>
+                          <div className="text-muted-foreground">Credits</div>
+                          <div className="font-medium">{creditBalance}</div>
+                          {oneFitCustomer?.oneFitMembershipStatus ? (
+                            <>
+                              <div className="text-muted-foreground">
+                                Status
+                              </div>
+                              <div className="font-medium">
+                                {oneFitCustomer.oneFitMembershipStatus}
+                              </div>
+                            </>
+                          ) : null}
+                          {oneFitCustomer?.oneFitMembershipExpiresAt ? (
+                            <>
+                              <div className="text-muted-foreground">
+                                Expires
+                              </div>
+                              <div className="font-medium">
+                                {new Date(
+                                  oneFitCustomer.oneFitMembershipExpiresAt,
+                                ).toLocaleString()}
+                              </div>
+                            </>
+                          ) : null}
+                        </div>
+                        <Form.Field
+                          control={form.control}
+                          name="removePreviousCredits"
+                          render={({ field }) => (
+                            <Form.Item className="flex flex-row items-start gap-2 pt-2 border-t mt-2">
+                              <Checkbox
+                                checked={Boolean(field.value)}
+                                onCheckedChange={(v) =>
+                                  field.onChange(v === true)
+                                }
+                                disabled={!canClearCredits}
+                              />
+                              <div className="space-y-1">
+                                <Label className="font-normal leading-snug cursor-pointer">
+                                  When this purchase is activated, clear
+                                  existing credits first, then grant this
+                                  plan&apos;s credits.
+                                </Label>
+                                {!canClearCredits ? (
+                                  <p className="text-xs text-muted-foreground">
+                                    No credits to clear.
+                                  </p>
+                                ) : null}
+                                <Form.Message />
+                              </div>
+                            </Form.Item>
+                          )}
+                        />
+                      </>
+                    )}
                   </div>
-                ) : (
-                  <>
-                    <div className="grid grid-cols-2 gap-2">
-                      <div className="text-muted-foreground">Plan</div>
-                      <div className="font-medium">{currentPlanName}</div>
-                      <div className="text-muted-foreground">Credits</div>
-                      <div className="font-medium">{creditBalance}</div>
-                      {oneFitCustomer?.oneFitMembershipStatus ? (
-                        <>
-                          <div className="text-muted-foreground">Status</div>
-                          <div className="font-medium">
-                            {oneFitCustomer.oneFitMembershipStatus}
-                          </div>
-                        </>
-                      ) : null}
-                      {oneFitCustomer?.oneFitMembershipExpiresAt ? (
-                        <>
-                          <div className="text-muted-foreground">Expires</div>
-                          <div className="font-medium">
-                            {new Date(
-                              oneFitCustomer.oneFitMembershipExpiresAt,
-                            ).toLocaleString()}
-                          </div>
-                        </>
-                      ) : null}
-                    </div>
-                    <Form.Field
-                      control={form.control}
-                      name="removePreviousCredits"
-                      render={({ field }) => (
-                        <Form.Item className="flex flex-row items-start gap-2 pt-2 border-t mt-2">
-                          <Checkbox
-                            checked={Boolean(field.value)}
-                            onCheckedChange={(v) => field.onChange(v === true)}
-                            disabled={!canClearCredits}
-                          />
-                          <div className="space-y-1">
-                            <Label className="font-normal leading-snug cursor-pointer">
-                              When this purchase is activated, clear existing
-                              credits first, then grant this plan&apos;s
-                              credits.
-                            </Label>
-                            {!canClearCredits ? (
-                              <p className="text-xs text-muted-foreground">
-                                No credits to clear.
-                              </p>
-                            ) : null}
-                            <Form.Message />
-                          </div>
-                        </Form.Item>
-                      )}
-                    />
-                  </>
-                )}
-              </div>
-            ) : null}
+                ) : null}
 
-            <Form.Field
-              control={form.control}
-              name="planId"
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label>Membership plan *</Form.Label>
-                  <Form.Control>
-                    <Select value={field.value} onValueChange={field.onChange}>
-                      <Select.Trigger>
-                        <Select.Value placeholder="Select membership plan" />
-                      </Select.Trigger>
-                      <Select.Content>
-                        {plans.map((plan) => (
-                          <Select.Item key={plan._id} value={plan._id}>
-                            {plan.name}
-                          </Select.Item>
-                        ))}
-                      </Select.Content>
-                    </Select>
-                  </Form.Control>
-                  <Form.Message />
-                </Form.Item>
-              )}
-            />
-            <Form.Field
-              control={form.control}
-              name="quantity"
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label>Quantity</Form.Label>
-                  <Form.Control>
-                    <Select
-                      value={
-                        field.value
-                          ? String(field.value)
-                          : DEFAULT_QUANTITY_VALUE
-                      }
-                      onValueChange={(value) =>
-                        field.onChange(
-                          value === DEFAULT_QUANTITY_VALUE
-                            ? undefined
-                            : parseInt(value, 10),
-                        )
-                      }
-                      disabled={!selectedPlan || !hasSaleOptions}
-                    >
-                      <Select.Trigger>
-                        <Select.Value placeholder="Default (1)" />
-                      </Select.Trigger>
-                      <Select.Content>
-                        {hasSaleOptions ? (
-                          <>
-                            <Select.Item value={DEFAULT_QUANTITY_VALUE}>
-                              Default (1)
-                            </Select.Item>
-                            {availableSaleQuantities.map((saleQuantity) => (
-                              <Select.Item
-                                key={saleQuantity}
-                                value={String(saleQuantity)}
-                              >
-                                {saleQuantity}
+                <Form.Field
+                  control={form.control}
+                  name="planId"
+                  render={({ field }) => (
+                    <Form.Item>
+                      <Form.Label>Membership plan *</Form.Label>
+                      <Form.Control>
+                        <Select
+                          value={field.value}
+                          onValueChange={field.onChange}
+                        >
+                          <Select.Trigger>
+                            <Select.Value placeholder="Select membership plan" />
+                          </Select.Trigger>
+                          <Select.Content>
+                            {plans.map((plan) => (
+                              <Select.Item key={plan._id} value={plan._id}>
+                                {plan.name}
                               </Select.Item>
                             ))}
-                          </>
-                        ) : (
-                          <Select.Item value="1">1</Select.Item>
-                        )}
-                      </Select.Content>
-                    </Select>
-                  </Form.Control>
-                  {selectedPlan && !hasSaleOptions ? (
-                    <p className="text-xs text-muted-foreground">
-                      This plan has no configured sale quantities. Quantity is
-                      fixed to 1.
-                    </p>
-                  ) : null}
-                  <Form.Message />
-                </Form.Item>
-              )}
-            />
-
-            <Form.Field
-              control={form.control}
-              name="promoCode"
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label>Promo code</Form.Label>
-                  <Form.Control>
-                    <Input
-                      {...field}
-                      placeholder="Enter promo code (optional)"
-                      value={field.value ?? ''}
-                    />
-                  </Form.Control>
-                  <Form.Message />
-                </Form.Item>
-              )}
-            />
-
-            {selectedPlan && (
-              <div className="rounded-lg border bg-muted/20 p-4 text-sm">
-                <div className="font-medium mb-2">Summary</div>
-                <div className="grid grid-cols-2 gap-2">
-                  <div className="text-muted-foreground">Price</div>
-                  <div className="font-medium">
-                    {tierPrice.toLocaleString()} MNT
-                  </div>
-                  <div className="text-muted-foreground">Quantity</div>
-                  <div className="font-medium">{quantity}</div>
-                  {hasTier && quantity > 1 ? (
-                    <>
-                      <div className="text-muted-foreground col-span-2">
-                        Tiered sale option applied
-                      </div>
-                    </>
-                  ) : null}
-                  {form.watch('promoCode')?.trim() && (
-                    <>
-                      <div className="text-muted-foreground col-span-2">
-                        Promo will be applied at checkout
-                      </div>
-                    </>
+                          </Select.Content>
+                        </Select>
+                      </Form.Control>
+                      <Form.Message />
+                    </Form.Item>
                   )}
-                  <div className="text-muted-foreground">Credits</div>
-                  <div className="font-medium">{selectedPlan.creditAmount}</div>
-                  <div className="text-muted-foreground">Duration</div>
-                  <div className="font-medium">
-                    {selectedPlan.duration} days
-                  </div>
-                </div>
-              </div>
-            )}
+                />
+                <Form.Field
+                  control={form.control}
+                  name="quantity"
+                  render={({ field }) => (
+                    <Form.Item>
+                      <Form.Label>Quantity</Form.Label>
+                      <Form.Control>
+                        <Select
+                          value={
+                            field.value
+                              ? String(field.value)
+                              : DEFAULT_QUANTITY_VALUE
+                          }
+                          onValueChange={(value) =>
+                            field.onChange(
+                              value === DEFAULT_QUANTITY_VALUE
+                                ? undefined
+                                : parseInt(value, 10),
+                            )
+                          }
+                          disabled={!selectedPlan || !hasSaleOptions}
+                        >
+                          <Select.Trigger>
+                            <Select.Value placeholder="Default (1)" />
+                          </Select.Trigger>
+                          <Select.Content>
+                            {hasSaleOptions ? (
+                              <>
+                                <Select.Item value={DEFAULT_QUANTITY_VALUE}>
+                                  Default (1)
+                                </Select.Item>
+                                {availableSaleQuantities.map((saleQuantity) => (
+                                  <Select.Item
+                                    key={saleQuantity}
+                                    value={String(saleQuantity)}
+                                  >
+                                    {saleQuantity}
+                                  </Select.Item>
+                                ))}
+                              </>
+                            ) : (
+                              <Select.Item value="1">1</Select.Item>
+                            )}
+                          </Select.Content>
+                        </Select>
+                      </Form.Control>
+                      {selectedPlan && !hasSaleOptions ? (
+                        <p className="text-xs text-muted-foreground">
+                          This plan has no configured sale quantities. Quantity
+                          is fixed to 1.
+                        </p>
+                      ) : null}
+                      <Form.Message />
+                    </Form.Item>
+                  )}
+                />
 
-            <Dialog.Footer>
+                <Form.Field
+                  control={form.control}
+                  name="promoCode"
+                  render={({ field }) => (
+                    <Form.Item>
+                      <Form.Label>Promo code</Form.Label>
+                      <Form.Control>
+                        <Input
+                          {...field}
+                          placeholder="Enter promo code (optional)"
+                          value={field.value ?? ''}
+                        />
+                      </Form.Control>
+                      <Form.Message />
+                    </Form.Item>
+                  )}
+                />
+
+                {selectedPlan && (
+                  <div className="rounded-lg border bg-muted/20 p-4 text-sm">
+                    <div className="mb-2 font-medium">Summary</div>
+                    <div className="grid grid-cols-2 gap-2">
+                      <div className="text-muted-foreground">Price</div>
+                      <div className="font-medium">
+                        {tierPrice.toLocaleString()} MNT
+                      </div>
+                      <div className="text-muted-foreground">Quantity</div>
+                      <div className="font-medium">{quantity}</div>
+                      {hasTier && quantity > 1 ? (
+                        <>
+                          <div className="col-span-2 text-muted-foreground">
+                            Tiered sale option applied
+                          </div>
+                        </>
+                      ) : null}
+                      {form.watch('promoCode')?.trim() && (
+                        <>
+                          <div className="col-span-2 text-muted-foreground">
+                            Promo will be applied at checkout
+                          </div>
+                        </>
+                      )}
+                      <div className="text-muted-foreground">Credits</div>
+                      <div className="font-medium">
+                        {selectedPlan.creditAmount}
+                      </div>
+                      <div className="text-muted-foreground">Duration</div>
+                      <div className="font-medium">
+                        {selectedPlan.duration} days
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </Sheet.Content>
+            <Sheet.Footer className="flex shrink-0 justify-end gap-2 bg-muted p-2.5">
               <Button
                 type="button"
                 variant="outline"
@@ -463,10 +480,10 @@ export function CreateMembershipPurchaseDialog({
                 <Spinner show={loading} />
                 Create invoice
               </Button>
-            </Dialog.Footer>
+            </Sheet.Footer>
           </form>
         </Form>
-      </Dialog.Content>
-    </Dialog>
+      </Sheet.View>
+    </Sheet>
   );
 }

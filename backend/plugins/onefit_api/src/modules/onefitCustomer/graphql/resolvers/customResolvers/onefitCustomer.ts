@@ -114,6 +114,7 @@ export default {
         userId: customer._id,
         status: 'paid',
         activatedAt: null,
+        deletedAt: null,
       });
     },
   },
@@ -165,6 +166,7 @@ export default {
         userId: customer._id,
         status: 'paid',
         activatedAt: null,
+        deletedAt: null,
       });
     },
   },

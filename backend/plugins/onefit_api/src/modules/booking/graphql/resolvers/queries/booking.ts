@@ -18,6 +18,11 @@ export interface IBookingQueryParams extends ICursorPaginateParams {
   endDate?: Date;
   status?: BookingStatus;
   attendanceStatus?: AttendanceStatus;
+  bookingId?: string;
+}
+
+function escapeRegexForLiteralMatch(fragment: string): string {
+  return fragment.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
 const generateFilter = async (
@@ -67,6 +72,14 @@ const generateFilter = async (
 
   if (params.attendanceStatus) {
     filter.attendanceStatus = params.attendanceStatus;
+  }
+
+  const bookingIdQuery = params.bookingId?.trim();
+  if (bookingIdQuery) {
+    filter.bookingId = new RegExp(
+      escapeRegexForLiteralMatch(bookingIdQuery),
+      'i',
+    );
   }
 
   // Add instanceId filtering

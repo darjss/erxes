@@ -49,10 +49,6 @@ export function AccountStatementReport() {
   const [startDate, setStartDate] = useState(startOfMonth(now));
   const [endDate, setEndDate] = useState(endOfMonth(now));
   const [providerId, setProviderId] = useState<string>('');
-  const [detailsRow, setDetailsRow] = useState<AccountStatementRow | null>(
-    null,
-  );
-  const [detailsOpen, setDetailsOpen] = useState(false);
 
   const [, setAccountStatementId] = useQueryState<string>('accountStatementId');
   const { mode } = useOneFitMode();
@@ -209,8 +205,8 @@ export function AccountStatementReport() {
                   JSON.stringify(row.original),
                 );
                 setAccountStatementId(encodedData);
-              } catch (error) {
-                console.error('Error encoding account statement data:', error);
+              } catch {
+                // ignore invalid row payload
               }
             }}
           >

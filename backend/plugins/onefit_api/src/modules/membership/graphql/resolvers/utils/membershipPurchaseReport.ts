@@ -14,6 +14,7 @@ function getReportDateBounds(startDate: Date, endDate: Date) {
 function paidPurchaseDateMatch(gte: Date, lte: Date) {
   return {
     status: MembershipPurchaseStatus.PAID,
+    deletedAt: null,
     $or: [
       { paidAt: { $gte: gte, $lte: lte } },
       {

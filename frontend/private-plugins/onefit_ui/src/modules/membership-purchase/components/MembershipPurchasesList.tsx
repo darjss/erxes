@@ -1,5 +1,6 @@
 import { ColumnDef } from '@tanstack/table-core';
 import { useMutation, useQuery } from '@apollo/client';
+import { IconTrash } from '@tabler/icons-react';
 import {
   Badge,
   Button,
@@ -20,7 +21,9 @@ import {
   OneFitMembershipPurchase,
 } from '../types/membershipPurchase';
 import { MEMBERSHIP_PURCHASES_CURSOR_SESSION_KEY } from '../constants/membershipPurchaseCursorSessionKey';
+import { isWithinMembershipPurchaseDeleteWindow } from '../constants/membershipPurchaseDeleteWindow';
 import { ActivateMembershipPurchaseDialog } from './ActivateMembershipPurchaseDialog';
+import { DeleteMembershipPurchaseDialog } from './DeleteMembershipPurchaseDialog';
 import { QrCodeDialog } from './QrCodeDialog';
 
 interface MembershipPurchasesListProps {
@@ -75,6 +78,9 @@ export function MembershipPurchasesList({
   const [companyDialogPurchase, setCompanyDialogPurchase] =
     useState<OneFitMembershipPurchase | null>(null);
   const [selectedCompanyId, setSelectedCompanyId] = useState('');
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [deleteDialogPurchase, setDeleteDialogPurchase] =
+    useState<OneFitMembershipPurchase | null>(null);
 
   const columns: ColumnDef<OneFitMembershipPurchase>[] = useMemo(
     () => [
@@ -299,6 +305,9 @@ export function MembershipPurchasesList({
           const qrData = purchase.invoice?.transactions?.[0]?.response
             ?.qrData as string | undefined;
           const showQrButton = invoicePending && qrData;
+          const canDeleteByPolicy = isWithinMembershipPurchaseDeleteWindow(
+            purchase.purchasedAt,
+          );
 
           return (
             <RecordTableInlineCell>
@@ -325,6 +334,22 @@ export function MembershipPurchasesList({
                   }}
                 >
                   Activate
+                </Button>
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  disabled={!canDeleteByPolicy}
+                  title={
+                    canDeleteByPolicy
+                      ? undefined
+                      : 'Deletion is only allowed within 24 hours of purchase'
+                  }
+                  onClick={() => {
+                    setDeleteDialogPurchase(purchase);
+                    setDeleteDialogOpen(true);
+                  }}
+                >
+                  <IconTrash className="size-4" />
                 </Button>
               </div>
             </RecordTableInlineCell>
@@ -409,6 +434,22 @@ export function MembershipPurchasesList({
           }}
         />
       )}
+
+      <DeleteMembershipPurchaseDialog
+        purchase={deleteDialogPurchase}
+        open={deleteDialogOpen}
+        onOpenChange={(open) => {
+          setDeleteDialogOpen(open);
+          if (!open) {
+            setDeleteDialogPurchase(null);
+          }
+        }}
+        onClose={() => {
+          setDeleteDialogOpen(false);
+          setDeleteDialogPurchase(null);
+        }}
+      />
+
 
       <Dialog
         open={companyDialogOpen}
