@@ -18,8 +18,11 @@ import {
   queries as SubscriptionPlanQueries,
   types as SubscriptionPlanTypes,
 } from '@/subscription/graphql/schemas/mushopSubscriptionPlan';
+import { TypeExtensions } from './extensions';
 
 export const types = `
+  ${TypeExtensions}
+  
   ${SupplierTypes}
   ${ProductTypes}
   ${SubscriptionTypes}

@@ -4,6 +4,7 @@ import { MushopProduct } from '@/product/graphql/resolvers/customResolvers/musho
 import { mutations } from './mutations';
 import { queries } from './queries';
 import { subscriptionTypeResolvers } from '@/subscription/graphql/resolvers/queries/mushopSubscription';
+import { extensionResolvers } from './extensions';
 
 const resolvers: any = {
   Mutation: {
@@ -16,6 +17,7 @@ const resolvers: any = {
   MushopProduct,
   ...subscriptionTypeResolvers,
   ...apolloCustomScalars,
+  ...extensionResolvers,
 };
 
 export default resolvers;
