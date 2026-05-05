@@ -2,6 +2,7 @@ import { IContext } from '~/connectionResolvers';
 
 type ICPUser = {
   _id: string;
+  erxesCustomerId?: string;
 };
 
 export const CPUser = {
@@ -12,13 +13,11 @@ export const CPUser = {
   ) => {
     const { models } = context;
 
-    if (!cpUser._id) return false;
-
-    const sub = await models.MushopSubscription.getActiveSubscription(
-      cpUser._id,
+    const subscription = await models.MushopSubscription.getActiveSubscription(
+      cpUser?.erxesCustomerId || cpUser?._id,
     );
 
-    return !!sub;
+    return !!subscription;
   },
   subscription: async (
     cpUser: ICPUser,
@@ -27,8 +26,8 @@ export const CPUser = {
   ) => {
     const { models } = context;
 
-    if (!cpUser._id) return null;
-
-    return models.MushopSubscription.getActiveSubscription(cpUser._id);
+    return models.MushopSubscription.getActiveSubscription(
+      cpUser?.erxesCustomerId || cpUser._id,
+    );
   },
 };
