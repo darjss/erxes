@@ -205,6 +205,7 @@ const SubscriberInfo = ({ subscriber }: { subscriber: ISubscriber }) => {
         <RelationWidgetSideTabs
           contentId={_id}
           contentType="mushop:subscription"
+          access={{ customer: 'read' }}
         />
       </div>
     </CustomersInline.Provider>
