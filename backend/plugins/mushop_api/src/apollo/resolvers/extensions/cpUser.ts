@@ -1,8 +1,24 @@
+import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 
 type ICPUser = {
   _id: string;
   erxesCustomerId?: string;
+};
+
+const getCustomerId = async (cpUserId: string, subdomain: string) => {
+  const cpUser = await sendTRPCMessage({
+    subdomain,
+    pluginName: 'core',
+    method: 'query',
+    module: 'cpUsers',
+    action: 'get',
+    input: {
+      id: cpUserId,
+    },
+  });
+
+  return cpUser?.erxesCustomerId || cpUserId;
 };
 
 export const CPUser = {
@@ -13,8 +29,10 @@ export const CPUser = {
   ) => {
     const { models } = context;
 
+    const customerId = await getCustomerId(cpUser._id, context.subdomain);
+
     const subscription = await models.MushopSubscription.getActiveSubscription(
-      cpUser?.erxesCustomerId || cpUser?._id,
+      customerId,
     );
 
     return !!subscription;
@@ -26,8 +44,8 @@ export const CPUser = {
   ) => {
     const { models } = context;
 
-    return models.MushopSubscription.getActiveSubscription(
-      cpUser?.erxesCustomerId || cpUser._id,
-    );
+    const customerId = await getCustomerId(cpUser._id, context.subdomain);
+
+    return models.MushopSubscription.getActiveSubscription(customerId);
   },
 };
