@@ -96,7 +96,6 @@ export const AgentDeployForm = () => {
               <Form.Control>
                 <Input
                   {...field}
-                  type="password"
                   placeholder="sk-kimi-..."
                   autoComplete="off"
                   className="w-full"
