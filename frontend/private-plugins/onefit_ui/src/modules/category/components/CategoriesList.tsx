@@ -15,13 +15,15 @@ import { RemoveCategoryDialog } from './RemoveCategoryDialog';
 import { useState, useMemo } from 'react';
 import { generateOrderPath } from '../utils/generateOrderPath';
 import { getLocalizedString } from '../utils/localization';
+import { ListTotalsLabel } from '~/components/ListTotalsLabel';
 
 interface CategoriesListProps {
   filters?: CategoryFilters;
 }
 
 export const CategoriesList = ({ filters }: CategoriesListProps) => {
-  const { categories, loading } = useCategories(filters);
+  const { categories, loading, filteredTotalCount, overallTotalCount } =
+    useCategories(filters);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [removeDialogOpen, setRemoveDialogOpen] = useState(false);
@@ -194,6 +196,11 @@ export const CategoriesList = ({ filters }: CategoriesListProps) => {
 
   return (
     <>
+      <ListTotalsLabel
+        filteredTotalCount={filteredTotalCount}
+        overallTotalCount={overallTotalCount}
+        loading={loading}
+      />
       <RecordTable.Provider
         columns={columns}
         data={categoriesWithOrder}

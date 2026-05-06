@@ -23,6 +23,7 @@ import { ONE_FIT_MEMBERSHIP_PLANS } from '~/modules/membership/graphql/membershi
 import { CreateMembershipPurchaseDialog } from '~/modules/membership-purchase/components/CreateMembershipPurchaseDialog';
 import { OneFitCustomerDetailContent } from './OneFitCustomerDetailContent';
 import { useOneFitCustomerDetail } from '../hooks/useOneFitCustomerDetail';
+import { ListTotalsLabel } from '~/components/ListTotalsLabel';
 
 interface OneFitCustomersListProps {
   filters?: OneFitCustomerFilters;
@@ -48,8 +49,14 @@ const getMembershipStatusBadgeVariant = (status?: OneFitMembershipStatus) => {
 };
 
 export const OneFitCustomersList = ({ filters }: OneFitCustomersListProps) => {
-  const { customers, handleFetchMore, loading, pageInfo, totalCount } =
-    useOneFitCustomers(filters);
+  const {
+    customers,
+    handleFetchMore,
+    loading,
+    pageInfo,
+    filteredTotalCount,
+    overallTotalCount,
+  } = useOneFitCustomers(filters);
   const [paidNotActivatedSortDir, setPaidNotActivatedSortDir] = useState<
     'asc' | 'desc' | null
   >(null);
@@ -409,21 +416,13 @@ export const OneFitCustomersList = ({ filters }: OneFitCustomersListProps) => {
     [membershipPlanMap, membershipPlanCreditMap, paidNotActivatedSortDir],
   );
 
-  const customerCountLabel =
-    loading && totalCount === undefined
-      ? 'Loading…'
-      : totalCount === undefined
-        ? '—'
-        : `${totalCount.toLocaleString()} ${
-            totalCount === 1 ? 'customer' : 'customers'
-          }`;
-
   return (
     <>
-      {/* <div className="flex flex-col overflow-hidden h-full relative">
-        <div className="px-3 pt-3 text-sm text-muted-foreground shrink-0">
-          {customerCountLabel}
-        </div> */}
+      <ListTotalsLabel
+        filteredTotalCount={filteredTotalCount}
+        overallTotalCount={overallTotalCount}
+        loading={loading}
+      />
       <RecordTable.Provider
         columns={columns}
         data={sortedCustomers}
@@ -451,7 +450,6 @@ export const OneFitCustomersList = ({ filters }: OneFitCustomersListProps) => {
           </RecordTable>
         </RecordTable.CursorProvider>
       </RecordTable.Provider>
-      {/* </div> */}
       <Sheet open={detailSheetOpen} onOpenChange={closeDetailSheet}>
         <Sheet.View className="w-full sm:max-w-[min(56rem,calc(100vw-2rem))]">
           <Sheet.Header>

@@ -26,12 +26,16 @@ export const useCreditTransactions = (filters?: CreditTransactionFilters) => {
       },
     },
   );
+  const { data: overallData } = useQuery(ONE_FIT_CREDIT_TRANSACTIONS, {
+    variables: { limit: 1 },
+  });
 
   const {
     list: creditTransactions,
     totalCount,
     pageInfo,
   } = data?.oneFitCreditTransactions || {};
+  const overallTotalCount = overallData?.oneFitCreditTransactions?.totalCount;
 
   const handleFetchMore = ({
     direction,
@@ -82,6 +86,8 @@ export const useCreditTransactions = (filters?: CreditTransactionFilters) => {
     loading,
     error,
     totalCount,
+    filteredTotalCount: totalCount,
+    overallTotalCount,
     pageInfo,
     handleFetchMore,
     refetch: handleRefetch,

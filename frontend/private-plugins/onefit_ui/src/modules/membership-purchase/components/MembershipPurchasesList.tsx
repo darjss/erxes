@@ -25,6 +25,7 @@ import { isWithinMembershipPurchaseDeleteWindow } from '../constants/membershipP
 import { ActivateMembershipPurchaseDialog } from './ActivateMembershipPurchaseDialog';
 import { DeleteMembershipPurchaseDialog } from './DeleteMembershipPurchaseDialog';
 import { QrCodeDialog } from './QrCodeDialog';
+import { ListTotalsLabel } from '~/components/ListTotalsLabel';
 
 interface MembershipPurchasesListProps {
   filters?: MembershipPurchaseFilters;
@@ -50,8 +51,15 @@ export function MembershipPurchasesList({
   filters,
   onFiltersChange,
 }: MembershipPurchasesListProps) {
-  const { membershipPurchases, handleFetchMore, loading, pageInfo, refetch } =
-    useMembershipPurchases(filters);
+  const {
+    membershipPurchases,
+    handleFetchMore,
+    loading,
+    pageInfo,
+    refetch,
+    filteredTotalCount,
+    overallTotalCount,
+  } = useMembershipPurchases(filters);
   const [updatePurchaseCompany, { loading: updatingCompany }] = useMutation(
     ONE_FIT_MEMBERSHIP_PURCHASE_COMPANY_UPDATE,
   );
@@ -383,6 +391,11 @@ export function MembershipPurchasesList({
           (expires today or past due)
         </div>
       )}
+      <ListTotalsLabel
+        filteredTotalCount={filteredTotalCount}
+        overallTotalCount={overallTotalCount}
+        loading={loading}
+      />
 
       <RecordTable.Provider
         columns={columns}

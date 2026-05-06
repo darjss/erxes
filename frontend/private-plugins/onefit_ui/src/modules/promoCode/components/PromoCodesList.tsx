@@ -13,6 +13,7 @@ import { PROMO_CODES_CURSOR_SESSION_KEY } from '../constants/promoCodeCursorSess
 import { PromoCodeDiscountType } from '../types/promoCode';
 import { EditPromoCodeDialog } from './PromoCodeDialog';
 import { RemovePromoCodeDialog } from './RemovePromoCodeDialog';
+import { ListTotalsLabel } from '~/components/ListTotalsLabel';
 
 interface PromoCodesListProps {
   filters?: PromoCodeFiltersType;
@@ -29,8 +30,14 @@ const formatDiscount = (discountType: string, value: number) => {
 };
 
 export const PromoCodesList = ({ filters }: PromoCodesListProps) => {
-  const { promoCodes, handleFetchMore, loading, pageInfo } =
-    usePromoCodes(filters);
+  const {
+    promoCodes,
+    handleFetchMore,
+    loading,
+    pageInfo,
+    filteredTotalCount,
+    overallTotalCount,
+  } = usePromoCodes(filters);
   const [selectedPromoCodeId, setSelectedPromoCodeId] = useState<string | null>(
     null,
   );
@@ -201,6 +208,11 @@ export const PromoCodesList = ({ filters }: PromoCodesListProps) => {
 
   return (
     <>
+      <ListTotalsLabel
+        filteredTotalCount={filteredTotalCount}
+        overallTotalCount={overallTotalCount}
+        loading={loading}
+      />
       <RecordTable.Provider
         columns={columns}
         data={promoCodes || []}

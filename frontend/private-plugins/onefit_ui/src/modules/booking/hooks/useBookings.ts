@@ -40,8 +40,12 @@ export const useBookings = (
       },
     },
   );
+  const { data: overallData } = useQuery(ONE_FIT_BOOKINGS, {
+    variables: { limit: 1, orderBy: options?.orderBy },
+  });
 
   const { list: bookings, totalCount, pageInfo } = data?.oneFitBookings || {};
+  const overallTotalCount = overallData?.oneFitBookings?.totalCount;
 
   const handleFetchMore = ({
     direction,
@@ -94,6 +98,8 @@ export const useBookings = (
     loading,
     error,
     totalCount,
+    filteredTotalCount: totalCount,
+    overallTotalCount,
     pageInfo,
     handleFetchMore,
     refetch: handleRefetch,

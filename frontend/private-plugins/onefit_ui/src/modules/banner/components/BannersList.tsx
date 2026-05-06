@@ -16,6 +16,7 @@ import { useQuery } from '@apollo/client';
 import { ONE_FIT_PROVIDERS } from '~/modules/provider/graphql/providerQueries';
 import { getLocalizedString } from '~/modules/activity-type/utils/localization';
 import { readImage } from 'erxes-ui/utils/core';
+import { ListTotalsLabel } from '~/components/ListTotalsLabel';
 
 interface BannersListProps {
   filters?: BannerFilters;
@@ -44,8 +45,14 @@ const getTypeBadgeVariant = (type: string) => {
 };
 
 export const BannersList = ({ filters }: BannersListProps) => {
-  const { banners, handleFetchMore, loading, pageInfo } =
-    useBanners(filters);
+  const {
+    banners,
+    handleFetchMore,
+    loading,
+    pageInfo,
+    filteredTotalCount,
+    overallTotalCount,
+  } = useBanners(filters);
   const [selectedBanner, setSelectedBanner] = useState<string | null>(null);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [removeDialogOpen, setRemoveDialogOpen] = useState(false);
@@ -182,6 +189,11 @@ export const BannersList = ({ filters }: BannersListProps) => {
 
   return (
     <>
+      <ListTotalsLabel
+        filteredTotalCount={filteredTotalCount}
+        overallTotalCount={overallTotalCount}
+        loading={loading}
+      />
       <RecordTable.Provider
         columns={columns}
         data={banners || []}

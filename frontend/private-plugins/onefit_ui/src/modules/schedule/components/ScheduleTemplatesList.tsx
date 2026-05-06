@@ -13,6 +13,7 @@ import { EditScheduleTemplateDialog } from './ScheduleTemplateDialog';
 import { RemoveScheduleTemplateDialog } from './RemoveDialog';
 import { useState } from 'react';
 import { getLocalizedString } from '~/modules/activity-type/utils/localization';
+import { ListTotalsLabel } from '~/components/ListTotalsLabel';
 
 interface ScheduleTemplatesListProps {
   filters?: ScheduleTemplateFilters;
@@ -27,8 +28,15 @@ const getMonthName = (month: number) => {
 export const ScheduleTemplatesList = ({
   filters,
 }: ScheduleTemplatesListProps) => {
-  const { scheduleTemplates, handleFetchMore, loading, error, pageInfo } =
-    useSchedules(filters);
+  const {
+    scheduleTemplates,
+    handleFetchMore,
+    loading,
+    error,
+    pageInfo,
+    filteredTotalCount,
+    overallTotalCount,
+  } = useSchedules(filters);
   const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [removeDialogOpen, setRemoveDialogOpen] = useState(false);
@@ -151,6 +159,11 @@ export const ScheduleTemplatesList = ({
           <p className="text-sm mt-1">{error.message}</p>
         </div>
       )}
+      <ListTotalsLabel
+        filteredTotalCount={filteredTotalCount}
+        overallTotalCount={overallTotalCount}
+        loading={loading}
+      />
       <RecordTable.Provider
         columns={columns}
         data={scheduleTemplates || []}

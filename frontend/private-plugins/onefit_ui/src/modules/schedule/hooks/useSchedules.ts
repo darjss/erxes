@@ -28,12 +28,17 @@ export const useSchedules = (filters?: ScheduleTemplateFilters) => {
       errorPolicy: 'all',
     },
   );
+  const { data: overallData } = useQuery(ONE_FIT_SCHEDULE_TEMPLATES, {
+    variables: { limit: 1 },
+    errorPolicy: 'all',
+  });
 
   const {
     list: scheduleTemplates,
     totalCount,
     pageInfo,
   } = data?.oneFitScheduleTemplates || {};
+  const overallTotalCount = overallData?.oneFitScheduleTemplates?.totalCount;
 
   const handleFetchMore = ({
     direction,
@@ -85,6 +90,8 @@ export const useSchedules = (filters?: ScheduleTemplateFilters) => {
     loading,
     error,
     totalCount,
+    filteredTotalCount: totalCount,
+    overallTotalCount,
     pageInfo,
     handleFetchMore,
     refetch: handleRefetch,
