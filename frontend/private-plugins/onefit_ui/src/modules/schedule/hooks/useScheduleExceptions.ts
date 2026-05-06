@@ -26,12 +26,16 @@ export const useScheduleExceptions = (filters: ScheduleExceptionFilters) => {
       },
     },
   );
+  const { data: overallData } = useQuery(ONE_FIT_SCHEDULE_EXCEPTIONS, {
+    variables: { limit: 1 },
+  });
 
   const {
     list: scheduleExceptions,
     totalCount,
     pageInfo,
   } = data?.oneFitScheduleExceptions || {};
+  const overallTotalCount = overallData?.oneFitScheduleExceptions?.totalCount;
 
   const handleFetchMore = ({
     direction,
@@ -82,6 +86,8 @@ export const useScheduleExceptions = (filters: ScheduleExceptionFilters) => {
     loading,
     error,
     totalCount,
+    filteredTotalCount: totalCount,
+    overallTotalCount,
     pageInfo,
     handleFetchMore,
     refetch: handleRefetch,

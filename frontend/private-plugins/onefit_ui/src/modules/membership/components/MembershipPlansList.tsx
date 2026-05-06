@@ -12,14 +12,21 @@ import { MEMBERSHIP_PLANS_CURSOR_SESSION_KEY } from '../constants/membershipPlan
 import { MembershipPlanDialog } from './MembershipPlanDialog';
 import { RemoveMembershipPlanDialog } from './RemoveMembershipPlanDialog';
 import { useState } from 'react';
+import { ListTotalsLabel } from '~/components/ListTotalsLabel';
 
 interface MembershipPlansListProps {
   filters?: MembershipPlanFilters;
 }
 
 export const MembershipPlansList = ({ filters }: MembershipPlansListProps) => {
-  const { membershipPlans, handleFetchMore, loading, pageInfo } =
-    useMembershipPlans(filters);
+  const {
+    membershipPlans,
+    handleFetchMore,
+    loading,
+    pageInfo,
+    filteredTotalCount,
+    overallTotalCount,
+  } = useMembershipPlans(filters);
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [removeDialogOpen, setRemoveDialogOpen] = useState(false);
@@ -170,6 +177,11 @@ export const MembershipPlansList = ({ filters }: MembershipPlansListProps) => {
 
   return (
     <>
+      <ListTotalsLabel
+        filteredTotalCount={filteredTotalCount}
+        overallTotalCount={overallTotalCount}
+        loading={loading}
+      />
       <RecordTable.Provider
         columns={columns}
         data={membershipPlans || []}

@@ -24,6 +24,7 @@ import {
 } from '~/modules/activity-type/utils/localization';
 import { OneFitCustomer } from '@/credit/types/credit';
 import { useOneFitMode } from '~/modules/config/hooks/useOneFitMode';
+import { ListTotalsLabel } from '~/components/ListTotalsLabel';
 
 interface BookingsListProps {
   filters?: BookingFilters;
@@ -126,7 +127,14 @@ export const BookingsList = ({
   customerDetailView = false,
   creditSummary,
 }: BookingsListProps) => {
-  const { bookings, handleFetchMore, loading, pageInfo } = useBookings(
+  const {
+    bookings,
+    handleFetchMore,
+    loading,
+    pageInfo,
+    filteredTotalCount,
+    overallTotalCount,
+  } = useBookings(
     filters,
     {
       sessionKey,
@@ -414,6 +422,11 @@ export const BookingsList = ({
           </span>
         </div>
       ) : null}
+      <ListTotalsLabel
+        filteredTotalCount={filteredTotalCount}
+        overallTotalCount={overallTotalCount}
+        loading={loading}
+      />
       <RecordTable.Provider
         columns={columns}
         data={visibleBookings}

@@ -33,12 +33,17 @@ export const useActivityTypes = (filters?: ActivityTypeFilters) => {
       fetchPolicy: 'cache-and-network',
     },
   );
+  const { data: overallData } = useQuery(ONE_FIT_ACTIVITY_TYPES, {
+    variables: { limit: 1 },
+    fetchPolicy: 'cache-and-network',
+  });
 
   const {
     list: activityTypes,
     totalCount,
     pageInfo,
   } = data?.oneFitActivityTypes || {};
+  const overallTotalCount = overallData?.oneFitActivityTypes?.totalCount;
 
   const handleFetchMore = ({
     direction,
@@ -89,6 +94,8 @@ export const useActivityTypes = (filters?: ActivityTypeFilters) => {
     loading,
     error,
     totalCount,
+    filteredTotalCount: totalCount,
+    overallTotalCount,
     pageInfo,
     handleFetchMore,
     refetch: handleRefetch,
