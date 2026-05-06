@@ -1,5 +1,5 @@
 import { IconBuildingStore } from '@tabler/icons-react';
-import { Breadcrumb, Button, PageSubHeader, Separator } from 'erxes-ui';
+import { Breadcrumb, Button, PageContainer, PageSubHeader, Separator } from 'erxes-ui';
 import { Link } from 'react-router-dom';
 import { PageHeader } from 'ui-modules';
 import { SuppliersFilter } from '../components/SuppliersFilter';
@@ -8,7 +8,7 @@ import { SupplierDetailSheet } from '../components/SupplierDetailSheet';
 
 export const SuppliersPage = () => {
   return (
-    <div className="flex flex-col">
+    <PageContainer>
       <PageHeader>
         <PageHeader.Start>
           <Breadcrumb>
@@ -32,12 +32,10 @@ export const SuppliersPage = () => {
         <SuppliersFilter />
       </PageSubHeader>
 
-      <div className="flex-1 overflow-auto">
-        <SuppliersTable />
-      </div>
+      <SuppliersTable />
 
       <SupplierDetailSheet />
-    </div>
+    </PageContainer>
   );
 };
 

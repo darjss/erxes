@@ -12,6 +12,7 @@ export const types = `
     amount: Float
     currency: String
     invoiceId: String
+    customer: JSON
     createdAt: Date
     updatedAt: Date
   }

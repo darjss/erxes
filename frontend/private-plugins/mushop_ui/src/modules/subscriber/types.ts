@@ -21,6 +21,14 @@ export interface ISubscriber {
   amount?: number;
   currency?: string;
   invoiceId?: string;
+  customer?: {
+    _id: string;
+    firstName?: string;
+    lastName?: string;
+    primaryEmail?: string;
+    primaryPhone?: string;
+    avatar?: string;
+  };
   createdAt?: string;
   updatedAt?: string;
 }

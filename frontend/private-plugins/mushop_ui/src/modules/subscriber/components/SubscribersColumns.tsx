@@ -43,11 +43,16 @@ export const subscribersColumns: ColumnDef<ISubscriber>[] = [
       const [, setActiveSubscriberId] =
         useQueryState<string>('activeSubscriberId');
       const customerId = cell.getValue() as string;
+      const { customer } = row.original;
       return (
         <RecordTableInlineCell
           onClick={() => setActiveSubscriberId(row.original._id)}
         >
-          <CustomersInline customerIds={[customerId]} placeholder="—" />
+          <CustomersInline
+            customerIds={[customerId]}
+            customers={customer ? [customer] : undefined}
+            placeholder="—"
+          />
         </RecordTableInlineCell>
       );
     },
@@ -129,5 +134,18 @@ export const subscribersColumns: ColumnDef<ISubscriber>[] = [
       );
     },
     size: 260,
+  },
+  {
+    id: 'subscribedAt',
+    accessorKey: 'createdAt',
+    header: () => (
+      <RecordTable.InlineHead label="Subscribed At" icon={IconCalendar} />
+    ),
+    cell: ({ cell }) => (
+      <RecordTableInlineCell>
+        {formatDate(cell.getValue() as string)}
+      </RecordTableInlineCell>
+    ),
+    size: 140,
   },
 ];
