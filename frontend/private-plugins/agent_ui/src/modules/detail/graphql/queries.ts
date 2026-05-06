@@ -26,3 +26,9 @@ export const GET_AGENT_DETAILS = gql`
     }
   }
 `;
+
+export const CHECK_KIMI_KEY_SET = gql`
+  query CheckKimiKeySet {
+    checkKimiKeySet
+  }
+`;

@@ -29,3 +29,9 @@ export const ADD_DISCORD_GUILD = gql`
     addDiscordGuild(input: $input)
   }
 `;
+
+export const SET_KIMI_API_KEY = gql`
+  mutation SetKimiApiKey($input: SetKimiApiKeyInput!) {
+    setKimiApiKey(input: $input)
+  }
+`;

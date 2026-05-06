@@ -1,5 +1,6 @@
 import { IContext } from '~/connectionResolvers';
 import {
+  checkKimiKeySet,
   getAgentDetails,
   getGatewayToken,
   listAgents,
@@ -66,5 +67,19 @@ export const agentQueries = {
     }
 
     return listDiscordGuilds(server.name);
+  },
+
+  checkKimiKeySet: async (
+    _root: undefined,
+    _args: undefined,
+    { models }: IContext,
+  ) => {
+    const server = await models.AgentServer.findOne({}).lean();
+
+    if (!server) {
+      throw new Error('Agent server not found');
+    }
+
+    return checkKimiKeySet(server.name);
   },
 };

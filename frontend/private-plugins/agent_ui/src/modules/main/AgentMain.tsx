@@ -1,12 +1,14 @@
 import { AgentDeployScreen } from '../deploy/components/AgentDeployScreen';
 import { useAgent } from './hooks/useAgent';
 import { useFixAndRestart } from '../detail/hooks/useFixAndRestart';
+import { useKimiKeyStatus } from '../detail/hooks/useKimiKey';
 import { Card, Spinner } from 'erxes-ui';
-import { IconRefresh, IconTrash } from '@tabler/icons-react';
+import { IconKey, IconRefresh, IconTrash } from '@tabler/icons-react';
 import { useToast } from 'erxes-ui';
 import { AddAgentTrigger } from '../detail/components/AddAgent';
 import { RestartServerDialog } from '../detail/components/RestartServerDialog';
 import { RestartingOverlay } from '../detail/components/RestartingOverlay';
+import { KimiKeyDialog } from '../detail/components/KimiKeyDialog';
 import { DestroyServerDialog } from '../deploy/components/DestroyServerDialog';
 import { useAgentDestroy } from '../deploy/hooks/useAgentDestroy';
 import { useState, useCallback } from 'react';
@@ -22,11 +24,18 @@ export const AgentMain = () => {
   const [destroyOpen, setDestroyOpen] = useState(false);
   const refreshIframe = useCallback(() => setIframeKey((k) => k + 1), []);
 
+  const isApproved =
+    !!agent && agent.status === SERVER_STATUSES.APPROVED;
+  const { hasKey, refetch: refetchKimiKey } = useKimiKeyStatus(!isApproved);
+  const [kimiKeyManualOpen, setKimiKeyManualOpen] = useState(false);
+  const kimiKeyForced = isApproved && hasKey === false;
+  const kimiKeyOpen = kimiKeyForced || kimiKeyManualOpen;
+
   if (loading) {
     return <Spinner />;
   }
 
-  if (!agent || agent.status !== SERVER_STATUSES.APPROVED) {
+  if (!isApproved) {
     return (
       <div className="flex flex-1 overflow-auto p-4">
         <div className="flex flex-col flex-auto justify-center items-center min-h-0 w-full">
@@ -70,6 +79,13 @@ export const AgentMain = () => {
           </button>
           <AddAgentTrigger onSuccess={refreshIframe} />
           <button
+            onClick={() => setKimiKeyManualOpen(true)}
+            className="p-1.5 rounded hover:bg-muted transition-colors"
+            title="Change Kimi API key"
+          >
+            <IconKey className="size-4" />
+          </button>
+          <button
             onClick={() => setDestroyOpen(true)}
             disabled={destroying}
             className="p-1.5 rounded text-destructive hover:bg-destructive/10 transition-colors disabled:opacity-50"
@@ -108,6 +124,17 @@ export const AgentMain = () => {
           }
         }}
         loading={destroying}
+      />
+      <KimiKeyDialog
+        open={kimiKeyOpen}
+        onSuccess={() => {
+          setKimiKeyManualOpen(false);
+          refetchKimiKey();
+          refreshIframe();
+        }}
+        onCancel={
+          kimiKeyForced ? undefined : () => setKimiKeyManualOpen(false)
+        }
       />
     </div>
   );

@@ -10,9 +10,13 @@ export const useAgentDeploy = () => {
   const deployAgent = async (
     name: string,
     token: string,
+    kimiApiKey: string,
     options?: OperationVariables,
   ) => {
-    await deploy({ ...(options || {}), variables: { input: { name, token } } });
+    await deploy({
+      ...(options || {}),
+      variables: { input: { name, token, kimiApiKey } },
+    });
   };
 
   return {

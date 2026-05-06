@@ -20,6 +20,10 @@ const deployFormSchema = z.object({
       tokenRegex,
       'Token must be in Discord bot format (e.g. XXX.XXX.XXX)',
     ),
+  kimiApiKey: z
+    .string()
+    .min(1, 'Kimi API key is required')
+    .startsWith('sk-', 'Kimi API keys start with "sk-"'),
 });
 
 type DeployFormValues = z.infer<typeof deployFormSchema>;
@@ -31,12 +35,12 @@ export const AgentDeployForm = () => {
 
   const form = useForm<DeployFormValues>({
     resolver: zodResolver(deployFormSchema),
-    defaultValues: { name: '', token: '' },
+    defaultValues: { name: '', token: '', kimiApiKey: '' },
   });
 
   const onSubmit = async (data: DeployFormValues) => {
     try {
-      await deployAgent(data.name, data.token);
+      await deployAgent(data.name, data.token, data.kimiApiKey);
       await refetch();
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
@@ -79,6 +83,24 @@ export const AgentDeployForm = () => {
               <Form.Label>Discord bot token</Form.Label>
               <Form.Control>
                 <Input {...field} className="w-full" />
+              </Form.Control>
+              <Form.Message />
+            </Form.Item>
+          )}
+        />
+        <Form.Field
+          name="kimiApiKey"
+          render={({ field }) => (
+            <Form.Item className="w-full">
+              <Form.Label>Kimi API key</Form.Label>
+              <Form.Control>
+                <Input
+                  {...field}
+                  type="password"
+                  placeholder="sk-kimi-..."
+                  autoComplete="off"
+                  className="w-full"
+                />
               </Form.Control>
               <Form.Message />
             </Form.Item>

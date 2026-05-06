@@ -5,6 +5,7 @@ interface DeployPaylaod {
   orgId: string;
   agentId: string;
   discordBotToken: string;
+  kimiApiKey: string;
 }
 
 interface DeployResponse {
@@ -274,6 +275,43 @@ export const fixAndRestartServer = async (
   if (!response.ok) {
     const message = await response.text();
     throw new Error(`Failed to fix and restart server: ${message}`);
+  }
+};
+
+export const checkKimiKeySet = async (
+  serverName: string,
+): Promise<boolean> => {
+  const DEPLOYER = getEnv({ name: 'DEPLOYER_URL' });
+  const response = await fetch(
+    `${DEPLOYER}/agents/${serverName}/check-kimi-key`,
+  );
+
+  if (!response.ok) {
+    const message = await response.text();
+    throw new Error(`Failed to check kimi key: ${message}`);
+  }
+
+  const data = (await response.json()) as { hasKey: boolean };
+  return data.hasKey;
+};
+
+export const setKimiApiKey = async (
+  serverName: string,
+  kimiApiKey: string,
+): Promise<void> => {
+  const DEPLOYER = getEnv({ name: 'DEPLOYER_URL' });
+  const response = await fetch(
+    `${DEPLOYER}/agents/${serverName}/set-kimi-key`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ kimiApiKey }),
+    },
+  );
+
+  if (!response.ok) {
+    const message = await response.text();
+    throw new Error(`Failed to set kimi key: ${message}`);
   }
 };
 

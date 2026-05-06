@@ -22,6 +22,7 @@ export const types = `
   input DeployAgentInput {
     name: String!
     token: String!
+    kimiApiKey: String!
   }
 
   input ApproveAgentInput {
@@ -53,6 +54,10 @@ export const types = `
     guildId: String!
   }
 
+  input SetKimiApiKeyInput {
+    kimiApiKey: String!
+  }
+
   type DiscordGuild {
     guildId: String
     requireMention: Boolean
@@ -64,6 +69,7 @@ export const queries = `
   getAgentsList: [AgentItem]
   getAgentDetails(agentId: String): [AgentFile]
   getDiscordGuilds: [DiscordGuild]
+  checkKimiKeySet: Boolean
 `;
 
 export const mutations = `
@@ -75,4 +81,5 @@ export const mutations = `
   fixAndRestartAgent: Boolean
   updateDiscordSettings(input: UpdateDiscordSettingsInput!): Boolean
   addDiscordGuild(input: AddDiscordGuildInput!): Boolean
+  setKimiApiKey(input: SetKimiApiKeyInput!): Boolean
 `;

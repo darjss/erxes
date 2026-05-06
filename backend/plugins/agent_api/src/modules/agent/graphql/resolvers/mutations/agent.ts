@@ -7,6 +7,7 @@ import {
   deployServer,
   destroyServer,
   fixAndRestartServer,
+  setKimiApiKey,
   updateAgentFile,
   updateDiscordSettings,
 } from '~/modules/agent/utils';
@@ -14,10 +15,18 @@ import {
 export const agentMutations = {
   deployAgent: async (
     _root: undefined,
-    { input }: { input: { name: string; token: string } },
+    {
+      input,
+    }: {
+      input: { name: string; token: string; kimiApiKey: string };
+    },
     { models, subdomain }: IContext,
   ) => {
-    const { name, token } = input || {};
+    const { name, token, kimiApiKey } = input || {};
+
+    if (!kimiApiKey) {
+      throw new Error('kimiApiKey is required');
+    }
 
     const agentServer = await models.AgentServer.findOne({}).lean();
 
@@ -30,6 +39,7 @@ export const agentMutations = {
         orgId: subdomain,
         agentId: name,
         discordBotToken: token,
+        kimiApiKey,
       });
 
       if (!server) {
@@ -215,6 +225,30 @@ export const agentMutations = {
 
     try {
       await addDiscordGuild(server.name, input.guildId);
+      return true;
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      throw new Error(message);
+    }
+  },
+
+  setKimiApiKey: async (
+    _root: undefined,
+    { input }: { input: { kimiApiKey: string } },
+    { models }: IContext,
+  ) => {
+    const server = await models.AgentServer.findOne({}).lean();
+
+    if (!server) {
+      throw new Error('Agent server not found');
+    }
+
+    if (!input?.kimiApiKey) {
+      throw new Error('kimiApiKey is required');
+    }
+
+    try {
+      await setKimiApiKey(server.name, input.kimiApiKey);
       return true;
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
