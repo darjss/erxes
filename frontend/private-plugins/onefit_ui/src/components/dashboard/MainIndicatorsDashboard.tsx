@@ -1,6 +1,11 @@
 import React, { useMemo, useState } from 'react';
 import { useQuery } from '@apollo/client';
-import { IconBuilding, IconCalendar, IconFlame, IconUsers } from '@tabler/icons-react';
+import {
+  IconBuilding,
+  IconCalendar,
+  IconFlame,
+  IconUsers,
+} from '@tabler/icons-react';
 import { Input, Select } from 'erxes-ui';
 import { endOfDay, format, startOfDay } from 'date-fns';
 import { ONE_FIT_DASHBOARD_STATS } from '~/modules/dashboard/graphql/dashboardQueries';
@@ -22,7 +27,11 @@ import {
   type PackageStatItem,
   type UserGrowthMonthRow,
 } from '~/components/dashboard/main-indicators-dashboard/types';
-import { getRangeByPreset, parseDateInputValue, toDateInputValue } from '~/components/dashboard/main-indicators-dashboard/utils';
+import {
+  getRangeByPreset,
+  parseDateInputValue,
+  toDateInputValue,
+} from '~/components/dashboard/main-indicators-dashboard/utils';
 
 export function MainIndicatorsDashboard() {
   const { mode, loading: modeLoading } = useOneFitMode();
@@ -176,10 +185,17 @@ export function MainIndicatorsDashboard() {
     collapsedCategoryIds,
     rootLevelCategoryDistribution,
   ]);
-  const categoryChartItems = useMemo(
-    () => categoryChartSource.slice(0, 8),
-    [categoryChartSource],
-  );
+  const categoryChartItems = useMemo(() => {
+    const chartTotal = categoryChartSource.reduce(
+      (total, category) => total + category.count,
+      0,
+    );
+
+    return categoryChartSource.slice(0, 8).map((category) => ({
+      ...category,
+      percent: chartTotal > 0 ? (category.count / chartTotal) * 100 : 0,
+    }));
+  }, [categoryChartSource]);
   const selectedCategoryLabel = useMemo(() => {
     if (!selectedCategoryId) {
       return 'Бүх категори';
@@ -192,7 +208,8 @@ export function MainIndicatorsDashboard() {
     return selected?.label || 'Бүх категори';
   }, [categoryDistribution, selectedCategoryId]);
 
-  const userGrowthByMonth = (stats?.userGrowthByMonth || []) as UserGrowthMonthRow[];
+  const userGrowthByMonth = (stats?.userGrowthByMonth ||
+    []) as UserGrowthMonthRow[];
   const bookingStatusByDay = (stats?.bookingStatusByDay ||
     []) as BookingStatusDayRow[];
 
