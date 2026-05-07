@@ -185,10 +185,17 @@ export function MainIndicatorsDashboard() {
     collapsedCategoryIds,
     rootLevelCategoryDistribution,
   ]);
-  const categoryChartItems = useMemo(
-    () => categoryChartSource.slice(0, 8),
-    [categoryChartSource],
-  );
+  const categoryChartItems = useMemo(() => {
+    const chartTotal = categoryChartSource.reduce(
+      (total, category) => total + category.count,
+      0,
+    );
+
+    return categoryChartSource.slice(0, 8).map((category) => ({
+      ...category,
+      percent: chartTotal > 0 ? (category.count / chartTotal) * 100 : 0,
+    }));
+  }, [categoryChartSource]);
   const selectedCategoryLabel = useMemo(() => {
     if (!selectedCategoryId) {
       return 'Бүх категори';
