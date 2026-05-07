@@ -9,7 +9,7 @@ COPY backend/erxes-api-shared/package.json backend/erxes-api-shared/
 RUN node -e "\
 const fs = require('fs'); \
 const shared = require('./backend/erxes-api-shared/package.json'); \
-const service = require('./backend/blockagency_api/package.json'); \
+const service = require('./backend/plugins/blockagency_api/package.json'); \
 const dependencies = { \
   ...(shared.dependencies || {}), \
   ...(service.dependencies || {}), \
