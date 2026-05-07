@@ -18,8 +18,9 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@zxing/library": "^0.21.3",
     "erxes-api-shared": "workspace:^",
+    "@zxing/library": "^0.21.3",
+    "graphql-tag": "^2.12.6",
     "sharp": "^0.33.0"
   },
   "devDependencies": {}
