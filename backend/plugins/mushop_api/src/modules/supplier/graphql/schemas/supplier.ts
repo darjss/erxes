@@ -1,4 +1,7 @@
-import { GQL_CURSOR_PARAM_DEFS } from 'erxes-api-shared/utils';
+import {
+  GQL_CURSOR_PARAM_DEFS,
+  GQL_OFFSET_PARAM_DEFS,
+} from 'erxes-api-shared/utils';
 
 export const types = `
   type MushopSupplierSocialLink {
@@ -49,12 +52,14 @@ const supplierQueryParams = `
   district: String
   dateFilters: String
   isFeatured: Boolean
-  ${GQL_CURSOR_PARAM_DEFS}
 `;
 
 export const queries = `
   mushopSupplierDetail(_id: String!): MushopSupplier
-  mushopSuppliers(${supplierQueryParams}): MushopSupplierListResponse
+  mushopSuppliers(${supplierQueryParams}${GQL_CURSOR_PARAM_DEFS}): MushopSupplierListResponse
+
+  cpMushopSupplierDetail(_id: String!): MushopSupplier
+  cpMushopSuppliers(${supplierQueryParams}${GQL_OFFSET_PARAM_DEFS}): [MushopSupplier]
 `;
 
 export const mutations = `

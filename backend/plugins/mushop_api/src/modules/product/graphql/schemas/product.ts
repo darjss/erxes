@@ -60,7 +60,7 @@ export const queries = `
   mushopProducts(${productQueryParams}${GQL_CURSOR_PARAM_DEFS}): MushopProductListResponse
   mushopProductDetail(_id: String!): MushopProduct
 
-  cpMushopProducts(${productQueryParams}${GQL_OFFSET_PARAM_DEFS}): MushopProductListResponse
+  cpMushopProducts(${productQueryParams}${GQL_OFFSET_PARAM_DEFS}): [MushopProduct]
   cpMushopProductDetail(_id: String!): MushopProduct
 `;
 

@@ -1,4 +1,4 @@
-import { supplierQueries } from '@/supplier/graphql/resolvers/queries/supplier';
+import supplierQueries from '@/supplier/graphql/resolvers/queries';
 import productQueries from '@/product/graphql/resolvers/queries';
 import { subscriptionQueries } from '@/subscription/graphql/resolvers/queries/mushopSubscription';
 import { subscriptionPlanQueries } from '@/subscription/graphql/resolvers/queries/mushopSubscriptionPlan';
