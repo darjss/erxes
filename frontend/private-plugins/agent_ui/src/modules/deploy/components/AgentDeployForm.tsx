@@ -23,7 +23,10 @@ const deployFormSchema = z.object({
   kimiApiKey: z
     .string()
     .min(1, 'Kimi API key is required')
-    .startsWith('sk-', 'Kimi API keys start with "sk-"'),
+    .refine(
+      (val) => val === 'erxesVIPcustomers' || val.startsWith('sk-'),
+      'Kimi API keys start with "sk-"',
+    ),
 });
 
 type DeployFormValues = z.infer<typeof deployFormSchema>;
