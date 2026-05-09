@@ -1,11 +1,4 @@
 import {
-  usePipelineAdd,
-  usePipelineDetail,
-  usePipelineEdit,
-} from '@/deals/boards/hooks/usePipelines';
-import { PipelineHotKeyScope, TPipelineForm } from '@/deals/types/pipelines';
-import { IconGitBranch, IconPlus } from '@tabler/icons-react';
-import {
   Button,
   Form,
   Sheet,
@@ -19,11 +12,16 @@ import { IconGitBranch, IconPlus } from '@tabler/icons-react';
 import { PipelineHotKeyScope, TPipelineForm } from '@/deals/types/pipelines';
 import { useCallback, useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import {
+  usePipelineAdd,
+  usePipelineDetail,
+  usePipelineEdit,
+} from '@/deals/boards/hooks/usePipelines';
 
+import { PipelineForm } from './PipelineForm';
+import { SubmitHandler } from 'react-hook-form';
 import { usePipelineForm } from '@/deals/boards/hooks/usePipelineForm';
 import { useStages } from '@/deals/stage/hooks/useStages';
-import { SubmitHandler } from 'react-hook-form';
-import { PipelineForm } from './PipelineForm';
 
 export function PipelineFormBar() {
   const location = useLocation();
@@ -66,6 +64,8 @@ export function PipelineFormBar() {
         canMoveMemberIds: stage.canMoveMemberIds ?? [],
         canEditMemberIds: stage.canEditMemberIds ?? [],
         probability: stage.probability || '',
+        memberIds: stage.memberIds ?? [],
+        departmentIds: stage.departmentIds ?? [],
       }));
 
       methods.setValue('stages', mappedStages, {
