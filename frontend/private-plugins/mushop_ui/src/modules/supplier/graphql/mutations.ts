@@ -18,6 +18,24 @@ export const MUSHOP_UPDATE_SUPPLIER_VERIFICATION_STATUS = gql`
   }
 `;
 
+export const MUSHOP_UPDATE_SUPPLIER_POS = gql`
+  mutation MushopUpdateSupplierPos($_id: String!, $posToken: String!) {
+    mushopUpdateSupplierPos(_id: $_id, posToken: $posToken) {
+      _id
+      posToken
+    }
+  }
+`;
+
+export const MUSHOP_UPDATE_SUPPLIER_MUSHOP_POS = gql`
+  mutation MushopUpdateSupplierMushopPos($_id: String!, $mushopPosToken: String!) {
+    mushopUpdateSupplierMushopPos(_id: $_id, mushopPosToken: $mushopPosToken) {
+      _id
+      mushopPosToken
+    }
+  }
+`;
+
 export const MUSHOP_UPDATE_SUPPLIER_TIER = gql`
   mutation MushopUpdateSupplierTier($_id: String!, $tierLevel: String!) {
     mushopUpdateSupplierTier(_id: $_id, tierLevel: $tierLevel) {

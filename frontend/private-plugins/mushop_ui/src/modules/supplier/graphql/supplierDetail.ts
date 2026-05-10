@@ -27,6 +27,8 @@ export const MUSHOP_SUPPLIER_DETAIL = gql`
         youtube
         website
       }
+      posToken
+      mushopPosToken
       createdAt
       updatedAt
     }

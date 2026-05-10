@@ -66,7 +66,9 @@ export const queries = `
 
 export const mutations = `
   mushopUpdateProductStatus(_id: String!, status: String!, note: String): MushopProduct
+  mushopBulkUpdateProductStatus(ids: [String!]!, status: String!): JSON
   mushopAssignProductCategory(_id: String!, categoryId: String): MushopProduct
   mushopRemoveProduct(_id: String!): JSON
+  mushopBulkRemoveProducts(ids: [String!]!): JSON
   mushopApproveProduct(_id: String!): MushopProduct
 `;

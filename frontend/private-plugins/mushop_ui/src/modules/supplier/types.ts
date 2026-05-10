@@ -23,6 +23,14 @@ export interface ISupplier {
   createdAt?: string;
   updatedAt?: string;
   socialLinks?: Record<string, string>;
+  posToken?: string;
+  mushopPosToken?: string;
+}
+
+export interface IPosConfig {
+  _id: string;
+  name?: string;
+  token?: string;
 }
 
 export interface ISupplierList {

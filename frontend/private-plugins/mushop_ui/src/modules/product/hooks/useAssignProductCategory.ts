@@ -1,15 +1,13 @@
 import { useMutation, useQuery } from '@apollo/client';
 import { MUSHOP_ASSIGN_PRODUCT_CATEGORY } from '../graphql/mutations';
-import { MUSHOP_CORE_PRODUCT_CATEGORIES } from '../graphql/queries';
+import { PRODUCT_CATEGORIES } from '../graphql/queries';
 import { IMushopProductCategory } from '../types';
 
-export const useCoreProductCategories = (searchValue?: string) => {
-  const { data, loading } = useQuery(MUSHOP_CORE_PRODUCT_CATEGORIES, {
-    variables: { searchValue },
-  });
+export const useCoreProductCategories = (_searchValue?: string) => {
+  const { data, loading } = useQuery(PRODUCT_CATEGORIES);
 
   const categories: IMushopProductCategory[] =
-    data?.mushopCoreProductCategories || [];
+    data?.productCategories || [];
 
   return { categories, loading };
 };

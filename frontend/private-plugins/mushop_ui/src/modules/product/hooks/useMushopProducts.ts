@@ -38,9 +38,9 @@ export const useMushopProducts = (options?: QueryHookOptions) => {
   const { list: products, pageInfo, totalCount } =
     data?.mushopProducts || {};
 
-  const handleFetchMore = (
-    direction: EnumCursorDirection = EnumCursorDirection.FORWARD,
-  ) => {
+  const handleFetchMore = ({
+    direction = EnumCursorDirection.FORWARD,
+  }: { direction: EnumCursorDirection } = { direction: EnumCursorDirection.FORWARD }) => {
     if (!validateFetchMore({ direction, pageInfo })) return;
 
     fetchMore({

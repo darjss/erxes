@@ -1,6 +1,7 @@
 import { RecordTable } from 'erxes-ui';
 import { useMushopProducts } from '../hooks/useMushopProducts';
 import { productColumns } from './ProductColumns';
+import { ProductsCommandBar } from './ProductsCommandBar';
 
 const PRODUCTS_CURSOR_SESSION_KEY = 'mushop-products-cursor';
 
@@ -34,6 +35,7 @@ export const ProductsTable = () => {
           </RecordTable.Body>
         </RecordTable>
       </RecordTable.CursorProvider>
+      <ProductsCommandBar />
     </RecordTable.Provider>
   );
 };

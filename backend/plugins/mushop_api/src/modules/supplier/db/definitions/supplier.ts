@@ -55,6 +55,8 @@ export const supplierSchema = schemaWrapper(
       socialLinks: { type: supplierSocialLinkSchema },
 
       ownerUserId: { type: String, index: true },
+      posToken: { type: String, label: 'POS token' },
+      mushopPosToken: { type: String, label: 'Mushop POS token' },
     },
     {
       timestamps: true,

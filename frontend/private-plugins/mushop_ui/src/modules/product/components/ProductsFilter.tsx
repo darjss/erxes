@@ -1,4 +1,5 @@
 import {
+  IconCategory,
   IconProgress,
   IconSearch,
   IconTruck,
@@ -6,13 +7,15 @@ import {
 import { Combobox, Command, Filter, useMultiQueryState } from 'erxes-ui';
 import { SelectSupplier } from '@/supplier/components/select/SelectSupplier';
 import { SelectProductStatus } from './SelectProductStatus';
+import { SelectProductCategory } from './SelectProductCategory';
 
 const ProductsFilterPopover = () => {
   const [queries] = useMultiQueryState<{
     searchValue: string;
     status: string;
     supplierId: string;
-  }>(['searchValue', 'status', 'supplierId']);
+    categoryId: string;
+  }>(['searchValue', 'status', 'supplierId', 'categoryId']);
 
   const hasFilters = Object.values(queries || {}).some((v) => v !== null);
 
@@ -41,11 +44,16 @@ const ProductsFilterPopover = () => {
                   <IconTruck />
                   Supplier
                 </Filter.Item>
+                <Filter.Item value="categoryId">
+                  <IconCategory />
+                  Category
+                </Filter.Item>
               </Command.List>
             </Command>
           </Filter.View>
           <SelectProductStatus.FilterView />
           <SelectSupplier.FilterView />
+          <SelectProductCategory.FilterView />
         </Combobox.Content>
       </Filter.Popover>
       <Filter.Dialog>
@@ -61,7 +69,8 @@ export const ProductsFilter = () => {
   const [queries] = useMultiQueryState<{
     searchValue: string;
     supplierId: string;
-  }>(['searchValue', 'supplierId']);
+    categoryId: string;
+  }>(['searchValue', 'supplierId', 'categoryId']);
 
   return (
     <Filter id="products-filter">
@@ -88,6 +97,13 @@ export const ProductsFilter = () => {
             Supplier
           </Filter.BarName>
           <SelectSupplier.FilterBar />
+        </Filter.BarItem>
+        <Filter.BarItem queryKey="categoryId">
+          <Filter.BarName>
+            <IconCategory />
+            Category
+          </Filter.BarName>
+          <SelectProductCategory.FilterBar />
         </Filter.BarItem>
         <ProductsFilterPopover />
       </Filter.Bar>

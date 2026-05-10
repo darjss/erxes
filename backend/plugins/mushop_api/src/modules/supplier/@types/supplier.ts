@@ -55,6 +55,8 @@ export interface ISupplier {
   tierLevel?: number;
   socialLinks?: ISupplierSocialLink;
   ownerUserId?: string;
+  posToken?: string;
+  mushopPosToken?: string;
 }
 
 export interface ISupplierDocument extends ISupplier, Document {

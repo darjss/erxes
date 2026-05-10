@@ -33,8 +33,16 @@ export const types = `
     tierLevel: Int
     socialLinks: MushopSupplierSocialLink
     ownerUserId: String
+    posToken: String
+    mushopPosToken: String
     createdAt: Date
     updatedAt: Date
+  }
+
+  type MushopPosConfig {
+    _id: String
+    name: String
+    token: String
   }
 
   type MushopSupplierListResponse {
@@ -57,6 +65,7 @@ const supplierQueryParams = `
 export const queries = `
   mushopSupplierDetail(_id: String!): MushopSupplier
   mushopSuppliers(${supplierQueryParams}${GQL_CURSOR_PARAM_DEFS}): MushopSupplierListResponse
+  mushopSupplierPosList(supplierId: String!): [MushopPosConfig]
 
   cpMushopSupplierDetail(_id: String!): MushopSupplier
   cpMushopSuppliers(${supplierQueryParams}${GQL_OFFSET_PARAM_DEFS}): [MushopSupplier]
@@ -65,4 +74,6 @@ export const queries = `
 export const mutations = `
   mushopUpdateSupplierVerificationStatus(_id: String!, verificationStatus: String!, note: String): MushopSupplier
   mushopUpdateSupplierTier(_id: String!, tierLevel: Int!): MushopSupplier
+  mushopUpdateSupplierPos(_id: String!, posToken: String!): MushopSupplier
+  mushopUpdateSupplierMushopPos(_id: String!, mushopPosToken: String!): MushopSupplier
 `;

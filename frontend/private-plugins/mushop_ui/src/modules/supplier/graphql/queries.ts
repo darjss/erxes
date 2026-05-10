@@ -1,6 +1,26 @@
 import { gql } from '@apollo/client';
 import { GQL_CURSOR_PARAM_DEFS, GQL_CURSOR_PARAMS } from 'erxes-ui';
 
+export const MUSHOP_POS_LIST = gql`
+  query PosclientConfigs {
+    posclientConfigs {
+      _id
+      name
+      token
+    }
+  }
+`;
+
+export const MUSHOP_SUPPLIER_POS_LIST = gql`
+  query MushopSupplierPosList($supplierId: String!) {
+    mushopSupplierPosList(supplierId: $supplierId) {
+      _id
+      name
+      token
+    }
+  }
+`;
+
 export const MUSHOP_SUPPLIERS = gql`
   query MushopSuppliers(
     $verificationStatus: String

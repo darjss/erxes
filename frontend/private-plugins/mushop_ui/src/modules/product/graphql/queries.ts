@@ -41,15 +41,13 @@ const MUSHOP_PRODUCT_FRAGMENT = gql`
   }
 `;
 
-export const MUSHOP_CORE_PRODUCT_CATEGORIES = gql`
-  query MushopCoreProductCategories($parentId: String, $searchValue: String) {
-    mushopCoreProductCategories(
-      parentId: $parentId
-      searchValue: $searchValue
-    ) {
+export const PRODUCT_CATEGORIES = gql`
+  query ProductCategories {
+    productCategories {
       _id
       name
       code
+      order
     }
   }
 `;

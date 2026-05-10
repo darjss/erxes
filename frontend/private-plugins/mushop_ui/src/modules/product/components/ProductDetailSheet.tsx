@@ -17,6 +17,7 @@ import { format } from 'date-fns';
 import { useMushopProductDetail } from '../hooks/useMushopProductDetail';
 import { IMushopProduct } from '../types';
 import { ProductStatusAction } from './ProductStatusAction';
+import { HtmlPreview } from '~/modules/HtmlPreview';
 
 const statusVariant = (status?: string) => {
   if (status === 'approved') return 'success' as const;
@@ -52,7 +53,7 @@ const ProductInfo = ({ product }: { product: IMushopProduct & { _id: string } })
               <Row label="Short Name" value={product.shortName} />
               <Row label="Code" value={product.code} />
               <Row label="Type" value={product.type} />
-              <Row label="Description" value={product.description} />
+              {product.description && <HtmlPreview label="Description" html={product.description} />}
               <Row
                 label="Unit Price"
                 value={

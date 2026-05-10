@@ -1,7 +1,15 @@
 import { IContext } from '~/connectionResolvers';
 import { MUSHOP_PRODUCT_STATUS } from '@/product/db/definitions/product';
-import { sendMessageToSupplier } from '~/utils/sendDecision';
-import { sendTRPCMessage } from 'erxes-api-shared/utils';
+import { syncProductToPosclient } from '~/utils/syncProductToPosclient';
+
+const getSupplierMushopPosToken = async (
+  models: IContext['models'],
+  subdomain: string,
+): Promise<string | undefined> => {
+  const supplier = await models.Supplier.findOne({ subdomain }).lean();
+
+  return supplier?.mushopPosToken;
+};
 
 export const productMutations = {
   mushopAssignProductCategory: async (
@@ -14,20 +22,69 @@ export const productMutations = {
       categoryId || null,
     );
 
-    if (product?.entityId) {
-      await sendTRPCMessage({
+    if (categoryId && product?.status === 'approved') {
+      const posToken = await getSupplierMushopPosToken(
+        models,
+        product.subdomain,
+      );
+
+      await syncProductToPosclient({
         subdomain,
-        pluginName: 'core',
-        module: 'products',
-        action: 'updateProduct',
-        input: {
-          _id: product.entityId,
-          doc: { categoryId: categoryId || null },
-        },
+        posToken,
+        product,
       });
     }
 
     return product;
+  },
+
+  mushopBulkUpdateProductStatus: async (
+    _root: undefined,
+    { ids, status }: { ids: string[]; status: string },
+    { models, subdomain }: IContext,
+  ) => {
+    if (!MUSHOP_PRODUCT_STATUS.ALL.includes(status)) {
+      throw new Error('Invalid product status');
+    }
+
+    try {
+      if (status === 'approved') {
+        const products = await models.MushopProduct.find({
+          _id: { $in: ids },
+          categoryId: { $exists: true, $ne: null },
+        }).lean();
+
+        console.log('products', products.length);
+
+        await Promise.all(
+          products.map(async (p) => {
+            const posToken = await getSupplierMushopPosToken(
+              models,
+              p.subdomain,
+            );
+
+            return syncProductToPosclient({
+              subdomain,
+              posToken,
+              product: p,
+            });
+          }),
+        );
+      }
+
+      await models.MushopProduct.updateMany(
+        { _id: { $in: ids } },
+        { $set: { status } },
+      );
+
+      return true;
+    } catch (error) {
+      throw new Error(
+        `Failed to sync products to POS client: ${
+          error instanceof Error ? error.message : String(error)
+        }`,
+      );
+    }
   },
 
   mushopRemoveProduct: async (
@@ -39,10 +96,19 @@ export const productMutations = {
     return { success: true };
   },
 
+  mushopBulkRemoveProducts: async (
+    _root: undefined,
+    { ids }: { ids: string[] },
+    { models }: IContext,
+  ) => {
+    await models.MushopProduct.deleteMany({ _id: { $in: ids } });
+    return { success: true, count: ids.length };
+  },
+
   mushopUpdateProductStatus: async (
     _root: undefined,
     { _id, status, note }: { _id: string; status: string; note?: string },
-    { models }: IContext,
+    { models, subdomain }: IContext,
   ) => {
     if (!MUSHOP_PRODUCT_STATUS.ALL.includes(status)) {
       throw new Error('Invalid product status');
@@ -50,13 +116,21 @@ export const productMutations = {
 
     const existing = await models.MushopProduct.getProduct(_id);
 
-    await sendMessageToSupplier({
-      subdomain: existing.subdomain,
-      entityId: existing.entityId,
-      status,
-      note,
-    });
+    const updated = await models.MushopProduct.updateStatus(_id, status, note);
 
-    return await models.MushopProduct.updateStatus(_id, status, note);
+    if (status === 'approved' && existing.categoryId) {
+      const posToken = await getSupplierMushopPosToken(
+        models,
+        existing.subdomain,
+      );
+      await syncProductToPosclient({
+        subdomain,
+        posToken,
+        product: updated ?? existing,
+        action: 'create',
+      });
+    }
+
+    return updated;
   },
 };

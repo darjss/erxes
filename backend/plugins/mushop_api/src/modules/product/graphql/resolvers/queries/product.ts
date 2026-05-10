@@ -1,7 +1,7 @@
 import { IContext } from '~/connectionResolvers';
 import { ProductQueryParams } from '@/product/@types/product';
 import { ICursorPaginateParams } from 'erxes-api-shared/core-types';
-import { cursorPaginate, sendTRPCMessage } from 'erxes-api-shared/utils';
+import { cursorPaginateAggregation } from 'erxes-api-shared/utils';
 
 export const productQueries = {
   mushopProducts: async (
@@ -30,10 +30,32 @@ export const productQueries = {
       ];
     }
 
-    return cursorPaginate({
+    const matchStage = Object.keys(filter).length ? [{ $match: filter }] : [];
+
+    const orderBy = params.orderBy && Object.keys(params.orderBy).length
+      ? params.orderBy
+      : ({ _statusOrder: 1, createdAt: -1 } as Record<string, any>);
+
+    return cursorPaginateAggregation({
       model: models.MushopProduct,
-      params,
-      query: filter,
+      params: { ...params, orderBy },
+      pipeline: [
+        ...matchStage,
+        {
+          $addFields: {
+            _statusOrder: {
+              $switch: {
+                branches: [
+                  { case: { $eq: ['$status', 'pending'] }, then: 0 },
+                  { case: { $eq: ['$status', 'approved'] }, then: 1 },
+                  { case: { $eq: ['$status', 'rejected'] }, then: 2 },
+                ],
+                default: 3,
+              },
+            },
+          },
+        },
+      ],
     });
   },
 
