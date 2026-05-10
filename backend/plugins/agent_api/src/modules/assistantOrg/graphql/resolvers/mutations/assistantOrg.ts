@@ -87,6 +87,8 @@ export const identifierMutations = {
     { identifierId }: { identifierId: string },
     { models }: IContext,
   ) => {
+    await ensureLegacyIdentifierLinks(models);
+
     if (!identifierId) {
       throw new Error('identifierId is required');
     }
@@ -98,8 +100,8 @@ export const identifierMutations = {
     }
 
     const [agentServer, opencodeServer] = await Promise.all([
-      models.AgentServer.exists({ orgId: identifierId }),
-      models.OpencodeServer.exists({ orgId: identifierId }),
+      models.AgentServer.exists({ identifierId }),
+      models.OpencodeServer.exists({ identifierId }),
     ]);
 
     if (agentServer || opencodeServer) {

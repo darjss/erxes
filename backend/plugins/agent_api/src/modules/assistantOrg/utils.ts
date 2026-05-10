@@ -3,6 +3,7 @@ import type { TIdentifierKind } from './@types/assistantOrg';
 
 type TLegacyServer = {
   _id: string;
+  identifierId?: string;
   orgId?: string;
   name?: string;
   agentId?: string;
@@ -119,10 +120,13 @@ const ensureServerIdentifier = async ({
   server: TLegacyServer;
   updateServer: (identifierId: string) => Promise<void>;
 }) => {
-  const currentOrgId = server.orgId?.trim();
+  const currentIdentifierId =
+    server.identifierId?.trim() || server.orgId?.trim();
 
-  if (currentOrgId) {
-    const identifier = await models.Identifier.findById(currentOrgId).lean();
+  if (currentIdentifierId) {
+    const identifier = await models.Identifier.findById(
+      currentIdentifierId,
+    ).lean();
 
     if (identifier?.kind === kind) {
       return identifier;
@@ -130,18 +134,18 @@ const ensureServerIdentifier = async ({
 
     if (identifier && !identifier.kind) {
       await models.Identifier.updateOne(
-        { _id: currentOrgId },
+        { _id: currentIdentifierId },
         { $set: { kind } },
       );
 
-      return models.Identifier.findById(currentOrgId).lean();
+      return models.Identifier.findById(currentIdentifierId).lean();
     }
   }
 
   const identifier = await findOrCreateLegacyIdentifier(models, kind, server);
   const identifierId = String(identifier._id);
 
-  if (currentOrgId !== identifierId) {
+  if (currentIdentifierId !== identifierId || server.orgId) {
     await updateServer(identifierId);
   }
 
@@ -162,7 +166,7 @@ export const ensureLegacyIdentifierLinks = async (models: IModels) => {
       updateServer: async (identifierId) => {
         await models.AgentServer.updateOne(
           { _id: server._id },
-          { $set: { orgId: identifierId } },
+          { $set: { identifierId }, $unset: { orgId: 1 } },
         );
       },
     });
@@ -176,7 +180,7 @@ export const ensureLegacyIdentifierLinks = async (models: IModels) => {
       updateServer: async (identifierId) => {
         await models.OpencodeServer.updateOne(
           { _id: server._id },
-          { $set: { orgId: identifierId } },
+          { $set: { identifierId }, $unset: { orgId: 1 } },
         );
       },
     });

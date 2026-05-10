@@ -6,7 +6,7 @@ import { SERVER_STATUSES } from '~/modules/agent/constants';
 export const opencodeServerSchema = schemaWrapper(
   new Schema(
     {
-      orgId: { type: String, label: 'Identifier ID' },
+      identifierId: { type: String, label: 'Identifier ID' },
       name: { type: String, label: 'Name' },
       url: { type: String, label: 'Url' },
       provider: { type: String, label: 'Provider' },

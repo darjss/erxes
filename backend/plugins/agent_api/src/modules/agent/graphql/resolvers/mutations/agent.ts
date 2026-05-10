@@ -49,10 +49,10 @@ export const agentMutations = {
       );
     }
 
-    const agentServer = await models.AgentServer.findOne({ orgId: identifierId }).lean();
+    const agentServer = await models.AgentServer.findOne({ identifierId }).lean();
 
     if (agentServer) {
-      return { ...agentServer, identifierId: agentServer.orgId };
+      return { ...agentServer, identifierId: agentServer.identifierId };
     }
 
     try {
@@ -68,7 +68,7 @@ export const agentMutations = {
       }
 
       return models.AgentServer.create({
-        orgId: identifierId,
+        identifierId,
         agentId: identifier.slug,
         name: server.serverName,
         url: server.serverUrl,
@@ -77,7 +77,7 @@ export const agentMutations = {
         status: SERVER_STATUSES.DEPLOYING,
       });
     } catch (error) {
-      await models.AgentServer.deleteOne({ orgId: identifierId });
+      await models.AgentServer.deleteOne({ identifierId });
 
       const message = error instanceof Error ? error.message : String(error);
       throw new Error(message);
@@ -96,7 +96,7 @@ export const agentMutations = {
 
     const { code } = input || {};
 
-    const agent = await models.AgentServer.findOne({ orgId: identifierId }).lean();
+    const agent = await models.AgentServer.findOne({ identifierId }).lean();
 
     if (!agent) {
       throw new Error('Agent not found');
@@ -123,7 +123,7 @@ export const agentMutations = {
   ) => {
     await ensureLegacyIdentifierLinks(models);
 
-    const agent = await models.AgentServer.findOne({ orgId: identifierId }).lean();
+    const agent = await models.AgentServer.findOne({ identifierId }).lean();
 
     if (!agent) {
       throw new Error('Agent not found');
@@ -134,7 +134,7 @@ export const agentMutations = {
 
       await models.AgentServer.deleteOne({ _id: agent._id });
 
-      return { ...agent, identifierId: agent.orgId };
+      return { ...agent, identifierId: agent.identifierId };
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       throw new Error(message);
@@ -161,7 +161,7 @@ export const agentMutations = {
   ) => {
     await ensureLegacyIdentifierLinks(models);
 
-    const server = await models.AgentServer.findOne({ orgId: identifierId }).lean();
+    const server = await models.AgentServer.findOne({ identifierId }).lean();
 
     if (!server) {
       throw new Error('Agent server not found');
@@ -189,7 +189,7 @@ export const agentMutations = {
   ) => {
     await ensureLegacyIdentifierLinks(models);
 
-    const server = await models.AgentServer.findOne({ orgId: identifierId }).lean();
+    const server = await models.AgentServer.findOne({ identifierId }).lean();
 
     if (!server) {
       throw new Error('Agent server not found');
@@ -216,7 +216,7 @@ export const agentMutations = {
   ) => {
     await ensureLegacyIdentifierLinks(models);
 
-    const server = await models.AgentServer.findOne({ orgId: identifierId }).lean();
+    const server = await models.AgentServer.findOne({ identifierId }).lean();
 
     if (!server) {
       throw new Error('Agent server not found');
@@ -244,7 +244,7 @@ export const agentMutations = {
   ) => {
     await ensureLegacyIdentifierLinks(models);
 
-    const server = await models.AgentServer.findOne({ orgId: identifierId }).lean();
+    const server = await models.AgentServer.findOne({ identifierId }).lean();
 
     if (!server) {
       throw new Error('Agent server not found');
@@ -269,7 +269,7 @@ export const agentMutations = {
   ) => {
     await ensureLegacyIdentifierLinks(models);
 
-    const server = await models.AgentServer.findOne({ orgId: identifierId }).lean();
+    const server = await models.AgentServer.findOne({ identifierId }).lean();
 
     if (!server) {
       throw new Error('Agent server not found');
@@ -294,7 +294,7 @@ export const agentMutations = {
   ) => {
     await ensureLegacyIdentifierLinks(models);
 
-    const server = await models.AgentServer.findOne({ orgId: identifierId }).lean();
+    const server = await models.AgentServer.findOne({ identifierId }).lean();
 
     if (!server) {
       throw new Error('Agent server not found');

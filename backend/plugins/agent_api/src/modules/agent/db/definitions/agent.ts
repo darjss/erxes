@@ -6,7 +6,7 @@ import { SERVER_STATUSES } from '../../constants';
 export const agentServerSchema = schemaWrapper(
   new Schema(
     {
-      orgId: { type: String, label: 'Identifier ID' },
+      identifierId: { type: String, label: 'Identifier ID' },
       name: { type: String, label: 'Name' },
       url: { type: String, label: 'Url' },
       token: { type: String, label: 'Token' },

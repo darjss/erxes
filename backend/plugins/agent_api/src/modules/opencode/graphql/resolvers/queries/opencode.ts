@@ -15,14 +15,14 @@ export const opencodeQueries = {
   ) => {
     await ensureLegacyIdentifierLinks(models);
 
-    const opencode = await models.OpencodeServer.findOne({ orgId: identifierId }).lean();
+    const opencode = await models.OpencodeServer.findOne({ identifierId }).lean();
 
     if (!opencode) {
       return null;
     }
 
     if (opencode.status !== SERVER_STATUSES.DEPLOYING) {
-      return { ...opencode, identifierId: opencode.orgId };
+      return { ...opencode, identifierId: opencode.identifierId };
     }
 
     try {
@@ -47,7 +47,9 @@ export const opencodeQueries = {
       )
         .lean()
         .then((updated) =>
-          updated ? { ...updated, identifierId: updated.orgId } : updated,
+          updated
+            ? { ...updated, identifierId: updated.identifierId }
+            : updated,
         );
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
@@ -60,11 +62,13 @@ export const opencodeQueries = {
         )
           .lean()
           .then((updated) =>
-            updated ? { ...updated, identifierId: updated.orgId } : updated,
+            updated
+              ? { ...updated, identifierId: updated.identifierId }
+              : updated,
           );
       }
 
-      return { ...opencode, identifierId: opencode.orgId };
+      return { ...opencode, identifierId: opencode.identifierId };
     }
   },
 
@@ -75,7 +79,7 @@ export const opencodeQueries = {
   ) => {
     await ensureLegacyIdentifierLinks(models);
 
-    const opencode = await models.OpencodeServer.findOne({ orgId: identifierId }).lean();
+    const opencode = await models.OpencodeServer.findOne({ identifierId }).lean();
 
     if (!opencode) {
       throw new Error('Opencode server not found');

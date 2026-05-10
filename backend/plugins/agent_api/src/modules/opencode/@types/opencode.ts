@@ -1,7 +1,7 @@
 import { Document } from 'mongoose';
 
 export interface IOpencodeServer {
-  orgId?: string;
+  identifierId?: string;
   name: string;
   url: string;
   provider: string;

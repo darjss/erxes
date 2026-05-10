@@ -47,10 +47,10 @@ export const opencodeMutations = {
       );
     }
 
-    const existing = await models.OpencodeServer.findOne({ orgId: identifierId }).lean();
+    const existing = await models.OpencodeServer.findOne({ identifierId }).lean();
 
     if (existing) {
-      return { ...existing, identifierId: existing.orgId };
+      return { ...existing, identifierId: existing.identifierId };
     }
 
     try {
@@ -62,7 +62,7 @@ export const opencodeMutations = {
       });
 
       return models.OpencodeServer.create({
-        orgId: identifierId,
+        identifierId,
         name: server.serverName,
         url: server.serverUrl,
         provider: normalizedProvider,
@@ -71,7 +71,7 @@ export const opencodeMutations = {
         status: SERVER_STATUSES.DEPLOYING,
       });
     } catch (error) {
-      await models.OpencodeServer.deleteOne({ orgId: identifierId });
+      await models.OpencodeServer.deleteOne({ identifierId });
 
       const message = error instanceof Error ? error.message : String(error);
       throw new Error(message);
@@ -85,7 +85,7 @@ export const opencodeMutations = {
   ) => {
     await ensureLegacyIdentifierLinks(models);
 
-    const opencode = await models.OpencodeServer.findOne({ orgId: identifierId }).lean();
+    const opencode = await models.OpencodeServer.findOne({ identifierId }).lean();
 
     if (!opencode) {
       throw new Error('Opencode server not found');
@@ -95,7 +95,7 @@ export const opencodeMutations = {
       await destroyOpencodeServer(opencode);
       await models.OpencodeServer.deleteOne({ _id: opencode._id });
 
-      return { ...opencode, identifierId: opencode.orgId };
+      return { ...opencode, identifierId: opencode.identifierId };
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       throw new Error(message);
@@ -109,7 +109,7 @@ export const opencodeMutations = {
   ) => {
     await ensureLegacyIdentifierLinks(models);
 
-    const opencode = await models.OpencodeServer.findOne({ orgId: identifierId }).lean();
+    const opencode = await models.OpencodeServer.findOne({ identifierId }).lean();
 
     if (!opencode) {
       throw new Error('Opencode server not found');
@@ -137,7 +137,7 @@ export const opencodeMutations = {
   ) => {
     await ensureLegacyIdentifierLinks(models);
 
-    const opencode = await models.OpencodeServer.findOne({ orgId: identifierId }).lean();
+    const opencode = await models.OpencodeServer.findOne({ identifierId }).lean();
 
     if (!opencode) {
       throw new Error('Opencode server not found');

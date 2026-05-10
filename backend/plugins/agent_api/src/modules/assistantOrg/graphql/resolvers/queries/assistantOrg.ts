@@ -17,8 +17,8 @@ const getIdentifiers = async (
   }
 
   const [agentIdentifierIds, opencodeIdentifierIds] = await Promise.all([
-    models.AgentServer.distinct('orgId', {}),
-    models.OpencodeServer.distinct('orgId', {}),
+    models.AgentServer.distinct('identifierId', {}),
+    models.OpencodeServer.distinct('identifierId', {}),
   ]);
 
   const agentIdentifierIdSet = new Set(agentIdentifierIds.map(String));

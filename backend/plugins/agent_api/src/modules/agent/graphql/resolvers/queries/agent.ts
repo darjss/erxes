@@ -16,7 +16,7 @@ export const agentQueries = {
   ) => {
     await ensureLegacyIdentifierLinks(models);
 
-    const agent = await models.AgentServer.findOne({ orgId: identifierId }).lean();
+    const agent = await models.AgentServer.findOne({ identifierId }).lean();
 
     if (!agent) {
       return null;
@@ -24,9 +24,9 @@ export const agentQueries = {
 
     try {
       const token = await getGatewayToken(agent.name);
-      return { ...agent, token, identifierId: agent.orgId };
+      return { ...agent, token, identifierId: agent.identifierId };
     } catch {
-      return { ...agent, identifierId: agent.orgId };
+      return { ...agent, identifierId: agent.identifierId };
     }
   },
 
@@ -37,7 +37,7 @@ export const agentQueries = {
   ) => {
     await ensureLegacyIdentifierLinks(models);
 
-    const server = await models.AgentServer.findOne({ orgId: identifierId }).lean();
+    const server = await models.AgentServer.findOne({ identifierId }).lean();
 
     if (!server) {
       throw new Error('Agent server not found');
@@ -53,7 +53,7 @@ export const agentQueries = {
   ) => {
     await ensureLegacyIdentifierLinks(models);
 
-    const server = await models.AgentServer.findOne({ orgId: identifierId }).lean();
+    const server = await models.AgentServer.findOne({ identifierId }).lean();
 
     if (!server) {
       throw new Error('Agent server not found');
@@ -69,7 +69,7 @@ export const agentQueries = {
   ) => {
     await ensureLegacyIdentifierLinks(models);
 
-    const server = await models.AgentServer.findOne({ orgId: identifierId }).lean();
+    const server = await models.AgentServer.findOne({ identifierId }).lean();
 
     if (!server) {
       throw new Error('Agent server not found');
@@ -85,7 +85,7 @@ export const agentQueries = {
   ) => {
     await ensureLegacyIdentifierLinks(models);
 
-    const server = await models.AgentServer.findOne({ orgId: identifierId }).lean();
+    const server = await models.AgentServer.findOne({ identifierId }).lean();
 
     if (!server) {
       throw new Error('Agent server not found');
