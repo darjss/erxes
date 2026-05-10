@@ -36,9 +36,9 @@ export const useSubscribers = (options?: QueryHookOptions) => {
     totalCount,
   } = data?.mushopSubscriptions || {};
 
-  const handleFetchMore = (
-    direction: EnumCursorDirection = EnumCursorDirection.FORWARD,
-  ) => {
+  const handleFetchMore = ({
+    direction = EnumCursorDirection.FORWARD,
+  }: { direction?: EnumCursorDirection } = {}) => {
     if (!validateFetchMore({ direction, pageInfo })) return;
 
     fetchMore({

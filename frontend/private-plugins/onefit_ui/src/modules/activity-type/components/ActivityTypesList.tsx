@@ -14,6 +14,7 @@ import { RemoveActivityTypeDialog } from './RemoveActivityTypeDialog';
 import { useState } from 'react';
 import { getLocalizedString } from '../utils/localization';
 import { getLocalizedString as getCategoryLocalizedString } from '~/modules/category/utils/localization';
+import { ListTotalsLabel } from '~/components/ListTotalsLabel';
 
 interface ActivityTypesListProps {
   filters?: ActivityTypeFilters;
@@ -42,8 +43,14 @@ const formatDuration = (duration: number) => {
 };
 
 export const ActivityTypesList = ({ filters }: ActivityTypesListProps) => {
-  const { activityTypes, handleFetchMore, loading, pageInfo } =
-    useActivityTypes(filters);
+  const {
+    activityTypes,
+    handleFetchMore,
+    loading,
+    pageInfo,
+    filteredTotalCount,
+    overallTotalCount,
+  } = useActivityTypes(filters);
   const [selectedActivityType, setSelectedActivityType] = useState<
     string | null
   >(null);
@@ -235,6 +242,11 @@ export const ActivityTypesList = ({ filters }: ActivityTypesListProps) => {
 
   return (
     <>
+      <ListTotalsLabel
+        filteredTotalCount={filteredTotalCount}
+        overallTotalCount={overallTotalCount}
+        loading={loading}
+      />
       <RecordTable.Provider
         columns={columns}
         data={activityTypes || []}

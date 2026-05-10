@@ -10,6 +10,7 @@ import { ScheduleExceptionFilters } from '../types/schedule';
 import { SCHEDULE_EXCEPTIONS_CURSOR_SESSION_KEY } from '../constants/scheduleCursorSessionKey';
 import { RemoveScheduleExceptionDialog } from './RemoveDialog';
 import { useState } from 'react';
+import { ListTotalsLabel } from '~/components/ListTotalsLabel';
 
 interface ScheduleExceptionsListProps {
   filters: ScheduleExceptionFilters;
@@ -18,8 +19,14 @@ interface ScheduleExceptionsListProps {
 export const ScheduleExceptionsList = ({
   filters,
 }: ScheduleExceptionsListProps) => {
-  const { scheduleExceptions, handleFetchMore, loading, pageInfo } =
-    useScheduleExceptions(filters);
+  const {
+    scheduleExceptions,
+    handleFetchMore,
+    loading,
+    pageInfo,
+    filteredTotalCount,
+    overallTotalCount,
+  } = useScheduleExceptions(filters);
   const [selectedException, setSelectedException] = useState<string | null>(
     null,
   );
@@ -110,6 +117,11 @@ export const ScheduleExceptionsList = ({
 
   return (
     <>
+      <ListTotalsLabel
+        filteredTotalCount={filteredTotalCount}
+        overallTotalCount={overallTotalCount}
+        loading={loading}
+      />
       <RecordTable.Provider
         columns={columns}
         data={scheduleExceptions || []}

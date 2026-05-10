@@ -80,7 +80,7 @@ router.post('/:platform/supplier', async (req: Request, res: Response) => {
     const { entityId, data } = payload || {};
     const { verificationStatus, note } = data || {};
 
-    console.log('payload', JSON.stringify(payload))
+    console.log('supplier webhook subdomain:', subdomain, 'payload', JSON.stringify(payload))
 
     if (!subdomain)
       return res.status(400).json({ error: 'subdomain is required' });

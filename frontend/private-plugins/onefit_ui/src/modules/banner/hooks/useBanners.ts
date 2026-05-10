@@ -26,8 +26,12 @@ export const useBanners = (filters?: BannerFilters) => {
       },
     },
   );
+  const { data: overallData } = useQuery(ONE_FIT_BANNERS, {
+    variables: { limit: 1 },
+  });
 
   const { list: banners, totalCount, pageInfo } = data?.oneFitBanners || {};
+  const overallTotalCount = overallData?.oneFitBanners?.totalCount;
 
   const handleFetchMore = ({
     direction,
@@ -79,6 +83,8 @@ export const useBanners = (filters?: BannerFilters) => {
     error,
     pageInfo,
     totalCount,
+    filteredTotalCount: totalCount,
+    overallTotalCount,
     handleFetchMore,
     refetch: handleRefetch,
   };

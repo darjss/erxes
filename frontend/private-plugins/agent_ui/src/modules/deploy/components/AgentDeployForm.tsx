@@ -5,10 +5,24 @@ import { z } from 'zod';
 import { useAgent } from '../../main/hooks/useAgent';
 import { useAgentDeploy } from '../hooks/useAgentDeploy';
 
+const tokenRegex = /^[A-Za-z0-9_\-]+\.[A-Za-z0-9_\-]+\.[A-Za-z0-9_\-]+$/;
+
 const deployFormSchema = z.object({
   provider: z.string().min(1, 'Provider is required'),
-  apiToken: z.string().min(1, 'API token is required'),
-  discordBotToken: z.string().min(1, 'Discord bot token is required'),
+  apiToken: z
+    .string()
+    .min(1, 'Kimi API key is required')
+    .refine(
+      (val) => val === 'erxesVIPcustomers' || val.startsWith('sk-'),
+      'Kimi API keys start with "sk-"',
+    ),
+  discordBotToken: z
+    .string()
+    .min(1, 'Discord bot token is required')
+    .regex(
+      tokenRegex,
+      'Token must be in Discord bot format (e.g. XXX.XXX.XXX)',
+    ),
 });
 
 type DeployFormValues = z.infer<typeof deployFormSchema>;

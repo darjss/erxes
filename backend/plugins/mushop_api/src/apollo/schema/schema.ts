@@ -18,15 +18,20 @@ import {
   queries as SubscriptionPlanQueries,
   types as SubscriptionPlanTypes,
 } from '@/subscription/graphql/schemas/mushopSubscriptionPlan';
+import {
+  queries as CustomerInvoiceQueries,
+  types as CustomerInvoiceTypes,
+} from '@/subscription/graphql/schemas/invoices';
 import { TypeExtensions } from './extensions';
 
 export const types = `
   ${TypeExtensions}
-  
+
   ${SupplierTypes}
   ${ProductTypes}
   ${SubscriptionTypes}
   ${SubscriptionPlanTypes}
+  ${CustomerInvoiceTypes}
 `;
 
 export const queries = `
@@ -34,6 +39,7 @@ export const queries = `
   ${ProductQueries}
   ${SubscriptionQueries}
   ${SubscriptionPlanQueries}
+  ${CustomerInvoiceQueries}
 `;
 
 export const mutations = `

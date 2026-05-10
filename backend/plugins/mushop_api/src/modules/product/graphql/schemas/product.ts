@@ -1,4 +1,7 @@
-import { GQL_CURSOR_PARAM_DEFS } from 'erxes-api-shared/utils';
+import {
+  GQL_CURSOR_PARAM_DEFS,
+  GQL_OFFSET_PARAM_DEFS,
+} from 'erxes-api-shared/utils';
 
 export const types = `
   type MushopProductCategory {
@@ -51,13 +54,14 @@ const productQueryParams = `
   categoryId: String
   status: String
   searchValue: String
-  ${GQL_CURSOR_PARAM_DEFS}
 `;
 
 export const queries = `
-  mushopProducts(${productQueryParams}): MushopProductListResponse
+  mushopProducts(${productQueryParams}${GQL_CURSOR_PARAM_DEFS}): MushopProductListResponse
   mushopProductDetail(_id: String!): MushopProduct
-  mushopCoreProductCategories(parentId: String, searchValue: String): [MushopProductCategory]
+
+  cpMushopProducts(${productQueryParams}${GQL_OFFSET_PARAM_DEFS}): [MushopProduct]
+  cpMushopProductDetail(_id: String!): MushopProduct
 `;
 
 export const mutations = `

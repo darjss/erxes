@@ -44,23 +44,4 @@ export const productQueries = {
   ) => {
     return models.MushopProduct.getProduct(_id);
   },
-
-  mushopCoreProductCategories: async (
-    _root: undefined,
-    { parentId, searchValue }: { parentId?: string; searchValue?: string },
-    { subdomain }: IContext,
-  ) => {
-    const query: any = {};
-    if (parentId) query.parentId = parentId;
-    if (searchValue) query.name = { $regex: searchValue, $options: 'i' };
-
-    return sendTRPCMessage({
-      subdomain,
-      pluginName: 'core',
-      module: 'productCategories',
-      action: 'find',
-      input: { query, sort: { order: 1 } },
-      defaultValue: [],
-    });
-  },
 };

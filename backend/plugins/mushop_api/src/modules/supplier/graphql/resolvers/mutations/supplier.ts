@@ -5,14 +5,14 @@ export const supplierMutations = {
   mushopUpdateSupplierVerificationStatus: async (
     _root: undefined,
     { _id, verificationStatus, note }: { _id: string; verificationStatus: string; note?: string },
-    { models, user, subdomain }: IContext,
+    { models, user }: IContext,
   ) => {
     if (!user) throw new Error('Login required');
 
     const existing = await models.Supplier.getSupplier(_id);
 
     await sendSupplierStatusToSupplier({
-      subdomain,
+      subdomain: existing.subdomain,
       entityId: existing.entityId,
       verificationStatus,
       note,

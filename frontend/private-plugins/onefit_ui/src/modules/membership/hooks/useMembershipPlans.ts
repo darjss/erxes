@@ -26,12 +26,16 @@ export const useMembershipPlans = (filters?: MembershipPlanFilters) => {
       },
     },
   );
+  const { data: overallData } = useQuery(ONE_FIT_MEMBERSHIP_PLANS, {
+    variables: { limit: 1 },
+  });
 
   const {
     list: membershipPlans,
     totalCount,
     pageInfo,
   } = data?.oneFitMembershipPlans || {};
+  const overallTotalCount = overallData?.oneFitMembershipPlans?.totalCount;
 
   const handleFetchMore = ({
     direction,
@@ -82,6 +86,8 @@ export const useMembershipPlans = (filters?: MembershipPlanFilters) => {
     loading,
     error,
     totalCount,
+    filteredTotalCount: totalCount,
+    overallTotalCount,
     pageInfo,
     handleFetchMore,
     refetch: handleRefetch,

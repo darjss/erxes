@@ -22,6 +22,7 @@ import { RemoveProviderDialog } from './RemoveProviderDialog';
 import { useState } from 'react';
 import { getLocalizedString } from '~/modules/activity-type/utils/localization';
 import { getLocalizedString as getCategoryLocalizedString } from '~/modules/category/utils/localization';
+import { ListTotalsLabel } from '~/components/ListTotalsLabel';
 
 interface ProvidersListProps {
   filters?: ProviderFilters;
@@ -41,8 +42,14 @@ const getStatusBadgeVariant = (status: string) => {
 };
 
 export const ProvidersList = ({ filters }: ProvidersListProps) => {
-  const { providers, handleFetchMore, loading, pageInfo } =
-    useProviders(filters);
+  const {
+    providers,
+    handleFetchMore,
+    loading,
+    pageInfo,
+    filteredTotalCount,
+    overallTotalCount,
+  } = useProviders(filters);
   const [selectedProvider, setSelectedProvider] = useState<string | null>(null);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [approveDialogOpen, setApproveDialogOpen] = useState(false);
@@ -258,6 +265,11 @@ export const ProvidersList = ({ filters }: ProvidersListProps) => {
 
   return (
     <>
+      <ListTotalsLabel
+        filteredTotalCount={filteredTotalCount}
+        overallTotalCount={overallTotalCount}
+        loading={loading}
+      />
       <RecordTable.Provider
         columns={columns}
         data={providers || []}

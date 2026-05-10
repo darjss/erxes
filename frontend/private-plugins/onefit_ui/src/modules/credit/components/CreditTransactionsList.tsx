@@ -19,6 +19,7 @@ import {
 } from '../types/credit';
 import { OneFitCustomersInline } from '~/modules/onefitCustomer/components/OneFitCustomersInline';
 import { GET_COMPANIES_BY_IDS } from '../graphql/companyQueries';
+import { ListTotalsLabel } from '~/components/ListTotalsLabel';
 
 interface CreditTransactionsListProps {
   filters?: CreditTransactionFilters;
@@ -53,8 +54,14 @@ const getSourceBadgeVariant = (source: OneFitCreditSource) => {
 export const CreditTransactionsList = ({
   filters,
 }: CreditTransactionsListProps) => {
-  const { creditTransactions, handleFetchMore, loading, pageInfo } =
-    useCreditTransactions(filters);
+  const {
+    creditTransactions,
+    handleFetchMore,
+    loading,
+    pageInfo,
+    filteredTotalCount,
+    overallTotalCount,
+  } = useCreditTransactions(filters);
   const [selectedTransactions, setSelectedTransactions] = useState<string[]>(
     [],
   );
@@ -257,6 +264,11 @@ export const CreditTransactionsList = ({
 
   return (
     <>
+      <ListTotalsLabel
+        filteredTotalCount={filteredTotalCount}
+        overallTotalCount={overallTotalCount}
+        loading={loading}
+      />
       <RecordTable.Provider
         columns={columns}
         data={creditTransactions || []}

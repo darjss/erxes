@@ -1,0 +1,16 @@
+# Example: daily backup at 02:15 (server local time).
+# Install: crontab -e  and paste ONE line below (after exporting real values).
+# Cron has a minimal PATH; if `docker` is not found, add at the top of crontab:
+#   PATH=/usr/local/bin:/usr/bin:/bin
+#
+# Required:
+# - Image built: docker build -f backend/plugins/onefit_api/Dockerfile.mongo-backup . -t erxes/erxes-next-onefit-mongo-backup
+# - Docker network name must match where `mongo` is reachable (e.g. erxes).
+# - MONGO_URI: full connection string (URL-encode password if it has @ : / etc.).
+#
+# Use absolute paths for the volume mount.
+
+15 2 * * * docker run --rm --network erxes -e MONGO_URI='mongodb://USER:PASSWORD@mongo:27017/?authSource=admin&replicaSet=rs0' -e BACKUP_ROOT=/backup -v /ABSOLUTE/PATH/TO/REPO/backend/plugins/onefit_api/mongo-backup-data:/backup --entrypoint /bin/bash erxes/erxes-next-onefit-mongo-backup -c '/scripts/backup.sh'
+
+# --- Host cron without Docker (mongodump must be installed and reach MongoDB) ---
+# 15 2 * * * MONGO_URI='mongodb://...' BACKUP_ROOT=/ABSOLUTE/PATH/TO/mongo-backup-data /ABSOLUTE/PATH/TO/REPO/backend/plugins/onefit_api/scripts/mongo-backup/backup.sh

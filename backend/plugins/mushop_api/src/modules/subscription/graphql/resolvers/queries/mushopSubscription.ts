@@ -1,6 +1,6 @@
 import { IContext } from '~/connectionResolvers';
 import { Resolver } from 'erxes-api-shared/core-types';
-import { cursorPaginate } from 'erxes-api-shared/utils';
+import { cursorPaginate, sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IMushopSubscriptionDocument } from '@/subscription/@types/mushopSubscription';
 
 const mushopMySubscription: Resolver = async (
@@ -55,7 +55,7 @@ const mushopSubscriptions: Resolver = async (
 
   return cursorPaginate<IMushopSubscriptionDocument>({
     model: models.MushopSubscription,
-    params: cursorParams,
+    params: { ...cursorParams, orderBy: { createdAt: 'desc' } },
     query,
   });
 };
@@ -80,6 +80,17 @@ export const subscriptionTypeResolvers = {
     plan: async (sub, _args, { models }: IContext) => {
       if (!sub.planId) return null;
       return models.MushopSubscriptionPlan.findOne({ _id: sub.planId }).lean();
+    },
+    customer: async (sub, _args, { subdomain }: IContext) => {
+      if (!sub.customerId) return null;
+      return sendTRPCMessage({
+        subdomain,
+        pluginName: 'core',
+        method: 'query',
+        module: 'contacts',
+        action: 'customers.findOne',
+        input: { query: { _id: sub.customerId } },
+      });
     },
   },
 };

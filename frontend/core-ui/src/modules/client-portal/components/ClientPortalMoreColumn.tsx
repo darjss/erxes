@@ -1,3 +1,4 @@
+import { useClientPortalRemove } from '@/client-portal/hooks/useClientPortalRemove';
 import { IClientPortal } from '@/client-portal/types/clientPortal';
 import {
   SettingsPath,

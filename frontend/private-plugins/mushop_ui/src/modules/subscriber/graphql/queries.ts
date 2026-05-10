@@ -19,6 +19,7 @@ const SUBSCRIBER_FIELDS = `
   amount
   currency
   invoiceId
+  customer
   createdAt
   updatedAt
 `;

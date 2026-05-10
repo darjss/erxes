@@ -1,6 +1,9 @@
 import { useQuery } from '@apollo/client';
 import { useCallback } from 'react';
-import { ONE_FIT_ACTIVITY_CATEGORIES } from '../graphql/categoryQueries';
+import {
+  ONE_FIT_ACTIVITY_CATEGORIES,
+  ONE_FIT_ACTIVITY_CATEGORIES_COUNT,
+} from '../graphql/categoryQueries';
 import { CategoryFilters } from '../types/category';
 
 export const useCategories = (filters?: CategoryFilters) => {
@@ -13,8 +16,11 @@ export const useCategories = (filters?: CategoryFilters) => {
       fetchPolicy: 'cache-and-network',
     },
   );
+  const { data: overallCountData } = useQuery(ONE_FIT_ACTIVITY_CATEGORIES_COUNT);
 
   const categories = data?.oneFitActivityCategories || [];
+  const filteredTotalCount = categories.length;
+  const overallTotalCount = overallCountData?.oneFitActivityCategoriesCount;
 
   const handleRefetch = useCallback(() => {
     return refetch({
@@ -26,6 +32,8 @@ export const useCategories = (filters?: CategoryFilters) => {
     categories,
     loading,
     error,
+    filteredTotalCount,
+    overallTotalCount,
     refetch: handleRefetch,
   };
 };

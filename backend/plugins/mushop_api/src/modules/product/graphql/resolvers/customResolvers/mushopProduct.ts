@@ -2,30 +2,7 @@ import { IContext } from '~/connectionResolvers';
 import { IMushopProductMushopDocument } from '@/product/@types/product';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 
-const isSubscribed = async (
-  models: IContext['models'],
-  cpUser: any,
-): Promise<boolean> => {
-  if (!cpUser) return false;
-  const sub = await models.MushopSubscription.getActiveSubscription(
-    cpUser._id,
-  );
-  return !!sub;
-};
-
 export const MushopProduct = {
-  unitPrice: async (
-    product: IMushopProductMushopDocument,
-    _args: any,
-    { models, cpUser, clientPortal }: IContext,
-  ) => {
-    if (clientPortal || cpUser) {
-      if (!(await isSubscribed(models, cpUser))) return null;
-    }
-
-    return product.unitPrice ?? null;
-  },
-
   supplier: async (
     product: IMushopProductMushopDocument,
     _args: any,

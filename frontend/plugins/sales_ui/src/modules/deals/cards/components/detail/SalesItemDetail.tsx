@@ -12,9 +12,7 @@ import { Empty, FocusSheet, ScrollArea, Tabs, useQueryState } from 'erxes-ui';
 import { IconAlertCircle, IconCloudExclamation } from '@tabler/icons-react';
 import { useEffect, useState } from 'react';
 
-import { useDealDetail } from '@/deals/cards/hooks/useDeals';
 import { DealsProvider } from '@/deals/context/DealContext';
-import { dealDetailSheetState } from '@/deals/states/dealDetailSheetState';
 import { IDeal } from '@/deals/types/deals';
 import Overview from '@/deals/cards/components/detail/overview/Overview';
 import Products from '@/deals/cards/components/detail/product/components/Products';

@@ -1,5 +1,5 @@
 import { IconCreditCard } from '@tabler/icons-react';
-import { Breadcrumb, Button, PageSubHeader, Separator } from 'erxes-ui';
+import { Breadcrumb, Button, PageContainer, PageSubHeader, Separator } from 'erxes-ui';
 import { Link } from 'react-router-dom';
 import { PageHeader } from 'ui-modules';
 import { SubscribersFilter } from '../components/SubscribersFilter';
@@ -8,7 +8,7 @@ import { SubscriberDetailSheet } from '../components/SubscriberDetailSheet';
 
 export const SubscribersPage = () => {
   return (
-    <div className="flex flex-col">
+    <PageContainer>
       <PageHeader>
         <PageHeader.Start>
           <Breadcrumb>
@@ -32,12 +32,10 @@ export const SubscribersPage = () => {
         <SubscribersFilter />
       </PageSubHeader>
 
-      <div className="flex-1 overflow-auto">
-        <SubscribersTable />
-      </div>
+      <SubscribersTable />
 
       <SubscriberDetailSheet />
-    </div>
+    </PageContainer>
   );
 };
 

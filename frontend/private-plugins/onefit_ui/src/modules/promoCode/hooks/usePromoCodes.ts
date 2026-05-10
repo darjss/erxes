@@ -26,12 +26,16 @@ export const usePromoCodes = (filters?: PromoCodeFilters) => {
       },
     },
   );
+  const { data: overallData } = useQuery(ONE_FIT_PROMO_CODES, {
+    variables: { limit: 1 },
+  });
 
   const {
     list: promoCodes,
     totalCount,
     pageInfo,
   } = data?.oneFitPromoCodes || {};
+  const overallTotalCount = overallData?.oneFitPromoCodes?.totalCount;
 
   const handleFetchMore = ({
     direction,
@@ -83,6 +87,8 @@ export const usePromoCodes = (filters?: PromoCodeFilters) => {
     error,
     pageInfo,
     totalCount,
+    filteredTotalCount: totalCount,
+    overallTotalCount,
     handleFetchMore,
     refetch: handleRefetch,
   };

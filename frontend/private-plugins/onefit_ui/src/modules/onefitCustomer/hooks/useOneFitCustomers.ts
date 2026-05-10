@@ -26,8 +26,12 @@ export const useOneFitCustomers = (filters?: OneFitCustomerFilters) => {
       },
     },
   );
+  const { data: overallData } = useQuery(ONE_FIT_CUSTOMERS, {
+    variables: { limit: 1 },
+  });
 
   const { list: customers, totalCount, pageInfo } = data?.oneFitCustomers || {};
+  const overallTotalCount = overallData?.oneFitCustomers?.totalCount;
 
   const handleFetchMore = ({
     direction,
@@ -78,6 +82,8 @@ export const useOneFitCustomers = (filters?: OneFitCustomerFilters) => {
     loading,
     error,
     totalCount,
+    filteredTotalCount: totalCount,
+    overallTotalCount,
     pageInfo,
     handleFetchMore,
     refetch: handleRefetch,

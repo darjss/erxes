@@ -26,8 +26,12 @@ export const useProviders = (filters?: ProviderFilters) => {
       },
     },
   );
+  const { data: overallData } = useQuery(ONE_FIT_PROVIDERS, {
+    variables: { limit: 1 },
+  });
 
   const { list: providers, totalCount, pageInfo } = data?.oneFitProviders || {};
+  const overallTotalCount = overallData?.oneFitProviders?.totalCount;
 
   const handleFetchMore = ({
     direction,
@@ -78,6 +82,8 @@ export const useProviders = (filters?: ProviderFilters) => {
     loading,
     error,
     totalCount,
+    filteredTotalCount: totalCount,
+    overallTotalCount,
     pageInfo,
     handleFetchMore,
     refetch: handleRefetch,

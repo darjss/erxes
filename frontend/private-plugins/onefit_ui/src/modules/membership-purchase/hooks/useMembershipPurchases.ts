@@ -51,12 +51,16 @@ export function useMembershipPurchases(filters?: MembershipPurchaseFilters) {
       },
     },
   );
+  const { data: overallData } = useQuery(ONE_FIT_MEMBERSHIP_PURCHASES, {
+    variables: { limit: 1 },
+  });
 
   const {
     list: membershipPurchases,
     totalCount,
     pageInfo,
   } = data?.oneFitMembershipPurchases || {};
+  const overallTotalCount = overallData?.oneFitMembershipPurchases?.totalCount;
 
   const handleFetchMore = ({
     direction,
@@ -101,6 +105,8 @@ export function useMembershipPurchases(filters?: MembershipPurchaseFilters) {
     loading,
     error,
     totalCount,
+    filteredTotalCount: totalCount,
+    overallTotalCount,
     pageInfo,
     handleFetchMore,
     refetch: handleRefetch,
