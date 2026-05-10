@@ -1,5 +1,6 @@
 import { IContext } from '~/connectionResolvers';
 import { SERVER_STATUSES } from '~/modules/agent/constants';
+import { ensureLegacyIdentifierLinks } from '~/modules/assistantOrg/utils';
 import {
   addAgent,
   addDiscordGuild,
@@ -33,6 +34,8 @@ export const agentMutations = {
     if (!kimiApiKey?.trim()) {
       throw new Error('kimiApiKey is required');
     }
+
+    await ensureLegacyIdentifierLinks(models);
 
     const identifier = await models.Identifier.findById(identifierId).lean();
 
@@ -89,6 +92,8 @@ export const agentMutations = {
     }: { identifierId: string; input: { code: string } },
     { models }: IContext,
   ) => {
+    await ensureLegacyIdentifierLinks(models);
+
     const { code } = input || {};
 
     const agent = await models.AgentServer.findOne({ orgId: identifierId }).lean();
@@ -116,6 +121,8 @@ export const agentMutations = {
     { identifierId }: { identifierId: string },
     { models }: IContext,
   ) => {
+    await ensureLegacyIdentifierLinks(models);
+
     const agent = await models.AgentServer.findOne({ orgId: identifierId }).lean();
 
     if (!agent) {
@@ -152,6 +159,8 @@ export const agentMutations = {
     },
     { models }: IContext,
   ) => {
+    await ensureLegacyIdentifierLinks(models);
+
     const server = await models.AgentServer.findOne({ orgId: identifierId }).lean();
 
     if (!server) {
@@ -178,6 +187,8 @@ export const agentMutations = {
     },
     { models }: IContext,
   ) => {
+    await ensureLegacyIdentifierLinks(models);
+
     const server = await models.AgentServer.findOne({ orgId: identifierId }).lean();
 
     if (!server) {
@@ -203,6 +214,8 @@ export const agentMutations = {
     { identifierId }: { identifierId: string },
     { models }: IContext,
   ) => {
+    await ensureLegacyIdentifierLinks(models);
+
     const server = await models.AgentServer.findOne({ orgId: identifierId }).lean();
 
     if (!server) {
@@ -229,6 +242,8 @@ export const agentMutations = {
     },
     { models }: IContext,
   ) => {
+    await ensureLegacyIdentifierLinks(models);
+
     const server = await models.AgentServer.findOne({ orgId: identifierId }).lean();
 
     if (!server) {
@@ -252,6 +267,8 @@ export const agentMutations = {
     }: { identifierId: string; input: { guildId: string } },
     { models }: IContext,
   ) => {
+    await ensureLegacyIdentifierLinks(models);
+
     const server = await models.AgentServer.findOne({ orgId: identifierId }).lean();
 
     if (!server) {
@@ -275,6 +292,8 @@ export const agentMutations = {
     }: { identifierId: string; input: { kimiApiKey: string } },
     { models }: IContext,
   ) => {
+    await ensureLegacyIdentifierLinks(models);
+
     const server = await models.AgentServer.findOne({ orgId: identifierId }).lean();
 
     if (!server) {

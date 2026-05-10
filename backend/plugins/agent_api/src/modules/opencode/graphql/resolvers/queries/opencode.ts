@@ -1,4 +1,5 @@
 import { IContext } from '~/connectionResolvers';
+import { ensureLegacyIdentifierLinks } from '~/modules/assistantOrg/utils';
 import {
   getOpencodeServerInfo,
   getOpencodeServerPassword,
@@ -12,6 +13,8 @@ export const opencodeQueries = {
     { identifierId }: { identifierId: string },
     { models }: IContext,
   ) => {
+    await ensureLegacyIdentifierLinks(models);
+
     const opencode = await models.OpencodeServer.findOne({ orgId: identifierId }).lean();
 
     if (!opencode) {
@@ -70,6 +73,8 @@ export const opencodeQueries = {
     { identifierId }: { identifierId: string },
     { models }: IContext,
   ) => {
+    await ensureLegacyIdentifierLinks(models);
+
     const opencode = await models.OpencodeServer.findOne({ orgId: identifierId }).lean();
 
     if (!opencode) {

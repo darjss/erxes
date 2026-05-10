@@ -1,10 +1,13 @@
 import { IContext } from '~/connectionResolvers';
+import { ensureLegacyIdentifierLinks } from '../../../utils';
 
 const getIdentifiers = async (
   _root: undefined,
   { kind }: { kind?: string },
   { models }: IContext,
 ) => {
+  await ensureLegacyIdentifierLinks(models);
+
   const identifiers = await models.Identifier.find({})
     .sort({ createdAt: 1 })
     .lean();
@@ -22,18 +25,19 @@ const getIdentifiers = async (
   const opencodeIdentifierIdSet = new Set(opencodeIdentifierIds.map(String));
 
   return identifiers.filter((identifier) => {
-    if (identifier.kind) {
-      return identifier.kind === kind;
-    }
-
     const identifierId = String(identifier._id);
 
     if (kind === 'assistant') {
-      return agentIdentifierIdSet.has(identifierId);
+      return (
+        identifier.kind === 'assistant' || agentIdentifierIdSet.has(identifierId)
+      );
     }
 
     if (kind === 'agent') {
-      return opencodeIdentifierIdSet.has(identifierId);
+      return (
+        identifier.kind === 'agent' ||
+        opencodeIdentifierIdSet.has(identifierId)
+      );
     }
 
     return true;
@@ -45,6 +49,8 @@ const getIdentifier = async (
   { identifierId }: { identifierId: string },
   { models }: IContext,
 ) => {
+  await ensureLegacyIdentifierLinks(models);
+
   if (!identifierId) {
     throw new Error('identifierId is required');
   }

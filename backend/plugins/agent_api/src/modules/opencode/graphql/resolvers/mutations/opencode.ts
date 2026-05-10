@@ -1,5 +1,6 @@
 import { IContext } from '~/connectionResolvers';
 import { SERVER_STATUSES } from '~/modules/agent/constants';
+import { ensureLegacyIdentifierLinks } from '~/modules/assistantOrg/utils';
 import {
   deployOpencodeServer,
   destroyOpencodeServer,
@@ -31,6 +32,8 @@ export const opencodeMutations = {
     if (!normalizedApiKey) {
       throw new Error('apiKey is required');
     }
+
+    await ensureLegacyIdentifierLinks(models);
 
     const identifier = await models.Identifier.findById(identifierId).lean();
 
@@ -80,6 +83,8 @@ export const opencodeMutations = {
     { identifierId }: { identifierId: string },
     { models }: IContext,
   ) => {
+    await ensureLegacyIdentifierLinks(models);
+
     const opencode = await models.OpencodeServer.findOne({ orgId: identifierId }).lean();
 
     if (!opencode) {
@@ -102,6 +107,8 @@ export const opencodeMutations = {
     { identifierId }: { identifierId: string },
     { models }: IContext,
   ) => {
+    await ensureLegacyIdentifierLinks(models);
+
     const opencode = await models.OpencodeServer.findOne({ orgId: identifierId }).lean();
 
     if (!opencode) {
@@ -128,6 +135,8 @@ export const opencodeMutations = {
     },
     { models }: IContext,
   ) => {
+    await ensureLegacyIdentifierLinks(models);
+
     const opencode = await models.OpencodeServer.findOne({ orgId: identifierId }).lean();
 
     if (!opencode) {

@@ -1,29 +1,5 @@
 import { IContext } from '~/connectionResolvers';
-
-const slugify = (value: string) =>
-  value
-    .trim()
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '')
-    .slice(0, 20);
-
-const buildUniqueSlug = async (
-  baseName: string,
-  findBySlug: (slug: string) => Promise<unknown>,
-) => {
-  const baseSlug = slugify(baseName) || 'team';
-  let slug = baseSlug;
-  let counter = 2;
-
-  while (await findBySlug(slug)) {
-    const suffix = `-${counter}`;
-    slug = `${baseSlug.slice(0, Math.max(1, 20 - suffix.length))}${suffix}`;
-    counter += 1;
-  }
-
-  return slug;
-};
+import { buildUniqueSlug, ensureLegacyIdentifierLinks } from '../../../utils';
 
 export const identifierMutations = {
   createIdentifier: async (
@@ -51,11 +27,11 @@ export const identifierMutations = {
       throw new Error('kind must be assistant or agent');
     }
 
+    await ensureLegacyIdentifierLinks(models);
+
     const slug = await buildUniqueSlug(name, (nextSlug) =>
       models.Identifier.findOne({ slug: nextSlug }).lean(),
     );
-
-    const hadAnyIdentifier = await models.Identifier.exists({});
 
     const identifier = await models.Identifier.create({
       name,
@@ -63,19 +39,6 @@ export const identifierMutations = {
       kind,
       description,
     });
-
-    // Preserve existing singleton deployments by attaching them to the first
-    // identifier created in this workspace.
-    if (!hadAnyIdentifier) {
-      await models.AgentServer.updateMany(
-        { orgId: { $exists: false } },
-        { $set: { orgId: identifier._id } },
-      );
-      await models.OpencodeServer.updateMany(
-        { orgId: { $exists: false } },
-        { $set: { orgId: identifier._id } },
-      );
-    }
 
     return identifier;
   },

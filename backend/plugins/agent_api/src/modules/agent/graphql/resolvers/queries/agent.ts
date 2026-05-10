@@ -1,4 +1,5 @@
 import { IContext } from '~/connectionResolvers';
+import { ensureLegacyIdentifierLinks } from '~/modules/assistantOrg/utils';
 import {
   checkKimiKeySet,
   getAgentDetails,
@@ -13,6 +14,8 @@ export const agentQueries = {
     { identifierId }: { identifierId: string },
     { models }: IContext,
   ) => {
+    await ensureLegacyIdentifierLinks(models);
+
     const agent = await models.AgentServer.findOne({ orgId: identifierId }).lean();
 
     if (!agent) {
@@ -32,6 +35,8 @@ export const agentQueries = {
     { identifierId }: { identifierId: string },
     { models }: IContext,
   ) => {
+    await ensureLegacyIdentifierLinks(models);
+
     const server = await models.AgentServer.findOne({ orgId: identifierId }).lean();
 
     if (!server) {
@@ -46,6 +51,8 @@ export const agentQueries = {
     { identifierId, agentId }: { identifierId: string; agentId?: string },
     { models }: IContext,
   ) => {
+    await ensureLegacyIdentifierLinks(models);
+
     const server = await models.AgentServer.findOne({ orgId: identifierId }).lean();
 
     if (!server) {
@@ -60,6 +67,8 @@ export const agentQueries = {
     { identifierId }: { identifierId: string },
     { models }: IContext,
   ) => {
+    await ensureLegacyIdentifierLinks(models);
+
     const server = await models.AgentServer.findOne({ orgId: identifierId }).lean();
 
     if (!server) {
@@ -74,6 +83,8 @@ export const agentQueries = {
     { identifierId }: { identifierId: string },
     { models }: IContext,
   ) => {
+    await ensureLegacyIdentifierLinks(models);
+
     const server = await models.AgentServer.findOne({ orgId: identifierId }).lean();
 
     if (!server) {
