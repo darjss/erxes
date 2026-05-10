@@ -1,10 +1,12 @@
 import { useMutation } from '@apollo/client';
+import { useCurrentIdentifierId } from '../../assistant-orgs/hooks/useAssistantOrg';
 import {
   UPDATE_DISCORD_SETTINGS,
   ADD_DISCORD_GUILD,
 } from '../graphql/mutations';
 
 export const useDiscordSettings = () => {
+  const identifierId = useCurrentIdentifierId();
   const [updateDiscord, { loading: updatingDiscord }] = useMutation(
     UPDATE_DISCORD_SETTINGS,
   );
@@ -19,7 +21,7 @@ export const useDiscordSettings = () => {
     },
   ) => {
     await updateDiscord({
-      variables: { input: { botToken, dmPolicy } },
+      variables: { identifierId, input: { botToken, dmPolicy } },
       onCompleted: callbacks?.onCompleted,
       onError: callbacks?.onError,
     });
@@ -33,7 +35,7 @@ export const useDiscordSettings = () => {
     },
   ) => {
     await addGuild({
-      variables: { input: { guildId } },
+      variables: { identifierId, input: { guildId } },
       onCompleted: callbacks?.onCompleted,
       onError: callbacks?.onError,
     });

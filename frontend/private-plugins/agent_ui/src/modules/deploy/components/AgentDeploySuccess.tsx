@@ -29,10 +29,10 @@ export const AgentDeploySuccess = () => {
         onConfirm={onDestroy}
         loading={destroyLoading}
       />
-      <h3 className="font-medium text-sm">Agent deployed successfully</h3>
+      <h3 className="font-medium text-sm">OpenClaw deployed successfully</h3>
       <p className="text-muted-foreground text-xs">
-        Your agent has been deployed successfully. You can use it now with
-        discord bot.
+        This org&apos;s OpenClaw workspace is ready. You can continue with the
+        Discord bot connection and use it now.
       </p>
 
       <Button

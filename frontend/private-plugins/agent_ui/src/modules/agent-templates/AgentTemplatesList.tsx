@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { IconUser, IconExternalLink } from '@tabler/icons-react';
 
 const AGENT_TEMPLATES_URL = 'https://agent-template-five.vercel.app';
@@ -12,6 +12,7 @@ interface Agent {
 }
 
 export const AgentTemplatesList = () => {
+  const location = useLocation();
   const [agents, setAgents] = useState<Agent[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -55,7 +56,7 @@ export const AgentTemplatesList = () => {
         {agents.map((agent) => (
           <Link
             key={agent.id}
-            to={`/agent/templates/${agent.id}`}
+            to={`/agent/templates/${agent.id}${location.search}`}
             className="rounded-xl border border-border bg-card p-5 flex flex-col gap-3 hover:shadow-md hover:border-primary/30 transition-all group"
           >
             <div className="flex items-center gap-3">

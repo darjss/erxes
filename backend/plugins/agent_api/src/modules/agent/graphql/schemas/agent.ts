@@ -2,6 +2,7 @@ export const types = `
   type Agent {
     _id: String
 
+    identifierId: String
     name: String
     url: String
     token: String
@@ -20,7 +21,6 @@ export const types = `
   }
 
   input DeployAgentInput {
-    name: String!
     token: String!
     kimiApiKey: String!
   }
@@ -65,21 +65,21 @@ export const types = `
 `;
 
 export const queries = `
-  getAgent: Agent
-  getAgentsList: [AgentItem]
-  getAgentDetails(agentId: String): [AgentFile]
-  getDiscordGuilds: [DiscordGuild]
-  checkKimiKeySet: Boolean
+  getAgent(identifierId: String!): Agent
+  getAgentsList(identifierId: String!): [AgentItem]
+  getAgentDetails(identifierId: String!, agentId: String): [AgentFile]
+  getDiscordGuilds(identifierId: String!): [DiscordGuild]
+  checkKimiKeySet(identifierId: String!): Boolean
 `;
 
 export const mutations = `
-  deployAgent(input: DeployAgentInput!): Agent
-  destroyAgent: Agent
-  approveAgent(input: ApproveAgentInput!): Agent
-  addAgent(input: AddAgentInput!): Boolean
-  updateAgentFile(input: UpdateAgentFileInput!): Boolean
-  fixAndRestartAgent: Boolean
-  updateDiscordSettings(input: UpdateDiscordSettingsInput!): Boolean
-  addDiscordGuild(input: AddDiscordGuildInput!): Boolean
-  setKimiApiKey(input: SetKimiApiKeyInput!): Boolean
+  deployAgent(identifierId: String!, input: DeployAgentInput!): Agent
+  destroyAgent(identifierId: String!): Agent
+  approveAgent(identifierId: String!, input: ApproveAgentInput!): Agent
+  addAgent(identifierId: String!, input: AddAgentInput!): Boolean
+  updateAgentFile(identifierId: String!, input: UpdateAgentFileInput!): Boolean
+  fixAndRestartAgent(identifierId: String!): Boolean
+  updateDiscordSettings(identifierId: String!, input: UpdateDiscordSettingsInput!): Boolean
+  addDiscordGuild(identifierId: String!, input: AddDiscordGuildInput!): Boolean
+  setKimiApiKey(identifierId: String!, input: SetKimiApiKeyInput!): Boolean
 `;

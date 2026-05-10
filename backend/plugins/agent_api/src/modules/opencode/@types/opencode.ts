@@ -1,0 +1,18 @@
+import { Document } from 'mongoose';
+
+export interface IOpencodeServer {
+  orgId?: string;
+  name: string;
+  url: string;
+  provider: string;
+  serverId: string;
+  serverPassword?: string;
+  status: string;
+}
+
+export interface IOpencodeServerDocument extends IOpencodeServer, Document {
+  _id: string;
+
+  createdAt: Date;
+  updatedAt: Date;
+}

@@ -1,6 +1,7 @@
 import { IUIConfig } from 'erxes-ui';
-import { IconSparkles } from '@tabler/icons-react';
+import { IconCode, IconSparkles } from '@tabler/icons-react';
 import { lazy, Suspense } from 'react';
+import { LOCKED_COMPANY_BRAIN_MODULES } from '~/modules/company-brain/constants/lockedCompanyBrainModules';
 
 const AgentNavigation = lazy(() =>
   import('./modules/AgentNavigation').then((module) => ({
@@ -12,7 +13,7 @@ export const CONFIG: IUIConfig = {
   name: 'agent',
   path: 'agent',
   navigationGroup: {
-    name: 'ai assistant',
+    name: 'Company Brain',
     icon: IconSparkles,
     content: () => (
       <Suspense fallback={<div />}>
@@ -22,14 +23,19 @@ export const CONFIG: IUIConfig = {
   },
   modules: [
     {
-      name: 'ai assistand',
+      name: 'AI Assistant',
       icon: IconSparkles,
-      path: 'agent/agent',
+      path: 'agent/assistant',
     },
     {
-      name: 'templates',
-      icon: IconSparkles,
-      path: 'agent/templates',
+      name: 'AI Agents',
+      icon: IconCode,
+      path: 'agent/agents',
     },
+    ...LOCKED_COMPANY_BRAIN_MODULES.map((module) => ({
+      name: module.name,
+      icon: module.icon,
+      path: `agent/${module.slug}`,
+    })),
   ],
 };

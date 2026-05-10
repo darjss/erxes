@@ -1,6 +1,7 @@
 import { Document } from 'mongoose';
 
 export interface IAgentServer {
+  orgId?: string;
   name: string;
   url: string;
   token: string;

@@ -3,7 +3,7 @@ import { useAgent } from './hooks/useAgent';
 import { useFixAndRestart } from '../detail/hooks/useFixAndRestart';
 import { useKimiKeyStatus } from '../detail/hooks/useKimiKey';
 import { Card, Spinner } from 'erxes-ui';
-import { IconKey, IconRefresh, IconTrash } from '@tabler/icons-react';
+import { IconKey, IconLibrary, IconRefresh, IconTrash } from '@tabler/icons-react';
 import { useToast } from 'erxes-ui';
 import { AddAgentTrigger } from '../detail/components/AddAgent';
 import { RestartServerDialog } from '../detail/components/RestartServerDialog';
@@ -13,11 +13,18 @@ import { DestroyServerDialog } from '../deploy/components/DestroyServerDialog';
 import { useAgentDestroy } from '../deploy/hooks/useAgentDestroy';
 import { useState, useCallback } from 'react';
 import { SERVER_STATUSES } from '../deploy/constants';
+import { useCurrentIdentifierId } from '../assistant-orgs/hooks/useAssistantOrg';
+import { useDeleteIdentifier } from '../assistant-orgs/hooks/useDeleteAssistantOrg';
+import { useNavigate } from 'react-router-dom';
 
 export const AgentMain = () => {
+  const navigate = useNavigate();
+  const identifierId = useCurrentIdentifierId();
   const { agent, loading } = useAgent();
   const { restart, loading: restarting } = useFixAndRestart();
   const { destroyAgent, loading: destroying } = useAgentDestroy();
+  const { deleteIdentifier, loading: deletingIdentifier } =
+    useDeleteIdentifier();
   const { toast } = useToast();
   const [iframeKey, setIframeKey] = useState(0);
   const [restartOpen, setRestartOpen] = useState(false);
@@ -79,6 +86,15 @@ export const AgentMain = () => {
           </button>
           <AddAgentTrigger onSuccess={refreshIframe} />
           <button
+            onClick={() =>
+              navigate(`/agent/templates?assistantId=${identifierId}`)
+            }
+            className="p-1.5 rounded hover:bg-muted transition-colors"
+            title="AI Assistant Templates"
+          >
+            <IconLibrary className="size-4" />
+          </button>
+          <button
             onClick={() => setKimiKeyManualOpen(true)}
             className="p-1.5 rounded hover:bg-muted transition-colors"
             title="Change Kimi API key"
@@ -87,7 +103,7 @@ export const AgentMain = () => {
           </button>
           <button
             onClick={() => setDestroyOpen(true)}
-            disabled={destroying}
+            disabled={destroying || deletingIdentifier}
             className="p-1.5 rounded text-destructive hover:bg-destructive/10 transition-colors disabled:opacity-50"
             title="Destroy server"
           >
@@ -114,7 +130,9 @@ export const AgentMain = () => {
         onConfirm={async () => {
           try {
             await destroyAgent();
-            toast({ variant: 'success', title: 'Server destroyed' });
+            await deleteIdentifier(identifierId);
+            toast({ variant: 'success', title: 'AI Assistant deleted' });
+            navigate('/agent/assistant');
           } catch (error: any) {
             toast({
               title: 'Destroy failed',
@@ -123,7 +141,7 @@ export const AgentMain = () => {
             });
           }
         }}
-        loading={destroying}
+        loading={destroying || deletingIdentifier}
       />
       <KimiKeyDialog
         open={kimiKeyOpen}
