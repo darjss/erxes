@@ -11,6 +11,7 @@ import { useUpdateSupplier } from '../hooks/useUpdateSupplier';
 import { SupplierEditorField } from './SupplierEditorField';
 import { SupplierPhones } from './SupplierPhones';
 import { UploadImage } from './upload';
+import { useIsCollective } from '~/hooks/useIsCollective';
 
 const statusVariant = (status?: string) => {
   switch (status) {
@@ -26,6 +27,7 @@ const statusVariant = (status?: string) => {
 export const SupplierProfileForm = () => {
   const { supplier, loading } = useGetSupplier();
   const { updateSupplier, loading: saving } = useUpdateSupplier();
+  const isCollective = useIsCollective();
 
   const supplierAddress = supplier?.address as any;
   const addressDetails = supplierAddress?.details || supplierAddress?.address;
@@ -114,7 +116,9 @@ export const SupplierProfileForm = () => {
   return (
     <div className="flex flex-col gap-6 mx-auto p-6 w-full max-w-lg">
       <div className="flex justify-between items-center">
-        <h1 className="font-bold text-lg">Supplier profile</h1>
+        <h1 className="font-bold text-lg">
+          {isCollective ? 'Collective profile' : 'Supplier profile'}
+        </h1>
         <Badge variant={statusVariant(supplier?.verificationStatus)}>
           {supplier?.verificationStatus || 'pending'}
         </Badge>

@@ -8,15 +8,9 @@ import {
   loadSupplierClass,
   ISupplierModel,
 } from '@/supplier/db/models/Supplier';
-import { ISubmissionDocument } from '@/platform/@types/submission';
-import {
-  loadSubmissionClass,
-  ISubmissionModel,
-} from '@/platform/db/models/Submission';
 
 export interface IModels {
   Supplier: ISupplierModel;
-  Submission: ISubmissionModel;
 }
 
 export interface IContext extends IMainContext {
@@ -35,14 +29,6 @@ export const loadClasses = (
   models.Supplier = db.model<ISupplierDocument, ISupplierModel>(
     'suppliers',
     loadSupplierClass(models, supplierEventHandlers('suppliers', 'suppliers')),
-  );
-
-  models.Submission = db.model<ISubmissionDocument, ISubmissionModel>(
-    'supplier_submissions',
-    loadSubmissionClass(
-      models,
-      supplierEventHandlers('submissions', 'supplier_submissions'),
-    ),
   );
 
   return models;

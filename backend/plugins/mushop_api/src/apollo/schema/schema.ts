@@ -22,6 +22,11 @@ import {
   queries as CustomerInvoiceQueries,
   types as CustomerInvoiceTypes,
 } from '@/subscription/graphql/schemas/invoices';
+import {
+  mutations as CollectiveMutations,
+  queries as CollectiveQueries,
+  types as CollectiveTypes,
+} from '@/collective/graphql/schemas/collective';
 import { TypeExtensions } from './extensions';
 
 export const types = `
@@ -32,6 +37,7 @@ export const types = `
   ${SubscriptionTypes}
   ${SubscriptionPlanTypes}
   ${CustomerInvoiceTypes}
+  ${CollectiveTypes}
 `;
 
 export const queries = `
@@ -40,6 +46,7 @@ export const queries = `
   ${SubscriptionQueries}
   ${SubscriptionPlanQueries}
   ${CustomerInvoiceQueries}
+  ${CollectiveQueries}
 `;
 
 export const mutations = `
@@ -47,6 +54,7 @@ export const mutations = `
   ${ProductMutations}
   ${SubscriptionMutations}
   ${SubscriptionPlanMutations}
+  ${CollectiveMutations}
 `;
 
 export default { types, queries, mutations };

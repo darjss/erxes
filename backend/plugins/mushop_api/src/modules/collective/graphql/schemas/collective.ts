@@ -1,0 +1,61 @@
+import { GQL_CURSOR_PARAM_DEFS } from 'erxes-api-shared/utils';
+
+export const types = `
+  type MushopCollectiveSyncResult {
+    supplierId: String
+    supplier: MushopSupplier
+    subdomain: String
+    total: Int
+    created: Int
+    failed: Int
+    errors: [String]
+  }
+
+  type MushopCollective {
+    _id: String!
+    name: String
+    description: String
+    targetSubdomain: String
+    supplierIds: [String]
+    suppliers: [MushopSupplier]
+    status: String
+    syncResults: [MushopCollectiveSyncResult]
+    totalCreated: Int
+    totalFailed: Int
+    lastSyncedAt: Date
+    createdBy: String
+    createdAt: Date
+    updatedAt: Date
+  }
+
+  type MushopCollectiveListResponse {
+    list: [MushopCollective]
+    pageInfo: PageInfo
+    totalCount: Int
+  }
+`;
+
+const collectiveQueryParams = `
+  searchValue: String
+  status: String
+  targetSubdomain: String
+  supplierId: String
+`;
+
+export const queries = `
+  mushopCollectiveDetail(_id: String!): MushopCollective
+  mushopCollectives(${collectiveQueryParams}${GQL_CURSOR_PARAM_DEFS}): MushopCollectiveListResponse
+`;
+
+export const mutations = `
+  mushopCreateCollective(
+    name: String!
+    description: String
+    targetSubdomain: String!
+    supplierIds: [String!]!
+  ): MushopCollective
+
+  mushopResyncCollective(_id: String!): MushopCollective
+
+  mushopRemoveCollective(_id: String!): JSON
+`;

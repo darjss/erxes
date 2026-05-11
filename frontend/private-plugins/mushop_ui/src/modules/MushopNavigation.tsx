@@ -1,5 +1,10 @@
 import { NavigationMenuLinkItem } from 'erxes-ui';
-import { IconCreditCard, IconPackage, IconUsers } from '@tabler/icons-react';
+import {
+  IconBuildingStore,
+  IconCreditCard,
+  IconPackage,
+  IconUsers,
+} from '@tabler/icons-react';
 
 export const MushopNavigation = () => {
   return (
@@ -22,6 +27,12 @@ export const MushopNavigation = () => {
         path="subscribers"
         pathPrefix="mushop"
       />
+      {/* <NavigationMenuLinkItem
+        name="collectives"
+        icon={IconBuildingStore}
+        path="collectives"
+        pathPrefix="mushop"
+      /> */}
     </>
   );
 };

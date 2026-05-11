@@ -22,12 +22,18 @@ import {
   loadMushopSubscriptionPlanClass,
   IMushopSubscriptionPlanModel,
 } from '@/subscription/db/models/MushopSubscriptionPlan';
+import { ICollectiveDocument } from '@/collective/@types/collective';
+import {
+  loadCollectiveClass,
+  ICollectiveModel,
+} from '@/collective/db/models/Collective';
 
 export interface IModels {
   Supplier: ISupplierModel;
   MushopProduct: IMushopProductModel;
   MushopSubscription: IMushopSubscriptionModel;
   MushopSubscriptionPlan: IMushopSubscriptionPlanModel;
+  Collective: ICollectiveModel;
 }
 
 export interface IContext extends IMainContext {
@@ -82,6 +88,11 @@ export const loadClasses = (
       models,
       mushopEventHandlers('subscription_plans', 'mushop_subscription_plans'),
     ),
+  );
+
+  models.Collective = db.model<ICollectiveDocument, ICollectiveModel>(
+    'mushop_collectives',
+    loadCollectiveClass(models),
   );
 
   return models;

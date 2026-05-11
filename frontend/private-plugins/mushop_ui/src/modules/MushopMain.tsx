@@ -19,6 +19,12 @@ const SubscribersPage = lazy(() =>
   })),
 );
 
+const CollectivesPage = lazy(() =>
+  import('@/collective/pages/CollectivesPage').then((module) => ({
+    default: module.CollectivesPage,
+  })),
+);
+
 const MushopMain = () => {
   return (
     <Suspense fallback={<div />}>
@@ -27,6 +33,7 @@ const MushopMain = () => {
         <Route path="suppliers" element={<SuppliersPage />} />
         <Route path="products" element={<ProductsPage />} />
         <Route path="subscribers" element={<SubscribersPage />} />
+        {/* <Route path="collectives" element={<CollectivesPage />} /> */}
       </Routes>
     </Suspense>
   );

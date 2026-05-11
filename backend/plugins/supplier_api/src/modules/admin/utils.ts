@@ -1,6 +1,7 @@
 import crypto from 'crypto';
 import { Resolver } from 'erxes-api-shared/core-types';
-import { SubmissionPlatform } from '@/platform/@types/submission';
+
+export type ConsumerPlatform = 'mushop' | 'blockadmin';
 
 interface IData {
   [key: string]: any;
@@ -18,11 +19,11 @@ interface SendMessagePayload {
   path: string;
   payload: IPayload;
   // when specified, only sends to that platform; otherwise fans out to all
-  platform?: SubmissionPlatform;
+  platform?: ConsumerPlatform;
 }
 
 interface ConsumerConfig {
-  name: SubmissionPlatform;
+  name: ConsumerPlatform;
   url: string;
   secret: string;
 }

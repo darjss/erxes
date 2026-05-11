@@ -3,6 +3,7 @@ import productQueries from '@/product/graphql/resolvers/queries';
 import { subscriptionQueries } from '@/subscription/graphql/resolvers/queries/mushopSubscription';
 import { subscriptionPlanQueries } from '@/subscription/graphql/resolvers/queries/mushopSubscriptionPlan';
 import { mushopInvoiceQueries } from '@/subscription/graphql/resolvers/queries/invoices';
+import collectiveQueries from '@/collective/graphql/resolvers/queries';
 
 export const queries = {
   ...supplierQueries,
@@ -10,4 +11,5 @@ export const queries = {
   ...subscriptionQueries,
   ...subscriptionPlanQueries,
   ...mushopInvoiceQueries,
+  ...collectiveQueries,
 };
