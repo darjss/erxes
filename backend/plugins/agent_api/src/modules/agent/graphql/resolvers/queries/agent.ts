@@ -1,4 +1,5 @@
 import { IContext } from '~/connectionResolvers';
+import { ensureLegacyIdentifierLinks } from '~/modules/assistantOrg/utils';
 import {
   checkKimiKeySet,
   getAgentDetails,
@@ -10,29 +11,33 @@ import {
 export const agentQueries = {
   getAgent: async (
     _root: undefined,
-    _args: undefined,
+    { identifierId }: { identifierId: string },
     { models }: IContext,
   ) => {
-    const agent = await models.AgentServer.findOne({}).lean();
+    await ensureLegacyIdentifierLinks(models);
+
+    const agent = await models.AgentServer.findOne({ identifierId }).lean();
 
     if (!agent) {
-      throw new Error('Agent not found');
+      return null;
     }
 
     try {
       const token = await getGatewayToken(agent.name);
-      return { ...agent, token };
+      return { ...agent, token, identifierId: agent.identifierId };
     } catch {
-      return agent;
+      return { ...agent, identifierId: agent.identifierId };
     }
   },
 
   getAgentsList: async (
     _root: undefined,
-    _args: undefined,
+    { identifierId }: { identifierId: string },
     { models }: IContext,
   ) => {
-    const server = await models.AgentServer.findOne({}).lean();
+    await ensureLegacyIdentifierLinks(models);
+
+    const server = await models.AgentServer.findOne({ identifierId }).lean();
 
     if (!server) {
       throw new Error('Agent server not found');
@@ -43,10 +48,12 @@ export const agentQueries = {
 
   getAgentDetails: async (
     _root: undefined,
-    { agentId }: { agentId?: string },
+    { identifierId, agentId }: { identifierId: string; agentId?: string },
     { models }: IContext,
   ) => {
-    const server = await models.AgentServer.findOne({}).lean();
+    await ensureLegacyIdentifierLinks(models);
+
+    const server = await models.AgentServer.findOne({ identifierId }).lean();
 
     if (!server) {
       throw new Error('Agent server not found');
@@ -57,10 +64,12 @@ export const agentQueries = {
 
   getDiscordGuilds: async (
     _root: undefined,
-    _args: undefined,
+    { identifierId }: { identifierId: string },
     { models }: IContext,
   ) => {
-    const server = await models.AgentServer.findOne({}).lean();
+    await ensureLegacyIdentifierLinks(models);
+
+    const server = await models.AgentServer.findOne({ identifierId }).lean();
 
     if (!server) {
       throw new Error('Agent server not found');
@@ -71,10 +80,12 @@ export const agentQueries = {
 
   checkKimiKeySet: async (
     _root: undefined,
-    _args: undefined,
+    { identifierId }: { identifierId: string },
     { models }: IContext,
   ) => {
-    const server = await models.AgentServer.findOne({}).lean();
+    await ensureLegacyIdentifierLinks(models);
+
+    const server = await models.AgentServer.findOne({ identifierId }).lean();
 
     if (!server) {
       throw new Error('Agent server not found');

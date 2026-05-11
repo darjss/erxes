@@ -2,9 +2,21 @@ import { useEffect, useState } from 'react';
 
 interface RestartingOverlayProps {
   visible: boolean;
+  stoppingTitle?: string;
+  stoppingDescription?: string;
+  loadingTitle?: string;
+  loadingDescription?: string;
+  footerText?: string;
 }
 
-export const RestartingOverlay = ({ visible }: RestartingOverlayProps) => {
+export const RestartingOverlay = ({
+  visible,
+  stoppingTitle = 'Stopping...',
+  stoppingDescription = 'Please wait while your assistant is being stopped',
+  loadingTitle = '✨ Almost Ready!',
+  loadingDescription = 'erxes Assistant is restarting',
+  footerText = "This may take 1–2 minutes. You won't be able to chat during this time.",
+}: RestartingOverlayProps) => {
   const [phase, setPhase] = useState<'stopping' | 'loading'>('stopping');
 
   useEffect(() => {
@@ -24,17 +36,17 @@ export const RestartingOverlay = ({ visible }: RestartingOverlayProps) => {
       {phase === 'stopping' ? (
         <div className="flex flex-col items-center gap-4 text-center">
           <div className="border-[3px] border-destructive border-t-transparent rounded-full w-12 h-12 animate-spin" />
-          <h3 className="text-lg font-semibold">Stopping...</h3>
+          <h3 className="text-lg font-semibold">{stoppingTitle}</h3>
           <p className="text-muted-foreground text-sm max-w-xs">
-            Please wait while your assistant is being stopped
+            {stoppingDescription}
           </p>
         </div>
       ) : (
         <div className="flex flex-col items-center gap-5 text-center max-w-sm w-full px-6">
           <div className="flex flex-col items-center gap-1">
-            <span className="text-3xl font-bold">✨ Almost Ready!</span>
+            <span className="text-3xl font-bold">{loadingTitle}</span>
             <p className="text-muted-foreground text-sm">
-              erxes Assistant is restarting
+              {loadingDescription}
             </p>
           </div>
 
@@ -48,7 +60,7 @@ export const RestartingOverlay = ({ visible }: RestartingOverlayProps) => {
           </div>
 
           <p className="text-xs text-muted-foreground">
-            This may take 1–2 minutes. You won't be able to chat during this time.
+            {footerText}
           </p>
         </div>
       )}

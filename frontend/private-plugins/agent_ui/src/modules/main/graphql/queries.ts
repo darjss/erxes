@@ -1,9 +1,10 @@
 import { gql } from '@apollo/client';
 
 export const GET_AGENT = gql`
-  query GetAgent {
-    getAgent {
+  query GetAgent($identifierId: String!) {
+    getAgent(identifierId: $identifierId) {
       _id
+      identifierId
       name
       url
       token

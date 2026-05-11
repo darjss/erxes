@@ -25,11 +25,16 @@ export const deployServer = async (
     throw new Error('DEPLOYER_URL environment variable is required');
   }
 
+  if (!payload.discordBotToken?.trim()) {
+    throw new Error('discordBotToken is required');
+  }
+
   const DEPLOYER_URL = `${DEPLOYER}/agents/deploy`;
+  const botName = BOT_NAME?.trim() || payload.agentId || 'OpenClaw';
 
   const body = {
     ...payload,
-    botName: BOT_NAME,
+    botName,
   };
 
   const response = await fetch(DEPLOYER_URL, {

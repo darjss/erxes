@@ -1,4 +1,5 @@
 import { useQuery } from '@apollo/client';
+import { useCurrentIdentifierId } from '../../assistant-orgs/hooks/useAssistantOrg';
 import { GET_AGENT_DETAILS } from '../graphql/queries';
 
 export interface AgentFile {
@@ -7,8 +8,9 @@ export interface AgentFile {
 }
 
 export const useAgentDetails = (agentId?: string) => {
+  const identifierId = useCurrentIdentifierId();
   const { data, loading, refetch } = useQuery(GET_AGENT_DETAILS, {
-    variables: { agentId },
+    variables: { identifierId, agentId },
     skip: !agentId,
   });
 

@@ -6,6 +6,9 @@ interface RestartServerDialogProps {
   onOpenChange: (open: boolean) => void;
   onConfirm: () => void;
   loading?: boolean;
+  title?: string;
+  description?: string;
+  confirmLabel?: string;
 }
 
 export const RestartServerDialog = ({
@@ -13,6 +16,9 @@ export const RestartServerDialog = ({
   onOpenChange,
   onConfirm,
   loading = false,
+  title = 'Restart AI Assistant?',
+  description = "This will stop and restart your AI assistant. It may take up to 10 minutes. You won't be able to chat during this time.",
+  confirmLabel = 'Restart',
 }: RestartServerDialogProps) => {
   const handleConfirm = () => {
     onConfirm();
@@ -28,11 +34,10 @@ export const RestartServerDialog = ({
           </div>
           <div className="flex flex-col gap-2 text-left">
             <AlertDialog.Title className="text-base font-semibold">
-              Restart AI Assistant?
+              {title}
             </AlertDialog.Title>
             <AlertDialog.Description className="text-muted-foreground text-sm">
-              This will stop and restart your AI assistant. It may take up to 10
-              minutes. You won't be able to chat during this time.
+              {description}
             </AlertDialog.Description>
           </div>
         </AlertDialog.Header>
@@ -46,7 +51,7 @@ export const RestartServerDialog = ({
             onClick={handleConfirm}
             className="min-w-28"
           >
-            Restart
+            {confirmLabel}
           </Button>
         </AlertDialog.Footer>
       </AlertDialog.Content>
