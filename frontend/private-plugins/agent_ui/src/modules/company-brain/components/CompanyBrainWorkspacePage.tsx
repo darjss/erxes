@@ -86,9 +86,6 @@ const AssistantWorkspaceCard = ({
   return (
     <div className="group flex min-h-56 flex-col gap-4 rounded-xl border border-border bg-card p-5 transition-all hover:border-primary/30 hover:shadow-md">
       <div className="flex items-start justify-between gap-3">
-        <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 text-primary">
-          <IconSparkles className="h-6 w-6" />
-        </div>
         <div className="flex items-center gap-2">
           <span className="rounded-full border border-border bg-muted px-2.5 py-1 text-[11px] font-medium text-muted-foreground">
             {loading ? 'Loading' : getStatusLabel(agent?.status)}
@@ -136,9 +133,6 @@ const AiAgentWorkspaceCard = ({
   return (
     <div className="group flex min-h-56 flex-col gap-4 rounded-xl border border-border bg-card p-5 transition-all hover:border-primary/30 hover:shadow-md">
       <div className="flex items-start justify-between gap-3">
-        <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-emerald-500/10 text-emerald-600">
-          <IconCode className="h-6 w-6" />
-        </div>
         <div className="flex items-center gap-2">
           <span className="rounded-full border border-border bg-muted px-2.5 py-1 text-[11px] font-medium text-muted-foreground">
             {loading ? 'Loading' : getStatusLabel(opencode?.status)}
@@ -404,7 +398,6 @@ export const CompanyBrainWorkspacePage = ({
               onSubmit={form.handleSubmit(onSubmit)}
             >
               <Sheet.Header>
-                {mode === 'assistant' ? <IconSparkles /> : <IconCode />}
                 <Sheet.Title>{config.buttonLabel}</Sheet.Title>
                 <Sheet.Close />
               </Sheet.Header>
@@ -494,8 +487,8 @@ export const CompanyBrainWorkspacePage = ({
                           />
                         </Form.Control>
                         <p className="text-xs text-muted-foreground">
-                          Required. OpenClaw uses this token during bootstrap so
-                          the bot can come online and send the pairing code.
+                          Required. uses this token during bootstrap so the bot
+                          can come online and send the pairing code.
                         </p>
                         <Form.Message />
                       </Form.Item>
