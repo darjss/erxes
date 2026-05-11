@@ -11,7 +11,8 @@ interface DeployPayload {
 interface DeployResponse {
   serverName: string;
   serverUrl: string;
-  serverPassword: string;
+  gatewayToken: string;
+  serverPassword?: string;
   serverId: number;
 }
 
@@ -169,6 +170,21 @@ export const getOpencodeServerInfo = async (
   }
 
   return response.json();
+};
+
+export const getOpencodeGatewayToken = async (
+  serverName: string,
+): Promise<string> => {
+  const deployer = getDeployerUrl();
+  const response = await fetch(`${deployer}/opencode/${serverName}/gateway-token`);
+
+  if (!response.ok) {
+    const message = await getErrorMessage(response, 'Gateway token fetch failed');
+    throw new Error(`Failed to get gateway token: ${message}`);
+  }
+
+  const data = (await response.json()) as { token: string };
+  return data.token;
 };
 
 export const getOpencodeServerPassword = async (
