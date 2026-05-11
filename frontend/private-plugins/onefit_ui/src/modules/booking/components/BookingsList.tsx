@@ -5,7 +5,14 @@ import {
   RecordTable,
   RecordTableInlineCell,
   RelativeDateDisplay,
+  Tooltip,
 } from 'erxes-ui';
+import {
+  IconBan,
+  IconReceiptRefund,
+  IconUserCheck,
+  IconCheck,
+} from '@tabler/icons-react';
 import { useBookings } from '../hooks/useBookings';
 import {
   BookingFilters,
@@ -134,12 +141,9 @@ export const BookingsList = ({
     pageInfo,
     filteredTotalCount,
     overallTotalCount,
-  } = useBookings(
-    filters,
-    {
-      sessionKey,
-    },
-  );
+  } = useBookings(filters, {
+    sessionKey,
+  });
   const [selectedBooking, setSelectedBooking] = useState<OneFitBooking | null>(
     null,
   );
@@ -364,30 +368,54 @@ export const BookingsList = ({
 
               return (
                 <RecordTableInlineCell>
-                  <div className="flex flex-wrap gap-2">
+                  <div className="flex items-center gap-1">
                     {!isCancelled && !isCompleted && (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => {
-                          setSelectedBooking(booking);
-                          setCancelDialogOpen(true);
-                        }}
-                      >
-                        {isNoShow ? 'Cancel & refund' : 'Cancel'}
-                      </Button>
+                      <Tooltip>
+                        <Tooltip.Trigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-7 w-7"
+                            onClick={() => {
+                              setSelectedBooking(booking);
+                              setCancelDialogOpen(true);
+                            }}
+                          >
+                            {isNoShow ? (
+                              <IconReceiptRefund className="h-4 w-4" />
+                            ) : (
+                              <IconBan className="h-4 w-4" />
+                            )}
+                          </Button>
+                        </Tooltip.Trigger>
+                        <Tooltip.Content>
+                          {isNoShow ? 'Cancel & refund' : 'Cancel'}
+                        </Tooltip.Content>
+                      </Tooltip>
                     )}
                     {canMarkAttendance && (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => {
-                          setSelectedBooking(booking);
-                          setAttendanceDialogOpen(true);
-                        }}
-                      >
-                        {isNoShowActive ? 'Mark attended' : 'Mark attendance'}
-                      </Button>
+                      <Tooltip>
+                        <Tooltip.Trigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-7 w-7"
+                            onClick={() => {
+                              setSelectedBooking(booking);
+                              setAttendanceDialogOpen(true);
+                            }}
+                          >
+                            {isNoShowActive ? (
+                              <IconCheck className="h-4 w-4" />
+                            ) : (
+                              <IconUserCheck className="h-4 w-4" />
+                            )}
+                          </Button>
+                        </Tooltip.Trigger>
+                        <Tooltip.Content>
+                          {isNoShowActive ? 'Mark attended' : 'Mark attendance'}
+                        </Tooltip.Content>
+                      </Tooltip>
                     )}
                   </div>
                 </RecordTableInlineCell>
