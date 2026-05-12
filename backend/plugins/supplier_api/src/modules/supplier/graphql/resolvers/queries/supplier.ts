@@ -16,7 +16,7 @@ export const supplierQueries = {
     { _id }: { _id: string },
     { models }: IContext,
   ) => {
-    return models.Supplier.getSupplier(_id);
+    return models.Supplier.getSupplier();
   },
 
   suppliers: async (
