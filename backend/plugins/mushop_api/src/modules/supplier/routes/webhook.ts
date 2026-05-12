@@ -3,7 +3,7 @@ import { generateModels } from '~/connectionResolvers';
 
 const router: Router = Router();
 
-router.post('/updateSupplier', async (req: Request, res: Response) => {
+const syncSupplierRecord = async (req: Request, res: Response) => {
   try {
     const { subdomain, payload } = req.body || {};
     const { entityId, data } = payload || {};
@@ -21,6 +21,9 @@ router.post('/updateSupplier', async (req: Request, res: Response) => {
   } catch (e: any) {
     return res.status(400).json({ error: e.message });
   }
-});
+};
+
+router.post('/updateSupplier', syncSupplierRecord);
+router.post('/updateCollective', syncSupplierRecord);
 
 export { router };

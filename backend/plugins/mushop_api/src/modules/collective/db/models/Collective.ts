@@ -20,10 +20,7 @@ export interface ICollectiveModel extends Model<ICollectiveDocument> {
     pageInfo: any;
     totalCount: number;
   }>;
-  createCollective(
-    doc: ICollective,
-    createdBy?: string,
-  ): Promise<ICollectiveDocument>;
+  createCollective(doc: ICollective): Promise<ICollectiveDocument>;
   updateSyncProgress(
     _id: string,
     update: {
@@ -41,7 +38,9 @@ export const loadCollectiveClass = (models: IModels) => {
   class Collective {
     public static async getCollective(_id: string) {
       const collective = await models.Collective.findOne({ _id }).lean();
+
       if (!collective) throw new Error('Collective not found');
+      
       return collective;
     }
 
@@ -49,11 +48,15 @@ export const loadCollectiveClass = (models: IModels) => {
       params: CollectiveQueryParams & ICursorPaginateParams,
     ) {
       const { searchValue, status, targetSubdomain, supplierId } = params;
+      
       const filter: any = {};
 
       if (status) filter.status = status;
+      
       if (targetSubdomain) filter.targetSubdomain = targetSubdomain;
+      
       if (supplierId) filter.supplierIds = supplierId;
+      
       if (searchValue) {
         filter.$or = [
           { name: { $regex: searchValue, $options: 'i' } },
@@ -68,37 +71,33 @@ export const loadCollectiveClass = (models: IModels) => {
       });
     }
 
-    public static async createCollective(doc: ICollective, createdBy?: string) {
-      if (!doc.name?.trim()) {
-        throw new Error('Name is required');
-      }
-      if (!doc.targetSubdomain?.trim()) {
+    public static async createCollective(doc: ICollective) {
+      const { targetSubdomain, supplierIds } = doc || {};
+
+      if (!targetSubdomain?.trim()) {
         throw new Error('targetSubdomain is required');
       }
-      if (!doc.supplierIds?.length) {
+
+      if (!supplierIds?.length) {
         throw new Error('At least one supplier is required');
       }
 
-      const suppliers = await models.Supplier.find({
-        _id: { $in: doc.supplierIds },
-      }).lean();
-      if (suppliers.length !== doc.supplierIds.length) {
+      const suppliers = await models.Supplier.find({ _id: { $in: supplierIds }}).lean();
+
+      if (suppliers.length !== supplierIds.length) {
         throw new Error('One or more suppliers not found');
       }
 
-      const existing = await models.Collective.findOne({
-        targetSubdomain: doc.targetSubdomain,
-      }).lean();
+      const existing = await models.Collective.findOne({ targetSubdomain }).lean();;
+
       if (existing) {
-        throw new Error(
-          `Collective for subdomain "${doc.targetSubdomain}" already exists`,
-        );
+        throw new Error(`Collective for subdomain "${targetSubdomain}" already exists`);
       }
 
       return models.Collective.create({
-        ...doc,
+        targetSubdomain,
+        supplierIds,
         status: COLLECTIVE_STATUS.PENDING,
-        createdBy,
       });
     }
 

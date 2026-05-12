@@ -18,7 +18,7 @@ export interface ICollectiveSupplierSyncResult {
 }
 
 export interface ICollective {
-  name: string;
+  name?: string;
   description?: string;
   targetSubdomain: string;
   supplierIds: string[];
@@ -27,7 +27,6 @@ export interface ICollective {
   totalCreated?: number;
   totalFailed?: number;
   lastSyncedAt?: Date;
-  createdBy?: string;
 }
 
 export interface ICollectiveDocument extends ICollective, Document {

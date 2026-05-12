@@ -35,7 +35,7 @@ export const types = `
   }
 `;
 
-const collectiveQueryParams = `
+const queryParams = `
   searchValue: String
   status: String
   targetSubdomain: String
@@ -44,13 +44,11 @@ const collectiveQueryParams = `
 
 export const queries = `
   mushopCollectiveDetail(_id: String!): MushopCollective
-  mushopCollectives(${collectiveQueryParams}${GQL_CURSOR_PARAM_DEFS}): MushopCollectiveListResponse
+  mushopCollectives(${queryParams}${GQL_CURSOR_PARAM_DEFS}): MushopCollectiveListResponse
 `;
 
 export const mutations = `
   mushopCreateCollective(
-    name: String!
-    description: String
     targetSubdomain: String!
     supplierIds: [String!]!
   ): MushopCollective

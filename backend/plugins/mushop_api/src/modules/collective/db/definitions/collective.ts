@@ -21,7 +21,7 @@ const collectiveSyncResultSchema = new Schema<ICollectiveSupplierSyncResult>(
 export const collectiveSchema = new Schema<ICollectiveDocument>(
   {
     _id: mongooseStringRandomId,
-    name: { type: String, required: true, label: 'Name' },
+    name: { type: String, label: 'Name' },
     description: { type: String, label: 'Description' },
     targetSubdomain: {
       type: String,
@@ -40,7 +40,6 @@ export const collectiveSchema = new Schema<ICollectiveDocument>(
     totalCreated: { type: Number, default: 0 },
     totalFailed: { type: Number, default: 0 },
     lastSyncedAt: { type: Date },
-    createdBy: { type: String, index: true },
   },
   { timestamps: true },
 );

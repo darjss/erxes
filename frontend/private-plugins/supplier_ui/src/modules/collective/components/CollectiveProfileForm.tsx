@@ -1,17 +1,16 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Badge, Button, Form, Input, Select, Textarea, toast } from 'erxes-ui';
 import { useCallback, useEffect } from 'react';
-import { Path, useForm, UseFormReturn } from 'react-hook-form';
+import { Path, useForm } from 'react-hook-form';
 import { z } from 'zod';
-import { ADDRESS_CITY, ADDRESS_DISTRICT } from '../constants/address';
-import { SOCIAL_LINKS } from '../constants/socialLinks';
-import { supplierProfileSchema } from '../constants/supplierProfileSchema';
-import { useGetSupplier } from '../hooks/useSupplier';
-import { useUpdateSupplier } from '../hooks/useUpdateSupplier';
-import { SupplierEditorField } from './SupplierEditorField';
-import { SupplierPhones } from './SupplierPhones';
-import { UploadImage } from './upload';
-import { useIsCollective } from '~/hooks/useIsCollective';
+import { ADDRESS_CITY, ADDRESS_DISTRICT } from '@/supplier/constants/address';
+import { SOCIAL_LINKS } from '@/supplier/constants/socialLinks';
+import { supplierProfileSchema as collectiveProfileSchema } from '@/supplier/constants/supplierProfileSchema';
+import { SupplierEditorField as CollectiveEditorField } from '@/supplier/components/SupplierEditorField';
+import { SupplierPhones as CollectivePhones } from '@/supplier/components/SupplierPhones';
+import { UploadImage } from '@/supplier/components/upload';
+import { useGetCollective } from '../hooks/useCollective';
+import { useUpdateCollective } from '../hooks/useUpdateCollective';
 
 const statusVariant = (status?: string) => {
   switch (status) {
@@ -24,13 +23,14 @@ const statusVariant = (status?: string) => {
   }
 };
 
-export const SupplierProfileForm = () => {
-  const { supplier, loading } = useGetSupplier();
-  const { updateSupplier, loading: saving } = useUpdateSupplier();
-  const isCollective = useIsCollective();
+export const CollectiveProfileForm = () => {
+  const { collective, loading } = useGetCollective();
+  const { updateCollective, loading: saving } = useUpdateCollective();
 
-  const supplierAddress = supplier?.address as any;
-  const addressDetails = supplierAddress?.details || supplierAddress?.address;
+  const collectiveAddress = collective?.address as any;
+  const addressDetails =
+    collectiveAddress?.details || collectiveAddress?.address;
+
   const getDefaultValues = useCallback(() => {
     const fallbackSocialLinks = {
       facebook: '',
@@ -38,20 +38,20 @@ export const SupplierProfileForm = () => {
       twitter: '',
       linkedin: '',
       youtube: '',
-    } as z.infer<typeof supplierProfileSchema>['socialLinks'];
+    } as z.infer<typeof collectiveProfileSchema>['socialLinks'];
 
     return {
-      name: supplier?.name || '',
-      description: supplier?.description || '',
-      about: supplier?.about || '',
-      logo: supplier?.logo || '',
-      coverImage: supplier?.coverImage || '',
-      website: supplier?.website || '',
-      registrationNumber: supplier?.registrationNumber || '',
-      primaryEmail: supplier?.primaryEmail || '',
-      primaryPhone: supplier?.primaryPhone || '',
-      phones: supplier?.phones || [],
-      dateFounded: supplier?.dateFounded || '',
+      name: collective?.name || '',
+      description: collective?.description || '',
+      about: collective?.about || '',
+      logo: collective?.logo || '',
+      coverImage: collective?.coverImage || '',
+      website: collective?.website || '',
+      registrationNumber: collective?.registrationNumber || '',
+      primaryEmail: collective?.primaryEmail || '',
+      primaryPhone: collective?.primaryPhone || '',
+      phones: collective?.phones || [],
+      dateFounded: collective?.dateFounded || '',
       address: {
         details: {
           countryCode: addressDetails?.countryCode || undefined,
@@ -66,38 +66,39 @@ export const SupplierProfileForm = () => {
           number: addressDetails?.number || undefined,
           other: addressDetails?.other || undefined,
         },
-        location: supplierAddress?.location
+        location: collectiveAddress?.location
           ? {
-              type: supplierAddress?.location?.type || undefined,
-              coordinates: supplierAddress?.location?.coordinates || undefined,
+              type: collectiveAddress?.location?.type || undefined,
+              coordinates:
+                collectiveAddress?.location?.coordinates || undefined,
             }
           : undefined,
-        short: supplierAddress?.short || undefined,
+        short: collectiveAddress?.short || undefined,
       },
-      socialLinks: (supplier?.socialLinks as any) || fallbackSocialLinks,
+      socialLinks: (collective?.socialLinks as any) || fallbackSocialLinks,
     };
-  }, [supplier, supplierAddress, addressDetails]);
+  }, [collective, collectiveAddress, addressDetails]);
 
-  const form = useForm<z.infer<typeof supplierProfileSchema>>({
-    resolver: zodResolver(supplierProfileSchema),
+  const form = useForm<z.infer<typeof collectiveProfileSchema>>({
+    resolver: zodResolver(collectiveProfileSchema),
     defaultValues: getDefaultValues(),
   });
 
   useEffect(() => {
-    if (supplier) {
+    if (collective) {
       form.reset(getDefaultValues());
     }
-  }, [supplier, form, getDefaultValues]);
+  }, [collective, form, getDefaultValues]);
 
   const logo = form.watch('logo');
   const coverImage = form.watch('coverImage');
   const city = form.watch('address.details.city');
 
-  const onSubmit = (values: z.infer<typeof supplierProfileSchema>) => {
-    updateSupplier({
+  const onSubmit = (values: z.infer<typeof collectiveProfileSchema>) => {
+    updateCollective({
       variables: { input: values },
       onCompleted: () => {
-        toast({ title: 'Saved', description: 'Profile updated' });
+        toast({ title: 'Saved', description: 'Collective profile updated' });
       },
       onError: (error) => {
         toast({
@@ -116,19 +117,18 @@ export const SupplierProfileForm = () => {
   return (
     <div className="flex flex-col gap-6 mx-auto p-6 w-full max-w-lg">
       <div className="flex justify-between items-center">
-        <h1 className="font-bold text-lg">
-          {isCollective ? 'Collective profile' : 'Supplier profile'}
-        </h1>
-        <Badge variant={statusVariant(supplier?.verificationStatus)}>
-          {supplier?.verificationStatus || 'pending'}
+        <h1 className="font-bold text-lg">Collective profile</h1>
+        <Badge variant={statusVariant(collective?.verificationStatus)}>
+          {collective?.verificationStatus || 'pending'}
         </Badge>
       </div>
-      {supplier?.verificationStatus === 'unverified' && supplier?.verificationNote && (
-        <div className="rounded-lg border border-destructive/50 bg-destructive/10 px-4 py-3 text-sm text-destructive">
-          <p className="font-medium mb-1">Profile rejected</p>
-          <p>{supplier.verificationNote}</p>
-        </div>
-      )}
+      {collective?.verificationStatus === 'unverified' &&
+        collective?.verificationNote && (
+          <div className="rounded-lg border border-destructive/50 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+            <p className="font-medium mb-1">Profile rejected</p>
+            <p>{collective.verificationNote}</p>
+          </div>
+        )}
 
       <Form {...form}>
         <form
@@ -220,7 +220,7 @@ export const SupplierProfileForm = () => {
             render={() => (
               <Form.Item>
                 <Form.Label>Phone</Form.Label>
-                <SupplierPhones form={form} />
+                <CollectivePhones form={form} />
                 <Form.Message />
               </Form.Item>
             )}
@@ -280,12 +280,12 @@ export const SupplierProfileForm = () => {
             )}
           />
 
-          <SupplierEditorField
+          <CollectiveEditorField
             control={form.control}
             setValue={form.setValue}
             name="about"
             label="About"
-            initialContent={supplier?.about}
+            initialContent={collective?.about}
           />
 
           <Form.Field
@@ -369,7 +369,7 @@ export const SupplierProfileForm = () => {
                 key={item.value}
                 name={
                   `socialLinks.${item.value}` as Path<
-                    z.infer<typeof supplierProfileSchema>
+                    z.infer<typeof collectiveProfileSchema>
                   >
                 }
                 control={form.control}

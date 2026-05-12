@@ -1,10 +1,10 @@
-import { IconUser } from '@tabler/icons-react';
+import { IconBuildingStore } from '@tabler/icons-react';
 import { Breadcrumb, Button, Separator } from 'erxes-ui';
 import { PageHeader } from 'ui-modules';
 import { Link } from 'react-router-dom';
-import { SupplierProfileForm } from '@/supplier/components/SupplierProfileForm';
+import { CollectiveSuppliersList } from '@/collective/components/CollectiveSuppliersList';
 
-export const IndexPage = () => {
+export const SuppliersPage = () => {
   return (
     <div className="flex flex-col h-full">
       <PageHeader>
@@ -13,9 +13,9 @@ export const IndexPage = () => {
             <Breadcrumb.List className="gap-1">
               <Breadcrumb.Item>
                 <Button variant="ghost" asChild>
-                  <Link to="/supplier/profile">
-                    <IconUser />
-                    Profile
+                  <Link to="/supplier/suppliers">
+                    <IconBuildingStore />
+                    Suppliers
                   </Link>
                 </Button>
               </Breadcrumb.Item>
@@ -25,10 +25,8 @@ export const IndexPage = () => {
           <PageHeader.FavoriteToggleButton />
         </PageHeader.Start>
       </PageHeader>
-      <div className="flex h-full overflow-auto">
-        <div className="flex flex-col h-full overflow-auto flex-auto">
-          <SupplierProfileForm />
-        </div>
+      <div className="flex-auto overflow-auto">
+        <CollectiveSuppliersList />
       </div>
     </div>
   );
