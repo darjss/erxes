@@ -44,8 +44,7 @@ const stripAdminFields = (doc: ISupplier): ISupplier => {
 };
 
 export interface ISupplierModel extends Model<ISupplierDocument> {
-  getSupplier(_id: string): Promise<ISupplierDocument>;
-  getGetSupplier(userId: string): Promise<ISupplierDocument | null>;
+  getSupplier(): Promise<ISupplierDocument>;
   listSuppliers(
     params: SupplierQueryParams & ICursorPaginateParams,
   ): Promise<{ list: ISupplierDocument[]; pageInfo: any; totalCount: number }>;
@@ -68,14 +67,12 @@ export const loadSupplierClass = (
   { createActivityLog }: EventDispatcherReturn,
 ) => {
   class Supplier {
-    public static async getSupplier(_id: string) {
-      const supplier = await models.Supplier.findOne({ _id }).lean();
-      if (!supplier) throw new Error('Supplier not found');
-      return supplier;
-    }
+    public static async getSupplier() {
+      const supplier = await models.Supplier.findOne().lean();
 
-    public static async getGetSupplier(userId: string) {
-      return models.Supplier.findOne({ ownerUserId: userId }).lean();
+      if (!supplier) throw new Error('Supplier not found');
+
+      return supplier;
     }
 
     public static async listSuppliers(
@@ -119,7 +116,11 @@ export const loadSupplierClass = (
       );
     }
 
-    public static async updateVerificationStatus(_id: string, status: string, note?: string) {
+    public static async updateVerificationStatus(
+      _id: string,
+      status: string,
+      note?: string,
+    ) {
       if (!SUPPLIER_VERIFICATION_STATUS.ALL.includes(status)) {
         throw new Error('Invalid verification status');
       }
@@ -128,12 +129,16 @@ export const loadSupplierClass = (
 
       const supplier = await models.Supplier.findOneAndUpdate(
         { _id },
-        { $set: { verificationStatus: status, verificationNote: note ?? null } },
+        {
+          $set: { verificationStatus: status, verificationNote: note ?? null },
+        },
         { new: true },
       );
 
       if (supplier) {
-        createActivityLog(buildSupplierVerificationChangedLog(supplier, status, note));
+        createActivityLog(
+          buildSupplierVerificationChangedLog(supplier, status, note),
+        );
       }
 
       return supplier;

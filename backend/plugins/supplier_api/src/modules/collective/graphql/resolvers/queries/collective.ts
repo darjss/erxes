@@ -8,7 +8,7 @@ export const collectiveQueries = {
     { models, user }: IContext,
   ) => {
     if (!user) throw new Error('Login required');
-    return models.Supplier.getGetSupplier(user._id);
+    return {}
   },
 
   collectiveDetail: async (

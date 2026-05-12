@@ -8,8 +8,7 @@ export const supplierQueries = {
     _args: any,
     { models, user }: IContext,
   ) => {
-    if (!user) throw new Error('Login required');
-    return models.Supplier.getGetSupplier(user._id);
+    return models.Supplier.getSupplier();
   },
 
   supplierDetail: async (
