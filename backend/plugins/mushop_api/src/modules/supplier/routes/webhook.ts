@@ -15,6 +15,7 @@ const syncSupplierRecord = async (req: Request, res: Response) => {
       return res.status(400).json({ error: 'payload.entityId is required' });
 
     const models = await generateModels(subdomain);
+
     await models.Supplier.syncFromSupplier(entityId, subdomain, input, userId);
 
     return res.status(200).json({ success: true });

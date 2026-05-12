@@ -14,7 +14,7 @@ import { ICursorPaginateParams } from 'erxes-api-shared/core-types';
 import { buildSupplierVerificationChangedLog } from '~/meta/activity-log/supplier';
 
 // Fields a supplier user is NOT allowed to set on themselves
-const ADMIN_ONLY_FIELDS = ['verificationStatus', 'tierLevel', 'ownerUserId'];
+const ADMIN_ONLY_FIELDS = [];
 
 const normalizeSupplierAddress = (address: any) => {
   if (!address || typeof address !== 'object') return address;
@@ -87,25 +87,23 @@ export const loadSupplierClass = (
     }
 
     public static async createGetSupplier(userId: string, doc: ISupplier) {
-      const existing = await models.Supplier.findOne({ ownerUserId: userId });
+      const existing = await models.Supplier.findOne({});
       if (existing) {
         throw new Error('Supplier profile already exists for this user');
       }
       return models.Supplier.create({
         ...stripAdminFields(doc),
-        ownerUserId: userId,
         verificationStatus: SUPPLIER_VERIFICATION_STATUS.PENDING,
       });
     }
 
     public static async updateSupplier(userId: string, doc: ISupplier) {
-      const existing = await models.Supplier.findOne({ ownerUserId: userId });
+      const existing = await models.Supplier.findOne({});
 
       if (!existing) {
         // First-time save: create instead.
         return models.Supplier.create({
           ...stripAdminFields(doc),
-          ownerUserId: userId,
           verificationStatus: SUPPLIER_VERIFICATION_STATUS.PENDING,
         });
       }
@@ -124,8 +122,6 @@ export const loadSupplierClass = (
       if (!SUPPLIER_VERIFICATION_STATUS.ALL.includes(status)) {
         throw new Error('Invalid verification status');
       }
-
-      console.log('updateVerificationStatus', { _id, status, note });
 
       const supplier = await models.Supplier.findOneAndUpdate(
         { _id },
