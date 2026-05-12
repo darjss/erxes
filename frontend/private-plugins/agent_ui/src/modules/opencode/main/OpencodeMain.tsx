@@ -54,6 +54,10 @@ export const OpencodeMain = () => {
 
   const isApproved =
     !!opencode && opencode.status === SERVER_STATUSES.APPROVED;
+  const iframeSrc =
+    opencode?.token && opencode.url
+      ? `${opencode.url.replace(/\/$/, '')}/#token=${encodeURIComponent(opencode.token)}`
+      : opencode?.url || '';
 
   if (!isApproved) {
     return (
@@ -128,7 +132,7 @@ export const OpencodeMain = () => {
       </div>
       <iframe
         key={iframeKey}
-        src={opencode.url}
+        src={iframeSrc}
         title="Opencode"
         className="w-full flex-1 border-0 transition-opacity duration-200 opacity-100"
         allow="clipboard-read; clipboard-write; microphone"
