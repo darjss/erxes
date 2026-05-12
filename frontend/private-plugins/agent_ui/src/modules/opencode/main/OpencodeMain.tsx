@@ -165,8 +165,8 @@ export const OpencodeMain = () => {
           }
         }}
         loading={destroying || deletingIdentifier}
-        title="Destroy opencode server?"
-        description="This will permanently remove your opencode workspace server. This action cannot be undone."
+        title="Destroy Agent server?"
+        description="This will permanently remove your Agent workspace server. This action cannot be undone."
         onAfterConfirm={() => {
           void refetch();
         }}

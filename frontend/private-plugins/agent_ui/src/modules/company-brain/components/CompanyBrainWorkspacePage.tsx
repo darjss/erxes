@@ -24,6 +24,7 @@ import { PageHeader } from 'ui-modules';
 import { z } from 'zod';
 import { AssistantOrgManageSheet } from '~/modules/assistant-orgs/components/AssistantOrgManageSheet';
 import { useCreateIdentifier } from '~/modules/assistant-orgs/hooks/useCreateAssistantOrg';
+import { useDeleteIdentifier } from '~/modules/assistant-orgs/hooks/useDeleteAssistantOrg';
 import {
   Identifier,
   useIdentifiers,
@@ -180,6 +181,8 @@ export const CompanyBrainWorkspacePage = ({
   const { identifiers, loading } = useIdentifiers(mode);
   const { createIdentifier, loading: creatingIdentifier } =
     useCreateIdentifier();
+  const { deleteIdentifier, loading: deletingIdentifier } =
+    useDeleteIdentifier();
   const { deployAgent, loading: deployingAssistant } = useAgentDeploy();
   const { deployOpencode, loading: deployingAgent } = useOpencodeDeploy();
   const [open, setOpen] = useState(false);
@@ -228,7 +231,10 @@ export const CompanyBrainWorkspacePage = ({
   });
 
   const isSubmitting =
-    creatingIdentifier || deployingAssistant || deployingAgent;
+    creatingIdentifier ||
+    deletingIdentifier ||
+    deployingAssistant ||
+    deployingAgent;
 
   const onSubmit = async (values: WorkspaceFormValues) => {
     let createdIdentifier: Identifier | null = null;
@@ -281,22 +287,37 @@ export const CompanyBrainWorkspacePage = ({
       );
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
+      let cleanupMessage = '';
+      let description = message;
+
+      if (mode === 'agent' && createdIdentifier?._id) {
+        try {
+          await deleteIdentifier(createdIdentifier._id);
+          cleanupMessage = ' The failed agent was removed.';
+        } catch (cleanupError) {
+          const cleanupErrorMessage =
+            cleanupError instanceof Error
+              ? cleanupError.message
+              : String(cleanupError);
+
+          cleanupMessage = ` Failed to remove the identifier: ${cleanupErrorMessage}`;
+        }
+
+        setOpen(false);
+        navigate('/agent/agents');
+        description = `${message}.${cleanupMessage}`;
+      } else if (createdIdentifier?._id) {
+        description = `${message}. The identifier was created, so you can retry from its detail page.`;
+      }
 
       toast({
         variant: 'destructive',
         title: mode === 'assistant' ? 'Add AI Assistant failed' : 'Add AI Agent failed',
-        description:
-          createdIdentifier?._id
-            ? `${message}. The identifier was created, so you can retry from its detail page.`
-            : message,
+        description,
       });
 
-      if (createdIdentifier?._id) {
-        navigate(
-          mode === 'assistant'
-            ? `/agent/assistant/${createdIdentifier._id}`
-            : `/agent/agents/${createdIdentifier._id}`,
-        );
+      if (mode === 'assistant' && createdIdentifier?._id) {
+        navigate(`/agent/assistant/${createdIdentifier._id}`);
       }
     }
   };

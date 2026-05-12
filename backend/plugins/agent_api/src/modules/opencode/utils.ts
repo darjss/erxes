@@ -1,6 +1,9 @@
 import { getEnv } from 'erxes-api-shared/utils';
 import { IOpencodeServerDocument } from './@types/opencode';
 
+const LOCAL_DEPLOYER_URL = 'http://localhost:4200';
+const PROD_DEPLOYER_URL = 'https://deployer.erxes.io';
+
 interface DeployPayload {
   orgId: string;
   agentId: string;
@@ -62,13 +65,17 @@ export const normalizeOpencodeProvider = (provider: string) => {
 };
 
 const getDeployerUrl = () => {
-  const deployer = getEnv({ name: 'DEPLOYER_URL' });
+  const deployer = getEnv({ name: 'DEPLOYER_URL' }).trim();
 
-  if (!deployer) {
-    throw new Error('DEPLOYER_URL environment variable is required');
+  if (deployer) {
+    return deployer.replace(/\/$/, '');
   }
 
-  return deployer;
+  if (getEnv({ name: 'NODE_ENV' }).trim() !== 'production') {
+    return LOCAL_DEPLOYER_URL;
+  }
+
+  return PROD_DEPLOYER_URL;
 };
 
 const getErrorMessage = async (response: Response, fallback: string) => {
