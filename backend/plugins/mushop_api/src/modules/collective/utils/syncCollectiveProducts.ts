@@ -40,7 +40,7 @@ const postToSupplierPush = async ({
     ? SUPPLIER_API_URL
     : SUPPLIER_API_URL.replace('<subdomain>', supplierSubdomain);
 
-  const endpoint = `${baseUrl}/pl:supplier/webhook/mushop/collective`;
+  const endpoint = `${baseUrl}/pl:supplier/webhook/mushop/collective-push`;
 
   const body = JSON.stringify({
     subdomain: supplierSubdomain,
