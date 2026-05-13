@@ -100,6 +100,12 @@ import {
   types as StatusTypes,
 } from '@/oppty/graphql/schemas/status';
 
+import {
+  mutations as ContractStatusMutations,
+  queries as ContractStatusQueries,
+  types as ContractStatusTypes,
+} from '@/contract/graphql/schemas/status';
+
 export const types = `
   type DeveloperAddress {
     countryCode: String
@@ -168,6 +174,7 @@ export const types = `
   ${OpptyTypes}
   ${NoteTypes}
   ${StatusTypes}
+  ${ContractStatusTypes}
   `;
 
 export const queries = `
@@ -188,6 +195,7 @@ export const queries = `
   ${OpptyQueries}
   ${NoteQueries}
   ${StatusQueries}
+  ${ContractStatusQueries}
   `;
 
 export const mutations = `
@@ -208,6 +216,7 @@ export const mutations = `
   ${UnitTypeMutations}
   ${OpptyMutations}
   ${StatusMutations}
+  ${ContractStatusMutations}
   `;
 
 export default { types, queries, mutations };

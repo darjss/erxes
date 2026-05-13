@@ -5,6 +5,7 @@ export const types = `
   }
 
   enum BlockContractStatus {
+    reserved
     draft
     signed
     completed

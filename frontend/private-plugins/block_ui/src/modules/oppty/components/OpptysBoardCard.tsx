@@ -110,7 +110,11 @@ export const OpptysBoardCard = ({ id, column }: BoardCardProps) => {
         <div className="flex flex-wrap gap-1 mt-1">
           {mainUnit?.number && (
             <Badge>
-              {mainUnit.number} · {mainUnit.unitType.size}m² · {Number(mainUnit.unitType.price).toLocaleString()} 
+              {mainUnit.number}
+              {mainUnit.unitType?.size != null &&
+                ` · ${mainUnit.unitType.size}m²`}
+              {mainUnit.unitType?.price != null &&
+                ` · ${Number(mainUnit.unitType.price).toLocaleString()}`}
             </Badge>
           )}
           {unitTypeName && (

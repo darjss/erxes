@@ -11,6 +11,7 @@ export enum ContractAmountType {
 }
 
 export enum ContractStatus {
+  RESERVED = 'reserved',
   DRAFT = 'draft',
   SIGNED = 'signed',
   COMPLETED = 'completed',

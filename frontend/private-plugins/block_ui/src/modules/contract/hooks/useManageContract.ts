@@ -1,6 +1,10 @@
 import { useMutation } from '@apollo/client';
-import { CREATE_CONTRACT, UPDATE_CONTRACT } from '../graphql/contractMutations';
-import { IContractInput } from '../types/contractTypes';
+import {
+  CREATE_CONTRACT,
+  UPDATE_CONTRACT,
+  UPDATE_CONTRACT_STATUS,
+} from '../graphql/contractMutations';
+import { ContractStatus, IContractInput } from '../types/contractTypes';
 import { GET_CONTRACTS } from '../graphql/contractQueries';
 import { useQueryState } from 'erxes-ui';
 
@@ -15,6 +19,24 @@ export function useCreateContract() {
     loading,
     error,
   };
+}
+
+export function useUpdateContractStatus() {
+  const [updateStatus, { loading, error }] = useMutation(
+    UPDATE_CONTRACT_STATUS,
+    {
+      refetchQueries: [{ query: GET_CONTRACTS }],
+    },
+  );
+
+  const handleUpdateStatus = async (id: string, status: ContractStatus) => {
+    const { data } = await updateStatus({
+      variables: { id, status },
+    });
+    return data?.blockUpdateContractStatus;
+  };
+
+  return { updateContractStatus: handleUpdateStatus, loading, error };
 }
 
 export function useUpdateContract() {

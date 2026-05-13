@@ -19,6 +19,7 @@ export interface IContractParty {
 }
 
 export enum ContractStatus {
+  RESERVED = 'reserved',
   DRAFT = 'draft',
   SIGNED = 'signed',
   CANCELLED = 'cancelled',

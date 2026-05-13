@@ -1,5 +1,11 @@
-import { Board, BoardColumnProps, BoardItemProps } from 'erxes-ui';
-import { ContractStatus, ContractPartyType } from '../types/contractTypes';
+import {
+  Board,
+  BoardColumnProps,
+  BoardItemProps,
+  Spinner,
+} from 'erxes-ui';
+import { useParams } from 'react-router-dom';
+import { ContractStatus } from '../types/contractTypes';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import type { DragEndEvent } from '@dnd-kit/core';
 import {
@@ -8,469 +14,128 @@ import {
 } from '../states/allContractsMapState';
 import { fetchedContractsState } from '../states/fetchedContractsState';
 import { contractCountByBoardAtom } from '../states/contractCountByBoardAtom';
-// import { useUpdateContract } from '../hooks/useManageContract'; // TODO: Enable when backend is ready
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { ContractsBoardCard } from './ContractsBoardCard';
+import { useBlockContractStatusesByType } from '@/contract-status/hooks/useGetBlockContractStatuses';
+import { useContracts } from '../hooks/useContracts';
+import { useUpdateContractStatus } from '../hooks/useManageContract';
+import { IBlockContractStatus } from '@/contract-status/types';
+import { toast } from 'erxes-ui';
 
-const columns = [
-  {
-    id: 'lead',
-    name: 'Шинэ – Байр сонгоогүй',
-    type: 'new',
-    color: 'blue',
-  },
-  {
-    id: 'picked',
-    name: 'Шинэ – Байр сонгосон',
-    type: 'in-progress',
-    color: 'green',
-  },
-  {
-    id: 'connected',
-    name: 'Холбогдсон',
-    type: 'in-progress',
-    color: 'yellow',
-  },
-  {
-    id: 'schedule',
-    name: 'Уулзалт товлосон',
-    type: 'in-progress',
-    color: 'yellow',
-  },
-  {
-    id: 'negotiation',
-    name: 'Хэлэлцээр',
-    type: 'in-progress',
-    color: 'yellow',
-  },
-  {
-    id: 'ordered',
-    name: 'Захиалсан',
-    type: 'done',
-    color: 'green',
-  },
-  { id: 'closed', name: 'Дууссан', type: 'completed', color: 'green' },
-  {
-    id: 'lost',
-    name: 'Алдагдсан',
-    type: 'cancelled',
-    color: 'red',
-  },
-];
+const STATUS_TYPE_TO_ENUM: Record<string, ContractStatus> = {
+  reserved: ContractStatus.RESERVED,
+  draft: ContractStatus.DRAFT,
+  signed: ContractStatus.SIGNED,
+  cancelled: ContractStatus.CANCELLED,
+  lost: ContractStatus.CANCELLED,
+};
 
-function mapContractStatusToColumn(status?: ContractStatus): string {
-  switch (status) {
-    case ContractStatus.DRAFT:
-      return 'lead';
-    case ContractStatus.SIGNED:
-      return 'ordered';
-    case ContractStatus.COMPLETED:
-      return 'closed';
-    case ContractStatus.CANCELLED:
-      return 'lost';
-    default:
-      return 'lead';
-  }
-}
+const TYPE_ORDER = ['reserved', 'draft', 'signed', 'lost', 'cancelled'];
 
-function mapColumnToContractStatus(columnId: string): ContractStatus {
-  switch (columnId) {
-    case 'lead':
-      return ContractStatus.DRAFT;
-    case 'ordered':
-      return ContractStatus.SIGNED;
-    case 'closed':
-      return ContractStatus.COMPLETED;
-    case 'lost':
-      return ContractStatus.CANCELLED;
-    default:
-      return ContractStatus.DRAFT;
-  }
-}
+const sortStatuses = (statuses: IBlockContractStatus[]) =>
+  [...statuses].sort((a, b) => {
+    const ti = TYPE_ORDER.indexOf(a.type);
+    const tj = TYPE_ORDER.indexOf(b.type);
+    if (ti !== tj) return ti - tj;
+    return (a.order || 0) - (b.order || 0);
+  });
 
-const mockContractsDraft: IContractWithDescription[] = [
-  {
-    _id: 'contract-001',
-    unit: '',
-    number: undefined,
-    currency: undefined,
-    date: undefined,
-    amount: 8300000,
-    amountType: undefined,
-    status: ContractStatus.DRAFT,
-    startDate: undefined,
-    endDate: undefined,
-    isLifeTime: undefined,
-    party: { type: ContractPartyType.CUSTOMER, id: '' },
-    paymentPlan: undefined,
-    user: undefined,
-    description:
-      'A блокын орон сууцны худалдан авалтын гэрээ. Хүсэлтийн шатанд.',
-  },
-  {
-    _id: 'contract-009',
-    unit: '',
-    number: undefined,
-    currency: undefined,
-    date: undefined,
-    amount: 6700000,
-    amountType: undefined,
-    status: ContractStatus.DRAFT,
-    startDate: undefined,
-    endDate: undefined,
-    isLifeTime: undefined,
-    party: { type: ContractPartyType.CUSTOMER, id: '' },
-    paymentPlan: undefined,
-    user: undefined,
-    description: 'Гэрээний маягт эх хэлбэрээр бэлтгэгдсэн.',
-  },
-  {
-    _id: 'contract-014',
-    unit: '',
-    number: undefined,
-    currency: undefined,
-    date: undefined,
-    amount: 9020000,
-    amountType: undefined,
-    status: ContractStatus.DRAFT,
-    startDate: undefined,
-    endDate: undefined,
-    isLifeTime: undefined,
-    party: { type: ContractPartyType.CUSTOMER, id: '' },
-    paymentPlan: undefined,
-    user: undefined,
-    description: 'Гэрээ боловсруулагдаж байна.',
-  },
-  {
-    _id: 'contract-018',
-    unit: '',
-    number: undefined,
-    currency: undefined,
-    date: undefined,
-    amount: 17700000,
-    amountType: undefined,
-    status: ContractStatus.DRAFT,
-    startDate: undefined,
-    endDate: undefined,
-    isLifeTime: undefined,
-    party: { type: ContractPartyType.CUSTOMER, id: '' },
-    paymentPlan: undefined,
-    user: undefined,
-    description: 'K блокын 222 тоот гэрээний төсөл.',
-  },
-];
-
-const mockContractsSigned: IContractWithDescription[] = [
-  {
-    _id: 'contract-002',
-    unit: '',
-    number: undefined,
-    currency: undefined,
-    date: undefined,
-    amount: 12200000,
-    amountType: undefined,
-    status: ContractStatus.SIGNED,
-    startDate: undefined,
-    endDate: undefined,
-    isLifeTime: undefined,
-    party: { type: ContractPartyType.CUSTOMER, id: '' },
-    paymentPlan: undefined,
-    user: undefined,
-    description:
-      'B блокын 103 дугаар байрны борлуулалтын гэрээ, хүчин төгөлдөр.',
-  },
-  {
-    _id: 'contract-005',
-    unit: '',
-    number: undefined,
-    currency: undefined,
-    date: undefined,
-    amount: 11500000,
-    amountType: undefined,
-    status: ContractStatus.SIGNED,
-    startDate: undefined,
-    endDate: undefined,
-    isLifeTime: undefined,
-    party: { type: ContractPartyType.CUSTOMER, id: '' },
-    paymentPlan: undefined,
-    user: undefined,
-    description: 'D блокын 45 дугаар байрны төлбөрийн төлөвлөгөө.',
-  },
-  {
-    _id: 'contract-008',
-    unit: '',
-    number: undefined,
-    currency: undefined,
-    date: undefined,
-    amount: 15000000,
-    amountType: undefined,
-    status: ContractStatus.SIGNED,
-    startDate: undefined,
-    endDate: undefined,
-    isLifeTime: undefined,
-    party: { type: ContractPartyType.CUSTOMER, id: '' },
-    paymentPlan: undefined,
-    user: undefined,
-    description: 'F блокын гэрээ идэвхтэй төлөвт.',
-  },
-  {
-    _id: 'contract-011',
-    unit: '',
-    number: undefined,
-    currency: undefined,
-    date: undefined,
-    amount: 10400000,
-    amountType: undefined,
-    status: ContractStatus.SIGNED,
-    startDate: undefined,
-    endDate: undefined,
-    isLifeTime: undefined,
-    party: { type: ContractPartyType.CUSTOMER, id: '' },
-    paymentPlan: undefined,
-    user: undefined,
-    description: 'Ж блокын 65 тоот гэрээ.',
-  },
-  {
-    _id: 'contract-015',
-    unit: '',
-    number: undefined,
-    currency: undefined,
-    date: undefined,
-    amount: 10800000,
-    amountType: undefined,
-    status: ContractStatus.SIGNED,
-    startDate: undefined,
-    endDate: undefined,
-    isLifeTime: undefined,
-    party: { type: ContractPartyType.CUSTOMER, id: '' },
-    paymentPlan: undefined,
-    user: undefined,
-    description: 'J блокын 82 тоот идэвхтэй харилцагч.',
-  },
-];
-
-const mockContractsCompleted: IContractWithDescription[] = [
-  {
-    _id: 'contract-003',
-    unit: '',
-    number: undefined,
-    currency: undefined,
-    date: undefined,
-    amount: 9100000,
-    amountType: undefined,
-    status: ContractStatus.COMPLETED,
-    startDate: undefined,
-    endDate: undefined,
-    isLifeTime: undefined,
-    party: { type: ContractPartyType.CUSTOMER, id: '' },
-    paymentPlan: undefined,
-    user: undefined,
-    description: 'C блокын гэрээ захиалсан төлөвт байна.',
-  },
-  {
-    _id: 'contract-007',
-    unit: '',
-    number: undefined,
-    currency: undefined,
-    date: undefined,
-    amount: 13200000,
-    amountType: undefined,
-    status: ContractStatus.COMPLETED,
-    startDate: undefined,
-    endDate: undefined,
-    isLifeTime: undefined,
-    party: { type: ContractPartyType.CUSTOMER, id: '' },
-    paymentPlan: undefined,
-    user: undefined,
-    description: 'E блокын 51 байр урьдчилгаа төлбөр хүлээгдэж байна.',
-  },
-  {
-    _id: 'contract-010',
-    unit: '',
-    number: undefined,
-    currency: undefined,
-    date: undefined,
-    amount: 37000000,
-    amountType: undefined,
-    status: ContractStatus.COMPLETED,
-    startDate: undefined,
-    endDate: undefined,
-    isLifeTime: undefined,
-    party: { type: ContractPartyType.CUSTOMER, id: '' },
-    paymentPlan: undefined,
-    user: undefined,
-    description: 'Penthouse байрны захиалгын гэрээ.',
-  },
-  {
-    _id: 'contract-016',
-    unit: '',
-    number: undefined,
-    currency: undefined,
-    date: undefined,
-    amount: 7740000,
-    amountType: undefined,
-    status: ContractStatus.COMPLETED,
-    startDate: undefined,
-    endDate: undefined,
-    isLifeTime: undefined,
-    party: { type: ContractPartyType.CUSTOMER, id: '' },
-    paymentPlan: undefined,
-    user: undefined,
-    description: 'Захиалсан гэрээ, картыг боловсруулж байна.',
-  },
-  {
-    _id: 'contract-020',
-    unit: '',
-    number: undefined,
-    currency: undefined,
-    date: undefined,
-    amount: 8580000,
-    amountType: undefined,
-    status: ContractStatus.COMPLETED,
-    startDate: undefined,
-    endDate: undefined,
-    isLifeTime: undefined,
-    party: { type: ContractPartyType.CUSTOMER, id: '' },
-    paymentPlan: undefined,
-    user: undefined,
-    description: 'C блок гэрээ хүлээгдэж байна.',
-  },
-];
-
-const mockContractsCancelled: IContractWithDescription[] = [
-  {
-    _id: 'contract-004',
-    unit: '',
-    number: undefined,
-    currency: undefined,
-    date: undefined,
-    amount: 7650000,
-    amountType: undefined,
-    status: ContractStatus.CANCELLED,
-    startDate: undefined,
-    endDate: undefined,
-    isLifeTime: undefined,
-    party: { type: ContractPartyType.CUSTOMER, id: '' },
-    paymentPlan: undefined,
-    user: undefined,
-    description: 'A блокын 15 дугаар байрны гэрээ дуусгавар болсон.',
-  },
-  {
-    _id: 'contract-006',
-    unit: '',
-    number: undefined,
-    currency: undefined,
-    date: undefined,
-    amount: 8900000,
-    amountType: undefined,
-    status: ContractStatus.CANCELLED,
-    startDate: undefined,
-    endDate: undefined,
-    isLifeTime: undefined,
-    party: { type: ContractPartyType.CUSTOMER, id: '' },
-    paymentPlan: undefined,
-    user: undefined,
-    description: 'Гэрээ цуцлагдсан.',
-  },
-  {
-    _id: 'contract-012',
-    unit: '',
-    number: undefined,
-    currency: undefined,
-    date: undefined,
-    amount: 19800000,
-    amountType: undefined,
-    status: ContractStatus.CANCELLED,
-    startDate: undefined,
-    endDate: undefined,
-    isLifeTime: undefined,
-    party: { type: ContractPartyType.CUSTOMER, id: '' },
-    paymentPlan: undefined,
-    user: undefined,
-    description: 'L блокын шар байрны гэрээ дууссан.',
-  },
-  {
-    _id: 'contract-013',
-    unit: '',
-    number: undefined,
-    currency: undefined,
-    date: undefined,
-    amount: 8250000,
-    amountType: undefined,
-    status: ContractStatus.CANCELLED,
-    startDate: undefined,
-    endDate: undefined,
-    isLifeTime: undefined,
-    party: { type: ContractPartyType.CUSTOMER, id: '' },
-    paymentPlan: undefined,
-    user: undefined,
-    description: 'Гэрээ хаагдсан - өөр байранд шилжсэн.',
-  },
-  {
-    _id: 'contract-017',
-    unit: '',
-    number: undefined,
-    currency: undefined,
-    date: undefined,
-    amount: 13600000,
-    amountType: undefined,
-    status: ContractStatus.CANCELLED,
-    startDate: undefined,
-    endDate: undefined,
-    isLifeTime: undefined,
-    party: { type: ContractPartyType.CUSTOMER, id: '' },
-    paymentPlan: undefined,
-    user: undefined,
-    description: 'A блокын 26 тоот гэрээ худалдааны хугацаанд дууссан.',
-  },
-  {
-    _id: 'contract-019',
-    unit: '',
-    number: undefined,
-    currency: undefined,
-    date: undefined,
-    amount: 18200000,
-    amountType: undefined,
-    status: ContractStatus.CANCELLED,
-    startDate: undefined,
-    endDate: undefined,
-    isLifeTime: undefined,
-    party: { type: ContractPartyType.CUSTOMER, id: '' },
-    paymentPlan: undefined,
-    user: undefined,
-    description: 'Б блокын гэрээ алдагдсан (төлбөр төлөгдөөгүй).',
-  },
-];
-
-const mockContracts: IContractWithDescription[] = [
-  ...mockContractsDraft,
-  ...mockContractsSigned,
-  ...mockContractsCompleted,
-  ...mockContractsCancelled,
-];
+const buildContractToColumn =
+  (statuses: IBlockContractStatus[]) =>
+  (contractStatus: ContractStatus | undefined): string => {
+    const target = contractStatus ?? ContractStatus.DRAFT;
+    const inType = statuses
+      .filter((s) => s.type === target)
+      .sort((a, b) => (a.order || 0) - (b.order || 0));
+    if (inType[0]) return inType[0]._id;
+    const fallback = sortStatuses(statuses)[0];
+    return fallback?._id || '';
+  };
 
 function transformContractsToBoardItems(
   contracts: IContractWithDescription[],
+  contractToColumn: (status: ContractStatus | undefined) => string,
 ): BoardItemProps[] {
   return contracts.map((contract) => ({
     id: contract._id,
-    column: mapContractStatusToColumn(contract.status),
+    column: contractToColumn(contract.status),
     sort: contract.date || new Date().toISOString(),
   }));
 }
 
 export const ContractsBoard = () => {
+  const { projectId: projectIdParam, id } = useParams<{
+    projectId?: string;
+    id?: string;
+  }>();
+  const projectId = projectIdParam || id || '';
+  const { statuses, loading: statusLoading } = useBlockContractStatusesByType({
+    projectId,
+  });
+  const { contracts, loading: contractsLoading } = useContracts();
+
+  if (!projectId) {
+    return (
+      <div className="flex items-center justify-center h-96 text-muted-foreground">
+        Select a project to view contract pipeline.
+      </div>
+    );
+  }
+
+  if (statusLoading || contractsLoading) return <Spinner />;
+
+  const columns = sortStatuses(statuses || []).map((status) => ({
+    id: status._id,
+    name: status.name,
+    color: status.color || '#A0A0A0',
+  }));
+
+  if (columns.length === 0) {
+    return (
+      <div className="flex items-center justify-center h-96 text-muted-foreground">
+        No contract statuses configured for this project.
+      </div>
+    );
+  }
+
+  return (
+    <ContractsBoardInner
+      columns={columns}
+      contracts={contracts || []}
+      statuses={statuses || []}
+    />
+  );
+};
+
+const ContractsBoardInner = ({
+  columns,
+  contracts: fetchedContracts,
+  statuses,
+}: {
+  columns: { id: string; name: string; color: string }[];
+  contracts: IContractWithDescription[];
+  statuses: IBlockContractStatus[];
+}) => {
   const allContractsMap = useAtomValue(allContractsMapState);
   const [contracts, setContracts] = useAtom(fetchedContractsState);
   const setContractCountByBoard = useSetAtom(contractCountByBoardAtom);
   const setAllContractsMap = useSetAtom(allContractsMapState);
+  const { updateContractStatus } = useUpdateContractStatus();
+
+  const contractToColumn = useMemo(
+    () => buildContractToColumn(statuses),
+    [statuses],
+  );
 
   useEffect(() => {
-    const boardItems = transformContractsToBoardItems(mockContracts);
+    const boardItems = transformContractsToBoardItems(
+      fetchedContracts,
+      contractToColumn,
+    );
     setContracts(boardItems);
 
     const contractsMap: Record<string, IContractWithDescription> = {};
-    mockContracts.forEach((contract) => {
+    fetchedContracts.forEach((contract) => {
       contractsMap[contract._id] = contract;
     });
     setAllContractsMap(contractsMap);
@@ -480,7 +145,13 @@ export const ContractsBoard = () => {
       countByBoard[item.column] = (countByBoard[item.column] || 0) + 1;
     });
     setContractCountByBoard(countByBoard);
-  }, [setContracts, setAllContractsMap, setContractCountByBoard]);
+  }, [
+    fetchedContracts,
+    contractToColumn,
+    setContracts,
+    setAllContractsMap,
+    setContractCountByBoard,
+  ]);
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
@@ -488,38 +159,30 @@ export const ContractsBoard = () => {
       return;
     }
     const activeItem = allContractsMap[active.id as string];
+    if (!activeItem) return;
+
     const overItem = allContractsMap[over.id as string];
-    const overColumn = overItem?.status
-      ? mapContractStatusToColumn(overItem.status)
+    const overColumn = overItem
+      ? contractToColumn(overItem.status)
       : columns.find((col) => col.id === over.id)?.id || columns[0]?.id;
 
-    if (
-      !activeItem ||
-      mapContractStatusToColumn(activeItem.status) === overColumn
-    ) {
+    if (!overColumn || contractToColumn(activeItem.status) === overColumn) {
       return;
     }
 
-    const newStatus = mapColumnToContractStatus(overColumn);
+    const overStatus = statuses.find((s) => s._id === overColumn);
+    const newStatus = overStatus
+      ? STATUS_TYPE_TO_ENUM[overStatus.type] || ContractStatus.DRAFT
+      : ContractStatus.DRAFT;
 
-    // TODO: Connect to backend when ready
-    // updateContract(activeItem._id, {
-    //   unit: activeItem.unit,
-    //   number: activeItem.number,
-    //   currency: activeItem.currency,
-    //   date: activeItem.date,
-    //   amount: activeItem.amount,
-    //   amountType: activeItem.amountType,
-    //   status: newStatus,
-    //   startDate: activeItem.startDate,
-    //   endDate: activeItem.endDate,
-    //   isLifeTime: activeItem.isLifeTime,
-    //   party: activeItem.party,
-    //   paymentPlan: activeItem.paymentPlan,
-    //   user: activeItem.user,
-    // });
+    updateContractStatus(activeItem._id, newStatus).catch((error: any) => {
+      toast({
+        title: 'Failed to update contract status',
+        description: error?.message || 'Please try again',
+        variant: 'destructive',
+      });
+    });
 
-    // Update contract in map with new status
     setAllContractsMap((prev) => ({
       ...prev,
       [activeItem._id]: {
@@ -541,7 +204,7 @@ export const ContractsBoard = () => {
       }),
     );
 
-    const previousColumn = mapContractStatusToColumn(activeItem.status);
+    const previousColumn = contractToColumn(activeItem.status);
     setContractCountByBoard((prev) => ({
       ...prev,
       [previousColumn]: (prev[previousColumn] || 1) - 1,
@@ -586,6 +249,10 @@ export const ContractsBoardCards = ({
     <>
       <Board.Header>
         <h4 className="capitalize flex items-center gap-1 pl-1">
+          <span
+            className="rounded-full size-2"
+            style={{ backgroundColor: (column as any).color || '#A0A0A0' }}
+          />
           {column.name}
           <span className="text-accent-foreground font-medium pl-1">
             {contractCountByBoard[column.id] || 0}

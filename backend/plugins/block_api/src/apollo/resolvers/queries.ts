@@ -15,6 +15,7 @@ import { unitTypesQueries } from '@/unit/graphql/resolvers/queries/unitType';
 import { opptyQueries } from '@/oppty/graphql/queries/oppty';
 import { blockNoteQueries } from '@/note/graphql/resolvers/queries/note';
 import { statusQueries } from '@/oppty/graphql/queries/status';
+import { contractStatusQueries } from '@/contract/graphql/resolvers/queries/status';
 
 export const queries = {
   ...blockNoteQueries,
@@ -33,5 +34,6 @@ export const queries = {
   ...invoiceQueries,
   ...unitTypesQueries,
   ...opptyQueries,
-  ...statusQueries
+  ...statusQueries,
+  ...contractStatusQueries,
 };

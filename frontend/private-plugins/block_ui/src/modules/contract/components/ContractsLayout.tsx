@@ -2,6 +2,8 @@ import { IconContract, IconLock, IconSparkles } from '@tabler/icons-react';
 import { Breadcrumb, Button, Empty, PageContainer } from 'erxes-ui';
 import { Link, useLocation } from 'react-router-dom';
 import { PageHeader } from 'ui-modules';
+import { ContractAddSheet } from './ContractAdd';
+import { ContractDetailSheet } from './ContractDetailSheet';
 
 export const ContractsLayout = ({
   children,
@@ -14,6 +16,7 @@ export const ContractsLayout = ({
     <PageContainer>
       <ContractsHeader />
       {children}
+      <ContractDetailSheet />
       {!(isContracts && process.env.NODE_ENV === 'development') && (
         <div className="blk:backdrop-blur-lg absolute inset-0 h-full w-full z-10 flex items-center justify-center">
           <Empty>
@@ -50,6 +53,9 @@ export const ContractsHeader = () => {
           </Breadcrumb.List>
         </Breadcrumb>
       </PageHeader.Start>
+      <PageHeader.End>
+        <ContractAddSheet />
+      </PageHeader.End>
     </PageHeader>
   );
 };
