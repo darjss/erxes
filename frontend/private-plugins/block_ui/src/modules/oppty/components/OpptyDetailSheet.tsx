@@ -22,18 +22,18 @@ import { format } from 'date-fns';
 import { lazy, Suspense } from 'react';
 import { OpptyEditSheet } from './OpptyEdit';
 import { OpptyDelete } from './OpptyDelete';
-
-const OpptyActivityLog = lazy(() =>
-  import('./OpptyActivityLog').then((m) => ({
-    default: m.OpptyActivityLog,
-  })),
-);
 import { IOppty } from '../types/opptyTypes';
 import { ValueOf } from 'type-fest';
 import { FieldsInDetail, RelationWidgetSideTabs } from 'ui-modules';
 import { useOpptyCustomFieldEdit } from '@/oppty/hooks/useOpptyCustomFieldEdit';
 import { UNIT_AREA_TYPE, UNIT_MARKET_TYPE } from '@/unit/constants/unit';
 import { useUnitTypes } from '@/unit/hooks/useUnitTypes';
+
+const OpptyActivityLog = lazy(() =>
+  import('./OpptyActivityLog').then((m) => ({
+    default: m.OpptyActivityLog,
+  })),
+);
 
 export const OPPTY_TABS = {
   GENERAL: 'general',
@@ -122,6 +122,7 @@ export const OpptyDetailSheet = () => {
             contentId={activeOpptyId || ''}
             contentType="block:oppty"
             customerId={oppty?.customerId || undefined}
+            access={{ customer: 'read' }}
             hookOptions={{
               hiddenPlugins: ['sales', 'operation'],
               hiddenModules: ['oppty', 'company', 'ticket'],
