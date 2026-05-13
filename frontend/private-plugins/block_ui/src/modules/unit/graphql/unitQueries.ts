@@ -67,6 +67,13 @@ export const BLOCK_GET_UNIT = gql`
         _id
         name
       }
+      activeContract {
+        _id
+        status
+        statusType
+        statusLabel
+        statusColor
+      }
     }
   }
 `;

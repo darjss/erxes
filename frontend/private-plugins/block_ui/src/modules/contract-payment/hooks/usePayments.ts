@@ -88,15 +88,69 @@ export const useProjectPayments = (projectId?: string, paid?: boolean) => {
   };
 };
 
+type ContractPaymentsResponse = {
+  blockGetContractPayments: {
+    list: IContractPayment[];
+    pageInfo: {
+      hasNextPage: boolean;
+      hasPreviousPage: boolean;
+      startCursor: string | null;
+      endCursor: string | null;
+    };
+    totalCount: number;
+  };
+};
+
 export const useContractPayments = (contractId?: string) => {
-  const { data, loading, refetch } = useQuery<{
-    blockGetContractPayments: IContractPayment[];
-  }>(GET_CONTRACT_PAYMENTS, {
-    variables: { contractId },
-    skip: !contractId,
-  });
+  const { data, loading, refetch, fetchMore } =
+    useQuery<ContractPaymentsResponse>(GET_CONTRACT_PAYMENTS, {
+      variables: { contractId, limit: PAYMENTS_PER_PAGE },
+      skip: !contractId,
+      notifyOnNetworkStatusChange: true,
+    });
+
+  const list = data?.blockGetContractPayments?.list || [];
+  const pageInfo = data?.blockGetContractPayments?.pageInfo;
+  const totalCount = data?.blockGetContractPayments?.totalCount || 0;
+
+  const handleFetchMore = ({
+    direction,
+  }: {
+    direction: EnumCursorDirection;
+  }) => {
+    if (!validateFetchMore({ direction, pageInfo })) {
+      return;
+    }
+
+    fetchMore({
+      variables: {
+        contractId,
+        cursor:
+          direction === EnumCursorDirection.FORWARD
+            ? pageInfo?.endCursor
+            : pageInfo?.startCursor,
+        direction:
+          direction === EnumCursorDirection.FORWARD ? 'forward' : 'backward',
+        limit: PAYMENTS_PER_PAGE,
+      },
+      updateQuery: (prev, { fetchMoreResult }) => {
+        if (!fetchMoreResult) return prev;
+        return Object.assign({}, prev, {
+          blockGetContractPayments: mergeCursorData<IContractPayment>({
+            direction,
+            fetchMoreResult: fetchMoreResult.blockGetContractPayments as any,
+            prevResult: prev.blockGetContractPayments as any,
+          }) as any,
+        });
+      },
+    });
+  };
+
   return {
-    payments: data?.blockGetContractPayments || [],
+    payments: list,
+    pageInfo,
+    totalCount,
+    handleFetchMore,
     loading,
     refetch,
   };

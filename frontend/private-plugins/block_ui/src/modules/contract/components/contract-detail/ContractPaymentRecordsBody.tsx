@@ -7,7 +7,9 @@ export const ContractPaymentRecordsBody = ({
 }: {
   contract: IContract;
 }) => {
-  const { payments, loading } = useContractPayments(contract._id);
+  const { payments, loading, pageInfo, handleFetchMore } = useContractPayments(
+    contract._id,
+  );
 
   if (!loading && payments.length === 0) {
     return (
@@ -23,6 +25,9 @@ export const ContractPaymentRecordsBody = ({
       payments={payments}
       loading={loading}
       tableId={`contract_payments_${contract._id}`}
+      pageInfo={pageInfo}
+      handleFetchMore={handleFetchMore}
+      cursorSessionKey={`contract_payments_${contract._id}`}
     />
   );
 };

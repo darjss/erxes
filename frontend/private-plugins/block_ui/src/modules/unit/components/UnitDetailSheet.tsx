@@ -11,7 +11,49 @@ import { UnitSidebar } from '@/unit/components/UnitSidebar';
 import { UnitTabs } from '@/unit/components/UnitTabs';
 import { useUnit } from '@/unit/hooks/useUnit';
 import { UnitContext } from '@/unit/context/unitContext';
-import { RelationWidgetSideTabs } from 'ui-modules';
+import { lazy, Suspense, useEffect, useState } from 'react';
+import { useAtomValue } from 'jotai';
+import { contractDetailSheetState } from '@/contract/states/contractDetailSheetState';
+
+const ContractDetailSheet = lazy(() =>
+  import('@/contract/components/ContractDetailSheet').then((m) => ({
+    default: m.ContractDetailSheet,
+  })),
+);
+
+const OpptyDetailSheet = lazy(() =>
+  import('@/oppty/components/OpptyDetailSheet').then((m) => ({
+    default: m.OpptyDetailSheet,
+  })),
+);
+
+const ContractDetailSheetMount = () => {
+  const activeContractId = useAtomValue(contractDetailSheetState);
+  const [hasOpened, setHasOpened] = useState(false);
+  useEffect(() => {
+    if (activeContractId) setHasOpened(true);
+  }, [activeContractId]);
+  if (!hasOpened) return null;
+  return (
+    <Suspense fallback={null}>
+      <ContractDetailSheet />
+    </Suspense>
+  );
+};
+
+const OpptyDetailSheetMount = () => {
+  const [activeOpptyId] = useQueryState<string>('activeOpptyId');
+  const [hasOpened, setHasOpened] = useState(false);
+  useEffect(() => {
+    if (activeOpptyId) setHasOpened(true);
+  }, [activeOpptyId]);
+  if (!hasOpened) return null;
+  return (
+    <Suspense fallback={null}>
+      <OpptyDetailSheet />
+    </Suspense>
+  );
+};
 
 export const UnitDetailSheet = () => {
   const [{ unitId }, setQueries] = useMultiQueryState<{
@@ -93,17 +135,11 @@ export const UnitDetailSheetContent = () => {
           <div className='flex-1'>
             {!!unitId && <UnitTabs />}
           </div>
-
-          <RelationWidgetSideTabs
-            contentId={unitId || ''}
-            contentType="block:unit"
-            access={{ oppty: "read" }}
-            hookOptions={{
-              hiddenPlugins: ['sales', 'frontline', 'core', 'operation'],
-            }}
-          />
         </UnitContext.Provider>
       </FocusSheet.Content>
+
+      <ContractDetailSheetMount />
+      <OpptyDetailSheetMount />
     </>
   );
 };

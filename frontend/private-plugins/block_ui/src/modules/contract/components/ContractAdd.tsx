@@ -6,12 +6,16 @@ import { ContractFormData } from '@/contract/constants/contractSchema';
 import { format } from 'date-fns';
 import { ContractFormSheet } from './ContractFormSheet';
 
-export const ContractAddSheet = () => {
+export const ContractAddSheet = ({
+  size = 'default',
+}: {
+  size?: 'default' | 'sm';
+} = {}) => {
   const [open, setOpen] = useState(false);
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <Sheet.Trigger asChild>
-        <Button>
+        <Button size={size}>
           <IconPlus />
           Add contract
         </Button>
