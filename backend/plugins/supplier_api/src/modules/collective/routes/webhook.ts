@@ -21,8 +21,8 @@ router.post('/collective', async (req: Request, res: Response) => {
     const { subdomain, payload } = req.body || {};
     const { collectiveId, products } = payload || {};
 
-    console.log('2 payload', JSON.stringify(payload))
-    console.log('2 products', JSON.stringify(products))
+    console.log('2 payload', JSON.stringify(payload));
+    console.log('2 products', JSON.stringify(products));
 
     if (!subdomain) {
       return res.status(400).json({ error: 'subdomain is required' });
@@ -43,7 +43,26 @@ router.post('/collective', async (req: Request, res: Response) => {
     const results: CollectiveProductResult[] = [];
 
     for await (const doc of products) {
-      const { _id: entityId, ...createDoc } = doc || {};
+      const {
+        _id: entityId,
+        __v,
+        createdAt,
+        updatedAt,
+        categoryId,
+        vendorId,
+        uom,
+        subUoms,
+        tokens,
+        prices,
+        isCheckRems,
+        taxRules,
+        scopeBrandIds,
+        tagIds,
+        mergedIds,
+        sameDefault,
+        sameMasks,
+        ...createDoc
+      } = doc || {};
 
       try {
         const created = await sendTRPCMessage({
@@ -103,8 +122,8 @@ router.post('/collective-push', async (req: Request, res: Response) => {
     const { subdomain, payload } = req.body || {};
     const { collectiveId, targetSubdomain, posToken } = payload || {};
 
-    console.log('payload', JSON.stringify(payload))
-    console.log('subdomain', subdomain)
+    console.log('payload', JSON.stringify(payload));
+    console.log('subdomain', subdomain);
 
     if (!subdomain) {
       return res.status(400).json({ error: 'subdomain is required' });
@@ -134,7 +153,7 @@ router.post('/collective-push', async (req: Request, res: Response) => {
       defaultValue: [],
     })) as Record<string, any>[];
 
-    console.log('products', JSON.stringify(products))
+    console.log('products', JSON.stringify(products));
 
     if (!products.length) {
       return res.status(200).json({
@@ -161,7 +180,7 @@ router.post('/collective-push', async (req: Request, res: Response) => {
 
     const endpoint = `${baseUrl}/pl:supplier/webhook/mushop/collective`;
 
-    console.log('endpoint', endpoint)
+    console.log('endpoint', endpoint);
 
     const body = JSON.stringify({
       subdomain: targetSubdomain,
