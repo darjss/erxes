@@ -14,7 +14,6 @@ import { DEFAULT_STATUS_TYPES } from '@/oppty/constants';
 import {
   ContractAmountType,
   ContractPartyType,
-  ContractStatus,
 } from '@/contract/@types/contract';
 import { BlockProjectPaymentPlanType } from '@/project/@types/payment';
 
@@ -130,6 +129,11 @@ export const loadOpptyClass = (
           }
         }
 
+        const reservedStage = await models.ContractStatus.findOne({
+          projectId: updatedOppty.projectId,
+          type: 'reserved',
+        }).sort({ order: 1 });
+
         const createdContract = await models.Contract.create({
           number: `CT-${String(nextNumber).padStart(5, '0')}`,
           unit: mainUnitId,
@@ -137,11 +141,12 @@ export const loadOpptyClass = (
           date: new Date(),
           amount: 0,
           amountType: ContractAmountType.PER_UNIT,
-          status: ContractStatus.RESERVED,
+          status: reservedStage?._id,
           party: customerId
             ? { type: ContractPartyType.CUSTOMER, id: customerId }
             : undefined,
           paymentPlan: { type: BlockProjectPaymentPlanType.SALE },
+          user: updatedOppty.assignedUserId,
         });
 
         if (createdContract) {

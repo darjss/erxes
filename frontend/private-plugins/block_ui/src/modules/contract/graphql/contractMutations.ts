@@ -38,10 +38,7 @@ export const CREATE_CONTRACT = gql`
 `;
 
 export const UPDATE_CONTRACT_STATUS = gql`
-  mutation BlockUpdateContractStatus(
-    $id: String!
-    $status: BlockContractStatus!
-  ) {
+  mutation BlockUpdateContractStatus($id: String!, $status: String!) {
     blockUpdateContractStatus(_id: $id, status: $status) {
       _id
       status

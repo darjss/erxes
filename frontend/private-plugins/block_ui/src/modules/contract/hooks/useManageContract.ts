@@ -4,7 +4,7 @@ import {
   UPDATE_CONTRACT,
   UPDATE_CONTRACT_STATUS,
 } from '../graphql/contractMutations';
-import { ContractStatus, IContractInput } from '../types/contractTypes';
+import { IContractInput } from '../types/contractTypes';
 import { GET_CONTRACTS } from '../graphql/contractQueries';
 import { useQueryState } from 'erxes-ui';
 
@@ -14,11 +14,7 @@ export function useCreateContract() {
     refetchQueries: [{ query: GET_CONTRACTS, variables: { unit: unitId } }],
   });
 
-  return {
-    createContract,
-    loading,
-    error,
-  };
+  return { createContract, loading, error };
 }
 
 export function useUpdateContractStatus() {
@@ -29,10 +25,8 @@ export function useUpdateContractStatus() {
     },
   );
 
-  const handleUpdateStatus = async (id: string, status: ContractStatus) => {
-    const { data } = await updateStatus({
-      variables: { id, status },
-    });
+  const handleUpdateStatus = async (id: string, status: string) => {
+    const { data } = await updateStatus({ variables: { id, status } });
     return data?.blockUpdateContractStatus;
   };
 
@@ -51,9 +45,5 @@ export function useUpdateContract() {
     return data?.blockUpdateContract;
   };
 
-  return {
-    updateContract: handleUpdate,
-    loading,
-    error,
-  };
+  return { updateContract: handleUpdate, loading, error };
 }

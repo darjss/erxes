@@ -18,13 +18,8 @@ export interface IContractParty {
   id: string;
 }
 
-export enum ContractStatus {
-  RESERVED = 'reserved',
-  DRAFT = 'draft',
-  SIGNED = 'signed',
-  CANCELLED = 'cancelled',
-  EXPIRED = 'expired',
-}
+// Status is now an ObjectId reference to a ContractStatus document.
+// Stage semantics (reserved/draft/signed/cancelled/lost) live on ContractStatus.type.
 
 export interface IContractPaymentPlan {
   type: BlockProjectPaymentPlanType;
@@ -49,7 +44,7 @@ export interface IContract {
   amount: number;
   amountType: ContractAmountType;
   currency: string;
-  status: ContractStatus;
+  status: string;
   startDate: Date;
   endDate: Date;
   isLifeTime: boolean;

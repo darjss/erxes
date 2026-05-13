@@ -1,5 +1,5 @@
 import { Model } from 'mongoose';
-import { IContractDocument, ContractStatus } from '@/contract/@types/contract';
+import { IContractDocument } from '@/contract/@types/contract';
 
 import { IContract } from '@/contract/@types/contract';
 import { IModels } from '~/connectionResolvers';
@@ -12,8 +12,8 @@ export interface IContractModel extends Model<IContractDocument> {
   updateContract(_id: string, input: IContract): Promise<IContractDocument>;
   updateContractStatus(
     _id: string,
-    status: ContractStatus,
-  ): Promise<IContractDocument>;
+    status: string,
+  ): Promise<IContractDocument | null>;
   getContract(_id: string): Promise<IContractDocument | null>;
   getContracts(): Promise<IContractDocument[]>;
   deleteContract(_id: string): Promise<IContractDocument | null>;
@@ -27,11 +27,34 @@ export const loadContractClass = (
 
   class Contract {
     public static async createContract(input: IContract) {
-      return models.Contract.create(input);
+      const created = await models.Contract.create(input);
+      if (created) {
+        await models.ContractPayment.regenerateForContract(
+          created._id.toString(),
+        );
+      }
+      return created;
     }
 
     public static async updateContract(_id: string, input: IContract) {
       const prev = await models.Contract.findOne({ _id });
+      if (!prev) {
+        throw new Error('Contract not found');
+      }
+
+      const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
+      const withinRevertWindow =
+        prev.updatedAt && prev.updatedAt > fiveMinutesAgo;
+
+      const currentStage = prev.status
+        ? await models.ContractStatus.findOne({ _id: prev.status })
+        : null;
+      if (
+        currentStage?.type === 'signed' &&
+        !withinRevertWindow
+      ) {
+        throw new Error('Signed contracts cannot be edited');
+      }
 
       const updated = await models.Contract.findOneAndUpdate({ _id }, input, {
         new: true,
@@ -45,36 +68,42 @@ export const loadContractClass = (
         );
       }
 
+      if (updated) {
+        await models.ContractPayment.regenerateForContract(_id);
+      }
+
       return updated;
     }
 
-    public static async updateContractStatus(
-      _id: string,
-      status: ContractStatus,
-    ) {
+    public static async updateContractStatus(_id: string, status: string) {
       const contract = await models.Contract.findOne({ _id });
-
       if (!contract) {
         throw new Error('Contract not found');
+      }
+
+      const newStage = await models.ContractStatus.findOne({ _id: status });
+      if (!newStage) {
+        throw new Error('Contract stage not found');
       }
 
       const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
       const withinRevertWindow =
         contract.updatedAt && contract.updatedAt > fiveMinutesAgo;
 
+      const prevStage = contract.status
+        ? await models.ContractStatus.findOne({ _id: contract.status })
+        : null;
+
       if (
-        contract.status === ContractStatus.CANCELLED &&
+        prevStage?.type === 'cancelled' &&
+        newStage.type !== 'cancelled' &&
         !withinRevertWindow
       ) {
         throw new Error('Cannot change status of a cancelled contract');
       }
 
-      if (
-        contract.status === ContractStatus.SIGNED &&
-        status === ContractStatus.DRAFT &&
-        !withinRevertWindow
-      ) {
-        throw new Error('Cannot revert a signed contract to draft');
+      if (prevStage?.type === 'signed' && !withinRevertWindow) {
+        throw new Error('Signed contracts cannot change status');
       }
 
       const prev = contract.toObject();

@@ -19,9 +19,15 @@ import {
   useQueryState,
 } from 'erxes-ui';
 import { format } from 'date-fns';
-import { OpptyActivityLog } from './OpptyActivityLog';
+import { lazy, Suspense } from 'react';
 import { OpptyEditSheet } from './OpptyEdit';
 import { OpptyDelete } from './OpptyDelete';
+
+const OpptyActivityLog = lazy(() =>
+  import('./OpptyActivityLog').then((m) => ({
+    default: m.OpptyActivityLog,
+  })),
+);
 import { IOppty } from '../types/opptyTypes';
 import { ValueOf } from 'type-fest';
 import { FieldsInDetail, RelationWidgetSideTabs } from 'ui-modules';
@@ -107,7 +113,9 @@ export const OpptyDetailSheet = () => {
           )}
           {activeTab === 'activity-log' && activeOpptyId && (
             <ScrollArea className="flex-auto h-full">
-              <OpptyActivityLog opptyId={activeOpptyId} />
+              <Suspense fallback={<Spinner containerClassName="py-8" />}>
+                <OpptyActivityLog opptyId={activeOpptyId} />
+              </Suspense>
             </ScrollArea>
           )}
           <RelationWidgetSideTabs

@@ -98,7 +98,14 @@ export const ContractUnitSelector = ({
             <Form.Label>Unit</Form.Label>
             <Select
               value={field.value || ''}
-              onValueChange={field.onChange}
+              onValueChange={(unitId) => {
+                field.onChange(unitId);
+                const selected = units.find((u) => u._id === unitId);
+                if (selected?.unitType?.price != null) {
+                  setValue('amount', Number(selected.unitType.price));
+                  setValue('amountType', 'perUnit');
+                }
+              }}
               disabled={!zoningId}
             >
               <Form.Control>

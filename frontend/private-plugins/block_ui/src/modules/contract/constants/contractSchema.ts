@@ -8,6 +8,7 @@ export const contractSchema = z.object({
   amount: z.number().min(0, 'Amount must be positive').optional(),
   amountType: z.enum(['perSize', 'perUnit']).optional(),
   status: z.string().optional(),
+  user: z.string().optional(),
   startDate: z.string().optional(),
   endDate: z.string().optional(),
   isLifeTime: z.boolean().optional(),

@@ -6,14 +6,6 @@ import { ContractFormData } from '@/contract/constants/contractSchema';
 import { format } from 'date-fns';
 import { ContractFormSheet } from './ContractFormSheet';
 
-const STATUS_TYPE_TO_CONTRACT_STATUS: Record<string, string> = {
-  reserved: 'reserved',
-  draft: 'draft',
-  signed: 'signed',
-  cancelled: 'cancelled',
-  lost: 'cancelled',
-};
-
 export const ContractAddSheet = () => {
   const [open, setOpen] = useState(false);
   return (
@@ -40,9 +32,15 @@ export const ContractAddForm = ({ onClose }: { onClose: () => void }) => {
   const { createContract, loading } = useCreateContract();
 
   const handleSubmit = (data: ContractFormData) => {
-    const mappedStatus = data.status
-      ? STATUS_TYPE_TO_CONTRACT_STATUS[data.status] || data.status
-      : undefined;
+    const paymentPlan = data.paymentPlan?.type ? data.paymentPlan : undefined;
+    const party =
+      data.party && data.party.id
+        ? { type: data.party.type, id: data.party.id }
+        : undefined;
+    const amount =
+      typeof data.amount === 'number' && !isNaN(data.amount)
+        ? Math.round(data.amount)
+        : undefined;
 
     createContract({
       variables: {
@@ -53,16 +51,15 @@ export const ContractAddForm = ({ onClose }: { onClose: () => void }) => {
             `${format(new Date(), 'yyMMddHHmmss').replace(/^0+/g, '')}`,
           currency: data.currency,
           date: data.date || new Date().toISOString(),
-          amount: data.amount,
+          amount,
           amountType: data.amountType,
-          status: mappedStatus,
+          status: data.status || undefined,
           startDate: data.startDate,
           endDate: data.endDate,
           isLifeTime: data.isLifeTime,
-          party: data.party
-            ? { type: data.party.type, id: data.party.id }
-            : undefined,
-          paymentPlan: data.paymentPlan,
+          party,
+          paymentPlan,
+          user: data.user || undefined,
         },
       },
       refetchQueries: ['BlockGetContracts'],
@@ -87,7 +84,6 @@ export const ContractAddForm = ({ onClose }: { onClose: () => void }) => {
     <ContractFormSheet
       defaultValues={{
         unit: unitId || '',
-        status: 'draft',
         party: { type: 'customer', id: '' },
         currency: CurrencyCode.MNT,
       }}

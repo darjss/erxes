@@ -4,38 +4,36 @@ import {
   ActivityLogs,
   TActivityLog,
 } from 'ui-modules';
-import { ContractStatus } from '@/contract/types/contractTypes';
 import { useBlockContractStatusesByType } from '@/contract-status/hooks/useGetBlockContractStatuses';
 import { useParams } from 'react-router-dom';
 
-const CONTRACT_STATUS_VARIANT: Record<
+const STATUS_TYPE_VARIANT: Record<
   string,
   'default' | 'success' | 'warning' | 'destructive' | 'info' | 'secondary'
 > = {
-  [ContractStatus.RESERVED]: 'warning',
-  [ContractStatus.DRAFT]: 'secondary',
-  [ContractStatus.SIGNED]: 'success',
-  [ContractStatus.COMPLETED]: 'success',
-  [ContractStatus.CANCELLED]: 'destructive',
+  reserved: 'warning',
+  draft: 'secondary',
+  signed: 'success',
+  cancelled: 'destructive',
+  lost: 'destructive',
 };
 
-const StageOrEnumBadge = ({
+const StageBadge = ({
   value,
   stages,
 }: {
   value: string;
-  stages: Array<{ type: string; name: string; color?: string; order?: number }>;
+  stages: Array<{ _id: string; type: string; name: string }>;
 }) => {
-  const match = stages
-    .filter((s) => s.type === value)
-    .sort((a, b) => (a.order || 0) - (b.order || 0))[0];
-
-  const variant = CONTRACT_STATUS_VARIANT[value] || 'default';
-
+  const match = stages.find((s) => s._id === value);
   if (match) {
-    return <Badge variant={variant}>{match.name}</Badge>;
+    return (
+      <Badge variant={STATUS_TYPE_VARIANT[match.type] || 'default'}>
+        {match.name}
+      </Badge>
+    );
   }
-  return <Badge variant={variant}>{value}</Badge>;
+  return <Badge variant="default">{value}</Badge>;
 };
 
 const StatusActivityRow = ({ activity }: { activity: TActivityLog }) => {
@@ -60,13 +58,13 @@ const StatusActivityRow = ({ activity }: { activity: TActivityLog }) => {
         {prev && (
           <>
             <span className="text-muted-foreground">from</span>
-            <StageOrEnumBadge value={prev} stages={statuses} />
+            <StageBadge value={prev} stages={statuses} />
           </>
         )}
         {current && (
           <>
             <span className="text-muted-foreground">to</span>
-            <StageOrEnumBadge value={current} stages={statuses} />
+            <StageBadge value={current} stages={statuses} />
           </>
         )}
       </div>

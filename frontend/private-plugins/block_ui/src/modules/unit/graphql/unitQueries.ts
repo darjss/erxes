@@ -10,8 +10,16 @@ export const BLOCK_GET_UNITS = gql`
         _id
         name
         size
+        price
       }
       status
+      activeContract {
+        _id
+        status
+        statusType
+        statusLabel
+        statusColor
+      }
     }
   }
 `;

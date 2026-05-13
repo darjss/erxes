@@ -17,6 +17,11 @@ import {
   loadContractClass,
 } from '@/contract/db/models/Contract';
 import { IOfferModel, loadOfferClass } from '@/contract/db/models/Offer';
+import { IContractPaymentDocument } from '@/contract/@types/payment';
+import {
+  IContractPaymentModel,
+  loadContractPaymentClass,
+} from '@/contract/db/models/Payment';
 import { IContractStatusDocument } from '@/contract/@types/status';
 import {
   IContractStatusModel,
@@ -82,6 +87,7 @@ export interface IModels {
   Oppty: IOpptyModel;
   OpptyStatus: IOpptyStatusModel;
   ContractStatus: IContractStatusModel;
+  ContractPayment: IContractPaymentModel;
 }
 
 export interface IContext extends IMainContext {
@@ -148,6 +154,11 @@ export const loadClasses = (
       blockEventHandlers?.('block', 'contracts') as any,
     ),
   );
+
+  models.ContractPayment = db.model<
+    IContractPaymentDocument,
+    IContractPaymentModel
+  >('block_contract_payments', loadContractPaymentClass(models));
 
   models.ProjectMember = db.model<IProjectMemberDocument, IProjectMemberModel>(
     'block_project_members',

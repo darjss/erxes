@@ -5,6 +5,14 @@ export const types = `
     brandName: String
   }
 
+  type BlockUnitActiveContract {
+    _id: String
+    status: String
+    statusType: String
+    statusLabel: String
+    statusColor: String
+  }
+
   type BlockUnit {
     _id: String
     building: String
@@ -20,6 +28,7 @@ export const types = `
 
     type: String
     unitType: UnitType
+    activeContract: BlockUnitActiveContract
     blockSubdomain: String
     blockEntityId: String
     agencySubdomain: String

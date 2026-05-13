@@ -17,6 +17,7 @@ const CONTRACT_ACTIVITY_FIELDS = [
   { field: 'party', label: 'Party' },
   { field: 'unit', label: 'Unit' },
   { field: 'paymentPlan', label: 'Payment Plan' },
+  { field: 'user', label: 'Assigned User' },
 ] as const;
 
 const buildContractTarget = (contract: any) => ({

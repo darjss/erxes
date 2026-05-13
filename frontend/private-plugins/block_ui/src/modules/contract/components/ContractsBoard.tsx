@@ -3,9 +3,9 @@ import {
   BoardColumnProps,
   BoardItemProps,
   Spinner,
+  toast,
 } from 'erxes-ui';
 import { useParams } from 'react-router-dom';
-import { ContractStatus } from '../types/contractTypes';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import type { DragEndEvent } from '@dnd-kit/core';
 import {
@@ -14,21 +14,12 @@ import {
 } from '../states/allContractsMapState';
 import { fetchedContractsState } from '../states/fetchedContractsState';
 import { contractCountByBoardAtom } from '../states/contractCountByBoardAtom';
-import { useEffect, useMemo } from 'react';
+import { useEffect } from 'react';
 import { ContractsBoardCard } from './ContractsBoardCard';
 import { useBlockContractStatusesByType } from '@/contract-status/hooks/useGetBlockContractStatuses';
 import { useContracts } from '../hooks/useContracts';
 import { useUpdateContractStatus } from '../hooks/useManageContract';
 import { IBlockContractStatus } from '@/contract-status/types';
-import { toast } from 'erxes-ui';
-
-const STATUS_TYPE_TO_ENUM: Record<string, ContractStatus> = {
-  reserved: ContractStatus.RESERVED,
-  draft: ContractStatus.DRAFT,
-  signed: ContractStatus.SIGNED,
-  cancelled: ContractStatus.CANCELLED,
-  lost: ContractStatus.CANCELLED,
-};
 
 const TYPE_ORDER = ['reserved', 'draft', 'signed', 'lost', 'cancelled'];
 
@@ -40,25 +31,12 @@ const sortStatuses = (statuses: IBlockContractStatus[]) =>
     return (a.order || 0) - (b.order || 0);
   });
 
-const buildContractToColumn =
-  (statuses: IBlockContractStatus[]) =>
-  (contractStatus: ContractStatus | undefined): string => {
-    const target = contractStatus ?? ContractStatus.DRAFT;
-    const inType = statuses
-      .filter((s) => s.type === target)
-      .sort((a, b) => (a.order || 0) - (b.order || 0));
-    if (inType[0]) return inType[0]._id;
-    const fallback = sortStatuses(statuses)[0];
-    return fallback?._id || '';
-  };
-
 function transformContractsToBoardItems(
   contracts: IContractWithDescription[],
-  contractToColumn: (status: ContractStatus | undefined) => string,
 ): BoardItemProps[] {
   return contracts.map((contract) => ({
     id: contract._id,
-    column: contractToColumn(contract.status),
+    column: contract.status || '',
     sort: contract.date || new Date().toISOString(),
   }));
 }
@@ -98,23 +76,15 @@ export const ContractsBoard = () => {
     );
   }
 
-  return (
-    <ContractsBoardInner
-      columns={columns}
-      contracts={contracts || []}
-      statuses={statuses || []}
-    />
-  );
+  return <ContractsBoardInner columns={columns} contracts={contracts || []} />;
 };
 
 const ContractsBoardInner = ({
   columns,
   contracts: fetchedContracts,
-  statuses,
 }: {
   columns: { id: string; name: string; color: string }[];
   contracts: IContractWithDescription[];
-  statuses: IBlockContractStatus[];
 }) => {
   const allContractsMap = useAtomValue(allContractsMapState);
   const [contracts, setContracts] = useAtom(fetchedContractsState);
@@ -122,16 +92,8 @@ const ContractsBoardInner = ({
   const setAllContractsMap = useSetAtom(allContractsMapState);
   const { updateContractStatus } = useUpdateContractStatus();
 
-  const contractToColumn = useMemo(
-    () => buildContractToColumn(statuses),
-    [statuses],
-  );
-
   useEffect(() => {
-    const boardItems = transformContractsToBoardItems(
-      fetchedContracts,
-      contractToColumn,
-    );
+    const boardItems = transformContractsToBoardItems(fetchedContracts);
     setContracts(boardItems);
 
     const contractsMap: Record<string, IContractWithDescription> = {};
@@ -147,7 +109,6 @@ const ContractsBoardInner = ({
     setContractCountByBoard(countByBoard);
   }, [
     fetchedContracts,
-    contractToColumn,
     setContracts,
     setAllContractsMap,
     setContractCountByBoard,
@@ -155,27 +116,20 @@ const ContractsBoardInner = ({
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
-    if (!over) {
-      return;
-    }
+    if (!over) return;
+
     const activeItem = allContractsMap[active.id as string];
     if (!activeItem) return;
 
     const overItem = allContractsMap[over.id as string];
-    const overColumn = overItem
-      ? contractToColumn(overItem.status)
-      : columns.find((col) => col.id === over.id)?.id || columns[0]?.id;
+    const overColumn =
+      overItem?.status ||
+      columns.find((col) => col.id === over.id)?.id ||
+      columns[0]?.id;
 
-    if (!overColumn || contractToColumn(activeItem.status) === overColumn) {
-      return;
-    }
+    if (!overColumn || activeItem.status === overColumn) return;
 
-    const overStatus = statuses.find((s) => s._id === overColumn);
-    const newStatus = overStatus
-      ? STATUS_TYPE_TO_ENUM[overStatus.type] || ContractStatus.DRAFT
-      : ContractStatus.DRAFT;
-
-    updateContractStatus(activeItem._id, newStatus).catch((error: any) => {
+    updateContractStatus(activeItem._id, overColumn).catch((error: any) => {
       toast({
         title: 'Failed to update contract status',
         description: error?.message || 'Please try again',
@@ -185,10 +139,7 @@ const ContractsBoardInner = ({
 
     setAllContractsMap((prev) => ({
       ...prev,
-      [activeItem._id]: {
-        ...prev[activeItem._id],
-        status: newStatus,
-      },
+      [activeItem._id]: { ...activeItem, status: overColumn },
     }));
 
     setContracts((prev) =>
@@ -204,10 +155,9 @@ const ContractsBoardInner = ({
       }),
     );
 
-    const previousColumn = contractToColumn(activeItem.status);
     setContractCountByBoard((prev) => ({
       ...prev,
-      [previousColumn]: (prev[previousColumn] || 1) - 1,
+      [activeItem.status || '']: (prev[activeItem.status || ''] || 1) - 1,
       [overColumn]: (prev[overColumn] || 0) + 1,
     }));
   };

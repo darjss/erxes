@@ -17,7 +17,7 @@ import {
 import { useForm } from 'react-hook-form';
 import { useParams } from 'react-router-dom';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { SelectCustomer, SelectCompany } from 'ui-modules';
+import { SelectCustomer, SelectCompany, SelectMember } from 'ui-modules';
 import {
   ContractFormData,
   contractSchema,
@@ -33,13 +33,6 @@ import { useBlockContractStatusesByType } from '@/contract-status/hooks/useGetBl
 import { IUnit } from '@/unit/types/unitType';
 
 const TYPE_ORDER = ['reserved', 'draft', 'signed', 'lost', 'cancelled'];
-const TYPE_TO_ENUM: Record<string, string> = {
-  reserved: 'reserved',
-  draft: 'draft',
-  signed: 'signed',
-  cancelled: 'cancelled',
-  lost: 'cancelled',
-};
 
 export const ContractFormSheet = ({
   defaultValues,
@@ -78,7 +71,7 @@ export const ContractFormSheet = ({
     resolver: zodResolver(contractSchema),
     defaultValues: {
       unit: unitIdFromUrl || '',
-      status: 'draft',
+      status: '',
       party: { type: 'customer', id: '' },
       currency: CurrencyCode.MNT,
       ...defaultValues,
@@ -86,16 +79,7 @@ export const ContractFormSheet = ({
   });
 
   const partyType = form.watch('party.type');
-
-  const wrappedOnSubmit = (data: ContractFormData) => {
-    if (data.status) {
-      const stage = stages.find((s) => s._id === data.status);
-      if (stage) {
-        data = { ...data, status: TYPE_TO_ENUM[stage.type] || stage.type };
-      }
-    }
-    onSubmit(data);
-  };
+  const isLifeTime = form.watch('isLifeTime');
 
   const onValidationError = (errors: any) => {
     console.error('Contract form validation errors:', errors);
@@ -122,7 +106,7 @@ export const ContractFormSheet = ({
   return (
     <Form {...form}>
       <form
-        onSubmit={form.handleSubmit(wrappedOnSubmit, onValidationError)}
+        onSubmit={form.handleSubmit(onSubmit, onValidationError)}
         className="flex flex-col flex-auto overflow-hidden"
       >
         <Sheet.Content className="flex-auto overflow-hidden">
@@ -171,6 +155,133 @@ export const ContractFormSheet = ({
                 </InfoCard>
               )}
 
+              <InfoCard title="Schedule">
+                <InfoCard.Content>
+                  <div className="gap-4 grid grid-cols-3 items-end">
+                    <Form.Field
+                      name="date"
+                      control={form.control}
+                      render={({ field }) => (
+                        <Form.Item>
+                          <Form.Label>Contract Date</Form.Label>
+                          <DatePicker
+                            placeholder="Select date"
+                            value={(() => {
+                              if (!field.value) return undefined;
+                              const num = Number(field.value);
+                              const d = new Date(
+                                isNaN(num) ? field.value : num,
+                              );
+                              return isNaN(d.getTime()) ? undefined : d;
+                            })()}
+                            onChange={(date) => {
+                              const dateValue = Array.isArray(date)
+                                ? date[0]
+                                : date;
+                              field.onChange(
+                                dateValue
+                                  ? dateValue.toISOString()
+                                  : undefined,
+                              );
+                            }}
+                          />
+                          <Form.Message />
+                        </Form.Item>
+                      )}
+                    />
+
+                    <Form.Field
+                      name="startDate"
+                      control={form.control}
+                      render={({ field }) => (
+                        <Form.Item>
+                          <Form.Label>Start Date</Form.Label>
+                          <DatePicker
+                            placeholder="Select start date"
+                            value={(() => {
+                              if (!field.value) return undefined;
+                              const num = Number(field.value);
+                              const d = new Date(
+                                isNaN(num) ? field.value : num,
+                              );
+                              return isNaN(d.getTime()) ? undefined : d;
+                            })()}
+                            onChange={(date) => {
+                              const dateValue = Array.isArray(date)
+                                ? date[0]
+                                : date;
+                              field.onChange(
+                                dateValue
+                                  ? dateValue.toISOString()
+                                  : undefined,
+                              );
+                            }}
+                          />
+                          <Form.Message />
+                        </Form.Item>
+                      )}
+                    />
+
+                    {!isLifeTime && (
+                      <Form.Field
+                        name="endDate"
+                        control={form.control}
+                        render={({ field }) => (
+                          <Form.Item>
+                            <Form.Label>End Date</Form.Label>
+                            <DatePicker
+                              placeholder="Select end date"
+                              value={(() => {
+                                if (!field.value) return undefined;
+                                const num = Number(field.value);
+                                const d = new Date(
+                                  isNaN(num) ? field.value : num,
+                                );
+                                return isNaN(d.getTime()) ? undefined : d;
+                              })()}
+                              onChange={(date) => {
+                                const dateValue = Array.isArray(date)
+                                  ? date[0]
+                                  : date;
+                                field.onChange(
+                                  dateValue
+                                    ? dateValue.toISOString()
+                                    : undefined,
+                                );
+                              }}
+                            />
+                            <Form.Message />
+                          </Form.Item>
+                        )}
+                      />
+                    )}
+
+                    <Form.Field
+                      name="isLifeTime"
+                      control={form.control}
+                      render={({ field }) => (
+                        <Form.Item className="flex flex-row items-center space-x-3 space-y-0 h-8">
+                          <Form.Control>
+                            <Checkbox
+                              checked={field.value}
+                              onCheckedChange={(checked) => {
+                                field.onChange(checked);
+                                if (checked) {
+                                  form.setValue('endDate', undefined);
+                                }
+                              }}
+                            />
+                          </Form.Control>
+                          <Form.Label variant="peer">
+                            Lifetime Contract
+                          </Form.Label>
+                        </Form.Item>
+                      )}
+                    />
+                  </div>
+                </InfoCard.Content>
+              </InfoCard>
+
               <InfoCard title="Basic Information">
                 <InfoCard.Content>
                   <div className="gap-4 grid grid-cols-2">
@@ -195,49 +306,39 @@ export const ContractFormSheet = ({
                     <Form.Field
                       name="status"
                       control={form.control}
-                      render={({ field }) => {
-                        const selected =
-                          stages.find((s) => s._id === field.value) ||
-                          stages.find(
-                            (s) => TYPE_TO_ENUM[s.type] === field.value,
-                          );
-                        return (
-                          <Form.Item>
-                            <Form.Label>Status</Form.Label>
-                            <Select
-                              onValueChange={field.onChange}
-                              value={selected?._id || ''}
-                            >
-                              <Form.Control>
-                                <Select.Trigger className="h-8">
-                                  <Select.Value placeholder="Select status" />
-                                </Select.Trigger>
-                              </Form.Control>
-                              <Select.Content>
-                                {stages.map((stage) => (
-                                  <Select.Item
-                                    key={stage._id}
-                                    value={stage._id}
-                                  >
-                                    <span className="flex items-center gap-2">
-                                      {stage.color && (
-                                        <span
-                                          className="rounded-full size-2"
-                                          style={{
-                                            backgroundColor: stage.color,
-                                          }}
-                                        />
-                                      )}
-                                      {stage.name}
-                                    </span>
-                                  </Select.Item>
-                                ))}
-                              </Select.Content>
-                            </Select>
-                            <Form.Message />
-                          </Form.Item>
-                        );
-                      }}
+                      render={({ field }) => (
+                        <Form.Item>
+                          <Form.Label>Status</Form.Label>
+                          <Select
+                            onValueChange={field.onChange}
+                            value={field.value || ''}
+                          >
+                            <Form.Control>
+                              <Select.Trigger className="h-8">
+                                <Select.Value placeholder="Select status" />
+                              </Select.Trigger>
+                            </Form.Control>
+                            <Select.Content>
+                              {stages.map((stage) => (
+                                <Select.Item key={stage._id} value={stage._id}>
+                                  <span className="flex items-center gap-2">
+                                    {stage.color && (
+                                      <span
+                                        className="rounded-full size-2"
+                                        style={{
+                                          backgroundColor: stage.color,
+                                        }}
+                                      />
+                                    )}
+                                    {stage.name}
+                                  </span>
+                                </Select.Item>
+                              ))}
+                            </Select.Content>
+                          </Select>
+                          <Form.Message />
+                        </Form.Item>
+                      )}
                     />
 
                     <Form.Field
@@ -295,6 +396,22 @@ export const ContractFormSheet = ({
                               />
                             )}
                           </Form.Control>
+                          <Form.Message />
+                        </Form.Item>
+                      )}
+                    />
+
+                    <Form.Field
+                      name="user"
+                      control={form.control}
+                      render={({ field }) => (
+                        <Form.Item>
+                          <Form.Label>Assigned to</Form.Label>
+                          <SelectMember.FormItem
+                            value={field.value || ''}
+                            onValueChange={field.onChange}
+                            mode="single"
+                          />
                           <Form.Message />
                         </Form.Item>
                       )}
@@ -400,119 +517,6 @@ export const ContractFormSheet = ({
                 </InfoCard.Content>
               </InfoCard>
 
-              <InfoCard title="Schedule">
-                <InfoCard.Content>
-                  <div className="gap-4 grid grid-cols-2">
-                    <Form.Field
-                      name="date"
-                      control={form.control}
-                      render={({ field }) => (
-                        <Form.Item>
-                          <Form.Label>Contract Date</Form.Label>
-                          <DatePicker
-                            placeholder="Select date"
-                            value={(() => {
-                              if (!field.value) return undefined;
-                              const num = Number(field.value);
-                              const d = new Date(
-                                isNaN(num) ? field.value : num,
-                              );
-                              return isNaN(d.getTime()) ? undefined : d;
-                            })()}
-                            onChange={(date) => {
-                              const dateValue = Array.isArray(date)
-                                ? date[0]
-                                : date;
-                              field.onChange(
-                                dateValue ? dateValue.toISOString() : undefined,
-                              );
-                            }}
-                          />
-                          <Form.Message />
-                        </Form.Item>
-                      )}
-                    />
-
-                    <Form.Field
-                      name="startDate"
-                      control={form.control}
-                      render={({ field }) => (
-                        <Form.Item>
-                          <Form.Label>Start Date</Form.Label>
-                          <DatePicker
-                            placeholder="Select start date"
-                            value={(() => {
-                              if (!field.value) return undefined;
-                              const num = Number(field.value);
-                              const d = new Date(
-                                isNaN(num) ? field.value : num,
-                              );
-                              return isNaN(d.getTime()) ? undefined : d;
-                            })()}
-                            onChange={(date) => {
-                              const dateValue = Array.isArray(date)
-                                ? date[0]
-                                : date;
-                              field.onChange(
-                                dateValue ? dateValue.toISOString() : undefined,
-                              );
-                            }}
-                          />
-                          <Form.Message />
-                        </Form.Item>
-                      )}
-                    />
-
-                    <Form.Field
-                      name="endDate"
-                      control={form.control}
-                      render={({ field }) => (
-                        <Form.Item>
-                          <Form.Label>End Date</Form.Label>
-                          <DatePicker
-                            placeholder="Select end date"
-                            value={(() => {
-                              if (!field.value) return undefined;
-                              const num = Number(field.value);
-                              const d = new Date(
-                                isNaN(num) ? field.value : num,
-                              );
-                              return isNaN(d.getTime()) ? undefined : d;
-                            })()}
-                            onChange={(date) => {
-                              const dateValue = Array.isArray(date)
-                                ? date[0]
-                                : date;
-                              field.onChange(
-                                dateValue ? dateValue.toISOString() : undefined,
-                              );
-                            }}
-                          />
-                          <Form.Message />
-                        </Form.Item>
-                      )}
-                    />
-
-                    <Form.Field
-                      name="isLifeTime"
-                      control={form.control}
-                      render={({ field }) => (
-                        <Form.Item className="flex flex-row items-center space-x-3 space-y-0 mt-7">
-                          <Form.Control>
-                            <Checkbox
-                              checked={field.value}
-                              onCheckedChange={field.onChange}
-                            />
-                          </Form.Control>
-                          <Form.Label variant="peer">
-                            Lifetime Contract
-                          </Form.Label>
-                        </Form.Item>
-                      )}
-                    />
-                  </div>
-                </InfoCard.Content>
-              </InfoCard>
             </div>
           </ScrollArea>
         </Sheet.Content>
