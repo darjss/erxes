@@ -104,6 +104,7 @@ router.post('/collective-push', async (req: Request, res: Response) => {
     const { collectiveId, targetSubdomain, posToken } = payload || {};
 
     console.log('payload', JSON.stringify(payload))
+    console.log('subdomain', subdomain)
 
     if (!subdomain) {
       return res.status(400).json({ error: 'subdomain is required' });
