@@ -21,9 +21,13 @@ router.post('/collective', async (req: Request, res: Response) => {
     const { subdomain, payload } = req.body || {};
     const { collectiveId, products } = payload || {};
 
+    console.log('2 payload', JSON.stringify(payload))
+    console.log('2 products', JSON.stringify(products))
+
     if (!subdomain) {
       return res.status(400).json({ error: 'subdomain is required' });
     }
+
     if (!Array.isArray(products)) {
       return res
         .status(400)
@@ -99,6 +103,8 @@ router.post('/collective-push', async (req: Request, res: Response) => {
     const { subdomain, payload } = req.body || {};
     const { collectiveId, targetSubdomain, posToken } = payload || {};
 
+    console.log('payload', JSON.stringify(payload))
+
     if (!subdomain) {
       return res.status(400).json({ error: 'subdomain is required' });
     }
@@ -127,6 +133,8 @@ router.post('/collective-push', async (req: Request, res: Response) => {
       defaultValue: [],
     })) as Record<string, any>[];
 
+    console.log('products', JSON.stringify(products))
+
     if (!products.length) {
       return res.status(200).json({
         success: true,
@@ -151,6 +159,8 @@ router.post('/collective-push', async (req: Request, res: Response) => {
       : SUPPLIER_API_URL.replace('<subdomain>', targetSubdomain);
 
     const endpoint = `${baseUrl}/webhook/mushop/collective`;
+
+    console.log('endpoint', endpoint)
 
     const body = JSON.stringify({
       subdomain: targetSubdomain,

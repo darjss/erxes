@@ -5,27 +5,24 @@ export const collectiveQueries = {
   getCollective: async (
     _root: undefined,
     _args: any,
-    { models, user }: IContext,
+    { models }: IContext,
   ) => {
-    if (!user) throw new Error('Login required');
-    return {}
+    return models.Collective.getCollective();
   },
 
   collectiveDetail: async (
     _root: undefined,
-    { _id }: { _id: string },
+    _args: { _id: string },
     { models }: IContext,
   ) => {
-    return models.Supplier.getSupplier();
+    return models.Collective.getCollective();
   },
 
   collectiveSuppliers: async (
     _root: undefined,
     _args: any,
-    { subdomain, user }: IContext,
+    { subdomain }: IContext,
   ) => {
-    if (!user) throw new Error('Login required');
-
     const result = await requestMessage<{
       collective: any;
       suppliers: any[];

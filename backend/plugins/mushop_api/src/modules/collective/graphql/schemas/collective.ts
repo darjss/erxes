@@ -11,10 +11,33 @@ export const types = `
     errors: [String]
   }
 
+  type MushopCollectiveSocialLink {
+    facebook: String
+    twitter: String
+    instagram: String
+    linkedin: String
+    youtube: String
+    website: String
+  }
+
   type MushopCollective {
     _id: String!
     name: String
     description: String
+    about: String
+    logo: String
+    coverImage: String
+    registrationNumber: String
+    address: JSON
+    primaryEmail: String
+    primaryPhone: String
+    emails: [String]
+    phones: [String]
+    dateFounded: String
+    website: String
+    socialLinks: MushopCollectiveSocialLink
+    ownerUserId: String
+
     targetSubdomain: String
     supplierIds: [String]
     suppliers: [MushopSupplier]

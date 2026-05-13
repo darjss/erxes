@@ -25,6 +25,5 @@ const syncSupplierRecord = async (req: Request, res: Response) => {
 };
 
 router.post('/updateSupplier', syncSupplierRecord);
-router.post('/updateCollective', syncSupplierRecord);
 
 export { router };

@@ -1,16 +1,19 @@
 import { IContext } from '~/connectionResolvers';
-import { ISupplier } from '@/supplier/@types/supplier';
+import { ICollective } from '@/collective/@types/collective';
 import { sendMessage } from '~/modules/admin/utils';
 
 export const collectiveMutations = {
   collectiveUpdateProfile: async (
     _root: undefined,
-    { input }: { input: ISupplier },
+    { input }: { input: ICollective },
     { models, user, subdomain }: IContext,
   ) => {
     if (!user) throw new Error('Login required');
 
-    const collective = await models.Supplier.updateSupplier(user._id, input);
+    const collective = await models.Collective.updateCollective(
+      user._id,
+      input,
+    );
 
     if (collective) {
       await sendMessage({

@@ -8,6 +8,7 @@ import {
   CollectiveQueryParams,
   ICollective,
   ICollectiveDocument,
+  ICollectiveProfileInput,
   ICollectiveSupplierSyncResult,
 } from '@/collective/@types/collective';
 
@@ -30,6 +31,11 @@ export interface ICollectiveModel extends Model<ICollectiveDocument> {
       totalFailed?: number;
       lastSyncedAt?: Date;
     },
+  ): Promise<ICollectiveDocument | null>;
+  syncFromCollective(
+    targetSubdomain: string,
+    input: ICollectiveProfileInput,
+    userId?: string,
   ): Promise<ICollectiveDocument | null>;
   removeCollective(_id: string): Promise<{ ok?: number }>;
 }
@@ -115,6 +121,32 @@ export const loadCollectiveClass = (models: IModels) => {
         { _id },
         { $set: update },
         { new: true },
+      );
+    }
+
+    public static async syncFromCollective(
+      targetSubdomain: string,
+      input: ICollectiveProfileInput,
+      userId?: string,
+    ) {
+      if (!targetSubdomain) {
+        throw new Error('targetSubdomain is required');
+      }
+
+      return models.Collective.findOneAndUpdate(
+        { targetSubdomain },
+        {
+          $set: {
+            ...(input || {}),
+            ...(userId ? { ownerUserId: userId } : {}),
+          },
+          $setOnInsert: {
+            targetSubdomain,
+            supplierIds: [],
+            status: COLLECTIVE_STATUS.PENDING,
+          },
+        },
+        { upsert: true, new: true, setDefaultsOnInsert: true },
       );
     }
 
