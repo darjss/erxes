@@ -117,9 +117,9 @@ router.post('/collective-push', async (req: Request, res: Response) => {
       return res.status(400).json({ error: 'posToken is required' });
     }
 
-    if (!(await isValid(subdomain, COLLECTIVE_BUNDLE_TYPE))) {
+    if (!(await isValid(targetSubdomain, COLLECTIVE_BUNDLE_TYPE))) {
       return res.status(403).json({
-        error: `Subdomain "${subdomain}" does not have an active "${COLLECTIVE_BUNDLE_TYPE}" bundle`,
+        error: `Subdomain "${targetSubdomain}" does not have an active "${COLLECTIVE_BUNDLE_TYPE}" bundle`,
       });
     }
 
@@ -158,13 +158,13 @@ router.post('/collective-push', async (req: Request, res: Response) => {
       ? SUPPLIER_API_URL
       : SUPPLIER_API_URL.replace('<subdomain>', targetSubdomain);
 
-    const endpoint = `${baseUrl}/webhook/mushop/collective`;
+    const endpoint = `${baseUrl}/pl:supplier/webhook/mushop/collective`;
 
     console.log('endpoint', endpoint)
 
     const body = JSON.stringify({
       subdomain: targetSubdomain,
-      payload: { collectiveId, products: products.map((p) => ({ ...p, code: `${subdomain}:${p.code}` })) },
+      payload: { collectiveId, products },
     });
 
     const signature = crypto
