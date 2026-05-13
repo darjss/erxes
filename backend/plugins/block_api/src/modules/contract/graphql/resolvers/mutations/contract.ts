@@ -7,6 +7,12 @@ export const contractMutations = {
     { input }: { input: IContract },
     { models }: IContext,
   ) => {
+    if (input.unit) {
+      const unit = await models.Unit.findOne({ _id: input.unit });
+      if (unit?.locked) {
+        throw new Error('Cannot create contract: unit is locked');
+      }
+    }
     return models.Contract.createContract(input);
   },
   blockUpdateContract: async (

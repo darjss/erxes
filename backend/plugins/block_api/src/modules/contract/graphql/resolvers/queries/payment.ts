@@ -5,10 +5,29 @@ import { IContext } from '~/connectionResolvers';
 export const contractPaymentQueries = {
   blockGetContractPayments: async (
     _parent: undefined,
-    { contractId }: { contractId: string },
+    {
+      contractId,
+      limit,
+      cursor,
+      direction,
+    }: {
+      contractId: string;
+      limit?: number;
+      cursor?: string;
+      direction?: 'forward' | 'backward';
+    },
     { models }: IContext,
   ) => {
-    return models.ContractPayment.find({ contractId }).sort({ index: 1 });
+    return cursorPaginate<IContractPaymentDocument>({
+      model: models.ContractPayment as any,
+      params: {
+        limit: limit ?? 30,
+        cursor,
+        direction: direction ?? 'forward',
+        orderBy: { index: 'asc' },
+      },
+      query: { contractId },
+    });
   },
 
   blockGetProjectPayments: async (

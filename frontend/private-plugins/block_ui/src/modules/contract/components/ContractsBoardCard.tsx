@@ -6,7 +6,10 @@ import {
   IconCreditCard,
 } from '@tabler/icons-react';
 import { useAtomValue, useSetAtom, atom } from 'jotai';
-import { allContractsMapState } from '../states/allContractsMapState';
+import {
+  allContractsMapState,
+  IContractWithDescription,
+} from '../states/allContractsMapState';
 import { contractDetailSheetState } from '../states/contractDetailSheetState';
 import { MembersInline, useCustomerDetail } from 'ui-modules';
 import { useUnit } from '@/unit/hooks/useUnit';
@@ -41,7 +44,7 @@ export const ContractsBoardCard = ({ id }: BoardCardProps) => {
     party,
     paymentPlan,
     user,
-  } = contract;
+  } = contract || ({} as IContractWithDescription);
 
   const { unit: unitDoc } = useUnit(unit);
 

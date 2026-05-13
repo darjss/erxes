@@ -50,6 +50,8 @@ export interface IUnit {
   blockEntityId?: string;
   agencySubdomain?: string;
   agencyEntityId?: string;
+  projectData?: { _id: string; name?: string } | null;
+  locked?: boolean;
 }
 
 export interface IUnitAttachment {

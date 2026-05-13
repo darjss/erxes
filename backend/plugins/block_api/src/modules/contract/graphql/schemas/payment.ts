@@ -28,7 +28,12 @@ export const types = `
 `;
 
 export const queries = `
-  blockGetContractPayments(contractId: String!): [BlockContractPayment]
+  blockGetContractPayments(
+    contractId: String!,
+    limit: Int,
+    cursor: String,
+    direction: String,
+  ): BlockContractPaymentListResponse
   blockGetProjectPayments(
     projectId: String!,
     paid: Boolean,

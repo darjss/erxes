@@ -4,6 +4,7 @@ import { format } from 'date-fns';
 
 import { useAtomValue, atom } from 'jotai';
 import { allOpptysMapState } from '@/oppty/states/allOpptysMapState';
+import { IOppty } from '@/oppty/types/opptyTypes';
 import { MembersInline, useCustomerDetail } from 'ui-modules';
 import { useQueryState } from 'erxes-ui';
 import { SelectCustomerSource } from '@/oppty/components/SelectCustomerSource';
@@ -38,7 +39,7 @@ export const OpptysBoardCard = ({ id, column }: BoardCardProps) => {
     projectId,
     unitType,
     tenureType,
-  } = oppty;
+  } = oppty || ({} as Partial<IOppty>);
 
   const rows = propertyRows || [];
 

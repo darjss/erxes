@@ -47,22 +47,41 @@ export const GET_PROJECT_PAYMENTS = gql`
 `;
 
 export const GET_CONTRACT_PAYMENTS = gql`
-  query BlockGetContractPayments($contractId: String!) {
-    blockGetContractPayments(contractId: $contractId) {
-      _id
-      contractId
-      contractNumber
-      partyId
-      partyType
-      index
-      label
-      dueDate
-      amount
-      currency
-      paid
-      paidAmount
-      paidDate
-      note
+  query BlockGetContractPayments(
+    $contractId: String!
+    $limit: Int
+    $cursor: String
+    $direction: String
+  ) {
+    blockGetContractPayments(
+      contractId: $contractId
+      limit: $limit
+      cursor: $cursor
+      direction: $direction
+    ) {
+      list {
+        _id
+        contractId
+        contractNumber
+        partyId
+        partyType
+        index
+        label
+        dueDate
+        amount
+        currency
+        paid
+        paidAmount
+        paidDate
+        note
+      }
+      pageInfo {
+        hasNextPage
+        hasPreviousPage
+        startCursor
+        endCursor
+      }
+      totalCount
     }
   }
 `;

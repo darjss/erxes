@@ -122,19 +122,17 @@ export const ContractDetailSheet = () => {
               </ScrollArea>
             )}
             {activeTab === CONTRACT_TABS.PAYMENT_RECORDS && (
-              <ScrollArea className="flex-auto h-full">
-                <div className="p-4">
-                  {loading ? (
-                    <Spinner />
-                  ) : !contract ? (
-                    <div className="text-muted-foreground">
-                      Contract not found
-                    </div>
-                  ) : (
-                    <ContractPaymentRecordsBody contract={contract} />
-                  )}
-                </div>
-              </ScrollArea>
+              <div className="flex-auto h-full overflow-hidden">
+                {loading ? (
+                  <Spinner />
+                ) : !contract ? (
+                  <div className="text-muted-foreground p-4">
+                    Contract not found
+                  </div>
+                ) : (
+                  <ContractPaymentRecordsBody contract={contract} />
+                )}
+              </div>
             )}
             {activeTab === CONTRACT_TABS.ACTIVITY_LOG && activeContractId && (
               <ScrollArea className="flex-auto h-full">
