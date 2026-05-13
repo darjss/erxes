@@ -56,6 +56,11 @@ export const OpptyDetailSheet = () => {
     defaultValue: 'general',
   });
 
+  const { oppty, loading } = useGetOppty({
+    variables: { _id: activeOpptyId || '' },
+    skip: !activeOpptyId,
+  });
+
   return (
     <FocusSheet
       open={!!activeOpptyId}
@@ -89,14 +94,14 @@ export const OpptyDetailSheet = () => {
           {(!activeTab || activeTab === 'general') && activeOpptyId && (
             <ScrollArea className="flex-auto h-full">
               <div className="p-4">
-                <OpptyDetail opptyId={activeOpptyId} />
+                <OpptyDetail oppty={oppty} loading={loading} />
               </div>
             </ScrollArea>
           )}
           {activeTab === 'properties' && activeOpptyId && (
             <ScrollArea className="flex-auto h-full">
               <div className="p-4">
-                <OpptyProperties opptyId={activeOpptyId} />
+                <OpptyProperties oppty={oppty} loading={loading} />
               </div>
             </ScrollArea>
           )}
@@ -108,6 +113,7 @@ export const OpptyDetailSheet = () => {
           <RelationWidgetSideTabs
             contentId={activeOpptyId || ''}
             contentType="block:oppty"
+            customerId={oppty?.customerId || undefined}
             hookOptions={{
               hiddenPlugins: ['sales', 'operation'],
               hiddenModules: ['oppty', 'company', 'ticket'],
@@ -172,11 +178,13 @@ const renderTableRow = (
   );
 };
 
-const OpptyDetail = ({ opptyId }: { opptyId: string }) => {
-  const { oppty, loading } = useGetOppty({
-    variables: { _id: opptyId },
-  });
-
+const OpptyDetail = ({
+  oppty,
+  loading,
+}: {
+  oppty?: IOppty;
+  loading: boolean;
+}) => {
   const { statuses } = useBlockStatusesByType({
     projectId: oppty?.projectId || '',
   });
@@ -396,11 +404,13 @@ const OpptyPropertyRowDetail = ({
   );
 };
 
-const OpptyProperties = ({ opptyId }: { opptyId: string }) => {
-  const { oppty, loading } = useGetOppty({
-    variables: { _id: opptyId },
-  });
-
+const OpptyProperties = ({
+  oppty,
+  loading,
+}: {
+  oppty?: IOppty;
+  loading: boolean;
+}) => {
   if (loading) return <Spinner />;
   if (!oppty) return <div>Opportunity not found</div>;
 
