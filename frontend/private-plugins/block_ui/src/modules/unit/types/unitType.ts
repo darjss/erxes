@@ -51,6 +51,7 @@ export interface IUnit {
   agencySubdomain?: string;
   agencyEntityId?: string;
   projectData?: { _id: string; name?: string } | null;
+  locked?: boolean;
 }
 
 export interface IUnitAttachment {

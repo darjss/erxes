@@ -33,6 +33,7 @@ export const types = `
     blockEntityId: String
     agencySubdomain: String
     agencyEntityId: String
+    locked: Boolean
     createdAt: Date
     updatedAt: Date
   }
@@ -74,4 +75,5 @@ export const mutations = `
   blockRemoveUnit(_id: String!): BlockUnit
   blockRemoveUnits(_ids: [String]): JSON
   blockTransferUnit(input: BlockTransferUnitInput!): BlockUnit
+  blockToggleUnitLock(_id: String!, locked: Boolean!): BlockUnit
 `;

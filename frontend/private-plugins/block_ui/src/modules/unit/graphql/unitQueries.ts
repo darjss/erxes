@@ -13,6 +13,7 @@ export const BLOCK_GET_UNITS = gql`
         price
       }
       status
+      locked
       activeContract {
         _id
         status
@@ -74,6 +75,7 @@ export const BLOCK_GET_UNIT = gql`
         statusLabel
         statusColor
       }
+      locked
     }
   }
 `;

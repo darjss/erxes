@@ -144,10 +144,11 @@ export const UnitContract = () => {
   const { contracts, loading } = useContracts(unitId);
 
   const hasSignedContract = unit?.activeContract?.statusType === 'signed';
+  const canAdd = !hasSignedContract && !unit?.locked;
 
   return (
     <div className="p-8 flex flex-col gap-3">
-      {!hasSignedContract && (
+      {canAdd && (
         <div className="flex justify-end">
           <ContractAddSheet />
         </div>

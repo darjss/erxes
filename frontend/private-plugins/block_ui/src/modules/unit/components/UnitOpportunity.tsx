@@ -122,6 +122,7 @@ export const UnitOpportunity = () => {
   const setOpen = useSetAtom(opptyWidgetSheetState);
 
   const hasSignedContract = unit?.activeContract?.statusType === 'signed';
+  const canAdd = !hasSignedContract && !unit?.locked;
 
   const { data, loading } = useQuery<ICursorListResponse<IOppty>>(GET_OPPTYS, {
     variables: {
@@ -141,7 +142,7 @@ export const UnitOpportunity = () => {
 
   return (
     <div className="p-8 flex flex-col gap-3">
-      {!hasSignedContract && (
+      {canAdd && (
         <div className="flex justify-end">
           <Button onClick={() => setOpen(true)}>
             <IconPlus />
