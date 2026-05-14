@@ -20,6 +20,12 @@ const CollectiveSuppliersPage = lazy(() =>
   })),
 );
 
+const CollectivePackagesPage = lazy(() =>
+  import('~/pages/collective/PackagesPage').then((module) => ({
+    default: module.PackagesPage,
+  })),
+);
+
 const SupplierMain = () => {
   const isCollective = useIsCollective();
   const ProfilePage = isCollective ? CollectiveIndexPage : SupplierIndexPage;
@@ -30,7 +36,10 @@ const SupplierMain = () => {
         <Route path="/" element={<Navigate to="profile" replace />} />
         <Route path="profile" element={<ProfilePage />} />
         {isCollective && (
-          <Route path="suppliers" element={<CollectiveSuppliersPage />} />
+          <>
+            <Route path="suppliers" element={<CollectiveSuppliersPage />} />
+            <Route path="packages" element={<CollectivePackagesPage />} />
+          </>
         )}
       </Routes>
     </Suspense>

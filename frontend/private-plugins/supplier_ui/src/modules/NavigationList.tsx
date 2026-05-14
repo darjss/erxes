@@ -1,6 +1,7 @@
 import { NavigationMenuLinkItem } from 'erxes-ui';
 import {
   IconBuildingStore,
+  IconPackage,
   IconUser,
   IconUsersGroup,
 } from '@tabler/icons-react';
@@ -22,6 +23,12 @@ export const NavigationList = () => {
           name="suppliers"
           icon={IconBuildingStore}
           path="suppliers"
+          pathPrefix="supplier"
+        />
+        <NavigationMenuLinkItem
+          name="packages"
+          icon={IconPackage}
+          path="packages"
           pathPrefix="supplier"
         />
       </>

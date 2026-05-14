@@ -1,0 +1,115 @@
+import { Model } from 'mongoose';
+import { cursorPaginate } from 'erxes-api-shared/utils';
+import { ICursorPaginateParams } from 'erxes-api-shared/core-types';
+import { IModels } from '~/connectionResolvers';
+import { collectivePackageSchema } from '@/collective-package/db/definitions/collectivePackage';
+import {
+  CollectivePackageQueryParams,
+  COLLECTIVE_PACKAGE_STATUS,
+  ICollectivePackage,
+  ICollectivePackageDocument,
+} from '@/collective-package/@types/collectivePackage';
+
+export interface ICollectivePackageCreateInput
+  extends Omit<ICollectivePackage, 'collectiveId' | 'status'> {
+  status?: string;
+}
+
+export interface ICollectivePackageModel
+  extends Model<ICollectivePackageDocument> {
+  getCollectivePackage(_id: string): Promise<ICollectivePackageDocument>;
+  listCollectivePackages(
+    params: CollectivePackageQueryParams & ICursorPaginateParams,
+  ): Promise<{
+    list: ICollectivePackageDocument[];
+    pageInfo: any;
+    totalCount: number;
+  }>;
+  createCollectivePackage(
+    targetSubdomain: string,
+    doc: ICollectivePackageCreateInput,
+  ): Promise<ICollectivePackageDocument>;
+}
+
+export const loadCollectivePackageClass = (models: IModels) => {
+  class CollectivePackage {
+    public static async getCollectivePackage(_id: string) {
+      const pkg = await models.CollectivePackage.findOne({ _id }).lean();
+
+      if (!pkg) throw new Error('Collective package not found');
+
+      return pkg;
+    }
+
+    public static async listCollectivePackages(
+      params: CollectivePackageQueryParams & ICursorPaginateParams,
+    ) {
+      const { collectiveId, searchValue, status } = params;
+
+      if (!collectiveId) {
+        throw new Error('collectiveId is required');
+      }
+
+      const filter: any = { collectiveId };
+
+      if (status) filter.status = status;
+
+      if (searchValue) {
+        filter.$or = [
+          { name: { $regex: searchValue, $options: 'i' } },
+          { description: { $regex: searchValue, $options: 'i' } },
+        ];
+      }
+
+      return cursorPaginate<ICollectivePackageDocument>({
+        model: models.CollectivePackage,
+        params,
+        query: filter,
+      });
+    }
+
+    public static async createCollectivePackage(
+      targetSubdomain: string,
+      doc: ICollectivePackageCreateInput,
+    ) {
+      const { productIds = [], name, price, status, posToken } =
+        doc || ({} as ICollectivePackageCreateInput);
+
+      if (!targetSubdomain) {
+        throw new Error('targetSubdomain is required');
+      }
+
+      if (!name?.trim()) {
+        throw new Error('name is required');
+      }
+
+      if (!posToken?.trim()) {
+        throw new Error('posToken is required');
+      }
+
+      if (!productIds.length) {
+        throw new Error('At least one product is required');
+      }
+
+      const collective = await models.Collective.findOne({ targetSubdomain }).lean();
+
+      if (!collective) {
+        throw new Error(`Collective not found for subdomain "${targetSubdomain}"`);
+      }
+
+      if (price != null && (Number.isNaN(price) || price < 0)) {
+        throw new Error('price must be a non-negative number');
+      }
+
+      return models.CollectivePackage.create({
+        ...doc,
+        collectiveId: collective._id,
+        status: status || COLLECTIVE_PACKAGE_STATUS.DRAFT,
+      });
+    }
+  }
+
+  collectivePackageSchema.loadClass(CollectivePackage);
+
+  return collectivePackageSchema;
+};

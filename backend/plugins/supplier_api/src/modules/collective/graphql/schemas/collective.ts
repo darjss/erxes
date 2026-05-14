@@ -1,3 +1,5 @@
+import { GQL_CURSOR_PARAM_DEFS } from 'erxes-api-shared/utils';
+
 export const types = `
   type CollectiveSocialLink {
     facebook: String
@@ -57,14 +59,52 @@ export const types = `
     website: String
     socialLinks: JSON
   }
+
+  input CollectivePackageInput {
+    name: String!
+    description: String
+    coverImage: String
+    posToken: String!
+    productIds: [String!]!
+    price: Float
+    status: String
+  }
+
+  type CollectivePackage {
+    _id: String!
+    name: String
+    description: String
+    coverImage: String
+    collectiveId: String!
+    posToken: String!
+    productIds: [String]
+    price: Float
+    status: String
+    createdAt: Date
+    updatedAt: Date
+  }
+
+
+  type CollectivePackageListResponse {
+    list: [CollectivePackage]
+    pageInfo: PageInfo
+    totalCount: Int
+  }
 `;
 
 export const queries = `
   getCollective: Collective
   collectiveDetail(_id: String!): Collective
   collectiveSuppliers: [CollectiveMemberSupplier]
+  collectivePackages(
+    searchValue: String
+    status: String
+    ${GQL_CURSOR_PARAM_DEFS}
+  ): CollectivePackageListResponse
+  collectivePackageDetail(_id: String!): CollectivePackage
 `;
 
 export const mutations = `
   collectiveUpdateProfile(input: CollectiveInput!): Collective
+  collectivePackageAdd(input: CollectivePackageInput!): CollectivePackage
 `;
