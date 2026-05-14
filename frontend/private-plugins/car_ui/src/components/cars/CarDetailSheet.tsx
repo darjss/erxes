@@ -10,6 +10,7 @@ import {
   Sidebar,
   Spinner,
   Tabs,
+  TextOverflowTooltip,
   toast,
   useConfirm,
   useQueryState,
@@ -79,7 +80,7 @@ const DetailRow = ({
   value: React.ReactNode;
 }) => {
   return (
-    <div className="grid grid-cols-[140px_minmax(0,1fr)] gap-4 border-b border-border/60 py-3 last:border-none">
+    <div className="grid grid-cols-1 gap-1 border-b border-border/60 py-3 last:border-none sm:grid-cols-[140px_minmax(0,1fr)] sm:gap-4">
       <div className="text-xs font-mono uppercase tracking-wide text-muted-foreground">
         {label}
       </div>
@@ -106,6 +107,12 @@ export const CarDetailSheet = ({
   const [tab, setTab] = useQueryState<string>('carTab');
   const missingToastIdRef = useRef<string | null>(null);
   const activeTab = tab || 'overview';
+  const updatedAtText = car
+    ? t('Updated {{date}}', {
+        date: formatDateTime(car.modifiedAt || car.createdAt),
+        defaultValue: 'Updated {{date}}',
+      })
+    : '';
 
   useEffect(() => {
     if (!carId || loading) {
@@ -481,28 +488,33 @@ export const CarDetailSheet = ({
                 </Tabs.Content>
               </Tabs>
 
-              <Sheet.Footer className="flex-none border-t">
-                <div className="mr-auto flex items-center gap-2 text-sm text-muted-foreground">
-                  <IconCalendar className="size-4" />
-                  {t('Updated {{date}}', {
-                    date: formatDateTime(car.modifiedAt || car.createdAt),
-                    defaultValue: 'Updated {{date}}',
-                  })}
+              <Sheet.Footer className="flex-none flex-wrap justify-end gap-2 border-t">
+                <div className="flex min-w-0 basis-full items-center gap-2 text-sm text-muted-foreground">
+                  <IconCalendar className="size-4 shrink-0" />
+                  <TextOverflowTooltip value={updatedAtText} />
                 </div>
                 <Can action="manageCars">
-                  <Button variant="secondary" onClick={() => setEditOpen(true)}>
+                  <Button
+                    variant="secondary"
+                    className="shrink-0"
+                    onClick={() => setEditOpen(true)}
+                  >
                     <IconEdit />
                     {t('Edit', { defaultValue: 'Edit' })}
                   </Button>
                 </Can>
                 <Can action="manageCars">
-                  <Button variant="destructive" onClick={handleDelete}>
+                  <Button
+                    variant="destructive"
+                    className="shrink-0"
+                    onClick={handleDelete}
+                  >
                     <IconTrash />
                     {t('Delete', { defaultValue: 'Delete' })}
                   </Button>
                 </Can>
                 <Sheet.Close asChild>
-                  <Button variant="secondary">
+                  <Button variant="secondary" className="shrink-0">
                     {t('Close', { defaultValue: 'Close' })}
                   </Button>
                 </Sheet.Close>

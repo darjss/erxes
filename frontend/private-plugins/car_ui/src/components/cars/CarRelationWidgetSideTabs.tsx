@@ -15,6 +15,7 @@ import {
   LEGACY_ROOT_CAR_CONTENT_TYPE,
   ROOT_CAR_CONTENT_TYPE,
 } from '~/lib/constants';
+import { CarDealsRelationPanel } from '~/components/cars/CarDealsRelationPanel';
 import { ICompany, ICustomer } from '~/types/cars';
 
 const RELATED_CONTENT_TYPE_BY_MODULE: Record<string, string> = {
@@ -109,14 +110,8 @@ const CarRelationWidgetSideContent = ({
   const accessLevel = resolveAccess(access, module.name);
   const canManageRelations = accessLevel === 'write';
   const relatedContentType = RELATED_CONTENT_TYPE_BY_MODULE[module.name];
-  const {
-    contentType,
-    hasLegacyRelations,
-    loading,
-  } = useCompatibleCarContentType(
-    carId,
-    relatedContentType,
-  );
+  const { contentType, hasLegacyRelations, loading } =
+    useCompatibleCarContentType(carId, relatedContentType);
 
   const manageContactRelations = async (
     relatedContentType: 'core:customer' | 'core:company',
@@ -165,6 +160,7 @@ const CarRelationWidgetSideContent = ({
           <CustomerWidget
             customerIds={customerIds}
             scope=" "
+            access={accessLevel}
             onManageCustomers={
               canManageRelations ? handleSelectCustomers : undefined
             }
@@ -176,6 +172,12 @@ const CarRelationWidgetSideContent = ({
             onManageCompanies={
               canManageRelations ? handleSelectCompanies : undefined
             }
+          />
+        ) : module.name === 'deals' ? (
+          <CarDealsRelationPanel
+            carId={carId}
+            contentType={contentType}
+            access={accessLevel}
           />
         ) : loading ? (
           <Spinner containerClassName="flex h-full items-center justify-center" />

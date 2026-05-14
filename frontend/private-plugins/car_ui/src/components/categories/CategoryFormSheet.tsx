@@ -27,17 +27,15 @@ import { stripTypename } from '~/lib/stripTypename';
 import { useCarMutations } from '~/hooks/useCarMutations';
 import { IAttachment, ICarCategory } from '~/types/car';
 
-const categoryFormSchema = z.object({
-  name: z.string().min(1, 'Name is required'),
-  code: z.string().min(1, 'Code is required'),
-  description: z.string().default(''),
-  parentId: z.string().default(''),
-  image: z.custom<IAttachment | null>().nullable().optional(),
-  secondaryImages: z.array(z.custom<IAttachment>()).default([]),
-  productCategoryId: z.string().default(''),
-});
-
-type CategoryFormValues = z.infer<typeof categoryFormSchema>;
+type CategoryFormValues = {
+  name: string;
+  code: string;
+  description: string;
+  parentId: string;
+  image?: IAttachment | null;
+  secondaryImages: IAttachment[];
+  productCategoryId: string;
+};
 
 export const CategoryFormSheet = ({
   open,
@@ -52,6 +50,23 @@ export const CategoryFormSheet = ({
 }) => {
   const { t } = useTranslation('car');
   const { carCategoriesAdd, carCategoriesEdit, loading } = useCarMutations();
+  const categoryFormSchema = useMemo(
+    () =>
+      z.object({
+        name: z
+          .string()
+          .min(1, t('Name is required', { defaultValue: 'Name is required' })),
+        code: z
+          .string()
+          .min(1, t('Code is required', { defaultValue: 'Code is required' })),
+        description: z.string().default(''),
+        parentId: z.string().default(''),
+        image: z.custom<IAttachment | null>().nullable().optional(),
+        secondaryImages: z.array(z.custom<IAttachment>()).default([]),
+        productCategoryId: z.string().default(''),
+      }),
+    [t],
+  );
 
   const options = useMemo(
     () => buildCategoryOptions(categories, category?._id),
