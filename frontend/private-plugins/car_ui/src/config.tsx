@@ -11,6 +11,7 @@ const MainNavigation = lazy(() =>
 export const CONFIG: IUIConfig = {
   name: 'car',
   path: 'car',
+  icon: IconCarSuv,
   navigationGroup: {
     name: 'car',
     icon: IconCarSuv,
