@@ -23,6 +23,7 @@ import {
 import {
   IconCalendar,
   IconCheck,
+  IconExternalLink,
   IconPointerUp,
   IconPlus,
   IconTag,
@@ -55,6 +56,10 @@ const DEAL_CARD_FIELDS = gql`
     closeDate
     createdAt
     priority
+    pipeline {
+      _id
+      boardId
+    }
     labels {
       _id
       name
@@ -84,6 +89,10 @@ const DEAL_CARD_FIELDS = gql`
       _id
       name
       colorCode
+    }
+    products {
+      _id
+      name
     }
     productsData
     customProperties
@@ -143,7 +152,6 @@ const GET_CAR_DEAL_CHOICES = gql`
       cursor: $cursor
       direction: $direction
       orderBy: $orderBy
-      noSkipArchive: true
     ) {
       list {
         ...CarDealChooserFields
@@ -231,6 +239,10 @@ type CarDeal = {
   closeDate?: string | null;
   createdAt?: string | null;
   priority?: string | null;
+  pipeline?: {
+    _id?: string | null;
+    boardId?: string | null;
+  } | null;
   labels?: Array<{
     _id: string;
     name?: string | null;
@@ -257,6 +269,10 @@ type CarDeal = {
     _id: string;
     name?: string | null;
     colorCode?: string | null;
+  }>;
+  products?: Array<{
+    _id: string;
+    name?: string | null;
   }>;
   productsData?: Array<Record<string, any>> | null;
   customProperties?: Array<Record<string, any>> | null;
@@ -301,7 +317,7 @@ const PAGE_SIZE = 20;
 const RELATED_DEAL_CONTENT_TYPE = 'sales:deal';
 const EMPTY_PRIORITY_VALUE = '__none__';
 const DEAL_PRIORITY_OPTIONS = ['Minor', 'Medium', 'High', 'Critical'] as const;
-const DEAL_CHOOSER_ORDER_BY = { name: -1, createdAt: -1 };
+const DEAL_CHOOSER_ORDER_BY = { createdAt: -1 };
 
 type DealPriority = (typeof DEAL_PRIORITY_OPTIONS)[number];
 
@@ -409,6 +425,20 @@ const displayDealPriority = (priority: string | null | undefined, t: TFunction) 
   return priority;
 };
 
+const getDealUrl = (deal: CarDeal) => {
+  const query = new URLSearchParams({ salesItemId: deal._id });
+
+  if (deal.pipeline?._id) {
+    query.set('pipelineId', deal.pipeline._id);
+  }
+
+  if (deal.pipeline?.boardId) {
+    query.set('boardId', deal.pipeline.boardId);
+  }
+
+  return `/sales/deals?${query.toString()}`;
+};
+
 const displayCustomer = (customer: NonNullable<CarDeal['customers']>[number]) =>
   [customer.firstName, customer.lastName].filter(Boolean).join(' ') ||
   customer.primaryEmail ||
@@ -425,12 +455,19 @@ const normalizeDetailItems = (deal: CarDeal): DealDetailItem[] => {
   const productsData = Array.isArray(deal.productsData)
     ? deal.productsData
     : [];
+  const productNamesById = new Map(
+    (deal.products || []).map((product) => [product._id, product.name]),
+  );
   const customPropertiesData = Array.isArray(deal.customProperties)
     ? deal.customProperties
     : [];
 
   const products: DealDetailItem[] = productsData.map((productData) => ({
-    label: productData.productName || productData.name || productData.productId,
+    label:
+      productData.productName ||
+      productData.name ||
+      productNamesById.get(productData.productId) ||
+      productData.productId,
     quantity: productData.quantity,
     uom: productData.uom,
     unitPrice: productData.unitPrice,
@@ -474,7 +511,10 @@ const CarDealCard = ({ deal }: { deal: CarDeal }) => {
   const createdAt = formatDate(deal.createdAt);
 
   return (
-    <Card className="bg-background">
+    <Card
+      className="cursor-pointer bg-background transition-colors hover:bg-muted/40"
+      onClick={() => window.open(getDealUrl(deal), '_blank')}
+    >
       <div className="flex h-9 items-center justify-between gap-2 px-2 text-sm text-muted-foreground">
         <span className="flex min-w-0 items-center gap-1">
           <IconCalendar className="size-4 shrink-0" />
@@ -586,7 +626,9 @@ const CarDealCard = ({ deal }: { deal: CarDeal }) => {
               .map((user) => user.details?.fullName || user._id)
               .join(', ')}
           />
-        ) : null}
+        ) : (
+          <IconExternalLink className="size-4 shrink-0" />
+        )}
       </div>
     </Card>
   );
@@ -607,6 +649,11 @@ const DealChooser = ({
   const [debouncedSearch] = useDebounce(search.trim(), 400);
   const [selectedDealIds, setSelectedDealIds] = useState<string[]>([]);
   const searchValue = debouncedSearch || undefined;
+
+  const resetChooser = () => {
+    setSelectedDealIds([]);
+    setSearch('');
+  };
 
   const { data, loading, error, fetchMore } = useQuery<DealsQueryData>(
     GET_CAR_DEAL_CHOICES,
@@ -663,13 +710,21 @@ const DealChooser = ({
 
   const handleSelect = async () => {
     await onSelect(selectedDealIds);
-    setSelectedDealIds([]);
-    setSearch('');
+    resetChooser();
     setOpen(false);
   };
 
   return (
-    <Sheet open={open} onOpenChange={setOpen}>
+    <Sheet
+      open={open}
+      onOpenChange={(nextOpen) => {
+        setOpen(nextOpen);
+
+        if (!nextOpen) {
+          resetChooser();
+        }
+      }}
+    >
       <Sheet.Trigger asChild>
         {children || (
           <Button variant="secondary">

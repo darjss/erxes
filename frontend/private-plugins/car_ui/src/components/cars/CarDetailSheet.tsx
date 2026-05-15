@@ -190,7 +190,6 @@ export const CarDetailSheet = ({
     <FocusSheet open={!!carId} onOpenChange={(open) => !open && onClose()}>
       <FocusSheet.View
         loading={loading}
-        className="sm:max-w-5xl md:w-[min(86vw,64rem)] lg:w-[min(76vw,72rem)]"
       >
         <FocusSheet.Header
           title={
