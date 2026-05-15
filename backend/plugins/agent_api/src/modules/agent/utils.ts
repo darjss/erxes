@@ -18,6 +18,21 @@ const getDeployerUrl = () => {
   return PROD_DEPLOYER_URL;
 };
 
+const readDeployerError = async (response: Response) => {
+  const raw = await response.text();
+
+  try {
+    const parsed = JSON.parse(raw) as { error?: string };
+    if (parsed?.error) {
+      return parsed.error;
+    }
+  } catch {
+    // use raw text as message
+  }
+
+  return raw;
+};
+
 interface DeployPaylaod {
   orgId: string;
   agentId: string;
@@ -220,7 +235,7 @@ export const updateDiscordSettings = async (
   });
 
   if (!response.ok) {
-    const message = await response.text();
+    const message = await readDeployerError(response);
     throw new Error(`Failed to update Discord settings: ${message}`);
   }
 };
