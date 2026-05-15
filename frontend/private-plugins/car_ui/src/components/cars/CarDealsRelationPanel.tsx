@@ -60,11 +60,6 @@ const DEAL_CARD_FIELDS = gql`
       _id
       boardId
     }
-    labels {
-      _id
-      name
-      colorCode
-    }
     assignedUsers {
       _id
       details {
@@ -243,11 +238,6 @@ type CarDeal = {
     _id?: string | null;
     boardId?: string | null;
   } | null;
-  labels?: Array<{
-    _id: string;
-    name?: string | null;
-    colorCode?: string | null;
-  }>;
   assignedUsers?: Array<{
     _id: string;
     details?: { avatar?: string | null; fullName?: string | null } | null;
@@ -531,20 +521,9 @@ const CarDealCard = ({ deal }: { deal: CarDeal }) => {
       </div>
       <Separator />
       <div className="space-y-3 p-3">
-        {deal.labels?.length ? (
+        {deal.number ? (
           <div className="flex flex-wrap gap-1">
-            {deal.labels.map((label) => (
-              <Badge
-                key={label._id}
-                variant="secondary"
-                style={{
-                  borderColor: label.colorCode || undefined,
-                  color: label.colorCode || undefined,
-                }}
-              >
-                {label.name || label._id}
-              </Badge>
-            ))}
+            <Badge variant="secondary">№ {deal.number}</Badge>
           </div>
         ) : null}
         <h5 className="min-w-0 font-semibold">
