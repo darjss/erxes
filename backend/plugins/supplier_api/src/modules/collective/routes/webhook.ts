@@ -120,11 +120,7 @@ router.post('/collective', async (req: Request, res: Response) => {
         continue;
       }
 
-      const targetProductId = deterministicObjectId(
-        'collective-prod',
-        supplierId,
-        sourceProductId || doc.code,
-      );
+      const targetProductId = sourceProductId;
 
       const unitPrice =
         sourcePosToken && prices ? prices[sourcePosToken] : undefined;
@@ -316,6 +312,22 @@ router.post('/create-pos', async (req: Request, res: Response) => {
       });
     }
 
+    const owner = (await sendTRPCMessage({
+      subdomain,
+      pluginName: 'core',
+      method: 'query',
+      module: 'users',
+      action: 'findOne',
+      input: { query: { isOwner: true } },
+      defaultValue: null,
+    })) as { _id: string } | null;
+
+    if (!owner?._id) {
+      return res.status(400).json({
+        error: `No owner user found in subdomain "${subdomain}" to assign POS to`,
+      });
+    }
+
     const pos = (await sendTRPCMessage({
       subdomain,
       pluginName: 'sales',
@@ -323,9 +335,12 @@ router.post('/create-pos', async (req: Request, res: Response) => {
       module: 'pos',
       action: 'create',
       input: {
+        user: owner,
         doc: {
           name: name || 'Collective POS',
           description: description || `Auto-provisioned POS for ${subdomain}`,
+          adminIds: [owner._id],
+          cashierIds: [owner._id],
         },
       },
     })) as { _id: string; token: string } | null;

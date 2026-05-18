@@ -17,7 +17,7 @@ export const MushopCollectivePackage = {
     { models }: IContext,
   ) => {
     if (!productIds.length) return [];
-    return models.MushopProduct.find({ _id: { $in: productIds } }).lean();
+    return models.MushopProduct.find({ entityId: { $in: productIds } }).lean();
   },
 
   componentsTotal: async (
@@ -28,7 +28,7 @@ export const MushopCollectivePackage = {
     if (!productIds.length) return 0;
 
     const products = await models.MushopProduct.find({
-      _id: { $in: productIds },
+      entityId: { $in: productIds },
     })
       .select({ unitPrice: 1 })
       .lean();
