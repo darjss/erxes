@@ -17,9 +17,32 @@ export interface ICollectiveSupplierSyncResult {
   errors?: string[];
 }
 
+export interface ICollectiveSocialLink {
+  facebook?: string;
+  twitter?: string;
+  instagram?: string;
+  linkedin?: string;
+  youtube?: string;
+  website?: string;
+}
+
 export interface ICollective {
-  name: string;
+  name?: string;
   description?: string;
+  about?: string;
+  logo?: string;
+  coverImage?: string;
+  registrationNumber?: string;
+  address?: any;
+  primaryEmail?: string;
+  primaryPhone?: string;
+  emails?: string[];
+  phones?: string[];
+  dateFounded?: string;
+  website?: string;
+  socialLinks?: ICollectiveSocialLink;
+  ownerUserId?: string;
+
   targetSubdomain: string;
   supplierIds: string[];
   status?: string;
@@ -27,7 +50,6 @@ export interface ICollective {
   totalCreated?: number;
   totalFailed?: number;
   lastSyncedAt?: Date;
-  createdBy?: string;
 }
 
 export interface ICollectiveDocument extends ICollective, Document {
@@ -41,4 +63,21 @@ export interface CollectiveQueryParams {
   status?: string;
   targetSubdomain?: string;
   supplierId?: string;
+}
+
+export interface ICollectiveProfileInput {
+  name?: string;
+  description?: string;
+  about?: string;
+  logo?: string;
+  coverImage?: string;
+  registrationNumber?: string;
+  address?: any;
+  primaryEmail?: string;
+  primaryPhone?: string;
+  emails?: string[];
+  phones?: string[];
+  dateFounded?: string;
+  website?: string;
+  socialLinks?: ICollectiveSocialLink;
 }

@@ -6,6 +6,11 @@ interface DestroyServerDialogProps {
   onOpenChange: (open: boolean) => void;
   onConfirm: () => Promise<void>;
   loading?: boolean;
+  title?: string;
+  description?: string;
+  confirmLabel?: string;
+  loadingLabel?: string;
+  onAfterConfirm?: () => void;
 }
 
 export const DestroyServerDialog = ({
@@ -13,10 +18,20 @@ export const DestroyServerDialog = ({
   onOpenChange,
   onConfirm,
   loading = false,
+  title = 'Destroy server?',
+  description = 'This will permanently remove your agent server. Discord bot and all associated data will be deleted. This action cannot be undone.',
+  confirmLabel = 'Destroy server',
+  loadingLabel = 'Destroying server...',
+  onAfterConfirm,
 }: DestroyServerDialogProps) => {
   const handleConfirm = async () => {
     await onConfirm();
     onOpenChange(false);
+    if (onAfterConfirm) {
+      onAfterConfirm();
+      return;
+    }
+
     window.location.reload();
   };
 
@@ -29,11 +44,10 @@ export const DestroyServerDialog = ({
           </div>
           <div className="flex flex-col gap-2 text-left">
             <AlertDialog.Title className="text-base font-semibold">
-              Destroy server?
+              {title}
             </AlertDialog.Title>
             <AlertDialog.Description className="text-muted-foreground text-sm">
-              This will permanently remove your agent server. Discord bot and
-              all associated data will be deleted. This action cannot be undone.
+              {description}
             </AlertDialog.Description>
           </div>
         </AlertDialog.Header>
@@ -48,7 +62,7 @@ export const DestroyServerDialog = ({
             onClick={handleConfirm}
             className="min-w-28"
           >
-            {loading ? 'Destroying server...' : 'Destroy server'}
+            {loading ? loadingLabel : confirmLabel}
           </Button>
         </AlertDialog.Footer>
       </AlertDialog.Content>
