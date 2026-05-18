@@ -24,11 +24,15 @@ const postToSupplierPush = async ({
   targetSubdomain,
   collectiveId,
   posToken,
+  supplierId,
+  supplierName,
 }: {
   supplierSubdomain: string;
   targetSubdomain: string;
   collectiveId: string;
   posToken: string;
+  supplierId: string;
+  supplierName?: string;
 }): Promise<CollectiveWebhookResult> => {
   const { SUPPLIER_API_URL, MUSHOP_SECRET } = process.env;
 
@@ -40,11 +44,17 @@ const postToSupplierPush = async ({
     ? SUPPLIER_API_URL
     : SUPPLIER_API_URL.replace('<subdomain>', supplierSubdomain);
 
-  const endpoint = `${baseUrl}/pl:supplier/webhook/mushop/collective-push`;
+  const endpoint = `${baseUrl}/webhook/mushop/collective-push`;
 
   const body = JSON.stringify({
     subdomain: supplierSubdomain,
-    payload: { collectiveId, targetSubdomain, posToken },
+    payload: {
+      collectiveId,
+      targetSubdomain,
+      posToken,
+      supplierId,
+      supplierName,
+    },
   });
 
   const signature = crypto
@@ -117,6 +127,8 @@ export const syncCollectiveProducts = async ({
         targetSubdomain: collective.targetSubdomain,
         collectiveId: collective._id,
         posToken: supplier.posToken,
+        supplierId: supplier._id,
+        supplierName: supplier.name,
       });
 
       result.total = response.total;

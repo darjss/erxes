@@ -16,10 +16,52 @@ interface CollectiveProductResult {
   error?: string;
 }
 
+const ensureSupplierCategory = async ({
+  subdomain,
+  collectiveId,
+  supplierId,
+  supplierName,
+}: {
+  subdomain: string;
+  collectiveId: string;
+  supplierId: string;
+  supplierName?: string;
+}): Promise<string> => {
+  const code = `collective-${collectiveId}-${supplierId}`;
+
+  const existing = (await sendTRPCMessage({
+    subdomain,
+    pluginName: 'core',
+    method: 'query',
+    module: 'productCategories',
+    action: 'findOne',
+    input: { query: { code } },
+    defaultValue: null,
+  })) as { _id: string; code: string } | null;
+
+  if (existing?._id) return existing.code;
+
+  const created = (await sendTRPCMessage({
+    subdomain,
+    pluginName: 'core',
+    method: 'mutation',
+    module: 'productCategories',
+    action: 'createProductCategory',
+    input: {
+      doc: {
+        name: supplierName || `Supplier ${supplierId}`,
+        code,
+      },
+    },
+  })) as { _id: string; code: string };
+
+  return created.code;
+};
+
 router.post('/collective', async (req: Request, res: Response) => {
   try {
     const { subdomain, payload } = req.body || {};
-    const { collectiveId, products } = payload || {};
+    const { collectiveId, products, supplierId, supplierName } = payload || {};
 
     console.log('2 payload', JSON.stringify(payload));
     console.log('2 products', JSON.stringify(products));
@@ -34,11 +76,28 @@ router.post('/collective', async (req: Request, res: Response) => {
         .json({ error: 'payload.products must be an array' });
     }
 
+    if (!collectiveId) {
+      return res
+        .status(400)
+        .json({ error: 'payload.collectiveId is required' });
+    }
+
+    if (!supplierId) {
+      return res.status(400).json({ error: 'payload.supplierId is required' });
+    }
+
     if (!(await isValid(subdomain, COLLECTIVE_BUNDLE_TYPE))) {
       return res.status(403).json({
         error: `Subdomain "${subdomain}" does not have an active "${COLLECTIVE_BUNDLE_TYPE}" bundle`,
       });
     }
+
+    const targetCategoryCode = await ensureSupplierCategory({
+      subdomain,
+      collectiveId,
+      supplierId,
+      supplierName,
+    });
 
     const results: CollectiveProductResult[] = [];
 
@@ -61,8 +120,19 @@ router.post('/collective', async (req: Request, res: Response) => {
         mergedIds,
         sameDefault,
         sameMasks,
-        ...createDoc
+        ...rest
       } = doc || {};
+
+      if (!doc?.code) {
+        results.push({
+          entityId,
+          ok: false,
+          error: 'product has no code',
+        });
+        continue;
+      }
+
+      const createDoc = { ...rest, categoryCode: targetCategoryCode };
 
       try {
         const created = await sendTRPCMessage({
@@ -72,30 +142,23 @@ router.post('/collective', async (req: Request, res: Response) => {
           module: 'products',
           action: 'createProduct',
           input: { doc: createDoc },
-          defaultValue: null,
         });
 
-        if (!created) {
-          results.push({
-            code: doc?.code,
-            entityId,
-            ok: false,
-            error: 'createProduct returned null',
-          });
-        } else {
-          results.push({
-            code: doc?.code,
-            entityId,
-            ok: true,
-            productId: created._id,
-          });
-        }
-      } catch (e: any) {
         results.push({
-          code: doc?.code,
+          code: doc.code,
           entityId,
-          ok: false,
-          error: e?.message || String(e),
+          ok: true,
+          productId: created?._id,
+        });
+      } catch (e: any) {
+        const msg = e?.message || String(e);
+        const alreadyExists = /code must be unique|already exists/i.test(msg);
+
+        results.push({
+          code: doc.code,
+          entityId,
+          ok: alreadyExists,
+          error: alreadyExists ? undefined : msg,
         });
       }
     }
@@ -120,7 +183,13 @@ router.post('/collective', async (req: Request, res: Response) => {
 router.post('/collective-push', async (req: Request, res: Response) => {
   try {
     const { subdomain, payload } = req.body || {};
-    const { collectiveId, targetSubdomain, posToken } = payload || {};
+    const {
+      collectiveId,
+      targetSubdomain,
+      posToken,
+      supplierId,
+      supplierName,
+    } = payload || {};
 
     console.log('payload', JSON.stringify(payload));
     console.log('subdomain', subdomain);
@@ -135,6 +204,10 @@ router.post('/collective-push', async (req: Request, res: Response) => {
 
     if (!posToken) {
       return res.status(400).json({ error: 'posToken is required' });
+    }
+
+    if (!supplierId) {
+      return res.status(400).json({ error: 'supplierId is required' });
     }
 
     if (!(await isValid(targetSubdomain, COLLECTIVE_BUNDLE_TYPE))) {
@@ -184,7 +257,12 @@ router.post('/collective-push', async (req: Request, res: Response) => {
 
     const body = JSON.stringify({
       subdomain: targetSubdomain,
-      payload: { collectiveId, products },
+      payload: {
+        collectiveId,
+        products,
+        supplierId,
+        supplierName,
+      },
     });
 
     const signature = crypto
