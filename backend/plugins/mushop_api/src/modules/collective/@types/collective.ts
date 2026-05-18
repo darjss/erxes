@@ -44,6 +44,7 @@ export interface ICollective {
   ownerUserId?: string;
 
   targetSubdomain: string;
+  targetPosToken?: string;
   supplierIds: string[];
   status?: string;
   syncResults?: ICollectiveSupplierSyncResult[];

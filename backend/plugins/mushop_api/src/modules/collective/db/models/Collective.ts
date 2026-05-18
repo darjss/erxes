@@ -78,7 +78,7 @@ export const loadCollectiveClass = (models: IModels) => {
     }
 
     public static async createCollective(doc: ICollective) {
-      const { targetSubdomain, supplierIds } = doc || {};
+      const { targetSubdomain, supplierIds, targetPosToken } = doc || {};
 
       if (!targetSubdomain?.trim()) {
         throw new Error('targetSubdomain is required');
@@ -102,6 +102,7 @@ export const loadCollectiveClass = (models: IModels) => {
 
       return models.Collective.create({
         targetSubdomain,
+        targetPosToken,
         supplierIds,
         status: COLLECTIVE_STATUS.PENDING,
       });

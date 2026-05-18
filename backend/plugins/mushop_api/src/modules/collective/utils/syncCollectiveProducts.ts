@@ -22,6 +22,7 @@ interface CollectiveWebhookResult {
 const postToSupplierPush = async ({
   supplierSubdomain,
   targetSubdomain,
+  targetPosToken,
   collectiveId,
   posToken,
   supplierId,
@@ -29,6 +30,7 @@ const postToSupplierPush = async ({
 }: {
   supplierSubdomain: string;
   targetSubdomain: string;
+  targetPosToken: string;
   collectiveId: string;
   posToken: string;
   supplierId: string;
@@ -51,6 +53,7 @@ const postToSupplierPush = async ({
     payload: {
       collectiveId,
       targetSubdomain,
+      targetPosToken,
       posToken,
       supplierId,
       supplierName,
@@ -92,6 +95,15 @@ export const syncCollectiveProducts = async ({
 
   if (!collective) return;
 
+  if (!collective.targetPosToken) {
+    await models.Collective.updateSyncProgress(collectiveId, {
+      status: COLLECTIVE_STATUS.FAILED,
+    });
+    throw new Error(
+      `Collective ${collectiveId} has no targetPosToken; cannot sync`,
+    );
+  }
+
   await models.Collective.updateSyncProgress(collectiveId, {
     status: COLLECTIVE_STATUS.SYNCING,
   });
@@ -125,6 +137,7 @@ export const syncCollectiveProducts = async ({
       const response = await postToSupplierPush({
         supplierSubdomain: supplier.subdomain,
         targetSubdomain: collective.targetSubdomain,
+        targetPosToken: collective.targetPosToken,
         collectiveId: collective._id,
         posToken: supplier.posToken,
         supplierId: supplier._id,

@@ -39,6 +39,7 @@ export const types = `
     ownerUserId: String
 
     targetSubdomain: String
+    targetPosToken: String
     supplierIds: [String]
     suppliers: [MushopSupplier]
     status: String

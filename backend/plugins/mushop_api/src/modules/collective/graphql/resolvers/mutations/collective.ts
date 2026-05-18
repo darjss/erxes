@@ -1,5 +1,6 @@
 import { IContext } from '~/connectionResolvers';
 import { syncCollectiveProducts } from '@/collective/utils/syncCollectiveProducts';
+import { provisionCollectivePos } from '@/collective/utils/provisionCollectivePos';
 import { Resolver } from 'erxes-api-shared/core-types';
 import { COLLECTIVE_STATUS } from '~/modules/collective/@types/collective';
 
@@ -15,8 +16,11 @@ export const collectiveMutations: Record<string, Resolver> = {
     },
     { models }: IContext,
   ) => {
+    const pos = await provisionCollectivePos({ targetSubdomain });
+
     const collective = await models.Collective.createCollective({
       targetSubdomain,
+      targetPosToken: pos.token,
       supplierIds,
     });
 

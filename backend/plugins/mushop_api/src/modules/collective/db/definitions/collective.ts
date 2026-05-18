@@ -64,6 +64,7 @@ export const collectiveSchema = new Schema<ICollectiveDocument>(
       unique: true,
       label: 'Target SaaS subdomain',
     },
+    targetPosToken: { type: String, label: 'Target POS token' },
     supplierIds: { type: [String], default: [], index: true },
     status: {
       type: String,

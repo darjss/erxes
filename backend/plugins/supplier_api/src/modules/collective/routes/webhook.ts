@@ -16,55 +16,25 @@ interface CollectiveProductResult {
   error?: string;
 }
 
-const ensureSupplierCategory = async ({
-  subdomain,
-  collectiveId,
-  supplierId,
-  supplierName,
-}: {
-  subdomain: string;
-  collectiveId: string;
-  supplierId: string;
-  supplierName?: string;
-}): Promise<string> => {
-  const code = `collective-${collectiveId}-${supplierId}`;
-
-  const existing = (await sendTRPCMessage({
-    subdomain,
-    pluginName: 'core',
-    method: 'query',
-    module: 'productCategories',
-    action: 'findOne',
-    input: { query: { code } },
-    defaultValue: null,
-  })) as { _id: string; code: string } | null;
-
-  if (existing?._id) return existing._id;
-
-  const created = (await sendTRPCMessage({
-    subdomain,
-    pluginName: 'core',
-    method: 'mutation',
-    module: 'productCategories',
-    action: 'createProductCategory',
-    input: {
-      doc: {
-        name: supplierName || `Supplier ${supplierId}`,
-        code,
-      },
-    },
-  })) as { _id: string; code: string };
-
-  return created._id;
+const deterministicObjectId = (...parts: string[]): string => {
+  return crypto
+    .createHash('sha1')
+    .update(parts.join(':'))
+    .digest('hex')
+    .slice(0, 24);
 };
 
 router.post('/collective', async (req: Request, res: Response) => {
   try {
     const { subdomain, payload } = req.body || {};
-    const { collectiveId, products, supplierId, supplierName } = payload || {};
-
-    console.log('2 payload', JSON.stringify(payload));
-    console.log('2 products', JSON.stringify(products));
+    const {
+      collectiveId,
+      products,
+      supplierId,
+      supplierName,
+      sourcePosToken,
+      targetPosToken,
+    } = payload || {};
 
     if (!subdomain) {
       return res.status(400).json({ error: 'subdomain is required' });
@@ -86,79 +56,114 @@ router.post('/collective', async (req: Request, res: Response) => {
       return res.status(400).json({ error: 'payload.supplierId is required' });
     }
 
+    if (!targetPosToken) {
+      return res
+        .status(400)
+        .json({ error: 'payload.targetPosToken is required' });
+    }
+
     if (!(await isValid(subdomain, COLLECTIVE_BUNDLE_TYPE))) {
       return res.status(403).json({
         error: `Subdomain "${subdomain}" does not have an active "${COLLECTIVE_BUNDLE_TYPE}" bundle`,
       });
     }
 
-    const targetCategoryId = await ensureSupplierCategory({
-      subdomain,
+    const categoryCode = `collective-${collectiveId}-${supplierId}`;
+    const categoryId = deterministicObjectId(
+      'collective-cat',
       collectiveId,
       supplierId,
-      supplierName,
+    );
+
+    await sendTRPCMessage({
+      subdomain,
+      pluginName: 'posclient',
+      method: 'mutation',
+      module: 'posclient',
+      action: 'crudData',
+      input: {
+        token: targetPosToken,
+        type: 'productCategory',
+        action: 'create',
+        object: {
+          _id: categoryId,
+          name: supplierName || `Supplier ${supplierId}`,
+          code: categoryCode,
+        },
+      },
     });
 
     const results: CollectiveProductResult[] = [];
 
     for await (const doc of products) {
-      const {
-        _id: entityId,
-        __v,
-        createdAt,
-        updatedAt,
-        categoryId,
-        vendorId,
-        uom,
-        subUoms,
-        tokens,
-        prices,
-        isCheckRems,
-        taxRules,
-        scopeBrandIds,
-        tagIds,
-        mergedIds,
-        sameDefault,
-        sameMasks,
-        ...rest
-      } = doc || {};
+      const { _id: sourceProductId, prices, ...rest } = doc || {};
+
+      delete (rest as any).__v;
+      delete (rest as any).createdAt;
+      delete (rest as any).updatedAt;
+      delete (rest as any).categoryId;
+      delete (rest as any).vendorId;
+      delete (rest as any).tokens;
+      delete (rest as any).isCheckRems;
+      delete (rest as any).taxRules;
+      delete (rest as any).scopeBrandIds;
+      delete (rest as any).mergedIds;
+      delete (rest as any).sameDefault;
+      delete (rest as any).sameMasks;
 
       if (!doc?.code) {
         results.push({
-          entityId,
+          entityId: sourceProductId,
           ok: false,
           error: 'product has no code',
         });
         continue;
       }
 
-      const createDoc = { ...rest, categoryId: targetCategoryId };
+      const targetProductId = deterministicObjectId(
+        'collective-prod',
+        supplierId,
+        sourceProductId || doc.code,
+      );
+
+      const unitPrice =
+        sourcePosToken && prices ? prices[sourcePosToken] : undefined;
+
+      const object = {
+        ...rest,
+        _id: targetProductId,
+        code: `${doc.code}_${supplierName ?? supplierId}`,
+        categoryId,
+        ...(unitPrice !== undefined ? { unitPrice } : {}),
+      };
 
       try {
-        const created = await sendTRPCMessage({
+        await sendTRPCMessage({
           subdomain,
-          pluginName: 'core',
+          pluginName: 'posclient',
           method: 'mutation',
-          module: 'products',
-          action: 'createProduct',
-          input: { doc: createDoc },
+          module: 'posclient',
+          action: 'crudData',
+          input: {
+            token: targetPosToken,
+            type: 'product',
+            action: 'create',
+            object,
+          },
         });
 
         results.push({
           code: doc.code,
-          entityId,
+          entityId: sourceProductId,
           ok: true,
-          productId: created?._id,
+          productId: targetProductId,
         });
       } catch (e: any) {
-        const msg = e?.message || String(e);
-        const alreadyExists = /code must be unique|already exists/i.test(msg);
-
         results.push({
           code: doc.code,
-          entityId,
-          ok: alreadyExists,
-          error: alreadyExists ? undefined : msg,
+          entityId: sourceProductId,
+          ok: false,
+          error: e?.message || String(e),
         });
       }
     }
@@ -186,13 +191,11 @@ router.post('/collective-push', async (req: Request, res: Response) => {
     const {
       collectiveId,
       targetSubdomain,
+      targetPosToken,
       posToken,
       supplierId,
       supplierName,
     } = payload || {};
-
-    console.log('payload', JSON.stringify(payload));
-    console.log('subdomain', subdomain);
 
     if (!subdomain) {
       return res.status(400).json({ error: 'subdomain is required' });
@@ -200,6 +203,10 @@ router.post('/collective-push', async (req: Request, res: Response) => {
 
     if (!targetSubdomain) {
       return res.status(400).json({ error: 'targetSubdomain is required' });
+    }
+
+    if (!targetPosToken) {
+      return res.status(400).json({ error: 'targetPosToken is required' });
     }
 
     if (!posToken) {
@@ -226,8 +233,6 @@ router.post('/collective-push', async (req: Request, res: Response) => {
       defaultValue: [],
     })) as Record<string, any>[];
 
-    console.log('products', JSON.stringify(products));
-
     if (!products.length) {
       return res.status(200).json({
         success: true,
@@ -252,9 +257,7 @@ router.post('/collective-push', async (req: Request, res: Response) => {
       : SUPPLIER_API_URL.replace('<subdomain>', targetSubdomain);
 
     const endpoint = `${baseUrl}/pl:supplier/webhook/mushop/collective`;
-
     console.log('endpoint', endpoint);
-
     const body = JSON.stringify({
       subdomain: targetSubdomain,
       payload: {
@@ -262,6 +265,8 @@ router.post('/collective-push', async (req: Request, res: Response) => {
         products,
         supplierId,
         supplierName,
+        sourcePosToken: posToken,
+        targetPosToken,
       },
     });
 
@@ -291,6 +296,49 @@ router.post('/collective-push', async (req: Request, res: Response) => {
     return res.status(200).type('application/json').send(text);
   } catch (e: any) {
     console.error('collective-push webhook failed:', e);
+
+    return res.status(400).json({ error: e.message });
+  }
+});
+
+router.post('/create-pos', async (req: Request, res: Response) => {
+  try {
+    const { subdomain, payload } = req.body || {};
+    const { name, description } = payload || {};
+
+    if (!subdomain) {
+      return res.status(400).json({ error: 'subdomain is required' });
+    }
+
+    if (!(await isValid(subdomain, COLLECTIVE_BUNDLE_TYPE))) {
+      return res.status(403).json({
+        error: `Subdomain "${subdomain}" does not have an active "${COLLECTIVE_BUNDLE_TYPE}" bundle`,
+      });
+    }
+
+    const pos = (await sendTRPCMessage({
+      subdomain,
+      pluginName: 'sales',
+      method: 'mutation',
+      module: 'pos',
+      action: 'create',
+      input: {
+        doc: {
+          name: name || 'Collective POS',
+          description: description || `Auto-provisioned POS for ${subdomain}`,
+        },
+      },
+    })) as { _id: string; token: string } | null;
+
+    if (!pos?.token) {
+      return res
+        .status(502)
+        .json({ error: `sales_api did not return a POS token` });
+    }
+
+    return res.status(200).json({ _id: pos._id, token: pos.token });
+  } catch (e: any) {
+    console.error('create-pos webhook failed:', e);
 
     return res.status(400).json({ error: e.message });
   }
