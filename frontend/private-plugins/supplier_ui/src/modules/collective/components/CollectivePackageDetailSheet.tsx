@@ -8,13 +8,17 @@ import {
   Sheet,
   Spinner,
   Textarea,
+  toast,
   useQueryState,
 } from 'erxes-ui';
 import { useMemo } from 'react';
 import { useCollectivePackageDetail } from '../hooks/useCollectivePackageDetail';
 import { ICollectivePackage } from '../hooks/useCollectivePackages';
+import { useEditCollectivePackageStatus } from '../hooks/useEditCollectivePackageStatus';
 import { IPoscProduct, usePoscProducts } from '../hooks/usePoscProducts';
 import { usePosclientConfigs } from '../hooks/usePosclientConfigs';
+
+const PACKAGE_STATUSES = ['draft', 'active', 'archived'] as const;
 
 const formatNumber = (value?: number | null) =>
   value == null
@@ -88,6 +92,23 @@ const PackageDetailBody = ({ pkg }: { pkg: ICollectivePackage }) => {
     return match?.name || pkg.posToken;
   }, [configs, pkg.posToken]);
 
+  const { editStatus, loading: savingStatus } = useEditCollectivePackageStatus();
+
+  const handleStatusChange = async (nextStatus: string) => {
+    if (!nextStatus || nextStatus === (pkg.status || 'draft')) return;
+
+    try {
+      await editStatus({ variables: { _id: pkg._id, status: nextStatus } });
+      toast({ variant: 'success', title: 'Status updated' });
+    } catch (e: any) {
+      toast({
+        variant: 'destructive',
+        title: 'Failed to update status',
+        description: e?.message,
+      });
+    }
+  };
+
   return (
     <Sheet.Content className="flex flex-auto p-0 overflow-hidden">
       {/* Left: read-only fields */}
@@ -103,14 +124,20 @@ const PackageDetailBody = ({ pkg }: { pkg: ICollectivePackage }) => {
 
                 <div className="flex flex-col gap-2">
                   <ReadOnlyLabel>Status</ReadOnlyLabel>
-                  <Select value={pkg.status || 'draft'} disabled>
+                  <Select
+                    value={pkg.status || 'draft'}
+                    disabled={savingStatus}
+                    onValueChange={handleStatusChange}
+                  >
                     <Select.Trigger className="h-8">
                       <Select.Value />
                     </Select.Trigger>
                     <Select.Content>
-                      <Select.Item value={pkg.status || 'draft'}>
-                        {pkg.status || 'draft'}
-                      </Select.Item>
+                      {PACKAGE_STATUSES.map((s) => (
+                        <Select.Item key={s} value={s}>
+                          {s}
+                        </Select.Item>
+                      ))}
                     </Select.Content>
                   </Select>
                 </div>

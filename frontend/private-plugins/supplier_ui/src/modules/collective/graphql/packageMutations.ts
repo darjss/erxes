@@ -9,3 +9,12 @@ export const ADD_COLLECTIVE_PACKAGE = gql`
   }
   ${COLLECTIVE_PACKAGE_FRAGMENT}
 `;
+
+export const EDIT_COLLECTIVE_PACKAGE_STATUS = gql`
+  mutation CollectivePackageEditStatus($_id: String!, $status: String!) {
+    collectivePackageEditStatus(_id: $_id, status: $status) {
+      ...CollectivePackageFields
+    }
+  }
+  ${COLLECTIVE_PACKAGE_FRAGMENT}
+`;

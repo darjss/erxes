@@ -29,6 +29,11 @@ export interface ICollectivePackageModel
     targetSubdomain: string,
     doc: ICollectivePackageCreateInput,
   ): Promise<ICollectivePackageDocument>;
+  updatePackageStatus(
+    targetSubdomain: string,
+    _id: string,
+    status: string,
+  ): Promise<ICollectivePackageDocument>;
 }
 
 export const loadCollectivePackageClass = (models: IModels) => {
@@ -106,6 +111,52 @@ export const loadCollectivePackageClass = (models: IModels) => {
         collectiveId: collective._id,
         status: status || COLLECTIVE_PACKAGE_STATUS.DRAFT,
       });
+    }
+
+    public static async updatePackageStatus(
+      targetSubdomain: string,
+      _id: string,
+      status: string,
+    ) {
+      if (!targetSubdomain) {
+        throw new Error('targetSubdomain is required');
+      }
+
+      if (!_id) {
+        throw new Error('_id is required');
+      }
+
+      if (!status || !COLLECTIVE_PACKAGE_STATUS.ALL.includes(status)) {
+        throw new Error(
+          `status must be one of: ${COLLECTIVE_PACKAGE_STATUS.ALL.join(', ')}`,
+        );
+      }
+
+      const pkg = await models.CollectivePackage.findOne({ _id }).lean();
+
+      if (!pkg) {
+        throw new Error('Collective package not found');
+      }
+
+      const collective = await models.Collective.findOne({
+        _id: pkg.collectiveId,
+      }).lean();
+
+      if (!collective || collective.targetSubdomain !== targetSubdomain) {
+        throw new Error('Package does not belong to this collective');
+      }
+
+      const updated = await models.CollectivePackage.findOneAndUpdate(
+        { _id },
+        { $set: { status } },
+        { new: true },
+      );
+
+      if (!updated) {
+        throw new Error('Failed to update collective package');
+      }
+
+      return updated;
     }
   }
 

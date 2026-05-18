@@ -297,6 +297,223 @@ router.post('/collective-push', async (req: Request, res: Response) => {
   }
 });
 
+router.post('/collective-purge', async (req: Request, res: Response) => {
+  try {
+    const { subdomain, payload } = req.body || {};
+    const {
+      collectiveId,
+      productIds,
+      supplierId,
+      targetPosToken,
+    } = payload || {};
+
+    if (!subdomain) {
+      return res.status(400).json({ error: 'subdomain is required' });
+    }
+
+    if (!collectiveId) {
+      return res
+        .status(400)
+        .json({ error: 'payload.collectiveId is required' });
+    }
+
+    if (!supplierId) {
+      return res.status(400).json({ error: 'payload.supplierId is required' });
+    }
+
+    if (!targetPosToken) {
+      return res
+        .status(400)
+        .json({ error: 'payload.targetPosToken is required' });
+    }
+
+    if (!Array.isArray(productIds)) {
+      return res
+        .status(400)
+        .json({ error: 'payload.productIds must be an array' });
+    }
+
+    if (!(await isValid(subdomain, COLLECTIVE_BUNDLE_TYPE))) {
+      return res.status(403).json({
+        error: `Subdomain "${subdomain}" does not have an active "${COLLECTIVE_BUNDLE_TYPE}" bundle`,
+      });
+    }
+
+    const results: Array<{ _id: string; ok: boolean; error?: string }> = [];
+
+    for (const productId of productIds) {
+      try {
+        await sendTRPCMessage({
+          subdomain,
+          pluginName: 'posclient',
+          method: 'mutation',
+          module: 'posclient',
+          action: 'crudData',
+          input: {
+            token: targetPosToken,
+            type: 'product',
+            action: 'delete',
+            object: { _id: productId },
+          },
+        });
+        results.push({ _id: productId, ok: true });
+      } catch (e: any) {
+        results.push({ _id: productId, ok: false, error: e?.message || String(e) });
+      }
+    }
+
+    const categoryId = deterministicObjectId(
+      'collective-cat',
+      collectiveId,
+      supplierId,
+    );
+
+    let categoryDeleted = false;
+    let categoryError: string | undefined;
+
+    try {
+      await sendTRPCMessage({
+        subdomain,
+        pluginName: 'posclient',
+        method: 'mutation',
+        module: 'posclient',
+        action: 'crudData',
+        input: {
+          token: targetPosToken,
+          type: 'productCategory',
+          action: 'delete',
+          object: { _id: categoryId },
+        },
+      });
+      categoryDeleted = true;
+    } catch (e: any) {
+      categoryError = e?.message || String(e);
+    }
+
+    const deleted = results.filter((r) => r.ok).length;
+    const failed = results.length - deleted;
+
+    return res.status(200).json({
+      success: failed === 0 && !categoryError,
+      collectiveId,
+      total: results.length,
+      deleted,
+      failed,
+      results,
+      categoryDeleted,
+      categoryError,
+    });
+  } catch (e: any) {
+    console.error('collective-purge webhook failed:', e);
+    return res.status(400).json({ error: e.message });
+  }
+});
+
+router.post('/collective-purge-push', async (req: Request, res: Response) => {
+  try {
+    const { subdomain, payload } = req.body || {};
+    const {
+      collectiveId,
+      targetSubdomain,
+      targetPosToken,
+      posToken,
+      supplierId,
+    } = payload || {};
+
+    if (!subdomain) {
+      return res.status(400).json({ error: 'subdomain is required' });
+    }
+
+    if (!targetSubdomain) {
+      return res.status(400).json({ error: 'targetSubdomain is required' });
+    }
+
+    if (!targetPosToken) {
+      return res.status(400).json({ error: 'targetPosToken is required' });
+    }
+
+    if (!posToken) {
+      return res.status(400).json({ error: 'posToken is required' });
+    }
+
+    if (!supplierId) {
+      return res.status(400).json({ error: 'supplierId is required' });
+    }
+
+    if (!(await isValid(targetSubdomain, COLLECTIVE_BUNDLE_TYPE))) {
+      return res.status(403).json({
+        error: `Subdomain "${targetSubdomain}" does not have an active "${COLLECTIVE_BUNDLE_TYPE}" bundle`,
+      });
+    }
+
+    const products = (await sendTRPCMessage({
+      subdomain,
+      pluginName: 'posclient',
+      method: 'query',
+      module: 'products',
+      action: 'findByToken',
+      input: { token: posToken },
+      defaultValue: [],
+    })) as Record<string, any>[];
+
+    const productIds = products
+      .map((p) => p?._id)
+      .filter((id): id is string => !!id);
+
+    const { SUPPLIER_API_URL, MUSHOP_SECRET } = process.env;
+
+    if (!SUPPLIER_API_URL || !MUSHOP_SECRET) {
+      return res
+        .status(500)
+        .json({ error: 'SUPPLIER_API_URL or MUSHOP_SECRET is not configured' });
+    }
+
+    const baseUrl = isDev
+      ? SUPPLIER_API_URL
+      : SUPPLIER_API_URL.replace('<subdomain>', targetSubdomain);
+
+    const endpoint = `${baseUrl}/pl:supplier/webhook/mushop/collective-purge`;
+
+    const body = JSON.stringify({
+      subdomain: targetSubdomain,
+      payload: {
+        collectiveId,
+        productIds,
+        supplierId,
+        targetPosToken,
+      },
+    });
+
+    const signature = crypto
+      .createHmac('sha256', MUSHOP_SECRET)
+      .update(body)
+      .digest('hex');
+
+    const upstream = await fetch(endpoint, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Signature': `sha256=${signature}`,
+      },
+      body,
+      signal: AbortSignal.timeout(120000),
+    });
+
+    const text = await upstream.text();
+
+    if (!upstream.ok) {
+      return res
+        .status(502)
+        .json({ error: `target HTTP ${upstream.status}: ${text}` });
+    }
+
+    return res.status(200).type('application/json').send(text);
+  } catch (e: any) {
+    console.error('collective-purge-push webhook failed:', e);
+    return res.status(400).json({ error: e.message });
+  }
+});
+
 router.post('/create-pos', async (req: Request, res: Response) => {
   try {
     const { subdomain, payload } = req.body || {};

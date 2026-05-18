@@ -70,4 +70,38 @@ export const collectiveMutations = {
 
     return response.package;
   },
+
+  collectivePackageEditStatus: async (
+    _root: undefined,
+    { _id, status }: { _id: string; status: string },
+    { subdomain }: IContext,
+  ) => {
+    if (!_id) throw new Error('_id is required');
+    if (!status?.trim()) throw new Error('status is required');
+
+    const response = await requestMessage<{
+      success?: boolean;
+      package?: any;
+      error?: string;
+    }>({
+      subdomain,
+      path: 'collective-package/update-status',
+      platform: 'mushop',
+      payload: {
+        data: {
+          targetSubdomain: subdomain,
+          _id,
+          status,
+        },
+      },
+    });
+
+    if (!response?.success || !response.package) {
+      throw new Error(
+        response?.error || 'Failed to update collective package status',
+      );
+    }
+
+    return response.package;
+  },
 };

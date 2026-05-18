@@ -87,9 +87,11 @@ const postToSupplierPush = async ({
 export const syncCollectiveProducts = async ({
   models,
   collectiveId,
+  supplierIds,
 }: {
   models: IModels;
   collectiveId: string;
+  supplierIds?: string[];
 }): Promise<void> => {
   const collective = await models.Collective.findOne({ _id: collectiveId });
 
@@ -108,8 +110,12 @@ export const syncCollectiveProducts = async ({
     status: COLLECTIVE_STATUS.SYNCING,
   });
 
+  const filterIds = supplierIds?.length
+    ? supplierIds
+    : collective.supplierIds;
+
   const suppliers = await models.Supplier.find({
-    _id: { $in: collective.supplierIds },
+    _id: { $in: filterIds },
   }).lean();
 
   const results: ICollectiveSupplierSyncResult[] = [];

@@ -68,6 +68,46 @@ router.post('/collective-package/list', async (req: Request, res: Response) => {
   }
 });
 
+router.post(
+  '/collective-package/update-status',
+  async (req: Request, res: Response) => {
+    try {
+      const { subdomain, payload } = req.body || {};
+      const { data } = payload || {};
+      const { targetSubdomain, _id, status } = data || {};
+
+      if (!subdomain) {
+        return res.status(400).json({ error: 'subdomain is required' });
+      }
+
+      if (!targetSubdomain) {
+        return res.status(400).json({ error: 'targetSubdomain is required' });
+      }
+
+      if (!_id) {
+        return res.status(400).json({ error: '_id is required' });
+      }
+
+      if (!status) {
+        return res.status(400).json({ error: 'status is required' });
+      }
+
+      const models = await generateModels(subdomain);
+
+      const pkg = await models.CollectivePackage.updatePackageStatus(
+        targetSubdomain,
+        _id,
+        status,
+      );
+
+      return res.status(200).json({ success: true, package: pkg });
+    } catch (e: any) {
+      console.error('collective-package/update-status failed:', e);
+      return res.status(400).json({ error: e.message });
+    }
+  },
+);
+
 router.post('/collective-package/detail', async (req: Request, res: Response) => {
   try {
     const { subdomain, payload } = req.body || {};

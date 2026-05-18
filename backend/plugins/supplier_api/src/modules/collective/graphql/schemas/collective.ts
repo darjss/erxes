@@ -107,4 +107,5 @@ export const queries = `
 export const mutations = `
   collectiveUpdateProfile(input: CollectiveInput!): Collective
   collectivePackageAdd(input: CollectivePackageInput!): CollectivePackage
+  collectivePackageEditStatus(_id: String!, status: String!): CollectivePackage
 `;
