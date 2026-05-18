@@ -39,7 +39,7 @@ const ensureSupplierCategory = async ({
     defaultValue: null,
   })) as { _id: string; code: string } | null;
 
-  if (existing?._id) return existing.code;
+  if (existing?._id) return existing._id;
 
   const created = (await sendTRPCMessage({
     subdomain,
@@ -55,7 +55,7 @@ const ensureSupplierCategory = async ({
     },
   })) as { _id: string; code: string };
 
-  return created.code;
+  return created._id;
 };
 
 router.post('/collective', async (req: Request, res: Response) => {
@@ -92,7 +92,7 @@ router.post('/collective', async (req: Request, res: Response) => {
       });
     }
 
-    const targetCategoryCode = await ensureSupplierCategory({
+    const targetCategoryId = await ensureSupplierCategory({
       subdomain,
       collectiveId,
       supplierId,
@@ -132,7 +132,7 @@ router.post('/collective', async (req: Request, res: Response) => {
         continue;
       }
 
-      const createDoc = { ...rest, categoryCode: targetCategoryCode };
+      const createDoc = { ...rest, categoryId: targetCategoryId };
 
       try {
         const created = await sendTRPCMessage({
