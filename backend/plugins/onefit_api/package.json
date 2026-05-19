@@ -21,7 +21,10 @@
     "erxes-api-shared": "workspace:^",
     "@zxing/library": "^0.21.3",
     "graphql-tag": "^2.12.6",
+    "multer": "^1.4.5-lts.1",
     "sharp": "^0.33.0"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "@types/multer": "^1.4.12"
+  }
 }
