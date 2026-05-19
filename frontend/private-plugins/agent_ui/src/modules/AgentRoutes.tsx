@@ -1,9 +1,21 @@
 import { lazy, Suspense } from 'react';
-import { Route, Routes } from 'react-router';
+import { Navigate, Route, Routes } from 'react-router';
 
-const IndexPage = lazy(() =>
-  import('~/pages/agent/IndexPage').then((module) => ({
-    default: module.IndexPage,
+const AssistantIndexPage = lazy(() =>
+  import('~/pages/assistant/IndexPage').then((module) => ({
+    default: module.AssistantIndexPage,
+  })),
+);
+
+const AiAgentsIndexPage = lazy(() =>
+  import('~/pages/agents/IndexPage').then((module) => ({
+    default: module.AiAgentsIndexPage,
+  })),
+);
+
+const OpenClawIndexPage = lazy(() =>
+  import('~/pages/agent/OpenClawPage').then((module) => ({
+    default: module.OpenClawIndexPage,
   })),
 );
 
@@ -19,13 +31,37 @@ const AgentTemplateDetailPage = lazy(() =>
   })),
 );
 
+const LockedCompanyBrainModulePage = lazy(() =>
+  import('~/pages/locked-module/IndexPage').then((module) => ({
+    default: module.LockedCompanyBrainModulePage,
+  })),
+);
+
+const OpencodeIndexPage = lazy(() =>
+  import('~/pages/opencode/IndexPage').then((module) => ({
+    default: module.OpencodeIndexPage,
+  })),
+);
+
 const AgentMain = () => {
   return (
     <Suspense fallback={<div />}>
       <Routes>
-        <Route path="agent" element={<IndexPage />} />
+        <Route path="/" element={<Navigate to="/agent/assistant" replace />} />
+        <Route
+          path="agent"
+          element={<Navigate to="/agent/assistant" replace />}
+        />
+        <Route path="assistant" element={<AssistantIndexPage />} />
+        <Route path="agents" element={<AiAgentsIndexPage />} />
+        <Route path="assistant/:id" element={<OpenClawIndexPage />} />
+        <Route path="agents/:id" element={<OpencodeIndexPage />} />
         <Route path="templates" element={<AgentTemplatesIndexPage />} />
         <Route path="templates/:id" element={<AgentTemplateDetailPage />} />
+        <Route
+          path=":lockedModuleSlug"
+          element={<LockedCompanyBrainModulePage />}
+        />
       </Routes>
     </Suspense>
   );

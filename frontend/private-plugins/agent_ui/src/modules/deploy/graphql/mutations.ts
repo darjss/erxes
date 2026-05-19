@@ -1,9 +1,10 @@
 import { gql } from '@apollo/client';
 
 export const DEPLOY_AGENT = gql`
-  mutation deployAgent($input: DeployAgentInput!) {
-    deployAgent(input: $input) {
+  mutation deployAgent($identifierId: String!, $input: DeployAgentInput!) {
+    deployAgent(identifierId: $identifierId, input: $input) {
       _id
+      identifierId
       name
       url
       token
@@ -16,9 +17,10 @@ export const DEPLOY_AGENT = gql`
 `;
 
 export const APPROVE_AGENT = gql`
-  mutation ApproveAgent($input: ApproveAgentInput!) {
-    approveAgent(input: $input) {
+  mutation ApproveAgent($identifierId: String!, $input: ApproveAgentInput!) {
+    approveAgent(identifierId: $identifierId, input: $input) {
       _id
+      identifierId
       name
       url
       token
@@ -37,9 +39,10 @@ export const UPDATE_AGENT_FILE = gql`
 `;
 
 export const DESTROY_AGENT = gql`
-  mutation DestroyAgent {
-    destroyAgent {
+  mutation DestroyAgent($identifierId: String!) {
+    destroyAgent(identifierId: $identifierId) {
       _id
+      identifierId
       name
       url
       token
@@ -50,4 +53,3 @@ export const DESTROY_AGENT = gql`
     }
   }
 `;
-

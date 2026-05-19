@@ -1,0 +1,32 @@
+import { gql } from '@apollo/client';
+
+export const GET_IDENTIFIERS = gql`
+  query GetIdentifiers($kind: String) {
+    getIdentifiers(kind: $kind) {
+      _id
+      name
+      slug
+      kind
+      description
+      createdAt
+      updatedAt
+    }
+  }
+`;
+
+export const GET_IDENTIFIER = gql`
+  query GetIdentifier($identifierId: String!) {
+    getIdentifier(identifierId: $identifierId) {
+      _id
+      name
+      slug
+      kind
+      description
+      createdAt
+      updatedAt
+    }
+  }
+`;
+
+export const GET_ASSISTANT_ORGS = GET_IDENTIFIERS;
+export const GET_ASSISTANT_ORG = GET_IDENTIFIER;

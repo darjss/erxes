@@ -1,5 +1,6 @@
 import { IContext } from '~/connectionResolvers';
 import { SERVER_STATUSES } from '~/modules/agent/constants';
+import { ensureLegacyIdentifierLinks } from '~/modules/assistantOrg/utils';
 import {
   addAgent,
   addDiscordGuild,
@@ -16,29 +17,49 @@ export const agentMutations = {
   deployAgent: async (
     _root: undefined,
     {
+      identifierId,
       input,
     }: {
-      input: { name: string; token: string; kimiApiKey: string };
+      identifierId: string;
+      input: { token: string; kimiApiKey: string };
     },
     { models, subdomain }: IContext,
   ) => {
-    const { name, token, kimiApiKey } = input || {};
+    const { token, kimiApiKey } = input || {};
 
-    if (!kimiApiKey) {
+    if (!token?.trim()) {
+      throw new Error('Discord bot token is required');
+    }
+
+    if (!kimiApiKey?.trim()) {
       throw new Error('kimiApiKey is required');
     }
 
-    const agentServer = await models.AgentServer.findOne({}).lean();
+    await ensureLegacyIdentifierLinks(models);
+
+    const identifier = await models.Identifier.findById(identifierId).lean();
+
+    if (!identifier) {
+      throw new Error('Identifier not found');
+    }
+
+    if (identifier.kind && identifier.kind !== 'assistant') {
+      throw new Error(
+        'This identifier belongs to AI Agents and cannot deploy OpenClaw.',
+      );
+    }
+
+    const agentServer = await models.AgentServer.findOne({ identifierId }).lean();
 
     if (agentServer) {
-      return agentServer;
+      return { ...agentServer, identifierId: agentServer.identifierId };
     }
 
     try {
       const server = await deployServer({
         orgId: subdomain,
-        agentId: name,
-        discordBotToken: token,
+        agentId: identifier.slug,
+        discordBotToken: token.trim(),
         kimiApiKey,
       });
 
@@ -47,7 +68,8 @@ export const agentMutations = {
       }
 
       return models.AgentServer.create({
-        agentId: name,
+        identifierId,
+        agentId: identifier.slug,
         name: server.serverName,
         url: server.serverUrl,
         token: server.gatewayToken,
@@ -55,7 +77,7 @@ export const agentMutations = {
         status: SERVER_STATUSES.DEPLOYING,
       });
     } catch (error) {
-      await models.AgentServer.deleteOne({});
+      await models.AgentServer.deleteOne({ identifierId });
 
       const message = error instanceof Error ? error.message : String(error);
       throw new Error(message);
@@ -64,12 +86,17 @@ export const agentMutations = {
 
   approveAgent: async (
     _root: undefined,
-    { input }: { input: { code: string } },
+    {
+      identifierId,
+      input,
+    }: { identifierId: string; input: { code: string } },
     { models }: IContext,
   ) => {
+    await ensureLegacyIdentifierLinks(models);
+
     const { code } = input || {};
 
-    const agent = await models.AgentServer.findOne({}).lean();
+    const agent = await models.AgentServer.findOne({ identifierId }).lean();
 
     if (!agent) {
       throw new Error('Agent not found');
@@ -91,10 +118,12 @@ export const agentMutations = {
 
   destroyAgent: async (
     _root: undefined,
-    _args: undefined,
+    { identifierId }: { identifierId: string },
     { models }: IContext,
   ) => {
-    const agent = await models.AgentServer.findOne({}).lean();
+    await ensureLegacyIdentifierLinks(models);
+
+    const agent = await models.AgentServer.findOne({ identifierId }).lean();
 
     if (!agent) {
       throw new Error('Agent not found');
@@ -103,9 +132,9 @@ export const agentMutations = {
     try {
       await destroyServer(agent);
 
-      await models.AgentServer.deleteOne({});
+      await models.AgentServer.deleteOne({ _id: agent._id });
 
-      return agent;
+      return { ...agent, identifierId: agent.identifierId };
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       throw new Error(message);
@@ -115,8 +144,10 @@ export const agentMutations = {
   addAgent: async (
     _root: undefined,
     {
+      identifierId,
       input,
     }: {
+      identifierId: string;
       input: {
         agentId: string;
         botName: string;
@@ -128,7 +159,9 @@ export const agentMutations = {
     },
     { models }: IContext,
   ) => {
-    const server = await models.AgentServer.findOne({}).lean();
+    await ensureLegacyIdentifierLinks(models);
+
+    const server = await models.AgentServer.findOne({ identifierId }).lean();
 
     if (!server) {
       throw new Error('Agent server not found');
@@ -146,11 +179,17 @@ export const agentMutations = {
   updateAgentFile: async (
     _root: undefined,
     {
+      identifierId,
       input,
-    }: { input: { filename: string; content: string; agentId?: string } },
+    }: {
+      identifierId: string;
+      input: { filename: string; content: string; agentId?: string };
+    },
     { models }: IContext,
   ) => {
-    const server = await models.AgentServer.findOne({}).lean();
+    await ensureLegacyIdentifierLinks(models);
+
+    const server = await models.AgentServer.findOne({ identifierId }).lean();
 
     if (!server) {
       throw new Error('Agent server not found');
@@ -172,10 +211,12 @@ export const agentMutations = {
 
   fixAndRestartAgent: async (
     _root: undefined,
-    _args: undefined,
+    { identifierId }: { identifierId: string },
     { models }: IContext,
   ) => {
-    const server = await models.AgentServer.findOne({}).lean();
+    await ensureLegacyIdentifierLinks(models);
+
+    const server = await models.AgentServer.findOne({ identifierId }).lean();
 
     if (!server) {
       throw new Error('Agent server not found');
@@ -193,11 +234,17 @@ export const agentMutations = {
   updateDiscordSettings: async (
     _root: undefined,
     {
+      identifierId,
       input,
-    }: { input: { botToken: string; dmPolicy?: 'pairing' | 'open' } },
+    }: {
+      identifierId: string;
+      input: { botToken: string; dmPolicy?: 'pairing' | 'open' };
+    },
     { models }: IContext,
   ) => {
-    const server = await models.AgentServer.findOne({}).lean();
+    await ensureLegacyIdentifierLinks(models);
+
+    const server = await models.AgentServer.findOne({ identifierId }).lean();
 
     if (!server) {
       throw new Error('Agent server not found');
@@ -214,10 +261,15 @@ export const agentMutations = {
 
   addDiscordGuild: async (
     _root: undefined,
-    { input }: { input: { guildId: string } },
+    {
+      identifierId,
+      input,
+    }: { identifierId: string; input: { guildId: string } },
     { models }: IContext,
   ) => {
-    const server = await models.AgentServer.findOne({}).lean();
+    await ensureLegacyIdentifierLinks(models);
+
+    const server = await models.AgentServer.findOne({ identifierId }).lean();
 
     if (!server) {
       throw new Error('Agent server not found');
@@ -234,10 +286,15 @@ export const agentMutations = {
 
   setKimiApiKey: async (
     _root: undefined,
-    { input }: { input: { kimiApiKey: string } },
+    {
+      identifierId,
+      input,
+    }: { identifierId: string; input: { kimiApiKey: string } },
     { models }: IContext,
   ) => {
-    const server = await models.AgentServer.findOne({}).lean();
+    await ensureLegacyIdentifierLinks(models);
+
+    const server = await models.AgentServer.findOne({ identifierId }).lean();
 
     if (!server) {
       throw new Error('Agent server not found');

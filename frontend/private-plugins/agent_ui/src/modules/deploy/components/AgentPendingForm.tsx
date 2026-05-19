@@ -91,8 +91,8 @@ export const AgentPendingForm = ({ createdAt }: AgentPendingFormProps) => {
   return (
     <div className="flex flex-col gap-5">
       <p className="text-sm text-muted-foreground">
-        The Discord bot will send you an approve token — this may take 5–10
-        minutes. Paste it below to continue.
+        OpenClaw will send an approval token through the Discord bot. This may
+        take 5-10 minutes. Paste it below to continue.
       </p>
       <Form {...form}>
         <form
@@ -103,7 +103,7 @@ export const AgentPendingForm = ({ createdAt }: AgentPendingFormProps) => {
             name="code"
             render={({ field }) => (
               <Form.Item className="w-full">
-                <Form.Label>Enter discord bot code</Form.Label>
+                <Form.Label>Enter Discord bot code</Form.Label>
                 <Form.Control>
                   <Input {...field} className="w-full" />
                 </Form.Control>
@@ -132,7 +132,7 @@ export const AgentPendingForm = ({ createdAt }: AgentPendingFormProps) => {
         disabled={destroyLoading}
         className="w-full"
       >
-        Destroy server & start from beginnig
+        Destroy server and start over
       </Button>
       <DestroyServerDialog
         open={destroyOpen}

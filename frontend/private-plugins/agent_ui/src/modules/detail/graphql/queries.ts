@@ -1,8 +1,8 @@
 import { gql } from '@apollo/client';
 
 export const GET_DISCORD_GUILDS = gql`
-  query GetDiscordGuilds {
-    getDiscordGuilds {
+  query GetDiscordGuilds($identifierId: String!) {
+    getDiscordGuilds(identifierId: $identifierId) {
       guildId
       requireMention
     }
@@ -10,8 +10,8 @@ export const GET_DISCORD_GUILDS = gql`
 `;
 
 export const GET_AGENTS_LIST = gql`
-  query GetAgentsList {
-    getAgentsList {
+  query GetAgentsList($identifierId: String!) {
+    getAgentsList(identifierId: $identifierId) {
       id
       identity
     }
@@ -19,8 +19,8 @@ export const GET_AGENTS_LIST = gql`
 `;
 
 export const GET_AGENT_DETAILS = gql`
-  query GetAgentDetails($agentId: String) {
-    getAgentDetails(agentId: $agentId) {
+  query GetAgentDetails($identifierId: String!, $agentId: String) {
+    getAgentDetails(identifierId: $identifierId, agentId: $agentId) {
       fileName
       content
     }
@@ -28,7 +28,7 @@ export const GET_AGENT_DETAILS = gql`
 `;
 
 export const CHECK_KIMI_KEY_SET = gql`
-  query CheckKimiKeySet {
-    checkKimiKeySet
+  query CheckKimiKeySet($identifierId: String!) {
+    checkKimiKeySet(identifierId: $identifierId)
   }
 `;
