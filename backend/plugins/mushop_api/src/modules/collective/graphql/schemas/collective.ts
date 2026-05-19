@@ -27,6 +27,8 @@ export const types = `
     about: String
     logo: String
     coverImage: String
+    attachments: [String]
+    urls: [String]
     registrationNumber: String
     address: JSON
     primaryEmail: String

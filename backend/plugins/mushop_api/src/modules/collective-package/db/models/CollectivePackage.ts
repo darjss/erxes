@@ -34,6 +34,17 @@ export interface ICollectivePackageModel
     _id: string,
     status: string,
   ): Promise<ICollectivePackageDocument>;
+  editPackage(
+    targetSubdomain: string,
+    _id: string,
+    patch: Partial<{
+      name: string;
+      description: string;
+      coverImage: string;
+      price: number;
+      productIds: string[];
+    }>,
+  ): Promise<ICollectivePackageDocument>;
 }
 
 export const loadCollectivePackageClass = (models: IModels) => {
@@ -111,6 +122,91 @@ export const loadCollectivePackageClass = (models: IModels) => {
         collectiveId: collective._id,
         status: status || COLLECTIVE_PACKAGE_STATUS.DRAFT,
       });
+    }
+
+    public static async editPackage(
+      targetSubdomain: string,
+      _id: string,
+      patch: Partial<{
+        name: string;
+        description: string;
+        coverImage: string;
+        price: number;
+        productIds: string[];
+      }>,
+    ) {
+      if (!targetSubdomain) {
+        throw new Error('targetSubdomain is required');
+      }
+
+      if (!_id) {
+        throw new Error('_id is required');
+      }
+
+      const pkg = await models.CollectivePackage.findOne({ _id }).lean();
+
+      if (!pkg) {
+        throw new Error('Collective package not found');
+      }
+
+      const collective = await models.Collective.findOne({
+        _id: pkg.collectiveId,
+      }).lean();
+
+      if (!collective || collective.targetSubdomain !== targetSubdomain) {
+        throw new Error('Package does not belong to this collective');
+      }
+
+      const update: Record<string, any> = {};
+
+      if (patch.name !== undefined) {
+        if (!patch.name.trim()) throw new Error('name cannot be empty');
+        update.name = patch.name;
+      }
+
+      if (patch.description !== undefined) {
+        update.description = patch.description;
+      }
+
+      if (patch.coverImage !== undefined) {
+        update.coverImage = patch.coverImage;
+      }
+
+      if (patch.price !== undefined) {
+        if (
+          patch.price !== null &&
+          (Number.isNaN(patch.price) || patch.price < 0)
+        ) {
+          throw new Error('price must be a non-negative number');
+        }
+        update.price = patch.price;
+      }
+
+      if (patch.productIds !== undefined) {
+        const unique = Array.from(
+          new Set((patch.productIds || []).filter(Boolean)),
+        );
+        if (!unique.length) {
+          throw new Error('At least one product is required');
+        }
+        update.productIds = unique;
+      }
+
+      if (!Object.keys(update).length) {
+        return models.CollectivePackage.findOne({ _id }).lean() as any;
+      }
+
+      const updated = await models.CollectivePackage.findOneAndUpdate(
+        { _id },
+        { $set: update },
+        { new: true },
+      );
+
+      if (!updated) {
+        throw new Error('Failed to update collective package');
+      }
+
+      return updated;
     }
 
     public static async updatePackageStatus(

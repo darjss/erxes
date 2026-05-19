@@ -71,6 +71,49 @@ export const collectiveMutations = {
     return response.package;
   },
 
+  collectivePackageEdit: async (
+    _root: undefined,
+    {
+      _id,
+      ...patch
+    }: {
+      _id: string;
+      name?: string;
+      description?: string;
+      coverImage?: string;
+      price?: number;
+      productIds?: string[];
+    },
+    { subdomain }: IContext,
+  ) => {
+    if (!_id) throw new Error('_id is required');
+
+    const response = await requestMessage<{
+      success?: boolean;
+      package?: any;
+      error?: string;
+    }>({
+      subdomain,
+      path: 'collective-package/edit',
+      platform: 'mushop',
+      payload: {
+        data: {
+          targetSubdomain: subdomain,
+          _id,
+          patch,
+        },
+      },
+    });
+
+    if (!response?.success || !response.package) {
+      throw new Error(
+        response?.error || 'Failed to update collective package',
+      );
+    }
+
+    return response.package;
+  },
+
   collectivePackageEditStatus: async (
     _root: undefined,
     { _id, status }: { _id: string; status: string },

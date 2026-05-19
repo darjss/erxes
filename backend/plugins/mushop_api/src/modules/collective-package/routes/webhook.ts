@@ -69,6 +69,46 @@ router.post('/collective-package/list', async (req: Request, res: Response) => {
 });
 
 router.post(
+  '/collective-package/edit',
+  async (req: Request, res: Response) => {
+    try {
+      const { subdomain, payload } = req.body || {};
+      const { data } = payload || {};
+      const { targetSubdomain, _id, patch } = data || {};
+
+      if (!subdomain) {
+        return res.status(400).json({ error: 'subdomain is required' });
+      }
+
+      if (!targetSubdomain) {
+        return res.status(400).json({ error: 'targetSubdomain is required' });
+      }
+
+      if (!_id) {
+        return res.status(400).json({ error: '_id is required' });
+      }
+
+      if (!patch || typeof patch !== 'object') {
+        return res.status(400).json({ error: 'patch is required' });
+      }
+
+      const models = await generateModels(subdomain);
+
+      const pkg = await models.CollectivePackage.editPackage(
+        targetSubdomain,
+        _id,
+        patch,
+      );
+
+      return res.status(200).json({ success: true, package: pkg });
+    } catch (e: any) {
+      console.error('collective-package/edit failed:', e);
+      return res.status(400).json({ error: e.message });
+    }
+  },
+);
+
+router.post(
   '/collective-package/update-status',
   async (req: Request, res: Response) => {
     try {

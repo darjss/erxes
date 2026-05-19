@@ -8,6 +8,8 @@ export const COLLECTIVE_FRAGMENT = gql`
     about
     logo
     coverImage
+    attachments
+    urls
     registrationNumber
     address
     primaryEmail

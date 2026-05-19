@@ -18,3 +18,26 @@ export const EDIT_COLLECTIVE_PACKAGE_STATUS = gql`
   }
   ${COLLECTIVE_PACKAGE_FRAGMENT}
 `;
+
+export const EDIT_COLLECTIVE_PACKAGE = gql`
+  mutation CollectivePackageEdit(
+    $_id: String!
+    $name: String
+    $description: String
+    $coverImage: String
+    $price: Float
+    $productIds: [String!]
+  ) {
+    collectivePackageEdit(
+      _id: $_id
+      name: $name
+      description: $description
+      coverImage: $coverImage
+      price: $price
+      productIds: $productIds
+    ) {
+      ...CollectivePackageFields
+    }
+  }
+  ${COLLECTIVE_PACKAGE_FRAGMENT}
+`;
