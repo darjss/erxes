@@ -1,0 +1,20 @@
+{
+  "pos": "POS",
+  "pos-create": "Create POS",
+  "name": "Name",
+  "description": "Description",
+  "cancel": "Cancel",
+  "creating": "Creating...",
+  "error": "Error",
+  "warning": "Warning",
+  "success": "Success",
+  "pos-name-placeholder": "Enter POS name",
+  "pos-description-placeholder": "Enter POS description",
+  "name-required": "Name is required",
+  "name-min-length": "Name must be at least 2 characters",
+  "sales-pipeline": " Sales Pipeline",
+  "pos-create-product-groups-failed": "POS created but failed to save product groups. You can add them later.",
+  "pos-create-slots-failed": "POS created but failed to save slots. You can add them later.",
+  "pos-create-success": "POS created successfully.",
+  "pos-create-failed": "Failed to create POS. Please try again."
+}
