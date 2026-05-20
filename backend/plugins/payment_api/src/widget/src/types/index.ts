@@ -13,6 +13,7 @@ export interface Invoice {
     paymentIds: string[];
     redirectUri: string;
     warningText: string;
+    scannedAt?: string;
     data?: any;
     transactions: Transaction[];
 }
