@@ -3,6 +3,7 @@ import { Button, Dialog, Label } from 'erxes-ui';
 import { IconPlus } from '@tabler/icons-react';
 import POSSlotsManager from '@/pos/slot/components/slot';
 import type { CustomNode } from '@/pos/slot/types';
+import { useTranslation } from 'react-i18next';
 
 interface SlotsDialogProps {
   value?: number | string;

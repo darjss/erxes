@@ -10,6 +10,7 @@ import { Suspense, lazy, useState } from 'react';
 import { useAtom, useAtomValue } from 'jotai';
 
 import { dealsViewAtom } from '@/deals/states/dealsViewState';
+import { useTranslation } from 'react-i18next';
 
 const DealsBoard = lazy(() =>
   import('@/deals/boards/components/DealsBoard').then((mod) => ({

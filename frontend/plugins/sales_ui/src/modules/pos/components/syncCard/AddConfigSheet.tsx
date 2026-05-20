@@ -17,6 +17,7 @@ import { SelectPipelineFormItem } from '@/pos/hooks/useSelectPipeline';
 import { SelectStageFormItem } from '@/pos/hooks/useSelectStage';
 import { useFieldsCombined } from '@/pos/hooks/useFieldsCombined';
 import { nanoid } from 'nanoid';
+import { useTranslation } from 'react-i18next';
 
 export interface CardConfig {
   _id?: string;

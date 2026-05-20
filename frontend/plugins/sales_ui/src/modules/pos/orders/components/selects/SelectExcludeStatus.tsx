@@ -20,6 +20,7 @@ import {
 import { IconBan } from '@tabler/icons-react';
 import { EXCLUDE_STATUS_DATA } from '../../constants/excludeStatusData';
 import {
+import { useTranslation } from 'react-i18next';
   SelectContent,
   SelectTrigger,
   SelectTriggerVariantType,

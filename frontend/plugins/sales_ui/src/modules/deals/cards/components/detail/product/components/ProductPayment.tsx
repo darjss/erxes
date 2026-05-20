@@ -28,6 +28,7 @@ import { IDeal, IPaymentsData } from '@/deals/types/deals';
 import { useDealsEdit } from '@/deals/cards/hooks/useDeals';
 import { useRefundScoreCampaign } from '../hooks/useRefundScoreCampaign';
 import { useCheckOwnerScore } from '../hooks/useCheckOwnerScore';
+import { useTranslation } from 'react-i18next';
 
 interface IPaymentType {
   type: string;

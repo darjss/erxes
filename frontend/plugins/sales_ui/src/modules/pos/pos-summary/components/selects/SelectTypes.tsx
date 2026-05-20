@@ -20,6 +20,7 @@ import {
 import { IconCategory } from '@tabler/icons-react';
 import { TYPES_DATA } from '../../constants/typesData';
 import {
+import { useTranslation } from 'react-i18next';
   SelectContent,
   SelectTrigger,
   SelectTriggerVariantType,

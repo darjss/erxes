@@ -6,6 +6,7 @@ import {
 import { Checkbox, Form, Input } from 'erxes-ui';
 import { SelectMember } from 'ui-modules';
 import Attribution from './Attribution';
+import { useTranslation } from 'react-i18next';
 
 const PipelineConfig = ({ form }: { form: any }) => {
   const { control } = form;

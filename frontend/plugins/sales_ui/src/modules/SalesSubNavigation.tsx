@@ -17,6 +17,7 @@ import { IBoard } from '@/deals/types/boards';
 import { useBoards } from '~/modules/deals/boards/hooks/useBoards';
 import { useEffect } from 'react';
 import { usePipelines } from '@/deals/boards/hooks/usePipelines';
+import { useTranslation } from 'react-i18next';
 
 function LoadingSkeleton() {
   return (

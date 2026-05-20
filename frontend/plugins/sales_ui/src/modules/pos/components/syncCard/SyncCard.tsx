@@ -6,6 +6,7 @@ import { SyncList } from '@/pos/components/syncCard/SyncList';
 import mutations from '@/pos/graphql/mutations';
 import { usePosDetail } from '@/pos/hooks/usePosDetail';
 import type { CardConfig } from './AddConfigSheet';
+import { useTranslation } from 'react-i18next';
 
 interface SyncCardProps {
   posId?: string;

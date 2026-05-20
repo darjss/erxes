@@ -3,6 +3,7 @@ import { Button } from 'erxes-ui';
 import { IconEdit, IconTrash } from '@tabler/icons-react';
 import { type CatProd } from '@/pos/pos-detail/types/IPos';
 import { AddMappingSheet } from '@/pos/components/products/AddMappingSheet';
+import { useTranslation } from 'react-i18next';
 
 interface ProductAndCategoryMappingProps {
   mappings: CatProd[];

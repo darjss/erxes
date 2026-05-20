@@ -12,6 +12,7 @@ import { MoreOptionsButton } from '@/pos/components/MoreOptionsButton';
 import mutations from '@/pos/graphql/mutations';
 import { usePosDetail } from '@/pos/hooks/usePosDetail';
 import { type CatProd } from '@/pos/pos-detail/types/IPos';
+import { useTranslation } from 'react-i18next';
 
 interface ProductsProps {
   posId?: string;

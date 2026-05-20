@@ -21,6 +21,7 @@ import { IconUsers } from '@tabler/icons-react';
 import { POS_USERS_QUERY } from '../../graphql/queries/posUsersQuery';
 import { useQuery } from '@apollo/client';
 import {
+import { useTranslation } from 'react-i18next';
   SelectContent,
   SelectTrigger,
   SelectTriggerVariantType,

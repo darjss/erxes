@@ -7,6 +7,7 @@ import {
 } from 'erxes-ui';
 import { usePipelines } from '@/deals/boards/hooks/usePipelines';
 import { IPipeline } from '@/deals/types/pipelines';
+import { useTranslation } from 'react-i18next';
 
 // SelectPipeline Context
 interface SelectPipelineContextType {

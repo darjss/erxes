@@ -6,6 +6,7 @@ import {
   TextOverflowTooltip,
 } from 'erxes-ui';
 import { useSalesStages } from './useSalesStages';
+import { useTranslation } from 'react-i18next';
 
 interface Stage {
   _id: string;

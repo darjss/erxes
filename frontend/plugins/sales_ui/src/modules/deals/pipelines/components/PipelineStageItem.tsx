@@ -16,6 +16,7 @@ import { IStage } from '@/deals/types/stages';
 import { SelectMember, SelectDepartments } from 'ui-modules';
 import { SortableItemProps } from '@/deals/components/common/Item';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 interface Props extends SortableItemProps {
   stage: IStage;

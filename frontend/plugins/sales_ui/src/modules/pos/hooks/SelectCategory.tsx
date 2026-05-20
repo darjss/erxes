@@ -10,6 +10,7 @@ import {
 import { Link } from 'react-router-dom';
 import { IProductCategory } from '@/pos/types/types';
 import { useProductCategories } from '@/pos/hooks/useCategories';
+import { useTranslation } from 'react-i18next';
 
 interface SelectCategoryContextValue {
   categoryIds: string[];

@@ -30,6 +30,7 @@ import { useState } from 'react';
 import { SelectTypes } from './selects/SelectTypes';
 import { SelectStatus } from './selects/SelectStatus';
 import { SelectExcludeStatus } from './selects/SelectExcludeStatus';
+import { useTranslation } from 'react-i18next';
 export const PosOrderFilterPopover = () => {
   const [queries] = useMultiQueryState<{
     number: string;

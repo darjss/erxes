@@ -7,6 +7,7 @@ import { WaitingScreen } from '@/pos/components/screenConfig/WaitingScreen';
 import { PrintConfig } from '@/pos/components/screenConfig/PrintConfig';
 import mutations from '@/pos/graphql/mutations';
 import { usePosDetail } from '@/pos/hooks/usePosDetail';
+import { useTranslation } from 'react-i18next';
 
 interface ScreenConfigProps {
   posId?: string;

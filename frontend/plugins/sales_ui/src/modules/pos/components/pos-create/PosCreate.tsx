@@ -15,6 +15,7 @@ import { usePosEditProductGroup } from '@/pos/hooks/usePosEditProductGroup';
 import { useRef, useState } from 'react';
 import type { CustomNode } from '@/pos/slot/types';
 import { useUpdatePosSlots } from '@/pos/hooks/useSlotAdd';
+import { useTranslation } from 'react-i18next';
 
 interface PosCreateDialogProps {
   open: boolean;

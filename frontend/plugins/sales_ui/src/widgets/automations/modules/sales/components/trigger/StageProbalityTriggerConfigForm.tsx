@@ -15,6 +15,7 @@ import { useForm, useWatch } from 'react-hook-form';
 
 import { STAGE_PROBABILITIES } from '~/widgets/automations/modules/sales/constants/configForm';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useTranslation } from 'react-i18next';
 
 export const StageProbalityTriggerConfigForm = ({
   formRef,

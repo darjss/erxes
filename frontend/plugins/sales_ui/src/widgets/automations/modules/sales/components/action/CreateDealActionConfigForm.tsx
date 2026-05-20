@@ -17,6 +17,7 @@ import { useForm, useWatch } from 'react-hook-form';
 import { Form } from 'erxes-ui';
 import { PipelineLabelsCommandList } from '../PipelineLabelsCommandList';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useTranslation } from 'react-i18next';
 
 export const CreateDealActionConfigForm = ({
   formRef,

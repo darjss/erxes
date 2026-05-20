@@ -13,6 +13,7 @@ import { IconCategory, IconTag, IconX } from '@tabler/icons-react';
 import { ProductFilterState } from '@/deals/actionBar/types/actionBarTypes';
 import { useProductCategories } from 'ui-modules/modules/products/categories/hooks/useCategories';
 import { useTags } from 'ui-modules/modules/tags/hooks/useTags';
+import { useTranslation } from 'react-i18next';
 
 interface Props {
   filters: ProductFilterState;

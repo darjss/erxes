@@ -21,6 +21,7 @@ import { IconCategory } from '@tabler/icons-react';
 import { PRODUCT_CATEGORIES_QUERY } from '../../graphql/queries/productCategoriesQuery';
 import { useQuery } from '@apollo/client';
 import {
+import { useTranslation } from 'react-i18next';
   SelectContent,
   SelectTrigger,
   SelectTriggerVariantType,

@@ -1,4 +1,5 @@
 import { SettingsNavigationMenuLinkItem, Sidebar } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 export const SalesSettingsNavigation = () => {
   return (

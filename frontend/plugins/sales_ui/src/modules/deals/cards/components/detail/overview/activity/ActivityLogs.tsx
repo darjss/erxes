@@ -3,6 +3,7 @@ import { Button, Tabs } from 'erxes-ui';
 import { ACTIVITY_TYPES } from './constants';
 import ActivityList from './AcitivityList';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 const ActivityLogs = () => {
   const [activeType, setActiveType] = useState<string>('All');

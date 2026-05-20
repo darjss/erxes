@@ -33,6 +33,7 @@ import {
 import { IPipeline } from '@/deals/types/pipelines';
 import { PipelineCommandBar } from './PipelineCommandBar';
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 
 export const PipelineMoreColumnCell = ({
   cell,

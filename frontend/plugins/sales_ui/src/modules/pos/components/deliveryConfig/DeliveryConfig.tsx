@@ -7,6 +7,7 @@ import { DealUsers } from '@/pos/components/deliveryConfig/DealUsers';
 import mutations from '@/pos/graphql/mutations';
 import { usePosDetail } from '@/pos/hooks/usePosDetail';
 import { cleanData } from '@/pos/utils/cleanData';
+import { useTranslation } from 'react-i18next';
 
 interface DeliveryConfigProps {
   posId?: string;

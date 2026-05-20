@@ -16,6 +16,7 @@ import { IDeal } from '@/deals/types/deals';
 import { useDeals } from '@/deals/cards/hooks/useDeals';
 import { useDebounce } from 'use-debounce';
 import { useInView } from 'react-intersection-observer';
+import { useTranslation } from 'react-i18next';
 
 interface SelectDealsProps {
   onSelect: (dealIds: string[], deals?: IDeal[]) => void;

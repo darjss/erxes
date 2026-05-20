@@ -14,6 +14,7 @@ import { SelectBranches, SelectBrand, SelectDepartments } from 'ui-modules';
 import { useDeals } from '@/deals/cards/hooks/useDeals';
 import { useForm } from 'react-hook-form';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 type Props = {
   open: boolean;

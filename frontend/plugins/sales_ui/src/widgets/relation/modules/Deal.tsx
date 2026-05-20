@@ -7,6 +7,7 @@ import ChooseDealSheet from '@/deals/components/ChooseDealSheet';
 import { DealWidget } from './DealWidget';
 import { dealCreateSheetState } from '@/deals/states/dealCreateSheetState';
 import { useSetAtom } from 'jotai';
+import { useTranslation } from 'react-i18next';
 
 export const Deal = ({
   contentId,

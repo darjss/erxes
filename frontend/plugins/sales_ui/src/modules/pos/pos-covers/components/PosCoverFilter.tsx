@@ -13,6 +13,7 @@ import { PosCoverTotalCount } from './PosCoverTotalCount';
 import { PosCoverHotKeyScope } from '../types/path/PosCoverHotKeyScope';
 import { useIsPosCoverLeadSessionKey } from '../hooks/UsePosCoverLeadSessionKey';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 export const PosCoverFilterPopover = () => {
   const [queries] = useMultiQueryState<{
     pos: string;

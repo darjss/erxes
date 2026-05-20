@@ -2,6 +2,7 @@ import { Form, Input, Label } from 'erxes-ui';
 import { type Control } from 'react-hook-form';
 import { SelectProduct } from 'ui-modules';
 import { type ProductsFormData } from '@/pos/components/products/Products';
+import { useTranslation } from 'react-i18next';
 
 interface ServiceChargeProps {
   control: Control<ProductsFormData>;

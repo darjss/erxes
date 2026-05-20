@@ -7,6 +7,7 @@ import { OtherPayment } from '@/pos/components/payment/OtherPayment';
 import mutations from '@/pos/graphql/mutations';
 import { usePosDetail } from '@/pos/hooks/usePosDetail';
 import { type PaymentType } from '@/pos/types/types';
+import { useTranslation } from 'react-i18next';
 
 interface PaymentProps {
   posId?: string;

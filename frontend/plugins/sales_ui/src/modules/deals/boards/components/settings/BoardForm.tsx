@@ -9,6 +9,7 @@ import { IconPlus } from '@tabler/icons-react';
 import { Button, Form, Input, Sheet, Skeleton, Spinner, toast, useQueryState } from 'erxes-ui';
 import React from 'react';
 import { SubmitHandler } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 
 export const BoardForm = () => {
   const [boardId, setBoardId] = useQueryState('boardId');

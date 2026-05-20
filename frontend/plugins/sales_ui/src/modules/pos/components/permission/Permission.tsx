@@ -7,6 +7,7 @@ import { CashierPermissions } from '@/pos/components/permission/CashierPermissio
 import mutations from '@/pos/graphql/mutations';
 import { usePosDetail } from '@/pos/hooks/usePosDetail';
 import { cleanData } from '@/pos/utils/cleanData';
+import { useTranslation } from 'react-i18next';
 
 interface PermissionProps {
   posId?: string;

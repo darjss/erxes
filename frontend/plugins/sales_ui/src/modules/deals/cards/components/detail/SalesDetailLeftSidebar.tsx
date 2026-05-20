@@ -1,6 +1,7 @@
 import { Sidebar, Tabs, useQueryState } from 'erxes-ui';
 
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 
 export const SalesDetailLeftSidebar = ({
   children,

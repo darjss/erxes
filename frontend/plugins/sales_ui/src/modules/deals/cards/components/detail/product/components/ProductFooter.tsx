@@ -3,6 +3,7 @@
 import { Button, Input } from 'erxes-ui';
 import { IProduct, IProductData, SelectProductsBulk } from 'ui-modules';
 import { IconDeviceFloppy, IconPlus } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 
 type TotalByCurrency = { [currency: string]: number };
 type TotalWithPercent = {

@@ -24,6 +24,7 @@ import { usePosOrderForm } from '../detail/hooks/usePosOrderForm';
 import { usePosOrderQuery } from '../detail/hooks/usePosOrderQuery';
 import { PosOrderForm } from '../detail/PosOrderForm';
 import { TPosOrderFormData } from '../types/posOrderType';
+import { useTranslation } from 'react-i18next';
 
 const POS_ORDER_TRANSACTIONS = gql`
   query PosOrderTransactions($contentType: String!, $contentId: String!) {

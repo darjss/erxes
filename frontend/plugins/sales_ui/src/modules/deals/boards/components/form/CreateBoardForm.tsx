@@ -7,6 +7,7 @@ import { useForm } from 'react-hook-form';
 import { useSelectBoardsContext } from '@/deals/context/DealContext';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useTranslation } from 'react-i18next';
 
 const formSchema = z.object({
   title: z.string().min(1),

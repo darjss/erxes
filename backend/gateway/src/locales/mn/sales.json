@@ -8,13 +8,14 @@
   "error": "Алдаа",
   "warning": "Анхааруулга",
   "success": "Амжилттай",
-  "pos-name-placeholder": "POS нэр оруулна уу",
+  "pos-name-placeholder": "ПОС нэр оруулна уу",
   "pos-description-placeholder": "ПОС тайлбар оруулна уу",
   "name-required": "Нэр заавал шаардлагатай",
   "name-min-length": "Нэр хамгийн багадаа 2 тэмдэгт байх ёстой",
   "sales-pipeline": "Борлуулалтын урсгал",
-  "pos-create-product-groups-failed": "POS үүссэн боловч бүтээгдэхүүний бүлгүүдийг хадгалж чадсангүй. Та дараа нь нэмж болно.",
+  "pos-create-product-groups-failed": "ПОС үүссэн боловч бүтээгдэхүүний бүлгүүдийг хадгалж чадсангүй. Та дараа нь нэмж болно.",
   "pos-create-slots-failed": "ПОС үүссэн боловч slot-уудыг хадгалж чадсангүй",
   "pos-create-success": "ПОС амжилттай үүслээ",
-  "pos-create-failed": "ПОС үүсгэж чадсангүй. Дахин оролдоно уу"
+  "pos-create-failed": "ПОС үүсгэж чадсангүй. Дахин оролдоно уу",
+  "deals": "Хэлцэл"
 }
