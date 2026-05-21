@@ -18,4 +18,9 @@ export const TypeExtensions = `
     isSubscribed: Boolean
     subscription: MushopSubscription
   }
+
+  extend type cpPoscProduct {
+    supplier: MushopSupplier
+    unitPrice: Float
+  }
 `;

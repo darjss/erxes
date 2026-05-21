@@ -11,24 +11,36 @@ router.post('/syncProduct', async (req: Request, res: Response) => {
 
     console.log('{subdomain, entityId}', {subdomain, entityId})
 
-    if (!subdomain) return res.status(400).json({ error: 'subdomain is required' });
-    if (!entityId) return res.status(400).json({ error: 'payload.entityId is required' });
+    if (!subdomain)
+      return res.status(400).json({ error: 'subdomain is required' });
 
     const models = await generateModels(subdomain);
 
-    console.log('action', action)
+    if (action === 'delete') {
+      const ids = entityIds?.length ? entityIds : entityId ? [entityId] : [];
 
-    if (entityIds?.length && action === 'delete') {
-      await models.MushopProduct.deleteMany({ subdomain, entityId: { $in: entityIds } });
+      if (!ids.length) {
+        return res
+          .status(400)
+          .json({ error: 'entityId or entityIds required for delete' });
+      }
+
+      await models.MushopProduct.deleteMany({
+        subdomain,
+        entityId: { $in: ids },
+      });
       return res.status(200).json({ success: true });
     }
 
-    console.log('product', product)
+    if (!entityId)
+      return res.status(400).json({ error: 'payload.entityId is required' });
+
+    const { category, ...productRest } = product || {};
 
     await models.MushopProduct.syncProduct(
       subdomain,
       entityId,
-      product,
+      { ...productRest, initialCategory: category ?? null },
       action,
     );
 
@@ -44,8 +56,11 @@ router.post('/syncProductCategory', async (req: Request, res: Response) => {
     const { entityId, data } = payload || {};
     const { category } = data || {};
 
-    if (!subdomain) return res.status(400).json({ error: 'subdomain is required' });
-    if (!entityId) return res.status(400).json({ error: 'payload.entityId is required' });
+    if (!subdomain)
+      return res.status(400).json({ error: 'subdomain is required' });
+
+    if (!entityId)
+      return res.status(400).json({ error: 'payload.entityId is required' });
 
     const models = await generateModels(subdomain);
 
