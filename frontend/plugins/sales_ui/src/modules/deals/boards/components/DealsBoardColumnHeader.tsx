@@ -154,7 +154,7 @@ export const DealsBoardColumnHeader = ({
             <DropdownMenu.Content className="w-56">
               {!showSortOptions ? (
                 <>
-                  <DropdownMenu.Label>Stage section</DropdownMenu.Label>
+                  <DropdownMenu.Label>{t('stage-section')}</DropdownMenu.Label>
                   <DropdownMenu.Separator />
                   <DropdownMenu.Group>
                     <DropdownMenu.Item onClick={handleArchiveStage}>

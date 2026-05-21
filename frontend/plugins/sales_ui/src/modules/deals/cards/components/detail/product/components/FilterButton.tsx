@@ -286,10 +286,10 @@ const ProductFilterView = ({
               <IconTag />
               {t('by-tag')}
             </Filter.Item>
-            <SelectBranches.FilterItem value="branchIds" label="By Branch" />
+            <SelectBranches.FilterItem value="branchIds" label={t('by-branch')} />
             <SelectDepartments.FilterItem
               value="departmentIds"
-              label="By Department"
+              label={t('by-department')}
             />
           </Command.List>
         </Command>

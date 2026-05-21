@@ -77,7 +77,7 @@ export const EntitySelector = ({ card = {} as IDeal }: Props) => {
         />
       )}
       {priority && (
-        <EntityItem Icon={IconFlag} text="Priority" totalCount={0} />
+        <EntityItem Icon={IconFlag} text={t('priority')} totalCount={0} />
       )}
       {relations && (
         <EntityItem

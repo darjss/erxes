@@ -246,9 +246,10 @@ export const pipelinesColumns: ColumnDef<
   {
     id: 'createdAt',
     accessorKey: 'createdAt',
-    header: () => (
-      <RecordTable.InlineHead icon={IconCalendarTime} label="Created At" />
-    ),
+    header: () => {
+      const { t } = useTranslation('sales');
+      return <RecordTable.InlineHead icon={IconCalendarTime} label={t('created-at')} />;
+    },
     cell: ({ cell }) => {
       return (
         <RelativeDateDisplay value={cell.getValue() as string} asChild>
@@ -262,7 +263,10 @@ export const pipelinesColumns: ColumnDef<
   {
     id: 'createdBy',
     accessorKey: 'createdUser.details.fullName',
-    header: () => <RecordTable.InlineHead icon={IconUser} label="Created by" />,
+    header: () => {
+      const { t } = useTranslation('sales');
+      return <RecordTable.InlineHead icon={IconUser} label={t('created-by')} />;
+    },
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
@@ -293,7 +297,7 @@ const PipelineRecordTable = () => {
 
   return (
     <>
-      <PageSubHeader>Pipelines ({totalCount})</PageSubHeader>
+      <PageSubHeader>{t('pipelines')} ({totalCount})</PageSubHeader>
       <RecordTable.Provider
         columns={pipelinesColumns}
         data={pipelines || []}

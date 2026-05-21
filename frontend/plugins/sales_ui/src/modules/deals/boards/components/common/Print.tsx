@@ -143,7 +143,7 @@ export const PrintDialog = ({ open, onClose, stageId }: Props) => {
                         <SelectBrand
                           value={field.value}
                           onValueChange={field.onChange}
-                          placeholder="Choose brands"
+                          placeholder={t('choose-brands')}
                         />
                       </Form.Item>
                     )}

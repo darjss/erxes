@@ -96,7 +96,7 @@ const ProductConfig = ({ form }: ProductConfigProps) => {
                   mode="multiple"
                   value={field.value || ([] as string[])}
                   onValueChange={field.onChange}
-                  placeholder="Select products to exclude"
+                  placeholder={t('select-products-to-exclude')}
                 />
               </Form.Item>
             )}

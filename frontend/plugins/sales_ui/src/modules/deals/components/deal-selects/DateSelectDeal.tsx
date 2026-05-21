@@ -198,7 +198,7 @@ export const DateSelectDealRoot = ({
           <DateSelectTrigger>
             <div className="text-xs bg-red-50 text-red-400 px-2 py-1 rounded flex items-center gap-1">
               <IconAlertCircleFilled className="size-4" />
-              {t('ended')} {endedDiff} {endedDiff === 1 ? 'day' : 'days'} {t('ago')}{' '}
+              {t('ended')} {endedDiff} {endedDiff === 1 ? t('day') : t('days')} {t('ago')}{' '}
             </div>
           </DateSelectTrigger>
           <Content className="w-fit" onClick={(e) => e.stopPropagation()}>

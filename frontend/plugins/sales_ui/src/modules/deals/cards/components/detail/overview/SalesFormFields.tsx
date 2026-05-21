@@ -103,7 +103,7 @@ export const SalesFormFields = ({ deal }: { deal: IDeal }) => {
             <SelectLabels.FilterBar
               filterKey=""
               mode="multiple"
-              label="By Label"
+              label={t('by-label')}
               variant="card"
               targetId={_id}
               initialValue={labels?.map((label) => label._id || '') || []}

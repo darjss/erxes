@@ -128,7 +128,7 @@ const PipelineStageItem = (props: Props) => {
                       <Input
                         {...field}
                         type="text"
-                        placeholder="Enter stage name"
+                        placeholder={t('enter-stage-name')}
                       />
                     )}
                   />
@@ -144,7 +144,7 @@ const PipelineStageItem = (props: Props) => {
                   render={({ field }) => (
                     <Select value={field.value} onValueChange={field.onChange}>
                       <Select.Trigger className={'text-muted-foreground h-8'}>
-                        {field.value || 'Select probability'}
+                        {field.value || t('select-probability')}
                       </Select.Trigger>
                       <Select.Content>
                         {PROBABILITY_DEAL.map((option) => (
@@ -215,7 +215,7 @@ const PipelineStageItem = (props: Props) => {
                       render={({ field }) => (
                         <Input
                           {...field}
-                          placeholder="Enter code"
+                          placeholder={t('enter-code')}
                           className="input"
                         />
                       )}
@@ -234,7 +234,7 @@ const PipelineStageItem = (props: Props) => {
                       render={({ field }) => (
                         <Input
                           {...field}
-                          placeholder="Enter age"
+                          placeholder={t('enter-age')}
                           className="input"
                           type="number"
                           onChange={(e) => {

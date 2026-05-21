@@ -55,7 +55,7 @@ export const DealsViewControl = () => {
               className="h-11 flex-col gap-0 border"
             >
               <IconList className="size-5!" />
-              <span className="text-xs font-normal">List</span>
+              <span className="text-xs font-normal">{t('list')}</span>
             </Button>
           </ToggleGroup.Item>
           <ToggleGroup.Item value="board" asChild>

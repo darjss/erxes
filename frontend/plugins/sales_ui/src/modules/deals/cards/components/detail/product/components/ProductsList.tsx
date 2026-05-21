@@ -196,7 +196,7 @@ const ProductsList = ({
       <Filter id="product-filter">
         <div className="flex items-center gap-4 flex-wrap">
           <Input
-            placeholder="Vat percent"
+            placeholder={t('vat-percent')}
             className="w-[40%]"
             value={vatPercent}
             onChange={(e) => setVatPercent(Number.parseInt(e.target.value))}
@@ -212,7 +212,7 @@ const ProductsList = ({
               size={16}
             />
             <Input
-              placeholder="Search"
+              placeholder={t('search')}
               className="pl-9 w-full"
               value={filters.productSearch || ''}
               onChange={(e) =>

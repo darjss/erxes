@@ -431,7 +431,7 @@ const ProductsPayment = ({
                 }
                 onClick={() => fillRemaining('cash')}
                 className="text-right font-medium border-0 border-b rounded-none focus-visible:ring-0 px-0 shadow-none text-gray-700"
-                placeholder="Type amount"
+                placeholder={t('type-amount')}
               />
             </div>
             <div className="flex flex-1 items-center">
@@ -579,7 +579,7 @@ const ProductsPayment = ({
             onKeyDown={(e: KeyboardEvent<HTMLInputElement>) =>
               e.key === 'Enter' && handleQrConfirm()
             }
-            placeholder="Enter customer QR code"
+            placeholder={t('enter-customer-qr-code')}
             autoFocus
           />
           {/* </div> */}

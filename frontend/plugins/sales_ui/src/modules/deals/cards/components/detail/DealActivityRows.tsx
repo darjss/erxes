@@ -87,6 +87,7 @@ const DealAssignmentRow = ({ activity }: { activity: TActivityLog }) => {
 };
 
 const DealAssigneeRow = ({ activity }: { activity: TActivityLog }) => {
+  const { t } = useTranslation('sales');
   const isAdded = activity.action?.type === 'assigned';
   const memberIds =
     (isAdded ? activity.changes?.added : activity.changes?.removed) || [];
@@ -95,11 +96,11 @@ const DealAssigneeRow = ({ activity }: { activity: TActivityLog }) => {
     <Sentence>
       <ActivityLogs.ActorName activity={activity} />
       <span className="text-muted-foreground">
-        {isAdded ? 'assigned' : 'unassigned'}
+        {isAdded ? t('assigned') : t('unassigned')}
       </span>
       <MembersInline
         memberIds={Array.isArray(memberIds) ? memberIds : []}
-        placeholder="Unknown member"
+        placeholder={t('unknown-member')}
       />
     </Sentence>
   );

@@ -149,9 +149,7 @@ export const DealsBoardCard = memo(function DealsBoardCard({
             <span className="px-2 rounded flex gap-1 bg-yellow-50 text-yellow-400 border-yellow-100 border">
               <IconAlertCircleFilled className="size-6 pt-2" />
               <h5 className="text-sm py-2">
-                Ready to move this card to the next column? (
-                {Math.abs(stage.age)}{' '}
-                {Math.abs(stage.age) === 1 ? 'day' : 'days'} elapsed)
+                {t('ready-to-move-card', { count: Math.abs(stage.age) })}
               </h5>
             </span>
           )}
@@ -165,7 +163,7 @@ export const DealsBoardCard = memo(function DealsBoardCard({
           <SelectLabels.FilterBar
             filterKey=""
             mode="multiple"
-            label="By Label"
+            label={t('by-label')}
             variant="card"
             targetId={_id}
             initialValue={labels?.map((label) => label._id || '') || []}
@@ -173,7 +171,7 @@ export const DealsBoardCard = memo(function DealsBoardCard({
           <SelectTags.FilterBar
             filterKey=""
             mode="multiple"
-            label="By Tag"
+            label={t('by-tag')}
             variant="card"
             targetId={_id}
             tagType="sales:deal"
@@ -191,7 +189,7 @@ export const DealsBoardCard = memo(function DealsBoardCard({
           <SelectCustomer.FilterBar
             filterKey=""
             mode="multiple"
-            label="By Customer"
+            label={t('by-customer')}
             variant="card"
             targetId={_id}
             initialValue={
@@ -221,7 +219,7 @@ export const DealsBoardCard = memo(function DealsBoardCard({
           <SelectCompany.FilterBar
             filterKey=""
             mode="multiple"
-            label="By Company"
+            label={t('by-company')}
             variant="card"
             targetId={_id}
             initialValue={

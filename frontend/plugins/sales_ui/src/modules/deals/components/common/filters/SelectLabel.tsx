@@ -248,7 +248,7 @@ export const SelectLabelsCommand = ({ targetId }: { targetId?: string }) => {
   if (loading) {
     return (
       <Command>
-        <Command.Input placeholder="Search label" />
+        <Command.Input placeholder={t('search-label')} />
         <div className="flex items-center gap-2">
           <IconLoader className="animate-spin" />
         </div>
@@ -257,7 +257,7 @@ export const SelectLabelsCommand = ({ targetId }: { targetId?: string }) => {
   } else
     return (
       <Command>
-        <Command.Input placeholder="Search label" />
+        <Command.Input placeholder={t('search-label')} />
         <Command.List className="px-1">
           {pipelineLabels.map((label) => {
             return (
@@ -345,7 +345,7 @@ export const SelectLabelsValue = () => {
       </span>
     );
   }
-  return <Combobox.Value placeholder="Select Label" />;
+  return <Combobox.Value placeholder={t('select-label')} />;
 };
 
 export const SelectLabelsContent = ({ targetId }: { targetId?: string }) => {
