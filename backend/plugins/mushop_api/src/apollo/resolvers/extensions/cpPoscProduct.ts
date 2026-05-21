@@ -7,9 +7,12 @@ export const cpPoscProduct = {
     { models }: IContext,
   ) => {
     console.log('product', product)
+    
     const mushopProduct = await models.MushopProduct.findOne({
-      entityId: product._id,
+      _id: product._id,
     }).lean();
+
+    console.log('mushopProduct', mushopProduct)
 
     if (!mushopProduct?.subdomain) return null;
 
