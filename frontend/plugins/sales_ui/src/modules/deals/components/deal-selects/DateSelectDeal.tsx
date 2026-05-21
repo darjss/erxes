@@ -35,8 +35,6 @@ interface DateSelectContextType {
   variant: DateSelectVariant;
 }
 
-const { t } = useTranslation('sales');
-
 const DateSelectContext = React.createContext<DateSelectContextType | null>(
   null,
 );
@@ -155,6 +153,7 @@ export const DateSelectDealRoot = ({
   variant?: `${DateSelectVariant}`;
   placeholder?: string;
 }) => {
+  const { t } = useTranslation('sales');
   const [open, setOpen] = useState(false);
   const { editDeals, loading, error } = useDealsEdit();
   const closeDate = type === 'closeDate';

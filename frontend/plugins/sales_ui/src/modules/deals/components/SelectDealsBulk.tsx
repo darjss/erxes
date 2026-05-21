@@ -31,13 +31,12 @@ interface DealsListProps {
   setSelectedDealIds: React.Dispatch<React.SetStateAction<string[]>>;
 }
 
-const { t } = useTranslation('sales');
-
 export const SelectDealsBulk = ({
   onSelect,
   children,
   dealIds,
 }: SelectDealsProps) => {
+  const { t } = useTranslation('sales');
   const [open, setOpen] = useState(false);
 
   return (
@@ -69,6 +68,7 @@ const SelectDealsBulkContent = ({
   onSelect: (dealIds: string[], deals?: IDeal[]) => void;
   dealIds?: string[];
 }) => {
+  const { t } = useTranslation('sales');
   const [selectedDealIds, setSelectedDealIds] = useState<string[]>([]);
   const [selectedDeals, setSelectedDeals] = useState<IDeal[]>([]);
 
@@ -131,6 +131,7 @@ const DealsList = ({
   selectedDealIds,
   setSelectedDealIds,
 }: DealsListProps) => {
+  const { t } = useTranslation('sales');
   const [search, setSearch] = useState('');
   const [debouncedSearch] = useDebounce(search, 500);
 
@@ -155,7 +156,7 @@ const DealsList = ({
       <div className="p-4">
         <div className="flex items-center gap-4">
           <Input
-            placeholder="Search deals"
+            placeholder={t('search-deals')}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />

@@ -23,8 +23,6 @@ import { useDealCustomFieldEdit } from '../../hooks/useDealCustomFieldEdit';
 import { useDealDetail } from '@/deals/cards/hooks/useDeals';
 import { useTranslation } from 'react-i18next';
 
-const { t } = useTranslation('sales');
-
 export const SalesItemDetail = () => {
   const [activeDealId, setActiveDealId] = useAtom(dealDetailSheetState);
   const [salesItemId, setSalesItemId] = useQueryState<string>('salesItemId');
@@ -129,6 +127,7 @@ export const SalesItemDetail = () => {
 };
 
 const SalesItemDetailEmptyState = () => {
+  const { t } = useTranslation('sales');
   return (
     <div className="flex items-center justify-center h-full">
       <Empty>
@@ -147,6 +146,7 @@ const SalesItemDetailEmptyState = () => {
 };
 
 const SalesItemDetailErrorState = () => {
+  const { t } = useTranslation('sales');
   const { error } = useDealDetail();
 
   return (

@@ -2,10 +2,14 @@ import { Control, Controller } from 'react-hook-form';
 import { Label, Combobox, PopoverScoped } from 'erxes-ui';
 import { SelectMember, SelectProduct } from 'ui-modules';
 import type { DeliveryConfigFormData } from './DeliveryConfig';
+import { useTranslation } from 'react-i18next';
+import { T } from 'react-router/dist/development/fog-of-war-oa9CGk10';
 
 interface DealUsersProps {
   control: Control<DeliveryConfigFormData>;
 }
+
+const { t } = useTranslation('sales');
 
 export const DealUsers: React.FC<DealUsersProps> = ({ control }) => {
   return (
@@ -15,7 +19,7 @@ export const DealUsers: React.FC<DealUsersProps> = ({ control }) => {
         control={control}
         render={({ field }) => (
           <div className="space-y-2">
-            <Label>WATCHED USERS</Label>
+            <Label>{t('watched-users')}</Label>
             <SelectMember.Provider
               value={field.value}
               onValueChange={field.onChange}
@@ -23,7 +27,7 @@ export const DealUsers: React.FC<DealUsersProps> = ({ control }) => {
             >
               <PopoverScoped>
                 <Combobox.Trigger className="w-full h-8">
-                  <SelectMember.Value placeholder="Choose team member" />
+                  <SelectMember.Value placeholder={t("choose-team-member")} />
                 </Combobox.Trigger>
                 <Combobox.Content>
                   <SelectMember.Content />
@@ -39,7 +43,7 @@ export const DealUsers: React.FC<DealUsersProps> = ({ control }) => {
         control={control}
         render={({ field }) => (
           <div className="space-y-2">
-            <Label>ASSIGNED USERS</Label>
+            <Label>{t('assigned-users')}</Label>
             <SelectMember.Provider
               value={field.value}
               onValueChange={field.onChange}
@@ -47,7 +51,7 @@ export const DealUsers: React.FC<DealUsersProps> = ({ control }) => {
             >
               <PopoverScoped>
                 <Combobox.Trigger className="w-full h-8">
-                  <SelectMember.Value placeholder="Choose team member" />
+                  <SelectMember.Value placeholder={t('choose-team-member')} />
                 </Combobox.Trigger>
                 <Combobox.Content>
                   <SelectMember.Content />
@@ -63,7 +67,7 @@ export const DealUsers: React.FC<DealUsersProps> = ({ control }) => {
         control={control}
         render={({ field }) => (
           <div className="space-y-2">
-            <Label>DELIVERY PRODUCT</Label>
+            <Label>{t('delivery-product')}</Label>
             <SelectProduct
               value={field.value}
               onValueChange={(value) => {
@@ -71,7 +75,7 @@ export const DealUsers: React.FC<DealUsersProps> = ({ control }) => {
                 field.onChange(id || '');
               }}
               mode="single"
-              placeholder="Choose delivery product"
+              placeholder={t('choose-delivery-product')}
             />
           </div>
         )}

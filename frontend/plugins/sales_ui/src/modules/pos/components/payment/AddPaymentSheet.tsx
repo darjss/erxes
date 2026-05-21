@@ -4,6 +4,7 @@ import { Button, Label, Input, Select, Sheet } from 'erxes-ui';
 import { IconPlus } from '@tabler/icons-react';
 import PaymentIcon from '@/pos/constants';
 import { PaymentType } from '@/pos/types/types';
+import { useTranslation } from 'react-i18next';
 
 interface AddPaymentSheetProps {
   onPaymentAdded?: (payment: PaymentType) => void;
@@ -89,13 +90,15 @@ export const AddPaymentSheet: React.FC<AddPaymentSheetProps> = ({
 
   const isEditing = !!editingPayment;
 
+  const { t } = useTranslation('sales');
+
   return (
     <Sheet open={open} onOpenChange={handleOpenChange}>
       {!isEditing && (
         <Sheet.Trigger asChild>
           <Button variant="outline">
             <IconPlus size={16} className="mr-2" />
-            Add payment
+            {t('add-payment')}
           </Button>
         </Sheet.Trigger>
       )}
@@ -110,31 +113,31 @@ export const AddPaymentSheet: React.FC<AddPaymentSheetProps> = ({
         <Sheet.Content className="p-6 space-y-4">
           <div className="space-y-2">
             <Label>
-              TYPE <span className="text-destructive">*</span>
+              {t('TYPE')} <span className="text-destructive">*</span>
             </Label>
             <Input
               value={formType}
               onChange={(e) => setFormType(e.target.value)}
-              placeholder="e.g. golomtCard, khaanCard"
+              placeholder={t('payment-type-placeholder')}
             />
           </div>
 
           <div className="space-y-2">
             <Label>
-              TITLE <span className="text-destructive">*</span>
+              {t('TITLE')} <span className="text-destructive">*</span>
             </Label>
             <Input
               value={formTitle}
               onChange={(e) => setFormTitle(e.target.value)}
-              placeholder="Payment title"
+              placeholder={t('payment-title')}
             />
           </div>
 
           <div className="space-y-2">
-            <Label>ICON</Label>
+            <Label>{t('ICON')}</Label>
             <Select value={formIcon} onValueChange={setFormIcon}>
               <Select.Trigger className="w-full">
-                <Select.Value placeholder="Select icon" />
+                <Select.Value placeholder={t('select-icon')} />
               </Select.Trigger>
               <Select.Content>
                 {ICON_OPTIONS.map((opt) => (
@@ -150,18 +153,18 @@ export const AddPaymentSheet: React.FC<AddPaymentSheetProps> = ({
           </div>
 
           <div className="space-y-2">
-            <Label>CONFIG</Label>
+            <Label>{t('CONFIG')}</Label>
             <Input
               value={formConfig}
               onChange={(e) => setFormConfig(e.target.value)}
-              placeholder="e.g. skipEbarimt: true"
+              placeholder={t('payment-config-placeholder')}
             />
           </div>
         </Sheet.Content>
 
         <Sheet.Footer className="bg-background">
           <Button variant="outline" onClick={handleCancel}>
-            Cancel
+            {t('cancel')}
           </Button>
           <Button onClick={handleSubmit} disabled={!formType || !formTitle}>
             {isEditing ? 'Update' : 'Add'}

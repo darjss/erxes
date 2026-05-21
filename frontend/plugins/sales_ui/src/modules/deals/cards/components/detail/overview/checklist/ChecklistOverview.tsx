@@ -4,9 +4,8 @@ import ChecklistForm from './ChecklistForm';
 import { IconListCheck } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 
-const { t } = useTranslation('sales');
-
 const ChecklistOverview = () => {
+  const { t } = useTranslation('sales');
   return (
     <Popover>
       <Popover.Trigger>

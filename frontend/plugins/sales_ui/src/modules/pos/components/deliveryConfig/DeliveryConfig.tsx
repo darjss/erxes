@@ -7,6 +7,7 @@ import { DealUsers } from '@/pos/components/deliveryConfig/DealUsers';
 import mutations from '@/pos/graphql/mutations';
 import { usePosDetail } from '@/pos/hooks/usePosDetail';
 import { cleanData } from '@/pos/utils/cleanData';
+import { useTranslation } from 'react-i18next';
 
 interface DeliveryConfigProps {
   posId?: string;
@@ -25,6 +26,8 @@ export interface DeliveryConfigFormData {
 }
 
 const DELIVERY_CONFIG_FORM_ID = 'pos-delivery-config-form';
+
+const { t } = useTranslation('sales');
 
 const DEFAULT_FORM_VALUES: DeliveryConfigFormData = {
   boardId: '',
@@ -167,7 +170,7 @@ const DeliveryConfig: React.FC<DeliveryConfigProps> = ({
       return (
         <div className="p-6 text-center">
           <p className="text-destructive">
-            Failed to load POS details: {error.message}
+            {t('failed-to-load-pos-details')}: {error.message}
           </p>
         </div>
       );
@@ -181,12 +184,12 @@ const DeliveryConfig: React.FC<DeliveryConfigProps> = ({
           className="space-y-8"
         >
           <section className="space-y-4">
-            <Label>Stage</Label>
+            <Label>{t('stage')}</Label>
             <Stage control={control} />
           </section>
 
           <section className="pt-6 space-y-4 border-t">
-            <Label>Deal Users</Label>
+            <Label>{t('deal-users')}</Label>
             <DealUsers control={control} />
           </section>
         </form>

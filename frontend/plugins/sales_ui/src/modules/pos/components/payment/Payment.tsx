@@ -7,6 +7,7 @@ import { OtherPayment } from '@/pos/components/payment/OtherPayment';
 import mutations from '@/pos/graphql/mutations';
 import { usePosDetail } from '@/pos/hooks/usePosDetail';
 import { type PaymentType } from '@/pos/types/types';
+import { useTranslation } from 'react-i18next';
 
 interface PaymentProps {
   posId?: string;
@@ -153,6 +154,8 @@ const Payment: React.FC<PaymentProps> = ({
     return () => onSaveActionChange(null);
   }, [isDirty, onSaveActionChange, saving]);
 
+  const { t } = useTranslation('sales');
+
   const renderContent = () => {
     if (detailLoading) {
       return (
@@ -171,11 +174,12 @@ const Payment: React.FC<PaymentProps> = ({
       return (
         <div className="p-6 text-center">
           <p className="text-destructive">
-            Failed to load POS details: {error.message}
+            {t('failed-to-load-pos-details')}: {error.message}
           </p>
         </div>
       );
     }
+  
 
     return (
       <Form {...form}>
@@ -189,7 +193,7 @@ const Payment: React.FC<PaymentProps> = ({
           </section>
 
           <section className="pt-6 space-y-4 border-t">
-            <Label>Other Payment</Label>
+            <Label>{t('other-payment')}</Label>
 
             <OtherPayment
               paymentTypes={paymentTypes}

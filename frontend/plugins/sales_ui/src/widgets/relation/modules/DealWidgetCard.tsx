@@ -1,4 +1,5 @@
 import { Card, Separator } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 import { DateSelectDeal } from '@/deals/components/deal-selects/DateSelectDeal';
 import { IDeal } from '@/deals/types/deals';
@@ -6,6 +7,7 @@ import { ItemFooter } from '@/deals/cards/components/item/Footer';
 import Labels from '@/deals/cards/components/detail/overview/label/Labels';
 
 export const DealWidgetCard = ({ deal }: { deal: IDeal }) => {
+  const { t } = useTranslation('sales');
   const {
     startDate,
     closeDate,
@@ -34,14 +36,14 @@ export const DealWidgetCard = ({ deal }: { deal: IDeal }) => {
           id={_id}
           type="startDate"
           variant="card"
-          placeholder="Start Date"
+          placeholder={t('start-date')}
         />
         <DateSelectDeal
           value={closeDate}
           id={_id}
           type="closeDate"
           variant="card"
-          placeholder="Close Date"
+          placeholder={t('close-date')}
         />
       </div>
       <Separator />

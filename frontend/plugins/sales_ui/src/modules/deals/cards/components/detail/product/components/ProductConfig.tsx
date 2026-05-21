@@ -25,9 +25,8 @@ interface ProductConfigProps {
   form: UseFormReturn<ProductConfigFormValues>;
 }
 
-const { t } = useTranslation('sales');
-
 const ProductConfig = ({ form }: ProductConfigProps) => {
+  const { t } = useTranslation('sales');
   const { control } = form;
 
   return (

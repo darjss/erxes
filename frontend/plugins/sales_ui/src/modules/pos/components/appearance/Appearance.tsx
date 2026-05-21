@@ -8,6 +8,7 @@ import { Infos } from '@/pos/components/appearance/Infos';
 import mutations from '@/pos/graphql/mutations';
 import { usePosDetail } from '@/pos/hooks/usePosDetail';
 import { cleanData } from '@/pos/utils/cleanData';
+import { useTranslation } from 'react-i18next';
 
 interface AppearanceProps {
   posId?: string;
@@ -31,6 +32,8 @@ export interface AppearanceFormData {
 }
 
 const APPEARANCE_FORM_ID = 'pos-appearance-form';
+
+const { t } = useTranslation('sales');
 
 const DEFAULT_FORM_VALUES: AppearanceFormData = {
   logo: '',
@@ -181,7 +184,7 @@ const Appearance: React.FC<AppearanceProps> = ({
       return (
         <div className="p-6 text-center">
           <p className="text-destructive">
-            Failed to load POS details: {error.message}
+            {t('failed-to-load-pos-details')}: {error.message}
           </p>
         </div>
       );
@@ -195,17 +198,17 @@ const Appearance: React.FC<AppearanceProps> = ({
           className="space-y-8"
         >
           <section className="space-y-4">
-            <Label>Logos and favicon</Label>
+            <Label>{t('logos-and-favicon')}</Label>
             <LogosAndFavicon control={control} posType={posType} />
           </section>
 
           <section className="pt-6 space-y-4 border-t">
-            <Label>Main colors</Label>
+            <Label>{t('main-colors')}</Label>
             <MainColors control={control} />
           </section>
 
           <section className="pt-6 space-y-4 border-t">
-            <Label>Infos</Label>
+            <Label>{t('infos')}</Label>
             <Infos control={control} />
           </section>
         </form>

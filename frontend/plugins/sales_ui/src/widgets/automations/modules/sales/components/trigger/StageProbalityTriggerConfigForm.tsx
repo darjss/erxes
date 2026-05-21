@@ -14,6 +14,7 @@ import {
 import { useForm, useWatch } from 'react-hook-form';
 
 import { STAGE_PROBABILITIES } from '~/widgets/automations/modules/sales/constants/configForm';
+import { useTranslation } from 'react-i18next';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 export const StageProbalityTriggerConfigForm = ({
@@ -21,6 +22,7 @@ export const StageProbalityTriggerConfigForm = ({
   onSaveTriggerConfig,
   activeTrigger,
 }: AutomationTriggerFormProps<TStageProbalityTriggerConfigForm>) => {
+  const { t } = useTranslation('sales');
   const form = useForm<TStageProbalityTriggerConfigForm>({
     resolver: zodResolver(stageProbalityTriggerConfigFormSchema),
     defaultValues: {
@@ -50,10 +52,10 @@ export const StageProbalityTriggerConfigForm = ({
         name="probability"
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>Probability</Form.Label>
+            <Form.Label>{t('probability')}</Form.Label>
             <Select value={field.value} onValueChange={field.onChange}>
               <Select.Trigger>
-                <Select.Value placeholder="Select probability" />
+                <Select.Value placeholder={t('select-probability')} />
               </Select.Trigger>
               <Select.Content>
                 {STAGE_PROBABILITIES.map((probability) => (
@@ -73,7 +75,7 @@ export const StageProbalityTriggerConfigForm = ({
           name="boardId"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Board (optional)</Form.Label>
+              <Form.Label>{t('board-optional')}</Form.Label>
               <SelectBoard.FormItem
                 mode="single"
                 onValueChange={field.onChange}
@@ -88,7 +90,7 @@ export const StageProbalityTriggerConfigForm = ({
           name="pipelineId"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Pipeline (optional)</Form.Label>
+              <Form.Label>{t('pipeline-optional')}</Form.Label>
               <SelectPipeline.FormItem
                 mode="single"
                 onValueChange={field.onChange}
@@ -104,7 +106,7 @@ export const StageProbalityTriggerConfigForm = ({
           name="stageId"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Stage (optional)</Form.Label>
+              <Form.Label>{t('stage-optional')}</Form.Label>
               <SelectStage.FormItem
                 mode="single"
                 onValueChange={field.onChange}

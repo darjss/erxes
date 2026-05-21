@@ -15,19 +15,21 @@ const Sentence = ({ children }: { children: ReactNode }) => (
   </div>
 );
 
-const { t } = useTranslation('sales');
-
-const DealCreatedRow = ({ activity }: { activity: TActivityLog }) => (
-  <Sentence>
-    <ActivityLogs.ActorName activity={activity} />
-    <span className="text-muted-foreground">{t('created-deal')}</span>
-    {activity.target?.text && (
-      <span className="font-medium">{activity.target.text}</span>
-    )}
-  </Sentence>
-);
+const DealCreatedRow = ({ activity }: { activity: TActivityLog }) => {
+  const { t } = useTranslation('sales');
+  return (
+    <Sentence>
+      <ActivityLogs.ActorName activity={activity} />
+      <span className="text-muted-foreground">{t('created-deal')}</span>
+      {activity.target?.text && (
+        <span className="font-medium">{activity.target.text}</span>
+      )}
+    </Sentence>
+  );
+};
 
 const DealMovedRow = ({ activity }: { activity: TActivityLog }) => {
+  const { t } = useTranslation('sales');
   const fromStage = activity.changes?.prev?.stageId as string | undefined;
   const toStage = activity.changes?.current?.stageId as string | undefined;
   const description = activity.action?.description as string | undefined;
@@ -119,6 +121,7 @@ const DealWatchRow = ({ activity }: { activity: TActivityLog }) => {
 };
 
 const ChecklistActivityRow = ({ activity }: { activity: TActivityLog }) => {
+  const { t } = useTranslation('sales');
   const checklistName = activity.metadata?.checklistTitle as string | undefined;
   const itemName = activity.metadata?.checklistItemTitle as string | undefined;
 

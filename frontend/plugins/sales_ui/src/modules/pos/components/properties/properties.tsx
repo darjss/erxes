@@ -22,6 +22,7 @@ import { Button, Form, InfoCard, toast } from 'erxes-ui';
 import { useCallback, useEffect, useState, type FC, type ReactNode } from 'react';
 import { useForm } from 'react-hook-form';
 import { MoreOptionsButton } from '../MoreOptionsButton';
+import { useTranslation } from 'react-i18next';
 
 interface PropertiesProps {
   posId?: string;
@@ -70,6 +71,7 @@ const Properties: FC<PropertiesProps> = ({
   posType,
   onSaveActionChange,
 }) => {
+  const { t } = useTranslation('sales');
   const { posDetail, loading: detailLoading, error } = usePosDetail(posId);
   const [posEdit, { loading: saving }] = useMutation(mutations.posEdit);
   const { posEnv } = usePosEnv()
@@ -111,8 +113,8 @@ const Properties: FC<PropertiesProps> = ({
     async (data: FormData) => {
       if (!posId) {
         toast({
-          title: 'Error',
-          description: 'POS ID is required',
+          title: t('error'),
+          description: t('pos-id-required'),
           variant: 'destructive',
         });
         return;
@@ -139,14 +141,14 @@ const Properties: FC<PropertiesProps> = ({
         });
 
         toast({
-          title: 'Success',
-          description: 'Properties saved successfully',
+          title: t('success'),
+          description: t('properties-saved'),
         });
         reset(data);
       } catch {
         toast({
-          title: 'Error',
-          description: 'Failed to save properties',
+          title: t('error'),
+          description: t('properties-save-failed'),
           variant: 'destructive',
         });
       }
@@ -167,7 +169,7 @@ const Properties: FC<PropertiesProps> = ({
           size="sm"
           disabled={saving}
         >
-          {saving ? 'Saving...' : 'Save Changes'}
+          {saving ? t('saving') : t('save-changes')}
         </Button>
       ) : null,
     );
@@ -181,7 +183,7 @@ const Properties: FC<PropertiesProps> = ({
     return (
       <div className="p-6 text-center">
         <p className="text-destructive">
-          Failed to load POS details: {error.message}
+          {t('failed-to-load-pos-details')}: {error.message}
         </p>
       </div>
     );
@@ -189,7 +191,7 @@ const Properties: FC<PropertiesProps> = ({
 
   return (
     <div className="p-6">
-      <InfoCard title="General configuration">
+      <InfoCard title={t('general-configuration')}>
         <InfoCard.Content>
           <Form {...form}>
             <form

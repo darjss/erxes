@@ -50,8 +50,6 @@ export const SelectLabelsContext = createContext<ISelectLabelContext | null>(
   null,
 );
 
-const { t } = useTranslation('sales');
-
 export const useSelectLabelsContext = () => {
   const context = useContext(SelectLabelsContext);
 
@@ -110,6 +108,7 @@ export const SelectLabelsProvider = ({
 };
 
 export const SelectLabelsCommand = ({ targetId }: { targetId?: string }) => {
+  const { t } = useTranslation('sales');
   const { labelPipelineLabel } = usePipelineLabelLabel();
   const { labelIds, onSelect } = useSelectLabelsContext();
   const client = useApolloClient();
@@ -335,6 +334,7 @@ export const SelectLabelsItem = ({ label }: { label: IPipelineLabel }) => {
 };
 
 export const SelectLabelsValue = () => {
+  const { t } = useTranslation('sales');
   const { labelIds } = useSelectLabelsContext();
 
   if ((labelIds || [])?.length !== 0) {
@@ -419,6 +419,7 @@ export const SelectLabelsCommandbarItem = ({
   onValueChange,
   ...props
 }: Omit<React.ComponentProps<typeof SelectLabelsProvider>, 'children'>) => {
+  const { t } = useTranslation('sales');
   const [open, setOpen] = useState(false);
 
   return (

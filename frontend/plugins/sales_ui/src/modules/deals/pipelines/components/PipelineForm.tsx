@@ -12,9 +12,8 @@ type Props = {
   stagesLoading: boolean;
 };
 
-const { t } = useTranslation('sales');
-
 export const PipelineForm = ({ form, stagesLoading }: Props) => {
+  const { t } = useTranslation('sales');
   const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
   const defaultTab = searchParams.get('tab') || 'general';

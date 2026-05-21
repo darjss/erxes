@@ -20,15 +20,13 @@ const props: Partial<SortableProps> = {
   itemCount: 10,
 };
 
-const { t } = useTranslation('sales');
-
-
 type Props = {
   form: any;
   stagesLoading: boolean;
 };
 
 const PipelineStages = ({ form, stagesLoading }: Props) => {
+  const { t } = useTranslation('sales');
   const { control } = form;
 
   const { fields, append, remove, move } = useFieldArray({

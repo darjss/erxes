@@ -1,4 +1,5 @@
 import React, { useState, createContext, useContext } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Combobox,
   Command,
@@ -90,6 +91,7 @@ const SelectCategoryProvider = ({
 };
 
 const SelectCategoryContent = () => {
+  const { t } = useTranslation('sales');
   const { categoryIds, categories } = useSelectCategoryContext();
   const { productCategories, loading, error } = useProductCategories();
 
@@ -113,9 +115,9 @@ const SelectCategoryContent = () => {
         ) : (
           <Command.Empty>
             <div className="flex flex-col gap-2 justify-center items-center text-sm text-center text-muted-foreground">
-              No categories found
+              {t('no-categories-found')}
               <Button variant="secondary" size="sm" asChild>
-                <Link to="/products/categories">Add Category</Link>
+                <Link to="/products/categories">{t('add-category')}</Link>
               </Button>
             </div>
           </Command.Empty>
@@ -193,6 +195,7 @@ const SelectCategoryRoot = React.forwardRef<
 });
 
 const SelectCategoryValue = ({ placeholder }: { placeholder?: string }) => {
+  const { t } = useTranslation('sales');
   const { categoryIds, categories, setCategories } = useSelectCategoryContext();
   const { productCategories } = useProductCategories();
 
@@ -228,7 +231,7 @@ const SelectCategoryValue = ({ placeholder }: { placeholder?: string }) => {
   }, [categoryIds, productCategories, categories, setCategories]);
 
   if (categories.length === 0) {
-    return <Combobox.Value placeholder={placeholder || 'Select category'} />;
+    return <Combobox.Value placeholder={placeholder || t('select-category')} />;
   }
 
   const displayText =

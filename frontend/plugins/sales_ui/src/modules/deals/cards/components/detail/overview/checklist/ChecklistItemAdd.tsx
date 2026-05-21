@@ -2,8 +2,6 @@ import { IconPlus } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 
 
-const { t } = useTranslation('sales');
-
 const ChecklistItemAdd = ({
   adding,
   setAdding,
@@ -19,6 +17,7 @@ const ChecklistItemAdd = ({
   handleAdd: () => void;
   handleKeyDown: (e: React.KeyboardEvent<HTMLTextAreaElement>) => void;
 }) => {
+  const { t } = useTranslation('sales');
   if (adding) {
     return (
       <div className="flex flex-col gap-2 p-2">

@@ -8,16 +8,14 @@ import { useSelectBoardsContext } from '@/deals/context/DealContext';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslation } from 'react-i18next';
-import { T } from 'react-router/dist/development/fog-of-war-oa9CGk10';
 
 
 const formSchema = z.object({
   title: z.string().min(1),
 });
 
-const { t } = useTranslation('sales');
-
 export const CreateBoardForm = () => {
+  const { t } = useTranslation('sales');
   const { newBoardName, setNewBoardName } = useSelectBoardsContext();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -73,7 +71,7 @@ export const CreateBoardForm = () => {
             {loading ? (
               <IconLoader2 className="w-4 h-4 animate-spin" />
             ) : (
-              'Create'
+              t('create')
             )}
           </Button>
         </div>
@@ -87,6 +85,7 @@ export function SelectBoardsCreateContainer({
 }: {
   children: React.ReactNode;
 }) {
+  const { t } = useTranslation('sales');
   const { setNewBoardName } = useSelectBoardsContext();
   return (
     <div className="overflow-auto">

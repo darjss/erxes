@@ -80,8 +80,6 @@ export interface Props {
   isDisabled?(id: UniqueIdentifier): boolean;
 }
 
-const { t } = useTranslation('sales');
-
 const dropAnimationConfig: DropAnimation = {
   sideEffects: defaultDropAnimationSideEffects({
     styles: {
@@ -133,6 +131,7 @@ export function Sortable({
   useDragOverlay = false,
   wrapperStyle = () => ({}),
 }: Props) {
+  const { t } = useTranslation('sales');
   const [items, setItems] = useState<UniqueIdentifier[]>(
     () =>
       initialItems ??

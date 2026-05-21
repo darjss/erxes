@@ -7,6 +7,7 @@ import { CashierPermissions } from '@/pos/components/permission/CashierPermissio
 import mutations from '@/pos/graphql/mutations';
 import { usePosDetail } from '@/pos/hooks/usePosDetail';
 import { cleanData } from '@/pos/utils/cleanData';
+import { useTranslation } from 'react-i18next';
 
 interface PermissionProps {
   posId?: string;
@@ -47,6 +48,7 @@ const Permission: React.FC<PermissionProps> = ({
   posId,
   onSaveActionChange,
 }) => {
+  const { t } = useTranslation('sales');
   const { posDetail, loading: detailLoading, error } = usePosDetail(posId);
   const [posEdit, { loading: saving }] = useMutation(mutations.posEdit);
   const form = useForm<PermissionFormData>({
@@ -175,7 +177,7 @@ const Permission: React.FC<PermissionProps> = ({
       return (
         <div className="p-6 text-center">
           <p className="text-destructive">
-            Failed to load POS details: {error.message}
+            {t('failed-to-load-pos-details', { message: error.message })}
           </p>
         </div>
       );
@@ -189,13 +191,13 @@ const Permission: React.FC<PermissionProps> = ({
           className="space-y-8"
         >
           <section className="space-y-4">
-            <Label>Admins</Label>
+            <Label>{t('admins')}</Label>
 
             <AdminPermissions control={control} />
           </section>
 
           <section className="pt-6 space-y-4 border-t">
-            <Label>Cashiers</Label>
+            <Label>{t('cashiers')}</Label>
 
             <CashierPermissions control={control} />
           </section>

@@ -18,6 +18,7 @@ import {
 } from 'erxes-ui';
 
 import { IconCategory } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 import { PRODUCT_CATEGORIES_QUERY } from '../../graphql/queries/productCategoriesQuery';
 import { useQuery } from '@apollo/client';
 import {
@@ -113,6 +114,7 @@ const SelectCategoriesValue = ({
   placeholder?: string;
   className?: string;
 }) => {
+  const { t } = useTranslation('sales');
   const { value, categories } = useSelectCategoriesContext();
   const selectedCategory = categories?.find(
     (category) => category._id === value,
@@ -121,7 +123,7 @@ const SelectCategoriesValue = ({
   if (!selectedCategory) {
     return (
       <span className="text-accent-foreground/80">
-        {placeholder || 'Select category'}
+        {placeholder || t('select-category')}
       </span>
     );
   }
@@ -168,15 +170,16 @@ const SelectCategoriesCommandItem = ({ category }: { category: ICategory }) => {
 };
 
 const SelectCategoriesContent = () => {
+  const { t } = useTranslation('sales');
   const { categories, loading } = useSelectCategoriesContext();
 
   if (loading) {
     return (
       <Command>
-        <Command.Input placeholder="Search categories" />
+        <Command.Input placeholder={t('search-categories')} />
         <Command.List>
           <div className="flex items-center justify-center py-4 h-32">
-            <span className="text-muted-foreground">Loading categories...</span>
+            <span className="text-muted-foreground">{t('loading-categories')}</span>
           </div>
         </Command.List>
       </Command>
@@ -185,9 +188,9 @@ const SelectCategoriesContent = () => {
 
   return (
     <Command>
-      <Command.Input placeholder="Search categories" />
+      <Command.Input placeholder={t('search-categories')} />
       <Command.Empty>
-        <span className="text-muted-foreground">No categories found</span>
+        <span className="text-muted-foreground">{t('no-categories-found')}</span>
       </Command.Empty>
       <Command.List>
         {categories?.map((category) => (
@@ -199,10 +202,11 @@ const SelectCategoriesContent = () => {
 };
 
 export const SelectCategoriesFilterItem = () => {
+  const { t } = useTranslation('sales');
   return (
     <Filter.Item value="category">
       <IconCategory />
-      Categories
+      {t('categories')}
     </Filter.Item>
   );
 };
@@ -257,11 +261,12 @@ export const SelectCategoriesFilterBar = ({
   );
   const [open, setOpen] = useState(false);
 
+  const { t } = useTranslation('sales');
   return (
     <Filter.BarItem queryKey={'category'}>
       <Filter.BarName>
         <IconCategory />
-        Categories
+        {t('categories')}
       </Filter.BarName>
       <SelectCategoriesProvider
         mode={mode}

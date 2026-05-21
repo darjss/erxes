@@ -5,9 +5,8 @@ import { dealDetailSheetState } from '@/deals/states/dealDetailSheetState';
 import { useSetAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 
-const { t } = useTranslation('sales');
-
 export const NameCell = ({ deal }: { deal: IDeal }) => {
+  const { t } = useTranslation('sales');
   const setActiveDealId = useSetAtom(dealDetailSheetState);
   const [, setSalesItemId] = useQueryState<string>('salesItemId');
 
@@ -31,6 +30,7 @@ export const NameCell = ({ deal }: { deal: IDeal }) => {
 };
 
 export const NumberCell = ({ deal }: { deal: IDeal }) => {
+  const { t } = useTranslation('sales');
   const setActiveDealId = useSetAtom(dealDetailSheetState);
   const [, setSalesItemId] = useQueryState<string>('salesItemId');
 
