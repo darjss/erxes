@@ -8,6 +8,8 @@ export const GET_IDENTIFIERS = gql`
       slug
       kind
       description
+      createdUserId
+      memberIds
       createdAt
       updatedAt
     }
@@ -22,6 +24,8 @@ export const GET_IDENTIFIER = gql`
       slug
       kind
       description
+      createdUserId
+      memberIds
       createdAt
       updatedAt
     }

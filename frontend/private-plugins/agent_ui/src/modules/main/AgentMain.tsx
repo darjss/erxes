@@ -1,9 +1,16 @@
 import { AgentDeployScreen } from '../deploy/components/AgentDeployScreen';
+import { AgentTransferCredentialsDialog } from '../deploy/components/AgentTransferCredentialsDialog';
 import { useAgent } from './hooks/useAgent';
 import { useFixAndRestart } from '../detail/hooks/useFixAndRestart';
 import { useKimiKeyStatus } from '../detail/hooks/useKimiKey';
 import { Card, Spinner } from 'erxes-ui';
-import { IconKey, IconLibrary, IconRefresh, IconTrash } from '@tabler/icons-react';
+import {
+  IconKey,
+  IconLibrary,
+  IconRefresh,
+  IconTransfer,
+  IconTrash,
+} from '@tabler/icons-react';
 import { useToast } from 'erxes-ui';
 import { AddAgentTrigger } from '../detail/components/AddAgent';
 import { RestartServerDialog } from '../detail/components/RestartServerDialog';
@@ -29,6 +36,7 @@ export const AgentMain = () => {
   const [iframeKey, setIframeKey] = useState(0);
   const [restartOpen, setRestartOpen] = useState(false);
   const [destroyOpen, setDestroyOpen] = useState(false);
+  const [transferOpen, setTransferOpen] = useState(false);
   const refreshIframe = useCallback(() => setIframeKey((k) => k + 1), []);
 
   const isApproved =
@@ -102,6 +110,13 @@ export const AgentMain = () => {
             <IconKey className="size-4" />
           </button>
           <button
+            onClick={() => setTransferOpen(true)}
+            className="p-1.5 rounded hover:bg-muted transition-colors"
+            title="Transfer credentials"
+          >
+            <IconTransfer className="size-4" />
+          </button>
+          <button
             onClick={() => setDestroyOpen(true)}
             disabled={destroying || deletingIdentifier}
             className="p-1.5 rounded text-destructive hover:bg-destructive/10 transition-colors disabled:opacity-50"
@@ -142,6 +157,10 @@ export const AgentMain = () => {
           }
         }}
         loading={destroying || deletingIdentifier}
+      />
+      <AgentTransferCredentialsDialog
+        open={transferOpen}
+        onOpenChange={setTransferOpen}
       />
       <KimiKeyDialog
         open={kimiKeyOpen}

@@ -38,6 +38,40 @@ export const UPDATE_AGENT_FILE = gql`
   }
 `;
 
+export const TRANSFER_AGENT = gql`
+  mutation TransferAgent($identifierId: String!, $input: TransferAgentInput!) {
+    transferAgent(identifierId: $identifierId, input: $input) {
+      _id
+      identifierId
+      name
+      url
+      token
+      agentId
+      serverId
+      status
+      transferredFromSubdomain
+      transferredAt
+      createdAt
+      updatedAt
+    }
+  }
+`;
+
+export const CREATE_AGENT_TRANSFER_CREDENTIALS = gql`
+  mutation CreateAgentTransferCredentials($identifierId: String!) {
+    createAgentTransferCredentials(identifierId: $identifierId) {
+      kind
+      sourceSubdomain
+      serverName
+      serverUrl
+      gatewayToken
+      agentId
+      serverId
+      status
+    }
+  }
+`;
+
 export const DESTROY_AGENT = gql`
   mutation DestroyAgent($identifierId: String!) {
     destroyAgent(identifierId: $identifierId) {

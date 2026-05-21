@@ -1,5 +1,6 @@
 import { IContext } from '~/connectionResolvers';
 import { SERVER_STATUSES } from '~/modules/agent/constants';
+import { assertIdentifierManageAccess } from '~/modules/assistantOrg/permissions';
 import { ensureLegacyIdentifierLinks } from '~/modules/assistantOrg/utils';
 import {
   addAgent,
@@ -8,6 +9,7 @@ import {
   deployServer,
   destroyServer,
   fixAndRestartServer,
+  getGatewayToken,
   setKimiApiKey,
   updateAgentFile,
   updateDiscordSettings,
@@ -23,7 +25,7 @@ export const agentMutations = {
       identifierId: string;
       input: { token: string; kimiApiKey: string };
     },
-    { models, subdomain }: IContext,
+    { models, subdomain, user }: IContext,
   ) => {
     const { token, kimiApiKey } = input || {};
 
@@ -36,6 +38,7 @@ export const agentMutations = {
     }
 
     await ensureLegacyIdentifierLinks(models);
+    await assertIdentifierManageAccess(models, identifierId, user);
 
     const identifier = await models.Identifier.findById(identifierId).lean();
 
@@ -84,15 +87,117 @@ export const agentMutations = {
     }
   },
 
+
+  transferAgent: async (
+    _root: undefined,
+    {
+      identifierId,
+      input,
+    }: {
+      identifierId: string;
+      input: {
+        serverName: string;
+        gatewayToken: string;
+        serverUrl?: string;
+        agentId?: string;
+        serverId?: string;
+        sourceSubdomain?: string;
+      };
+    },
+    { models, user }: IContext,
+  ) => {
+    const serverName = input?.serverName?.trim();
+    const gatewayToken = input?.gatewayToken?.trim();
+
+    if (!serverName) {
+      throw new Error('serverName is required');
+    }
+
+    if (!gatewayToken) {
+      throw new Error('gatewayToken is required');
+    }
+
+    await ensureLegacyIdentifierLinks(models);
+    await assertIdentifierManageAccess(models, identifierId, user);
+
+    const identifier = await models.Identifier.findById(identifierId).lean();
+
+    if (!identifier) {
+      throw new Error('Identifier not found');
+    }
+
+    if (identifier.kind && identifier.kind !== 'assistant') {
+      throw new Error(
+        'This identifier belongs to AI Agents and cannot transfer OpenClaw.',
+      );
+    }
+
+    const existing = await models.AgentServer.findOne({ identifierId }).lean();
+
+    if (existing) {
+      throw new Error('This identifier already has an assistant server');
+    }
+
+    return models.AgentServer.create({
+      identifierId,
+      agentId: input?.agentId?.trim() || identifier.slug,
+      name: serverName,
+      url:
+        input?.serverUrl?.trim() ||
+        `https://${serverName}.assistant.erxes.io`,
+      token: gatewayToken,
+      serverId: input?.serverId?.trim() || '',
+      status: SERVER_STATUSES.APPROVED,
+      transferredFromSubdomain: input?.sourceSubdomain?.trim() || undefined,
+      transferredAt: new Date(),
+    });
+  },
+
+  createAgentTransferCredentials: async (
+    _root: undefined,
+    { identifierId }: { identifierId: string },
+    { models, subdomain, user }: IContext,
+  ) => {
+    await ensureLegacyIdentifierLinks(models);
+    await assertIdentifierManageAccess(models, identifierId, user);
+
+    const agent = await models.AgentServer.findOne({ identifierId }).lean();
+
+    if (!agent) {
+      throw new Error('Agent server not found');
+    }
+
+    const gatewayToken = agent.token || (await getGatewayToken(agent.name));
+
+    if (!agent.token && gatewayToken) {
+      await models.AgentServer.updateOne(
+        { _id: agent._id },
+        { $set: { token: gatewayToken } },
+      );
+    }
+
+    return {
+      kind: 'assistant',
+      sourceSubdomain: subdomain,
+      serverName: agent.name,
+      serverUrl: agent.url,
+      gatewayToken,
+      agentId: agent.agentId,
+      serverId: agent.serverId,
+      status: agent.status,
+    };
+  },
+
   approveAgent: async (
     _root: undefined,
     {
       identifierId,
       input,
     }: { identifierId: string; input: { code: string } },
-    { models }: IContext,
+    { models, user }: IContext,
   ) => {
     await ensureLegacyIdentifierLinks(models);
+    await assertIdentifierManageAccess(models, identifierId, user);
 
     const { code } = input || {};
 
@@ -119,9 +224,10 @@ export const agentMutations = {
   destroyAgent: async (
     _root: undefined,
     { identifierId }: { identifierId: string },
-    { models }: IContext,
+    { models, user }: IContext,
   ) => {
     await ensureLegacyIdentifierLinks(models);
+    await assertIdentifierManageAccess(models, identifierId, user);
 
     const agent = await models.AgentServer.findOne({ identifierId }).lean();
 
@@ -157,9 +263,10 @@ export const agentMutations = {
         mentionPatterns?: string[];
       };
     },
-    { models }: IContext,
+    { models, user }: IContext,
   ) => {
     await ensureLegacyIdentifierLinks(models);
+    await assertIdentifierManageAccess(models, identifierId, user);
 
     const server = await models.AgentServer.findOne({ identifierId }).lean();
 
@@ -185,9 +292,10 @@ export const agentMutations = {
       identifierId: string;
       input: { filename: string; content: string; agentId?: string };
     },
-    { models }: IContext,
+    { models, user }: IContext,
   ) => {
     await ensureLegacyIdentifierLinks(models);
+    await assertIdentifierManageAccess(models, identifierId, user);
 
     const server = await models.AgentServer.findOne({ identifierId }).lean();
 
@@ -212,9 +320,10 @@ export const agentMutations = {
   fixAndRestartAgent: async (
     _root: undefined,
     { identifierId }: { identifierId: string },
-    { models }: IContext,
+    { models, user }: IContext,
   ) => {
     await ensureLegacyIdentifierLinks(models);
+    await assertIdentifierManageAccess(models, identifierId, user);
 
     const server = await models.AgentServer.findOne({ identifierId }).lean();
 
@@ -240,9 +349,10 @@ export const agentMutations = {
       identifierId: string;
       input: { botToken: string; dmPolicy?: 'pairing' | 'open' };
     },
-    { models }: IContext,
+    { models, user }: IContext,
   ) => {
     await ensureLegacyIdentifierLinks(models);
+    await assertIdentifierManageAccess(models, identifierId, user);
 
     const server = await models.AgentServer.findOne({ identifierId }).lean();
 
@@ -265,9 +375,10 @@ export const agentMutations = {
       identifierId,
       input,
     }: { identifierId: string; input: { guildId: string } },
-    { models }: IContext,
+    { models, user }: IContext,
   ) => {
     await ensureLegacyIdentifierLinks(models);
+    await assertIdentifierManageAccess(models, identifierId, user);
 
     const server = await models.AgentServer.findOne({ identifierId }).lean();
 
@@ -290,9 +401,10 @@ export const agentMutations = {
       identifierId,
       input,
     }: { identifierId: string; input: { kimiApiKey: string } },
-    { models }: IContext,
+    { models, user }: IContext,
   ) => {
     await ensureLegacyIdentifierLinks(models);
+    await assertIdentifierManageAccess(models, identifierId, user);
 
     const server = await models.AgentServer.findOne({ identifierId }).lean();
 
