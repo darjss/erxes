@@ -7,6 +7,8 @@ export interface Identifier {
   slug: string;
   kind?: 'assistant' | 'agent' | null;
   description?: string | null;
+  createdUserId?: string | null;
+  memberIds?: string[] | null;
   createdAt: string;
   updatedAt: string;
 }

@@ -1,4 +1,8 @@
 import { IContext } from '~/connectionResolvers';
+import {
+  assertIdentifierManageAccess,
+  requireUser,
+} from '~/modules/assistantOrg/permissions';
 import { buildUniqueSlug, ensureLegacyIdentifierLinks } from '../../../utils';
 
 export const identifierMutations = {
@@ -13,8 +17,9 @@ export const identifierMutations = {
         description?: string | null;
       };
     },
-    { models }: IContext,
+    { models, user }: IContext,
   ) => {
+    const currentUser = requireUser(user);
     const name = input?.name?.trim();
     const kind = input?.kind;
     const description = input?.description?.trim() || undefined;
@@ -38,6 +43,8 @@ export const identifierMutations = {
       slug,
       kind,
       description,
+      createdUserId: currentUser._id,
+      memberIds: [],
     });
 
     return identifier;
@@ -52,23 +59,15 @@ export const identifierMutations = {
       identifierId: string;
       input: { name: string; description?: string | null };
     },
-    { models }: IContext,
+    { models, user }: IContext,
   ) => {
     const name = input?.name?.trim();
-
-    if (!identifierId) {
-      throw new Error('identifierId is required');
-    }
 
     if (!name) {
       throw new Error('name is required');
     }
 
-    const existing = await models.Identifier.findById(identifierId).lean();
-
-    if (!existing) {
-      throw new Error('Identifier not found');
-    }
+    await assertIdentifierManageAccess(models, identifierId, user);
 
     return models.Identifier.findByIdAndUpdate(
       identifierId,
@@ -82,22 +81,41 @@ export const identifierMutations = {
     ).lean();
   },
 
+  inviteIdentifierMembers: async (
+    _root: undefined,
+    {
+      identifierId,
+      input,
+    }: {
+      identifierId: string;
+      input: { memberIds: string[] };
+    },
+    { models, user }: IContext,
+  ) => {
+    const identifier = await assertIdentifierManageAccess(
+      models,
+      identifierId,
+      user,
+    );
+    const memberIds = Array.from(
+      new Set((input?.memberIds || []).map((id) => id?.trim()).filter(Boolean)),
+    ).filter((memberId) => memberId !== identifier.createdUserId);
+
+    return models.Identifier.findByIdAndUpdate(
+      identifierId,
+      { $set: { memberIds } },
+      { new: true },
+    ).lean();
+  },
+
   deleteIdentifier: async (
     _root: undefined,
     { identifierId }: { identifierId: string },
-    { models }: IContext,
+    { models, user }: IContext,
   ) => {
     await ensureLegacyIdentifierLinks(models);
 
-    if (!identifierId) {
-      throw new Error('identifierId is required');
-    }
-
-    const existing = await models.Identifier.findById(identifierId).lean();
-
-    if (!existing) {
-      throw new Error('Identifier not found');
-    }
+    await assertIdentifierManageAccess(models, identifierId, user);
 
     const [agentServer, opencodeServer] = await Promise.all([
       models.AgentServer.exists({ identifierId }),

@@ -5,6 +5,8 @@ export const types = `
     slug: String
     kind: String
     description: String
+    createdUserId: String
+    memberIds: [String]
     createdAt: Date
     updatedAt: Date
   }
@@ -19,6 +21,10 @@ export const types = `
     name: String!
     description: String
   }
+
+  input InviteIdentifierMembersInput {
+    memberIds: [String!]!
+  }
 `;
 
 export const queries = `
@@ -29,5 +35,6 @@ export const queries = `
 export const mutations = `
   createIdentifier(input: CreateIdentifierInput!): Identifier
   updateIdentifier(identifierId: String!, input: UpdateIdentifierInput!): Identifier
+  inviteIdentifierMembers(identifierId: String!, input: InviteIdentifierMembersInput!): Identifier
   deleteIdentifier(identifierId: String!): Boolean
 `;

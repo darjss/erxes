@@ -1,4 +1,5 @@
 import { IContext } from '~/connectionResolvers';
+import { assertIdentifierAccess } from '~/modules/assistantOrg/permissions';
 import { ensureLegacyIdentifierLinks } from '~/modules/assistantOrg/utils';
 import {
   checkKimiKeySet,
@@ -12,9 +13,10 @@ export const agentQueries = {
   getAgent: async (
     _root: undefined,
     { identifierId }: { identifierId: string },
-    { models }: IContext,
+    { models, user }: IContext,
   ) => {
     await ensureLegacyIdentifierLinks(models);
+    await assertIdentifierAccess(models, identifierId, user);
 
     const agent = await models.AgentServer.findOne({ identifierId }).lean();
 
@@ -37,9 +39,10 @@ export const agentQueries = {
   getAgentsList: async (
     _root: undefined,
     { identifierId }: { identifierId: string },
-    { models }: IContext,
+    { models, user }: IContext,
   ) => {
     await ensureLegacyIdentifierLinks(models);
+    await assertIdentifierAccess(models, identifierId, user);
 
     const server = await models.AgentServer.findOne({ identifierId }).lean();
 
@@ -53,9 +56,10 @@ export const agentQueries = {
   getAgentDetails: async (
     _root: undefined,
     { identifierId, agentId }: { identifierId: string; agentId?: string },
-    { models }: IContext,
+    { models, user }: IContext,
   ) => {
     await ensureLegacyIdentifierLinks(models);
+    await assertIdentifierAccess(models, identifierId, user);
 
     const server = await models.AgentServer.findOne({ identifierId }).lean();
 
@@ -69,9 +73,10 @@ export const agentQueries = {
   getDiscordGuilds: async (
     _root: undefined,
     { identifierId }: { identifierId: string },
-    { models }: IContext,
+    { models, user }: IContext,
   ) => {
     await ensureLegacyIdentifierLinks(models);
+    await assertIdentifierAccess(models, identifierId, user);
 
     const server = await models.AgentServer.findOne({ identifierId }).lean();
 
@@ -85,9 +90,10 @@ export const agentQueries = {
   checkKimiKeySet: async (
     _root: undefined,
     { identifierId }: { identifierId: string },
-    { models }: IContext,
+    { models, user }: IContext,
   ) => {
     await ensureLegacyIdentifierLinks(models);
+    await assertIdentifierAccess(models, identifierId, user);
 
     const server = await models.AgentServer.findOne({ identifierId }).lean();
 
