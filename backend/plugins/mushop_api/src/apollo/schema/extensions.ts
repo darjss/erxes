@@ -19,8 +19,8 @@ export const TypeExtensions = `
     subscription: MushopSubscription
   }
 
-  extend type cpPoscProduct {
+  extend type cpPoscProduct @key(fields: "_id") {
+    _id: String @external
     supplier: MushopSupplier
-    unitPrice: Float
   }
 `;
