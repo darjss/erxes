@@ -2,8 +2,10 @@ import { useState, useEffect, useMemo } from 'react';
 import { useQuery } from '@apollo/client';
 import { GET_MN_CONFIGS } from '@/ebarimt/settings/pos-in-ebarimt-config/graphql/mnConfigs';
 import { TPosInEbarimtConfig } from '@/ebarimt/settings/pos-in-ebarimt-config/types';
+import { useTranslation } from 'react-i18next';
 
 export const useEbarimtConfigState = () => {
+  const { t } = useTranslation('mongolian');
   const { data, refetch, loading } = useQuery(GET_MN_CONFIGS, {
     variables: { code: 'posInEbarimt' },
     fetchPolicy: 'network-only',
@@ -39,7 +41,7 @@ export const useEbarimtConfigState = () => {
   const addNewConfig = () => {
     const configKey = `config_${Date.now()}`;
     const newConfig: TPosInEbarimtConfig = {
-      title: 'New Pos In Ebarimt Config',
+      title: t('new-pos-in-ebarimt-config-title'),
       posId: '',
       posNo: '',
       companyRD: '',

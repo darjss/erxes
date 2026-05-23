@@ -10,6 +10,7 @@ import {
   Command,
 } from 'erxes-ui';
 import { IconClipboardList, IconCode, IconEdit, IconTag, IconTrash } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 import { useSetAtom } from 'jotai';
 import { useQuery } from '@apollo/client';
 import { GET_MN_CONFIGS } from '@/ebarimt/settings/pos-in-ebarimt-config/graphql/mnConfigs';
@@ -69,6 +70,7 @@ export const PosInEBarimtConfigMoreCell = ({
 }: {
   cell: Cell<IPosInEbarimtConfigRow, unknown>;
 }) => {
+  const { t } = useTranslation('mongolian');
   const [, setOpen] = useQueryState('pos_in_ebarimt_id');
   const setDetail = useSetAtom(posInEbarimtDetailAtom);
   const { removePosInEbarimtConfig } = useRemovePosInEbarimtConfig();
@@ -81,8 +83,8 @@ export const PosInEBarimtConfigMoreCell = ({
 
   const handleDelete = () => {
     confirm({
-      message: 'Are you sure you want to delete this config?',
-      options: { okLabel: 'Delete', cancelLabel: 'Cancel' },
+      message: t('delete-this-config-confirm'),
+      options: { okLabel: t('delete'), cancelLabel: t('cancel') },
     }).then(() => removePosInEbarimtConfig(cell.row.original._id));
   };
 
@@ -95,10 +97,10 @@ export const PosInEBarimtConfigMoreCell = ({
         <Command shouldFilter={false}>
           <Command.List>
             <Command.Item value="edit" onSelect={handleEdit}>
-              <IconEdit /> Edit
+              <IconEdit /> {t('edit')}
             </Command.Item>
             <Command.Item value="delete" onSelect={handleDelete}>
-              <IconTrash /> Delete
+              <IconTrash /> {t('delete')}
             </Command.Item>
           </Command.List>
         </Command>
@@ -119,14 +121,20 @@ const posInEbarimtColumns: ColumnDef<IPosInEbarimtConfigRow>[] = [
   {
     id: 'title',
     accessorKey: 'title',
-    header: () => <RecordTable.InlineHead label="Title" icon={IconCode} />,
+    header: () => {
+      const { t } = useTranslation('mongolian');
+      return <RecordTable.InlineHead label={t('title')} icon={IconCode} />;
+    },
     cell: ({ cell }) => <PosInEBarimtConfigTitleCell cell={cell} />,
     size: 200,
   },
   {
     id: 'posId',
     accessorKey: 'posId',
-    header: () => <RecordTable.InlineHead label="POS" icon={IconTag} />,
+    header: () => {
+      const { t } = useTranslation('mongolian');
+      return <RecordTable.InlineHead label={t('pos')} icon={IconTag} />;
+    },
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         <TextOverflowTooltip value={cell.getValue() as string} />
@@ -137,7 +145,10 @@ const posInEbarimtColumns: ColumnDef<IPosInEbarimtConfigRow>[] = [
   {
     id: 'posNo',
     accessorKey: 'posNo',
-    header: () => <RecordTable.InlineHead label="POS No" icon={IconCode} />,
+    header: () => {
+      const { t } = useTranslation('mongolian');
+      return <RecordTable.InlineHead label={t('pos-no')} icon={IconCode} />;
+    },
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         <TextOverflowTooltip value={cell.getValue() as string} />
@@ -148,9 +159,10 @@ const posInEbarimtColumns: ColumnDef<IPosInEbarimtConfigRow>[] = [
   {
     id: 'companyName',
     accessorKey: 'companyName',
-    header: () => (
-      <RecordTable.InlineHead label="Company Name" icon={IconCode} />
-    ),
+    header: () => {
+      const { t } = useTranslation('mongolian');
+      return <RecordTable.InlineHead label={t('company-name')} icon={IconCode} />;
+    },
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         <TextOverflowTooltip value={cell.getValue() as string} />
@@ -161,6 +173,7 @@ const posInEbarimtColumns: ColumnDef<IPosInEbarimtConfigRow>[] = [
 ];
 
 export const PosInEBarimtConfigTable = () => {
+  const { t } = useTranslation('mongolian');
   const { rows, loading } = usePosInEbarimtConfigRows();
 
   return (
@@ -178,10 +191,10 @@ export const PosInEBarimtConfigTable = () => {
             <div className="flex flex-col items-center text-center">
               <IconClipboardList size={48} className="text-gray-400 mb-4" />
               <h3 className="text-lg font-semibold text-gray-900">
-                No Pos in ebarimt config yet
+                {t('no-pos-in-ebarimt-config-yet')}
               </h3>
               <p className="mt-1 text-sm text-gray-500 mb-4">
-                Get started by creating your first Pos in ebarimt config.
+                {t('create-first-pos-in-ebarimt-config')}
               </p>
               <AddPosInEBarimtConfig />
             </div>

@@ -1,7 +1,7 @@
 import { Form, Select } from 'erxes-ui';
-
 import { IMainProduct } from '@/ebarimt/settings/product-group/types/mainProduct';
 import { useGetMainProduct } from '@/ebarimt/settings/product-group/hooks/useMainProduct';
+import { useTranslation } from 'react-i18next';
 
 export const SelectMainProduct = ({
   value,
@@ -12,6 +12,7 @@ export const SelectMainProduct = ({
   onValueChange: (value: string) => void;
   disabled?: boolean;
 }) => {
+  const { t } = useTranslation('mongolian');
   const { mainProduct, loading } = useGetMainProduct({
     skip: false,
     variables: {
@@ -32,7 +33,7 @@ export const SelectMainProduct = ({
     >
       <Form.Control>
         <Select.Trigger>
-          <span>{selectedMainProduct?.name || 'Select a main product'}</span>
+          <span>{selectedMainProduct?.name || t('select-main-product')}</span>
         </Select.Trigger>
       </Form.Control>
       <Select.Content>

@@ -1,6 +1,7 @@
 import { Form, Select } from 'erxes-ui';
 import { useGetExcludeCategories } from '@/ebarimt/settings/product-rules-on-tax/hooks/useExcludeCategories';
 import { IExcludeCategory } from '@/ebarimt/settings/product-rules-on-tax/types/excludeCategories';
+import { useTranslation } from 'react-i18next';
 
 export const SelectExcludeCategories = ({
   value,
@@ -11,6 +12,7 @@ export const SelectExcludeCategories = ({
   onValueChange: (value: string) => void;
   disabled?: boolean;
 }) => {
+  const { t } = useTranslation('mongolian');
   const { excludeCategories, loading } = useGetExcludeCategories({
     skip: false,
     variables: {
@@ -32,7 +34,7 @@ export const SelectExcludeCategories = ({
       <Form.Control>
         <Select.Trigger>
           <span>
-            {selectedExcludeCategory?.name || 'Select an exclude category'}
+            {selectedExcludeCategory?.name || t('select-exclude-category')}
           </span>
         </Select.Trigger>
       </Form.Control>
@@ -46,7 +48,7 @@ export const SelectExcludeCategories = ({
 
         {!loading && excludeCategories?.length === 0 && (
           <Select.Item value="no-data" disabled>
-            No categories found
+            {t('no-categories-found')}
           </Select.Item>
         )}
       </Select.Content>

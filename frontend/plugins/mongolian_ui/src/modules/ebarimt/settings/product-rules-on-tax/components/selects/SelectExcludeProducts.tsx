@@ -1,6 +1,7 @@
 import { Form, Select } from 'erxes-ui';
 import { IExcludeProduct } from '@/ebarimt/settings/product-rules-on-tax/types/excludeProducts';
 import { useGetExcludeProducts } from '@/ebarimt/settings/product-rules-on-tax/hooks/useExcludeProducts';
+import { useTranslation } from 'react-i18next';
 
 export const SelectExcludeProducts = ({
   value,
@@ -11,6 +12,7 @@ export const SelectExcludeProducts = ({
   onValueChange: (value: string) => void;
   disabled?: boolean;
 }) => {
+  const { t } = useTranslation('mongolian');
   const { excludeProducts, loading } = useGetExcludeProducts({
     skip: false,
     variables: {
@@ -32,7 +34,7 @@ export const SelectExcludeProducts = ({
       <Form.Control>
         <Select.Trigger>
           <span>
-            {selectedExcludeProducts?.name || 'Select a exclude product'}
+            {selectedExcludeProducts?.name || t('select-exclude-product')}
           </span>
         </Select.Trigger>
       </Form.Control>

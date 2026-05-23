@@ -1,6 +1,7 @@
 import { Form, Select } from 'erxes-ui';
 import { IProduct } from '@/ebarimt/settings/product-rules-on-tax/types/products';
 import { useGetProducts } from '@/ebarimt/settings/product-rules-on-tax/hooks/useProducts';
+import { useTranslation } from 'react-i18next';
 
 export const SelectProducts = ({
   value,
@@ -11,6 +12,7 @@ export const SelectProducts = ({
   onValueChange: (value: string) => void;
   disabled?: boolean;
 }) => {
+  const { t } = useTranslation('mongolian');
   const { products, loading } = useGetProducts({
     skip: false,
     variables: {
@@ -31,7 +33,7 @@ export const SelectProducts = ({
     >
       <Form.Control>
         <Select.Trigger>
-          <span>{selectedProduct?.name || 'Select a product'}</span>
+          <span>{selectedProduct?.name || t('select-product')}</span>
         </Select.Trigger>
       </Form.Control>
       <Select.Content>

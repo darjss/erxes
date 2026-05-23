@@ -11,6 +11,7 @@ import { TProductRulesOnTaxForm } from '@/ebarimt/settings/product-rules-on-tax/
 import { Button, Dialog, Form, Input, Select, Spinner } from 'erxes-ui';
 import { useCallback, useEffect } from 'react';
 import { UseFormReturn, useWatch } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { SelectCategory } from 'ui-modules';
 
 export const ProductRulesOnTaxForm = ({
@@ -26,6 +27,7 @@ export const ProductRulesOnTaxForm = ({
   isSheet?: boolean;
   formId?: string;
 }) => {
+  const { t } = useTranslation('mongolian');
   const taxType = useWatch({ control: form.control, name: 'taxType' });
   const kind = useWatch({ control: form.control, name: 'kind' });
 
@@ -94,10 +96,10 @@ export const ProductRulesOnTaxForm = ({
           name="title"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Title</Form.Label>
+              <Form.Label>{t('title')}</Form.Label>
               <Form.Control>
                 <Input
-                  placeholder="Enter title"
+                  placeholder={t('enter-title')}
                   value={field.value}
                   onChange={(e) => field.onChange(e.target.value)}
                 />
@@ -110,7 +112,7 @@ export const ProductRulesOnTaxForm = ({
           name="productCategoryIds"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>PRODUCT CATEGORIES</Form.Label>
+              <Form.Label>{t('product-categories')}</Form.Label>
               <Form.Control>
                 <SelectCategory
                   selected={field.value}
@@ -125,16 +127,16 @@ export const ProductRulesOnTaxForm = ({
           name="taxType"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Tax Type</Form.Label>
+              <Form.Label>{t('tax-type')}</Form.Label>
               <Select value={field.value} onValueChange={field.onChange}>
                 <Form.Control>
                   <Select.Trigger className="text-muted-foreground">
-                    <Select.Value placeholder="Select a tax type">
+                    <Select.Value placeholder={t('select-a-tax-type')}>
                       {field.value ? (
                         <span className="text-foreground">{field.value}</span>
                       ) : (
                         <span className="text-muted-foreground">
-                          Select a tax type
+                          {t('select-a-tax-type')}
                         </span>
                       )}
                     </Select.Value>
@@ -156,7 +158,7 @@ export const ProductRulesOnTaxForm = ({
           name="excludeCategoryIds"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Exclude Categories</Form.Label>
+              <Form.Label>{t('exclude-categories')}</Form.Label>
               <SelectProductCategories
                 value={field.value}
                 onValueChange={(value) => {
@@ -172,7 +174,7 @@ export const ProductRulesOnTaxForm = ({
           name="taxCode"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Tax Code</Form.Label>
+              <Form.Label>{t('tax-code')}</Form.Label>
               <Select
                 value={field.value}
                 onValueChange={field.onChange}
@@ -180,12 +182,12 @@ export const ProductRulesOnTaxForm = ({
               >
                 <Form.Control>
                   <Select.Trigger className="text-muted-foreground">
-                    <Select.Value placeholder="Select a tax code">
+                    <Select.Value placeholder={t('select-a-tax-code')}>
                       {field.value ? (
                         <span className="text-foreground">{field.value}</span>
                       ) : (
                         <span className="text-muted-foreground">
-                          Select a tax code
+                          {t('select-a-tax-code')}
                         </span>
                       )}
                     </Select.Value>
@@ -217,7 +219,7 @@ export const ProductRulesOnTaxForm = ({
           name="productIds"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Products</Form.Label>
+              <Form.Label>{t('products')}</Form.Label>
               <SelectProducts
                 value={field.value}
                 onValueChange={(value) => {
@@ -233,7 +235,7 @@ export const ProductRulesOnTaxForm = ({
           name="kind"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Kind</Form.Label>
+              <Form.Label>{t('kind')}</Form.Label>
               <Form.Control>
                 <Input
                   value={field.value}
@@ -249,7 +251,7 @@ export const ProductRulesOnTaxForm = ({
           name="excludeProductIds"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Exclude Products</Form.Label>
+              <Form.Label>{t('exclude-products')}</Form.Label>
               <SelectExcludeProducts
                 value={field.value}
                 onValueChange={(value) => {
@@ -265,7 +267,7 @@ export const ProductRulesOnTaxForm = ({
           name="percent"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Percent</Form.Label>
+              <Form.Label>{t('percent')}</Form.Label>
               <Form.Control>
                 <Input
                   type="text"
@@ -274,7 +276,7 @@ export const ProductRulesOnTaxForm = ({
                   onChange={(e) => {
                     handleNumberChange(e.target.value, field.onChange);
                   }}
-                  placeholder="Enter percent"
+                  placeholder={t('enter-percent')}
                   disabled={loading || kind === 'ctax'}
                 />
               </Form.Control>
@@ -286,7 +288,7 @@ export const ProductRulesOnTaxForm = ({
           name="tagIds"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Tags</Form.Label>
+              <Form.Label>{t('tags')}</Form.Label>
               <SelectTags
                 value={field.value}
                 onValueChange={(value) => {
@@ -302,7 +304,7 @@ export const ProductRulesOnTaxForm = ({
           name="excludeTagIds"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Exclude Tags</Form.Label>
+              <Form.Label>{t('exclude-tags')}</Form.Label>
               <SelectExcludeTags
                 value={field.value}
                 onValueChange={(value) => {
@@ -317,11 +319,11 @@ export const ProductRulesOnTaxForm = ({
           <Dialog.Footer className="col-span-2 mt-3 gap-2">
             <Dialog.Close asChild>
               <Button variant="outline" size="lg">
-                Cancel
+                {t('cancel')}
               </Button>
             </Dialog.Close>
             <Button type="submit" disabled={loading} size="lg">
-              {loading ? <Spinner /> : 'Save'}
+              {loading ? <Spinner /> : t('save')}
             </Button>
           </Dialog.Footer>
         )}

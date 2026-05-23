@@ -5,10 +5,12 @@ import {
   GET_MN_CONFIGS,
 } from '@/ebarimt/settings/pos-in-ebarimt-config/graphql/mnConfigs';
 import { useToast } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 const refetchOptions = [{ query: GET_MN_CONFIGS, variables: { code: 'posInEbarimt' } }];
 
 export const useSavePosInEbarimtConfig = () => {
+  const { t } = useTranslation('mongolian');
   const [createConfig, { loading: createLoading }] = useMutation(CREATE_MN_CONFIG, {
     refetchQueries: refetchOptions,
   });
@@ -45,8 +47,8 @@ export const useSavePosInEbarimtConfig = () => {
       }
 
       toast.toast({
-        title: 'Success',
-        description: 'Configuration saved successfully',
+        title: t('success'),
+        description: t('config-saved-successfully'),
         variant: 'default',
       });
 
@@ -57,8 +59,8 @@ export const useSavePosInEbarimtConfig = () => {
       );
     } catch (error) {
       toast.toast({
-        title: 'Error',
-        description: 'Failed to save configuration',
+        title: t('error'),
+        description: t('failed-to-save-config'),
         variant: 'destructive',
       });
       throw error;

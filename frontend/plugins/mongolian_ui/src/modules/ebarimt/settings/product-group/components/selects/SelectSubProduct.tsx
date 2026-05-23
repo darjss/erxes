@@ -1,6 +1,7 @@
 import { Form, Select } from 'erxes-ui';
 import { useGetSubProduct } from '@/ebarimt/settings/product-group/hooks/useSubProduct';
 import { ISubProduct } from '@/ebarimt/settings/product-group/types/subProduct';
+import { useTranslation } from 'react-i18next';
 
 export const SelectSubProduct = ({
   value,
@@ -11,6 +12,7 @@ export const SelectSubProduct = ({
   onValueChange: (value: string) => void;
   disabled?: boolean;
 }) => {
+  const { t } = useTranslation('mongolian');
   const { subProducts, loading } = useGetSubProduct({
     skip: false,
     variables: {
@@ -31,7 +33,7 @@ export const SelectSubProduct = ({
     >
       <Form.Control>
         <Select.Trigger>
-          <span>{selectedSubProduct?.name || 'Select a sub product'}</span>
+          <span>{selectedSubProduct?.name || t('select-sub-product')}</span>
         </Select.Trigger>
       </Form.Control>
       <Select.Content>

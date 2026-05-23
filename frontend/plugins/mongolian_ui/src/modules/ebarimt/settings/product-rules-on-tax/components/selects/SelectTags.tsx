@@ -1,6 +1,7 @@
 import { Form, Select } from 'erxes-ui';
 import { useGetTags } from '@/ebarimt/settings/product-rules-on-tax/hooks/useTags';
 import { ITag } from '@/ebarimt/settings/product-rules-on-tax/types/tags';
+import { useTranslation } from 'react-i18next';
 
 export const SelectTags = ({
   value,
@@ -11,6 +12,7 @@ export const SelectTags = ({
   onValueChange: (value: string) => void;
   disabled?: boolean;
 }) => {
+  const { t } = useTranslation('mongolian');
   const { tags, loading } = useGetTags({
     skip: false,
     variables: {
@@ -28,7 +30,7 @@ export const SelectTags = ({
     >
       <Form.Control>
         <Select.Trigger>
-          <span>{selectedTag?.name || 'Select a tag'}</span>
+          <span>{selectedTag?.name || t('select-tag')}</span>
         </Select.Trigger>
       </Form.Control>
       <Select.Content>
