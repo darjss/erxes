@@ -76,5 +76,9 @@
   "delete-put-response-confirm_one": "Are you sure you want to delete the 1 selected put response?",
   "delete-put-response-confirm_other": "Are you sure you want to delete the {{count}} selected put responses?",
   "delete-by-date-confirm_one": "Are you sure you want to delete the 1 selected by date?",
-  "delete-by-date-confirm_other": "Are you sure you want to delete the {{count}} selected by dates?"
+  "delete-by-date-confirm_other": "Are you sure you want to delete the {{count}} selected by dates?",
+  "delete-duplicated-confirm_one": "Are you sure you want to delete the 1 selected duplicated?",
+  "delete-duplicated-confirm_other": "Are you sure you want to delete the {{count}} selected duplicateds?",
+  "no-duplicated": "No duplicated",
+  "create-first-duplicated": "Get started by creating your first duplicated."
 }
