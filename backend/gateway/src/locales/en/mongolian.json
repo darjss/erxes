@@ -21,6 +21,8 @@
   "delete-config": "Delete Config",
   "clear": "Clear",
   "save-config": "Save Config",
+  "go-to-settings": "Go to settings",
+  "more": "More",
   "add-filter": "Add Filter",
   "delete-all": "Delete All",
   "save-all": "Save All",
@@ -564,5 +566,6 @@
   "no-content-types": "No content types",
   "no-segments-found": "No segments found",
   "no-tags-found": "No tags found",
-  "error-colon": "Error: {{message}}"
+  "error-colon": "Error: {{message}}",
+  "no-data-found": "No data found"
 }

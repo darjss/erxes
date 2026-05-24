@@ -1,5 +1,6 @@
 import { gql, useQuery, useMutation } from '@apollo/client';
 import GeneralSettings from '@/msdynamic/components/settings/GeneralSettings';
+import { useTranslation } from 'react-i18next';
 
 const GET_CONFIGS = gql(`
   query configsGetValue($code: String!) {
@@ -14,6 +15,7 @@ const SAVE_CONFIGS = gql(`
 `);
 
 const MsdynamicSettingsPage = () => {
+  const { t } = useTranslation('mongolian');
   const { data, loading, refetch } = useQuery(GET_CONFIGS, {
     variables: { code: 'DYNAMIC' },
     fetchPolicy: 'network-only',
@@ -64,7 +66,7 @@ const MsdynamicSettingsPage = () => {
     }
   };
 
-  if (loading) return <div>Loading...</div>;
+  if (loading) return <div>{t('loading')}</div>;
 
   return (
     <div className="p-6 h-full overflow-auto">
