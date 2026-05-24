@@ -34,4 +34,5 @@ export const queries = `
 export const mutations = `
   mushopCancelMySubscription(_id: String!): MushopSubscription
   mushopCancelSubscription(_id: String!): MushopSubscription
+  mushopGrantSubscription(customerId: String!, planId: String!, paymentId: String, amount: Float): MushopSubscription
 `;

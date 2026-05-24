@@ -1,5 +1,6 @@
 import { Button, Dialog, DropdownMenu, Label, Textarea } from 'erxes-ui';
 import { ReactNode, useState } from 'react';
+import { usePermissionCheck } from 'ui-modules';
 import { useUpdateProductStatus } from '../hooks/useUpdateProductStatus';
 
 const STATUSES = ['approved', 'rejected'];
@@ -14,8 +15,11 @@ export const ProductStatusAction = ({
   children: ReactNode;
 }) => {
   const { updateStatus } = useUpdateProductStatus();
+  const { hasActionPermission } = usePermissionCheck();
   const [rejectOpen, setRejectOpen] = useState(false);
   const [note, setNote] = useState('');
+
+  if (!hasActionPermission('mushopUpdateProductStatus')) return null;
 
   const handleSelect = (s: string) => {
     if (s === 'rejected') {

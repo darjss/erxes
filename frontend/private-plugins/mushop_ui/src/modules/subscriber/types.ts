@@ -38,3 +38,10 @@ export interface ISubscriberList {
   pageInfo: IPageInfo;
   totalCount?: number;
 }
+
+export interface IPaymentMethod {
+  _id: string;
+  name: string;
+  kind: string;
+  status?: string | null;
+}

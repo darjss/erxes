@@ -1,10 +1,11 @@
 import { IconCreditCard } from '@tabler/icons-react';
 import { Breadcrumb, Button, PageContainer, PageSubHeader, Separator } from 'erxes-ui';
 import { Link } from 'react-router-dom';
-import { PageHeader } from 'ui-modules';
+import { Can, PageHeader } from 'ui-modules';
 import { SubscribersFilter } from '../components/SubscribersFilter';
 import { SubscribersTable } from '../components/SubscribersTable';
 import { SubscriberDetailSheet } from '../components/SubscriberDetailSheet';
+import { GrantSubscriptionSheet } from '../components/GrantSubscriptionSheet';
 
 export const SubscribersPage = () => {
   return (
@@ -26,6 +27,11 @@ export const SubscribersPage = () => {
           <Separator.Inline />
           <PageHeader.FavoriteToggleButton />
         </PageHeader.Start>
+        <PageHeader.End>
+          <Can action="mushopGrantSubscription">
+            <GrantSubscriptionSheet />
+          </Can>
+        </PageHeader.End>
       </PageHeader>
 
       <PageSubHeader>

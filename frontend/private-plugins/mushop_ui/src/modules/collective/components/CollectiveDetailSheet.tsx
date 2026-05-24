@@ -17,6 +17,7 @@ import {
 } from 'erxes-ui';
 import { IconPlus, IconX } from '@tabler/icons-react';
 import { useMemo, useState } from 'react';
+import { usePermissionCheck } from 'ui-modules';
 import { useCollectiveDetail } from '../hooks/useCollectiveDetail';
 import { useUpdateCollectiveSuppliers } from '../hooks/useUpdateCollectiveSuppliers';
 import { useSuppliers } from '../../supplier/hooks/useSuppliers';
@@ -186,6 +187,10 @@ const CollectiveOverview = ({ collective }: { collective: ICollective }) => {
 
   const { updateSuppliers, loading: savingSuppliers } =
     useUpdateCollectiveSuppliers(_id);
+  const { hasActionPermission } = usePermissionCheck();
+  const canManageSuppliers = hasActionPermission(
+    'mushopUpdateCollectiveSuppliers',
+  );
 
   const applySupplierIds = async (nextIds: string[]) => {
     try {
@@ -210,7 +215,8 @@ const CollectiveOverview = ({ collective }: { collective: ICollective }) => {
     applySupplierIds([...supplierIds, supplierId]);
   };
 
-  const removable = supplierIds.length > MIN_COLLECTIVE_SUPPLIERS;
+  const removable =
+    canManageSuppliers && supplierIds.length > MIN_COLLECTIVE_SUPPLIERS;
 
   return (
     <div className="flex flex-col gap-4 p-4">
@@ -267,11 +273,13 @@ const CollectiveOverview = ({ collective }: { collective: ICollective }) => {
       <div className="flex flex-col bg-foreground/5 rounded-xl p-1 pt-0">
         <div className="flex justify-between items-center pr-1 pl-2 h-7">
           <h3 className="font-medium font-mono text-xs uppercase">Suppliers</h3>
-          <AddSupplierPopover
-            currentIds={supplierIds}
-            onAdd={handleAdd}
-            disabled={savingSuppliers}
-          />
+          {canManageSuppliers && (
+            <AddSupplierPopover
+              currentIds={supplierIds}
+              onAdd={handleAdd}
+              disabled={savingSuppliers}
+            />
+          )}
         </div>
         <div className="flex flex-col flex-auto gap-3 bg-background shadow-sm p-0 rounded-lg overflow-hidden">
           <Table>
