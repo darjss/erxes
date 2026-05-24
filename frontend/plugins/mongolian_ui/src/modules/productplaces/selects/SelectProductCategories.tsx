@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useMemo, useCallback } from 'react';
 import { gql, useQuery } from '@apollo/client';
 import { cn, Combobox, Command, PopoverScoped } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 const PRODUCT_CATEGORIES_QUERY = gql`
   query productCategories($status: String, $searchValue: String) {
@@ -75,6 +76,7 @@ const SelectProductCategoriesValue = ({
 }: {
   placeholder?: string;
 }) => {
+  const { t } = useTranslation('mongolian');
   const { value, categories } = useSelectProductCategoriesContext();
   const selectedNames = useMemo(
     () =>
@@ -88,7 +90,7 @@ const SelectProductCategoriesValue = ({
   if (!selectedNames) {
     return (
       <span className="text-accent-foreground/80">
-        {placeholder || 'Choose product category'}
+        {placeholder || t('choose-product-category')}
       </span>
     );
   }
@@ -130,13 +132,14 @@ const SelectProductCategoriesItem = ({
 };
 
 const SelectProductCategoriesContent = () => {
+  const { t } = useTranslation('mongolian');
   const { categories, loading, error } = useSelectProductCategoriesContext();
 
   const renderContent = () => {
     if (loading) {
       return (
         <div className="flex items-center justify-center h-24">
-          <span className="text-muted-foreground">Loading...</span>
+          <span className="text-muted-foreground">{t('loading')}</span>
         </div>
       );
     }
@@ -144,7 +147,7 @@ const SelectProductCategoriesContent = () => {
     if (error) {
       return (
         <div className="flex items-center justify-center h-24 text-destructive">
-          Error: {error.message}
+          {t('error-colon', { message: error.message })}
         </div>
       );
     }
@@ -156,9 +159,9 @@ const SelectProductCategoriesContent = () => {
 
   return (
     <Command>
-      <Command.Input placeholder="Search category" />
+      <Command.Input placeholder={t('search-category')} />
       <Command.Empty>
-        <span className="text-muted-foreground">No categories found</span>
+        <span className="text-muted-foreground">{t('no-categories-found')}</span>
       </Command.Empty>
       <Command.List>{renderContent()}</Command.List>
     </Command>
