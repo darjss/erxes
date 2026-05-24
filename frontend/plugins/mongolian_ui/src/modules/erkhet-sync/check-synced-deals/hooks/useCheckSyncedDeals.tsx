@@ -12,6 +12,7 @@ import {
 } from 'erxes-ui';
 import { atom, useAtom, useSetAtom } from 'jotai';
 import { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { checkSyncedMutation } from '../../shared/graphql/mutations/checkSyncedMutations';
 import { checkSyncedDealsQuery } from '../graphql/queries/checkSyncedDealsQuery';
 import { checkSyncedDealsTotalCountAtom } from '../states/checkSyncedDealsCounts';
@@ -106,6 +107,7 @@ export const useCheckSyncedDealsVariables = (
   };
 };
 export const useCheckSyncedDeals = (options?: QueryHookOptions) => {
+  const { t } = useTranslation('mongolian');
   const setCheckSyncedDealsTotalCount = useSetAtom(
     checkSyncedDealsTotalCountAtom,
   );
@@ -138,8 +140,8 @@ export const useCheckSyncedDeals = (options?: QueryHookOptions) => {
   const checkDeals = async (ids: string[]) => {
     if (!ids.length) {
       toast({
-        title: 'Warning',
-        description: 'No deals to check',
+        title: t('warning'),
+        description: t('no-deals-to-check'),
         variant: 'destructive',
       });
       return;
@@ -149,7 +151,7 @@ export const useCheckSyncedDeals = (options?: QueryHookOptions) => {
       variables: { ids, contentType: 'sales:deal' },
       onError: (error) => {
         toast({
-          title: 'Error',
+          title: t('error'),
           description: error.message,
           variant: 'destructive',
         });
@@ -177,8 +179,8 @@ export const useCheckSyncedDeals = (options?: QueryHookOptions) => {
 
     setCheckedDeals((current) => ({ ...current, ...nextChecked }));
     toast({
-      title: 'Success',
-      description: `${checked.length} deals checked`,
+      title: t('success'),
+      description: t('deals-checked', { count: checked.length }),
     });
   };
 

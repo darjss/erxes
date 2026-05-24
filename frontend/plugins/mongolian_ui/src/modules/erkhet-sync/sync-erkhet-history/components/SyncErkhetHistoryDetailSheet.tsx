@@ -1,5 +1,6 @@
 import { Sheet } from 'erxes-ui';
 import { useSearchParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { ISyncHistory } from '../types/syncHistory';
 
 const stringify = (value: any) => {
@@ -33,6 +34,7 @@ export const SyncErkhetHistoryDetailSheet = ({
 }: {
   histories: ISyncHistory[];
 }) => {
+  const { t } = useTranslation('mongolian');
   const [searchParams, setSearchParams] = useSearchParams();
   const syncHistoryId = searchParams.get('syncHistory_id');
   const history = histories.find((item) => item._id === syncHistoryId);
@@ -51,7 +53,7 @@ export const SyncErkhetHistoryDetailSheet = ({
     <Sheet open={Boolean(syncHistoryId)} onOpenChange={handleOpenChange} modal>
       <Sheet.View className="sm:max-w-3xl">
         <Sheet.Header>
-          <Sheet.Title>Sync history detail</Sheet.Title>
+          <Sheet.Title>{t('sync-history-detail')}</Sheet.Title>
           <Sheet.Close />
         </Sheet.Header>
         <Sheet.Content className="overflow-y-auto p-5 space-y-5">
@@ -59,35 +61,35 @@ export const SyncErkhetHistoryDetailSheet = ({
             <>
               <div className="grid grid-cols-2 gap-3 text-sm">
                 <div>
-                  <div className="text-muted-foreground">Content type</div>
+                  <div className="text-muted-foreground">{t('content-type')}</div>
                   <div className="font-medium">
                     {history.contentType || '-'}
                   </div>
                 </div>
                 <div>
-                  <div className="text-muted-foreground">Content</div>
+                  <div className="text-muted-foreground">{t('content')}</div>
                   <div className="font-medium">
                     {history.content || history.contentId}
                   </div>
                 </div>
               </div>
               <DetailBlock
-                title="Consume"
+                title={t('consume')}
                 value={history.consumeData || history.consumeStr}
               />
               <DetailBlock
-                title="Send"
+                title={t('send')}
                 value={history.sendData || history.sendStr}
               />
               <DetailBlock
-                title="Response"
+                title={t('response')}
                 value={history.responseData || history.responseStr}
               />
-              <DetailBlock title="Error" value={history.error} />
+              <DetailBlock title={t('error')} value={history.error} />
             </>
           ) : (
             <div className="text-sm text-muted-foreground">
-              History not found.
+              {t('history-not-found')}
             </div>
           )}
         </Sheet.Content>

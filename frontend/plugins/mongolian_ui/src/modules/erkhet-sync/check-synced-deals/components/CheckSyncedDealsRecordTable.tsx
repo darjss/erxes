@@ -1,5 +1,6 @@
 import { Button, RecordTable } from 'erxes-ui';
 import { IconShoppingCartX } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 import { checkSyncedDealsColumns } from './CheckSyncedDealsColumn';
 
 import { CHECK_SYNCED_DEALS_CURSOR_SESSION_KEY } from '../constants/checkSyncedDealsCursorSessionKey';
@@ -16,6 +17,7 @@ const CheckDealsButton = ({
   onCheck: (ids: string[]) => void;
 }) => {
   const { table } = RecordTable.useRecordTable();
+  const { t } = useTranslation('mongolian');
   const selectedRows = table.getSelectedRowModel().rows;
   const ids = (
     selectedRows.length
@@ -27,11 +29,11 @@ const CheckDealsButton = ({
     <div className="flex items-center justify-between gap-3 px-3 pt-3">
       <div className="text-sm text-muted-foreground">
         {selectedRows.length
-          ? `${selectedRows.length} selected`
-          : `${deals.length} deals`}
+          ? `${selectedRows.length} ${t('selected')}`
+          : t('records-found', { count: deals.length })}
       </div>
       <Button onClick={() => onCheck(ids)} disabled={checking || !ids.length}>
-        {checking ? 'Checking...' : 'Check Deals'}
+        {checking ? t('checking') : t('check-deals')}
       </Button>
     </div>
   );
@@ -40,6 +42,7 @@ const CheckDealsButton = ({
 export const CheckSyncedDealsRecordTable = () => {
   const { Deals, checkDeals, checking, handleFetchMore, loading, pageInfo } =
     useCheckSyncedDeals();
+  const { t } = useTranslation('mongolian');
 
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
 
@@ -81,10 +84,10 @@ export const CheckSyncedDealsRecordTable = () => {
                 <IconShoppingCartX size={48} className="text-gray-400" />
               </div>
               <h3 className="text-lg font-semibold text-gray-900">
-                No sync yet
+                {t('no-sync-yet')}
               </h3>
               <p className="mt-1 text-sm text-gray-500">
-                Get started by creating your first sync.
+                {t('create-first-sync')}
               </p>
             </div>
           </div>

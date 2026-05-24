@@ -1,4 +1,5 @@
 import { IconCalendar, IconBuilding, IconHash } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 import {
   Combobox,
   Command,
@@ -47,6 +48,7 @@ export const CheckSyncedDealsFilterPopover = () => {
     (value) => value !== null,
   );
   const { resetFilterState } = useFilterContext();
+  const { t } = useTranslation('mongolian');
   return (
     <>
       <Filter.Popover scope={CheckSyncedDealsHotKeyScope.CheckSyncedDealsPage}>
@@ -55,7 +57,7 @@ export const CheckSyncedDealsFilterPopover = () => {
           <Filter.View>
             <Command>
               <Filter.CommandInput
-                placeholder="Filter"
+                placeholder={t('filter')}
                 variant="secondary"
                 className="bg-background"
               />
@@ -63,19 +65,19 @@ export const CheckSyncedDealsFilterPopover = () => {
                 <SelectSalesBoard.FilterItem />
                 <SelectPipeline.FilterItem />
                 <SelectStage.FilterItem />
-                <SelectMember.FilterItem value="user" label="Assigned To" />
+                <SelectMember.FilterItem value="user" label={t('assigned-to')} />
                 <Command.Separator className="my-1" />
                 <Filter.Item value="dealSearch" inDialog>
                   <IconBuilding />
-                  Deal Search
+                  {t('deal-search')}
                 </Filter.Item>
                 <Filter.Item value="number" inDialog>
                   <IconHash />
-                  Number
+                  {t('number')}
                 </Filter.Item>
                 <Filter.Item value="dateRange">
                   <IconCalendar />
-                  Date range
+                  {t('date-range')}
                 </Filter.Item>
                 <SelectDateType.FilterItem />
               </Command.List>
@@ -128,6 +130,7 @@ export const CheckSyncedDealsFilter = () => {
   const [user, setUser] = useQueryState<string>('user');
   const [open, setOpen] = useState<boolean>(false);
   const { sessionKey } = useCheckSyncedDealsLeadSessionKey();
+  const { t } = useTranslation('mongolian');
 
   return (
     <Filter id="sync-erkhet-history-filter" sessionKey={sessionKey}>
@@ -136,7 +139,7 @@ export const CheckSyncedDealsFilter = () => {
         <Filter.BarItem queryKey="dealSearch">
           <Filter.BarName>
             <IconBuilding />
-            Deal search
+            {t('deal-search')}
           </Filter.BarName>
           <Filter.BarButton filterKey="dealSearch" inDialog>
             {dealSearch}
@@ -145,7 +148,7 @@ export const CheckSyncedDealsFilter = () => {
         <Filter.BarItem queryKey="number">
           <Filter.BarName>
             <IconHash />
-            Number
+            {t('number')}
           </Filter.BarName>
           <Filter.BarButton filterKey="number" inDialog>
             {number}
@@ -154,7 +157,7 @@ export const CheckSyncedDealsFilter = () => {
         <Filter.BarItem queryKey="dateRange">
           <Filter.BarName>
             <IconCalendar />
-            Date range
+            {t('date-range')}
           </Filter.BarName>
           <Filter.Date filterKey="dateRange" />
         </Filter.BarItem>
@@ -163,7 +166,7 @@ export const CheckSyncedDealsFilter = () => {
         <SelectPipeline.FilterBar boardId={boardId || undefined} />
         <SelectStage.FilterBar pipelineId={pipelineId || undefined} />
         <Filter.BarItem queryKey="user">
-          <Filter.BarName>Assigned To</Filter.BarName>
+          <Filter.BarName>{t('assigned-to')}</Filter.BarName>
           <SelectMember.Provider
             mode="single"
             value={user || ''}

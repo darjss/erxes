@@ -12,6 +12,7 @@ import {
   RecordTableInlineCell,
   RelativeDateDisplay,
 } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 import { ICheckPosOrders } from '../types/checkPosOrders';
 import { CheckPosOrdersMoreColumn } from './CheckPosOrdersMoreColumn';
@@ -22,7 +23,10 @@ export const checkPosOrdersColumns: ColumnDef<ICheckPosOrders>[] = [
   {
     id: 'number',
     accessorKey: 'number',
-    header: () => <RecordTable.InlineHead icon={IconLabel} label="Number" />,
+    header: () => {
+      const { t } = useTranslation('mongolian');
+      return <RecordTable.InlineHead icon={IconLabel} label={t('number')} />;
+    },
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
@@ -35,9 +39,10 @@ export const checkPosOrdersColumns: ColumnDef<ICheckPosOrders>[] = [
   {
     id: 'totalAmount',
     accessorKey: 'totalAmount',
-    header: () => (
-      <RecordTable.InlineHead icon={IconHash} label="Total Amount" />
-    ),
+    header: () => {
+      const { t } = useTranslation('mongolian');
+      return <RecordTable.InlineHead icon={IconHash} label={t('total-amount')} />;
+    },
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
@@ -49,9 +54,10 @@ export const checkPosOrdersColumns: ColumnDef<ICheckPosOrders>[] = [
   {
     id: 'createdAt',
     accessorKey: 'createdAt',
-    header: () => (
-      <RecordTable.InlineHead label="Created At" icon={IconCalendarPlus} />
-    ),
+    header: () => {
+      const { t } = useTranslation('mongolian');
+      return <RecordTable.InlineHead label={t('created-at')} icon={IconCalendarPlus} />;
+    },
     cell: ({ cell }) => {
       return (
         <RelativeDateDisplay value={cell.getValue() as string} asChild>
@@ -65,9 +71,10 @@ export const checkPosOrdersColumns: ColumnDef<ICheckPosOrders>[] = [
   {
     id: 'paidDate',
     accessorKey: 'paidDate',
-    header: () => (
-      <RecordTable.InlineHead icon={IconCurrencyDollar} label="Paid At" />
-    ),
+    header: () => {
+      const { t } = useTranslation('mongolian');
+      return <RecordTable.InlineHead icon={IconCurrencyDollar} label={t('paid-at')} />;
+    },
     cell: ({ cell }) => {
       return (
         <RelativeDateDisplay value={cell.getValue() as string} asChild>
@@ -81,7 +88,10 @@ export const checkPosOrdersColumns: ColumnDef<ICheckPosOrders>[] = [
   {
     id: 'unSynced',
     accessorKey: 'unSynced',
-    header: () => <RecordTable.InlineHead icon={IconClock} label="Un Synced" />,
+    header: () => {
+      const { t } = useTranslation('mongolian');
+      return <RecordTable.InlineHead icon={IconClock} label={t('un-synced')} />;
+    },
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
@@ -93,9 +103,10 @@ export const checkPosOrdersColumns: ColumnDef<ICheckPosOrders>[] = [
   {
     id: 'syncedDate',
     accessorKey: 'syncedDate',
-    header: () => (
-      <RecordTable.InlineHead icon={IconClock} label="Synced Date" />
-    ),
+    header: () => {
+      const { t } = useTranslation('mongolian');
+      return <RecordTable.InlineHead icon={IconClock} label={t('synced-date')} />;
+    },
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
@@ -107,9 +118,10 @@ export const checkPosOrdersColumns: ColumnDef<ICheckPosOrders>[] = [
   {
     id: 'syncedBillNumber',
     accessorKey: 'syncedBillNumber',
-    header: () => (
-      <RecordTable.InlineHead icon={IconClock} label="Synced Bill" />
-    ),
+    header: () => {
+      const { t } = useTranslation('mongolian');
+      return <RecordTable.InlineHead icon={IconClock} label={t('synced-bill')} />;
+    },
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
@@ -121,9 +133,10 @@ export const checkPosOrdersColumns: ColumnDef<ICheckPosOrders>[] = [
   {
     id: 'syncedCustomer',
     accessorKey: 'syncedCustomer',
-    header: () => (
-      <RecordTable.InlineHead icon={IconClock} label="Synced Customer" />
-    ),
+    header: () => {
+      const { t } = useTranslation('mongolian');
+      return <RecordTable.InlineHead icon={IconClock} label={t('synced-customer')} />;
+    },
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>

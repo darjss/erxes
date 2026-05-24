@@ -1,5 +1,6 @@
 import { Button, RecordTable } from 'erxes-ui';
 import { IconShoppingCartX } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 import { checkPosOrdersColumns } from './CheckPosOrdersColumn';
 
 import { CHECK_POS_ORDERS_CURSOR_SESSION_KEY } from '../constants/checkPosOrdersCursorSessionKey';
@@ -16,6 +17,7 @@ const CheckOrdersButton = ({
   orders: ICheckPosOrders[];
 }) => {
   const { table } = RecordTable.useRecordTable();
+  const { t } = useTranslation('mongolian');
   const selectedRows = table.getSelectedRowModel().rows;
   const ids = (
     selectedRows.length
@@ -27,11 +29,11 @@ const CheckOrdersButton = ({
     <div className="flex items-center justify-between gap-3 px-3 pt-3">
       <div className="text-sm text-muted-foreground">
         {selectedRows.length
-          ? `${selectedRows.length} selected`
-          : `${orders.length} orders`}
+          ? `${selectedRows.length} ${t('selected')}`
+          : t('records-found', { count: orders.length })}
       </div>
       <Button onClick={() => onCheck(ids)} disabled={checking || !ids.length}>
-        {checking ? 'Checking...' : 'Check Orders'}
+        {checking ? t('checking') : t('check-orders')}
       </Button>
     </div>
   );
@@ -46,6 +48,7 @@ export const CheckPosOrdersRecordTable = () => {
     loading,
     pageInfo,
   } = useCheckPosOrders();
+  const { t } = useTranslation('mongolian');
 
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
 
@@ -89,9 +92,9 @@ export const CheckPosOrdersRecordTable = () => {
                     size={64}
                     className="text-muted-foreground mx-auto mb-4"
                   />
-                  <h3 className="text-xl font-semibold mb-2">No orders yet</h3>
+                  <h3 className="text-xl font-semibold mb-2">{t('no-orders-yet')}</h3>
                   <p className="text-muted-foreground max-w-md">
-                    Get started by creating your first order.
+                    {t('create-first-order')}
                   </p>
                 </div>
               </div>

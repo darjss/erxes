@@ -13,6 +13,7 @@ import {
   RelativeDateDisplay,
 } from 'erxes-ui';
 
+import { useTranslation } from 'react-i18next';
 import { ICheckSyncedDeals } from '../types/checkSyncedDeals';
 import { CheckSyncedDealsMoreColumn } from './CheckSyncedDealsMoreColumn';
 export const checkSyncedDealsColumns: ColumnDef<ICheckSyncedDeals>[] = [
@@ -21,7 +22,10 @@ export const checkSyncedDealsColumns: ColumnDef<ICheckSyncedDeals>[] = [
   {
     id: 'name',
     accessorKey: 'name',
-    header: () => <RecordTable.InlineHead icon={IconLabel} label="Deal name" />,
+    header: () => {
+      const { t } = useTranslation('mongolian');
+      return <RecordTable.InlineHead icon={IconLabel} label={t('deal-name')} />;
+    },
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
@@ -33,9 +37,10 @@ export const checkSyncedDealsColumns: ColumnDef<ICheckSyncedDeals>[] = [
   {
     id: 'number',
     accessorKey: 'number',
-    header: () => (
-      <RecordTable.InlineHead icon={IconHash} label="Deal number" />
-    ),
+    header: () => {
+      const { t } = useTranslation('mongolian');
+      return <RecordTable.InlineHead icon={IconHash} label={t('deal-number')} />;
+    },
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
@@ -47,9 +52,10 @@ export const checkSyncedDealsColumns: ColumnDef<ICheckSyncedDeals>[] = [
   {
     id: 'amount',
     accessorKey: 'amount',
-    header: () => (
-      <RecordTable.InlineHead icon={IconCurrencyDollar} label="Amount" />
-    ),
+    header: () => {
+      const { t } = useTranslation('mongolian');
+      return <RecordTable.InlineHead icon={IconCurrencyDollar} label={t('amount')} />;
+    },
     cell: ({ cell }) => {
       const amount = cell.getValue() as any;
       const amountStr = amount ? JSON.stringify(amount) : '';
@@ -63,9 +69,10 @@ export const checkSyncedDealsColumns: ColumnDef<ICheckSyncedDeals>[] = [
   {
     id: 'createdAt',
     accessorKey: 'createdAt',
-    header: () => (
-      <RecordTable.InlineHead label="Created At" icon={IconCalendarPlus} />
-    ),
+    header: () => {
+      const { t } = useTranslation('mongolian');
+      return <RecordTable.InlineHead label={t('created-at')} icon={IconCalendarPlus} />;
+    },
     cell: ({ cell }) => {
       return (
         <RelativeDateDisplay value={cell.getValue() as string} asChild>
@@ -79,9 +86,10 @@ export const checkSyncedDealsColumns: ColumnDef<ICheckSyncedDeals>[] = [
   {
     id: 'modifiedAt',
     accessorKey: 'modifiedAt',
-    header: () => (
-      <RecordTable.InlineHead icon={IconCategory} label="Modified At" />
-    ),
+    header: () => {
+      const { t } = useTranslation('mongolian');
+      return <RecordTable.InlineHead icon={IconCategory} label={t('modified-at')} />;
+    },
     cell: ({ cell }) => {
       return (
         <RelativeDateDisplay value={cell.getValue() as string} asChild>
@@ -95,9 +103,10 @@ export const checkSyncedDealsColumns: ColumnDef<ICheckSyncedDeals>[] = [
   {
     id: 'stageChangedDate',
     accessorKey: 'stageChangedDate',
-    header: () => (
-      <RecordTable.InlineHead icon={IconCategory} label="Stage Changed Date" />
-    ),
+    header: () => {
+      const { t } = useTranslation('mongolian');
+      return <RecordTable.InlineHead icon={IconCategory} label={t('stage-changed-date')} />;
+    },
     cell: ({ cell }) => {
       return (
         <RelativeDateDisplay value={cell.getValue() as string} asChild>
@@ -111,9 +120,10 @@ export const checkSyncedDealsColumns: ColumnDef<ICheckSyncedDeals>[] = [
   {
     id: 'unSynced',
     accessorKey: 'unSynced',
-    header: () => (
-      <RecordTable.InlineHead icon={IconCategory} label="Un Synced" />
-    ),
+    header: () => {
+      const { t } = useTranslation('mongolian');
+      return <RecordTable.InlineHead icon={IconCategory} label={t('un-synced')} />;
+    },
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
@@ -125,9 +135,10 @@ export const checkSyncedDealsColumns: ColumnDef<ICheckSyncedDeals>[] = [
   {
     id: 'syncedDate',
     accessorKey: 'syncedDate',
-    header: () => (
-      <RecordTable.InlineHead icon={IconCategory} label="Synced Date" />
-    ),
+    header: () => {
+      const { t } = useTranslation('mongolian');
+      return <RecordTable.InlineHead icon={IconCategory} label={t('synced-date')} />;
+    },
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
@@ -139,9 +150,10 @@ export const checkSyncedDealsColumns: ColumnDef<ICheckSyncedDeals>[] = [
   {
     id: 'syncedBillNumber',
     accessorKey: 'syncedBillNumber',
-    header: () => (
-      <RecordTable.InlineHead icon={IconCategory} label="Synced bill number" />
-    ),
+    header: () => {
+      const { t } = useTranslation('mongolian');
+      return <RecordTable.InlineHead icon={IconCategory} label={t('synced-bill-number')} />;
+    },
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
@@ -153,9 +165,10 @@ export const checkSyncedDealsColumns: ColumnDef<ICheckSyncedDeals>[] = [
   {
     id: 'syncedCustomer',
     accessorKey: 'syncedCustomer',
-    header: () => (
-      <RecordTable.InlineHead icon={IconCategory} label="Synced customer" />
-    ),
+    header: () => {
+      const { t } = useTranslation('mongolian');
+      return <RecordTable.InlineHead icon={IconCategory} label={t('synced-customer')} />;
+    },
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
@@ -167,9 +180,10 @@ export const checkSyncedDealsColumns: ColumnDef<ICheckSyncedDeals>[] = [
   {
     id: 'syncAction',
     accessorKey: 'syncAction',
-    header: () => (
-      <RecordTable.InlineHead icon={IconCategory} label="Sync action" />
-    ),
+    header: () => {
+      const { t } = useTranslation('mongolian');
+      return <RecordTable.InlineHead icon={IconCategory} label={t('sync-action')} />;
+    },
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>

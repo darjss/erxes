@@ -13,6 +13,7 @@ import {
   RelativeDateDisplay,
 } from 'erxes-ui';
 
+import { useTranslation } from 'react-i18next';
 import { ISyncHistory } from '../types/syncHistory';
 import { SyncErkhetHistoryMoreColumn } from './SyncErkhetHistoryMoreColumn';
 export const syncErkhetHistoryColumns: ColumnDef<ISyncHistory>[] = [
@@ -21,9 +22,10 @@ export const syncErkhetHistoryColumns: ColumnDef<ISyncHistory>[] = [
   {
     id: 'createdAt',
     accessorKey: 'createdAt',
-    header: () => (
-      <RecordTable.InlineHead label="Created At" icon={IconCalendarPlus} />
-    ),
+    header: () => {
+      const { t } = useTranslation('mongolian');
+      return <RecordTable.InlineHead label={t('created-at')} icon={IconCalendarPlus} />;
+    },
     cell: ({ cell }) => {
       return (
         <RelativeDateDisplay value={cell.getValue() as string} asChild>
@@ -37,7 +39,10 @@ export const syncErkhetHistoryColumns: ColumnDef<ISyncHistory>[] = [
   {
     id: 'createdUser',
     accessorKey: 'createdUser',
-    header: () => <RecordTable.InlineHead icon={IconHash} label="User" />,
+    header: () => {
+      const { t } = useTranslation('mongolian');
+      return <RecordTable.InlineHead icon={IconHash} label={t('user')} />;
+    },
     cell: ({ row }) => {
       const user = row.original.createdUser;
       const value =
@@ -53,9 +58,10 @@ export const syncErkhetHistoryColumns: ColumnDef<ISyncHistory>[] = [
   {
     id: 'contentType',
     accessorKey: 'contentType',
-    header: () => (
-      <RecordTable.InlineHead icon={IconCurrencyDollar} label="Content Type" />
-    ),
+    header: () => {
+      const { t } = useTranslation('mongolian');
+      return <RecordTable.InlineHead icon={IconCurrencyDollar} label={t('content-type')} />;
+    },
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
@@ -67,7 +73,10 @@ export const syncErkhetHistoryColumns: ColumnDef<ISyncHistory>[] = [
   {
     id: 'content',
     accessorKey: 'content',
-    header: () => <RecordTable.InlineHead icon={IconUser} label="Content" />,
+    header: () => {
+      const { t } = useTranslation('mongolian');
+      return <RecordTable.InlineHead icon={IconUser} label={t('content')} />;
+    },
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
@@ -79,7 +88,10 @@ export const syncErkhetHistoryColumns: ColumnDef<ISyncHistory>[] = [
   {
     id: 'error',
     accessorKey: 'error',
-    header: () => <RecordTable.InlineHead icon={IconCategory} label="Error" />,
+    header: () => {
+      const { t } = useTranslation('mongolian');
+      return <RecordTable.InlineHead icon={IconCategory} label={t('error')} />;
+    },
     cell: ({ row }) => {
       const { responseData, responseStr, error } = row.original;
       const responseMessage =

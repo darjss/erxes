@@ -5,6 +5,7 @@ import {
   useQueryState,
   useToast,
 } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { checkPosOrdersQuery } from '../graphql/queries/checkPosOrdersQuery';
 import { ICheckPosOrders } from '../types/checkPosOrders';
 import { atom, useAtom, useSetAtom } from 'jotai';
@@ -87,6 +88,7 @@ export const useCheckPosOrders = (options?: QueryHookOptions) => {
     toCheckSynced: CheckSyncedResponse[];
   }>(checkSyncedMutation);
   const { toast } = useToast();
+  const { t } = useTranslation('mongolian');
   const variables = useCheckPosOrdersVariables(options?.variables);
 
   const { data, loading, fetchMore } = useQuery(checkPosOrdersQuery, {
@@ -106,8 +108,8 @@ export const useCheckPosOrders = (options?: QueryHookOptions) => {
   const checkOrders = async (ids: string[]) => {
     if (!ids.length) {
       toast({
-        title: 'Warning',
-        description: 'No orders to check',
+        title: t('warning'),
+        description: t('no-orders-to-check'),
         variant: 'destructive',
       });
       return;
@@ -117,7 +119,7 @@ export const useCheckPosOrders = (options?: QueryHookOptions) => {
       variables: { ids, contentType: 'pos:order' },
       onError: (error) => {
         toast({
-          title: 'Error',
+          title: t('error'),
           description: error.message,
           variant: 'destructive',
         });
@@ -145,8 +147,8 @@ export const useCheckPosOrders = (options?: QueryHookOptions) => {
 
     setCheckedOrders((current) => ({ ...current, ...nextChecked }));
     toast({
-      title: 'Success',
-      description: `${checked.length} orders checked`,
+      title: t('success'),
+      description: t('orders-checked', { count: checked.length }),
     });
   };
 
