@@ -1,4 +1,11 @@
 export const types = `
+  enum AgentStatus {
+    deploying
+    pending
+    approved
+    failed
+  }
+
   type Agent {
     _id: String
 
@@ -9,7 +16,7 @@ export const types = `
 
     agentId: String
     serverId: String
-    status: String
+    status: AgentStatus!
     transferredFromSubdomain: String
     transferredAt: Date
 
