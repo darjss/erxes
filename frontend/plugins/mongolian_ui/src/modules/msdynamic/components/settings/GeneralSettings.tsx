@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Button } from 'erxes-ui/components/button';
 import { Card } from 'erxes-ui/components/card';
+import { useTranslation } from 'react-i18next';
 
 import { IConfigsMap } from '../../types';
 import PerSettings from './PerSettings';
@@ -42,6 +43,7 @@ const emptyDynamicConfig = {
 };
 
 const GeneralSettings = ({ save, configsMap }: Props) => {
+  const { t } = useTranslation('mongolian');
   const [localConfigs, setLocalConfigs] = useState<IConfigsMap>(
     configsMap || {},
   );
@@ -61,7 +63,7 @@ const GeneralSettings = ({ save, configsMap }: Props) => {
   };
 
   const handleDelete = (currentConfigKey: string) => {
-    if (!window.confirm('This will delete this config. Are you sure?')) return;
+    if (!window.confirm(t('delete-dynamic-config-confirm'))) return;
 
     const updatedDynamic = Object.keys(localConfigs?.DYNAMIC || {}).reduce(
       (acc: any, key) => {
@@ -109,13 +111,13 @@ const GeneralSettings = ({ save, configsMap }: Props) => {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-xl font-semibold">Msdynamics config</h2>
+            <h2 className="text-xl font-semibold">{t('msdynamics-config')}</h2>
             <p className="text-sm text-muted-foreground">
-              Manage Microsoft Dynamics integration settings.
+              {t('manage-msdynamics-settings')}
             </p>
           </div>
 
-          <Button onClick={handleAdd}>New config</Button>
+          <Button onClick={handleAdd}>{t('new-config')}</Button>
         </div>
 
         {/* Config List */}

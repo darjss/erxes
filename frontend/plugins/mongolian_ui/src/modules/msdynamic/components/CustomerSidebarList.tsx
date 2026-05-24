@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 
 interface Relation {
   brandId: string;
@@ -14,18 +15,19 @@ interface Props {
 }
 
 const CustomerSidebar: React.FC<Props> = ({ relations = [], loading }) => {
+  const { t } = useTranslation('mongolian');
   if (loading) {
     return (
       <div className="px-4 py-3 border-b">
-        <h4 className="text-sm font-semibold mb-2">MSD Customer No</h4>
-        <div className="text-sm text-muted-foreground">Loading...</div>
+        <h4 className="text-sm font-semibold mb-2">{t('msd-customer-no')}</h4>
+        <div className="text-sm text-muted-foreground">{t('loading')}</div>
       </div>
     );
   }
 
   return (
     <div className="px-4 py-3 border-b">
-      <h4 className="text-sm font-semibold mb-2">MSD Customer No</h4>
+      <h4 className="text-sm font-semibold mb-2">{t('msd-customer-no')}</h4>
 
       {relations.length ? (
         <ul className="space-y-2 text-sm">
@@ -38,7 +40,7 @@ const CustomerSidebar: React.FC<Props> = ({ relations = [], loading }) => {
         </ul>
       ) : (
         <div className="text-sm text-muted-foreground">
-          No customer numbers found
+          {t('no-customer-numbers-found')}
         </div>
       )}
     </div>

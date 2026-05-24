@@ -1,10 +1,12 @@
 import { NavLink } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 const SettingSideBar = () => {
+  const { t } = useTranslation('mongolian');
   return (
     <div className="w-64 border-r bg-background p-4">
       <div className="mb-6">
-        <h2 className="text-lg font-semibold">MS Dynamics</h2>
+        <h2 className="text-lg font-semibold">{t('ms-dynamics')}</h2>
       </div>
 
       <nav className="space-y-2">
@@ -18,7 +20,7 @@ const SettingSideBar = () => {
             }`
           }
         >
-          General config
+          {t('general-config')}
         </NavLink>
       </nav>
     </div>

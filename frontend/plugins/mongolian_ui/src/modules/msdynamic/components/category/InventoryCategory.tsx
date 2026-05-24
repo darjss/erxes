@@ -1,6 +1,7 @@
 import { Button } from 'erxes-ui/components/button';
 import { Card } from 'erxes-ui/components/card';
 import { Select } from 'erxes-ui/components/select';
+import { useTranslation } from 'react-i18next';
 
 import AccordionSection from '../common/AccordionSection';
 import Row from './InventoryCategoryRow';
@@ -24,11 +25,13 @@ const InventoryCategory = ({
   toCheckCategory,
   toSyncCategory,
 }: Props) => {
+  const { t } = useTranslation('mongolian');
+
   const renderTable = (data: any[], action: string) => {
     if (!data?.length) {
       return (
         <div className="text-sm text-muted-foreground py-6 text-center">
-          Please check first.
+          {t('please-check-first')}
         </div>
       );
     }
@@ -39,7 +42,7 @@ const InventoryCategory = ({
       <>
         <div className="flex justify-end mb-3">
           <Button size="sm" onClick={() => toSyncCategory(action, syncable)}>
-            Sync
+            {t('sync')}
           </Button>
         </div>
 
@@ -47,10 +50,10 @@ const InventoryCategory = ({
           <table className="w-full text-sm">
             <thead className="border-b bg-muted/40">
               <tr>
-                <th className="p-2">Code</th>
-                <th className="p-2">Name</th>
-                <th className="p-2">Description</th>
-                <th className="p-2">Status</th>
+                <th className="p-2">{t('code')}</th>
+                <th className="p-2">{t('name')}</th>
+                <th className="p-2">{t('description')}</th>
+                <th className="p-2">{t('status')}</th>
               </tr>
             </thead>
 
@@ -67,7 +70,7 @@ const InventoryCategory = ({
 
   if (loading) {
     return (
-      <div className="py-10 text-center text-muted-foreground">Loading...</div>
+      <div className="py-10 text-center text-muted-foreground">{t('loading')}</div>
     );
   }
 
@@ -80,11 +83,11 @@ const InventoryCategory = ({
           onValueChange={(val) => setCategory(val === 'all' ? '' : val)}
         >
           <Select.Trigger className="w-56">
-            <Select.Value placeholder="Choose product category" />
+            <Select.Value placeholder={t('choose-product-category')} />
           </Select.Trigger>
 
           <Select.Content>
-            <Select.Item value="all">All categories</Select.Item>
+            <Select.Item value="all">{t('all-categories')}</Select.Item>
           </Select.Content>
         </Select>
 
@@ -93,34 +96,34 @@ const InventoryCategory = ({
           onValueChange={(val) => setBrand(val === 'none' ? '' : val)}
         >
           <Select.Trigger className="w-56">
-            <Select.Value placeholder="Choose brands" />
+            <Select.Value placeholder={t('choose-brands')} />
           </Select.Trigger>
 
           <Select.Content>
-            <Select.Item value="none">No brand</Select.Item>
+            <Select.Item value="none">{t('no-brand')}</Select.Item>
           </Select.Content>
         </Select>
 
-        <Button onClick={toCheckCategory}>Check</Button>
+        <Button onClick={toCheckCategory}>{t('check')}</Button>
       </Card>
 
       {/* Sections */}
       <AccordionSection
-        title="Create categories"
+        title={t('create-categories')}
         count={items?.create?.items?.length}
       >
         {renderTable(items?.create?.items || [], 'CREATE')}
       </AccordionSection>
 
       <AccordionSection
-        title="Update categories"
+        title={t('update-categories')}
         count={items?.update?.items?.length}
       >
         {renderTable(items?.update?.items || [], 'UPDATE')}
       </AccordionSection>
 
       <AccordionSection
-        title="Delete categories"
+        title={t('delete-categories')}
         count={items?.delete?.items?.length}
       >
         {renderTable(items?.delete?.items || [], 'DELETE')}

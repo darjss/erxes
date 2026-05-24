@@ -3,6 +3,7 @@ import dayjs from 'dayjs';
 
 import { Button } from 'erxes-ui/components/button';
 import { Dialog } from 'erxes-ui/components/dialog';
+import { useTranslation } from 'react-i18next';
 
 import Detail from '../../containers/PosOrderDetail';
 
@@ -23,6 +24,7 @@ const Row = ({
   toSend,
   syncedInfo,
 }: Props) => {
+  const { t } = useTranslation('mongolian');
   const [open, setOpen] = useState(false);
 
   const { number, createdAt, totalAmount, paidDate } = order;
@@ -76,7 +78,7 @@ const Row = ({
 
         <td className="p-2" onClick={(e) => e.stopPropagation()}>
           <Button variant="ghost" size="sm" onClick={handleSend}>
-            Resend
+            {t('resend')}
           </Button>
         </td>
       </tr>
@@ -85,7 +87,7 @@ const Row = ({
       <Dialog open={open} onOpenChange={setOpen}>
         <Dialog.Content className="sm:max-w-3xl">
           <Dialog.Header>
-            <Dialog.Title>Order detail</Dialog.Title>
+            <Dialog.Title>{t('order-detail')}</Dialog.Title>
           </Dialog.Header>
 
           <Detail order={order} />

@@ -4,6 +4,7 @@ import { Card } from 'erxes-ui/components/card';
 import { Combobox } from 'erxes-ui/components/combobox';
 import { Popover } from 'erxes-ui/components/popover';
 import { Command } from 'erxes-ui/components/command';
+import { useTranslation } from 'react-i18next';
 import AccordionSection from '../common/AccordionSection';
 import Row from './InventoryProductsRow';
 
@@ -33,6 +34,7 @@ const InventoryProducts = ({
   toCheckProducts,
   toSyncProducts,
 }: Props) => {
+  const { t } = useTranslation('mongolian');
   const { data: brandsData } = useQuery(BRANDS_QUERY);
   const brands = brandsData?.brands || [];
 
@@ -42,7 +44,7 @@ const InventoryProducts = ({
     if (!data?.length) {
       return (
         <div className="text-sm text-muted-foreground py-6 text-center">
-          Please check first.
+          {t('please-check-first')}
         </div>
       );
     }
@@ -53,7 +55,7 @@ const InventoryProducts = ({
       <>
         <div className="flex justify-end mb-3">
           <Button size="sm" onClick={() => toSyncProducts(action, syncable)}>
-            Sync
+            {t('sync')}
           </Button>
         </div>
 
@@ -61,10 +63,10 @@ const InventoryProducts = ({
           <table className="w-full text-sm">
             <thead className="border-b bg-muted/40">
               <tr>
-                <th className="p-2">Code</th>
-                <th className="p-2">Name</th>
-                <th className="p-2">Unit price</th>
-                <th className="p-2">Status</th>
+                <th className="p-2">{t('code')}</th>
+                <th className="p-2">{t('name')}</th>
+                <th className="p-2">{t('unit-price')}</th>
+                <th className="p-2">{t('status')}</th>
               </tr>
             </thead>
 
@@ -81,7 +83,7 @@ const InventoryProducts = ({
 
   if (loading) {
     return (
-      <div className="py-10 text-center text-muted-foreground">Loading...</div>
+      <div className="py-10 text-center text-muted-foreground">{t('loading')}</div>
     );
   }
 
@@ -93,7 +95,7 @@ const InventoryProducts = ({
           <Combobox.Trigger>
             <Combobox.Value
               value={selectedBrand?.name}
-              placeholder="Choose brands"
+              placeholder={t('choose-brands')}
             />
           </Combobox.Trigger>
 
@@ -117,26 +119,26 @@ const InventoryProducts = ({
           </Combobox.Content>
         </Popover>
 
-        <Button onClick={toCheckProducts}>Check</Button>
+        <Button onClick={toCheckProducts}>{t('check')}</Button>
       </Card>
 
       {/* Sections */}
       <AccordionSection
-        title="Create products"
+        title={t('create-products')}
         count={items?.create?.items?.length}
       >
         {renderTable(items?.create?.items || [], 'CREATE')}
       </AccordionSection>
 
       <AccordionSection
-        title="Update products"
+        title={t('update-products')}
         count={items?.update?.items?.length}
       >
         {renderTable(items?.update?.items || [], 'UPDATE')}
       </AccordionSection>
 
       <AccordionSection
-        title="Delete products"
+        title={t('delete-products')}
         count={items?.delete?.items?.length}
       >
         {renderTable(items?.delete?.items || [], 'DELETE')}

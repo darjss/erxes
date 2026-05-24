@@ -1,4 +1,5 @@
 import { Button, Card, Select } from 'erxes-ui/components';
+import { useTranslation } from 'react-i18next';
 import AccordionSection from '../common/AccordionSection';
 import Row from './InventoryPriceRow';
 
@@ -15,11 +16,13 @@ const InventoryPrice = ({
   toSyncPrices: () => void;
   items: any;
 }) => {
+  const { t } = useTranslation('mongolian');
+
   const renderTable = (data: any[], action: string) => {
     if (!data?.length) {
       return (
         <div className="text-sm text-muted-foreground py-6 text-center">
-          Please check first.
+          {t('please-check-first')}
         </div>
       );
     }
@@ -29,10 +32,10 @@ const InventoryPrice = ({
         <table className="w-full text-sm">
           <thead className="border-b bg-muted/40">
             <tr>
-              <th className="p-2">Code</th>
-              <th className="p-2">Unit price</th>
-              <th className="p-2">Ending Date</th>
-              <th className="p-2">Status</th>
+              <th className="p-2">{t('code')}</th>
+              <th className="p-2">{t('unit-price')}</th>
+              <th className="p-2">{t('ending-date')}</th>
+              <th className="p-2">{t('status')}</th>
             </tr>
           </thead>
 
@@ -48,7 +51,7 @@ const InventoryPrice = ({
 
   if (loading) {
     return (
-      <div className="py-10 text-center text-muted-foreground">Loading...</div>
+      <div className="py-10 text-center text-muted-foreground">{t('loading')}</div>
     );
   }
 
@@ -62,7 +65,7 @@ const InventoryPrice = ({
             onValueChange={(value: string) => setBrand(value)}
           >
             <Select.Trigger>
-              <Select.Value placeholder="Choose brands" />
+              <Select.Value placeholder={t('choose-brands')} />
             </Select.Trigger>
 
             <Select.Content>
@@ -75,40 +78,40 @@ const InventoryPrice = ({
           </Select>
         </div>
 
-        <Button onClick={toSyncPrices}>Sync</Button>
+        <Button onClick={toSyncPrices}>{t('sync')}</Button>
       </Card>
 
       {/* Sections */}
       <AccordionSection
-        title="Update product price"
+        title={t('update-product-price')}
         count={items?.update?.items?.length}
       >
         {renderTable(items?.update?.items || [], 'UPDATE')}
       </AccordionSection>
 
       <AccordionSection
-        title="Matched product price"
+        title={t('matched-product-price')}
         count={items?.match?.items?.length}
       >
         {renderTable(items?.match?.items || [], 'MATCH')}
       </AccordionSection>
 
       <AccordionSection
-        title="Not created product"
+        title={t('not-created-product')}
         count={items?.create?.items?.length}
       >
         {renderTable(items?.create?.items || [], 'CREATE')}
       </AccordionSection>
 
       <AccordionSection
-        title="Unmatched product"
+        title={t('unmatched-product')}
         count={items?.delete?.items?.length}
       >
         {renderTable(items?.delete?.items || [], 'DELETE')}
       </AccordionSection>
 
       <AccordionSection
-        title="Error product"
+        title={t('error-product')}
         count={items?.error?.items?.length}
       >
         {renderTable(items?.error?.items || [], 'ERROR')}

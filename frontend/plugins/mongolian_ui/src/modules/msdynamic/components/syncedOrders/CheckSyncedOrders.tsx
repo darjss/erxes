@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Button } from 'erxes-ui/components/button';
 import { Sidebar } from 'erxes-ui/components/sidebar';
 import { IconInbox } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 import Row from './CheckSyncedOrdersRow';
 import CheckSyncedOrdersSidebar from './CheckSyncedOrdersSidebar';
 
@@ -30,6 +31,7 @@ const CheckSyncedOrders = ({
   syncedOrderInfos,
   toSendMsdOrders,
 }: Props) => {
+  const { t } = useTranslation('mongolian');
   const [contentLoading, setContentLoading] = useState(false);
   const [bulk, setBulk] = useState<any[]>([]);
 
@@ -52,7 +54,7 @@ const CheckSyncedOrders = ({
   const emptyBulk = () => setBulk([]);
 
   const handleCheck = async () => {
-    if (!window.confirm('Are you sure?')) return;
+    if (!window.confirm(t('are-you-sure'))) return;
 
     try {
       setContentLoading(true);
@@ -89,23 +91,23 @@ const CheckSyncedOrders = ({
         {/* Main */}
         <div className="flex-1 p-6 flex flex-col">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-semibold">Orders ({totalCount})</h2>
+            <h2 className="text-xl font-semibold">{t('orders', { count: totalCount })}</h2>
 
             {bulk.length > 0 && (
               <Button onClick={handleCheck} disabled={contentLoading}>
-                Check
+                {t('check')}
               </Button>
             )}
           </div>
 
           {loading ? (
             <div className="text-center py-10 text-muted-foreground">
-              Loading...
+              {t('loading')}
             </div>
           ) : orders.length === 0 ? (
             <div className="flex flex-col items-center justify-center flex-1 text-muted-foreground">
               <IconInbox size={80} className="opacity-70 mb-4" />
-              <p>Empty list</p>
+              <p>{t('empty-list')}</p>
             </div>
           ) : (
             <div className="border rounded-lg overflow-hidden">
@@ -120,14 +122,14 @@ const CheckSyncedOrders = ({
                       />
                     </th>
 
-                    <th className="p-2">Number</th>
-                    <th className="p-2">Total Amount</th>
-                    <th className="p-2">Created At</th>
-                    <th className="p-2">Paid At</th>
-                    <th className="p-2">Synced Date</th>
-                    <th className="p-2">Synced bill Number</th>
-                    <th className="p-2">Synced customer</th>
-                    <th className="p-2">Sync Actions</th>
+                    <th className="p-2">{t('number')}</th>
+                    <th className="p-2">{t('total-amount')}</th>
+                    <th className="p-2">{t('created-at')}</th>
+                    <th className="p-2">{t('paid-at')}</th>
+                    <th className="p-2">{t('synced-date')}</th>
+                    <th className="p-2">{t('synced-bill-number')}</th>
+                    <th className="p-2">{t('synced-customer')}</th>
+                    <th className="p-2">{t('sync-actions')}</th>
                   </tr>
                 </thead>
 

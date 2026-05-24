@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import moment from 'moment';
 
 import { Button } from 'erxes-ui/components/button';
@@ -10,6 +11,7 @@ import { DatePicker } from 'erxes-ui/components/date-picker';
 type Props = { queryParams: any };
 
 const SideBar = ({ queryParams }: Props) => {
+  const { t } = useTranslation('mongolian');
   const [filterParams, setFilterParams] = useState(queryParams);
   const location = useLocation();
   const navigate = useNavigate();
@@ -31,10 +33,10 @@ const SideBar = ({ queryParams }: Props) => {
 
   return (
     <div className="p-4 space-y-4">
-      <h3 className="text-sm font-semibold">Filters</h3>
+      <h3 className="text-sm font-semibold">{t('filters')}</h3>
 
       <div className="space-y-2">
-        <Label>User</Label>
+        <Label>{t('user')}</Label>
         <Input
           value={filterParams.userId || ''}
           onChange={(e) => setFilter('userId', e.target.value)}
@@ -42,7 +44,7 @@ const SideBar = ({ queryParams }: Props) => {
       </div>
 
       <div className="space-y-2">
-        <Label>Start Date</Label>
+        <Label>{t('start-date')}</Label>
         <DatePicker
           value={filterParams.startDate}
           onChange={(value) => onSelectDate(value, 'startDate')}
@@ -50,7 +52,7 @@ const SideBar = ({ queryParams }: Props) => {
       </div>
 
       <div className="space-y-2">
-        <Label>End Date</Label>
+        <Label>{t('end-date')}</Label>
         <DatePicker
           value={filterParams.endDate}
           onChange={(value) => onSelectDate(value, 'endDate')}
@@ -58,7 +60,7 @@ const SideBar = ({ queryParams }: Props) => {
       </div>
 
       <Button onClick={runFilter} className="w-full">
-        Filter
+        {t('filter')}
       </Button>
     </div>
   );

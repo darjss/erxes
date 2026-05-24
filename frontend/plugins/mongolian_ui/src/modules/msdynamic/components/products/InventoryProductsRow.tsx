@@ -1,9 +1,12 @@
+import { useTranslation } from 'react-i18next';
+
 type Props = {
   product: any;
   action: string;
 };
 
 const Row = ({ product, action }: Props) => {
+  const { t } = useTranslation('mongolian');
   const { Description, No, name, code, unitPrice, Unit_Price, syncStatus } =
     product;
 
@@ -19,7 +22,7 @@ const Row = ({ product, action }: Props) => {
 
       <td className="p-2">
         {syncStatus !== false && (
-          <span className="text-green-600 font-medium">Synced</span>
+          <span className="text-green-600 font-medium">{t('synced')}</span>
         )}
       </td>
     </tr>

@@ -1,9 +1,12 @@
+import { useTranslation } from 'react-i18next';
+
 type Props = {
   price: any;
   action: string;
 };
 
 const Row = ({ price, action }: Props) => {
+  const { t } = useTranslation('mongolian');
   const { Item_No, Unit_Price, Ending_Date, code, unitPrice } = price;
 
   const displayCode = action === 'DELETE' ? code : Item_No;
@@ -19,7 +22,7 @@ const Row = ({ price, action }: Props) => {
 
       <td className="p-2">
         {(action === 'UPDATE' || action === 'MATCH') && (
-          <span className="text-green-600 font-medium">Synced</span>
+          <span className="text-green-600 font-medium">{t('synced')}</span>
         )}
       </td>
     </tr>

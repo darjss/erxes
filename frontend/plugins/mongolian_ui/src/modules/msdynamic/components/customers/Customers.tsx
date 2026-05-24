@@ -1,4 +1,5 @@
 import { Button, Card, Select } from 'erxes-ui/components';
+import { useTranslation } from 'react-i18next';
 import AccordionSection from '../common/AccordionSection';
 import Row from './CustomerRow';
 
@@ -17,11 +18,13 @@ const Customers = ({
   toSyncCustomers: (action: string, customers: any[]) => void;
   items: any;
 }) => {
+  const { t } = useTranslation('mongolian');
+
   const renderTable = (data: any[], action: string) => {
     if (!data?.length) {
       return (
         <div className="text-sm text-muted-foreground py-6 text-center">
-          Please check first.
+          {t('please-check-first')}
         </div>
       );
     }
@@ -32,7 +35,7 @@ const Customers = ({
       <>
         <div className="flex justify-end mb-3">
           <Button size="sm" onClick={() => toSyncCustomers(action, syncable)}>
-            Sync
+            {t('sync')}
           </Button>
         </div>
 
@@ -40,9 +43,9 @@ const Customers = ({
           <table className="w-full text-sm">
             <thead className="border-b bg-muted/40">
               <tr>
-                <th className="p-2">Code</th>
-                <th className="p-2">Name</th>
-                <th className="p-2">Status</th>
+                <th className="p-2">{t('code')}</th>
+                <th className="p-2">{t('name')}</th>
+                <th className="p-2">{t('status')}</th>
               </tr>
             </thead>
 
@@ -59,7 +62,7 @@ const Customers = ({
 
   if (loading) {
     return (
-      <div className="py-10 text-center text-muted-foreground">Loading...</div>
+      <div className="py-10 text-center text-muted-foreground">{t('loading')}</div>
     );
   }
 
@@ -73,7 +76,7 @@ const Customers = ({
             onValueChange={(value: string) => setBrand(value)}
           >
             <Select.Trigger>
-              <Select.Value placeholder="Choose brands" />
+              <Select.Value placeholder={t('choose-brands')} />
             </Select.Trigger>
 
             <Select.Content>
@@ -86,32 +89,32 @@ const Customers = ({
           </Select>
         </div>
 
-        <Button onClick={toCheckCustomers}>Check</Button>
+        <Button onClick={toCheckCustomers}>{t('check')}</Button>
 
         {items?.matched && (
           <span className="text-sm text-muted-foreground">
-            Matched: {items.matched.count}
+            {t('matched-count', { count: items.matched.count })}
           </span>
         )}
       </Card>
 
       {/* Sections */}
       <AccordionSection
-        title="Create customers"
+        title={t('create-customers')}
         count={items?.create?.items?.length}
       >
         {renderTable(items?.create?.items || [], 'CREATE')}
       </AccordionSection>
 
       <AccordionSection
-        title="Update customers"
+        title={t('update-customers')}
         count={items?.update?.items?.length}
       >
         {renderTable(items?.update?.items || [], 'UPDATE')}
       </AccordionSection>
 
       <AccordionSection
-        title="Delete customers"
+        title={t('delete-customers')}
         count={items?.delete?.items?.length}
       >
         {renderTable(items?.delete?.items || [], 'DELETE')}

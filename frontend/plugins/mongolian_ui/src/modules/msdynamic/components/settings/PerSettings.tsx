@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Button } from 'erxes-ui/components/button';
 import { Card } from 'erxes-ui/components/card';
 import { Input } from 'erxes-ui/components/input';
@@ -22,6 +23,7 @@ const PerSettings = ({
   save,
   delete: deleteConfig,
 }: Props) => {
+  const { t } = useTranslation('mongolian');
   const [config, setConfig] = useState<any>(initialConfig);
   const [open, setOpen] = useState(currentConfigKey === 'newDYNAMIC');
 
@@ -124,7 +126,7 @@ const PerSettings = ({
 
           {/* General Settings */}
           <div>
-            <h4 className="text-md font-semibold mb-4">General Settings</h4>
+            <h4 className="text-md font-semibold mb-4">{t('general-settings')}</h4>
 
             <div className="grid grid-cols-2 gap-6">
               <div className="space-y-4">
@@ -153,11 +155,11 @@ const PerSettings = ({
           {/* Footer */}
           <div className="flex justify-between pt-4 border-t">
             <Button variant="destructive" onClick={handleDelete}>
-              Delete
+              {t('delete')}
             </Button>
 
             <Button onClick={handleSave} disabled={!config.brandId}>
-              Save
+              {t('save')}
             </Button>
           </div>
         </div>

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import dayjs from 'dayjs';
 import { Button } from 'erxes-ui/components/button';
 import { Input } from 'erxes-ui/components/input';
@@ -11,6 +12,7 @@ type Props = {
 };
 
 const CheckSyncedOrdersSidebar = ({ queryParams }: Props) => {
+  const { t } = useTranslation('mongolian');
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -30,7 +32,7 @@ const CheckSyncedOrdersSidebar = ({ queryParams }: Props) => {
 
   const applyFilter = () => {
     if (!state.brandId) {
-      alert('Choose brand');
+      alert(t('choose-brand'));
       return;
     }
 
@@ -49,41 +51,41 @@ const CheckSyncedOrdersSidebar = ({ queryParams }: Props) => {
 
   return (
     <div className="p-4 space-y-6">
-      <div className="text-lg font-semibold">Filters</div>
+      <div className="text-lg font-semibold">{t('filters')}</div>
 
       {/* Brand */}
       <div className="space-y-2">
-        <Label>Brand</Label>
+        <Label>{t('brand')}</Label>
         <Input
           value={state.brandId}
           onChange={(e) => updateParam('brandId', e.target.value)}
-          placeholder="Brand ID"
+          placeholder={t('brand-id')}
         />
       </div>
 
       {/* User */}
       <div className="space-y-2">
-        <Label>User</Label>
+        <Label>{t('user')}</Label>
         <Input
           value={state.userId}
           onChange={(e) => updateParam('userId', e.target.value)}
-          placeholder="User ID"
+          placeholder={t('user-id')}
         />
       </div>
 
       {/* Search */}
       <div className="space-y-2">
-        <Label>Number</Label>
+        <Label>{t('number')}</Label>
         <Input
           value={state.search}
           onChange={(e) => updateParam('search', e.target.value)}
-          placeholder="Search number"
+          placeholder={t('search-number')}
         />
       </div>
 
       {/* Paid Date Range */}
       <div className="space-y-2">
-        <Label>Paid Date Start</Label>
+        <Label>{t('paid-date-start')}</Label>
         <DatePicker
           value={
             state.paidStartDate ? new Date(state.paidStartDate) : undefined
@@ -96,7 +98,7 @@ const CheckSyncedOrdersSidebar = ({ queryParams }: Props) => {
           }
         />
 
-        <Label>Paid Date End</Label>
+        <Label>{t('paid-date-end')}</Label>
         <DatePicker
           value={state.paidEndDate ? new Date(state.paidEndDate) : undefined}
           onChange={(date) =>
@@ -110,7 +112,7 @@ const CheckSyncedOrdersSidebar = ({ queryParams }: Props) => {
 
       {/* Created Date Range */}
       <div className="space-y-2">
-        <Label>Created Date Start</Label>
+        <Label>{t('created-date-start')}</Label>
         <DatePicker
           value={
             state.createdStartDate
@@ -125,7 +127,7 @@ const CheckSyncedOrdersSidebar = ({ queryParams }: Props) => {
           }
         />
 
-        <Label>Created Date End</Label>
+        <Label>{t('created-date-end')}</Label>
         <DatePicker
           value={
             state.createdEndDate ? new Date(state.createdEndDate) : undefined
@@ -140,7 +142,7 @@ const CheckSyncedOrdersSidebar = ({ queryParams }: Props) => {
       </div>
 
       <Button onClick={applyFilter} className="w-full">
-        Apply Filter
+        {t('apply-filter')}
       </Button>
     </div>
   );

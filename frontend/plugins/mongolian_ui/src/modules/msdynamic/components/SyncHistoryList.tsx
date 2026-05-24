@@ -2,6 +2,7 @@ import dayjs from 'dayjs';
 import { Sidebar } from 'erxes-ui/components/sidebar';
 import { Table } from 'erxes-ui/components/table';
 import { IconInbox } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 import SideBar from './Sidebar';
 
 type Props = {
@@ -17,6 +18,7 @@ const SyncHistoryList = ({
   totalCount,
   loading,
 }: Props) => {
+  const { t } = useTranslation('mongolian');
   const hasData = syncHistories.length > 0;
 
   return (
@@ -31,7 +33,7 @@ const SyncHistoryList = ({
         <div className="flex-1 p-6 flex flex-col">
           <div className="mb-4">
             <h2 className="text-xl font-semibold">
-              Sync Histories ({totalCount})
+              {t('sync-histories', { count: totalCount })}
             </h2>
           </div>
 
@@ -40,11 +42,11 @@ const SyncHistoryList = ({
               <Table>
                 <thead className="border-b bg-muted/40">
                   <tr>
-                    <th>Date</th>
-                    <th>User</th>
-                    <th>Content Type</th>
-                    <th>Content</th>
-                    <th>Error</th>
+                    <th>{t('date')}</th>
+                    <th>{t('user')}</th>
+                    <th>{t('content-type')}</th>
+                    <th>{t('content')}</th>
+                    <th>{t('error')}</th>
                   </tr>
                 </thead>
 
@@ -66,13 +68,13 @@ const SyncHistoryList = ({
             ) : (
               <div className="flex flex-col items-center justify-center flex-1 text-muted-foreground">
                 <IconInbox size={80} className="opacity-70 mb-4" />
-                <p>There is no data</p>
+                <p>{t('there-is-no-data')}</p>
               </div>
             )}
           </div>
 
           {loading && (
-            <div className="text-sm text-muted-foreground mt-4">Loading...</div>
+            <div className="text-sm text-muted-foreground mt-4">{t('loading')}</div>
           )}
         </div>
       </div>

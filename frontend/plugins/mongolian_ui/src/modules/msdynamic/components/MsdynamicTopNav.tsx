@@ -1,15 +1,17 @@
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 const tabs = [
-  { label: 'Sync History', value: 'sync-history' },
-  { label: 'Check Orders', value: 'synced-orders' },
-  { label: 'Check Categories', value: 'categories' },
-  { label: 'Check Products', value: 'products' },
-  { label: 'Check Price', value: 'prices' },
-  { label: 'Check Customers', value: 'customers' },
+  { label: 'sync-history', value: 'sync-history' },
+  { label: 'check-orders', value: 'synced-orders' },
+  { label: 'check-categories', value: 'categories' },
+  { label: 'check-products', value: 'products' },
+  { label: 'check-price', value: 'prices' },
+  { label: 'check-customers', value: 'customers' },
 ];
 
 const MsdynamicTopNav = () => {
+  const { t } = useTranslation('mongolian');
   const navigate = useNavigate();
   const location = useLocation();
   const currentPath = location.pathname;
@@ -38,7 +40,7 @@ const MsdynamicTopNav = () => {
                 border: 'none',
               }}
             >
-              {tab.label}
+              {t(tab.label)}
             </button>
           );
         })}

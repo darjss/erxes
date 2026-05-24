@@ -1,11 +1,13 @@
 import dayjs from 'dayjs';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 type Props = {
   order: any;
 };
 
 const OrderDetail = ({ order }: Props) => {
+  const { t } = useTranslation('mongolian');
   const formatAmount = (value: number) => (value || 0).toLocaleString();
 
   const renderRow = (label: string, value: React.ReactNode) => (
@@ -38,23 +40,23 @@ const OrderDetail = ({ order }: Props) => {
           order.customer ? generateCustomerLabel(order.customer) : '',
         )}
 
-        {renderRow('Bill Number', order.number)}
+        {renderRow(t('bill-number'), order.number)}
 
         {renderRow(
-          'Date',
+          t('date'),
           dayjs(order.paidDate || order.createdAt).format('LLL'),
         )}
 
         {order.deliveryInfo &&
-          renderRow('Delivery Info', order.deliveryInfo.description)}
+          renderRow(t('delivery-info'), order.deliveryInfo.description)}
 
-        {order.syncErkhetInfo && renderRow('Erkhet Info', order.syncErkhetInfo)}
+        {order.syncErkhetInfo && renderRow(t('erkhet-info'), order.syncErkhetInfo)}
 
         {order.convertDealId &&
           renderRow(
-            'Deal',
+            t('deal'),
             <Link to={order.dealLink || ''} className="text-primary underline">
-              {order.deal?.name || 'Deal'}
+              {order.deal?.name || t('deal')}
             </Link>,
           )}
       </div>
@@ -62,8 +64,8 @@ const OrderDetail = ({ order }: Props) => {
       {/* Ebarimt Responses */}
       {(order.putResponses || []).map((p: any) => (
         <div key={p.billId} className="space-y-1">
-          {renderRow('Bill ID', p.billId)}
-          {renderRow('Ebarimt Date', dayjs(p.date).format('LLL'))}
+          {renderRow(t('bill-id'), p.billId)}
+          {renderRow(t('ebarimt-date'), dayjs(p.date).format('LLL'))}
         </div>
       ))}
 
@@ -72,11 +74,11 @@ const OrderDetail = ({ order }: Props) => {
         <table className="w-full text-sm">
           <thead className="bg-muted/40 border-b">
             <tr>
-              <th className="p-2 text-left">Product</th>
-              <th className="p-2 text-left">Count</th>
-              <th className="p-2 text-left">Unit Price</th>
-              <th className="p-2 text-left">Amount</th>
-              <th className="p-2 text-left">Discount</th>
+              <th className="p-2 text-left">{t('product')}</th>
+              <th className="p-2 text-left">{t('count')}</th>
+              <th className="p-2 text-left">{t('unit-price')}</th>
+              <th className="p-2 text-left">{t('amount')}</th>
+              <th className="p-2 text-left">{t('discount')}</th>
             </tr>
           </thead>
           <tbody>
@@ -97,16 +99,16 @@ const OrderDetail = ({ order }: Props) => {
 
       {/* Totals */}
       <div className="space-y-2">
-        {renderRow('Total Amount', formatAmount(order.totalAmount))}
+        {renderRow(t('total-amount'), formatAmount(order.totalAmount))}
       </div>
 
       {/* Editable Amounts */}
       <div className="space-y-4">
-        <h4 className="font-semibold text-sm">Payment Breakdown</h4>
+        <h4 className="font-semibold text-sm">{t('payment-breakdown')}</h4>
 
         <div className="space-y-2">
           <div className="flex justify-between items-center">
-            <span>Cash Amount</span>
+            <span>{t('cash-amount')}</span>
             <input
               type="number"
               value={order.cashAmount || 0}
@@ -116,7 +118,7 @@ const OrderDetail = ({ order }: Props) => {
           </div>
 
           <div className="flex justify-between items-center">
-            <span>Mobile Amount</span>
+            <span>{t('mobile-amount')}</span>
             <input
               type="number"
               value={order.mobileAmount || 0}

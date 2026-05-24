@@ -1,9 +1,12 @@
+import { useTranslation } from 'react-i18next';
+
 type Props = {
   category: any;
   action: string;
 };
 
 const Row = ({ category, action }: Props) => {
+  const { t } = useTranslation('mongolian');
   const { Code, Description, name, code, description, syncStatus } = category;
 
   const displayCode = action === 'DELETE' ? code : Code;
@@ -18,7 +21,7 @@ const Row = ({ category, action }: Props) => {
 
       <td className="p-2">
         {syncStatus !== false && (
-          <span className="text-green-600 font-medium">Synced</span>
+          <span className="text-green-600 font-medium">{t('synced')}</span>
         )}
       </td>
     </tr>
