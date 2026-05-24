@@ -28,12 +28,13 @@ const ChecklistItemContent = ({
 }) => {
   const [activeMenuIndex, setActiveMenuIndex] = useState<number | null>(null);
   const { confirm } = useConfirm();
+  const { t } = useTranslation('sales');
   const { salesChecklistItemsEdit } = useChecklistItemsEdit();
   const { salesChecklistItemsRemove } = useChecklistItemsRemove({
     onError: (error) => {
       toast({
-        title: 'Error',
-        description: error.message || 'Failed to remove item',
+        title: t('error'),
+        description: error.message || t('failed-to-remove-item'),
         variant: 'destructive',
       });
     },
@@ -71,7 +72,7 @@ const ChecklistItemContent = ({
 
   const handleRemove = (id: string) => {
     confirm({
-      message: `Are you sure?`,
+      message: t('are-you-sure'),
     }).then(() => {
       salesChecklistItemsRemove({
         variables: {
@@ -124,23 +125,21 @@ const ChecklistItemContent = ({
 
       onCompleted: () => {
         toast({
-          title: 'Success',
-          description: 'Checklist item converted to deal successfully',
+          title: t('success'),
+          description: t('checklist-item-converted'),
           variant: 'default',
         });
         handleRemove(item._id);
       },
       onError: (error) => {
         toast({
-          title: 'Error',
-          description: error.message || 'Failed to convert to deal',
+          title: t('error'),
+          description: error.message || t('failed-to-convert-to-deal'),
           variant: 'destructive',
         });
       },
     });
   };
-
-  const { t } = useTranslation('sales');
 
   return (
     <div
@@ -181,7 +180,7 @@ const ChecklistItemContent = ({
           onPointerDown={(e) => e.stopPropagation()}
           onPointerUp={(e) => e.stopPropagation()}
           className="opacity-0 group-hover:opacity-100 transition"
-          aria-label="More actions"
+          aria-label={t('more-actions')}
         >
           <IconDotsVertical size={18} />
         </button>

@@ -54,8 +54,8 @@ export const PrintDialog = ({ open, onClose, stageId }: Props) => {
 
     if (!documentType || !selectedDealIds.length) {
       toast({
-        title: 'Error',
-        description: 'Please select document!!!',
+        title: t('error'),
+        description: t('please-select-document'),
         variant: 'destructive',
       });
       return;
@@ -77,8 +77,8 @@ export const PrintDialog = ({ open, onClose, stageId }: Props) => {
       window.open(url, '_blank', 'noopener,noreferrer');
     } catch (e: any) {
       toast({
-        title: 'Error',
-        description: e?.message || 'An error occurred',
+        title: t('error'),
+        description: e?.message || t('an-error-occurred'),
         variant: 'destructive',
       });
     }

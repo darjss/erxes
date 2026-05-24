@@ -201,6 +201,7 @@ export const SelectPosFilterBar = ({
   queryKey?: string;
   mode?: 'single' | 'multiple';
 }) => {
+  const { t } = useTranslation('sales');
   const [pos, setPos] = useQueryState<string[] | string | null>(
     queryKey || 'pos',
   );
@@ -210,7 +211,7 @@ export const SelectPosFilterBar = ({
     <Filter.BarItem queryKey={queryKey || 'pos'}>
       <Filter.BarName>
         <IconLabel />
-        {!iconOnly && 'Pos'}
+        {!iconOnly && t('pos')}
       </Filter.BarName>
 
       <SelectPosProvider

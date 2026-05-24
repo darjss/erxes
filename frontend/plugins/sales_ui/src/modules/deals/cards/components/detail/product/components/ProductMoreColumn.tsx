@@ -18,10 +18,11 @@ export const ProductMoreColumnCell = ({
   const { _id } = cell.row.original;
   const { confirm } = useConfirm();
   const { removeProducts, loading: removeLoading } = useRemoveProducts();
+  const { t } = useTranslation('sales');
 
   const onRemove = () => {
     confirm({
-      message: 'Are you sure you want to remove the selected?',
+      message: t('confirm-remove-selected'),
       options: confirmOptions,
     }).then(async () => {
       try {
@@ -35,8 +36,6 @@ export const ProductMoreColumnCell = ({
       }
     });
   };
-
-  const { t } = useTranslation('sales');
 
   return (
     <Popover>

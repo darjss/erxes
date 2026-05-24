@@ -13,44 +13,42 @@ interface LogosAndFaviconProps {
 const imageFields = [
   {
     key: 'logo',
-    label: 'MAIN LOGO',
+    label: 'main-logo',
     configKey: 'posMainLogo',
   },
   {
     key: 'bgImage',
-    label: 'BACKGROUND IMAGE',
+    label: 'background-image',
     configKey: 'backgroundImage',
   },
   {
     key: 'favIcon',
-    label: 'FAVICON',
+    label: 'favicon',
     configKey: 'logosFavicon',
   },
   {
     key: 'receiptIcon',
-    label: 'RECEIPT ICON',
+    label: 'receipt-icon',
     configKey: 'receiptIcon',
   },
   {
     key: 'kioskHeaderImage',
-    label: 'KIOSK HEADER IMAGE',
+    label: 'kiosk-header-image',
     configKey: 'kioskHeader',
   },
   {
     key: 'mobileAppImage',
-    label: 'MOBILE APP IMAGE',
+    label: 'mobile-app-image',
     configKey: 'mobileAppImage',
   },
   {
     key: 'qrCodeImage',
-    label: 'QR CODE IMAGE',
+    label: 'qr-code-image',
     configKey: 'qrCodeImage',
   },
 ] as const;
 
 type ImageFieldName = (typeof imageFields)[number]['key'];
-
-const { t } = useTranslation('sales');
 
 const ImageUploadField = ({
   control,
@@ -61,6 +59,7 @@ const ImageUploadField = ({
   name: ImageFieldName;
   label: string;
 }) => {
+  const { t } = useTranslation('sales');
   const [isLoading, setIsLoading] = useState(false);
 
   return (
@@ -69,7 +68,7 @@ const ImageUploadField = ({
       control={control}
       render={({ field }) => (
         <Form.Item>
-          <Form.Label className="text-xs">{label}</Form.Label>
+          <Form.Label className="text-xs">{t(label)}</Form.Label>
           <Form.Control>
             <Upload.Root
               value={typeof field.value === 'string' ? field.value : ''}

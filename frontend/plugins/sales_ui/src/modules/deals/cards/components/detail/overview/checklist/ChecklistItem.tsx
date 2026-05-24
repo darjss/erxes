@@ -43,7 +43,7 @@ const ChecklistItem = ({
   useEffect(() => {
     if (error) {
       toast({
-        title: 'Error',
+        title: t('error'),
         description: error.message,
         variant: 'destructive',
       });
@@ -108,7 +108,7 @@ const ChecklistItem = ({
     e.stopPropagation();
 
     confirm({
-      message: `Are you sure you want to delete ${item.title}?`,
+      message: t('delete-checklist-confirm', { title: item.title }),
     }).then(() => {
       salesChecklistsRemove({
         variables: {
@@ -120,9 +120,8 @@ const ChecklistItem = ({
             error.message?.includes('denied')
           ) {
             toast({
-              title: 'Permission Denied',
-              description:
-                'You do not have permission to delete this checklist.',
+              title: t('permission-denied'),
+              description: t('no-permission-delete-checklist'),
               variant: 'destructive',
             });
           }
@@ -162,8 +161,8 @@ const ChecklistItem = ({
               }}
             >
               {hideChecked
-                ? `Show checked items (${checkedCount})`
-                : 'Hide Completed Items'}
+                ? t('show-checked-items', { count: checkedCount })
+                : t('hide-completed-items')}
             </Button>
           )}
 
@@ -177,7 +176,7 @@ const ChecklistItem = ({
             className={cn(salesChecklistsRemoveLoading && 'opacity-50')}
           >
             <IconTrash />{' '}
-            {salesChecklistsRemoveLoading ? <Spinner /> : 'Delete'}
+            {salesChecklistsRemoveLoading ? <Spinner /> : t('delete')}
           </Button>
         </div>
       </Collapsible.TriggerButton>

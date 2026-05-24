@@ -78,9 +78,9 @@ const ItemProductProbabilities: FC<Props> = ({
     ? Number.parseInt(getPercentage(probability), 10)
     : 0;
 
-  if (totalAmount) {
-    const { t } = useTranslation('sales');
+  const { t } = useTranslation('sales');
 
+  if (totalAmount) {
     return (
       <div className="mb-2 w-full px-1">
         {totalAmount && Object.keys(totalAmount).length !== 0 && (
@@ -113,7 +113,6 @@ const ItemProductProbabilities: FC<Props> = ({
     }),
   );
 
-  const { t } = useTranslation('sales');
   return (
     <div className="mb-2">
       <AmountRow label={t('total')} amounts={sumByName} showComma />

@@ -34,6 +34,7 @@ const Payment: React.FC<PaymentProps> = ({
   posType,
   onSaveActionChange,
 }) => {
+  const { t } = useTranslation('sales');
   const { posDetail, loading: detailLoading, error } = usePosDetail(posId);
   const [posEdit, { loading: saving }] = useMutation(mutations.posEdit);
   const form = useForm<PaymentFormData>({
@@ -92,8 +93,8 @@ const Payment: React.FC<PaymentProps> = ({
     async (data: PaymentFormData) => {
       if (!posId) {
         toast({
-          title: 'Error',
-          description: 'POS ID is required',
+          title: t('error'),
+          description: t('pos-id-required'),
           variant: 'destructive',
         });
         return;
@@ -118,14 +119,14 @@ const Payment: React.FC<PaymentProps> = ({
         });
 
         toast({
-          title: 'Success',
-          description: 'Payment settings saved successfully',
+          title: t('success'),
+          description: t('payment-settings-saved'),
         });
         reset(data);
       } catch {
         toast({
-          title: 'Error',
-          description: 'Failed to save payment settings',
+          title: t('error'),
+          description: t('failed-to-save-payment'),
           variant: 'destructive',
         });
       }
@@ -146,15 +147,13 @@ const Payment: React.FC<PaymentProps> = ({
           size="sm"
           disabled={saving}
         >
-          {saving ? 'Saving...' : 'Save Changes'}
+          {saving ? t('saving') : t('save-changes')}
         </Button>
       ) : null,
     );
 
     return () => onSaveActionChange(null);
   }, [isDirty, onSaveActionChange, saving]);
-
-  const { t } = useTranslation('sales');
 
   const renderContent = () => {
     if (detailLoading) {
@@ -209,7 +208,7 @@ const Payment: React.FC<PaymentProps> = ({
 
   return (
     <div className="p-6">
-      <InfoCard title="Payment configuration">
+      <InfoCard title={t('payment-configuration')}>
         <InfoCard.Content>{renderContent()}</InfoCard.Content>
       </InfoCard>
     </div>

@@ -183,7 +183,7 @@ const LabelForm = ({
                 : 'bg-primary text-primary-foreground hover:bg-primary/90 mt-2',
             )}
           >
-            {loading ? <IconLoader className="w-4 h-4 animate-spin" /> : 'Save'}
+            {loading ? <IconLoader className="w-4 h-4 animate-spin" /> : t('save')}
           </Button>
         </div>
       </form>

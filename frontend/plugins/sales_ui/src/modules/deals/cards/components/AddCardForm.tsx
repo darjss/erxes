@@ -185,7 +185,7 @@ export function AddCardForm({
             className="bg-primary text-primary-foreground hover:bg-primary/90"
             disabled={loading}
           >
-            {loading ? 'Saving...' : 'Save'}
+            {loading ? t('saving') : t('save')}
           </Button>
         </Sheet.Footer>
       </form>

@@ -209,7 +209,7 @@ export const SelectLabelsCommand = ({ targetId }: { targetId?: string }) => {
             {t('back')}
           </button>
           <h3 className="text-sm font-semibold text-gray-600">
-            {editLabelId ? 'Edit Label' : 'Add Label'}
+            {editLabelId ? t('edit-label') : t('add-label')}
           </h3>
           <span />
         </div>

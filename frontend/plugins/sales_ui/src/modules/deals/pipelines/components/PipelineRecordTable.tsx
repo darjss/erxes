@@ -49,12 +49,11 @@ export const PipelineMoreColumnCell = ({
   const { removePipeline, loading: removeLoading } = usePipelineRemove();
   const { copyPipeline } = usePipelineCopy();
   const { archivePipeline } = usePipelineArchive();
-
   const { _id, status } = cell.row.original;
 
   const onRemove = () => {
     confirm({
-      message: 'Are you sure you want to remove the selected?',
+      message: t('confirm-remove-selected'),
       options: confirmOptions,
     }).then(async () => {
       try {
@@ -71,8 +70,7 @@ export const PipelineMoreColumnCell = ({
 
   const onDuplicate = () => {
     confirm({
-      message:
-        'This will duplicate the current pipeline. Are you absolutely sure?',
+      message: t('duplicate-pipeline-confirm'),
     }).then(async () => {
       try {
         copyPipeline({
@@ -88,9 +86,7 @@ export const PipelineMoreColumnCell = ({
 
   const onArchive = () => {
     confirm({
-      message: `This will ${
-        status === 'active' ? 'archive' : 'unarchive'
-      } the current pipeline. Are you absolutely sure?`,
+      message: status === 'active' ? t('archive-pipeline-confirm') : t('unarchive-pipeline-confirm'),
     }).then(async () => {
       try {
         archivePipeline({
@@ -168,7 +164,7 @@ export const pipelinesColumns: ColumnDef<
   },
   {
     id: 'name',
-    header: 'Name',
+    header: () => { const { t } = useTranslation('sales'); return t('name'); },
     accessorKey: 'name',
     cell: ({ cell }) => {
       // eslint-disable-next-line react-hooks/rules-of-hooks
@@ -224,7 +220,7 @@ export const pipelinesColumns: ColumnDef<
     size: 300,
   },
   {
-    header: 'Status',
+    header: () => { const { t } = useTranslation('sales'); return t('status'); },
     accessorKey: 'status',
     cell: ({ cell }) => {
       const status = cell.getValue() as string;
@@ -278,6 +274,7 @@ export const pipelinesColumns: ColumnDef<
 ];
 
 const PipelineRecordTable = () => {
+  const { t } = useTranslation('sales');
   const [queries] = useMultiQueryState<{
     contentType: string;
     searchValue: string;

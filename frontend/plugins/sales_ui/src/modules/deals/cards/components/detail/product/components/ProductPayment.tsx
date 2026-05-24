@@ -67,6 +67,7 @@ const OwnerScoreCampaignScore = ({
     useRefundScoreCampaign();
   const { confirm } = useConfirm();
   const { toast } = useToast();
+  const { t } = useTranslation('sales');
   const {
     checkOwnerScore = 0,
     refetch: refetchCheckOwnerScore,
@@ -91,8 +92,7 @@ const OwnerScoreCampaignScore = ({
 
   const refundScore = () => {
     confirm({
-      message:
-        'This action will refund all loyalty scores used on this card and deduct any retrieved scores before processing the refund.\n Are you sure ?',
+      message: t('loyalty-score-refund-confirm'),
     }).then(() => {
       refundScoreCampaign({
         variables: {
@@ -104,22 +104,20 @@ const OwnerScoreCampaignScore = ({
         .then(() =>
           toast({
             variant: 'success',
-            title: 'Success',
-            description: 'Loyalty Score refunded successfully',
+            title: t('success'),
+            description: t('loyalty-score-refunded'),
           }),
         )
         .catch((error: any) =>
           toast({
             variant: 'destructive',
-            title: 'Error',
+            title: t('error'),
             description: error.message,
           }),
         );
       refetchCheckOwnerScore();
     });
   };
-
-  const { t } = useTranslation('sales');
 
   return (
     <Popover>
@@ -163,7 +161,7 @@ const OwnerScoreCampaignScore = ({
             size="sm"
             className="w-full mt-1"
           >
-            {refundLoading ? 'Refunding…' : 'Refund Score'}
+            {refundLoading ? t('refunding') : t('refund-score')}
           </Button>
         </div>
       </Popover.Content>
@@ -333,8 +331,8 @@ const ProductsPayment = ({
       setQrModal({ open: false, paymentType: null, password: '' });
       toast({
         variant: 'destructive',
-        title: 'Invalid QR Code',
-        description: 'The entered code does not match the customer ID.',
+        title: t('invalid-qr-code'),
+        description: t('qr-code-mismatch'),
       });
     }
   };
@@ -465,8 +463,6 @@ const ProductsPayment = ({
             };
             const isQr =
               paymentType?.config?.require?.toLowerCase() === 'qrcode';
-            
-            const { t } = useTranslation('sales');
 
             return (
               <div

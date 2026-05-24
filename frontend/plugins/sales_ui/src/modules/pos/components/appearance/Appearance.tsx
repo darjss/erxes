@@ -33,8 +33,6 @@ export interface AppearanceFormData {
 
 const APPEARANCE_FORM_ID = 'pos-appearance-form';
 
-const { t } = useTranslation('sales');
-
 const DEFAULT_FORM_VALUES: AppearanceFormData = {
   logo: '',
   bgImage: '',
@@ -55,6 +53,7 @@ const Appearance: React.FC<AppearanceProps> = ({
   posType,
   onSaveActionChange,
 }) => {
+  const { t } = useTranslation('sales');
   const { posDetail, loading: detailLoading, error } = usePosDetail(posId);
   const [posEdit, { loading: saving }] = useMutation(mutations.posEdit);
   const form = useForm<AppearanceFormData>({
@@ -92,8 +91,8 @@ const Appearance: React.FC<AppearanceProps> = ({
     async (data: AppearanceFormData) => {
       if (!posId) {
         toast({
-          title: 'Error',
-          description: 'POS ID is required',
+          title: t('error'),
+          description: t('pos-id-required'),
           variant: 'destructive',
         });
         return;
@@ -128,14 +127,14 @@ const Appearance: React.FC<AppearanceProps> = ({
         });
 
         toast({
-          title: 'Success',
-          description: 'Appearance settings saved successfully',
+          title: t('success'),
+          description: t('appearance-saved'),
         });
         reset(data);
       } catch {
         toast({
-          title: 'Error',
-          description: 'Failed to save appearance settings',
+          title: t('error'),
+          description: t('failed-to-save-appearance'),
           variant: 'destructive',
         });
       }
@@ -156,7 +155,7 @@ const Appearance: React.FC<AppearanceProps> = ({
           size="sm"
           disabled={saving}
         >
-          {saving ? 'Saving...' : 'Save Changes'}
+          {saving ? t('saving') : t('save-changes')}
         </Button>
       ) : null,
     );
@@ -218,7 +217,7 @@ const Appearance: React.FC<AppearanceProps> = ({
 
   return (
     <div className="p-6">
-      <InfoCard title="Appearance configuration">
+      <InfoCard title={t('appearance-configuration')}>
         <InfoCard.Content>{renderContent()}</InfoCard.Content>
       </InfoCard>
     </div>

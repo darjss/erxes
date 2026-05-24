@@ -27,14 +27,14 @@ const ChecklistForm = () => {
         ...data,
       },
       onCompleted: () => {
-        toast({ title: 'Success!' });
+        toast({ title: t('success') });
         form.reset();
 
         closeRef.current?.click();
       },
       onError: (error) =>
         toast({
-          title: 'Error',
+          title: t('error'),
           description: error.message,
           variant: 'destructive',
         }),
@@ -84,7 +84,7 @@ const ChecklistForm = () => {
                 : 'bg-primary text-primary-foreground hover:bg-primary/90',
             )}
           >
-            {loading ? <IconLoader className="w-4 h-4 animate-spin" /> : 'Save'}
+            {loading ? <IconLoader className="w-4 h-4 animate-spin" /> : t('save')}
           </Button>
         </div>
       </form>

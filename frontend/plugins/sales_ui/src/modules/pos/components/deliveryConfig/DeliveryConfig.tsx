@@ -27,8 +27,6 @@ export interface DeliveryConfigFormData {
 
 const DELIVERY_CONFIG_FORM_ID = 'pos-delivery-config-form';
 
-const { t } = useTranslation('sales');
-
 const DEFAULT_FORM_VALUES: DeliveryConfigFormData = {
   boardId: '',
   pipelineId: '',
@@ -44,6 +42,7 @@ const DeliveryConfig: React.FC<DeliveryConfigProps> = ({
   posType,
   onSaveActionChange,
 }) => {
+  const { t } = useTranslation('sales');
   const { posDetail, loading: detailLoading, error } = usePosDetail(posId);
   const [posEdit, { loading: saving }] = useMutation(mutations.posEdit);
   const form = useForm<DeliveryConfigFormData>({
@@ -73,8 +72,8 @@ const DeliveryConfig: React.FC<DeliveryConfigProps> = ({
     async (data: DeliveryConfigFormData) => {
       if (!posId) {
         toast({
-          title: 'Error',
-          description: 'POS ID is required',
+          title: t('error'),
+          description: t('pos-id-required'),
           variant: 'destructive',
         });
         return;
@@ -100,14 +99,14 @@ const DeliveryConfig: React.FC<DeliveryConfigProps> = ({
         });
 
         toast({
-          title: 'Success',
-          description: 'Delivery config saved successfully',
+          title: t('success'),
+          description: t('delivery-config-saved'),
         });
         reset(data);
       } catch {
         toast({
-          title: 'Error',
-          description: 'Failed to save delivery config',
+          title: t('error'),
+          description: t('failed-to-save-delivery-config'),
           variant: 'destructive',
         });
       }
@@ -128,7 +127,7 @@ const DeliveryConfig: React.FC<DeliveryConfigProps> = ({
           size="sm"
           disabled={saving}
         >
-          {saving ? 'Saving...' : 'Save Changes'}
+          {saving ? t('saving') : t('save-changes')}
         </Button>
       ) : null,
     );
@@ -199,7 +198,7 @@ const DeliveryConfig: React.FC<DeliveryConfigProps> = ({
 
   return (
     <div className="p-6">
-      <InfoCard title="Delivery configuration">
+      <InfoCard title={t('delivery-configuration')}>
         <InfoCard.Content>{renderContent()}</InfoCard.Content>
       </InfoCard>
     </div>

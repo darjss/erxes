@@ -10,8 +10,9 @@ import { useTranslation } from 'react-i18next';
 
 export const SalesItemDetailHeader = ({ deal }: { deal: IDeal }) => {
   const { editDeals } = useDealsContext();
+  const { t } = useTranslation('sales');
 
-  const [name, setName] = useState(deal?.name || 'Untitled deal');
+  const [name, setName] = useState(deal?.name || t('untitled-deal'));
 
   const handleName = () => {
     if (!deal || !name.trim()) return;
@@ -25,8 +26,6 @@ export const SalesItemDetailHeader = ({ deal }: { deal: IDeal }) => {
       },
     });
   };
-
-  const { t } = useTranslation('sales');
 
   return (
     <Sheet.Header className="gap-2 flex-row items-center space-y-0">

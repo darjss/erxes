@@ -24,9 +24,7 @@ export const ProductsDelete = ({
       className="text-destructive"
       onClick={() =>
         confirm({
-          message: `Are you sure you want to delete the ${
-            productIds.length
-          } selected product${productIds.length === 1 ? '' : 's'}?`,
+          message: t('delete-products-confirm', { count: productIds.length }),
         }).then(() => {
           removeProducts({
             variables: {

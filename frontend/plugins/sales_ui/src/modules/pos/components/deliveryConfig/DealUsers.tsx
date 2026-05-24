@@ -9,9 +9,8 @@ interface DealUsersProps {
   control: Control<DeliveryConfigFormData>;
 }
 
-const { t } = useTranslation('sales');
-
 export const DealUsers: React.FC<DealUsersProps> = ({ control }) => {
+  const { t } = useTranslation('sales');
   return (
     <div className="space-y-4">
       <Controller

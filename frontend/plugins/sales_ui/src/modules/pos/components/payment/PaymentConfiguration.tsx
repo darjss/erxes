@@ -9,12 +9,11 @@ interface PaymentConfigurationProps {
   control: Control<PaymentFormData>;
 }
 
-const { t } = useTranslation('sales');
-
 export const PaymentConfiguration: React.FC<PaymentConfigurationProps> = ({
   posType,
   control,
 }) => {
+  const { t } = useTranslation('sales');
   return (
     <div className="space-y-6">
       <Form.Field

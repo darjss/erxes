@@ -30,9 +30,11 @@ interface PropertiesProps {
   onSaveActionChange?: (action: ReactNode | null) => void;
 }
 
-const LoadingSkeleton = () => (
+const LoadingSkeleton = () => {
+  const { t } = useTranslation('sales');
+  return (
   <div className="p-6">
-    <InfoCard title="Properties">
+    <InfoCard title={t('general-configuration')}>
       <InfoCard.Content>
         <div className="grid grid-cols-2 gap-4">
           {[1, 2, 3, 4, 5, 6].map((i) => (
@@ -45,7 +47,8 @@ const LoadingSkeleton = () => (
       </InfoCard.Content>
     </InfoCard>
   </div>
-);
+  );
+};
 
 const PROPERTIES_FORM_ID = 'pos-properties-form';
 

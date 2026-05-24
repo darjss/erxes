@@ -30,6 +30,7 @@ export const DealsActions = ({
   const { removeDeals, loading: removeLoading } = useDealsRemove();
   const { copyDeals, loading: copyLoading } = useDealsCopy();
   const { watchDeals, loading: watchLoading } = useDealsWatch();
+  const { t } = useTranslation('sales');
 
   const count = selectedCount || deals.length;
   const isSingle = count === 1;
@@ -46,13 +47,11 @@ export const DealsActions = ({
 
   const handleArchive = async () => {
     const newStatus = allArchived ? 'active' : 'archived';
-    const action = allArchived ? 'unarchive' : 'archive';
+    const actionLabel = allArchived ? t('unarchive') : t('archive');
 
     if (!isSingle) {
       await confirm({
-        message: `Are you sure you want to ${action} ${count} deal${
-          count > 1 ? 's' : ''
-        }?`,
+        message: t('archive-deals-confirm', { count, action: actionLabel }),
       });
     }
 
@@ -67,9 +66,7 @@ export const DealsActions = ({
 
   const handleRemove = async () => {
     await confirm({
-      message: `Are you sure you want to remove ${count} deal${
-        count > 1 ? 's' : ''
-      }? `,
+      message: t('remove-deals-confirm', { count }),
     });
 
     await Promise.all(
@@ -98,19 +95,18 @@ export const DealsActions = ({
   const handlePrint = () => {
     window.print();
   };
+
   const getArchiveLabel = () => {
-    if (allArchived) return isSingle ? 'Unarchive' : 'archive';
-    if (allActive) return 'Archive';
-    return isSingle ? 'Archive' : 'Archive (Mixed)';
+    if (allArchived) return t('unarchive');
+    if (allActive) return t('archive');
+    return isSingle ? t('archive') : t('archive-mixed');
   };
 
   const getWatchLabel = () => {
-    if (allWatched) return 'Unwatch';
-    if (allUnwatched) return 'Watch';
-    return 'Watch (Mixed)';
+    if (allWatched) return t('unwatch');
+    if (allUnwatched) return t('watch');
+    return t('watch-mixed');
   };
-
-  const { t } = useTranslation('sales');
 
   return (
     <DropdownMenu>

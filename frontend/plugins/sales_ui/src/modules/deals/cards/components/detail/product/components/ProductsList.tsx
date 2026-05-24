@@ -55,6 +55,7 @@ const ProductsList = ({
 
   const filteredProducts = filterProducts(products, filters);
   const { toast } = useToast();
+  const { t } = useTranslation('sales');
 
   const productRecords = localProductsData
     .map((data) => ({
@@ -171,8 +172,8 @@ const ProductsList = ({
         .join(', ');
       return toast({
         variant: 'destructive',
-        title: 'Error',
-        description: `Please assign a team member to the following service item(s) before saving: ${names}.`,
+        title: t('error'),
+        description: t('assign-service-before-saving', { names }),
       });
     }
     const formattedProductsData = localProductsData.map((data) => ({
@@ -188,8 +189,6 @@ const ProductsList = ({
       },
     });
   };
-
-  const { t } = useTranslation('sales');
 
   return (
     <div className="space-y-4">

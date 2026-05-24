@@ -177,7 +177,7 @@ const PosActionsMenu = ({ pos }: { pos: Pos }) => {
       toast({
         variant: 'destructive',
         title: t('failed-to-copy-link'),
-        description: e instanceof Error ? e.message : 'Unknown error',
+        description: e instanceof Error ? e.message : t('unknown-error'),
       });
     }
   };

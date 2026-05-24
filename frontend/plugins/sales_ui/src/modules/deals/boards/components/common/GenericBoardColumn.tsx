@@ -93,13 +93,21 @@ function GenericBoardColumnInner<
       />
 
       {totalCount !== undefined && totalCount > items.length && (
-        <div className="px-3 py-1.5 text-xs text-muted-foreground border-t border-border/50 text-center">
-          Showing {items.length} of {totalCount}
-        </div>
+        <ShowingOf current={items.length} total={totalCount} />
       )}
     </div>
   );
 }
+
+const ShowingOf = memo(({ current, total }: { current: number; total: number }) => {
+  const { t } = useTranslation('sales');
+  return (
+    <div className="px-3 py-1.5 text-xs text-muted-foreground border-t border-border/50 text-center">
+      {t('showing-of', { current, total })}
+    </div>
+  );
+});
+ShowingOf.displayName = 'ShowingOf';
 
 const DefaultColumnHeader = memo(
   ({ title, count }: { title: string; count: number }) => (

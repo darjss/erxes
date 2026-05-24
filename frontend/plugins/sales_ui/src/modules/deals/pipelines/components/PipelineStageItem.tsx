@@ -166,7 +166,7 @@ const PipelineStageItem = (props: Props) => {
                   render={({ field }) => (
                     <Select value={field.value} onValueChange={field.onChange}>
                       <Select.Trigger className="text-muted-foreground h-8">
-                        {field.value || 'Select status'}
+                        {field.value || t('select-status')}
                       </Select.Trigger>
                       <Select.Content>
                         {BOARD_STATUSES_OPTIONS.map((option) => (
@@ -189,7 +189,7 @@ const PipelineStageItem = (props: Props) => {
                   render={({ field }) => (
                     <Select value={field.value} onValueChange={field.onChange}>
                       <Select.Trigger className="text-muted-foreground h-8">
-                        {field.value || 'Select visibility'}
+                        {field.value || t('select-visibility')}
                       </Select.Trigger>
                       <Select.Content>
                         {VISIBILITIES.map((option) => (
@@ -341,7 +341,7 @@ const PipelineStageItem = (props: Props) => {
                     />
                   </Form.Control>
                   <Label htmlFor={`defaultTick-${index}`}>
-                    {t('Select products by default')}
+                    {t('select-products-by-default')}
                   </Label>
                 </Form.Item>
               </div>
@@ -357,11 +357,8 @@ const PipelineStageItem = (props: Props) => {
               onClick={() => setShowExtraFields(!showExtraFields)}
             >
               {showExtraFields
-                ? showTooltip(<IconChevronUp size={16} />, 'Hide extra fields')
-                : showTooltip(
-                    <IconChevronDown size={16} />,
-                    'Show extra fields',
-                  )}
+                ? showTooltip(<IconChevronUp size={16} />, t('hide-extra-fields'))
+                : showTooltip(<IconChevronDown size={16} />, t('show-extra-fields'))}
             </div>
 
             <div

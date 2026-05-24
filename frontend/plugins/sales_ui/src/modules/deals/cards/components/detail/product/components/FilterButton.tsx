@@ -14,7 +14,6 @@ import { ProductFilterState } from '@/deals/actionBar/types/actionBarTypes';
 import { useProductCategories } from 'ui-modules/modules/products/categories/hooks/useCategories';
 import { useTags } from 'ui-modules/modules/tags/hooks/useTags';
 import { useTranslation } from 'react-i18next';
-import { T } from 'react-router/dist/development/fog-of-war-oa9CGk10';
 
 interface Props {
   filters: ProductFilterState;
@@ -132,21 +131,21 @@ export const ProductFilterBar = ({
     departmentIds,
   } = filters;
 
+  const { t } = useTranslation('sales');
+
   const getCategoryName = (id: string) => {
     const category = categories.find((cat) => cat._id === id);
     return category?.name || id;
   };
 
   const getTagNames = (tagIds: string[]): string => {
-    const tagNames = tagIds.map((id) => tags?.find((t) => t._id === id)?.name);
-    return tagNames.length > 0 ? tagNames.join(', ') : 'None';
+    const tagNames = tagIds.map((id) => tags?.find((tag) => tag._id === id)?.name);
+    return tagNames.length > 0 ? tagNames.join(', ') : t('none');
   };
 
   const updateFilter = (key: keyof ProductFilterState, value: any) => {
     onChange({ ...filters, [key]: value });
   };
-
-  const { t } = useTranslation('sales');
 
   return (
     <>

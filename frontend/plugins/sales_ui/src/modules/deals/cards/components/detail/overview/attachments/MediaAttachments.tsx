@@ -79,7 +79,7 @@ const MediaAttachments = ({ attachments }: { attachments: IAttachment[] }) => {
                   handleRemoveImage(e, attachment);
                 }}
                 className="absolute top-0 right-[-10px] bg-red-400 hover:bg-red-600 text-white rounded-full p-1 w-6 h-6 shadow-md z-10"
-                aria-label={`Remove image ${attachment.name}`}
+                aria-label={t('remove-image', { name: attachment.name })}
               >
                 <IconX size={12} />
               </Button>

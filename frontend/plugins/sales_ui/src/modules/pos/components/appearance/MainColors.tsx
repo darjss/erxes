@@ -7,9 +7,8 @@ interface MainColorsProps {
   control: Control<AppearanceFormData>;
 }
 
-const { t } = useTranslation('sales');
-
 export const MainColors: React.FC<MainColorsProps> = ({ control }) => {
+  const { t } = useTranslation('sales');
   return (
     <div className="space-y-6">
       <div className="flex gap-6">

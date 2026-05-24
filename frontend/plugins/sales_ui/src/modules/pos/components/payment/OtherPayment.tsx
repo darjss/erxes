@@ -3,6 +3,7 @@ import { Button } from 'erxes-ui';
 import { IconTrash, IconEdit } from '@tabler/icons-react';
 import { AddPaymentSheet } from './AddPaymentSheet';
 import { type PaymentType } from '@/pos/types/types';
+import { useTranslation } from 'react-i18next';
 
 interface OtherPaymentProps {
   paymentTypes: PaymentType[];
@@ -17,6 +18,7 @@ export const OtherPayment: React.FC<OtherPaymentProps> = ({
   onPaymentUpdated,
   onPaymentDeleted,
 }) => {
+  const { t } = useTranslation('sales');
   const [editingPayment, setEditingPayment] = useState<PaymentType | null>(
     null,
   );
@@ -28,8 +30,7 @@ export const OtherPayment: React.FC<OtherPaymentProps> = ({
   return (
     <div className="space-y-4">
       <p className="text-sm text-muted-foreground">
-        type must use latin characters, some default types: golomtCard,
-        khaanCard, TDBCard
+        {t('type-must-use-latin')}
         <br />
         Хэрэв тухайн төлбөрт ебаримт хэвлэхгүй бол: "skipEbarimt: true",
         Харилцагч сонгосон үед л харагдах бол: "mustCustomer: true", Хэрэв

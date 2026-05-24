@@ -16,9 +16,8 @@ const Attribution = ({ config, value, onChange }: Props) => {
   const handleSelect = (val: string) => {
     if (val.startsWith(' ')) {
       toast({
-        title: 'Error',
-        description:
-          "Please make sure the attribution doesn't start with a space",
+        title: t('error'),
+        description: t('attribution-no-leading-space'),
         variant: 'destructive',
       });
       return;

@@ -63,6 +63,7 @@ export const BoardsList = () => {
 const BoardMenuItem = ({ board }: { board: IBoard }) => {
   const [activeBoardId] = useQueryState('activeBoardId');
   const [, setBoardId] = useQueryState('boardId');
+  const { t } = useTranslation('sales');
 
   const isActive = board._id === activeBoardId;
 
@@ -72,7 +73,7 @@ const BoardMenuItem = ({ board }: { board: IBoard }) => {
 
   const onRemove = (boardId: string) => {
     confirm({
-      message: `Are you sure you want to delete ${board.name}?`,
+      message: t('delete-board-confirm', { name: board.name }),
     }).then(() => {
       removeBoard({ variables: { _id: boardId } });
     });

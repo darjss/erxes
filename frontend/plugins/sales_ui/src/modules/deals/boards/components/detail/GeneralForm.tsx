@@ -13,8 +13,8 @@ import PipelineConfig from '@/deals/pipelines/components/PipelineConfig';
 import { useTranslation } from 'react-i18next';
 
 const VISIBILITY_TYPES = [
-  { value: 'public', label: 'Public' },
-  { value: 'private', label: 'Private' },
+  { value: 'public', label: 'public' },
+  { value: 'private', label: 'private' },
 ];
 
 const GeneralForm = ({ form }: { form: any }) => {
@@ -36,7 +36,7 @@ const GeneralForm = ({ form }: { form: any }) => {
           name="name"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>{field.name}</Form.Label>
+              <Form.Label>{t('name')}</Form.Label>
               <Form.Control>
                 <Input {...field} placeholder={t('enter-pipeline-name')} />
               </Form.Control>
@@ -55,12 +55,12 @@ const GeneralForm = ({ form }: { form: any }) => {
                   <Select.Trigger
                     className={!field.value ? 'text-muted-foreground' : ''}
                   >
-                    {field.value || 'Select visibility'}
+                    {field.value ? t(field.value) : t('select-visibility')}
                   </Select.Trigger>
                   <Select.Content>
                     {VISIBILITY_TYPES.map((option) => (
                       <Select.Item key={option.value} value={option.value}>
-                        {option.label}
+                        {t(option.label)}
                       </Select.Item>
                     ))}
                   </Select.Content>

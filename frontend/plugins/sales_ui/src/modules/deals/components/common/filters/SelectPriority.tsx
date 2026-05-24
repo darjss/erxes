@@ -190,6 +190,7 @@ const SelectPriorityFilterView = () => {
 };
 
 const SelectPriorityFilterBar = () => {
+  const { t } = useTranslation('sales');
   const [priority, setPriority] = useQueryState<TPriorityValue[]>('priority', {
     defaultValue: [],
   });
@@ -201,7 +202,7 @@ const SelectPriorityFilterBar = () => {
     <Filter.BarItem queryKey="priority">
       <Filter.BarName>
         <IconStackFront />
-        By Priority
+        {t('by-priority')}
       </Filter.BarName>
       <SelectPriorityProvider
         value={priority?.[0] ?? 'No Priority'}

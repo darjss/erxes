@@ -14,13 +14,13 @@ interface AddPaymentSheetProps {
 }
 
 const ICON_OPTIONS = [
-  { value: 'credit-card', label: 'Credit Card' },
-  { value: 'cash', label: 'Cash' },
-  { value: 'bank', label: 'Bank' },
-  { value: 'mobile', label: 'Mobile' },
-  { value: 'visa', label: 'Visa' },
-  { value: 'mastercard', label: 'Mastercard' },
-  { value: 'sign-alt', label: 'Sign Alt' },
+  { value: 'credit-card', label: 'credit-card' },
+  { value: 'cash', label: 'cash' },
+  { value: 'bank', label: 'bank' },
+  { value: 'mobile', label: 'mobile' },
+  { value: 'visa', label: 'visa' },
+  { value: 'mastercard', label: 'mastercard' },
+  { value: 'sign-alt', label: 'sign-alt' },
 ];
 
 export const AddPaymentSheet: React.FC<AddPaymentSheetProps> = ({
@@ -105,7 +105,7 @@ export const AddPaymentSheet: React.FC<AddPaymentSheetProps> = ({
       <Sheet.View className="p-0 sm:max-w-lg">
         <Sheet.Header>
           <Sheet.Title>
-            {isEditing ? 'Edit Payment' : 'Add Payment'}
+            {isEditing ? t('edit-payment') : t('add-payment')}
           </Sheet.Title>
           <Sheet.Close />
         </Sheet.Header>
@@ -144,7 +144,7 @@ export const AddPaymentSheet: React.FC<AddPaymentSheetProps> = ({
                   <Select.Item key={opt.value} value={opt.value}>
                     <div className="flex gap-2 items-center">
                       <PaymentIcon iconType={opt.value} size={16} />
-                      {opt.label}
+                      {t(opt.label)}
                     </div>
                   </Select.Item>
                 ))}
@@ -167,7 +167,7 @@ export const AddPaymentSheet: React.FC<AddPaymentSheetProps> = ({
             {t('cancel')}
           </Button>
           <Button onClick={handleSubmit} disabled={!formType || !formTitle}>
-            {isEditing ? 'Update' : 'Add'}
+            {isEditing ? t('update') : t('add')}
           </Button>
         </Sheet.Footer>
       </Sheet.View>

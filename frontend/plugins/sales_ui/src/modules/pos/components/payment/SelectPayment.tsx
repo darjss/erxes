@@ -308,6 +308,7 @@ export const SelectPaymentDetail = ({
   className?: string;
   placeholder?: string;
 }) => {
+  const { t } = useTranslation('sales');
   const [open, setOpen] = useState(false);
   return (
     <SelectPaymentProvider

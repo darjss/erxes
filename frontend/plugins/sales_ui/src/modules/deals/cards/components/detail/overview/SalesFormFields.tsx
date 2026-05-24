@@ -77,7 +77,7 @@ export const SalesFormFields = ({ deal }: { deal: IDeal }) => {
               type="startDate"
               variant="button"
             />
-            <span className="mx-2">to</span>
+            <span className="mx-2">{t('date-range-to')}</span>
             <DateSelectDeal
               value={closeDate}
               id={_id}

@@ -6,6 +6,7 @@ import {
   IconTag,
 } from '@tabler/icons-react';
 import { ColumnDef } from '@tanstack/table-core';
+import { useTranslation } from 'react-i18next';
 import {
   RecordTable,
   TextOverflowTooltip,
@@ -81,7 +82,7 @@ export const firstOrderColumns: ColumnDef<IOrder>[] = [
   {
     id: 'number',
     accessorKey: 'number',
-    header: () => <RecordTable.InlineHead icon={IconLabel} label="Bill Number" />,
+    header: () => { const { t } = useTranslation('sales'); return <RecordTable.InlineHead icon={IconLabel} label={t('bill-number')} />; },
     cell: ({ cell, row }) => {
       return (
         <ClickableBillNumber value={cell.getValue() as string} row={row} />
@@ -91,7 +92,7 @@ export const firstOrderColumns: ColumnDef<IOrder>[] = [
   {
     id: 'paidDate',
     accessorKey: 'paidDate',
-    header: () => <RecordTable.InlineHead icon={IconMobiledata} label="Date" />,
+    header: () => { const { t } = useTranslation('sales'); return <RecordTable.InlineHead icon={IconMobiledata} label={t('date')} />; },
     cell: ({ cell }) => {
       return (
         <RelativeDateDisplay value={cell.getValue() as string} asChild>
@@ -114,7 +115,7 @@ export const firstOrderColumns: ColumnDef<IOrder>[] = [
   {
     id: 'cashAmount',
     accessorKey: 'cashAmount',
-    header: () => <RecordTable.InlineHead icon={IconLabel} label="Cash Amount" />,
+    header: () => { const { t } = useTranslation('sales'); return <RecordTable.InlineHead icon={IconLabel} label={t('cash-amount')} />; },
     cell: ({ cell }) => {
       const value = cell.getValue() as number;
       return (
@@ -128,7 +129,7 @@ export const firstOrderColumns: ColumnDef<IOrder>[] = [
   {
     id: 'mobileAmount',
     accessorKey: 'mobileAmount',
-    header: () => <RecordTable.InlineHead icon={IconLabel} label="Mobile Amount" />,
+    header: () => { const { t } = useTranslation('sales'); return <RecordTable.InlineHead icon={IconLabel} label={t('mobile-amount')} />; },
     cell: ({ cell }) => {
       const value = cell.getValue() as number;
       return (
@@ -145,7 +146,7 @@ export const secondOrderColumns: ColumnDef<IOrder>[] = [
   {
     id: 'totalAmount',
     accessorKey: 'totalAmount',
-    header: () => <RecordTable.InlineHead icon={IconLabel} label="Amount" />,
+    header: () => { const { t } = useTranslation('sales'); return <RecordTable.InlineHead icon={IconLabel} label={t('amount')} />; },
     cell: ({ cell }) => {
       const value = cell.getValue() as number;
       return (
@@ -159,7 +160,7 @@ export const secondOrderColumns: ColumnDef<IOrder>[] = [
   {
     id: 'customerType',
     accessorKey: 'customerType',
-    header: () => <RecordTable.InlineHead icon={IconClock} label="Customer" />,
+    header: () => { const { t } = useTranslation('sales'); return <RecordTable.InlineHead icon={IconClock} label={t('customer')} />; },
     cell: ({ cell }) => {
       const value = cell.getValue() as string;
       return (
@@ -173,7 +174,7 @@ export const secondOrderColumns: ColumnDef<IOrder>[] = [
   {
     id: 'posName',
     accessorKey: 'posName',
-    header: () => <RecordTable.InlineHead icon={IconUser} label="POS" />,
+    header: () => { const { t } = useTranslation('sales'); return <RecordTable.InlineHead icon={IconUser} label={t('pos')} />; },
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
@@ -186,7 +187,7 @@ export const secondOrderColumns: ColumnDef<IOrder>[] = [
   {
     id: 'type',
     accessorKey: 'type',
-    header: () => <RecordTable.InlineHead icon={IconTag} label="Type" />,
+    header: () => { const { t } = useTranslation('sales'); return <RecordTable.InlineHead icon={IconTag} label={t('type')} />; },
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
@@ -199,7 +200,7 @@ export const secondOrderColumns: ColumnDef<IOrder>[] = [
   {
     id: 'user',
     accessorKey: 'user',
-    header: () => <RecordTable.InlineHead icon={IconUser} label="User" />,
+    header: () => { const { t } = useTranslation('sales'); return <RecordTable.InlineHead icon={IconUser} label={t('user')} />; },
     cell: ({ cell }) => {
       const user = cell.getValue() as IUser;
       return (

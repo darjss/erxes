@@ -60,13 +60,16 @@ const itemColumns: ColumnDef<any>[] = [
       const { t } = useTranslation('sales');
       return <RecordTable.InlineHead icon={IconShoppingCart} label={t('product')} />;
     },
-    cell: ({ cell }) => (
-      <RecordTableInlineCell>
-        <TextOverflowTooltip
-          value={(cell.getValue() as string) || 'Unknown Product'}
-        />
-      </RecordTableInlineCell>
-    ),
+    cell: ({ cell }) => {
+      const { t } = useTranslation('sales');
+      return (
+        <RecordTableInlineCell>
+          <TextOverflowTooltip
+            value={(cell.getValue() as string) || t('unknown-product')}
+          />
+        </RecordTableInlineCell>
+      );
+    },
     size: 200,
   },
   {

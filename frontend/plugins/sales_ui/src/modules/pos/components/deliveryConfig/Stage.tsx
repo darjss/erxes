@@ -82,7 +82,7 @@ export const Stage: React.FC<StageProps> = ({ control }) => {
             <Select value={field.value} onValueChange={field.onChange}>
               <Select.Trigger className="w-48" disabled={fieldsLoading}>
                 <Select.Value
-                  placeholder={fieldsLoading ? 'Loading...' : 'Select field'}
+                  placeholder={fieldsLoading ? t('loading') : t('select-field')}
                 />
               </Select.Trigger>
               <Select.Content>

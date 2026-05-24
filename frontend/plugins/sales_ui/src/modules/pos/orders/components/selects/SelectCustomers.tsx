@@ -141,7 +141,7 @@ const SelectCustomersValue = ({
     selectedCustomer.primaryEmail ||
     selectedCustomer.primaryPhone ||
     selectedCustomer.code ||
-    'Unknown';
+    t('unknown');
 
   return (
     <div className="flex items-center gap-2">
@@ -151,6 +151,7 @@ const SelectCustomersValue = ({
 };
 
 const SelectCustomersCommandItem = ({ customer }: { customer: ICustomer }) => {
+  const { t } = useTranslation('sales');
   const { onValueChange, value } = useSelectCustomersContext();
   const { _id, firstName, lastName, primaryEmail, primaryPhone, code } =
     customer || {};
@@ -161,7 +162,7 @@ const SelectCustomersCommandItem = ({ customer }: { customer: ICustomer }) => {
     primaryEmail ||
     primaryPhone ||
     code ||
-    'Unknown';
+    t('unknown');
 
   return (
     <Command.Item

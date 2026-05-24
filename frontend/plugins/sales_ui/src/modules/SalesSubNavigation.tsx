@@ -150,12 +150,12 @@ const ActionsMenu = () => {
       await navigator.clipboard.writeText(link);
       toast({
         variant: 'default',
-        title: 'Link copied to clipboard',
+        title: t('link-copied-to-clipboard'),
       });
     } catch (e) {
       toast({
         variant: 'destructive',
-        title: 'Failed to copy link',
+        title: t('failed-to-copy-link'),
         description: e as string,
       });
     }
