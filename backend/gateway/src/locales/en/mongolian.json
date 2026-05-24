@@ -14,6 +14,8 @@
   "create-products": "Create Products",
   "update-products": "Update Products",
   "delete-products": "Delete Products",
+  "close": "Close",
+  "add-exchange-rate": "Add Exchange Rate",
 
   "// --- Inline text ---": "",
   "selected": "selected",
@@ -167,6 +169,11 @@
   "bar-codes": "Bar Codes",
   "unit-price": "Unit Price",
   "matched": "Matched",
+  "exchange-rates": "Exchange Rates ({{count}})",
+  "start-date": "Start Date",
+  "main-currency": "Main Currency",
+  "rate-currency": "Rate Currency",
+  "rate": "Rate",
 
   "// --- Placeholders ---": "",
   "filter": "Filter",
@@ -299,6 +306,9 @@
   "pos-in-ebarimt": "Pos In Ebarimt",
   "untitled-config": "Untitled Config",
   "delete-configuration": "Delete Configuration",
+  "choose-main-currency": "Choose a main currency",
+  "choose-rate-currency": "Choose a rate currency",
+  "type-to-search": "Type to search",
 
   "// --- Messages ---": "",
   "error": "Error",
@@ -419,5 +429,6 @@
   "all-products-already-synced": "All products are already synced",
   "products-synced_one": "{{count}} product synced",
   "products-synced_other": "{{count}} products synced",
-  "sync-products-error": "Sync products error"
+  "sync-products-error": "Sync products error",
+  "no-exchange-rates-found": "No exchange rates found"
 }

@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import dayjs from 'dayjs';
 
 import { Button } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { IExchangeRate } from '../types';
 
 type Props = {
@@ -20,6 +21,7 @@ const ExchangeRates = ({
   deleteExchangeRates,
   queryParams,
 }: Props) => {
+  const { t } = useTranslation('mongolian');
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -62,32 +64,32 @@ const ExchangeRates = ({
   return (
     <div className="p-4 space-y-4">
       <div className="flex items-center justify-between">
-        <h2 className="text-lg font-semibold">Exchange Rates ({totalCount})</h2>
+        <h2 className="text-lg font-semibold">{t('exchange-rates', { count: totalCount })}</h2>
 
         <div className="flex gap-2">
           <input
             className="h-8 rounded border px-2 text-sm"
-            placeholder="Type to search"
+            placeholder={t('type-to-search')}
             value={searchValue}
             onChange={onSearch}
           />
 
           <Button type="button" variant="default" onClick={goCreate}>
-            Add Exchange Rate
+            {t('add-exchange-rate')}
           </Button>
         </div>
       </div>
 
       {loading ? (
-        <div>Loading...</div>
+        <div>{t('loading')}</div>
       ) : (
         <table className="w-full border-collapse">
           <thead>
             <tr className="border-b text-left">
-              <th className="py-2">Date</th>
-              <th>Main Currency</th>
-              <th>Rate Currency</th>
-              <th>Rate</th>
+              <th className="py-2">{t('date')}</th>
+              <th>{t('main-currency')}</th>
+              <th>{t('rate-currency')}</th>
+              <th>{t('rate')}</th>
               <th />
             </tr>
           </thead>
@@ -103,11 +105,11 @@ const ExchangeRates = ({
                 <td>{rate.rate}</td>
                 <td className="flex gap-2">
                   <Button variant="ghost" onClick={() => goEdit(rate._id!)}>
-                    Edit
+                    {t('edit')}
                   </Button>
 
                   <Button variant="ghost" onClick={() => remove(rate._id!)}>
-                    Delete
+                    {t('delete')}
                   </Button>
                 </td>
               </tr>
@@ -116,7 +118,7 @@ const ExchangeRates = ({
             {!rateList.length && (
               <tr>
                 <td colSpan={5} className="py-6 text-center text-gray-500">
-                  No exchange rates found
+                  {t('no-exchange-rates-found')}
                 </td>
               </tr>
             )}

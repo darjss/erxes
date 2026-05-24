@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Button, Label, DatePicker, Select } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { IExchangeRate, ExchangeRateFormValues } from '../types';
 
 type Props = {
@@ -15,6 +16,7 @@ const ExchangeRateForm = ({
   submitting,
   onSubmit,
 }: Props) => {
+  const { t } = useTranslation('mongolian');
   const [date, setDate] = useState<Date>(exchangeRate?.date ?? new Date());
 
   const [mainCurrency, setMainCurrency] = useState<string>(
@@ -43,7 +45,7 @@ const ExchangeRateForm = ({
     <div className="space-y-4">
       {/* Start Date */}
       <div>
-        <Label>Start Date</Label>
+        <Label>{t('start-date')}</Label>
         <DatePicker
           value={date}
           format="YYYY-MM-DD"
@@ -53,10 +55,10 @@ const ExchangeRateForm = ({
 
       {/* Main Currency */}
       <div>
-        <Label>Main Currency</Label>
+        <Label>{t('main-currency')}</Label>
         <Select value={mainCurrency} onValueChange={setMainCurrency}>
           <Select.Trigger>
-            <Select.Value placeholder="Choose a main currency" />
+            <Select.Value placeholder={t('choose-main-currency')} />
           </Select.Trigger>
           <Select.Content>
             {currencies.map((currency) => (
@@ -70,10 +72,10 @@ const ExchangeRateForm = ({
 
       {/* Rate Currency */}
       <div>
-        <Label>Rate Currency</Label>
+        <Label>{t('rate-currency')}</Label>
         <Select value={rateCurrency} onValueChange={setRateCurrency}>
           <Select.Trigger>
-            <Select.Value placeholder="Choose a rate currency" />
+            <Select.Value placeholder={t('choose-rate-currency')} />
           </Select.Trigger>
           <Select.Content>
             {currencies.map((currency) => (
@@ -87,7 +89,7 @@ const ExchangeRateForm = ({
 
       {/* Rate */}
       <div>
-        <Label>Rate</Label>
+        <Label>{t('rate')}</Label>
         <input
           type="number"
           className="h-8 w-full rounded border px-3 text-sm"
@@ -103,11 +105,11 @@ const ExchangeRateForm = ({
           variant="ghost"
           onClick={() => window.history.back()}
         >
-          Close
+          {t('close')}
         </Button>
 
         <Button type="button" onClick={handleSubmit} disabled={submitting}>
-          Save
+          {t('save')}
         </Button>
       </div>
     </div>
