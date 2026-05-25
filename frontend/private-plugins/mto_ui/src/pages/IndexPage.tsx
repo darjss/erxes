@@ -34,9 +34,9 @@ export function IndexPage() {
               )}
               {!isSlaveMode && (
                 <Button asChild>
-                  <Link to="/mto/categories">
+                  <Link to="/mto/associations">
                     <IconTags />
-                    Categories
+                    Associations
                   </Link>
                 </Button>
               )}

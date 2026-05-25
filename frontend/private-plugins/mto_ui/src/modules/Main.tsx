@@ -11,9 +11,9 @@ const IndexPage = lazy(() =>
   })),
 );
 
-const CategoriesPage = lazy(() =>
-  import('~/pages/CategoriesPage').then((module) => ({
-    default: module.CategoriesPage,
+const AssociationsPage = lazy(() =>
+  import('~/pages/AssociationsPage').then((module) => ({
+    default: module.AssociationsPage,
   })),
 );
 
@@ -60,7 +60,7 @@ const MtoMain = () => {
       <Routes>
         <Route path="/" element={<IndexPage />} />
         {!isSlaveMode && (
-          <Route path="/categories" element={<CategoriesPage />} />
+          <Route path="/associations" element={<AssociationsPage />} />
         )}
         <Route path="/registration" element={<RegistrationIndexPage />} />
         <Route path="/registrations" element={<RegistrationsPage />} />

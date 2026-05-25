@@ -18,8 +18,12 @@ import {
   loadSystemConfigClass,
 } from '@/config/db/models/Config';
 
-// Banner
-
+// Association
+import { IAssociationDocument } from '@/association/@types/association';
+import {
+  IAssociationModel,
+  loadAssociationClass,
+} from '@/association/db/models/Association';
 
 // Registration
 import { IRegistrationApplicationDocument } from '@/registration/@types/registrationApplicationDocument';
@@ -36,6 +40,7 @@ import {
 export interface IModels {
   Provider: IProviderModel;
   SystemConfig: ISystemConfigModel;
+  Association: IAssociationModel;
   RegistrationApplication: IRegistrationApplicationModel;
   RegistrationFormSchema: IRegistrationFormSchemaModel;
 }
@@ -60,6 +65,11 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
   models.SystemConfig = db.model<ISystemConfigDocument, ISystemConfigModel>(
     'mto_system_configs',
     loadSystemConfigClass(models),
+  );
+
+  models.Association = db.model<IAssociationDocument, IAssociationModel>(
+    'mto_categories',
+    loadAssociationClass(models),
   );
 
   models.RegistrationApplication = db.model<
