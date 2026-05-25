@@ -14,6 +14,8 @@ export const supplierProfileSchema = z.object({
   description: z.string().optional(),
   logo: z.string().optional(),
   coverImage: z.string().optional(),
+  attachments: z.array(z.string()).optional(),
+  urls: z.array(z.string()).optional(),
   about: z.string().optional(),
   website: domainOrEmpty.optional(),
   registrationNumber: z.string().optional(),

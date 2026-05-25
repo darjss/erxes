@@ -43,6 +43,12 @@ export const LoyaltyScoreEditSheet = () => {
         excludeProductIds: [],
         excludeTagIds: [],
       },
+      additionalConfig: {
+        discountCheck: false,
+        cardBasedRule: [
+          { boardId: '', pipelineId: '', stageIds: [], refundStageIds: [] },
+        ],
+      },
       add: { placeholder: '', currencyRatio: '' },
       subtract: { placeholder: '', currencyRatio: '' },
       ownerType: '',
@@ -54,6 +60,17 @@ export const LoyaltyScoreEditSheet = () => {
   useEffect(() => {
     if (scoreDetail && scoreDetail._id === editScoreId) {
       const restrictions = scoreDetail.restrictions || {};
+      const additionalConfig = scoreDetail.additionalConfig || {};
+      const existingRules = Array.isArray(additionalConfig.cardBasedRule)
+        ? additionalConfig.cardBasedRule.map((rule: any) => ({
+            boardId: rule.boardId || '',
+            pipelineId: rule.pipelineId || '',
+            stageIds: Array.isArray(rule.stageIds) ? rule.stageIds : [],
+            refundStageIds: Array.isArray(rule.refundStageIds)
+              ? rule.refundStageIds
+              : [],
+          }))
+        : [];
 
       form.reset({
         title: scoreDetail.title || '',
@@ -68,6 +85,20 @@ export const LoyaltyScoreEditSheet = () => {
           ),
           excludeProductIds: parseIds(restrictions.excludeProductIds),
           excludeTagIds: parseIds(restrictions.excludeTagIds),
+        },
+        additionalConfig: {
+          discountCheck: additionalConfig.discountCheck ?? false,
+          cardBasedRule:
+            existingRules.length > 0
+              ? existingRules
+              : [
+                  {
+                    boardId: '',
+                    pipelineId: '',
+                    stageIds: [],
+                    refundStageIds: [],
+                  },
+                ],
         },
         add: {
           placeholder: scoreDetail.add?.placeholder || '',
@@ -108,7 +139,7 @@ export const LoyaltyScoreEditSheet = () => {
   return (
     <Sheet onOpenChange={(open) => !open && onClose()} open={open} modal>
       <Sheet.View
-        className="sm:max-w-2xl p-0"
+        className="lg:max-w-1/2 md:max-w-2/3 sm:max-w-md p-0"
         onEscapeKeyDown={(e) => {
           e.preventDefault();
         }}

@@ -40,6 +40,8 @@ export interface ICollective {
   about?: string;
   logo?: string;
   coverImage?: string;
+  attachments?: string[];
+  urls?: string[];
   registrationNumber?: string;
   address?: ICollectiveAddress;
   primaryEmail?: string;

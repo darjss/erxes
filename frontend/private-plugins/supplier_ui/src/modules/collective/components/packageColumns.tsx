@@ -1,11 +1,18 @@
 import { ColumnDef } from '@tanstack/table-core';
 import {
   Badge,
+  Command,
+  Popover,
   RecordTable,
   RecordTableInlineCell,
+  toast,
   useQueryState,
 } from 'erxes-ui';
+import { useState } from 'react';
 import { ICollectivePackage } from '../hooks/useCollectivePackages';
+import { useEditCollectivePackageStatus } from '../hooks/useEditCollectivePackageStatus';
+
+const PACKAGE_STATUSES = ['draft', 'active', 'archived'] as const;
 
 const statusVariant = (status?: string) => {
   switch (status) {
@@ -16,6 +23,51 @@ const statusVariant = (status?: string) => {
     default:
       return 'info' as const;
   }
+};
+
+const StatusCell = ({ pkg }: { pkg: ICollectivePackage }) => {
+  const [open, setOpen] = useState(false);
+  const { editStatus, loading } = useEditCollectivePackageStatus();
+  const current = pkg.status || 'draft';
+
+  const handleSelect = async (next: string) => {
+    setOpen(false);
+    if (next === current) return;
+
+    try {
+      await editStatus({ variables: { _id: pkg._id, status: next } });
+      toast({ variant: 'success', title: 'Status updated' });
+    } catch (e: any) {
+      toast({
+        variant: 'destructive',
+        title: 'Failed to update status',
+        description: e?.message,
+      });
+    }
+  };
+
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <RecordTableInlineCell.Trigger disabled={loading}>
+        <Badge variant={statusVariant(current)}>{current}</Badge>
+      </RecordTableInlineCell.Trigger>
+      <RecordTableInlineCell.Content className="w-36 min-w-0">
+        <Command>
+          <Command.List>
+            {PACKAGE_STATUSES.map((s) => (
+              <Command.Item
+                key={s}
+                value={s}
+                onSelect={() => handleSelect(s)}
+              >
+                <Badge variant={statusVariant(s)}>{s}</Badge>
+              </Command.Item>
+            ))}
+          </Command.List>
+        </Command>
+      </RecordTableInlineCell.Content>
+    </Popover>
+  );
 };
 
 const formatPrice = (value?: number) =>
@@ -79,14 +131,7 @@ export const packageColumns: ColumnDef<ICollectivePackage>[] = [
     accessorKey: 'status',
     header: 'status',
     size: 40,
-    cell: ({ cell }) => {
-      const value = cell.getValue() as string | undefined;
-      return (
-        <RecordTableInlineCell>
-          <Badge variant={statusVariant(value)}>{value || 'draft'}</Badge>
-        </RecordTableInlineCell>
-      );
-    },
+    cell: ({ row }) => <StatusCell pkg={row.original} />,
   },
   {
     id: 'createdAt',

@@ -15,8 +15,9 @@ export const productMutations = {
   mushopAssignProductCategory: async (
     _root: undefined,
     { _id, categoryId }: { _id: string; categoryId?: string },
-    { models, subdomain }: IContext,
+    { models, subdomain, checkPermission }: IContext,
   ) => {
+    await checkPermission('mushopAssignProductCategory');
     const product = await models.MushopProduct.assignCategory(
       _id,
       categoryId || null,
@@ -41,8 +42,9 @@ export const productMutations = {
   mushopBulkUpdateProductStatus: async (
     _root: undefined,
     { ids, status }: { ids: string[]; status: string },
-    { models, subdomain }: IContext,
+    { models, subdomain, checkPermission }: IContext,
   ) => {
+    await checkPermission('mushopBulkUpdateProductStatus');
     if (!MUSHOP_PRODUCT_STATUS.ALL.includes(status)) {
       throw new Error('Invalid product status');
     }
@@ -90,8 +92,9 @@ export const productMutations = {
   mushopRemoveProduct: async (
     _root: undefined,
     { _id }: { _id: string },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) => {
+    await checkPermission('mushopRemoveProduct');
     await models.MushopProduct.removeProduct(_id);
     return { success: true };
   },
@@ -99,8 +102,9 @@ export const productMutations = {
   mushopBulkRemoveProducts: async (
     _root: undefined,
     { ids }: { ids: string[] },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) => {
+    await checkPermission('mushopBulkRemoveProducts');
     await models.MushopProduct.deleteMany({ _id: { $in: ids } });
     return { success: true, count: ids.length };
   },
@@ -108,8 +112,9 @@ export const productMutations = {
   mushopUpdateProductStatus: async (
     _root: undefined,
     { _id, status, note }: { _id: string; status: string; note?: string },
-    { models, subdomain }: IContext,
+    { models, subdomain, checkPermission }: IContext,
   ) => {
+    await checkPermission('mushopUpdateProductStatus');
     if (!MUSHOP_PRODUCT_STATUS.ALL.includes(status)) {
       throw new Error('Invalid product status');
     }

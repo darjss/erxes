@@ -18,4 +18,9 @@ export const TypeExtensions = `
     isSubscribed: Boolean
     subscription: MushopSubscription
   }
+
+  extend type cpPoscProduct @key(fields: "_id") {
+    _id: String @external
+    supplier: MushopSupplier
+  }
 `;

@@ -8,3 +8,27 @@ export const MUSHOP_CANCEL_SUBSCRIPTION = gql`
     }
   }
 `;
+
+export const MUSHOP_GRANT_SUBSCRIPTION = gql`
+  mutation MushopGrantSubscription(
+    $customerId: String!
+    $planId: String!
+    $paymentId: String
+    $amount: Float
+  ) {
+    mushopGrantSubscription(
+      customerId: $customerId
+      planId: $planId
+      paymentId: $paymentId
+      amount: $amount
+    ) {
+      _id
+      customerId
+      planId
+      status
+      startDate
+      endDate
+      invoiceId
+    }
+  }
+`;

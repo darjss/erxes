@@ -38,6 +38,11 @@ export const UploadProvider = ({
     setTotalFilesCount(files.length);
     setFinishedFilesCount(0);
 
+    // Accumulator captured for this upload batch so parallel afterUpload
+    // callbacks build on each other's results instead of overwriting from a
+    // stale `responses` snapshot.
+    const batchAccumulator: string[] = responses.map((r) => r.url);
+
     upload({
       files,
       afterUpload: ({ response }) => {
@@ -47,7 +52,8 @@ export const UploadProvider = ({
           onValueChange(checked);
           onUploadsFinished?.(checked);
         } else {
-          const next = [...responses.map((r) => r.url), checked];
+          batchAccumulator.push(checked);
+          const next = [...batchAccumulator];
           onValueChange(next);
           onUploadsFinished?.(next);
         }

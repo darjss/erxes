@@ -1,4 +1,11 @@
 export const types = `
+  enum AgentStatus {
+    deploying
+    pending
+    approved
+    failed
+  }
+
   type Agent {
     _id: String
 
@@ -9,7 +16,9 @@ export const types = `
 
     agentId: String
     serverId: String
-    status: String
+    status: AgentStatus!
+    transferredFromSubdomain: String
+    transferredAt: Date
 
     createdAt: Date
     updatedAt: Date
@@ -20,9 +29,29 @@ export const types = `
     content: String
   }
 
+  type AgentTransferCredentials {
+    kind: String
+    sourceSubdomain: String
+    serverName: String
+    serverUrl: String
+    gatewayToken: String
+    agentId: String
+    serverId: String
+    status: String
+  }
+
   input DeployAgentInput {
     token: String!
     kimiApiKey: String!
+  }
+
+  input TransferAgentInput {
+    serverName: String!
+    gatewayToken: String!
+    serverUrl: String
+    agentId: String
+    serverId: String
+    sourceSubdomain: String
   }
 
   input ApproveAgentInput {
@@ -74,6 +103,8 @@ export const queries = `
 
 export const mutations = `
   deployAgent(identifierId: String!, input: DeployAgentInput!): Agent
+  transferAgent(identifierId: String!, input: TransferAgentInput!): Agent
+  createAgentTransferCredentials(identifierId: String!): AgentTransferCredentials
   destroyAgent(identifierId: String!): Agent
   approveAgent(identifierId: String!, input: ApproveAgentInput!): Agent
   addAgent(identifierId: String!, input: AddAgentInput!): Boolean

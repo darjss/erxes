@@ -22,13 +22,19 @@ interface CollectiveWebhookResult {
 const postToSupplierPush = async ({
   supplierSubdomain,
   targetSubdomain,
+  targetPosToken,
   collectiveId,
   posToken,
+  supplierId,
+  supplierName,
 }: {
   supplierSubdomain: string;
   targetSubdomain: string;
+  targetPosToken: string;
   collectiveId: string;
   posToken: string;
+  supplierId: string;
+  supplierName?: string;
 }): Promise<CollectiveWebhookResult> => {
   const { SUPPLIER_API_URL, MUSHOP_SECRET } = process.env;
 
@@ -44,7 +50,14 @@ const postToSupplierPush = async ({
 
   const body = JSON.stringify({
     subdomain: supplierSubdomain,
-    payload: { collectiveId, targetSubdomain, posToken },
+    payload: {
+      collectiveId,
+      targetSubdomain,
+      targetPosToken,
+      posToken,
+      supplierId,
+      supplierName,
+    },
   });
 
   const signature = crypto
@@ -74,20 +87,35 @@ const postToSupplierPush = async ({
 export const syncCollectiveProducts = async ({
   models,
   collectiveId,
+  supplierIds,
 }: {
   models: IModels;
   collectiveId: string;
+  supplierIds?: string[];
 }): Promise<void> => {
   const collective = await models.Collective.findOne({ _id: collectiveId });
 
   if (!collective) return;
 
+  if (!collective.targetPosToken) {
+    await models.Collective.updateSyncProgress(collectiveId, {
+      status: COLLECTIVE_STATUS.FAILED,
+    });
+    throw new Error(
+      `Collective ${collectiveId} has no targetPosToken; cannot sync`,
+    );
+  }
+
   await models.Collective.updateSyncProgress(collectiveId, {
     status: COLLECTIVE_STATUS.SYNCING,
   });
 
+  const filterIds = supplierIds?.length
+    ? supplierIds
+    : collective.supplierIds;
+
   const suppliers = await models.Supplier.find({
-    _id: { $in: collective.supplierIds },
+    _id: { $in: filterIds },
   }).lean();
 
   const results: ICollectiveSupplierSyncResult[] = [];
@@ -115,8 +143,11 @@ export const syncCollectiveProducts = async ({
       const response = await postToSupplierPush({
         supplierSubdomain: supplier.subdomain,
         targetSubdomain: collective.targetSubdomain,
+        targetPosToken: collective.targetPosToken,
         collectiveId: collective._id,
         posToken: supplier.posToken,
+        supplierId: supplier._id,
+        supplierName: supplier.name,
       });
 
       result.total = response.total;

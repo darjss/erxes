@@ -1,5 +1,6 @@
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import fetch from 'node-fetch';
+import { generateModels } from '~/connectionResolvers';
 
 // Send data to Erkhet plugin
 export const toErkhet = async (models, syncLog, config, sendData, action) => {
@@ -28,32 +29,27 @@ export const getConfig = async (
   code: string,
   defaultValue?: any,
 ) => {
-  return await sendTRPCMessage({
-    subdomain,
-    pluginName: 'core',
-    method: 'query',
-    module: 'configs',
-    action: 'getConfig',
-    input: { code, defaultValue },
-    defaultValue,
-  });
+  const models = await generateModels(subdomain);
+  const config = await models.Configs.getConfig(code, '');
+
+  if (config) {
+    return config.value;
+  }
+
+  const configs = await models.Configs.getConfigs(code);
+
+  if (configs?.length) {
+    return configs.reduce((acc, conf) => {
+      acc[conf.subId || ''] = conf.value;
+      return acc;
+    }, {});
+  }
+
+  return defaultValue ?? null;
 };
 
 export const sendCardInfo = async (subdomain, deal, config, value) => {
-  const field = config.responseField.replace('customFieldsData.', '');
-
-  await sendTRPCMessage({
-    subdomain,
-    pluginName: 'sales',
-    module: 'deal',
-    method: 'mutation',
-    action: 'updateOne',
-    input: {
-      selector: { _id: deal._id },
-      modifier: { $pull: { customFieldsData: { field } } },
-    },
-    defaultValue: {},
-  });
+  const field = config.responseField.replace('propertiesData.', '');
 
   await sendTRPCMessage({
     subdomain,
@@ -64,12 +60,8 @@ export const sendCardInfo = async (subdomain, deal, config, value) => {
     input: {
       selector: { _id: deal._id },
       modifier: {
-        $push: {
-          customFieldsData: {
-            field,
-            value,
-            stringValue: value,
-          },
+        $set: {
+          [`propertiesData.${field}`]: value,
         },
       },
     },

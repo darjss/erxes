@@ -27,6 +27,8 @@ export const types = `
     about: String
     logo: String
     coverImage: String
+    attachments: [String]
+    urls: [String]
     registrationNumber: String
     address: JSON
     primaryEmail: String
@@ -39,6 +41,7 @@ export const types = `
     ownerUserId: String
 
     targetSubdomain: String
+    targetPosToken: String
     supplierIds: [String]
     suppliers: [MushopSupplier]
     status: String
@@ -73,6 +76,11 @@ export const queries = `
 export const mutations = `
   mushopCreateCollective(
     targetSubdomain: String!
+    supplierIds: [String!]!
+  ): MushopCollective
+
+  mushopUpdateCollectiveSuppliers(
+    _id: String!
     supplierIds: [String!]!
   ): MushopCollective
 

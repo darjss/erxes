@@ -8,6 +8,8 @@ export const SUPPLIER_FRAGMENT = gql`
     about
     logo
     coverImage
+    attachments
+    urls
     registrationNumber
     address
     primaryEmail

@@ -1,24 +1,30 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
   Button,
+  Combobox,
   Form,
   Input,
+  PopoverScoped,
   Sheet,
   Textarea,
   useToast,
 } from 'erxes-ui';
 import { IconBuilding, IconSettings } from '@tabler/icons-react';
-import { useEffect, useState } from 'react';
+import { useAtomValue } from 'jotai';
+import { useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { currentUserState, IUser, SelectMember } from 'ui-modules';
 import { z } from 'zod';
 import { DestroyServerDialog } from '~/modules/deploy/components/DestroyServerDialog';
 import { useDeleteIdentifier } from '../hooks/useDeleteAssistantOrg';
+import { useInviteIdentifierMembers } from '../hooks/useInviteIdentifierMembers';
 import type { Identifier } from '../hooks/useAssistantOrgs';
 import { useUpdateIdentifier } from '../hooks/useUpdateAssistantOrg';
 
 const assistantOrgSchema = z.object({
   name: z.string().min(1, 'Server name is required'),
   description: z.string().optional(),
+  memberIds: z.array(z.string()).optional(),
 });
 
 type AssistantOrgValues = z.infer<typeof assistantOrgSchema>;
@@ -29,8 +35,11 @@ interface Props {
 
 export const AssistantOrgManageSheet = ({ org }: Props) => {
   const { toast } = useToast();
+  const currentUser = useAtomValue(currentUserState) as IUser | null;
   const { updateIdentifier, loading: updating } = useUpdateIdentifier();
   const { deleteIdentifier, loading: deleting } = useDeleteIdentifier();
+  const { inviteIdentifierMembers, loading: inviting } =
+    useInviteIdentifierMembers();
   const [open, setOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const kindLabel =
@@ -71,12 +80,17 @@ export const AssistantOrgManageSheet = ({ org }: Props) => {
       : org.kind === 'agent'
         ? 'Deleting AI Agent...'
         : 'Deleting Identifier...';
+  const canManage =
+    !!currentUser?.isOwner || org.createdUserId === currentUser?._id;
+  const saving = updating || inviting;
+  const memberIds = useMemo(() => org.memberIds || [], [org.memberIds]);
 
   const form = useForm<AssistantOrgValues>({
     resolver: zodResolver(assistantOrgSchema),
     defaultValues: {
       name: org.name,
       description: org.description || '',
+      memberIds,
     },
   });
 
@@ -84,32 +98,38 @@ export const AssistantOrgManageSheet = ({ org }: Props) => {
     form.reset({
       name: org.name,
       description: org.description || '',
+      memberIds,
     });
-  }, [form, open, org.description, org.name]);
+  }, [form, memberIds, open, org.description, org.name]);
 
   const onSubmit = async (values: AssistantOrgValues) => {
-    await updateIdentifier(
-      org._id,
-      {
+    if (!canManage) {
+      return;
+    }
+
+    try {
+      await updateIdentifier(org._id, {
         name: values.name,
         description: values.description?.trim() || '',
-      },
-      {
-        onCompleted: () => {
-          toast({ variant: 'success', title: 'Identifier updated' });
-          setOpen(false);
-        },
-        onError: (error) =>
-          toast({
-            variant: 'destructive',
-            title: 'Update failed',
-            description: error.message,
-          }),
-      },
-    );
+      });
+      await inviteIdentifierMembers(org._id, values.memberIds || []);
+
+      toast({ variant: 'success', title: 'Identifier updated' });
+      setOpen(false);
+    } catch (error) {
+      toast({
+        variant: 'destructive',
+        title: 'Update failed',
+        description: error instanceof Error ? error.message : String(error),
+      });
+    }
   };
 
   const onDelete = async () => {
+    if (!canManage) {
+      return;
+    }
+
     await deleteIdentifier(org._id, {
       onCompleted: () => {
         toast({ variant: 'success', title: `${kindLabel} deleted` });
@@ -160,6 +180,7 @@ export const AssistantOrgManageSheet = ({ org }: Props) => {
                     <Form.Control>
                       <Input
                         {...field}
+                        disabled={!canManage || saving || deleting}
                         autoComplete="off"
                         placeholder={serverNamePlaceholder}
                       />
@@ -177,10 +198,47 @@ export const AssistantOrgManageSheet = ({ org }: Props) => {
                       <Textarea
                         {...field}
                         value={field.value || ''}
+                        disabled={!canManage || saving || deleting}
                         rows={5}
                         className="resize-none"
                         placeholder="What this identifier is used for"
                       />
+                    </Form.Control>
+                    <Form.Message />
+                  </Form.Item>
+                )}
+              />
+              <Form.Field
+                name="memberIds"
+                render={({ field }) => (
+                  <Form.Item>
+                    <Form.Label>Invited members</Form.Label>
+                    <Form.Control>
+                      <SelectMember.Provider
+                        value={field.value || []}
+                        onValueChange={(value) =>
+                          field.onChange(Array.isArray(value) ? value : [])
+                        }
+                        mode="multiple"
+                      >
+                        {canManage ? (
+                          <PopoverScoped>
+                            <Combobox.Trigger
+                              className="w-full h-10 rounded-lg border bg-background"
+                              disabled={saving || deleting}
+                            >
+                              <SelectMember.Value placeholder="Select team members" />
+                            </Combobox.Trigger>
+                            <Combobox.Content>
+                              <SelectMember.Content />
+                            </Combobox.Content>
+                          </PopoverScoped>
+                        ) : (
+                          <div className="flex min-h-10 items-center rounded-lg border bg-muted/30 px-3 py-2">
+                            <SelectMember.Value placeholder="No invited members" />
+                          </div>
+                        )}
+                      </SelectMember.Provider>
                     </Form.Control>
                     <Form.Message />
                   </Form.Item>
@@ -193,7 +251,7 @@ export const AssistantOrgManageSheet = ({ org }: Props) => {
                 <Button
                   type="button"
                   variant="destructive"
-                  disabled={updating || deleting}
+                  disabled={!canManage || saving || deleting}
                   onClick={() => setDeleteOpen(true)}
                 >
                   Delete
@@ -202,19 +260,23 @@ export const AssistantOrgManageSheet = ({ org }: Props) => {
                   <Button
                     type="button"
                     variant="outline"
-                    disabled={updating || deleting}
+                    disabled={saving || deleting}
                     onClick={() => {
                       form.reset({
                         name: org.name,
                         description: org.description || '',
+                        memberIds,
                       });
                       setOpen(false);
                     }}
                   >
                     Cancel
                   </Button>
-                  <Button type="submit" disabled={updating || deleting}>
-                    {updating ? 'Saving...' : 'Save'}
+                  <Button
+                    type="submit"
+                    disabled={!canManage || saving || deleting}
+                  >
+                    {saving ? 'Saving...' : 'Save'}
                   </Button>
                 </div>
               </div>

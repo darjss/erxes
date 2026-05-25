@@ -10,9 +10,9 @@ export const supplierMutations = {
       verificationStatus,
       note,
     }: { _id: string; verificationStatus: string; note?: string },
-    { models, user }: IContext,
+    { models, checkPermission }: IContext,
   ) => {
-    if (!user) throw new Error('Login required');
+    await checkPermission('mushopUpdateSupplierVerificationStatus');
 
     const existing = await models.Supplier.getSupplier(_id);
 
@@ -33,16 +33,18 @@ export const supplierMutations = {
   mushopUpdateSupplierTier: async (
     _root: undefined,
     { _id, tierLevel }: { _id: string; tierLevel: number },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) => {
+    await checkPermission('mushopUpdateSupplierTier');
     return models.Supplier.updateTierLevel(_id, tierLevel);
   },
 
   mushopUpdateSupplierPos: async (
     _root: undefined,
     { _id, posToken }: { _id: string; posToken: string },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) => {
+    await checkPermission('mushopUpdateSupplierPos');
     const supplier = await models.Supplier.getSupplier(_id);
 
     const updated = await models.Supplier.findOneAndUpdate(
@@ -85,9 +87,9 @@ export const supplierMutations = {
   mushopUpdateSupplierMushopPos: async (
     _root: undefined,
     { _id, mushopPosToken }: { _id: string; mushopPosToken: string },
-    { models, user }: IContext,
+    { models, checkPermission }: IContext,
   ) => {
-    if (!user) throw new Error('Login required');
+    await checkPermission('mushopUpdateSupplierMushopPos');
 
     return models.Supplier.findOneAndUpdate(
       { _id },

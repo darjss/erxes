@@ -23,12 +23,14 @@ import {
   IPosclientConfig,
   usePosclientConfigs,
 } from '../hooks/usePosclientConfigs';
+import { UploadImage } from '@/supplier/components/upload';
 
 const STATUS_OPTIONS = ['draft', 'active', 'archived'] as const;
 
 const packageFormSchema = z.object({
   name: z.string().trim().min(1, 'Name is required'),
   description: z.string().optional(),
+  coverImage: z.string().optional(),
   posToken: z.string().trim().min(1, 'POS is required'),
   productIds: z.array(z.string()).min(1, 'At least one product is required'),
   price: z
@@ -55,6 +57,7 @@ export const CollectivePackageAddSheet = () => {
     defaultValues: {
       name: '',
       description: '',
+      coverImage: '',
       posToken: '',
       productIds: [],
       price: '',
@@ -124,6 +127,7 @@ export const CollectivePackageAddSheet = () => {
           input: {
             name: values.name,
             description: values.description || undefined,
+            coverImage: values.coverImage || undefined,
             posToken: values.posToken,
             productIds: values.productIds,
             price: values.price ? Number(values.price) : undefined,
@@ -243,6 +247,28 @@ export const CollectivePackageAddSheet = () => {
                           )}
                         />
                       </div>
+                    </InfoCard.Content>
+                  </InfoCard>
+
+                  <InfoCard title="Attachment">
+                    <InfoCard.Content>
+                      <Form.Field
+                        control={form.control}
+                        name="coverImage"
+                        render={({ field }) => (
+                          <Form.Item>
+                            <UploadImage
+                              value={field.value}
+                              onValueChange={(value) =>
+                                field.onChange(value || '')
+                              }
+                              uploaderClassName="w-full"
+                              className="w-full aspect-video"
+                            />
+                            <Form.Message />
+                          </Form.Item>
+                        )}
+                      />
                     </InfoCard.Content>
                   </InfoCard>
 

@@ -12,6 +12,8 @@ import {
   ICollectiveSupplierSyncResult,
 } from '@/collective/@types/collective';
 
+export const MIN_COLLECTIVE_SUPPLIERS = 2;
+
 export interface ICollectiveModel extends Model<ICollectiveDocument> {
   getCollective(_id: string): Promise<ICollectiveDocument>;
   listCollectives(
@@ -22,6 +24,14 @@ export interface ICollectiveModel extends Model<ICollectiveDocument> {
     totalCount: number;
   }>;
   createCollective(doc: ICollective): Promise<ICollectiveDocument>;
+  updateSuppliers(
+    _id: string,
+    supplierIds: string[],
+  ): Promise<{
+    collective: ICollectiveDocument;
+    added: string[];
+    removed: string[];
+  }>;
   updateSyncProgress(
     _id: string,
     update: {
@@ -78,14 +88,16 @@ export const loadCollectiveClass = (models: IModels) => {
     }
 
     public static async createCollective(doc: ICollective) {
-      const { targetSubdomain, supplierIds } = doc || {};
+      const { targetSubdomain, supplierIds, targetPosToken } = doc || {};
 
       if (!targetSubdomain?.trim()) {
         throw new Error('targetSubdomain is required');
       }
 
-      if (!supplierIds?.length) {
-        throw new Error('At least one supplier is required');
+      if (!supplierIds?.length || supplierIds.length < MIN_COLLECTIVE_SUPPLIERS) {
+        throw new Error(
+          `At least ${MIN_COLLECTIVE_SUPPLIERS} suppliers are required`,
+        );
       }
 
       const suppliers = await models.Supplier.find({ _id: { $in: supplierIds }}).lean();
@@ -102,6 +114,7 @@ export const loadCollectiveClass = (models: IModels) => {
 
       return models.Collective.create({
         targetSubdomain,
+        targetPosToken,
         supplierIds,
         status: COLLECTIVE_STATUS.PENDING,
       });
@@ -152,6 +165,57 @@ export const loadCollectiveClass = (models: IModels) => {
 
     public static async removeCollective(_id: string) {
       return models.Collective.deleteOne({ _id });
+    }
+
+    public static async updateSuppliers(_id: string, supplierIds: string[]) {
+      if (!_id) {
+        throw new Error('_id is required');
+      }
+
+      if (!Array.isArray(supplierIds)) {
+        throw new Error('supplierIds must be an array');
+      }
+
+      const uniqueIds = Array.from(new Set(supplierIds.filter(Boolean)));
+
+      if (uniqueIds.length < MIN_COLLECTIVE_SUPPLIERS) {
+        throw new Error(
+          `At least ${MIN_COLLECTIVE_SUPPLIERS} suppliers are required`,
+        );
+      }
+
+      const collective = await models.Collective.findOne({ _id }).lean();
+
+      if (!collective) {
+        throw new Error('Collective not found');
+      }
+
+      const suppliers = await models.Supplier.find({
+        _id: { $in: uniqueIds },
+      }).lean();
+
+      if (suppliers.length !== uniqueIds.length) {
+        throw new Error('One or more suppliers not found');
+      }
+
+      const previous = new Set(collective.supplierIds || []);
+      const next = new Set(uniqueIds);
+      const added = uniqueIds.filter((id) => !previous.has(id));
+      const removed = (collective.supplierIds || []).filter(
+        (id) => !next.has(id),
+      );
+
+      const updated = await models.Collective.findOneAndUpdate(
+        { _id },
+        { $set: { supplierIds: uniqueIds } },
+        { new: true },
+      );
+
+      if (!updated) {
+        throw new Error('Failed to update collective suppliers');
+      }
+
+      return { collective: updated, added, removed };
     }
   }
 

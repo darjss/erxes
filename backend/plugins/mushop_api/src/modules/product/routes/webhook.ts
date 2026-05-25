@@ -9,35 +9,38 @@ router.post('/syncProduct', async (req: Request, res: Response) => {
     const { entityId, entityIds, data } = payload || {};
     const { product, action } = data || {};
 
-    if (!subdomain) return res.status(400).json({ error: 'subdomain is required' });
-    if (!entityId) return res.status(400).json({ error: 'payload.entityId is required' });
+    console.log('{subdomain, entityId}', {subdomain, entityId})
+
+    if (!subdomain)
+      return res.status(400).json({ error: 'subdomain is required' });
 
     const models = await generateModels(subdomain);
 
-    if (entityIds?.length && action === 'delete') {
-      await models.MushopProduct.deleteMany({ subdomain, entityId: { $in: entityIds } });
+    if (action === 'delete') {
+      const ids = entityIds?.length ? entityIds : entityId ? [entityId] : [];
+
+      if (!ids.length) {
+        return res
+          .status(400)
+          .json({ error: 'entityId or entityIds required for delete' });
+      }
+
+      await models.MushopProduct.deleteMany({
+        subdomain,
+        entityId: { $in: ids },
+      });
       return res.status(200).json({ success: true });
     }
 
-    const {
-      vendorId, name, shortName, code, type, description, barcodes, variants,
-      barcodeDescription, unitPrice, category, propertiesData, tagIds,
-      attachment, attachmentMore, scopeBrandIds, uom, subUoms, currency,
-      pdfAttachment, offering,
-    } = product || {};
+    if (!entityId)
+      return res.status(400).json({ error: 'payload.entityId is required' });
 
-    const resetToPending = action === 'create' || action === 'update';
+    const { category, ...productRest } = product || {};
 
     await models.MushopProduct.syncProduct(
       subdomain,
       entityId,
-      {
-        vendorId, name, shortName, code, type, description, barcodes, variants,
-        barcodeDescription, unitPrice, initialCategory: category, propertiesData,
-        tagIds, attachment, attachmentMore, scopeBrandIds, uom, subUoms, currency,
-        pdfAttachment, offering,
-        ...(resetToPending ? { status: 'pending' } : {}),
-      },
+      { ...productRest, initialCategory: category ?? null },
       action,
     );
 
@@ -53,8 +56,11 @@ router.post('/syncProductCategory', async (req: Request, res: Response) => {
     const { entityId, data } = payload || {};
     const { category } = data || {};
 
-    if (!subdomain) return res.status(400).json({ error: 'subdomain is required' });
-    if (!entityId) return res.status(400).json({ error: 'payload.entityId is required' });
+    if (!subdomain)
+      return res.status(400).json({ error: 'subdomain is required' });
+
+    if (!entityId)
+      return res.status(400).json({ error: 'payload.entityId is required' });
 
     const models = await generateModels(subdomain);
 

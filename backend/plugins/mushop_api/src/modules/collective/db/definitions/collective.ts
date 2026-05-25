@@ -40,6 +40,8 @@ export const collectiveSchema = new Schema<ICollectiveDocument>(
 
     logo: { type: String, label: 'Logo' },
     coverImage: { type: String, label: 'Cover image' },
+    attachments: { type: [String], default: [] },
+    urls: { type: [String], default: [] },
 
     registrationNumber: { type: String, label: 'Registration number' },
 
@@ -64,6 +66,7 @@ export const collectiveSchema = new Schema<ICollectiveDocument>(
       unique: true,
       label: 'Target SaaS subdomain',
     },
+    targetPosToken: { type: String, label: 'Target POS token' },
     supplierIds: { type: [String], default: [], index: true },
     status: {
       type: String,

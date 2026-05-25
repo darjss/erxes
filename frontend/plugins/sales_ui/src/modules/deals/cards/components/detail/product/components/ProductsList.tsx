@@ -1,4 +1,4 @@
-import { Button, Filter, Input, Label, Switch } from 'erxes-ui';
+import { Button, Filter, Input, Label, Switch, useToast } from 'erxes-ui';
 import { FilterButton, ProductFilterBar, filterProducts } from './FilterButton';
 import { IProduct, IProductData, currentUserState } from 'ui-modules';
 import { useAtomValue, useSetAtom } from 'jotai';
@@ -52,13 +52,28 @@ const ProductsList = ({
   const configs = currentUser?.configs || {};
   const currencies = configs?.dealCurrency || [];
 
-  const filteredProducts = filterProducts(products, filters);
+  const availableProducts = [
+    ...products,
+    ...localProductsData
+      .map((data) => data.product)
+      .filter(
+        (product): product is IProduct =>
+          !!product && !products.some((existing) => existing._id === product._id),
+      ),
+  ];
+
+  const filteredProducts = filterProducts(availableProducts, filters);
+  const { toast } = useToast();
 
   const productRecords = localProductsData
-    .map((data) => ({
-      ...data,
-      product: products.find((p) => p._id === data.productId),
-    }))
+    .map((data) => {
+      const product = data.product || products.find((p) => p._id === data.productId);
+
+      return {
+        ...data,
+        product,
+      };
+    })
     .filter((record) => {
       if (!record.product) return false;
       return filteredProducts.some((p) => p._id === record.product?._id);
@@ -74,7 +89,16 @@ const ProductsList = ({
   };
 
   useEffect(() => {
-    setLocalProductsData(productsData);
+    setLocalProductsData((prev) =>
+      (productsData || []).map((data) => {
+        const previousRecord = prev.find((prevData) => prevData._id === data._id);
+
+        return {
+          ...data,
+          product: data.product || previousRecord?.product,
+        };
+      }),
+    );
   }, [productsData]);
 
   useEffect(() => {
@@ -105,7 +129,7 @@ const ProductsList = ({
   };
 
   const onPoductBulkSave = (selectedProducts: IProduct[]) => {
-    if (!selectedProducts) return;
+    if (!selectedProducts?.length) return;
     const currency =
       currencies && currencies.length > 0 ? currencies[0] : 'MNT';
 
@@ -139,20 +163,47 @@ const ProductsList = ({
 
     docs.forEach((p) => calculatePerProductAmount('discount', p));
 
-    updateTotal(docs);
+    const previousProductsData = localProductsData;
+    const nextProductsData = [...previousProductsData, ...docs];
 
-    createDealsProductData({
+    setLocalProductsData(nextProductsData);
+    updateTotal(nextProductsData);
+
+    void createDealsProductData({
       variables: {
         processId,
         dealId,
         docs,
       },
+    }).catch(() => {
+      setLocalProductsData(previousProductsData);
+      updateTotal(previousProductsData);
     });
   };
 
   const handleSave = () => {
     const processId = localStorage.getItem('processId') || '';
+    const unassignedServiceItems = localProductsData.filter((data) => {
+      const product =
+        data.product || products.find((p) => p._id === data.productId);
+      const assignee = data.assignedUserId || data.assignUserId;
+      return product?.type === 'service' && data.tickUsed && !assignee;
+    });
 
+    if (unassignedServiceItems.length > 0) {
+      const names = unassignedServiceItems
+        .map((data) => {
+          const product =
+            data.product || products.find((p) => p._id === data.productId);
+          return product?.name || data.productId;
+        })
+        .join(', ');
+      return toast({
+        variant: 'destructive',
+        title: 'Error',
+        description: `Please assign a team member to the following service item(s) before saving: ${names}.`,
+      });
+    }
     const formattedProductsData = localProductsData.map((data) => ({
       ...data,
       productId: data.product?._id || data.productId,
@@ -213,15 +264,15 @@ const ProductsList = ({
           <ProductFilterBar filters={filters} onChange={setFilters} />
         </div>
       </Filter>
-      <ProductsRecordTable
-        products={productRecords || ([] as IProductData[])}
-        refetch={refetch}
-        dealId={dealId}
-        showAdvancedView={showAdvancedView}
-        onLocalChange={updateLocalProduct}
-      />
+        <ProductsRecordTable
+          products={productRecords || ([] as IProductData[])}
+          refetch={refetch}
+          dealId={dealId}
+          showAdvancedView={showAdvancedView}
+          onLocalChange={updateLocalProduct}
+        />
       <ProductFooter
-        productsCount={products?.length || 0}
+        productsCount={localProductsData.length || 0}
         total={total}
         unUsedTotal={unUsedTotal}
         bothTotal={bothTotal}

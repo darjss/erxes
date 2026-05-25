@@ -31,18 +31,27 @@ import {
 } from '~/modules/assistant-orgs/hooks/useAssistantOrgs';
 import { SERVER_STATUSES } from '~/modules/deploy/constants';
 import { useAgentDeploy } from '~/modules/deploy/hooks/useAgentDeploy';
+import { useAgentTransfer } from '~/modules/deploy/hooks/useAgentTransfer';
 import { useAgent } from '~/modules/main/hooks/useAgent';
 import { OPENCODE_PROVIDER_OPTIONS } from '~/modules/opencode/constants';
 import { useOpencodeDeploy } from '~/modules/opencode/deploy/hooks/useOpencodeDeploy';
+import { useOpencodeTransfer } from '~/modules/opencode/deploy/hooks/useOpencodeTransfer';
 import { useOpencode } from '~/modules/opencode/main/hooks/useOpencode';
 
 const ASSISTANT_PROVIDER_OPTIONS = [{ value: 'kimi', label: 'Kimi' }] as const;
 
 const workspaceFormSchema = z.object({
-  serverName: z.string().min(1, 'Server name is required'),
-  provider: z.string().min(1, 'Provider is required'),
-  apiToken: z.string().min(1, 'API token is required'),
+  setupMode: z.enum(['new', 'transfer']),
+  serverName: z.string().min(1, 'Identifier name is required'),
+  provider: z.string().optional(),
+  apiToken: z.string().optional(),
   discordBotToken: z.string().optional(),
+  transferServerName: z.string().optional(),
+  transferGatewayToken: z.string().optional(),
+  transferServerUrl: z.string().optional(),
+  transferServerId: z.string().optional(),
+  transferServerPassword: z.string().optional(),
+  transferSourceSubdomain: z.string().optional(),
   description: z.string().optional(),
 });
 
@@ -184,7 +193,9 @@ export const CompanyBrainWorkspacePage = ({
   const { deleteIdentifier, loading: deletingIdentifier } =
     useDeleteIdentifier();
   const { deployAgent, loading: deployingAssistant } = useAgentDeploy();
+  const { transferAgent, loading: transferringAssistant } = useAgentTransfer();
   const { deployOpencode, loading: deployingAgent } = useOpencodeDeploy();
+  const { transferOpencode, loading: transferringAgent } = useOpencodeTransfer();
   const [open, setOpen] = useState(false);
 
   const config = useMemo(
@@ -197,11 +208,11 @@ export const CompanyBrainWorkspacePage = ({
             buttonLabel: 'Add AI Assistant',
             emptyTitle: 'No AI assistants yet',
             emptyDescription:
-              'Create your first AI assistant with a server name, provider, API token, Discord bot token, and description.',
+              'Create your first AI assistant or link one transferred from another SaaS.',
             detailPath: 'openclaw',
             providerOptions: ASSISTANT_PROVIDER_OPTIONS,
             sheetDescription:
-              'Fill in the server name, provider, API token, required Discord bot token, and description for this AI assistant identifier.',
+              'Create a new server or link an existing assistant server from another SaaS.',
           }
         : {
             title: 'AI Agents',
@@ -210,11 +221,11 @@ export const CompanyBrainWorkspacePage = ({
             buttonLabel: 'Add AI Agent',
             emptyTitle: 'No AI agents yet',
             emptyDescription:
-              'Create your first AI agent with a server name, provider, API token, and description.',
+              'Create your first AI agent or link one transferred from another SaaS.',
             detailPath: 'opencode',
             providerOptions: OPENCODE_PROVIDER_OPTIONS,
             sheetDescription:
-              'Fill in the server name, provider, API token, and description for this AI agent identifier.',
+              'Create a new server or link an existing opencode server from another SaaS.',
           },
     [mode],
   );
@@ -222,28 +233,72 @@ export const CompanyBrainWorkspacePage = ({
   const form = useForm<WorkspaceFormValues>({
     resolver: zodResolver(workspaceFormSchema),
     defaultValues: {
+      setupMode: 'new',
       serverName: '',
       provider: config.providerOptions[0]?.value || '',
       apiToken: '',
       discordBotToken: '',
+      transferServerName: '',
+      transferGatewayToken: '',
+      transferServerUrl: '',
+      transferServerId: '',
+      transferServerPassword: '',
+      transferSourceSubdomain: '',
       description: '',
     },
   });
+
+  const setupMode = form.watch('setupMode');
+  const isTransfer = setupMode === 'transfer';
 
   const isSubmitting =
     creatingIdentifier ||
     deletingIdentifier ||
     deployingAssistant ||
-    deployingAgent;
+    transferringAssistant ||
+    deployingAgent ||
+    transferringAgent;
 
   const onSubmit = async (values: WorkspaceFormValues) => {
     let createdIdentifier: Identifier | null = null;
 
     try {
-      if (mode === 'assistant' && !values.discordBotToken?.trim()) {
+      if (!isTransfer && !values.apiToken?.trim()) {
+        form.setError('apiToken', {
+          type: 'required',
+          message: 'API token is required',
+        });
+        return;
+      }
+
+      if (!isTransfer && mode === 'assistant' && !values.discordBotToken?.trim()) {
         form.setError('discordBotToken', {
           type: 'required',
           message: 'Discord bot token is required',
+        });
+        return;
+      }
+
+      if (isTransfer && !values.transferServerName?.trim()) {
+        form.setError('transferServerName', {
+          type: 'required',
+          message: 'Transferred server name is required',
+        });
+        return;
+      }
+
+      if (isTransfer && !values.transferGatewayToken?.trim()) {
+        form.setError('transferGatewayToken', {
+          type: 'required',
+          message: 'Gateway token is required',
+        });
+        return;
+      }
+
+      if (isTransfer && mode === 'agent' && !values.transferServerUrl?.trim()) {
+        form.setError('transferServerUrl', {
+          type: 'required',
+          message: 'Server URL is required for transferred AI agents',
         });
         return;
       }
@@ -258,25 +313,62 @@ export const CompanyBrainWorkspacePage = ({
         throw new Error('Failed to create identifier');
       }
 
-      if (mode === 'assistant') {
-        await deployAgent({
-          identifierId: createdIdentifier._id,
-          token: values.discordBotToken!.trim(),
-          apiToken: values.apiToken,
-        });
+      if (isTransfer) {
+        const transferServerName = values.transferServerName?.trim() || '';
+        const transferGatewayToken = values.transferGatewayToken?.trim() || '';
+        const transferServerUrl = values.transferServerUrl?.trim() || '';
+
+        if (mode === 'assistant') {
+          await transferAgent({
+            identifierId: createdIdentifier._id,
+            serverName: transferServerName,
+            gatewayToken: transferGatewayToken,
+            serverUrl: transferServerUrl || undefined,
+            serverId: values.transferServerId?.trim() || undefined,
+            sourceSubdomain: values.transferSourceSubdomain?.trim() || undefined,
+          });
+        } else {
+          await transferOpencode({
+            identifierId: createdIdentifier._id,
+            serverName: transferServerName,
+            gatewayToken: transferGatewayToken,
+            provider: values.provider || config.providerOptions[0]?.value || '',
+            serverUrl: transferServerUrl,
+            serverId: values.transferServerId?.trim() || undefined,
+            serverPassword: values.transferServerPassword?.trim() || undefined,
+            sourceSubdomain: values.transferSourceSubdomain?.trim() || undefined,
+          });
+        }
       } else {
-        await deployOpencode({
-          identifierId: createdIdentifier._id,
-          provider: values.provider,
-          apiToken: values.apiToken,
-        });
+        const apiToken = values.apiToken?.trim() || '';
+
+        if (mode === 'assistant') {
+          await deployAgent({
+            identifierId: createdIdentifier._id,
+            token: values.discordBotToken?.trim() || '',
+            apiToken,
+          });
+        } else {
+          await deployOpencode({
+            identifierId: createdIdentifier._id,
+            provider: values.provider || config.providerOptions[0]?.value || '',
+            apiToken,
+          });
+        }
       }
 
       form.reset({
+        setupMode: 'new',
         serverName: '',
         provider: config.providerOptions[0]?.value || '',
         apiToken: '',
         discordBotToken: '',
+        transferServerName: '',
+        transferGatewayToken: '',
+        transferServerUrl: '',
+        transferServerId: '',
+        transferServerPassword: '',
+        transferSourceSubdomain: '',
         description: '',
       });
       setOpen(false);
@@ -432,10 +524,36 @@ export const CompanyBrainWorkspacePage = ({
                 </div>
 
                 <Form.Field
+                  name="setupMode"
+                  render={({ field }) => (
+                    <Form.Item>
+                      <Form.Label>Setup type</Form.Label>
+                      <Select
+                        value={field.value || 'new'}
+                        onValueChange={field.onChange}
+                      >
+                        <Form.Control>
+                          <Select.Trigger className="w-full">
+                            <Select.Value placeholder="Choose setup type" />
+                          </Select.Trigger>
+                        </Form.Control>
+                        <Select.Content>
+                          <Select.Item value="new">Create new server</Select.Item>
+                          <Select.Item value="transfer">
+                            Transfer existing server
+                          </Select.Item>
+                        </Select.Content>
+                      </Select>
+                      <Form.Message />
+                    </Form.Item>
+                  )}
+                />
+
+                <Form.Field
                   name="serverName"
                   render={({ field }) => (
                     <Form.Item>
-                      <Form.Label>Server name</Form.Label>
+                      <Form.Label>Identifier name</Form.Label>
                       <Form.Control>
                         <Input
                           {...field}
@@ -452,48 +570,56 @@ export const CompanyBrainWorkspacePage = ({
                   )}
                 />
 
-                <Form.Field
-                  name="provider"
-                  render={({ field }) => (
-                    <Form.Item>
-                      <Form.Label>Provider</Form.Label>
-                      <Select value={field.value} onValueChange={field.onChange}>
+                {(!isTransfer || mode === 'agent') && (
+                  <Form.Field
+                    name="provider"
+                    render={({ field }) => (
+                      <Form.Item>
+                        <Form.Label>Provider</Form.Label>
+                        <Select
+                          value={field.value || config.providerOptions[0]?.value || ''}
+                          onValueChange={field.onChange}
+                        >
+                          <Form.Control>
+                            <Select.Trigger className="w-full">
+                              <Select.Value placeholder="Choose provider" />
+                            </Select.Trigger>
+                          </Form.Control>
+                          <Select.Content>
+                            {config.providerOptions.map((option) => (
+                              <Select.Item key={option.value} value={option.value}>
+                                {option.label}
+                              </Select.Item>
+                            ))}
+                          </Select.Content>
+                        </Select>
+                        <Form.Message />
+                      </Form.Item>
+                    )}
+                  />
+                )}
+
+                {!isTransfer && (
+                  <Form.Field
+                    name="apiToken"
+                    render={({ field }) => (
+                      <Form.Item>
+                        <Form.Label>API token</Form.Label>
                         <Form.Control>
-                          <Select.Trigger className="w-full">
-                            <Select.Value placeholder="Choose provider" />
-                          </Select.Trigger>
+                          <Input
+                            {...field}
+                            value={field.value || ''}
+                            placeholder="Paste your API token"
+                            autoComplete="off"
+                          />
                         </Form.Control>
-                        <Select.Content>
-                          {config.providerOptions.map((option) => (
-                            <Select.Item key={option.value} value={option.value}>
-                              {option.label}
-                            </Select.Item>
-                          ))}
-                        </Select.Content>
-                      </Select>
-                      <Form.Message />
-                    </Form.Item>
-                  )}
-                />
+                        <Form.Message />
+                      </Form.Item>
+                    )}
+                  />
+                )}
 
-                <Form.Field
-                  name="apiToken"
-                  render={({ field }) => (
-                    <Form.Item>
-                      <Form.Label>API token</Form.Label>
-                      <Form.Control>
-                        <Input
-                          {...field}
-                          placeholder="Paste your API token"
-                          autoComplete="off"
-                        />
-                      </Form.Control>
-                      <Form.Message />
-                    </Form.Item>
-                  )}
-                />
-
-                {mode === 'assistant' && (
+                {!isTransfer && mode === 'assistant' && (
                   <Form.Field
                     name="discordBotToken"
                     render={({ field }) => (
@@ -515,6 +641,122 @@ export const CompanyBrainWorkspacePage = ({
                       </Form.Item>
                     )}
                   />
+                )}
+
+
+                {isTransfer && (
+                  <>
+                    <Form.Field
+                      name="transferServerName"
+                      render={({ field }) => (
+                        <Form.Item>
+                          <Form.Label>Transferred server name</Form.Label>
+                          <Form.Control>
+                            <Input
+                              {...field}
+                              value={field.value || ''}
+                              placeholder="existing-server-name"
+                              autoComplete="off"
+                            />
+                          </Form.Control>
+                          <Form.Message />
+                        </Form.Item>
+                      )}
+                    />
+                    <Form.Field
+                      name="transferGatewayToken"
+                      render={({ field }) => (
+                        <Form.Item>
+                          <Form.Label>Gateway token</Form.Label>
+                          <Form.Control>
+                            <Input
+                              {...field}
+                              value={field.value || ''}
+                              placeholder="Paste the exported gateway token"
+                              autoComplete="off"
+                            />
+                          </Form.Control>
+                          <Form.Message />
+                        </Form.Item>
+                      )}
+                    />
+                    <Form.Field
+                      name="transferServerUrl"
+                      render={({ field }) => (
+                        <Form.Item>
+                          <Form.Label>
+                            Server URL{mode === 'agent' ? '' : ' (optional)'}
+                          </Form.Label>
+                          <Form.Control>
+                            <Input
+                              {...field}
+                              value={field.value || ''}
+                              placeholder={
+                                mode === 'agent'
+                                  ? 'https://server.example.com'
+                                  : 'https://server.assistant.erxes.io'
+                              }
+                              autoComplete="off"
+                            />
+                          </Form.Control>
+                          <Form.Message />
+                        </Form.Item>
+                      )}
+                    />
+                    <Form.Field
+                      name="transferServerId"
+                      render={({ field }) => (
+                        <Form.Item>
+                          <Form.Label>Server ID (optional)</Form.Label>
+                          <Form.Control>
+                            <Input
+                              {...field}
+                              value={field.value || ''}
+                              placeholder="Remote deployer server ID"
+                              autoComplete="off"
+                            />
+                          </Form.Control>
+                          <Form.Message />
+                        </Form.Item>
+                      )}
+                    />
+                    {mode === 'agent' && (
+                      <Form.Field
+                        name="transferServerPassword"
+                        render={({ field }) => (
+                          <Form.Item>
+                            <Form.Label>Server password (optional)</Form.Label>
+                            <Form.Control>
+                              <Input
+                                {...field}
+                                value={field.value || ''}
+                                placeholder="Opencode login password"
+                                autoComplete="off"
+                              />
+                            </Form.Control>
+                            <Form.Message />
+                          </Form.Item>
+                        )}
+                      />
+                    )}
+                    <Form.Field
+                      name="transferSourceSubdomain"
+                      render={({ field }) => (
+                        <Form.Item>
+                          <Form.Label>Source SaaS subdomain (optional)</Form.Label>
+                          <Form.Control>
+                            <Input
+                              {...field}
+                              value={field.value || ''}
+                              placeholder="source-workspace"
+                              autoComplete="off"
+                            />
+                          </Form.Control>
+                          <Form.Message />
+                        </Form.Item>
+                      )}
+                    />
+                  </>
                 )}
 
                 <Form.Field
@@ -544,10 +786,17 @@ export const CompanyBrainWorkspacePage = ({
                   disabled={isSubmitting}
                   onClick={() => {
                     form.reset({
+                      setupMode: 'new',
                       serverName: '',
                       provider: config.providerOptions[0]?.value || '',
                       apiToken: '',
                       discordBotToken: '',
+                      transferServerName: '',
+                      transferGatewayToken: '',
+                      transferServerUrl: '',
+                      transferServerId: '',
+                      transferServerPassword: '',
+                      transferSourceSubdomain: '',
                       description: '',
                     });
                     setOpen(false);

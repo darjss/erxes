@@ -14,6 +14,11 @@ export const agentServerSchema = schemaWrapper(
 
       agentId: { type: String, label: 'Agent name' },
       serverId: { type: String, label: 'Server ID' },
+      transferredFromSubdomain: {
+        type: String,
+        label: 'Transferred from subdomain',
+      },
+      transferredAt: { type: Date, label: 'Transferred at' },
 
       status: { type: String, enum: SERVER_STATUSES.ALL, label: 'Status' },
     },

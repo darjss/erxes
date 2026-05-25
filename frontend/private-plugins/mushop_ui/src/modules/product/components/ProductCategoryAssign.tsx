@@ -6,6 +6,7 @@ import {
   PopoverScoped,
   RecordTableInlineCell,
 } from 'erxes-ui';
+import { usePermissionCheck } from 'ui-modules';
 import {
   useCoreProductCategories,
   useAssignProductCategory,
@@ -84,7 +85,25 @@ const Content = () => {
 
 const InlineCell = () => {
   const { categoryId, category, initialCategory, open, setOpen } = useCtx();
+  const { hasActionPermission } = usePermissionCheck();
+  const canAssign = hasActionPermission('mushopAssignProductCategory');
   const displayValue = category?.name ?? initialCategory?.name;
+
+  if (!canAssign) {
+    return (
+      <RecordTableInlineCell>
+        {displayValue ? (
+          <span
+            className={`${!categoryId && 'text-muted-foreground'}`}
+          >
+            {displayValue}
+          </span>
+        ) : (
+          <span className="text-muted-foreground/60">—</span>
+        )}
+      </RecordTableInlineCell>
+    );
+  }
 
   return (
     <PopoverScoped open={open} onOpenChange={setOpen}>
@@ -104,10 +123,26 @@ const InlineCell = () => {
 
 const DetailTrigger = () => {
   const { category, initialCategory, open, setOpen } = useCtx();
+  const { hasActionPermission } = usePermissionCheck();
+  const canAssign = hasActionPermission('mushopAssignProductCategory');
   const displayValue = category?.name;
   const placeholder = initialCategory?.name
     ? `From supplier: ${initialCategory.name}`
     : 'Assign category...';
+
+  if (!canAssign) {
+    return (
+      <span className="text-sm">
+        {displayValue ?? (
+          <span className="text-muted-foreground">
+            {initialCategory?.name
+              ? `From supplier: ${initialCategory.name}`
+              : '—'}
+          </span>
+        )}
+      </span>
+    );
+  }
 
   return (
     <PopoverScoped open={open} onOpenChange={setOpen}>

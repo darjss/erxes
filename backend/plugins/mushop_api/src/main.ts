@@ -4,6 +4,7 @@ import { appRouter } from '~/trpc/init-trpc';
 import resolvers from './apollo/resolvers';
 import { generateModels } from './connectionResolvers';
 import { payments } from './meta/payments';
+import { permissions } from './meta/permissions';
 import router from './routes';
 import beforeResolvers from './modules/product/beforeResolvers';
 
@@ -30,6 +31,7 @@ startPlugin({
   },
   meta: {
     payments,
-    beforeResolvers
+    beforeResolvers,
+    permissions,
   },
 });

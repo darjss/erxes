@@ -14,6 +14,7 @@ import {
 } from 'erxes-ui';
 import { useState } from 'react';
 import { useMutation } from '@apollo/client';
+import { Can } from 'ui-modules';
 import {
   MUSHOP_BULK_UPDATE_PRODUCT_STATUS,
   MUSHOP_ASSIGN_PRODUCT_CATEGORY,
@@ -200,9 +201,16 @@ export const ProductsCommandBar = () => {
           {selectedIds.length} selected
         </CommandBar.Value>
         <Separator.Inline />
-        <BulkStatusSelect selectedIds={selectedIds} onDone={clearSelection} />
-        <Separator.Inline />
-        <BulkCategorySelect selectedIds={selectedIds} onDone={clearSelection} />
+        <Can action="mushopBulkUpdateProductStatus">
+          <BulkStatusSelect selectedIds={selectedIds} onDone={clearSelection} />
+          <Separator.Inline />
+        </Can>
+        <Can action="mushopAssignProductCategory">
+          <BulkCategorySelect
+            selectedIds={selectedIds}
+            onDone={clearSelection}
+          />
+        </Can>
       </CommandBar.Bar>
     </CommandBar>
   );

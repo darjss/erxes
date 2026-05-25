@@ -29,7 +29,12 @@ import {
   ITransactionGroupForm,
   TInvSaleJournal,
 } from '../../../types/JournalForms';
-import { fixSumDtCt, getTempId } from '../../utils';
+import {
+  DUPLICATE_PRODUCT_CELL_CLASS,
+  fixSumDtCt,
+  getTempId,
+  hasDuplicateProductId,
+} from '../../utils';
 
 const findFollowTr = (
   followTrDocs: ITransaction[],
@@ -96,6 +101,10 @@ export const InventoryRow = ({
     control: form.control,
     name: `trDocs.${journalIndex}.details.${detailIndex}`,
   });
+  const hasDuplicateProduct = hasDuplicateProductId(
+    trDoc.details,
+    detail.productId,
+  );
 
   const followTrDocs = useAtomValue(followTrDocsState);
   const setFollowTrDocs = useSetAtom(followTrDocsState);
@@ -240,14 +249,10 @@ export const InventoryRow = ({
     },
     skip:
       !detail.productId ||
-      !trDoc.branchId ||
-      !trDoc.departmentId ||
       !trDoc.followInfos?.saleOutAccountId ||
       (initProductId.current &&
         detail.productId === initProductId.current &&
-        initBranchId.current &&
         trDoc.branchId === initBranchId.current &&
-        initDepartmentId.current &&
         trDoc.departmentId === initDepartmentId.current &&
         initOutAccountId.current &&
         trDoc.followInfos?.saleOutAccountId === initOutAccountId.current),
@@ -407,7 +412,10 @@ export const InventoryRow = ({
                   // setMount(false)
                   field.onChange(accountId);
                 }}
-                defaultFilter={{ journals: [JournalEnum.MAIN] }}
+                defaultFilter={{
+                  journals: [JournalEnum.MAIN],
+                  permissionMode: 'write',
+                }}
                 variant="ghost"
                 scope={AccountingHotkeyScope.TransactionFormPage}
               />
@@ -420,7 +428,9 @@ export const InventoryRow = ({
         rowIndex={detailIndex}
         enableOnFormTags
       >
-        <Table.Cell>
+        <Table.Cell
+          className={cn(hasDuplicateProduct && DUPLICATE_PRODUCT_CELL_CLASS)}
+        >
           <Form.Field
             control={form.control}
             name={`trDocs.${journalIndex}.details.${detailIndex}.productId`}

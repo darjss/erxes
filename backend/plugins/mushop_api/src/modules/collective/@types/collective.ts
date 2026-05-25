@@ -32,6 +32,8 @@ export interface ICollective {
   about?: string;
   logo?: string;
   coverImage?: string;
+  attachments?: string[];
+  urls?: string[];
   registrationNumber?: string;
   address?: any;
   primaryEmail?: string;
@@ -44,6 +46,7 @@ export interface ICollective {
   ownerUserId?: string;
 
   targetSubdomain: string;
+  targetPosToken?: string;
   supplierIds: string[];
   status?: string;
   syncResults?: ICollectiveSupplierSyncResult[];
@@ -71,6 +74,8 @@ export interface ICollectiveProfileInput {
   about?: string;
   logo?: string;
   coverImage?: string;
+  attachments?: string[];
+  urls?: string[];
   registrationNumber?: string;
   address?: any;
   primaryEmail?: string;

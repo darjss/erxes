@@ -17,6 +17,8 @@ export const types = `
     about: String
     logo: String
     coverImage: String
+    attachments: [String]
+    urls: [String]
     registrationNumber: String
     address: JSON
     primaryEmail: String
@@ -49,6 +51,8 @@ export const types = `
     about: String
     logo: String
     coverImage: String
+    attachments: [String]
+    urls: [String]
     registrationNumber: String
     address: JSON
     primaryEmail: String
@@ -107,4 +111,13 @@ export const queries = `
 export const mutations = `
   collectiveUpdateProfile(input: CollectiveInput!): Collective
   collectivePackageAdd(input: CollectivePackageInput!): CollectivePackage
+  collectivePackageEdit(
+    _id: String!
+    name: String
+    description: String
+    coverImage: String
+    price: Float
+    productIds: [String!]
+  ): CollectivePackage
+  collectivePackageEditStatus(_id: String!, status: String!): CollectivePackage
 `;
