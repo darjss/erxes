@@ -725,5 +725,10 @@
   "slots-arranged-grid": "Slots have been arranged in a grid layout",
   "changes-saved": "Changes saved",
   "slot-changes-saved-successfully": "All slot changes have been saved successfully",
-  "failed-to-save-changes": "Failed to save changes"
+  "failed-to-save-changes": "Failed to save changes",
+  "no-board": "No board",
+  "no-pipeline": "No pipeline",
+  "no-stage": "No stage",
+  "where": "Where",
+  "board-pipeline-stage-content": "Board: {{board}} - Pipeline: {{pipeline}} - Stage: {{stage}}"
 }

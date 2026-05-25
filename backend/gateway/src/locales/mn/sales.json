@@ -722,5 +722,10 @@
   "slots-arranged-grid": "Слотууд торон байрлуулалтаар зохион байгуулагдлаа",
   "changes-saved": "Өөрчлөлтүүд хадгалагдлаа",
   "slot-changes-saved-successfully": "Слотын бүх өөрчлөлтүүд амжилттай хадгалагдлаа",
-  "failed-to-save-changes": "Өөрчлөлтүүдийг хадгалахад алдаа гарлаа"
+  "failed-to-save-changes": "Өөрчлөлтүүдийг хадгалахад алдаа гарлаа",
+  "no-board": "Самбар байхгүй",
+  "no-pipeline": "Дамжуулах хоолой байхгүй",
+  "no-stage": "Үе шат байхгүй",
+  "where": "Хаана",
+  "board-pipeline-stage-content": "Самбар: {{board}} - Дамжуулах хоолой: {{pipeline}} - Үе шат: {{stage}}"
 }
