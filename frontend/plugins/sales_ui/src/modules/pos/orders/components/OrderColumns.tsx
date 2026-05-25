@@ -62,7 +62,10 @@ export const generateOtherPaymentColumns = (summary?: PaymentSummary) => {
 
   return otherPayTitles.map((title: string, index) => ({
     id: `${title}_${index}`,
-    header: () => <RecordTable.InlineHead icon={IconClock} label={title} />,
+    header: () => {
+      const { t } = useTranslation('sales');
+      return <RecordTable.InlineHead icon={IconClock} label={t(title, { defaultValue: title })} />;
+    },
     cell: ({ row }: { row: PaymentRow }) => {
       const order = row.original;
       const dynamicAmounts = getPaidAmountsMap(order.paidAmounts);

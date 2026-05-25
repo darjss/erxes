@@ -19,7 +19,7 @@ export const SalesItemSidebar = () => {
                   }
                   onClick={() => setSelectedTab(tab)}
                 >
-                  {tab.charAt(0).toUpperCase() + tab.slice(1)}
+                  {t(tab)}
                 </Sidebar.MenuButton>
               </Sidebar.MenuItem>
             ))}
@@ -38,7 +38,7 @@ export const SalesItemSidebar = () => {
                   }
                   onClick={() => setSelectedTab(tab)}
                 >
-                  {tab.charAt(0).toUpperCase() + tab.slice(1)}
+                  {t(tab)}
                 </Sidebar.MenuButton>
               </Sidebar.MenuItem>
             ))}
