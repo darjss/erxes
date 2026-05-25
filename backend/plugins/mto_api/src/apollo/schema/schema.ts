@@ -5,6 +5,12 @@ import {
 } from '@/provider/graphql/schemas/provider';
 
 import {
+  types as AssociationTypes,
+  queries as AssociationQueries,
+  mutations as AssociationMutations,
+} from '@/association/graphql/schemas/association';
+
+import {
   types as ConfigTypes,
   queries as ConfigQueries,
   mutations as ConfigMutations,
@@ -22,18 +28,21 @@ export const types = `
   ${TypeExtensions}
   ${ProviderTypes}
   ${ConfigTypes}
+  ${AssociationTypes}
   ${RegistrationTypes}
 `;
 
 export const queries = `
   ${ProviderQueries}
   ${ConfigQueries}
+  ${AssociationQueries}
   ${RegistrationQueries}
 `;
 
 export const mutations = `
   ${ProviderMutations}
   ${ConfigMutations}
+  ${AssociationMutations}
   ${RegistrationMutations}
 `;
 

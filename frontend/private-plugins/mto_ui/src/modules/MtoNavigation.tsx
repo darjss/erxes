@@ -20,10 +20,10 @@ export const MtoNavigation = () => {
       />
       {!isSlaveMode && (
         <NavigationMenuLinkItem
-          name="Categories"
+          name="Associations"
           icon={IconTags}
           pathPrefix="mto"
-          path="categories"
+          path="associations"
         />
       )}
       <NavigationMenuLinkItem
