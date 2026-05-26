@@ -1,5 +1,6 @@
 export type OAuthClientAppType = 'public' | 'confidential';
 export type OAuthClientAppStatus = 'active' | 'revoked';
+export type OAuthClientAccessTokenLifetime = 'year' | 'half' | 'trio';
 
 export interface IOAuthClientApp {
   _id: string;
@@ -8,6 +9,7 @@ export interface IOAuthClientApp {
   description?: string;
   clientId: string;
   type: OAuthClientAppType;
+  accessTokenLifetime?: OAuthClientAccessTokenLifetime;
   redirectUrls: string[];
   status: OAuthClientAppStatus;
   lastUsedAt?: string;

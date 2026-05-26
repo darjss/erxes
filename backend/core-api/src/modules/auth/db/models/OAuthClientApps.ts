@@ -3,6 +3,7 @@ import { EventDispatcherReturn } from 'erxes-api-shared/core-modules';
 import { Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
 import {
+  OAuthClientAccessTokenLifetime,
   IOAuthClientAppDocument,
   OAuthClientAppType,
   oauthClientAppSchema,
@@ -14,6 +15,7 @@ type OAuthClientAppDoc = {
   description?: string;
   redirectUrls?: string[];
   type: OAuthClientAppType;
+  accessTokenLifetime?: OAuthClientAccessTokenLifetime;
 };
 
 const normalizeRedirectUrls = (redirectUrls?: string[]) => {
@@ -39,6 +41,17 @@ const generateClientId = () => {
 
 const generateSecret = () => {
   return `ocs_${crypto.randomBytes(24).toString('hex')}`;
+};
+
+const normalizeAccessTokenLifetime = (
+  type: OAuthClientAppType,
+  accessTokenLifetime?: OAuthClientAccessTokenLifetime,
+) => {
+  if (type !== 'confidential') {
+    return 'year';
+  }
+
+  return accessTokenLifetime || 'year';
 };
 
 const hashSecret = (secret: string): string => {
@@ -87,6 +100,10 @@ export const loadOAuthClientAppClass = (
             description: doc.description?.trim() || undefined,
             clientId,
             type: doc.type,
+            accessTokenLifetime: normalizeAccessTokenLifetime(
+              doc.type,
+              doc.accessTokenLifetime,
+            ),
             redirectUrls,
             secretHash: secret ? hashSecret(secret) : undefined,
             status: 'active',
@@ -130,6 +147,10 @@ export const loadOAuthClientAppClass = (
         logo: doc.logo?.trim() || undefined,
         description: doc.description?.trim() || undefined,
         type: nextType,
+        accessTokenLifetime: normalizeAccessTokenLifetime(
+          nextType,
+          doc.accessTokenLifetime,
+        ),
         redirectUrls: normalizeRedirectUrls(doc.redirectUrls),
       };
       const updateOperation: Record<string, any> = {

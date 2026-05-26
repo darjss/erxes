@@ -11,10 +11,10 @@ import { Request, Response } from 'express';
 import * as jwt from 'jsonwebtoken';
 import { IModels } from '~/connectionResolvers';
 import {
-  ACCESS_TOKEN_EXPIRES_IN_CONFIDENTIAL,
   ACCESS_TOKEN_EXPIRES_IN_PUBLIC,
   REFRESH_TOKEN_EXPIRES_IN_CONFIDENTIAL,
   REFRESH_TOKEN_EXPIRES_IN_PUBLIC,
+  getConfidentialAccessTokenExpiresIn,
 } from './constants';
 import { OAuthClientInfo, OAuthScopeItem } from './types';
 
@@ -297,6 +297,7 @@ export const buildTokenResponse = async ({
   clientId,
   subdomain,
   clientType,
+  accessTokenLifetime,
   scope,
 }: {
   models: IModels;
@@ -304,11 +305,12 @@ export const buildTokenResponse = async ({
   clientId: string;
   subdomain: string;
   clientType: 'public' | 'confidential';
+  accessTokenLifetime?: 'year' | 'half' | 'trio';
   scope?: string;
 }) => {
   const accessExpiresIn =
     clientType === 'confidential'
-      ? ACCESS_TOKEN_EXPIRES_IN_CONFIDENTIAL
+      ? getConfidentialAccessTokenExpiresIn(accessTokenLifetime)
       : ACCESS_TOKEN_EXPIRES_IN_PUBLIC;
 
   const refreshExpiresIn =
