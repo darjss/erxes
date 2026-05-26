@@ -1,5 +1,6 @@
 import { IconUser } from '@tabler/icons-react';
 import { Combobox, Command, Filter, useMultiQueryState } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { DonateHotKeyScope } from '../types/path/DonateHotKeyScope';
 import { DonateTotalCount } from './DonateTotalCount';
 import { useDonateLeadSessionKey } from '../hooks/useDonateLeadSessionKey';
@@ -9,6 +10,7 @@ import { SelectOwnerType } from './selects/SelectOwnerType';
 import { SelectCustomer, SelectMember } from 'ui-modules';
 
 const DonateFilterPopover = () => {
+  const { t } = useTranslation('loyalty');
   const [queries] = useMultiQueryState<{
     donateCampaign: string;
     ownerType: string;
@@ -29,7 +31,7 @@ const DonateFilterPopover = () => {
           <Filter.View>
             <Command>
               <Filter.CommandInput
-                placeholder="Filter"
+                placeholder={t('filter')}
                 variant="secondary"
                 className="bg-background"
               />
@@ -37,8 +39,8 @@ const DonateFilterPopover = () => {
                 <SelectDonateCampaign.FilterItem />
                 <SelectStatus.FilterItem />
                 <SelectOwnerType.FilterItem />
-                <SelectCustomer.FilterItem value="ownerId" label="Customer" />
-                <SelectMember.FilterItem value="userId" label="Team Member" />
+                <SelectCustomer.FilterItem value="ownerId" label={t('customer')} />
+                <SelectMember.FilterItem value="userId" label={t('team-member')} />
               </Command.List>
             </Command>
           </Filter.View>
@@ -72,6 +74,7 @@ const DonateFilterPopover = () => {
 
 export const DonateFilter = () => {
   const { sessionKey } = useDonateLeadSessionKey();
+  const { t } = useTranslation('loyalty');
 
   return (
     <Filter id="donate-filter" sessionKey={sessionKey}>
@@ -81,17 +84,17 @@ export const DonateFilter = () => {
         <Filter.BarItem queryKey="ownerId">
           <Filter.BarName>
             <IconUser />
-            Customer
+            {t('customer')}
           </Filter.BarName>
           <SelectCustomer.FilterBar
             filterKey="ownerId"
-            label="Customer"
+            label={t('customer')}
             mode="single"
           />
         </Filter.BarItem>
         <SelectMember.FilterBar
           queryKey="userId"
-          label="Team Member"
+          label={t('team-member')}
           mode="single"
         />
         <SelectStatus.FilterBar />

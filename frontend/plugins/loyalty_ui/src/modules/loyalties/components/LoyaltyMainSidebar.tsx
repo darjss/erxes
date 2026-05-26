@@ -1,5 +1,6 @@
 import { Sidebar } from 'erxes-ui';
 import { NavLink } from 'react-router';
+import { useTranslation } from 'react-i18next';
 
 const NAV_ITEMS = [
   { label: 'Vouchers', path: '/loyalty/vouchers' },
@@ -13,10 +14,11 @@ const NAV_ITEMS = [
 ];
 
 export const LoyaltyMainSidebar = () => {
+  const { t } = useTranslation('loyalty');
   return (
     <Sidebar collapsible="none" className="flex-none border-r">
       <Sidebar.Group>
-        <Sidebar.GroupLabel>Loyalty modules</Sidebar.GroupLabel>
+        <Sidebar.GroupLabel>{t('loyalty-modules')}</Sidebar.GroupLabel>
         <Sidebar.GroupContent>
           <Sidebar.Menu>
             {NAV_ITEMS.map(({ label, path }) => (

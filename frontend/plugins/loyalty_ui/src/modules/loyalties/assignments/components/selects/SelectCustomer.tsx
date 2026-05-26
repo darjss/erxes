@@ -11,6 +11,7 @@ import {
 import { IconUser } from '@tabler/icons-react';
 import { useQuery, gql } from '@apollo/client';
 import { useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 const GET_CUSTOMERS_SIMPLE = gql`
   query CustomersSimple($searchValue: String, $limit: Int) {
@@ -73,12 +74,15 @@ const useCustomerOptions = (searchValue?: string) => {
   return { options, loading };
 };
 
-export const SelectCustomerFilterItem = () => (
-  <Filter.Item value="assignmentOwnerId">
-    <IconUser />
-    Customer
-  </Filter.Item>
-);
+export const SelectCustomerFilterItem = () => {
+  const { t } = useTranslation('loyalty');
+  return (
+    <Filter.Item value="assignmentOwnerId">
+      <IconUser />
+      {t('customer')}
+    </Filter.Item>
+  );
+};
 
 export const SelectCustomerFilterView = ({
   queryKey = 'assignmentOwnerId',
@@ -89,6 +93,7 @@ export const SelectCustomerFilterView = ({
   const { resetFilterState } = useFilterContext();
   const [search, setSearch] = useState('');
   const { options, loading } = useCustomerOptions(search);
+  const { t } = useTranslation('loyalty');
 
   return (
     <Filter.View filterKey={queryKey}>
@@ -96,10 +101,10 @@ export const SelectCustomerFilterView = ({
         <Command.Input
           value={search}
           onValueChange={setSearch}
-          placeholder="Search customers..."
+          placeholder={t('search-customers')}
         />
         <Command.Empty>
-          {loading ? 'Loading...' : 'No customers found'}
+          {loading ? t('loading') : t('no-customers-found')}
         </Command.Empty>
         <Command.List>
           {options.map((opt) => (
@@ -126,18 +131,19 @@ export const SelectCustomerFilterBar = () => {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState('');
   const { options } = useCustomerOptions(search);
+  const { t } = useTranslation('loyalty');
   const selected = options.find((o) => o.value === value);
 
   return (
     <Filter.BarItem queryKey="assignmentOwnerId">
       <Filter.BarName>
         <IconUser />
-        Customer
+        {t('customer')}
       </Filter.BarName>
       <Popover open={open} onOpenChange={setOpen}>
         <Popover.Trigger asChild>
           <Filter.BarButton filterKey="assignmentOwnerId">
-            <span>{selected?.label || 'Customer'}</span>
+            <span>{selected?.label || t('customer')}</span>
           </Filter.BarButton>
         </Popover.Trigger>
         <Combobox.Content>
@@ -145,7 +151,7 @@ export const SelectCustomerFilterBar = () => {
             <Command.Input
               value={search}
               onValueChange={setSearch}
-              placeholder="Search customers..."
+              placeholder={t('search-customers')}
             />
             <Command.List>
               {options.map((opt) => (
@@ -183,6 +189,7 @@ export const SelectCustomerFormItem = ({
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState('');
   const { options, loading } = useCustomerOptions(search);
+  const { t } = useTranslation('loyalty');
   const selected = options.find((o) => o.value === value);
 
   return (
@@ -193,7 +200,7 @@ export const SelectCustomerFormItem = ({
           disabled={loading}
         >
           <span className={selected ? '' : 'text-muted-foreground'}>
-            {selected?.label || placeholder || 'Choose customer'}
+            {selected?.label || placeholder || t('choose-customer')}
           </span>
         </Combobox.Trigger>
       </Form.Control>
@@ -202,10 +209,10 @@ export const SelectCustomerFormItem = ({
           <Command.Input
             value={search}
             onValueChange={setSearch}
-            placeholder="Search customers..."
+            placeholder={t('search-customers')}
           />
           <Command.Empty>
-            {loading ? 'Loading...' : 'No customers found'}
+            {loading ? t('loading') : t('no-customers-found')}
           </Command.Empty>
           <Command.List>
             {options.map((opt) => (

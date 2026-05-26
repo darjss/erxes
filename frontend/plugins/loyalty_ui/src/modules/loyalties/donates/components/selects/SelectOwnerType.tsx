@@ -17,6 +17,7 @@ import {
   useQueryState,
 } from 'erxes-ui';
 import { IconUsers } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 
 interface OwnerTypeOption {
   value: string;
@@ -96,6 +97,7 @@ const SelectOwnerTypeValue = ({
   className?: string;
 }) => {
   const { value } = useSelectOwnerTypeContext();
+  const { t } = useTranslation('loyalty');
   const selectedOption = OWNER_TYPE_OPTIONS.find(
     (option) => option.value === value,
   );
@@ -103,7 +105,7 @@ const SelectOwnerTypeValue = ({
   if (!selectedOption) {
     return (
       <span className="text-accent-foreground/80">
-        {placeholder || 'Select owner type'}
+        {placeholder || t('select-owner-type')}
       </span>
     );
   }
@@ -140,11 +142,12 @@ const SelectOwnerTypeCommandItem = ({
 };
 
 const SelectOwnerTypeContent = () => {
+  const { t } = useTranslation('loyalty');
   return (
     <Command>
-      <Command.Input placeholder="Search owner types..." />
+      <Command.Input placeholder={t('search-owner-types')} />
       <Command.Empty>
-        <span className="text-muted-foreground">No owner types found</span>
+        <span className="text-muted-foreground">{t('no-owner-types-found')}</span>
       </Command.Empty>
       <Command.List>
         {OWNER_TYPE_OPTIONS.map((option) => (
@@ -156,10 +159,11 @@ const SelectOwnerTypeContent = () => {
 };
 
 export const SelectOwnerTypeFilterItem = () => {
+  const { t } = useTranslation('loyalty');
   return (
     <Filter.Item value="ownerType">
       <IconUsers />
-      Owner Type
+      {t('owner-type')}
     </Filter.Item>
   );
 };
@@ -208,12 +212,13 @@ export const SelectOwnerTypeFilterBar = ({
     'ownerType',
   );
   const [open, setOpen] = useState(false);
+  const { t } = useTranslation('loyalty');
 
   return (
     <Filter.BarItem queryKey="ownerType">
       <Filter.BarName>
         <IconUsers />
-        {!iconOnly && 'Owner Type'}
+        {!iconOnly && t('owner-type')}
       </Filter.BarName>
       <SelectOwnerTypeProvider
         mode={mode}
