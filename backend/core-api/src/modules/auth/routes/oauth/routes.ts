@@ -2,7 +2,6 @@ import { getSubdomain } from 'erxes-api-shared/utils';
 import { Request, Response, Router } from 'express';
 import { generateModels } from '~/connectionResolvers';
 import {
-  ACCESS_TOKEN_EXPIRES_IN_CONFIDENTIAL,
   ACCESS_TOKEN_EXPIRES_IN_PUBLIC,
   DEVICE_CODE_EXPIRES_IN,
   DEVICE_CODE_GRANT,
@@ -10,6 +9,7 @@ import {
   MAX_DEVICE_CODE_FAILED_ATTEMPTS,
   REFRESH_TOKEN_EXPIRES_IN_CONFIDENTIAL,
   REFRESH_TOKEN_EXPIRES_IN_PUBLIC,
+  getConfidentialAccessTokenExpiresIn,
 } from './constants';
 import {
   buildTokenResponse,
@@ -368,6 +368,7 @@ router.post('/oauth/token', async (req: Request, res: Response) => {
         clientId,
         subdomain,
         clientType: oauthClientApp.type,
+        accessTokenLifetime: oauthClientApp.accessTokenLifetime,
         scope: deviceCodeDoc.grantedScope || undefined,
       });
 
@@ -432,7 +433,9 @@ router.post('/oauth/token', async (req: Request, res: Response) => {
 
       const accessExpiresIn =
         oauthClientApp.type === 'confidential'
-          ? ACCESS_TOKEN_EXPIRES_IN_CONFIDENTIAL
+          ? getConfidentialAccessTokenExpiresIn(
+              oauthClientApp.accessTokenLifetime,
+            )
           : ACCESS_TOKEN_EXPIRES_IN_PUBLIC;
 
       const refreshExpiresIn =
