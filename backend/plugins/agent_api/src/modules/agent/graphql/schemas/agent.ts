@@ -1,12 +1,12 @@
 export const types = `
-  enum AgentStatus {
+  enum AgentDeploymentStatus {
     deploying
     pending
     approved
     failed
   }
 
-  type Agent {
+  type AgentServer {
     _id: String
 
     identifierId: String
@@ -16,7 +16,7 @@ export const types = `
 
     agentId: String
     serverId: String
-    status: AgentStatus!
+    status: AgentDeploymentStatus!
     transferredFromSubdomain: String
     transferredAt: Date
 
@@ -94,7 +94,7 @@ export const types = `
 `;
 
 export const queries = `
-  getAgent(identifierId: String!): Agent
+  getAgent(identifierId: String!): AgentServer
   getAgentsList(identifierId: String!): [AgentItem]
   getAgentDetails(identifierId: String!, agentId: String): [AgentFile]
   getDiscordGuilds(identifierId: String!): [DiscordGuild]
@@ -102,11 +102,11 @@ export const queries = `
 `;
 
 export const mutations = `
-  deployAgent(identifierId: String!, input: DeployAgentInput!): Agent
-  transferAgent(identifierId: String!, input: TransferAgentInput!): Agent
+  deployAgent(identifierId: String!, input: DeployAgentInput!): AgentServer
+  transferAgent(identifierId: String!, input: TransferAgentInput!): AgentServer
   createAgentTransferCredentials(identifierId: String!): AgentTransferCredentials
-  destroyAgent(identifierId: String!): Agent
-  approveAgent(identifierId: String!, input: ApproveAgentInput!): Agent
+  destroyAgent(identifierId: String!): AgentServer
+  approveAgent(identifierId: String!, input: ApproveAgentInput!): AgentServer
   addAgent(identifierId: String!, input: AddAgentInput!): Boolean
   updateAgentFile(identifierId: String!, input: UpdateAgentFileInput!): Boolean
   fixAndRestartAgent(identifierId: String!): Boolean
