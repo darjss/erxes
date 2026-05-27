@@ -41,6 +41,10 @@ export const beforeResolverHandlers = async (
 
   const productIds = new Array(...new Set(products.map((p) => p.toString())));
 
+  if (supplierId && !productIds.length) {
+    return { ...args, ids: [] };
+  }
+
   return { ...args, ids: productIds.length ? productIds : [] };
 };
 
