@@ -1,20 +1,6 @@
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { generateModels } from '~/connectionResolvers';
 
-interface ITicketInput {
-  name: string;
-  statusId: string;
-  channelId?: string;
-  pipelineId?: string;
-  description?: string;
-  priority?: number;
-  assigneeId?: string;
-  startDate?: string;
-  attachments?: any[];
-  propertiesData?: Record<string, any>;
-  [key: string]: any;
-}
-
 interface IPaymentCallbackData {
   _id: string;
   contentType: string;
@@ -25,7 +11,9 @@ interface IPaymentCallbackData {
     cpUserId: string;
     clientPortalId: string;
     planId?: string;
-    ticket?: ITicketInput;
+    // For ticket purchases the UI creates the ticket itself and passes its id
+    // through on the invoice, so the callback only has to link the relation.
+    ticketId?: string;
   };
 }
 
@@ -60,11 +48,11 @@ const handleTicketPayment = async (
   subdomain: string,
   data: IPaymentCallbackData,
 ) => {
-  const doc = data.data.ticket;
+  const ticketId = data.data.ticketId;
 
-  if (!doc) {
+  if (!ticketId) {
     console.error(
-      `[mushop:payments] Invoice ${data._id} is a ticket purchase but carries no ticket data`,
+      `[mushop:payments] Invoice ${data._id} is a ticket purchase but carries no ticketId`,
     );
 
     return;
@@ -76,26 +64,8 @@ const handleTicketPayment = async (
     return;
   }
 
-  const ticket = await sendTRPCMessage({
-    subdomain,
-    pluginName: 'frontline',
-    method: 'mutation',
-    module: 'ticket',
-    action: 'create',
-    input: {
-      doc,
-      userId: `cp:${data.data.cpUserId}`,
-    },
-  });
-
-  if (!ticket?._id) {
-    console.error(
-      `[mushop:payments] ticket creation failed for invoice ${data._id}`,
-    );
-
-    return;
-  }
-
+  // The UI already created the ticket; here we only link the ticket, the
+  // paying customer and the invoice together.
   await sendTRPCMessage({
     subdomain,
     pluginName: 'core',
@@ -106,7 +76,7 @@ const handleTicketPayment = async (
       relations: [
         {
           entities: [
-            { contentType: 'frontline:ticket', contentId: ticket._id },
+            { contentType: 'frontline:ticket', contentId: ticketId },
             { contentType: 'core:customer', contentId: customerId },
             { contentType: 'payment:invoice', contentId: data._id },
           ],
