@@ -19,6 +19,7 @@ import {
   Sheet,
   TextOverflowTooltip,
 } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { IScoreLog, IScoreLogItem } from '../types/score';
 
 interface ScoreDetailSheetProps {
@@ -61,7 +62,10 @@ const logColumns: ColumnDef<IScoreLogItem>[] = [
   {
     id: 'createdAt',
     accessorKey: 'createdAt',
-    header: () => <RecordTable.InlineHead icon={IconCalendar} label="Date" />,
+    header: () => {
+      const { t } = useTranslation('loyalty');
+      return <RecordTable.InlineHead icon={IconCalendar} label={t('date')} />;
+    },
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         <TextOverflowTooltip value={formatDate(cell.getValue() as string)} />
@@ -72,9 +76,10 @@ const logColumns: ColumnDef<IScoreLogItem>[] = [
   {
     id: '_id',
     accessorKey: '_id',
-    header: () => (
-      <RecordTable.InlineHead icon={IconHash} label="Transaction ID" />
-    ),
+    header: () => {
+      const { t } = useTranslation('loyalty');
+      return <RecordTable.InlineHead icon={IconHash} label={t('transaction-id')} />;
+    },
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         <TextOverflowTooltip value={(cell.getValue() as string) || ''} />
@@ -85,7 +90,10 @@ const logColumns: ColumnDef<IScoreLogItem>[] = [
   {
     id: 'action',
     accessorKey: 'action',
-    header: () => <RecordTable.InlineHead icon={IconTag} label="Type" />,
+    header: () => {
+      const { t } = useTranslation('loyalty');
+      return <RecordTable.InlineHead icon={IconTag} label={t('type')} />;
+    },
     cell: ({ cell }) => {
       const action = cell.getValue() as string | undefined;
       if (!action)
@@ -109,9 +117,10 @@ const logColumns: ColumnDef<IScoreLogItem>[] = [
   {
     id: 'amount',
     accessorKey: 'amount',
-    header: () => (
-      <RecordTable.InlineHead icon={IconCurrencyDollar} label="Amount" />
-    ),
+    header: () => {
+      const { t } = useTranslation('loyalty');
+      return <RecordTable.InlineHead icon={IconCurrencyDollar} label={t('amount')} />;
+    },
     cell: ({ cell }) => {
       const val = cell.getValue() as number | undefined;
       return (
@@ -127,9 +136,10 @@ const logColumns: ColumnDef<IScoreLogItem>[] = [
   {
     id: 'quantity',
     accessorKey: 'quantity',
-    header: () => (
-      <RecordTable.InlineHead icon={IconShoppingCart} label="Quantity" />
-    ),
+    header: () => {
+      const { t } = useTranslation('loyalty');
+      return <RecordTable.InlineHead icon={IconShoppingCart} label={t('quantity')} />;
+    },
     cell: ({ cell }) => {
       const val = cell.getValue() as number | undefined;
       return (
@@ -143,9 +153,10 @@ const logColumns: ColumnDef<IScoreLogItem>[] = [
   {
     id: 'pointsEarned',
     accessorFn: (row) => (row.action === 'add' ? row.change : undefined),
-    header: () => (
-      <RecordTable.InlineHead icon={IconCoins} label="Points Earned" />
-    ),
+    header: () => {
+      const { t } = useTranslation('loyalty');
+      return <RecordTable.InlineHead icon={IconCoins} label={t('points-earned')} />;
+    },
     cell: ({ cell }) => {
       const val = cell.getValue() as number | undefined;
       return (
@@ -159,9 +170,10 @@ const logColumns: ColumnDef<IScoreLogItem>[] = [
   {
     id: 'pointsSpent',
     accessorFn: (row) => (row.action === 'subtract' ? row.change : undefined),
-    header: () => (
-      <RecordTable.InlineHead icon={IconChartBar} label="Points Spent" />
-    ),
+    header: () => {
+      const { t } = useTranslation('loyalty');
+      return <RecordTable.InlineHead icon={IconChartBar} label={t('points-spent')} />;
+    },
     cell: ({ cell }) => {
       const val = cell.getValue() as number | undefined;
       return (
@@ -175,9 +187,10 @@ const logColumns: ColumnDef<IScoreLogItem>[] = [
   {
     id: 'pointsRefunded',
     accessorFn: (row) => (row.action === 'refund' ? row.change : undefined),
-    header: () => (
-      <RecordTable.InlineHead icon={IconRefresh} label="Points Refunded" />
-    ),
+    header: () => {
+      const { t } = useTranslation('loyalty');
+      return <RecordTable.InlineHead icon={IconRefresh} label={t('points-refunded')} />;
+    },
     cell: ({ cell }) => {
       const val = cell.getValue() as number | undefined;
       return (
@@ -191,7 +204,10 @@ const logColumns: ColumnDef<IScoreLogItem>[] = [
   {
     id: 'pointsSet',
     accessorFn: (row) => (row.action === 'set' ? row.change : undefined),
-    header: () => <RecordTable.InlineHead icon={IconCoins} label="Score Set" />,
+    header: () => {
+      const { t } = useTranslation('loyalty');
+      return <RecordTable.InlineHead icon={IconCoins} label={t('score-set')} />;
+    },
     cell: ({ cell }) => {
       const val = cell.getValue() as number | undefined;
       return (
@@ -205,7 +221,10 @@ const logColumns: ColumnDef<IScoreLogItem>[] = [
   {
     id: 'campaign',
     accessorFn: (row) => row.campaign?.title,
-    header: () => <RecordTable.InlineHead icon={IconTrophy} label="Campaign" />,
+    header: () => {
+      const { t } = useTranslation('loyalty');
+      return <RecordTable.InlineHead icon={IconTrophy} label={t('campaign')} />;
+    },
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         <TextOverflowTooltip value={cell.getValue() as string} />
@@ -216,9 +235,10 @@ const logColumns: ColumnDef<IScoreLogItem>[] = [
   {
     id: 'description',
     accessorKey: 'description',
-    header: () => (
-      <RecordTable.InlineHead icon={IconNote} label="Description" />
-    ),
+    header: () => {
+      const { t } = useTranslation('loyalty');
+      return <RecordTable.InlineHead icon={IconNote} label={t('description')} />;
+    },
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         <TextOverflowTooltip value={(cell.getValue() as string) || ''} />
@@ -233,6 +253,7 @@ export const ScoreDetailSheet = ({
   onOpenChange,
   record,
 }: ScoreDetailSheetProps) => {
+  const { t } = useTranslation('loyalty');
   const ownerName = getOwnerName(record);
   const logs = record?.logs || [];
 
@@ -243,7 +264,7 @@ export const ScoreDetailSheet = ({
           <div>
             <Sheet.Title>{ownerName}</Sheet.Title>
             <p className="text-xs text-muted-foreground mt-1 capitalize">
-              {record?.ownerType || ''} · Total Score:{' '}
+              {record?.ownerType || ''} · {t('total-score')}:{' '}
               <span className="font-semibold text-foreground">
                 {formatScore(record?.totalScore)}
               </span>
@@ -254,7 +275,7 @@ export const ScoreDetailSheet = ({
         <Sheet.Content className="flex-1 min-h-0 p-4 overflow-auto">
           {logs.length === 0 ? (
             <div className="flex items-center justify-center h-24 text-xs text-muted-foreground">
-              No log records found
+              {t('no-log-records-found')}
             </div>
           ) : (
             <div className="rounded-md overflow-hidden">

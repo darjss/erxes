@@ -12,6 +12,7 @@ import {
 } from 'erxes-ui';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { VoucherHotKeyScope } from '../types/VoucherHotKeyScope';
@@ -40,6 +41,7 @@ const STATUS_OPTIONS = [
 ];
 
 export const GenerateVoucherSheet = () => {
+  const { t } = useTranslation('loyalty');
   const setHotkeyScope = useSetHotkeyScope();
   const [open, setOpen] = useState<boolean>(false);
   const { setHotkeyScopeAndMemorizePreviousScope } = usePreviousHotkeyScope();
@@ -99,7 +101,7 @@ export const GenerateVoucherSheet = () => {
       <Sheet.Trigger asChild>
         <Button variant="outline">
           <IconSparkles />
-          Generate voucher
+          {t('generate-voucher')}
           <Kbd>G</Kbd>
         </Button>
       </Sheet.Trigger>
@@ -110,7 +112,7 @@ export const GenerateVoucherSheet = () => {
         }}
       >
         <Sheet.Header>
-          <Sheet.Title>Generate voucher</Sheet.Title>
+          <Sheet.Title>{t('generate-voucher')}</Sheet.Title>
           <Sheet.Close />
         </Sheet.Header>
         <Sheet.Content className="grow size-full h-auto flex flex-col overflow-hidden">
@@ -121,7 +123,7 @@ export const GenerateVoucherSheet = () => {
                 name="campaignId"
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>Voucher campaign</Form.Label>
+                    <Form.Label>{t('voucher-campaign')}</Form.Label>
                     <Form.Control>
                       <Select
                         onValueChange={field.onChange}
@@ -131,7 +133,7 @@ export const GenerateVoucherSheet = () => {
                           className={field.value ? '' : 'text-muted-foreground'}
                         >
                           {campaignList.find((c) => c._id === field.value)
-                            ?.title || 'Select voucher campaign'}
+                            ?.title || t('select-voucher-campaign')}
                         </Select.Trigger>
                         <Select.Content>
                           {campaignList.map((campaign) => (
@@ -139,7 +141,7 @@ export const GenerateVoucherSheet = () => {
                               key={campaign._id}
                               value={campaign._id}
                             >
-                              {campaign.title || 'Unnamed campaign'}
+                              {campaign.title || t('unnamed-campaign')}
                             </Select.Item>
                           ))}
                         </Select.Content>
@@ -155,7 +157,7 @@ export const GenerateVoucherSheet = () => {
                 name="ownerType"
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>Owner type</Form.Label>
+                    <Form.Label>{t('owner-type')}</Form.Label>
                     <Form.Control>
                       <Select
                         onValueChange={field.onChange}
@@ -163,7 +165,7 @@ export const GenerateVoucherSheet = () => {
                       >
                         <Select.Trigger>
                           {OWNER_TYPES.find((t) => t.value === field.value)
-                            ?.label || 'Select owner type'}
+                            ?.label || t('select-owner-type')}
                         </Select.Trigger>
                         <Select.Content>
                           {OWNER_TYPES.map((type) => (
@@ -184,9 +186,9 @@ export const GenerateVoucherSheet = () => {
                 name="ownerId"
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>Owner ID</Form.Label>
+                    <Form.Label>{t('owner-id')}</Form.Label>
                     <Form.Control>
-                      <Input placeholder="Enter owner ID" {...field} />
+                      <Input placeholder={t('enter-owner-id')} {...field} />
                     </Form.Control>
                     <Form.Message />
                   </Form.Item>
@@ -198,7 +200,7 @@ export const GenerateVoucherSheet = () => {
                 name="status"
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>Status</Form.Label>
+                    <Form.Label>{t('status')}</Form.Label>
                     <Form.Control>
                       <Select
                         onValueChange={field.onChange}
@@ -206,7 +208,7 @@ export const GenerateVoucherSheet = () => {
                       >
                         <Select.Trigger>
                           {STATUS_OPTIONS.find((o) => o.value === field.value)
-                            ?.label || 'Select status'}
+                            ?.label || t('select-status')}
                         </Select.Trigger>
                         <Select.Content>
                           {STATUS_OPTIONS.map((opt) => (
@@ -226,10 +228,10 @@ export const GenerateVoucherSheet = () => {
         </Sheet.Content>
         <Sheet.Footer className="flex justify-end gap-2 p-4 border-t">
           <Button variant="ghost" onClick={onClose}>
-            Cancel
+            {t('cancel')}
           </Button>
           <Button onClick={handleSubmit} disabled={loading}>
-            {loading ? 'Generating...' : 'Generate'}
+            {loading ? t('generating') : t('generate')}
           </Button>
         </Sheet.Footer>
       </Sheet.View>

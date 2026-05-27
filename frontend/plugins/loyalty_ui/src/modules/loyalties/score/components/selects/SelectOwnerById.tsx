@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { cn, Combobox, Command, Form, Popover } from 'erxes-ui';
 import { useQuery, gql } from '@apollo/client';
+import { useTranslation } from 'react-i18next';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -134,9 +135,10 @@ const SelectTrigger = ({
 export const SelectCompanyFormItem = ({
   value,
   onValueChange,
-  placeholder = 'Choose company',
+  placeholder,
   className,
 }: SelectOwnerFormItemProps) => {
+  const { t } = useTranslation('loyalty');
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState('');
 
@@ -161,7 +163,7 @@ export const SelectCompanyFormItem = ({
       <Form.Control>
         <SelectTrigger
           selected={selected}
-          placeholder={placeholder}
+          placeholder={placeholder || t('choose-company')}
           className={className}
         />
       </Form.Control>
@@ -170,10 +172,10 @@ export const SelectCompanyFormItem = ({
           <Command.Input
             value={search}
             onValueChange={setSearch}
-            placeholder="Search companies..."
+            placeholder={t('search-companies')}
           />
           <Command.Empty>
-            {loading ? 'Loading...' : 'No companies found'}
+            {loading ? t('loading') : t('no-companies-found')}
           </Command.Empty>
           <Command.List>
             <OptionList
@@ -196,9 +198,10 @@ export const SelectCompanyFormItem = ({
 export const SelectUserFormItem = ({
   value,
   onValueChange,
-  placeholder = 'Choose team member',
+  placeholder,
   className,
 }: SelectOwnerFormItemProps) => {
+  const { t } = useTranslation('loyalty');
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState('');
 
@@ -228,7 +231,7 @@ export const SelectUserFormItem = ({
       <Form.Control>
         <SelectTrigger
           selected={selected}
-          placeholder={placeholder}
+          placeholder={placeholder || t('choose-team-member')}
           className={className}
         />
       </Form.Control>
@@ -237,10 +240,10 @@ export const SelectUserFormItem = ({
           <Command.Input
             value={search}
             onValueChange={setSearch}
-            placeholder="Search team members..."
+            placeholder={t('search-team-members')}
           />
           <Command.Empty>
-            {loading ? 'Loading...' : 'No team members found'}
+            {loading ? t('loading') : t('no-team-members-found')}
           </Command.Empty>
           <Command.List>
             <OptionList
@@ -263,9 +266,10 @@ export const SelectUserFormItem = ({
 export const SelectClientPortalUserFormItem = ({
   value,
   onValueChange,
-  placeholder = 'Choose client portal user',
+  placeholder,
   className,
 }: SelectOwnerFormItemProps) => {
+  const { t } = useTranslation('loyalty');
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState('');
 
@@ -295,7 +299,7 @@ export const SelectClientPortalUserFormItem = ({
       <Form.Control>
         <SelectTrigger
           selected={selected}
-          placeholder={placeholder}
+          placeholder={placeholder || t('choose-cp-user')}
           className={className}
         />
       </Form.Control>
@@ -304,10 +308,10 @@ export const SelectClientPortalUserFormItem = ({
           <Command.Input
             value={search}
             onValueChange={setSearch}
-            placeholder="Search client portal users..."
+            placeholder={t('search-cp-users')}
           />
           <Command.Empty>
-            {loading ? 'Loading...' : 'No client portal users found'}
+            {loading ? t('loading') : t('no-cp-users-found')}
           </Command.Empty>
           <Command.List>
             <OptionList

@@ -17,6 +17,7 @@ import {
 } from 'erxes-ui';
 import { IconUser } from '@tabler/icons-react';
 import { useQuery, gql } from '@apollo/client';
+import { useTranslation } from 'react-i18next';
 
 const GET_CUSTOMERS_SIMPLE = gql`
   query ScoreCustomersSimple($searchValue: String, $limit: Int) {
@@ -142,13 +143,14 @@ const SelectScoreCustomerValue = ({
   placeholder?: string;
   className?: string;
 }) => {
+  const { t } = useTranslation('loyalty');
   const { value, options } = useSelectScoreCustomerContext();
   const selected = options.find((o) => o.value === value);
 
   if (!selected) {
     return (
       <span className="text-accent-foreground/80">
-        {placeholder || 'Select customer'}
+        {placeholder || t('select-customer')}
       </span>
     );
   }
@@ -161,6 +163,7 @@ const SelectScoreCustomerValue = ({
 };
 
 const SelectScoreCustomerContent = () => {
+  const { t } = useTranslation('loyalty');
   const { value, onValueChange, options, loading, search, setSearch } =
     useSelectScoreCustomerContext();
 
@@ -169,10 +172,10 @@ const SelectScoreCustomerContent = () => {
       <Command.Input
         value={search}
         onValueChange={setSearch}
-        placeholder="Search customers..."
+        placeholder={t('search-customers')}
       />
       <Command.Empty>
-        {loading ? 'Loading...' : 'No customers found'}
+        {loading ? t('loading') : t('no-customers-found')}
       </Command.Empty>
       <Command.List>
         {options.map((opt) => (
@@ -190,12 +193,15 @@ const SelectScoreCustomerContent = () => {
   );
 };
 
-export const SelectScoreCustomerFilterItem = () => (
-  <Filter.Item value="scoreOwnerId">
-    <IconUser />
-    Customer
-  </Filter.Item>
-);
+export const SelectScoreCustomerFilterItem = () => {
+  const { t } = useTranslation('loyalty');
+  return (
+    <Filter.Item value="scoreOwnerId">
+      <IconUser />
+      {t('customer')}
+    </Filter.Item>
+  );
+};
 
 export const SelectScoreCustomerFilterView = ({
   queryKey = 'scoreOwnerId',
@@ -221,6 +227,7 @@ export const SelectScoreCustomerFilterView = ({
 };
 
 export const SelectScoreCustomerFilterBar = () => {
+  const { t } = useTranslation('loyalty');
   const [value, setValue] = useQueryState<string>('scoreOwnerId');
   const [open, setOpen] = useState(false);
 
@@ -228,7 +235,7 @@ export const SelectScoreCustomerFilterBar = () => {
     <Filter.BarItem queryKey="scoreOwnerId">
       <Filter.BarName>
         <IconUser />
-        Customer
+        {t('customer')}
       </Filter.BarName>
       <SelectScoreCustomerProvider
         value={value || ''}

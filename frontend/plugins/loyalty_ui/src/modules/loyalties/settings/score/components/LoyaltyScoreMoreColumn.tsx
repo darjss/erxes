@@ -11,6 +11,7 @@ import {
   useQueryState,
   useToast,
 } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { LOYALTY_SCORE_ROW_REMOVE } from '../graphql/mutations/loyaltyScoreRowsRemove';
 import { useLoyaltyScoreEdit } from '../hooks/useLoyaltyScoreEdit';
 import { IScore } from '../types/loyaltyScoreTypes';
@@ -20,6 +21,7 @@ export const ScoreMoreColumnCell = ({
 }: {
   cell: Cell<IScore, unknown>;
 }) => {
+  const { t } = useTranslation('loyalty');
   const { _id } = cell.row.original;
   const [, setEditScoreId] = useQueryState('editScoreId');
   const { loading } = useLoyaltyScoreEdit();
@@ -36,20 +38,20 @@ export const ScoreMoreColumnCell = ({
     if (!_id) return;
 
     confirm({
-      message: 'Are you sure you want to delete this score campaign?',
+      message: t('delete-score-confirm', { count: 1 }),
     }).then(() => {
       deleteScore({
         variables: { _ids: [_id] },
       })
         .then(() => {
           toast({
-            title: '1 score campaign deleted successfully',
+            title: t('scores-deleted', { count: 1 }),
             variant: 'success',
           });
         })
         .catch((e: ApolloError) => {
           toast({
-            title: 'Error',
+            title: t('error'),
             description: e.message,
             variant: 'destructive',
           });
@@ -70,7 +72,7 @@ export const ScoreMoreColumnCell = ({
         <Command>
           <Command.List>
             <Command.Item value="edit" onSelect={() => handleEdit(_id)}>
-              <IconEdit /> Edit
+              <IconEdit /> {t('edit')}
             </Command.Item>
             <Command.Item asChild>
               <Button
@@ -81,7 +83,7 @@ export const ScoreMoreColumnCell = ({
                 disabled={loading}
               >
                 <IconTrash className="size-4" />
-                Delete
+                {t('delete')}
               </Button>
             </Command.Item>
           </Command.List>

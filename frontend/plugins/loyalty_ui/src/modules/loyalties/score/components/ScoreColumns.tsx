@@ -12,6 +12,7 @@ import {
   TextOverflowTooltip,
   useQueryState,
 } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { IScoreLog, IScoreLogItem, IScoreOwner } from '../types/score';
 import { makeScoreMoreColumn } from './ScoreMoreColumn';
 
@@ -105,7 +106,10 @@ export const makeScoreColumns = (
   makeScoreMoreColumn(onEdit) as ColumnDef<IScoreLog>,
   {
     id: 'number',
-    header: () => <RecordTable.InlineHead icon={IconHash} label="Number" />,
+    header: () => {
+      const { t } = useTranslation('loyalty');
+      return <RecordTable.InlineHead icon={IconHash} label={t('number')} />;
+    },
     size: 140,
     cell: ({ row }) => {
       const logs = row.original.logs || [];
@@ -119,13 +123,19 @@ export const makeScoreColumns = (
   },
   {
     id: 'ownerName',
-    header: () => <RecordTable.InlineHead icon={IconUser} label="Owner Name" />,
+    header: () => {
+      const { t } = useTranslation('loyalty');
+      return <RecordTable.InlineHead icon={IconUser} label={t('owner-name')} />;
+    },
     size: 180,
     cell: ({ row }) => <OwnerNameCell row={row} onEdit={onEdit} />,
   },
   {
     id: 'email',
-    header: () => <RecordTable.InlineHead icon={IconUser} label="Email" />,
+    header: () => {
+      const { t } = useTranslation('loyalty');
+      return <RecordTable.InlineHead icon={IconUser} label={t('email')} />;
+    },
     size: 200,
     cell: ({ row }) => (
       <RecordTableInlineCell className="text-xs text-muted-foreground">
@@ -135,7 +145,10 @@ export const makeScoreColumns = (
   },
   {
     id: 'phone',
-    header: () => <RecordTable.InlineHead icon={IconUser} label="Phone" />,
+    header: () => {
+      const { t } = useTranslation('loyalty');
+      return <RecordTable.InlineHead icon={IconUser} label={t('phone')} />;
+    },
     size: 150,
     cell: ({ row }) => (
       <RecordTableInlineCell className="text-xs text-muted-foreground">
@@ -146,9 +159,10 @@ export const makeScoreColumns = (
   {
     id: 'ownerType',
     accessorKey: 'ownerType',
-    header: () => (
-      <RecordTable.InlineHead icon={IconLabelFilled} label="Owner Type" />
-    ),
+    header: () => {
+      const { t } = useTranslation('loyalty');
+      return <RecordTable.InlineHead icon={IconLabelFilled} label={t('owner-type')} />;
+    },
     size: 120,
     cell: ({ cell }) => (
       <RecordTableInlineCell className="capitalize text-xs">
@@ -159,9 +173,10 @@ export const makeScoreColumns = (
   {
     id: 'totalScore',
     accessorKey: 'totalScore',
-    header: () => (
-      <RecordTable.InlineHead icon={IconStar} label="Total Score" />
-    ),
+    header: () => {
+      const { t } = useTranslation('loyalty');
+      return <RecordTable.InlineHead icon={IconStar} label={t('total-score')} />;
+    },
     size: 120,
     cell: ({ cell }) => (
       <RecordTableInlineCell className="font-semibold">

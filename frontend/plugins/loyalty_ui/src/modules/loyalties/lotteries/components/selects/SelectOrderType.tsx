@@ -17,6 +17,7 @@ import {
   useQueryState,
 } from 'erxes-ui';
 import { IconArrowsSort } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 
 interface OrderTypeOption {
   value: string;
@@ -93,6 +94,7 @@ const SelectOrderTypeValue = ({
   placeholder?: string;
   className?: string;
 }) => {
+  const { t } = useTranslation('loyalty');
   const { value } = useSelectOrderTypeContext();
   const selectedOption = ORDER_TYPE_OPTIONS.find(
     (option) => option.value === value,
@@ -101,7 +103,7 @@ const SelectOrderTypeValue = ({
   if (!selectedOption) {
     return (
       <span className="text-accent-foreground/80">
-        {placeholder || 'Select order type'}
+        {placeholder || t('select-order-type')}
       </span>
     );
   }
@@ -138,11 +140,12 @@ const SelectOrderTypeCommandItem = ({
 };
 
 const SelectOrderTypeContent = () => {
+  const { t } = useTranslation('loyalty');
   return (
     <Command>
-      <Command.Input placeholder="Search order types..." />
+      <Command.Input placeholder={t('search-order-types')} />
       <Command.Empty>
-        <span className="text-muted-foreground">No order types found</span>
+        <span className="text-muted-foreground">{t('no-order-types-found')}</span>
       </Command.Empty>
       <Command.List>
         {ORDER_TYPE_OPTIONS.map((option) => (
@@ -154,10 +157,11 @@ const SelectOrderTypeContent = () => {
 };
 
 export const SelectOrderTypeFilterItem = () => {
+  const { t } = useTranslation('loyalty');
   return (
     <Filter.Item value="orderType">
       <IconArrowsSort />
-      Sort Order
+      {t('sort-order')}
     </Filter.Item>
   );
 };
@@ -202,6 +206,7 @@ export const SelectOrderTypeFilterBar = ({
   onValueChange?: (value: string[] | string) => void;
   mode?: 'single' | 'multiple';
 }) => {
+  const { t } = useTranslation('loyalty');
   const [orderType, setOrderType] = useQueryState<string[] | string>(
     'orderType',
   );
@@ -211,7 +216,7 @@ export const SelectOrderTypeFilterBar = ({
     <Filter.BarItem queryKey="orderType">
       <Filter.BarName>
         <IconArrowsSort />
-        {!iconOnly && 'Sort Order'}
+        {!iconOnly && t('sort-order')}
       </Filter.BarName>
       <SelectOrderTypeProvider
         mode={mode}

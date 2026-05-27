@@ -2,6 +2,7 @@ import { Cell } from '@tanstack/react-table';
 import { useNavigate } from 'react-router-dom';
 import { Popover, Command, Combobox, RecordTable } from 'erxes-ui';
 import { IconEdit, IconExternalLink } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 import { IScoreLog } from '../types/score';
 
 export const getProfileUrl = (ownerId: string, ownerType: string): string => {
@@ -27,6 +28,7 @@ export const ScoreMoreColumnCell = ({
   cell: Cell<IScoreLog, unknown>;
   onEdit?: (record: IScoreLog) => void;
 }) => {
+  const { t } = useTranslation('loyalty');
   const navigate = useNavigate();
   const record = cell.row.original;
   const { ownerId, ownerType } = record;
@@ -50,7 +52,7 @@ export const ScoreMoreColumnCell = ({
           <Command.List>
             <Command.Item value="edit" onSelect={handleEdit}>
               <IconEdit size={14} />
-              Show scores
+              {t('show-scores')}
             </Command.Item>
             <Command.Item
               value="see-profile"
@@ -58,7 +60,7 @@ export const ScoreMoreColumnCell = ({
               disabled={!ownerId}
             >
               <IconExternalLink size={14} />
-              See Profile
+              {t('see-profile')}
             </Command.Item>
           </Command.List>
         </Command>

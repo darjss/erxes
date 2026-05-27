@@ -17,6 +17,7 @@ import {
   useQueryState,
 } from 'erxes-ui';
 import { IconSortAscending } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 
 interface SortFieldOption {
   value: string;
@@ -94,6 +95,7 @@ const SelectSortFieldValue = ({
   placeholder?: string;
   className?: string;
 }) => {
+  const { t } = useTranslation('loyalty');
   const { value } = useSelectSortFieldContext();
   const selectedOption = SORT_FIELD_OPTIONS.find(
     (option) => option.value === value,
@@ -102,7 +104,7 @@ const SelectSortFieldValue = ({
   if (!selectedOption) {
     return (
       <span className="text-accent-foreground/80">
-        {placeholder || 'Select sort field'}
+        {placeholder || t('select-sort-field')}
       </span>
     );
   }
@@ -139,11 +141,12 @@ const SelectSortFieldCommandItem = ({
 };
 
 const SelectSortFieldContent = () => {
+  const { t } = useTranslation('loyalty');
   return (
     <Command>
-      <Command.Input placeholder="Search sort fields..." />
+      <Command.Input placeholder={t('search-sort-fields')} />
       <Command.Empty>
-        <span className="text-muted-foreground">No sort fields found</span>
+        <span className="text-muted-foreground">{t('no-sort-fields-found')}</span>
       </Command.Empty>
       <Command.List>
         {SORT_FIELD_OPTIONS.map((option) => (
@@ -155,10 +158,11 @@ const SelectSortFieldContent = () => {
 };
 
 export const SelectSortFieldFilterItem = () => {
+  const { t } = useTranslation('loyalty');
   return (
     <Filter.Item value="sortField">
       <IconSortAscending />
-      Sort Field
+      {t('sort-field')}
     </Filter.Item>
   );
 };
@@ -203,6 +207,7 @@ export const SelectSortFieldFilterBar = ({
   onValueChange?: (value: string[] | string) => void;
   mode?: 'single' | 'multiple';
 }) => {
+  const { t } = useTranslation('loyalty');
   const [sortField, setSortField] = useQueryState<string[] | string>(
     'sortField',
   );
@@ -212,7 +217,7 @@ export const SelectSortFieldFilterBar = ({
     <Filter.BarItem queryKey="sortField">
       <Filter.BarName>
         <IconSortAscending />
-        {!iconOnly && 'Sort Field'}
+        {!iconOnly && t('sort-field')}
       </Filter.BarName>
       <SelectSortFieldProvider
         mode={mode}

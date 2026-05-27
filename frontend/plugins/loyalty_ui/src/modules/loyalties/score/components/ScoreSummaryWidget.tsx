@@ -5,6 +5,7 @@ import {
 } from '@tabler/icons-react';
 import { useQuery } from '@apollo/client';
 import { Button, cn, Collapsible, SideMenu } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { SCORE_LOG_STATISTICS_QUERY } from '../graphql/queries';
 
 const COLORS = [
@@ -18,6 +19,7 @@ const COLORS = [
 ];
 
 export const ScoreSummaryWidget = () => {
+  const { t } = useTranslation('loyalty');
   const { data, loading } = useQuery(SCORE_LOG_STATISTICS_QUERY, {
     fetchPolicy: 'cache-and-network',
   });
@@ -27,22 +29,22 @@ export const ScoreSummaryWidget = () => {
   const SUMMARY_ITEMS = [
     {
       key: 'totalPointEarned',
-      label: 'Total Point Earned',
+      label: t('total-point-earned'),
       value: stats.totalPointEarned ?? '-',
     },
     {
       key: 'totalPointBalance',
-      label: 'Points Balance',
+      label: t('points-balance'),
       value: stats.totalPointBalance ?? '-',
     },
     {
       key: 'mostRedeemedProductCategory',
-      label: 'Top Redeemed Product Catalog',
+      label: t('top-redeemed-product-catalog'),
       value: stats.mostRedeemedProductCategory ?? '-',
     },
     {
       key: 'redemptionRate',
-      label: 'Redemption Rates',
+      label: t('redemption-rates'),
       value:
         stats.redemptionRate == null
           ? '-'
@@ -50,17 +52,17 @@ export const ScoreSummaryWidget = () => {
     },
     {
       key: 'activeLoyaltyMembers',
-      label: 'Active Loyalty Members',
+      label: t('active-loyalty-members'),
       value: stats.activeLoyaltyMembers ?? '-',
     },
     {
       key: 'monthlyActiveUsers',
-      label: 'Monthly Active Users',
+      label: t('monthly-active-users'),
       value: stats.monthlyActiveUsers ?? '-',
     },
     {
       key: 'totalPointRedeemed',
-      label: 'Total Point Redeemed',
+      label: t('total-point-redeemed'),
       value: stats.totalPointRedeemed ?? '-',
     },
   ];
@@ -68,7 +70,7 @@ export const ScoreSummaryWidget = () => {
   return (
     <SideMenu defaultValue="">
       <SideMenu.Content value="score-summary">
-        <SideMenu.Header Icon={IconChartHistogram} label="Score Summary" />
+        <SideMenu.Header Icon={IconChartHistogram} label={t('score-summary')} />
         <div className="p-4 border-b">
           <Collapsible className="group/collapsible-menu" defaultOpen>
             <Collapsible.Trigger asChild>
@@ -78,7 +80,7 @@ export const ScoreSummaryWidget = () => {
                 size="sm"
               >
                 <IconCaretRightFilled className="transition-transform group-data-[state=open]/collapsible-menu:rotate-90" />
-                Summary
+                {t('summary')}
               </Button>
             </Collapsible.Trigger>
             <Collapsible.Content>
@@ -106,7 +108,7 @@ export const ScoreSummaryWidget = () => {
       <SideMenu.Sidebar>
         <SideMenu.Trigger
           value="score-summary"
-          label="Score Summary"
+          label={t('score-summary')}
           Icon={IconChartHistogram}
         />
       </SideMenu.Sidebar>

@@ -1,5 +1,6 @@
 import { RecordTable, Spinner } from 'erxes-ui';
 import { IconStar } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 import { makeScoreColumns } from './ScoreColumns';
 import {
   SCORE_LOG_CURSOR_SESSION_KEY,
@@ -11,6 +12,7 @@ import { ScoreDetailSheet } from './ScoreDetailSheet';
 import { useState, useMemo } from 'react';
 
 export const ScoreRecordTable = () => {
+  const { t } = useTranslation('loyalty');
   const { list, loading, handleFetchMore, pageInfo } = useScoreList();
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
   const [selectedRecord, setSelectedRecord] = useState<IScoreLog | null>(null);
@@ -58,10 +60,10 @@ export const ScoreRecordTable = () => {
               <div className="flex flex-col items-center text-center">
                 <IconStar size={48} className="text-gray-400 mb-4" />
                 <h3 className="text-lg font-semibold text-gray-900">
-                  No scores yet
+                  {t('no-scores-yet')}
                 </h3>
                 <p className="mt-1 text-sm text-gray-500 mb-4">
-                  Get started by giving your first score.
+                  {t('get-started-score')}
                 </p>
                 <GiveScoreModal />
               </div>

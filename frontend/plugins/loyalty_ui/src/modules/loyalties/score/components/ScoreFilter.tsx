@@ -14,6 +14,7 @@ import {
   useMultiQueryState,
   useQueryState,
 } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { SelectBoard, SelectPipeline, SelectStage } from 'ui-modules';
 import { ScoreTotalCount } from './ScoreTotalCount';
 import {
@@ -44,6 +45,7 @@ import {
 export const SCORE_FILTER_SESSION_KEY = 'score_filter';
 
 const ScoreFilterPopover = () => {
+  const { t } = useTranslation('loyalty');
   const [scoreBoardId] = useFilterQueryState<string>('scoreBoardId');
   const [scorePipelineId] = useFilterQueryState<string>('scorePipelineId');
   const [, setPipelineId] = useQueryState<string>('scorePipelineId');
@@ -84,7 +86,7 @@ const ScoreFilterPopover = () => {
           <Filter.View>
             <Command>
               <Filter.CommandInput
-                placeholder="Filter"
+                placeholder={t('filter')}
                 variant="secondary"
                 className="bg-background"
               />
@@ -94,28 +96,28 @@ const ScoreFilterPopover = () => {
                 <SelectScoreActionFilterItem />
                 <Filter.Item value="scoreBoardId">
                   <IconLabel />
-                  Board
+                  {t('board')}
                 </Filter.Item>
                 <Filter.Item value="scorePipelineId">
                   <IconArrowsRight />
-                  Pipeline
+                  {t('pipeline')}
                 </Filter.Item>
                 <Filter.Item value="scoreStageId">
                   <IconListCheck />
-                  Stage
+                  {t('stage')}
                 </Filter.Item>
                 <Filter.Item value="number" inDialog>
                   <IconSearch />
-                  Number
+                  {t('number')}
                 </Filter.Item>
                 <Filter.Item value="description" inDialog>
                   <IconFileDescription />
-                  Description
+                  {t('description')}
                 </Filter.Item>
                 <SelectScoreActionTypeFilterItem />
                 <Filter.Item value="scoreDate">
                   <IconCalendar />
-                  Date
+                  {t('date')}
                 </Filter.Item>
               </Command.List>
             </Command>
@@ -172,6 +174,7 @@ const ScoreFilterPopover = () => {
 };
 
 export const ScoreFilter = () => {
+  const { t } = useTranslation('loyalty');
   const [number] = useFilterQueryState<string>('number');
   const [description] = useFilterQueryState<string>('description');
   const [scoreBoardId] = useFilterQueryState<string>('scoreBoardId');
@@ -195,7 +198,7 @@ export const ScoreFilter = () => {
         <Filter.BarItem queryKey="number">
           <Filter.BarName>
             <IconSearch />
-            Number
+            {t('number')}
           </Filter.BarName>
           <Filter.BarButton filterKey="number" inDialog>
             {number}
@@ -204,7 +207,7 @@ export const ScoreFilter = () => {
         <Filter.BarItem queryKey="description">
           <Filter.BarName>
             <IconSearch />
-            Description
+            {t('description')}
           </Filter.BarName>
           <Filter.BarButton filterKey="description" inDialog>
             {description}
@@ -215,7 +218,7 @@ export const ScoreFilter = () => {
         <Filter.BarItem queryKey="scoreDate">
           <Filter.BarName>
             <IconCalendar />
-            Date
+            {t('date')}
           </Filter.BarName>
           <Filter.Date filterKey="scoreDate" />
         </Filter.BarItem>

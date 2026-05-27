@@ -1,5 +1,6 @@
 import { IconUser } from '@tabler/icons-react';
 import { Combobox, Command, Filter, useMultiQueryState } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { LotteryHotKeyScope } from '../types/path/LotteryHotKeyScope';
 import { LotteryTotalCount } from './LotteryTotalCount';
 import { useLotteryLeadSessionKey } from '../hooks/useLotteryLeadSessionKey';
@@ -10,6 +11,7 @@ import { SelectVoucherCampaign } from '../../vouchers/components/selects/SelectV
 import { SelectCustomer, SelectMember } from 'ui-modules';
 
 const LotteryFilterPopover = () => {
+  const { t } = useTranslation('loyalty');
   const [queries] = useMultiQueryState<{
     lotteryCampaign: string;
     ownerType: string;
@@ -38,7 +40,7 @@ const LotteryFilterPopover = () => {
           <Filter.View>
             <Command>
               <Filter.CommandInput
-                placeholder="Filter"
+                placeholder={t('filter')}
                 variant="secondary"
                 className="bg-background"
               />
@@ -85,6 +87,7 @@ const LotteryFilterPopover = () => {
 };
 
 export const LotteryFilter = () => {
+  const { t } = useTranslation('loyalty');
   const { sessionKey } = useLotteryLeadSessionKey();
 
   return (
@@ -96,7 +99,7 @@ export const LotteryFilter = () => {
         <Filter.BarItem queryKey="ownerId">
           <Filter.BarName>
             <IconUser />
-            Customer
+            {t('customer')}
           </Filter.BarName>
           <SelectCustomer.FilterBar
             filterKey="ownerId"
