@@ -25,10 +25,10 @@ interface OwnerTypeOption {
 }
 
 const OWNER_TYPE_OPTIONS: OwnerTypeOption[] = [
-  { value: 'customer', label: 'Customer' },
-  { value: 'company', label: 'Company' },
-  { value: 'user', label: 'Team Member' },
-  { value: 'cpUser', label: 'Client Portal User' },
+  { value: 'customer', label: 'customer' },
+  { value: 'company', label: 'company' },
+  { value: 'user', label: 'team-member' },
+  { value: 'cpUser', label: 'client-portal-user' },
 ];
 
 interface SelectOwnerTypeContextType {
@@ -113,7 +113,7 @@ const SelectOwnerTypeValue = ({
   return (
     <div className="flex items-center gap-2">
       <p className={cn('font-medium text-sm', className)}>
-        {selectedOption.label}
+        {t(selectedOption.label)}
       </p>
     </div>
   );
@@ -125,6 +125,7 @@ const SelectOwnerTypeCommandItem = ({
   option: OwnerTypeOption;
 }) => {
   const { onValueChange, value } = useSelectOwnerTypeContext();
+  const { t } = useTranslation('loyalty');
   const { value: optionValue, label } = option;
   const isChecked = value.split(',').includes(optionValue);
 
@@ -134,7 +135,7 @@ const SelectOwnerTypeCommandItem = ({
       onSelect={() => onValueChange(optionValue)}
     >
       <div className="flex items-center gap-2">
-        <span className="font-medium">{label}</span>
+        <span className="font-medium">{t(label)}</span>
       </div>
       <Combobox.Check checked={isChecked} />
     </Command.Item>

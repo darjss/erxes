@@ -39,21 +39,25 @@ interface CustomerOption {
   label: string;
 }
 
-const getCustomerLabel = (c: {
-  firstName?: string;
-  middleName?: string;
-  lastName?: string;
-  primaryEmail?: string;
-  primaryPhone?: string;
-}) => {
+const getCustomerLabel = (
+  c: {
+    firstName?: string;
+    middleName?: string;
+    lastName?: string;
+    primaryEmail?: string;
+    primaryPhone?: string;
+  },
+  unnamed = 'Unnamed',
+) => {
   const name = [c.firstName, c.middleName, c.lastName]
     .filter(Boolean)
     .join(' ')
     .trim();
-  return name || c.primaryEmail || c.primaryPhone || 'Unnamed';
+  return name || c.primaryEmail || c.primaryPhone || unnamed;
 };
 
 const useCustomerOptions = (searchValue?: string) => {
+  const { t } = useTranslation('loyalty');
   const { data, loading } = useQuery(GET_CUSTOMERS_SIMPLE, {
     variables: { limit: 50, searchValue },
   });
@@ -68,9 +72,9 @@ const useCustomerOptions = (searchValue?: string) => {
           lastName?: string;
           primaryEmail?: string;
           primaryPhone?: string;
-        }) => ({ value: c._id, label: getCustomerLabel(c) }),
+        }) => ({ value: c._id, label: getCustomerLabel(c, t('unnamed')) }),
       ),
-    [data?.customers?.list],
+    [data?.customers?.list, t],
   );
 
   return { options, loading };

@@ -395,7 +395,7 @@ export const AgentEditSheet = ({
                     <SelectProductRules
                       value={field.value}
                       onValueChange={field.onChange}
-                      placeholder="Choose product rule"
+                      placeholder={t('choose-product-rule')}
                     />
                     <Form.Message />
                   </Form.Item>

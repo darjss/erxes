@@ -119,6 +119,7 @@ const SelectLotteryCampaignCommandItem = ({
   lotteryCampaign: ILotteryCampaign;
 }) => {
   const { onSelect, lotteryCampaignId } = useSelectLotteryCampaignContext();
+  const { t } = useTranslation('loyalty');
 
   return (
     <Command.Item
@@ -128,7 +129,7 @@ const SelectLotteryCampaignCommandItem = ({
       <LotteryCampaignInline
         lotteryCampaigns={[lotteryCampaign]}
         lotteryCampaignId={lotteryCampaign._id}
-        placeholder="Unnamed campaign"
+        placeholder={t('unnamed-campaign')}
       />
       <Combobox.Check
         checked={lotteryCampaignId.includes(lotteryCampaign._id)}

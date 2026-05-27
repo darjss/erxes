@@ -48,8 +48,8 @@ const LotteryFilterPopover = () => {
                 <SelectLotteryCampaign.FilterItem />
                 <SelectVoucherCampaign.FilterItem />
                 <SelectOwnerType.FilterItem />
-                <SelectCustomer.FilterItem value="ownerId" label="Customer" />
-                <SelectMember.FilterItem value="userId" label="Team Member" />
+                <SelectCustomer.FilterItem value="ownerId" label={t('customer')} />
+                <SelectMember.FilterItem value="userId" label={t('team-member')} />
                 <SelectStatus.FilterItem />
               </Command.List>
             </Command>
@@ -103,13 +103,13 @@ export const LotteryFilter = () => {
           </Filter.BarName>
           <SelectCustomer.FilterBar
             filterKey="ownerId"
-            label="Customer"
+            label={t('customer')}
             mode="single"
           />
         </Filter.BarItem>
         <SelectMember.FilterBar
           queryKey="userId"
-          label="Team Member"
+          label={t('team-member')}
           mode="single"
         />
         <SelectStatus.FilterBar />

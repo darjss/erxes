@@ -1,3 +1,5 @@
+import { useTranslation } from 'react-i18next';
+
 export const Widgets = ({
   module,
   contentId,
@@ -7,7 +9,8 @@ export const Widgets = ({
   contentId: string;
   contentType: string;
 }) => {
-  return <div>pricing Widget</div>;
+  const { t } = useTranslation('loyalty');
+  return <div>{t('pricing-widget')}</div>;
 };
 
 export default Widgets;

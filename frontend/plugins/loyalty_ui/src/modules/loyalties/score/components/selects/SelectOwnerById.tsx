@@ -151,9 +151,9 @@ export const SelectCompanyFormItem = ({
     () =>
       (data?.companies?.list || []).map((c) => ({
         value: c._id,
-        label: c.primaryName || c.primaryEmail || c.primaryPhone || 'Unnamed',
+        label: c.primaryName || c.primaryEmail || c.primaryPhone || t('unnamed'),
       })),
-    [data?.companies?.list],
+    [data?.companies?.list, t],
   );
 
   const selected = options.find((o) => o.value === value);
@@ -219,9 +219,9 @@ export const SelectUserFormItem = ({
             .filter(Boolean)
             .join(' ') ||
           u.email ||
-          'Unnamed',
+          t('unnamed'),
       })),
-    [data?.allUsers],
+    [data?.allUsers, t],
   );
 
   const selected = options.find((o) => o.value === value);
@@ -287,9 +287,9 @@ export const SelectClientPortalUserFormItem = ({
           [u.firstName, u.lastName].filter(Boolean).join(' ') ||
           u.email ||
           u.phone ||
-          'Unnamed',
+          t('unnamed'),
       })),
-    [data?.getClientPortalUsers?.list],
+    [data?.getClientPortalUsers?.list, t],
   );
 
   const selected = options.find((o) => o.value === value);

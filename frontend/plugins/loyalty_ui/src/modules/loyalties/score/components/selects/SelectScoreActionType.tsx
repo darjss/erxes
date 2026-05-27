@@ -19,9 +19,9 @@ import { IconArrowsExchange } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 
 const ACTION_OPTIONS = [
-  { value: 'add', label: 'Add' },
-  { value: 'subtract', label: 'Subtract' },
-  { value: 'hasDescription', label: 'Has A description' },
+  { value: 'add', label: 'add' },
+  { value: 'subtract', label: 'subtract' },
+  { value: 'hasDescription', label: 'has-a-description' },
 ];
 
 interface SelectScoreActionTypeContextType {
@@ -91,7 +91,7 @@ const SelectScoreActionTypeValue = ({
 
   return (
     <div className="flex items-center gap-2">
-      <p className={cn('font-medium text-sm', className)}>{selected.label}</p>
+      <p className={cn('font-medium text-sm', className)}>{t(selected.label)}</p>
     </div>
   );
 };
@@ -113,7 +113,7 @@ const SelectScoreActionTypeContent = () => {
             value={opt.value}
             onSelect={() => onValueChange(opt.value)}
           >
-            <span className="font-medium">{opt.label}</span>
+            <span className="font-medium">{t(opt.label)}</span>
             <Combobox.Check checked={value === opt.value} />
           </Command.Item>
         ))}

@@ -1,6 +1,6 @@
 import { IconCalendar } from '@tabler/icons-react';
-
 import { Combobox, Command, Filter, useMultiQueryState } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { VoucherHotKeyScope } from '../types/path/VoucherHotKeyScope';
 import { VoucherTotalCount } from './VoucherTotalCount';
 import { useVoucherLeadSessionKey } from '../hooks/useVoucherLeadSessionKey';
@@ -11,6 +11,7 @@ import { SelectOrderType } from './selects/SelectOrderType';
 import { SelectSortField } from './selects/SelectSortField';
 
 const VoucherFilterPopover = () => {
+  const { t } = useTranslation('loyalty');
   const [queries] = useMultiQueryState<{
     voucherCampaignId: string;
     ownerType: string;
@@ -39,7 +40,7 @@ const VoucherFilterPopover = () => {
           <Filter.View>
             <Command>
               <Filter.CommandInput
-                placeholder="Filter"
+                placeholder={t('filter')}
                 variant="secondary"
                 className="bg-background"
               />
@@ -51,7 +52,7 @@ const VoucherFilterPopover = () => {
                 <SelectStatus.FilterItem />
                 <Filter.Item value="date">
                   <IconCalendar />
-                  Date
+                  {t('date')}
                 </Filter.Item>
               </Command.List>
             </Command>
@@ -91,6 +92,7 @@ const VoucherFilterPopover = () => {
 };
 
 export const VoucherFilter = () => {
+  const { t } = useTranslation('loyalty');
   const { sessionKey } = useVoucherLeadSessionKey();
 
   return (
@@ -104,7 +106,7 @@ export const VoucherFilter = () => {
         <Filter.BarItem queryKey="date">
           <Filter.BarName>
             <IconCalendar />
-            Date
+            {t('date')}
           </Filter.BarName>
           <Filter.Date filterKey="date" />
         </Filter.BarItem>

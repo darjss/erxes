@@ -25,9 +25,9 @@ interface StatusOption {
 }
 
 const STATUS_OPTIONS: StatusOption[] = [
-  { value: 'new', label: 'New' },
-  { value: 'won', label: 'Won' },
-  { value: 'loss', label: 'Loss' },
+  { value: 'new', label: 'new' },
+  { value: 'won', label: 'won' },
+  { value: 'loss', label: 'loss' },
 ];
 
 interface SelectStatusContextType {
@@ -110,7 +110,7 @@ const SelectStatusValue = ({
   return (
     <div className="flex items-center gap-2">
       <p className={cn('font-medium text-sm', className)}>
-        {selectedOption.label}
+        {t(selectedOption.label)}
       </p>
     </div>
   );
@@ -118,6 +118,7 @@ const SelectStatusValue = ({
 
 const SelectStatusCommandItem = ({ option }: { option: StatusOption }) => {
   const { onValueChange, value } = useSelectStatusContext();
+  const { t } = useTranslation('loyalty');
   const { value: optionValue, label } = option;
   const isChecked = value.split(',').includes(optionValue);
 
@@ -127,7 +128,7 @@ const SelectStatusCommandItem = ({ option }: { option: StatusOption }) => {
       onSelect={() => onValueChange(optionValue)}
     >
       <div className="flex items-center gap-2">
-        <span className="font-medium">{label}</span>
+        <span className="font-medium">{t(label)}</span>
       </div>
       <Combobox.Check checked={isChecked} />
     </Command.Item>

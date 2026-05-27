@@ -8,6 +8,7 @@ import {
   RelativeDateDisplay,
 } from 'erxes-ui';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { ISpin } from '@/loyalties/spin/types/spin';
 import { CustomersInline } from 'ui-modules/modules/contacts/components/CustomersInline';
@@ -66,16 +67,20 @@ export const firstSpinColumns: ColumnDef<ISpin>[] = [
   {
     id: 'createdAt',
     accessorKey: 'createdAt',
-    header: () => (
-      <RecordTable.InlineHead icon={IconClock} label="Created At" />
-    ),
+    header: () => {
+      const { t } = useTranslation('loyalty');
+      return <RecordTable.InlineHead icon={IconClock} label={t('created-at')} />;
+    },
     size: 100,
     cell: ({ row }) => <CreatedAtCell spin={row.original} />,
   },
   {
     id: 'ownerType',
     accessorKey: 'ownerType',
-    header: () => <RecordTable.InlineHead icon={IconUser} label="Owner Type" />,
+    header: () => {
+      const { t } = useTranslation('loyalty');
+      return <RecordTable.InlineHead icon={IconUser} label={t('owner-type')} />;
+    },
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         <span className="capitalize">{cell.getValue() as string}</span>
@@ -89,7 +94,10 @@ export const secondSpinColumns: ColumnDef<ISpin>[] = [
   {
     id: 'ownerId',
     accessorKey: 'ownerId',
-    header: () => <RecordTable.InlineHead icon={IconUser} label="Owner" />,
+    header: () => {
+      const { t } = useTranslation('loyalty');
+      return <RecordTable.InlineHead icon={IconUser} label={t('owner')} />;
+    },
     cell: ({ row }) => (
       <OwnerCell
         ownerId={row.original.ownerId}
@@ -100,7 +108,10 @@ export const secondSpinColumns: ColumnDef<ISpin>[] = [
   {
     id: 'status',
     accessorKey: 'status',
-    header: () => <RecordTable.InlineHead icon={IconTag} label="Status" />,
+    header: () => {
+      const { t } = useTranslation('loyalty');
+      return <RecordTable.InlineHead icon={IconTag} label={t('status')} />;
+    },
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         <Badge variant="default">{cell.getValue() as string}</Badge>

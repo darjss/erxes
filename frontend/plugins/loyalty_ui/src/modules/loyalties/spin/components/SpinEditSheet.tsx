@@ -1,6 +1,7 @@
 import { Button, Form, Sheet, Select } from 'erxes-ui';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { useEditSpin } from '../hooks/useEditSpin';
 import { SelectCustomer, SelectMember } from 'ui-modules';
 import { SelectCompany } from 'ui-modules/modules/contacts/components/SelectCompany';
@@ -18,6 +19,7 @@ const SpinOwnerSelect = ({
   value: string;
   onChange: (val: string) => void;
 }) => {
+  const { t } = useTranslation('loyalty');
   if (ownerType === 'company') {
     return (
       <SelectCompany value={value} onValueChange={onChange} mode="single" />
@@ -37,7 +39,7 @@ const SpinOwnerSelect = ({
       <SelectClientPortalUserFormItem
         value={value}
         onValueChange={onChange}
-        placeholder="Choose client portal user"
+        placeholder={t('choose-client-portal-user')}
       />
     );
   }
@@ -65,6 +67,7 @@ export const SpinEditSheet = ({
   open,
   onOpenChange,
 }: SpinEditSheetProps) => {
+  const { t } = useTranslation('loyalty');
   const { spinEdit, loading } = useEditSpin();
 
   const form = useForm<SpinEditFormValues>({
@@ -114,7 +117,7 @@ export const SpinEditSheet = ({
     <Sheet open={open} onOpenChange={onOpenChange} modal>
       <Sheet.View className="sm:max-w-md">
         <Sheet.Header>
-          <Sheet.Title>Edit Spin</Sheet.Title>
+          <Sheet.Title>{t('edit-spin')}</Sheet.Title>
           <Sheet.Close />
         </Sheet.Header>
         <Sheet.Content className="p-5">
@@ -126,14 +129,14 @@ export const SpinEditSheet = ({
               <Form.Field
                 control={form.control}
                 name="campaignId"
-                rules={{ required: 'Campaign is required' }}
+                rules={{ required: t('campaign-required') }}
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>Campaign *</Form.Label>
+                    <Form.Label>{t('campaign-label')}</Form.Label>
                     <SelectSpinCampaign
                       value={field.value}
                       onValueChange={field.onChange}
-                      placeholder="Select campaign..."
+                      placeholder={t('select-campaign')}
                     />
                     <Form.Message />
                   </Form.Item>
@@ -145,7 +148,7 @@ export const SpinEditSheet = ({
                 name="ownerType"
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>Owner Type</Form.Label>
+                    <Form.Label>{t('owner-type')}</Form.Label>
                     <Form.Control>
                       <Select
                         value={field.value}
@@ -158,11 +161,11 @@ export const SpinEditSheet = ({
                           <Select.Value />
                         </Select.Trigger>
                         <Select.Content>
-                          <Select.Item value="customer">Customer</Select.Item>
-                          <Select.Item value="company">Company</Select.Item>
-                          <Select.Item value="user">User</Select.Item>
+                          <Select.Item value="customer">{t('customer')}</Select.Item>
+                          <Select.Item value="company">{t('company')}</Select.Item>
+                          <Select.Item value="user">{t('team-member')}</Select.Item>
                           <Select.Item value="cpUser">
-                            Client Portal User
+                            {t('cp-user')}
                           </Select.Item>
                         </Select.Content>
                       </Select>
@@ -175,10 +178,10 @@ export const SpinEditSheet = ({
               <Form.Field
                 control={form.control}
                 name="ownerId"
-                rules={{ required: 'Owner is required' }}
+                rules={{ required: t('owner-required') }}
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>Owner *</Form.Label>
+                    <Form.Label>{t('owner-label')}</Form.Label>
                     <Form.Control>
                       <SpinOwnerSelect
                         ownerType={ownerType}
@@ -196,7 +199,7 @@ export const SpinEditSheet = ({
                 name="status"
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>Status</Form.Label>
+                    <Form.Label>{t('status')}</Form.Label>
                     <Form.Control>
                       <Select
                         value={field.value}
@@ -206,9 +209,9 @@ export const SpinEditSheet = ({
                           <Select.Value />
                         </Select.Trigger>
                         <Select.Content>
-                          <Select.Item value="new">New</Select.Item>
-                          <Select.Item value="loss">Loss</Select.Item>
-                          <Select.Item value="won">Won</Select.Item>
+                          <Select.Item value="new">{t('new')}</Select.Item>
+                          <Select.Item value="loss">{t('loss')}</Select.Item>
+                          <Select.Item value="won">{t('won')}</Select.Item>
                         </Select.Content>
                       </Select>
                     </Form.Control>
@@ -222,11 +225,11 @@ export const SpinEditSheet = ({
                 name="voucherCampaignId"
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>Voucher Campaign</Form.Label>
+                    <Form.Label>{t('voucher-campaign')}</Form.Label>
                     <SelectVoucherCampaign.FormItem
                       value={field.value}
                       onValueChange={(val) => field.onChange(val as string)}
-                      placeholder="Choose voucher campaign"
+                      placeholder={t('choose-voucher-campaign')}
                     />
                     <Form.Message />
                   </Form.Item>
@@ -239,10 +242,10 @@ export const SpinEditSheet = ({
                   variant="outline"
                   onClick={() => onOpenChange(false)}
                 >
-                  Cancel
+                  {t('cancel')}
                 </Button>
                 <Button type="submit" disabled={loading}>
-                  {loading ? 'Saving...' : 'Save'}
+                  {loading ? t('saving') : t('save')}
                 </Button>
               </div>
             </form>

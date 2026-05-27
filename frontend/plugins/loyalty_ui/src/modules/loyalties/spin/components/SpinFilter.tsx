@@ -1,5 +1,6 @@
 import { IconUser } from '@tabler/icons-react';
 import { Combobox, Command, Filter, useMultiQueryState } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { SpinHotKeyScope } from '../types/path/SpinHotKeyScope';
 import { SpinTotalCount } from './SpinTotalCount';
 import { useSpinLeadSessionKey } from '../hooks/useSpinLeadSessionKey';
@@ -10,6 +11,7 @@ import { SelectVoucherCampaign } from '../../vouchers/components/selects/SelectV
 import { SelectCustomer, SelectMember } from 'ui-modules';
 
 const SpinFilterPopover = () => {
+  const { t } = useTranslation('loyalty');
   const [queries] = useMultiQueryState<{
     spinCampaign: string;
     ownerType: string;
@@ -38,7 +40,7 @@ const SpinFilterPopover = () => {
           <Filter.View>
             <Command>
               <Filter.CommandInput
-                placeholder="Filter"
+                placeholder={t('filter')}
                 variant="secondary"
                 className="bg-background"
               />
@@ -46,8 +48,8 @@ const SpinFilterPopover = () => {
                 <SelectSpinCampaign.FilterItem />
                 <SelectVoucherCampaign.FilterItem />
                 <SelectOwnerType.FilterItem />
-                <SelectCustomer.FilterItem value="ownerId" label="Customer" />
-                <SelectMember.FilterItem value="userId" label="Team Member" />
+                <SelectCustomer.FilterItem value="ownerId" label={t('customer')} />
+                <SelectMember.FilterItem value="userId" label={t('team-member')} />
                 <SelectStatus.FilterItem />
               </Command.List>
             </Command>
@@ -85,6 +87,7 @@ const SpinFilterPopover = () => {
 };
 
 export const SpinFilter = () => {
+  const { t } = useTranslation('loyalty');
   const { sessionKey } = useSpinLeadSessionKey();
 
   return (
@@ -96,17 +99,17 @@ export const SpinFilter = () => {
         <Filter.BarItem queryKey="ownerId">
           <Filter.BarName>
             <IconUser />
-            Customer
+            {t('customer')}
           </Filter.BarName>
           <SelectCustomer.FilterBar
             filterKey="ownerId"
-            label="Customer"
+            label={t('customer')}
             mode="single"
           />
         </Filter.BarItem>
         <SelectMember.FilterBar
           queryKey="userId"
-          label="Team Member"
+          label={t('team-member')}
           mode="single"
         />
         <SelectStatus.FilterBar />

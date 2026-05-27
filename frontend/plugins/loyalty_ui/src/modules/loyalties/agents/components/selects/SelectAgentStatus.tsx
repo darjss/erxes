@@ -12,8 +12,8 @@ import { useTranslation } from 'react-i18next';
 import { IconCheck } from '@tabler/icons-react';
 
 const OPTIONS = [
-  { value: 'active', label: 'Active' },
-  { value: 'draft', label: 'Draft' },
+  { value: 'active', label: 'active' },
+  { value: 'draft', label: 'draft' },
 ];
 
 const StatusContent = ({
@@ -35,7 +35,7 @@ const StatusContent = ({
           value={o.value}
           onSelect={() => onSelect(o.value)}
         >
-          {o.label}
+          {t(o.label)}
           <Combobox.Check checked={value === o.value} />
         </Command.Item>
       ))}
@@ -85,7 +85,7 @@ const FilterBar = () => {
       <Popover open={open} onOpenChange={setOpen}>
         <Popover.Trigger asChild>
           <Filter.BarButton filterKey="agentStatus">
-            <span>{label || t('select-status')}</span>
+            <span>{label ? t(label) : t('select-status')}</span>
           </Filter.BarButton>
         </Popover.Trigger>
         <Combobox.Content>
@@ -119,7 +119,7 @@ const FormItem = ({
       <Form.Control>
         <Combobox.Trigger className="w-full shadow-xs">
           <span className={label ? '' : 'text-accent-foreground/80'}>
-            {label || placeholder || t('select-status')}
+            {label ? t(label) : placeholder || t('select-status')}
           </span>
         </Combobox.Trigger>
       </Form.Control>

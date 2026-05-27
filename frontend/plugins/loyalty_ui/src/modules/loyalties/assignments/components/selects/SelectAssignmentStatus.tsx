@@ -11,9 +11,9 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 const STATUS_OPTIONS = [
-  { value: 'new', label: 'New' },
-  { value: 'won', label: 'Won' },
-  { value: 'loss', label: 'Loss' },
+  { value: 'new', label: 'new' },
+  { value: 'won', label: 'won' },
+  { value: 'loss', label: 'loss' },
 ];
 
 export const SelectAssignmentStatusFilterItem = () => {
@@ -29,6 +29,7 @@ export const SelectAssignmentStatusFilterItem = () => {
 export const SelectAssignmentStatusFilterView = () => {
   const [value, setValue] = useQueryState<string>('assignmentStatus');
   const { resetFilterState } = useFilterContext();
+  const { t } = useTranslation('loyalty');
 
   return (
     <Filter.View filterKey="assignmentStatus">
@@ -43,7 +44,7 @@ export const SelectAssignmentStatusFilterView = () => {
                 resetFilterState();
               }}
             >
-              {opt.label}
+              {t(opt.label)}
               <Combobox.Check checked={value === opt.value} />
             </Command.Item>
           ))}
@@ -68,7 +69,7 @@ export const SelectAssignmentStatusFilterBar = () => {
       <Popover open={open} onOpenChange={setOpen}>
         <Popover.Trigger asChild>
           <Filter.BarButton filterKey="assignmentStatus">
-            <span>{selected?.label || t('status')}</span>
+            <span>{selected ? t(selected.label) : t('status')}</span>
           </Filter.BarButton>
         </Popover.Trigger>
         <Combobox.Content>
@@ -83,7 +84,7 @@ export const SelectAssignmentStatusFilterBar = () => {
                     setOpen(false);
                   }}
                 >
-                  {opt.label}
+                  {t(opt.label)}
                   <Combobox.Check checked={value === opt.value} />
                 </Command.Item>
               ))}

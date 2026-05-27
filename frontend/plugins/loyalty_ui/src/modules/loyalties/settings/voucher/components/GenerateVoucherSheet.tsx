@@ -29,15 +29,15 @@ const generateVoucherSchema = z.object({
 type GenerateVoucherValues = z.infer<typeof generateVoucherSchema>;
 
 const OWNER_TYPES = [
-  { value: 'customer', label: 'Customer' },
-  { value: 'lead', label: 'Lead' },
-  { value: 'company', label: 'Company' },
-  { value: 'user', label: 'User' },
+  { value: 'customer', label: 'customer' },
+  { value: 'lead', label: 'lead' },
+  { value: 'company', label: 'company' },
+  { value: 'user', label: 'user' },
 ];
 
 const STATUS_OPTIONS = [
-  { value: 'active', label: 'Active' },
-  { value: 'inactive', label: 'Inactive' },
+  { value: 'active', label: 'active' },
+  { value: 'inactive', label: 'inactive' },
 ];
 
 export const GenerateVoucherSheet = () => {
@@ -164,13 +164,13 @@ export const GenerateVoucherSheet = () => {
                         value={field.value}
                       >
                         <Select.Trigger>
-                          {OWNER_TYPES.find((t) => t.value === field.value)
-                            ?.label || t('select-owner-type')}
+                          {t(OWNER_TYPES.find((o) => o.value === field.value)
+                            ?.label || 'select-owner-type')}
                         </Select.Trigger>
                         <Select.Content>
                           {OWNER_TYPES.map((type) => (
                             <Select.Item key={type.value} value={type.value}>
-                              {type.label}
+                              {t(type.label)}
                             </Select.Item>
                           ))}
                         </Select.Content>
@@ -207,13 +207,13 @@ export const GenerateVoucherSheet = () => {
                         value={field.value}
                       >
                         <Select.Trigger>
-                          {STATUS_OPTIONS.find((o) => o.value === field.value)
-                            ?.label || t('select-status')}
+                          {t(STATUS_OPTIONS.find((o) => o.value === field.value)
+                            ?.label || 'select-status')}
                         </Select.Trigger>
                         <Select.Content>
                           {STATUS_OPTIONS.map((opt) => (
                             <Select.Item key={opt.value} value={opt.value}>
-                              {opt.label}
+                              {t(opt.label)}
                             </Select.Item>
                           ))}
                         </Select.Content>

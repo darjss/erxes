@@ -99,7 +99,7 @@ const LotteryCampaignInlineTitle = () => {
   return (
     <Tooltip>
       <Tooltip.Trigger>
-        <TextOverflowTooltip value={campaign.title || 'Untitled Campaign'} />
+        <TextOverflowTooltip value={campaign.title || t('untitled-campaign')} />
       </Tooltip.Trigger>
       <Tooltip.Content>
         <p>{campaign.title}</p>

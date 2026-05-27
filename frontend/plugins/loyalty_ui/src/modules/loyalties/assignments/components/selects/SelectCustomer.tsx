@@ -34,18 +34,21 @@ interface CustomerOption {
   label: string;
 }
 
-const getCustomerLabel = (c: {
-  firstName?: string;
-  middleName?: string;
-  lastName?: string;
-  primaryEmail?: string;
-  primaryPhone?: string;
-}) => {
+const getCustomerLabel = (
+  c: {
+    firstName?: string;
+    middleName?: string;
+    lastName?: string;
+    primaryEmail?: string;
+    primaryPhone?: string;
+  },
+  unnamed = 'Unnamed',
+) => {
   const name = [c.firstName, c.middleName, c.lastName]
     .filter(Boolean)
     .join(' ')
     .trim();
-  return name || c.primaryEmail || c.primaryPhone || 'Unnamed';
+  return name || c.primaryEmail || c.primaryPhone || unnamed;
 };
 
 const useCustomerOptions = (searchValue?: string) => {

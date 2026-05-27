@@ -7,6 +7,7 @@ import {
   RelativeDateDisplay,
 } from 'erxes-ui';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { IVoucher } from '@/loyalties/vouchers/types/voucher';
 import { CustomersInline } from 'ui-modules/modules/contacts/components/CustomersInline';
@@ -63,15 +64,19 @@ export const firstVoucherColumns: ColumnDef<IVoucher>[] = [
   {
     id: 'createdAt',
     accessorKey: 'createdAt',
-    header: () => (
-      <RecordTable.InlineHead icon={IconClock} label="Created At" />
-    ),
+    header: () => {
+      const { t } = useTranslation('loyalty');
+      return <RecordTable.InlineHead icon={IconClock} label={t('created-at')} />;
+    },
     cell: ({ row }) => <CreatedAtCell voucher={row.original} />,
   },
   {
     id: 'ownerType',
     accessorKey: 'ownerType',
-    header: () => <RecordTable.InlineHead icon={IconUser} label="Owner Type" />,
+    header: () => {
+      const { t } = useTranslation('loyalty');
+      return <RecordTable.InlineHead icon={IconUser} label={t('owner-type')} />;
+    },
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         <span className="capitalize">{cell.getValue() as string}</span>
@@ -85,7 +90,10 @@ export const secondVoucherColumns: ColumnDef<IVoucher>[] = [
   {
     id: 'ownerId',
     accessorKey: 'ownerId',
-    header: () => <RecordTable.InlineHead icon={IconUser} label="Owner" />,
+    header: () => {
+      const { t } = useTranslation('loyalty');
+      return <RecordTable.InlineHead icon={IconUser} label={t('owner')} />;
+    },
     cell: ({ row }) => (
       <OwnerCell
         ownerId={row.original.ownerId}
@@ -96,7 +104,10 @@ export const secondVoucherColumns: ColumnDef<IVoucher>[] = [
   {
     id: 'status',
     accessorKey: 'status',
-    header: () => <RecordTable.InlineHead icon={IconTag} label="Status" />,
+    header: () => {
+      const { t } = useTranslation('loyalty');
+      return <RecordTable.InlineHead icon={IconTag} label={t('status')} />;
+    },
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         <Badge variant="default">{cell.getValue() as string}</Badge>
