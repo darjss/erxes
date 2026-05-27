@@ -38,4 +38,3 @@ export interface Transaction {
     response: string;
     details: any;
 }
-
