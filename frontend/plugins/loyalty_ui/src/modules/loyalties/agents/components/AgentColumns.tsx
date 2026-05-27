@@ -58,11 +58,14 @@ export const agentColumns: ColumnDef<IAgent>[] = [
     accessorKey: 'status',
     header: () => { const { t } = useTranslation('loyalty'); return <RecordTable.InlineHead icon={IconTag} label={t('status')} />; },
     size: 100,
-    cell: ({ cell }) => (
-      <RecordTableInlineCell>
-        <Badge variant="default">{cell.getValue() as string}</Badge>
-      </RecordTableInlineCell>
-    ),
+    cell: ({ cell }) => {
+      const { t } = useTranslation('loyalty');
+      return (
+        <RecordTableInlineCell>
+          <Badge variant="default">{t(cell.getValue() as string)}</Badge>
+        </RecordTableInlineCell>
+      );
+    },
   },
   {
     id: 'hasReturn',

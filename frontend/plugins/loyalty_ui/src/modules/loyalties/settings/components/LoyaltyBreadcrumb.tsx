@@ -19,7 +19,7 @@ export const LoyaltyBreadcrumb = () => {
         </Button>
         <Separator.Inline />
         <Button variant="ghost" className="font-semibold">
-          {label}
+          {label ? t(label) : ''}
         </Button>
       </div>
     </div>

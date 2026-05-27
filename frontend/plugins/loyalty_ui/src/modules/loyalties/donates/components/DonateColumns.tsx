@@ -83,11 +83,14 @@ export const firstDonateColumns: ColumnDef<IDonate>[] = [
       const { t } = useTranslation('loyalty');
       return <RecordTable.InlineHead icon={IconUser} label={t('owner-type')} />;
     },
-    cell: ({ cell }) => (
-      <RecordTableInlineCell>
-        <span className="capitalize">{cell.getValue() as string}</span>
-      </RecordTableInlineCell>
-    ),
+    cell: ({ cell }) => {
+      const { t } = useTranslation('loyalty');
+      return (
+        <RecordTableInlineCell>
+          <span className="capitalize">{t(cell.getValue() as string)}</span>
+        </RecordTableInlineCell>
+      );
+    },
     size: 130,
   },
 ];
@@ -114,11 +117,14 @@ export const secondDonateColumns: ColumnDef<IDonate>[] = [
       const { t } = useTranslation('loyalty');
       return <RecordTable.InlineHead icon={IconTag} label={t('status')} />;
     },
-    cell: ({ cell }) => (
-      <RecordTableInlineCell>
-        <Badge variant="default">{cell.getValue() as string}</Badge>
-      </RecordTableInlineCell>
-    ),
+    cell: ({ cell }) => {
+      const { t } = useTranslation('loyalty');
+      return (
+        <RecordTableInlineCell>
+          <Badge variant="default">{t(cell.getValue() as string)}</Badge>
+        </RecordTableInlineCell>
+      );
+    },
     size: 60,
   },
 ];
