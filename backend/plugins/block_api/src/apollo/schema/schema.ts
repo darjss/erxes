@@ -68,6 +68,7 @@ import {
   mutations as ContractMutations,
   queries as ContractQueries,
   types as ContractTypes,
+  filterInputTypes as ContractFilterTypes,
 } from '@/contract/graphql/schemas/contract';
 
 import {
@@ -175,6 +176,7 @@ export const types = `
   ${UnitLeadTypes}
   ${InvoiceTypes}
   ${ContractTypes}
+  ${ContractFilterTypes}
   ${OfferTypes}
   ${UnitTypeTypes}
   ${OpptyTypes}

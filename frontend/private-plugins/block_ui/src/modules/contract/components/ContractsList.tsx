@@ -145,14 +145,23 @@ export const ContractItem = ({
 
 export const DisplayParty = ({ party }: { party: IContract['party'] }) => {
   if (!party) return null;
-  const PartyInline =
-    party.type === 'customer' ? CustomersInline : CompaniesInline;
+  if (party.type === 'customer') {
+    return (
+      <CustomersInline.Provider customerIds={[party.id]}>
+        <span className="inline-flex items-center gap-2 overflow-hidden">
+          <CustomersInline.Avatar />
+          <CustomersInline.Title />
+        </span>
+      </CustomersInline.Provider>
+    );
+  }
   return (
-    <PartyInline
-      {...(party.type === 'customer'
-        ? { customerIds: [party.id] }
-        : { companyIds: [party.id] })}
-    />
+    <CompaniesInline.Provider companyIds={[party.id]}>
+      <span className="inline-flex items-center gap-2 overflow-hidden">
+        <CompaniesInline.Avatar />
+        <CompaniesInline.Title />
+      </span>
+    </CompaniesInline.Provider>
   );
 };
 

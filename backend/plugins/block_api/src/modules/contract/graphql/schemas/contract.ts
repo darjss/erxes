@@ -99,4 +99,28 @@ export const mutations = `
 export const queries = `
   blockGetContract(_id: String!): BlockContract
   blockGetContracts(unit: String): [BlockContract]
+  blockGetContractsList(
+    filter: BlockContractFilterInput
+    limit: Int
+    cursor: String
+    direction: String
+  ): BlockContractListResponse
+`;
+
+export const filterInputTypes = `
+  input BlockContractFilterInput {
+    search: String
+    status: String
+    partyType: String
+    currency: String
+    dateFrom: String
+    dateTo: String
+    user: String
+  }
+
+  type BlockContractListResponse {
+    list: [BlockContract]
+    pageInfo: PageInfo
+    totalCount: Int
+  }
 `;
