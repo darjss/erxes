@@ -39,4 +39,8 @@ export const MushopSupplier = {
     toFileUrl(logo, subdomain),
   coverImage: ({ coverImage, subdomain }: IMushopSupplierDocument) =>
     toFileUrl(coverImage, subdomain),
+  attachments: ({ attachments, subdomain }: IMushopSupplierDocument) =>
+    Array.isArray(attachments)
+      ? attachments.map((key) => toFileUrl(key, subdomain))
+      : null  
 };
