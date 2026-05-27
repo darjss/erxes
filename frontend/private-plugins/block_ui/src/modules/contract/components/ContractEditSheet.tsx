@@ -21,7 +21,7 @@ export const ContractEditSheet = () => {
           Edit
         </Button>
       </Sheet.Trigger>
-      <Sheet.View className="p-0 sm:max-w-5xl">
+      <Sheet.View className="p-0 sm:max-w-7xl">
         <Sheet.Header>
           <Sheet.Title>Edit contract</Sheet.Title>
           <Sheet.Close />
@@ -104,7 +104,7 @@ const ContractEditBody = ({
         : undefined;
     const amount =
       typeof data.amount === 'number' && !isNaN(data.amount)
-        ? Math.round(data.amount)
+        ? data.amount
         : undefined;
 
     try {
@@ -114,10 +114,10 @@ const ContractEditBody = ({
         currency: data.currency,
         date: data.date,
         amount,
-        amountType: data.amountType,
+        amountType: data.amountType || undefined,
         status: data.status || undefined,
-        startDate: data.startDate,
-        endDate: data.endDate,
+        startDate: data.startDate || undefined,
+        endDate: data.endDate || undefined,
         isLifeTime: data.isLifeTime,
         party,
         paymentPlan,

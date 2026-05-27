@@ -7,6 +7,7 @@ import {
   useNonNullMultiQueryState,
   validateFetchMore,
 } from 'erxes-ui';
+import { useParams } from 'react-router-dom';
 
 const CONTRACTS_PER_PAGE = 30;
 export const CONTRACTS_CURSOR_SESSION_KEY = 'contracts_cursor_session_key';
@@ -25,6 +26,12 @@ interface IContractsListResponse {
 }
 
 export const useContractsFilterVariables = () => {
+  const { projectId: projectIdParam, id } = useParams<{
+    projectId?: string;
+    id?: string;
+  }>();
+  const projectId = projectIdParam || id || '';
+
   const { searchValue, status, partyType, currency, date, user } =
     useNonNullMultiQueryState<{
       searchValue: string;
@@ -37,6 +44,7 @@ export const useContractsFilterVariables = () => {
 
   return {
     filter: {
+      projectId: projectId || undefined,
       search: searchValue || undefined,
       status: status || undefined,
       partyType: partyType || undefined,

@@ -51,7 +51,7 @@ export const types = `
     number: String
     currency: String
     date: String
-    amount: Int
+    amount: Float
     amountType: BlockContractAmountType
     status: String
     startDate: String
@@ -78,7 +78,7 @@ export const types = `
     number: String
     currency: String
     date: String
-    amount: Int
+    amount: Float
     amountType: BlockContractAmountType
     status: String
     startDate: String
@@ -109,6 +109,7 @@ export const queries = `
 
 export const filterInputTypes = `
   input BlockContractFilterInput {
+    projectId: String
     search: String
     status: String
     partyType: String
