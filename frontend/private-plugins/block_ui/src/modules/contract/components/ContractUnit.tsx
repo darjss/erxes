@@ -1,10 +1,5 @@
 import { useUnit } from '@/unit/hooks/useUnit';
-import {
-  CurrencyFormatedDisplay,
-  InfoCard,
-  Label,
-  useQueryState,
-} from 'erxes-ui';
+import { InfoCard, Label, useQueryState } from 'erxes-ui';
 
 export const ContractUnit = () => {
   const [unitId] = useQueryState<string>('unitId');
@@ -14,37 +9,42 @@ export const ContractUnit = () => {
     return null;
   }
 
+  const size = unit.unitType?.size;
+  const price = unit.unitType?.price;
+  const totalPrice =
+    size != null && price != null ? size * Number(price) : null;
+  const buildingName = unit.buildingData?.name;
+  const currency =
+    unit.zoningData?.priceList?.[0]?.currency || 'MNT';
+
   return (
-    <div className="p-5 pb-0">
-      <InfoCard title="Unit Details">
-        <InfoCard.Content>
-          <div className="grid grid-cols-3 gap-4">
-            <div className="space-y-2">
-              <Label>Unit number</Label>
-              <div className="font-medium">{unit.number}</div>
-            </div>
-            <div className="space-y-2">
-              <Label>Area</Label>
-              <div className="font-medium">{unit.size}</div>
-            </div>
-            <div className="space-y-2">
-              <Label>Total price</Label>
-              <div className="font-medium">
-                <CurrencyFormatedDisplay
-                  currencyValue={{
-                    amountMicros: unit.size * unit.mainPrice,
-                    currencyCode: unit.currency,
-                  }}
-                />
-              </div>
-            </div>
-            <div className="space-y-2">
-              <Label>Building</Label>
-              <div className="font-medium">{unit.building}</div>
+    <InfoCard title="Unit Details">
+      <InfoCard.Content>
+        <div className="grid grid-cols-4 gap-4">
+          <div className="space-y-2">
+            <Label>Unit number</Label>
+            <div className="font-medium">{unit.number}</div>
+          </div>
+          <div className="space-y-2">
+            <Label>Area</Label>
+            <div className="font-medium">
+              {size != null ? `${size}m²` : '-'}
             </div>
           </div>
-        </InfoCard.Content>
-      </InfoCard>
-    </div>
+          <div className="space-y-2">
+            <Label>Total price</Label>
+            <div className="font-medium">
+              {totalPrice != null
+                ? `${totalPrice.toLocaleString()} ${currency}`
+                : '-'}
+            </div>
+          </div>
+          <div className="space-y-2">
+            <Label>Building</Label>
+            <div className="font-medium">{buildingName || '-'}</div>
+          </div>
+        </div>
+      </InfoCard.Content>
+    </InfoCard>
   );
 };

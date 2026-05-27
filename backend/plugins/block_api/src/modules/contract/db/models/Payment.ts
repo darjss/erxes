@@ -126,12 +126,16 @@ export const loadContractPaymentClass = (models: IModels) => {
 
       const totalPrice = contract.amount || 0;
       const downPct = paymentPlan.downPaymentPercentage || 0;
+      const discountPct = paymentPlan.discountPercentage || 0;
+      const interestPct = paymentPlan.interestPercentage || 0;
+      const interestType = paymentPlan.interestType || 'FLAT';
       const installmentCount = Math.max(0, paymentPlan.installment || 0);
       const isOneTime = paymentPlan.frequency === 'ONE_TIME';
-      const downAmount = (totalPrice * downPct) / 100;
-      const installmentPct =
-        installmentCount > 0 ? (100 - downPct) / installmentCount : 0;
-      const installmentAmount = (totalPrice * installmentPct) / 100;
+
+      const discountAmount = (totalPrice * discountPct) / 100;
+      const priceAfterDiscount = totalPrice - discountAmount;
+      const downAmount = (priceAfterDiscount * downPct) / 100;
+      const principal = priceAfterDiscount - downAmount;
 
       const startDate =
         contract.startDate || contract.date || new Date();
@@ -145,53 +149,61 @@ export const loadContractPaymentClass = (models: IModels) => {
           );
 
       const rows: IContractPayment[] = [];
+      const currency = contract.currency || 'MNT';
+      const commonFields = {
+        contractId,
+        contractNumber,
+        partyId,
+        partyType,
+        projectId,
+        unit: contract.unit,
+        currency,
+        paid: false,
+      };
 
       if (isOneTime) {
+        const totalInterest = (priceAfterDiscount * interestPct) / 100;
         rows.push({
-          contractId,
-          contractNumber,
-          partyId,
-          partyType,
-          projectId,
-          unit: contract.unit,
+          ...commonFields,
           index: 0,
           label: 'Full payment',
           dueDate: contract.date || startDate,
-          amount: totalPrice,
-          currency: contract.currency || 'MNT',
-          paid: false,
+          amount: priceAfterDiscount + totalInterest,
         });
       } else {
         if (downAmount > 0 || downPct > 0) {
           rows.push({
-            contractId,
-            contractNumber,
-            partyId,
-            partyType,
-            projectId,
-            unit: contract.unit,
+            ...commonFields,
             index: 0,
             label: 'Down payment',
             dueDate: contract.date || startDate,
             amount: downAmount,
-            currency: contract.currency || 'MNT',
-            paid: false,
           });
         }
+
+        const principalPerInstallment =
+          installmentCount > 0 ? principal / installmentCount : 0;
+
         for (let i = 0; i < installmentCount; i++) {
+          let interest = 0;
+
+          if (interestPct > 0 && installmentCount > 0) {
+            if (interestType === 'FLAT') {
+              interest = (principal * interestPct) / 100 / installmentCount;
+            } else if (interestType === 'REDUCING') {
+              const remainingPrincipal = principal - principalPerInstallment * i;
+              interest = (remainingPrincipal * interestPct) / 100 / 12;
+            } else {
+              interest = (principal * interestPct) / 100 / installmentCount;
+            }
+          }
+
           rows.push({
-            contractId,
-            contractNumber,
-            partyId,
-            partyType,
-            projectId,
-            unit: contract.unit,
+            ...commonFields,
             index: i + 1,
             label: `Installment ${i + 1}`,
             dueDate: dates[i] || startDate,
-            amount: installmentAmount,
-            currency: contract.currency || 'MNT',
-            paid: false,
+            amount: principalPerInstallment + interest,
           });
         }
       }

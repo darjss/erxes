@@ -96,6 +96,13 @@ export const UnitDetailSheetContent = () => {
     if (!unit?._id) return;
     toggleLock({
       variables: { id: unit._id, locked: !isLocked },
+      optimisticResponse: {
+        blockToggleUnitLock: {
+          __typename: 'BlockUnit',
+          _id: unit._id,
+          locked: !isLocked,
+        },
+      },
       refetchQueries: ['BlockGetUnit', 'BlockGetUnits'],
       onCompleted: () => {
         toast({
@@ -172,7 +179,7 @@ export const UnitDetailSheetContent = () => {
         </FocusSheet.SideBar>
 
         <UnitContext.Provider value={{ unit }}>
-          <div className='flex-1'>
+          <div className="flex-1 overflow-auto">
             {!!unitId && <UnitTabs />}
           </div>
         </UnitContext.Provider>

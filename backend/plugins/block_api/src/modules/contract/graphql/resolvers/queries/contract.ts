@@ -3,6 +3,7 @@ import { IContractDocument } from '@/contract/@types/contract';
 import { IContext } from '~/connectionResolvers';
 
 interface IContractFilter {
+  projectId?: string;
   search?: string;
   status?: string;
   partyType?: string;
@@ -47,6 +48,27 @@ export const contractQueries = {
     const query: Record<string, any> = {};
 
     if (filter) {
+      if (filter.projectId) {
+        const buildings = await models.Building.find(
+          { project: filter.projectId },
+          { _id: 1 },
+        ).lean();
+        const buildingIds = buildings.map((b: any) => b._id);
+
+        const zonings = await models.Zoning.find(
+          { building: { $in: buildingIds } },
+          { _id: 1 },
+        ).lean();
+        const zoningIds = zonings.map((z: any) => z._id);
+
+        const units = await models.Unit.find(
+          { zoning: { $in: zoningIds } },
+          { _id: 1 },
+        ).lean();
+        const unitIds = units.map((u: any) => u._id);
+
+        query.unit = { $in: unitIds };
+      }
       if (filter.search) {
         query.number = { $regex: filter.search, $options: 'i' };
       }
