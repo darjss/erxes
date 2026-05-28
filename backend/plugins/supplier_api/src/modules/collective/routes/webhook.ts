@@ -1,10 +1,9 @@
 import crypto from 'crypto';
 import { Router, Request, Response } from 'express';
 import { isDev, sendTRPCMessage } from 'erxes-api-shared/utils';
-import {
-  COLLECTIVE_BUNDLE_TYPE,
-  isValid,
-} from '@/collective/utils/isCollective';
+import { isValid } from '@/collective/utils/isCollective';
+
+const COLLECTIVE_BUNDLE_TYPE = 'COLLECTIVE_BUNDLE_TYPE';
 
 const router: Router = Router();
 
@@ -64,7 +63,7 @@ router.post('/collective', async (req: Request, res: Response) => {
 
     if (!(await isValid(subdomain, COLLECTIVE_BUNDLE_TYPE))) {
       return res.status(403).json({
-        error: `Subdomain "${subdomain}" does not have an active "${COLLECTIVE_BUNDLE_TYPE}" bundle`,
+        error: `Subdomain "${subdomain}" does not have an active collective bundle`,
       });
     }
 
@@ -215,7 +214,7 @@ router.post('/collective-push', async (req: Request, res: Response) => {
 
     if (!(await isValid(targetSubdomain, COLLECTIVE_BUNDLE_TYPE))) {
       return res.status(403).json({
-        error: `Subdomain "${targetSubdomain}" does not have an active "${COLLECTIVE_BUNDLE_TYPE}" bundle`,
+        error: `Subdomain "${targetSubdomain}" does not have an active collective bundle`,
       });
     }
 
@@ -335,7 +334,7 @@ router.post('/collective-purge', async (req: Request, res: Response) => {
 
     if (!(await isValid(subdomain, COLLECTIVE_BUNDLE_TYPE))) {
       return res.status(403).json({
-        error: `Subdomain "${subdomain}" does not have an active "${COLLECTIVE_BUNDLE_TYPE}" bundle`,
+        error: `Subdomain "${subdomain}" does not have an active collective bundle`,
       });
     }
 
@@ -442,7 +441,7 @@ router.post('/collective-purge-push', async (req: Request, res: Response) => {
 
     if (!(await isValid(targetSubdomain, COLLECTIVE_BUNDLE_TYPE))) {
       return res.status(403).json({
-        error: `Subdomain "${targetSubdomain}" does not have an active "${COLLECTIVE_BUNDLE_TYPE}" bundle`,
+        error: `Subdomain "${targetSubdomain}" does not have an active collective bundle`,
       });
     }
 
@@ -525,7 +524,7 @@ router.post('/create-pos', async (req: Request, res: Response) => {
 
     if (!(await isValid(subdomain, COLLECTIVE_BUNDLE_TYPE))) {
       return res.status(403).json({
-        error: `Subdomain "${subdomain}" does not have an active "${COLLECTIVE_BUNDLE_TYPE}" bundle`,
+        error: `Subdomain "${subdomain}" does not have an active collective bundle`,
       });
     }
 

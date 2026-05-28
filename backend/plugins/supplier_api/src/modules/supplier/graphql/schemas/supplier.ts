@@ -97,6 +97,7 @@ export const queries = `
   getSupplier: Supplier
   supplierDetail(_id: String!): Supplier
   suppliers(${supplierQueryParams}): SupplierListResponse
+  cpSupplierUsers(positionIds: [String]): [User]
 `;
 
 export const mutations = `
