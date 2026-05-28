@@ -92,6 +92,15 @@ export const CP_MTO_REGISTRATION_APPLICATION_UPDATE = gql`
   }
 `;
 
+export const MTO_REGISTRATION_APPLICATION_MARK_READ = gql`
+  mutation MtoRegistrationApplicationMarkRead($_id: String!, $isRead: Boolean) {
+    mtoRegistrationApplicationMarkRead(_id: $_id, isRead: $isRead) {
+      _id
+      isRead
+    }
+  }
+`;
+
 export const MTO_REGISTRATION_FORM_SCHEMA_CREATE = gql`
   mutation MtoRegistrationFormSchemaCreate($definition: JSON!) {
     mtoRegistrationFormSchemaCreate(definition: $definition) {

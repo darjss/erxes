@@ -13,4 +13,5 @@ export interface IRegistrationApplication {
   subdomain: string;
   instanceId?: string;
   cpUserId?: string;
+  isRead?: boolean;
 }

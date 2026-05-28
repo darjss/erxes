@@ -69,6 +69,7 @@ export const MTO_REGISTRATION_APPLICATIONS = gql`
         status
         instanceId
         cpUserId
+        isRead
       }
       totalCount
       pageInfo {

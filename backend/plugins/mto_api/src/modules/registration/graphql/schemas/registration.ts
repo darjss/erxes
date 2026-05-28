@@ -19,6 +19,7 @@ export const types = `
     answers: JSON
     instanceId: String
     cpUserId: String
+    isRead: Boolean
   }
 
   type MtoRegistrationApplicationListResponse {
@@ -78,6 +79,10 @@ export const mutations = `
     answers: JSON
     status: String
     cpUserId: String
+  ): MtoRegistrationApplication
+  mtoRegistrationApplicationMarkRead(
+    _id: String!
+    isRead: Boolean
   ): MtoRegistrationApplication
   cpMtoRegistrationApplicationUpdate(
     _id: String!
