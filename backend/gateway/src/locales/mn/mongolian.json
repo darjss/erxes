@@ -336,9 +336,9 @@
   "choose-user": "Хэрэглэгч сонгох",
 
   "general-settings": "Ерөнхий тохиргоо",
-  "product-to-erkhet": "Бараа эрхэтэд",
-  "customer-to-erkhet": "Харилцагч эрхэтэд",
-  "loan-transaction-to-erkhet": "Зээлийн гүйлгээ эрхэтэд",
+  "product-to-erkhet": "Бүтээгдэхүүнийг Эрхэт рүү шилжүүлэх",
+  "customer-to-erkhet": "Харилцагчийг Эрхэт рүү шилжүүлэх",
+  "loan-transaction-to-erkhet": "Зээлийн гүйлгээг Эрхэт рүү шилжүүлэх",
   "api-key": "API түлхүүр",
   "api-secret": "API нууц",
   "api-token": "API токен",
