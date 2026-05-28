@@ -82,8 +82,9 @@ function StatusChangeCell({
   return (
     <DropdownMenu>
       <DropdownMenu.Trigger asChild>
-        <Button type="button" variant="outline" size="icon" disabled={loading}>
-          <IconSelector size={16} />
+        <Button type="button" variant="outline" size="sm" disabled={loading} className="capitalize gap-1">
+          {currentStatus}
+          <IconSelector size={14} />
         </Button>
       </DropdownMenu.Trigger>
       <DropdownMenu.Content align="end">
@@ -169,29 +170,7 @@ function GroupSection({
         </RecordTableInlineCell>
       ),
     },
-    {
-      accessorKey: 'schemaVersion',
-      header: 'Хувилбар',
-      cell: ({ cell }) => (
-        <RecordTableInlineCell className="font-mono text-xs">
-          {cell.getValue() as string}
-        </RecordTableInlineCell>
-      ),
-    },
-    {
-      accessorKey: 'status',
-      header: 'Төлөв',
-      cell: ({ cell }) => {
-        const status = cell.getValue() as string;
-        return (
-          <RecordTableInlineCell>
-            <Badge variant={statusBadgeVariant(status)} className="capitalize">
-              {status}
-            </Badge>
-          </RecordTableInlineCell>
-        );
-      },
-    },
+
     {
       accessorKey: 'createdAt',
       header: 'Огноо',
@@ -210,7 +189,7 @@ function GroupSection({
         const id = row.original._id as string;
         const status = row.original.status as string;
         return (
-          <RecordTableInlineCell className="flex gap-2">
+          <RecordTableInlineCell className="flex justify-start items-center gap-2">
             <StatusChangeCell id={id} currentStatus={status} onChanged={refetch} />
             <Button
               type="button"
@@ -364,29 +343,6 @@ export function RegistrationsList({ filters }: RegistrationsListProps) {
       ),
     },
     {
-      accessorKey: 'schemaVersion',
-      header: 'Хувилбар',
-      cell: ({ cell }) => (
-        <RecordTableInlineCell className="font-mono text-xs">
-          {cell.getValue() as string}
-        </RecordTableInlineCell>
-      ),
-    },
-    {
-      accessorKey: 'status',
-      header: 'Төлөв',
-      cell: ({ cell }) => {
-        const status = cell.getValue() as string;
-        return (
-          <RecordTableInlineCell>
-            <Badge variant={statusBadgeVariant(status)} className="capitalize">
-              {status}
-            </Badge>
-          </RecordTableInlineCell>
-        );
-      },
-    },
-    {
       accessorKey: 'createdAt',
       header: 'Огноо',
       cell: ({ cell }) => (
@@ -404,7 +360,7 @@ export function RegistrationsList({ filters }: RegistrationsListProps) {
         const id = row.original._id as string;
         const status = row.original.status as string;
         return (
-          <RecordTableInlineCell className="flex gap-2">
+          <RecordTableInlineCell className="flex justify-start items-center gap-2">
             <StatusChangeCell id={id} currentStatus={status} onChanged={() => void refetch()} />
             <Button
               type="button"
