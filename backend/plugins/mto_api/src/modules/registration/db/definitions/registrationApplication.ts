@@ -52,6 +52,12 @@ export const registrationApplicationSchema = new Schema(
       sparse: true,
       index: true,
     },
+    isRead: {
+      type: Boolean,
+      label: 'Is read',
+      default: false,
+      index: true,
+    },
   },
   {
     timestamps: true,

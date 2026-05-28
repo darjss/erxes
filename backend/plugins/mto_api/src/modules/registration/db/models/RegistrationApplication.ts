@@ -20,6 +20,11 @@ export interface IRegistrationApplicationModel extends Model<IRegistrationApplic
       cpUserId?: string | null;
     },
   ): Promise<IRegistrationApplicationDocument | null>;
+  markAsRead(
+    _id: string,
+    subdomain: string,
+    isRead: boolean,
+  ): Promise<IRegistrationApplicationDocument | null>;
 }
 
 export const loadRegistrationApplicationClass = (models: IModels) => {
@@ -71,6 +76,18 @@ export const loadRegistrationApplicationClass = (models: IModels) => {
       return models.RegistrationApplication.findOneAndUpdate(
         { _id, subdomain },
         update,
+        { new: true },
+      );
+    }
+
+    public static async markAsRead(
+      _id: string,
+      subdomain: string,
+      isRead: boolean,
+    ) {
+      return models.RegistrationApplication.findOneAndUpdate(
+        { _id, subdomain },
+        { $set: { isRead, modifiedAt: new Date() } },
         { new: true },
       );
     }

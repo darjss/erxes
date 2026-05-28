@@ -31,6 +31,11 @@ interface UpdateApplicationArgs {
   cpUserId?: string | null;
 }
 
+interface MarkReadArgs {
+  _id: string;
+  isRead?: boolean | null;
+}
+
 function resolveSubmitCpUserId(
   context: IContext,
   cpUserIdArg?: string | null,
@@ -250,6 +255,26 @@ export const registrationMutations: Record<string, Resolver> = {
       models,
       toPlainRegistrationDoc(updated),
     );
+  },
+
+  async mtoRegistrationApplicationMarkRead(
+    _root: undefined,
+    { _id, isRead }: MarkReadArgs,
+    context: IContext,
+  ) {
+    const { models, subdomain } = context;
+
+    const updated = await models.RegistrationApplication.markAsRead(
+      _id,
+      subdomain,
+      isRead !== false,
+    );
+
+    if (!updated) {
+      throw new Error('Application not found');
+    }
+
+    return mapRegistrationApplicationGql(models, toPlainRegistrationDoc(updated));
   },
 };
 
