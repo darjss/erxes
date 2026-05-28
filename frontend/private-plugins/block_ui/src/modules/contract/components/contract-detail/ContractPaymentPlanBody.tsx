@@ -2,11 +2,13 @@ import { InfoCard, Table } from 'erxes-ui';
 import { format } from 'date-fns';
 import { IContract } from '@/contract/types/contractTypes';
 import {
+  formatAmount,
   formatDate,
   generateInstallmentDates,
   parseDateLike,
   renderRow,
 } from './shared';
+import { CONTRACT_AMOUNT_TYPE_OPTIONS } from '@/contract/constants/contract';
 
 export const ContractPaymentPlanBody = ({
   contract,
@@ -25,6 +27,27 @@ export const ContractPaymentPlanBody = ({
 
   return (
     <div className="flex flex-col gap-4">
+      <InfoCard title="Amount">
+        <InfoCard.Content className="shadow-none p-0 overflow-hidden">
+          <Table>
+            <Table.Body className="bt:[&_td]:px-2 bt:[&_tr:first-child_td]:border-t bt:[&_td]:h-10">
+              {renderRow(
+                'Amount',
+                formatAmount(contract.amount, contract.currency),
+                true,
+              )}
+              {renderRow(
+                'Amount Type',
+                CONTRACT_AMOUNT_TYPE_OPTIONS.find(
+                  (o) => o.value === contract.amountType,
+                )?.label || contract.amountType,
+              )}
+              {renderRow('Currency', contract.currency, false, true)}
+            </Table.Body>
+          </Table>
+        </InfoCard.Content>
+      </InfoCard>
+
       <InfoCard title="Payment Plan">
         <InfoCard.Content className="shadow-none p-0 overflow-hidden">
           <Table>

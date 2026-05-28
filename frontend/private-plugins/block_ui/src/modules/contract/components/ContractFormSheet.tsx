@@ -89,6 +89,7 @@ export const ContractFormSheet = ({
       status: '',
       party: { type: 'customer', id: '' },
       currency: CurrencyCode.MNT,
+      amountType: 'perUnit',
       ...defaultValues,
     },
   });
@@ -470,11 +471,15 @@ export const ContractFormSheet = ({
                         <Form.Label>Amount Type</Form.Label>
                         <Select
                           onValueChange={field.onChange}
-                          value={field.value}
+                          value={field.value || ''}
                         >
                           <Form.Control>
                             <Select.Trigger className="h-8">
-                              <Select.Value placeholder="Select amount type" />
+                              <Select.Value placeholder="Select amount type">
+                                {CONTRACT_AMOUNT_TYPE_OPTIONS.find(
+                                  (o) => o.value === field.value,
+                                )?.label || 'Select amount type'}
+                              </Select.Value>
                             </Select.Trigger>
                           </Form.Control>
                           <Select.Content>

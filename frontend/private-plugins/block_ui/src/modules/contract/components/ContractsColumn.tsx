@@ -64,17 +64,24 @@ export const contractsColumns = (
       cell: ({ cell }) => {
         const statusId = cell.getValue() as string;
         const status = statuses.find((s) => s._id === statusId);
-        if (!status) return null;
         return (
-          <Badge
-            variant="secondary"
-            style={{
-              backgroundColor: status.color ? `${status.color}20` : undefined,
-              color: status.color || undefined,
-            }}
-          >
-            {status.name}
-          </Badge>
+          <RecordTableInlineCell>
+            {status ? (
+              <Badge
+                variant="secondary"
+                style={{
+                  backgroundColor: status.color
+                    ? `${status.color}20`
+                    : undefined,
+                  color: status.color || undefined,
+                }}
+              >
+                {status.name}
+              </Badge>
+            ) : (
+              <span className="text-muted-foreground">-</span>
+            )}
+          </RecordTableInlineCell>
         );
       },
       size: 170,
@@ -85,32 +92,26 @@ export const contractsColumns = (
       header: () => <RecordTable.InlineHead label="Party" icon={IconUser} />,
       cell: ({ cell }) => {
         const party = cell.getValue() as IContract['party'];
-        if (!party) return <span className="text-muted-foreground">-</span>;
-        if (party.type === ContractPartyType.CUSTOMER) {
-          return (
-            <CustomersInline.Provider customerIds={[party.id]}>
-              <span className="inline-flex items-center gap-2 overflow-hidden">
-                <CustomersInline.Avatar />
-                <div className="min-w-0 space-y-1">
-                  <div className="text-sm font-semibold truncate text-foreground">
-                    <CustomersInline.Title />
-                  </div>
-                </div>
-              </span>
-            </CustomersInline.Provider>
-          );
-        }
         return (
-          <CompaniesInline.Provider companyIds={[party.id]}>
-            <span className="inline-flex items-center gap-2 overflow-hidden">
-              <CompaniesInline.Avatar />
-              <div className="min-w-0 space-y-1">
-                <div className="text-sm font-semibold truncate text-foreground">
+          <RecordTableInlineCell>
+            {!party ? (
+              <span className="text-muted-foreground">-</span>
+            ) : party.type === ContractPartyType.CUSTOMER ? (
+              <CustomersInline.Provider customerIds={[party.id]}>
+                <span className="inline-flex items-center gap-2 overflow-hidden">
+                  <CustomersInline.Avatar />
+                  <CustomersInline.Title />
+                </span>
+              </CustomersInline.Provider>
+            ) : (
+              <CompaniesInline.Provider companyIds={[party.id]}>
+                <span className="inline-flex items-center gap-2 overflow-hidden">
+                  <CompaniesInline.Avatar />
                   <CompaniesInline.Title />
-                </div>
-              </div>
-            </span>
-          </CompaniesInline.Provider>
+                </span>
+              </CompaniesInline.Provider>
+            )}
+          </RecordTableInlineCell>
         );
       },
       size: 240,
@@ -122,12 +123,19 @@ export const contractsColumns = (
       cell: ({ cell }) => {
         const amount = cell.getValue() as number;
         const currency = cell.row.original.currency;
-        if (!amount) return <span className="text-muted-foreground">-</span>;
         return (
-          <span className="flex items-center gap-1">
-            {currency && <CurrencyDisplay variant="icon" code={currency} />}
-            {amount.toLocaleString()}
-          </span>
+          <RecordTableInlineCell>
+            {!amount ? (
+              <span className="text-muted-foreground">-</span>
+            ) : (
+              <span className="flex items-center gap-1">
+                {currency && (
+                  <CurrencyDisplay variant="icon" code={currency} />
+                )}
+                {amount.toLocaleString()}
+              </span>
+            )}
+          </RecordTableInlineCell>
         );
       },
       size: 170,
@@ -138,8 +146,15 @@ export const contractsColumns = (
       header: () => <RecordTable.InlineHead label="Date" icon={IconCalendar} />,
       cell: ({ cell }) => {
         const d = parseDate(cell.getValue());
-        if (!d) return <span className="text-muted-foreground">-</span>;
-        return <span>{format(d, 'MMM dd, yyyy')}</span>;
+        return (
+          <RecordTableInlineCell>
+            {d ? (
+              <span>{format(d, 'MMM dd, yyyy')}</span>
+            ) : (
+              <span className="text-muted-foreground">-</span>
+            )}
+          </RecordTableInlineCell>
+        );
       },
       size: 170,
     },
@@ -151,8 +166,15 @@ export const contractsColumns = (
       ),
       cell: ({ cell }) => {
         const d = parseDate(cell.getValue());
-        if (!d) return <span className="text-muted-foreground">-</span>;
-        return <span>{format(d, 'MMM dd, yyyy')}</span>;
+        return (
+          <RecordTableInlineCell>
+            {d ? (
+              <span>{format(d, 'MMM dd, yyyy')}</span>
+            ) : (
+              <span className="text-muted-foreground">-</span>
+            )}
+          </RecordTableInlineCell>
+        );
       },
       size: 170,
     },
@@ -164,12 +186,18 @@ export const contractsColumns = (
       ),
       cell: ({ cell }) => {
         const isLifeTime = cell.row.original.isLifeTime;
-        if (isLifeTime) {
-          return <Badge variant="secondary">Lifetime</Badge>;
-        }
         const d = parseDate(cell.getValue());
-        if (!d) return <span className="text-muted-foreground">-</span>;
-        return <span>{format(d, 'MMM dd, yyyy')}</span>;
+        return (
+          <RecordTableInlineCell>
+            {isLifeTime ? (
+              <Badge variant="secondary">Lifetime</Badge>
+            ) : d ? (
+              <span>{format(d, 'MMM dd, yyyy')}</span>
+            ) : (
+              <span className="text-muted-foreground">-</span>
+            )}
+          </RecordTableInlineCell>
+        );
       },
       size: 170,
     },
@@ -181,11 +209,19 @@ export const contractsColumns = (
       ),
       cell: ({ cell }) => {
         const userId = cell.getValue() as string;
-        if (!userId) return <span className="text-muted-foreground">-</span>;
         return (
-          <MembersInline.Provider memberIds={[userId]}>
-            <MembersInline.Avatar />
-          </MembersInline.Provider>
+          <RecordTableInlineCell>
+            {!userId ? (
+              <span className="text-muted-foreground">-</span>
+            ) : (
+              <MembersInline.Provider memberIds={[userId]}>
+                <span className="inline-flex items-center gap-2 overflow-hidden">
+                  <MembersInline.Avatar />
+                  <MembersInline.Title />
+                </span>
+              </MembersInline.Provider>
+            )}
+          </RecordTableInlineCell>
         );
       },
       size: 180,

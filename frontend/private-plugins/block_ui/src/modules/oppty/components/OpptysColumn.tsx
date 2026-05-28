@@ -72,17 +72,24 @@ export const opptysColumns = (
       cell: ({ cell }) => {
         const statusId = cell.getValue() as string;
         const status = statuses.find((s) => s._id === statusId);
-        if (!status) return null;
         return (
-          <Badge
-            variant="secondary"
-            style={{
-              backgroundColor: status.color ? `${status.color}20` : undefined,
-              color: status.color || undefined,
-            }}
-          >
-            {status.name}
-          </Badge>
+          <RecordTableInlineCell>
+            {status ? (
+              <Badge
+                variant="secondary"
+                style={{
+                  backgroundColor: status.color
+                    ? `${status.color}20`
+                    : undefined,
+                  color: status.color || undefined,
+                }}
+              >
+                {status.name}
+              </Badge>
+            ) : (
+              <span className="text-muted-foreground">-</span>
+            )}
+          </RecordTableInlineCell>
         );
       },
       size: 170,
@@ -90,22 +97,24 @@ export const opptysColumns = (
     {
       id: 'customerId',
       accessorKey: 'customerId',
-      header: () => <RecordTable.InlineHead label="Customer" icon={IconUser} />,
+      header: () => (
+        <RecordTable.InlineHead label="Customer" icon={IconUser} />
+      ),
       cell: ({ cell }) => {
         const customerId = cell.getValue() as string;
-        if (!customerId)
-          return <span className="text-muted-foreground">-</span>;
         return (
-          <CustomersInline.Provider customerIds={[customerId]}>
-            <span className="inline-flex items-center gap-2 overflow-hidden">
-              <CustomersInline.Avatar />
-              <div className="min-w-0 space-y-1">
-                <div className="text-sm font-semibold truncate text-foreground">
+          <RecordTableInlineCell>
+            {!customerId ? (
+              <span className="text-muted-foreground">-</span>
+            ) : (
+              <CustomersInline.Provider customerIds={[customerId]}>
+                <span className="inline-flex items-center gap-2 overflow-hidden">
+                  <CustomersInline.Avatar />
                   <CustomersInline.Title />
-                </div>
-              </div>
-            </span>
-          </CustomersInline.Provider>
+                </span>
+              </CustomersInline.Provider>
+            )}
+          </RecordTableInlineCell>
         );
       },
       size: 240,
@@ -113,23 +122,30 @@ export const opptysColumns = (
     {
       id: 'priority',
       accessorKey: 'priority',
-      header: () => <RecordTable.InlineHead label="Priority" icon={IconFlag} />,
+      header: () => (
+        <RecordTable.InlineHead label="Priority" icon={IconFlag} />
+      ),
       cell: ({ cell }) => {
         const priority = cell.getValue() as string;
-        if (!priority) return <span className="text-muted-foreground">-</span>;
         return (
-          <Badge
-            variant="secondary"
-            className="capitalize"
-            style={{
-              backgroundColor: PRIORITY_COLORS[priority]
-                ? `${PRIORITY_COLORS[priority]}20`
-                : undefined,
-              color: PRIORITY_COLORS[priority] || undefined,
-            }}
-          >
-            {priority}
-          </Badge>
+          <RecordTableInlineCell>
+            {!priority ? (
+              <span className="text-muted-foreground">-</span>
+            ) : (
+              <Badge
+                variant="secondary"
+                className="capitalize"
+                style={{
+                  backgroundColor: PRIORITY_COLORS[priority]
+                    ? `${PRIORITY_COLORS[priority]}20`
+                    : undefined,
+                  color: PRIORITY_COLORS[priority] || undefined,
+                }}
+              >
+                {priority}
+              </Badge>
+            )}
+          </RecordTableInlineCell>
         );
       },
       size: 130,
@@ -137,14 +153,24 @@ export const opptysColumns = (
     {
       id: 'customerSource',
       accessorKey: 'customerSource',
-      header: () => <RecordTable.InlineHead label="Source" icon={IconPhone} />,
+      header: () => (
+        <RecordTable.InlineHead label="Source" icon={IconPhone} />
+      ),
       cell: ({ cell }) => {
         const source = cell.getValue() as string;
-        if (!source) return <span className="text-muted-foreground">-</span>;
-        const label =
-          SelectCustomerSource.OPTIONS.find((o) => o.value === source)?.label ||
-          source;
-        return <Badge variant="secondary">{label}</Badge>;
+        const label = source
+          ? SelectCustomerSource.OPTIONS.find((o) => o.value === source)
+              ?.label || source
+          : null;
+        return (
+          <RecordTableInlineCell>
+            {label ? (
+              <Badge variant="secondary">{label}</Badge>
+            ) : (
+              <span className="text-muted-foreground">-</span>
+            )}
+          </RecordTableInlineCell>
+        );
       },
       size: 150,
     },
@@ -156,11 +182,18 @@ export const opptysColumns = (
       ),
       cell: ({ cell }) => {
         const unitTypeId = cell.getValue() as string;
-        if (!unitTypeId)
-          return <span className="text-muted-foreground">-</span>;
-        const unitTypeName =
-          unitTypes?.find((t) => t._id === unitTypeId)?.name || unitTypeId;
-        return <span>{unitTypeName}</span>;
+        const unitTypeName = unitTypeId
+          ? unitTypes?.find((t) => t._id === unitTypeId)?.name || unitTypeId
+          : null;
+        return (
+          <RecordTableInlineCell>
+            {unitTypeName ? (
+              <span>{unitTypeName}</span>
+            ) : (
+              <span className="text-muted-foreground">-</span>
+            )}
+          </RecordTableInlineCell>
+        );
       },
       size: 150,
     },
@@ -172,8 +205,15 @@ export const opptysColumns = (
       ),
       cell: ({ cell }) => {
         const d = parseDate(cell.getValue());
-        if (!d) return <span className="text-muted-foreground">-</span>;
-        return <span>{format(d, 'MMM dd, yyyy')}</span>;
+        return (
+          <RecordTableInlineCell>
+            {d ? (
+              <span>{format(d, 'MMM dd, yyyy')}</span>
+            ) : (
+              <span className="text-muted-foreground">-</span>
+            )}
+          </RecordTableInlineCell>
+        );
       },
       size: 170,
     },
@@ -185,8 +225,15 @@ export const opptysColumns = (
       ),
       cell: ({ cell }) => {
         const d = parseDate(cell.getValue());
-        if (!d) return <span className="text-muted-foreground">-</span>;
-        return <span>{format(d, 'MMM dd, yyyy')}</span>;
+        return (
+          <RecordTableInlineCell>
+            {d ? (
+              <span>{format(d, 'MMM dd, yyyy')}</span>
+            ) : (
+              <span className="text-muted-foreground">-</span>
+            )}
+          </RecordTableInlineCell>
+        );
       },
       size: 170,
     },
@@ -198,11 +245,19 @@ export const opptysColumns = (
       ),
       cell: ({ cell }) => {
         const userId = cell.getValue() as string;
-        if (!userId) return <span className="text-muted-foreground">-</span>;
         return (
-          <MembersInline.Provider memberIds={[userId]}>
-            <MembersInline.Avatar />
-          </MembersInline.Provider>
+          <RecordTableInlineCell>
+            {!userId ? (
+              <span className="text-muted-foreground">-</span>
+            ) : (
+              <MembersInline.Provider memberIds={[userId]}>
+                <span className="inline-flex items-center gap-2 overflow-hidden">
+                  <MembersInline.Avatar />
+                  <MembersInline.Title />
+                </span>
+              </MembersInline.Provider>
+            )}
+          </RecordTableInlineCell>
         );
       },
       size: 180,
