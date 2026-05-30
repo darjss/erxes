@@ -50,13 +50,12 @@ const mushopSubscriptions: Resolver = async (
   if (status) query.status = status;
 
   if (searchValue) {
-    // Search customers by name, phone, email in core-api
     const customers = await sendTRPCMessage({
       subdomain,
       pluginName: 'core',
       method: 'query',
-      module: 'contacts',
-      action: 'customers.find',
+      module: 'customers',
+      action: 'find',
       input: {
         query: {
           $or: [
@@ -68,11 +67,10 @@ const mushopSubscriptions: Resolver = async (
           status: { $ne: 'deleted' },
         },
       },
+      defaultValue: [],
     });
 
-    const customerIds = (customers || []).map((c) => c._id);
-
-    query.customerId = { $in: customerIds };
+    query.customerId = { $in: customers.map((c: { _id: string }) => c._id) };
   }
 
   return cursorPaginate<IMushopSubscriptionDocument>({
