@@ -41,7 +41,7 @@ mushopIsSubscribed.wrapperConfig = {
 const mushopSubscriptions: Resolver = async (
   _root,
   params,
-  { models }: IContext,
+  { models, subdomain }: IContext,
 ) => {
   const { searchValue, status, ...cursorParams } = params;
 
@@ -50,12 +50,34 @@ const mushopSubscriptions: Resolver = async (
   if (status) query.status = status;
 
   if (searchValue) {
-    query.customerId = { $regex: searchValue, $options: 'i' };
+    // Search customers by name, phone, email in core-api
+    const customers = await sendTRPCMessage({
+      subdomain,
+      pluginName: 'core',
+      method: 'query',
+      module: 'contacts',
+      action: 'customers.find',
+      input: {
+        query: {
+          $or: [
+            { primaryEmail: { $regex: searchValue, $options: 'i' } },
+            { primaryPhone: { $regex: searchValue, $options: 'i' } },
+            { 'details.firstName': { $regex: searchValue, $options: 'i' } },
+            { 'details.lastName': { $regex: searchValue, $options: 'i' } },
+          ],
+          status: { $ne: 'deleted' },
+        },
+      },
+    });
+
+    const customerIds = (customers || []).map((c) => c._id);
+
+    query.customerId = { $in: customerIds };
   }
 
   return cursorPaginate<IMushopSubscriptionDocument>({
     model: models.MushopSubscription,
-    params: { ...cursorParams, orderBy: { createdAt: 'desc' } },
+    params: { ...cursorParams, orderBy: { createdAt: -1 } },
     query,
   });
 };
