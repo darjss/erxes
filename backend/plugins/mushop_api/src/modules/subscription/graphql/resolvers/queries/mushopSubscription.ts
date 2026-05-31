@@ -61,8 +61,9 @@ const mushopSubscriptions: Resolver = async (
           $or: [
             { primaryEmail: { $regex: searchValue, $options: 'i' } },
             { primaryPhone: { $regex: searchValue, $options: 'i' } },
-            { 'details.firstName': { $regex: searchValue, $options: 'i' } },
-            { 'details.lastName': { $regex: searchValue, $options: 'i' } },
+            { firstName: { $regex: searchValue, $options: 'i' } },
+            { lastName: { $regex: searchValue, $options: 'i' } },
+            { middleName: { $regex: searchValue, $options: 'i' } },
           ],
           status: { $ne: 'deleted' },
         },
