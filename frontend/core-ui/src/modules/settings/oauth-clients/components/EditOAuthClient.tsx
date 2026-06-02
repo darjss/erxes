@@ -24,7 +24,6 @@ export const EditOAuthClient = () => {
     logo: editingOAuthClient?.logo,
     description: editingOAuthClient?.description,
     type: editingOAuthClient?.type,
-    accessTokenLifetime: editingOAuthClient?.accessTokenLifetime || 'year',
     redirectUrls: editingOAuthClient?.redirectUrls || [],
   });
   const [revealedSecret, setRevealedSecret] = React.useState<{
@@ -39,7 +38,6 @@ export const EditOAuthClient = () => {
         logo: editingOAuthClient.logo,
         description: editingOAuthClient.description,
         type: editingOAuthClient.type,
-        accessTokenLifetime: editingOAuthClient.accessTokenLifetime || 'year',
         redirectUrls: editingOAuthClient.redirectUrls || [],
       });
     }

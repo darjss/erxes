@@ -36,12 +36,6 @@ const ClientIdCell = ({ clientId }: { clientId: string }) => {
   );
 };
 
-const lifetimeLabels: Record<string, string> = {
-  year: '1 year',
-  half: '6 months',
-  trio: '3 months',
-};
-
 export const oauthClientsSettingsColumns: ColumnDef<IOAuthClientApp>[] = [
   {
     id: 'name',
@@ -64,18 +58,6 @@ export const oauthClientsSettingsColumns: ColumnDef<IOAuthClientApp>[] = [
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         <Badge variant="secondary">{cell.getValue() as string}</Badge>
-      </RecordTableInlineCell>
-    ),
-  },
-  {
-    id: 'accessTokenLifetime',
-    accessorKey: 'accessTokenLifetime',
-    header: 'Token lifetime',
-    cell: ({ row }) => (
-      <RecordTableInlineCell>
-        {row.original.type === 'confidential'
-          ? lifetimeLabels[row.original.accessTokenLifetime || 'year']
-          : '8 hours'}
       </RecordTableInlineCell>
     ),
   },
