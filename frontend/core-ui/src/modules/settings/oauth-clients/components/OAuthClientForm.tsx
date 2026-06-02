@@ -5,7 +5,6 @@ import { OAuthClientLogoUpload } from './OAuthClientLogoUpload';
 
 export const OAuthClientForm = () => {
   const form = useFormContext<TOAuthClientsForm>();
-  const clientType = form.watch('type');
 
   return (
     <div className="flex flex-col gap-3">
@@ -84,34 +83,6 @@ export const OAuthClientForm = () => {
           </Form.Item>
         )}
       />
-
-      {clientType === 'confidential' && (
-        <Form.Field
-          control={form.control}
-          name="accessTokenLifetime"
-          render={({ field }) => (
-            <Form.Item>
-              <Form.Label>Access token lifetime</Form.Label>
-              <Select value={field.value} onValueChange={field.onChange}>
-                <Form.Control>
-                  <Select.Trigger>
-                    <Select.Value placeholder="Choose a lifetime" />
-                  </Select.Trigger>
-                </Form.Control>
-                <Select.Content>
-                  <Select.Item value="year">1 year</Select.Item>
-                  <Select.Item value="half">6 months</Select.Item>
-                  <Select.Item value="trio">3 months</Select.Item>
-                </Select.Content>
-              </Select>
-              <Form.Description>
-                Choose how long confidential client access tokens stay valid.
-              </Form.Description>
-              <Form.Message />
-            </Form.Item>
-          )}
-        />
-      )}
 
       <Form.Field
         control={form.control}

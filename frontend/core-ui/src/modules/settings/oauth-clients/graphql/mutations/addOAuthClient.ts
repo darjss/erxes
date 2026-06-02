@@ -6,7 +6,6 @@ const ADD_OAUTH_CLIENT = gql`
     $logo: String
     $description: String
     $type: OAuthClientAppType!
-    $accessTokenLifetime: OAuthClientAccessTokenLifetime
     $redirectUrls: [String!]
   ) {
     oauthClientAppsAdd(
@@ -14,7 +13,6 @@ const ADD_OAUTH_CLIENT = gql`
       logo: $logo
       description: $description
       type: $type
-      accessTokenLifetime: $accessTokenLifetime
       redirectUrls: $redirectUrls
     ) {
       _id
@@ -23,7 +21,6 @@ const ADD_OAUTH_CLIENT = gql`
       description
       clientId
       type
-      accessTokenLifetime
       redirectUrls
       status
       lastUsedAt

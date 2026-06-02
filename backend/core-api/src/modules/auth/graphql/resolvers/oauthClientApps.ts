@@ -1,8 +1,5 @@
 import { IContext } from '~/connectionResolvers';
-import {
-  OAuthClientAccessTokenLifetime,
-  OAuthClientAppType,
-} from '@/auth/db/definitions/oauthClientApps';
+import { OAuthClientAppType } from '@/auth/db/definitions/oauthClientApps';
 
 type OAuthClientAppMutationArgs = {
   _id?: string;
@@ -10,7 +7,6 @@ type OAuthClientAppMutationArgs = {
   logo?: string;
   description?: string;
   type: OAuthClientAppType;
-  accessTokenLifetime?: OAuthClientAccessTokenLifetime;
   redirectUrls?: string[];
 };
 

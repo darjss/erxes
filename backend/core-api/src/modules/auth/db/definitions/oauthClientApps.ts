@@ -2,7 +2,6 @@ import { Document, Schema } from 'mongoose';
 
 export type OAuthClientAppType = 'public' | 'confidential';
 export type OAuthClientAppStatus = 'active' | 'revoked';
-export type OAuthClientAccessTokenLifetime = 'year' | 'half' | 'trio';
 
 export interface IOAuthClientAppDocument extends Document {
   name: string;
@@ -10,7 +9,6 @@ export interface IOAuthClientAppDocument extends Document {
   description?: string;
   clientId: string;
   type: OAuthClientAppType;
-  accessTokenLifetime?: OAuthClientAccessTokenLifetime;
   redirectUrls: string[];
   secretHash?: string;
   status: OAuthClientAppStatus;
@@ -37,12 +35,6 @@ export const oauthClientAppSchema = new Schema(
       enum: ['public', 'confidential'],
       required: true,
       default: 'public',
-    },
-    accessTokenLifetime: {
-      type: String,
-      label: 'Access token lifetime',
-      enum: ['year', 'half', 'trio'],
-      default: 'year',
     },
     redirectUrls: {
       type: [String],
