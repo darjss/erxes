@@ -13,7 +13,7 @@ export interface Identifier {
   updatedAt: string;
 }
 
-export interface AssistantOrg extends Identifier {}
+export type AssistantOrg = Identifier;
 
 export const useIdentifiers = (kind?: 'assistant' | 'agent') => {
   const { data, loading, refetch } = useQuery(GET_IDENTIFIERS, {
