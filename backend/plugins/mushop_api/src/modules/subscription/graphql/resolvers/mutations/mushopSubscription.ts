@@ -1,6 +1,6 @@
-import { nanoid } from 'nanoid';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
+import { linkRelation } from '~/utils/relation';
 
 const mushopCancelMySubscription = async (
   _root,
@@ -59,37 +59,30 @@ const mushopGrantSubscription = async (
   const amount = amountInput != null ? amountInput : plan.price;
   const currency = plan.currency || 'MNT';
 
-  let invoiceId = `manual:${nanoid()}`;
+  const invoice = await sendTRPCMessage({
+    subdomain,
+    pluginName: 'payment',
+    method: 'mutation',
+    module: 'payment',
+    action: 'addInvoice',
+    input: {
+      amount,
+      currency,
+      customerId,
+      customerType: 'customer',
+      contentType: 'mushop:subscription',
+      contentTypeId: customerId,
+      description: `Mushop — ${plan.name}`,
+      paymentIds: paymentId ? [paymentId] : [],
+      status: 'paid',
+      resolvedAt: new Date(),
+      data: { planId, manual: true },
+    },
+    defaultValue: null,
+  });
 
-  try {
-    const invoice = await sendTRPCMessage({
-      subdomain,
-      pluginName: 'payment',
-      method: 'mutation',
-      module: 'payment',
-      action: 'addInvoice',
-      input: {
-        amount,
-        currency,
-        customerId,
-        customerType: 'customer',
-        contentType: 'mushop:subscription',
-        contentTypeId: customerId,
-        description: `Mushop — ${plan.name}`,
-        paymentIds: paymentId ? [paymentId] : [],
-        status: 'paid',
-        resolvedAt: new Date(),
-        data: { planId, manual: true },
-      },
-    });
-
-    if (invoice?._id) {
-      invoiceId = invoice._id;
-    }
-  } catch (e: any) {
-    console.error(
-      `[mushop:grant] invoice create failed; falling back to synthetic id. ${e.message}`,
-    );
+  if (!invoice?._id) {
+    throw new Error('Failed to create invoice for subscription grant');
   }
 
   const existing = await models.MushopSubscription.getActiveSubscription(customerId);
@@ -97,7 +90,7 @@ const mushopGrantSubscription = async (
   if (existing) {
     return models.MushopSubscription.renewSubscription(existing._id, {
       planId,
-      invoiceId,
+      invoiceId: invoice._id,
       amount,
       currency,
     });
@@ -106,27 +99,18 @@ const mushopGrantSubscription = async (
   const subscription = await models.MushopSubscription.createSubscription({
     customerId,
     planId,
-    invoiceId,
+    invoiceId: invoice._id,
     amount,
     currency,
   });
 
-  await sendTRPCMessage({
+  await linkRelation({
     subdomain,
-    pluginName: 'core',
-    method: 'mutation',
-    module: 'relation',
-    action: 'createMultipleRelations',
-    input: {
-      relations: [
-        {
-          entities: [
-            { contentType: 'mushop:subscription', contentId: subscription._id },
-            { contentType: 'core:customer', contentId: customerId },
-          ],
-        },
-      ],
-    },
+    entities: [
+      { contentType: 'mushop:subscription', contentId: subscription._id },
+      { contentType: 'core:customer', contentId: customerId },
+      { contentType: 'payment:invoice', contentId: invoice._id },
+    ],
   });
 
   return subscription;

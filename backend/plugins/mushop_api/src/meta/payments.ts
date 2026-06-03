@@ -1,5 +1,6 @@
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { generateModels } from '~/connectionResolvers';
+import { linkRelation } from '~/utils/relation';
 
 interface IPaymentCallbackData {
   _id: string;
@@ -64,25 +65,14 @@ const handleTicketPayment = async (
     return;
   }
 
-  // The UI already created the ticket; here we only link the ticket, the
-  // paying customer and the invoice together.
-  await sendTRPCMessage({
+  const ticket = { contentType: 'frontline:ticket', contentId: ticketId };
+  const customer = { contentType: 'core:customer', contentId: customerId };
+  const invoice = { contentType: 'payment:invoice', contentId: data._id };
+
+  await linkRelation({
     subdomain,
-    pluginName: 'core',
-    method: 'mutation',
-    module: 'relation',
-    action: 'createMultipleRelations',
-    input: {
-      relations: [
-        {
-          entities: [
-            { contentType: 'frontline:ticket', contentId: ticketId },
-            { contentType: 'core:customer', contentId: customerId },
-            { contentType: 'payment:invoice', contentId: data._id },
-          ],
-        },
-      ],
-    },
+    entities: [ticket, customer, invoice],
+    match: [ticket, customer],
   });
 };
 
@@ -138,23 +128,13 @@ const handleSubscriptionPayment = async (
     currency: data.currency,
   });
 
-  await sendTRPCMessage({
+  await linkRelation({
     subdomain,
-    pluginName: 'core',
-    method: 'mutation',
-    module: 'relation',
-    action: 'createMultipleRelations',
-    input: {
-      relations: [
-        {
-          entities: [
-            { contentType: 'mushop:subscription', contentId: subscription._id },
-            { contentType: 'core:customer', contentId: customerId },
-            { contentType: 'payment:invoice', contentId: data._id },
-          ],
-        },
-      ],
-    },
+    entities: [
+      { contentType: 'mushop:subscription', contentId: subscription._id },
+      { contentType: 'core:customer', contentId: customerId },
+      { contentType: 'payment:invoice', contentId: data._id },
+    ]
   });
 };
 
