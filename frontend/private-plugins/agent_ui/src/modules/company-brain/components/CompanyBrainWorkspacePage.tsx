@@ -4,6 +4,7 @@ import {
   IconCode,
   IconPlus,
   IconSparkles,
+  IconUsers,
 } from '@tabler/icons-react';
 import {
   Breadcrumb,
@@ -20,7 +21,7 @@ import {
 import { useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Link, useNavigate } from 'react-router-dom';
-import { PageHeader } from 'ui-modules';
+import { MembersInline, PageHeader } from 'ui-modules';
 import { z } from 'zod';
 import { AssistantOrgManageSheet } from '~/modules/assistant-orgs/components/AssistantOrgManageSheet';
 import { useCreateIdentifier } from '~/modules/assistant-orgs/hooks/useCreateAssistantOrg';
@@ -86,6 +87,22 @@ const getProviderLabel = (provider?: string | null) => {
   return option?.label || provider;
 };
 
+const InvitedMembersRow = ({ memberIds }: { memberIds?: string[] | null }) => {
+  const invitedMemberIds = memberIds || [];
+
+  return (
+    <div className="flex min-h-9 items-center gap-2 rounded-lg border border-border bg-muted/30 px-3 py-2 text-xs text-muted-foreground">
+      <IconUsers className="h-4 w-4 flex-none" />
+      <MembersInline
+        memberIds={invitedMemberIds}
+        placeholder="No invited members"
+        size="sm"
+        className="text-xs"
+      />
+    </div>
+  );
+};
+
 const AssistantWorkspaceCard = ({
   identifier,
 }: {
@@ -119,6 +136,8 @@ const AssistantWorkspaceCard = ({
           Kimi
         </span>
       </div>
+
+      <InvitedMembersRow memberIds={identifier.memberIds} />
 
       <Button
         asChild
@@ -166,6 +185,8 @@ const AiAgentWorkspaceCard = ({
           {getProviderLabel(opencode?.provider)}
         </span>
       </div>
+
+      <InvitedMembersRow memberIds={identifier.memberIds} />
 
       <Button
         asChild
