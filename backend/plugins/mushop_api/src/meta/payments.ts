@@ -65,14 +65,13 @@ const handleTicketPayment = async (
     return;
   }
 
-  const ticket = { contentType: 'frontline:ticket', contentId: ticketId };
-  const customer = { contentType: 'core:customer', contentId: customerId };
-  const invoice = { contentType: 'payment:invoice', contentId: data._id };
-
   await linkRelation({
     subdomain,
-    entities: [ticket, customer, invoice],
-    match: [ticket, customer],
+    main: { contentType: 'frontline:ticket', contentId: ticketId },
+    related: [
+      { contentType: 'core:customer', contentId: customerId },
+      { contentType: 'payment:invoice', contentId: data._id },
+    ],
   });
 };
 
@@ -130,11 +129,11 @@ const handleSubscriptionPayment = async (
 
   await linkRelation({
     subdomain,
-    entities: [
-      { contentType: 'mushop:subscription', contentId: subscription._id },
+    main: { contentType: 'mushop:subscription', contentId: subscription._id },
+    related: [
       { contentType: 'core:customer', contentId: customerId },
       { contentType: 'payment:invoice', contentId: data._id },
-    ]
+    ],
   });
 };
 

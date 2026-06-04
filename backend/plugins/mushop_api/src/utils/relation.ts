@@ -34,43 +34,25 @@ export const getRelationsByEntity = async (
 
 export const linkRelation = async ({
   subdomain,
-  entities,
-  match,
+  main,
+  related,
 }: {
   subdomain: string;
-  entities: IRelationEntity[];
-  match?: IRelationEntity[];
+  main: IRelationEntity;
+  related: IRelationEntity[];
 }): Promise<void> => {
-  if (match?.length) {
-    const found = await getRelationsByEntity(subdomain, match[0]);
+  const existing = await getRelationsByEntity(subdomain, main);
 
-    const relation = found.find((rel) =>
-      match.every((m) => has(rel.entities ?? [], m)),
-    );
+  const missing = related.filter(
+    (entity) =>
+      !isSame(entity, main) &&
+      !existing.some(
+        (rel) => has(rel.entities ?? [], main) && has(rel.entities ?? [], entity),
+      ),
+  );
 
-    if (relation) {
-      const existing = relation.entities ?? [];
-
-      const extra = entities.filter((e) => !has(existing, e));
-
-      if (!extra.length) {
-        return;
-      }
-
-      await sendTRPCMessage({
-        subdomain,
-        pluginName: 'core',
-        method: 'mutation',
-        module: 'relation',
-        action: 'updateRelation',
-        input: {
-          _id: relation._id,
-          doc: { entities: [...existing, ...extra] },
-        },
-      });
-
-      return;
-    }
+  if (!missing.length) {
+    return;
   }
 
   await sendTRPCMessage({
@@ -80,7 +62,7 @@ export const linkRelation = async ({
     module: 'relation',
     action: 'createMultipleRelations',
     input: {
-      relations: [{ entities }],
+      relations: missing.map((entity) => ({ entities: [main, entity] })),
     },
   });
 };

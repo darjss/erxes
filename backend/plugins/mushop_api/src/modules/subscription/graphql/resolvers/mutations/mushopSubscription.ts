@@ -106,8 +106,8 @@ const mushopGrantSubscription = async (
 
   await linkRelation({
     subdomain,
-    entities: [
-      { contentType: 'mushop:subscription', contentId: subscription._id },
+    main: { contentType: 'mushop:subscription', contentId: subscription._id },
+    related: [
       { contentType: 'core:customer', contentId: customerId },
       { contentType: 'payment:invoice', contentId: invoice._id },
     ],
