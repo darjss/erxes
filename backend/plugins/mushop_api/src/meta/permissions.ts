@@ -27,6 +27,12 @@ export const permissions: IPermissionConfig = {
           name: 'mushopGrantSubscription',
           description: 'Manually grant or extend a subscription for a customer',
         },
+        {
+          title: 'Adjust subscription end date',
+          name: 'mushopUpdateSubscriptionEndDate',
+          description:
+            "Manually change a subscription's end date (e.g. to revert an accidental grant)",
+        },
       ],
     },
     {
@@ -184,6 +190,7 @@ export const permissions: IPermissionConfig = {
             'showMushopSubscriptions',
             'mushopCancelSubscription',
             'mushopGrantSubscription',
+            'mushopUpdateSubscriptionEndDate',
           ],
           scope: 'all',
         },

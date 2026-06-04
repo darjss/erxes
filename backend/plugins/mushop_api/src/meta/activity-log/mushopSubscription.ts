@@ -53,6 +53,24 @@ export const buildSubscriptionExtendedLog = (
   metadata: { invoiceId: sub.invoiceId, planId: sub.planId },
 });
 
+export const buildSubscriptionEndDateAdjustedLog = (
+  sub: any,
+  planName: string,
+  prevEndDate: Date,
+): ActivityLogInput => ({
+  activityType: 'subscription.endDateAdjusted',
+  target: buildSubscriptionTarget(sub),
+  action: {
+    type: 'endDateAdjusted',
+    description: `"${planName}" end date adjusted from ${formatDate(prevEndDate)} to ${formatDate(sub.endDate)}`,
+  },
+  changes: {
+    prev: { endDate: prevEndDate },
+    current: { endDate: sub.endDate },
+  },
+  metadata: { planId: sub.planId },
+});
+
 export const buildSubscriptionCancelledLog = (
   sub: any,
   planName: string,

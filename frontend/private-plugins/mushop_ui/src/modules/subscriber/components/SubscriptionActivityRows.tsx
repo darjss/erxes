@@ -43,6 +43,23 @@ const ExtendedRow = ({ activity }: { activity: TActivityLog }) => {
   );
 };
 
+const EndDateAdjustedRow = ({ activity }: { activity: TActivityLog }) => {
+  const prev = activity.changes?.prev?.endDate;
+  const current = activity.changes?.current?.endDate;
+  const fmt = (d?: string) =>
+    d ? new Date(d).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' }) : '?';
+
+  return (
+    <Sentence>
+      <ActivityLogs.ActorName activity={activity} />
+      <Muted>adjusted end date</Muted>
+      {prev && current && (
+        <Muted>· {fmt(prev)} → {fmt(current)}</Muted>
+      )}
+    </Sentence>
+  );
+};
+
 const CancelledRow = ({ activity }: { activity: TActivityLog }) => (
   <Sentence>
     <ActivityLogs.ActorName activity={activity} />
@@ -71,6 +88,10 @@ export const subscriptionCustomActivities: ActivityLogCustomActivity[] = [
   {
     type: 'subscription.extended',
     render: (activity) => <ExtendedRow activity={activity} />,
+  },
+  {
+    type: 'subscription.endDateAdjusted',
+    render: (activity) => <EndDateAdjustedRow activity={activity} />,
   },
   {
     type: 'subscription.cancelled',

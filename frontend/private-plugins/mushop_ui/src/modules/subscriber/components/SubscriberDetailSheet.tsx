@@ -1,22 +1,28 @@
 import {
   Badge,
   Button,
+  Calendar,
   FocusSheet,
   InfoCard,
+  Popover,
   ScrollArea,
   Sheet,
   Sidebar,
   Spinner,
   Table,
   Tabs,
+  useConfirm,
   useQueryState,
 } from 'erxes-ui';
+import { useState } from 'react';
 import {
   ActivityLogs,
   CustomersInline,
   RelationWidgetSideTabs,
+  usePermissionCheck,
 } from 'ui-modules';
 import { useSubscriberDetail } from '../hooks/useSubscriberDetail';
+import { useUpdateSubscriptionEndDate } from '../hooks/useUpdateSubscriptionEndDate';
 import { ISubscriber } from '../types';
 import { SelectSubscriberStatus } from './SelectSubscriberStatus';
 import { subscriptionCustomActivities } from './SubscriptionActivityRows';
@@ -81,6 +87,99 @@ const SubscriberSidebar = () => {
         </Sidebar.GroupContent>
       </Sidebar.Group>
     </Sidebar.Content>
+  );
+};
+
+const EndDateEditor = ({
+  _id,
+  startDate,
+  endDate,
+}: {
+  _id: string;
+  startDate?: string;
+  endDate?: string;
+}) => {
+  const [open, setOpen] = useState(false);
+  const { updateEndDate, loading } = useUpdateSubscriptionEndDate();
+  const { hasActionPermission } = usePermissionCheck();
+  const { confirm } = useConfirm();
+
+  const canEdit = hasActionPermission('mushopUpdateSubscriptionEndDate');
+
+  const currentEnd = endDate ? new Date(endDate) : undefined;
+
+  let minDate: Date | undefined;
+  let startMonth: Date | undefined;
+
+  if (startDate) {
+    minDate = new Date(startDate);
+    minDate.setDate(minDate.getDate() + 1);
+
+    const s = new Date(startDate);
+    startMonth = new Date(s.getFullYear(), s.getMonth(), 1);
+  }
+
+  const handleSelect = (date?: Date) => {
+    if (!date) return;
+
+    if (currentEnd && date.toDateString() === currentEnd.toDateString()) {
+      setOpen(false);
+      return;
+    }
+
+    setOpen(false);
+
+    const oldLabel = formatDate(endDate);
+    const newLabel = formatDate(date.toISOString());
+
+    confirm({
+      message: `Change subscription end date?`,
+      options: {
+        description: `This subscription will end on ${newLabel} instead of ${oldLabel}. The customer's access period will change accordingly.`,
+        confirmationValue: "update",
+        okLabel: 'Update',
+      },
+    }).then(() => {
+      updateEndDate(_id, date);
+    });
+  };
+
+  if (!canEdit) {
+    return (
+      <span className="inline-flex items-center gap-1">
+        <span>{startDate ? formatDate(startDate) : '-'}</span>
+        <span className="text-muted-foreground">→</span>
+        <span>{formatDate(endDate)}</span>
+      </span>
+    );
+  }
+
+  return (
+    <span className="inline-flex items-center gap-1">
+      <span>{startDate ? formatDate(startDate) : '-'}</span>
+      <span className="text-muted-foreground">→</span>
+      <Popover open={open} onOpenChange={setOpen}>
+        <Popover.Trigger asChild>
+          <button
+            type="button"
+            disabled={loading}
+            className="inline-flex items-center gap-1 hover:bg-accent disabled:opacity-50 -mx-1 px-1 rounded hover:text-accent-foreground cursor-pointer"
+          >
+            {formatDate(endDate)}
+          </button>
+        </Popover.Trigger>
+        <Popover.Content className="p-0 w-auto" align="end">
+          <Calendar
+            mode="single"
+            selected={currentEnd}
+            defaultMonth={currentEnd}
+            startMonth={startMonth}
+            onSelect={handleSelect}
+            disabled={minDate ? { before: minDate } : undefined}
+          />
+        </Popover.Content>
+      </Popover>
+    </span>
   );
 };
 
@@ -158,11 +257,11 @@ const SubscriberInfo = ({ subscriber }: { subscriber: ISubscriber }) => {
                         <Row
                           label="Period"
                           value={
-                            startDate && endDate
-                              ? `${formatDate(startDate)} → ${formatDate(
-                                  endDate,
-                                )}`
-                              : undefined
+                            <EndDateEditor
+                              _id={_id}
+                              startDate={startDate}
+                              endDate={endDate}
+                            />
                           }
                         />
                         <Row label="Time Left" value={daysRemaining(endDate)} />

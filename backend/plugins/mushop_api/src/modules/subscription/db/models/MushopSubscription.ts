@@ -9,6 +9,7 @@ import {
   buildSubscriptionExtendedLog,
   buildSubscriptionCancelledLog,
   buildSubscriptionExpiredLog,
+  buildSubscriptionEndDateAdjustedLog,
 } from '~/meta/activity-log/mushopSubscription';
 
 export interface IMushopSubscriptionModel
@@ -28,6 +29,10 @@ export interface IMushopSubscriptionModel
     doc: { planId: string; amount: number; currency: string; invoiceId: string },
   ): Promise<IMushopSubscriptionDocument | null>;
   cancelSubscription(_id: string): Promise<IMushopSubscriptionDocument | null>;
+  updateEndDate(
+    _id: string,
+    endDate: Date,
+  ): Promise<IMushopSubscriptionDocument | null>;
   expireStale(): Promise<void>;
 }
 
@@ -133,6 +138,58 @@ export const loadMushopSubscriptionClass = (
           ? await models.MushopSubscriptionPlan.findOne({ _id: updated.planId }).lean()
           : null;
         createActivityLog(buildSubscriptionCancelledLog(updated, plan?.name || 'Unknown'));
+      }
+
+      return updated;
+    }
+
+    public static async updateEndDate(_id: string, endDate: Date) {
+      const existing = await models.MushopSubscription.findOne({ _id });
+      if (!existing) throw new Error('Subscription not found');
+
+      const newEndDate = new Date(endDate);
+      if (isNaN(newEndDate.getTime())) throw new Error('Invalid end date');
+
+      if (newEndDate <= existing.startDate) {
+        throw new Error('End date must be after the start date');
+      }
+
+      const prevEndDate = existing.endDate;
+
+      const update: Record<string, any> = { endDate: newEndDate };
+
+      // keep status consistent with the new end date
+      if (
+        existing.status === SUBSCRIPTION_STATUS.ACTIVE &&
+        newEndDate < new Date()
+      ) {
+        update.status = SUBSCRIPTION_STATUS.EXPIRED;
+      } else if (
+        existing.status === SUBSCRIPTION_STATUS.EXPIRED &&
+        newEndDate > new Date()
+      ) {
+        update.status = SUBSCRIPTION_STATUS.ACTIVE;
+      }
+
+      const updated = await models.MushopSubscription.findOneAndUpdate(
+        { _id },
+        { $set: update },
+        { new: true },
+      );
+
+      if (updated) {
+        const plan = updated.planId
+          ? await models.MushopSubscriptionPlan.findOne({
+              _id: updated.planId,
+            }).lean()
+          : null;
+        createActivityLog(
+          buildSubscriptionEndDateAdjustedLog(
+            updated,
+            plan?.name || 'Unknown',
+            prevEndDate,
+          ),
+        );
       }
 
       return updated;
