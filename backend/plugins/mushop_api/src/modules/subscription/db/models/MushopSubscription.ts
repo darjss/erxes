@@ -10,11 +10,15 @@ import {
   buildSubscriptionCancelledLog,
   buildSubscriptionExpiredLog,
   buildSubscriptionEndDateAdjustedLog,
+  buildSubscriptionStatusChangedLog,
 } from '~/meta/activity-log/mushopSubscription';
 
 export interface IMushopSubscriptionModel
   extends Model<IMushopSubscriptionDocument> {
   getActiveSubscription(
+    customerId: string,
+  ): Promise<IMushopSubscriptionDocument | null>;
+  getOpenSubscription(
     customerId: string,
   ): Promise<IMushopSubscriptionDocument | null>;
   createSubscription(doc: {
@@ -33,6 +37,10 @@ export interface IMushopSubscriptionModel
     _id: string,
     endDate: Date,
   ): Promise<IMushopSubscriptionDocument | null>;
+  updateStatus(
+    _id: string,
+    status: string,
+  ): Promise<IMushopSubscriptionDocument | null>;
   expireStale(): Promise<void>;
 }
 
@@ -41,6 +49,15 @@ const addMonths = (date: Date, months: number): Date => {
   result.setMonth(result.getMonth() + months);
   return result;
 };
+
+const MS_PER_DAY = 1000 * 60 * 60 * 24;
+
+const addDays = (date: Date, days: number): Date =>
+  new Date(date.getTime() + days * MS_PER_DAY);
+
+// whole days remaining until `endDate` from now (min 1 so a near-expiry pause keeps at least a day)
+const daysUntil = (endDate: Date): number =>
+  Math.max(1, Math.ceil((endDate.getTime() - Date.now()) / MS_PER_DAY));
 
 export const loadMushopSubscriptionClass = (
   models: IModels,
@@ -66,6 +83,21 @@ export const loadMushopSubscriptionClass = (
       }
 
       return subscription;
+    }
+
+    // any non-terminal subscription (active / paused / suspended) — used so a
+    // new grant reuses it instead of creating a parallel duplicate row
+    public static async getOpenSubscription(customerId: string) {
+      return models.MushopSubscription.findOne({
+        customerId,
+        status: {
+          $in: [
+            SUBSCRIPTION_STATUS.ACTIVE,
+          ],
+        },
+      })
+        .sort({ endDate: -1 })
+        .lean();
     }
 
     public static async createSubscription(doc: {
@@ -188,6 +220,48 @@ export const loadMushopSubscriptionClass = (
             updated,
             plan?.name || 'Unknown',
             prevEndDate,
+          ),
+        );
+      }
+
+      return updated;
+    }
+
+    public static async updateStatus(_id: string, status: string) {
+      if (!SUBSCRIPTION_STATUS.ALL.includes(status)) {
+        throw new Error(`Invalid status: ${status}`);
+      }
+
+      const existing = await models.MushopSubscription.findOne({ _id });
+
+      if (!existing) throw new Error('Subscription not found');
+
+      if (existing.status === status) {
+        return existing;
+      }
+
+      if (status === SUBSCRIPTION_STATUS.ACTIVE) {
+        if (existing.endDate < new Date()) {
+          throw new Error(
+            'Cannot set status to active because the end date has already passed. Extend the end date first.',
+          );
+        }
+      }
+
+      const updated = await models.MushopSubscription.findOneAndUpdate(
+        { _id },
+        { $set: { status } },
+        { new: true },
+      );
+
+      if (updated) {
+        const plan = await models.MushopSubscriptionPlan.findOne({ _id: updated.planId }).lean()
+
+        createActivityLog(
+          buildSubscriptionStatusChangedLog(
+            updated,
+            plan?.name || 'Unknown',
+            existing.status,
           ),
         );
       }

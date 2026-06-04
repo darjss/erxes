@@ -36,4 +36,5 @@ export const mutations = `
   mushopCancelSubscription(_id: String!): MushopSubscription
   mushopGrantSubscription(customerId: String!, planId: String!, paymentId: String, amount: Float): MushopSubscription
   mushopUpdateSubscriptionEndDate(_id: String!, endDate: Date!): MushopSubscription
+  mushopUpdateSubscriptionStatus(_id: String!, status: String!): MushopSubscription
 `;

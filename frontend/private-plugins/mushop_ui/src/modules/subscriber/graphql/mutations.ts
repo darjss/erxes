@@ -19,6 +19,15 @@ export const MUSHOP_UPDATE_SUBSCRIPTION_END_DATE = gql`
   }
 `;
 
+export const MUSHOP_UPDATE_SUBSCRIPTION_STATUS = gql`
+  mutation MushopUpdateSubscriptionStatus($_id: String!, $status: String!) {
+    mushopUpdateSubscriptionStatus(_id: $_id, status: $status) {
+      _id
+      status
+    }
+  }
+`;
+
 export const MUSHOP_GRANT_SUBSCRIPTION = gql`
   mutation MushopGrantSubscription(
     $customerId: String!

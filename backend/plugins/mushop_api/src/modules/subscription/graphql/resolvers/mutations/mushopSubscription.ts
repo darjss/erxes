@@ -128,9 +128,22 @@ const mushopUpdateSubscriptionEndDate = async (
   return models.MushopSubscription.updateEndDate(_id, endDate);
 };
 
+const mushopUpdateSubscriptionStatus = async (
+  _root,
+  { _id, status }: { _id: string; status: string },
+  { models, checkPermission }: IContext,
+) => {
+  await checkPermission('mushopUpdateSubscriptionStatus');
+  if (!_id) throw new Error('_id is required');
+  if (!status) throw new Error('status is required');
+
+  return models.MushopSubscription.updateStatus(_id, status);
+};
+
 export const subscriptionMutations = {
   mushopCancelMySubscription,
   mushopCancelSubscription,
   mushopGrantSubscription,
   mushopUpdateSubscriptionEndDate,
+  mushopUpdateSubscriptionStatus,
 };

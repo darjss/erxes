@@ -71,6 +71,24 @@ export const buildSubscriptionEndDateAdjustedLog = (
   metadata: { planId: sub.planId },
 });
 
+export const buildSubscriptionStatusChangedLog = (
+  sub: any,
+  planName: string,
+  prevStatus: string,
+): ActivityLogInput => ({
+  activityType: 'subscription.statusChanged',
+  target: buildSubscriptionTarget(sub),
+  action: {
+    type: 'statusChanged',
+    description: `"${planName}" status changed from ${prevStatus} to ${sub.status}`,
+  },
+  changes: {
+    prev: { status: prevStatus },
+    current: { status: sub.status },
+  },
+  metadata: { planId: sub.planId },
+});
+
 export const buildSubscriptionCancelledLog = (
   sub: any,
   planName: string,

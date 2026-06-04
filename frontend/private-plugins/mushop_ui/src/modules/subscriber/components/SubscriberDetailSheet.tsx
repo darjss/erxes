@@ -2,6 +2,7 @@ import {
   Badge,
   Button,
   Calendar,
+  Command,
   FocusSheet,
   InfoCard,
   Popover,
@@ -23,9 +24,18 @@ import {
 } from 'ui-modules';
 import { useSubscriberDetail } from '../hooks/useSubscriberDetail';
 import { useUpdateSubscriptionEndDate } from '../hooks/useUpdateSubscriptionEndDate';
+import { useUpdateSubscriptionStatus } from '../hooks/useUpdateSubscriptionStatus';
 import { ISubscriber } from '../types';
 import { SelectSubscriberStatus } from './SelectSubscriberStatus';
 import { subscriptionCustomActivities } from './SubscriptionActivityRows';
+
+const STATUS_OPTIONS: { value: string; label: string }[] = [
+  { value: 'active', label: 'Active' },
+  // { value: 'paused', label: 'Paused' },
+  // { value: 'suspended', label: 'Suspended' },
+  { value: 'expired', label: 'Expired' },
+  { value: 'cancelled', label: 'Cancelled' },
+];
 
 const Row = ({
   label,
@@ -183,6 +193,80 @@ const EndDateEditor = ({
   );
 };
 
+const StatusEditor = ({
+  _id,
+  status,
+}: {
+  _id: string;
+  status?: string;
+}) => {
+  const [open, setOpen] = useState(false);
+  const { updateStatus, loading } = useUpdateSubscriptionStatus();
+  const { hasActionPermission } = usePermissionCheck();
+  const { confirm } = useConfirm();
+
+  const canEdit = hasActionPermission('mushopUpdateSubscriptionStatus');
+
+  const badge = (
+    <Badge variant={SelectSubscriberStatus.statusVariant(status)}>
+      {status || '-'}
+    </Badge>
+  );
+
+  if (!canEdit) {
+    return badge;
+  }
+
+  const handleSelect = (next: string) => {
+    setOpen(false);
+
+    if (next === status) return;
+
+    const nextLabel = STATUS_OPTIONS.find((o) => o.value === next)?.label || next;
+
+    confirm({
+      message: 'Change subscription status?',
+      options: {
+        description: `Status will change from "${status || '-'}" to "${nextLabel}".`,
+        confirmationValue: "update",
+        okLabel: 'Update',
+      },
+    }).then(() => {
+      updateStatus(_id, next);
+    });
+  };
+
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <Popover.Trigger asChild>
+        <button
+          type="button"
+          disabled={loading}
+          className="inline-flex items-center gap-1 rounded disabled:opacity-50 cursor-pointer"
+        >
+          {badge}
+          {loading && <Spinner size="sm" />}
+        </button>
+      </Popover.Trigger>
+      <Popover.Content className="p-0 w-44" align="start">
+        <Command>
+          <Command.List>
+            {STATUS_OPTIONS.map((o) => (
+              <Command.Item
+                key={o.value}
+                value={o.value}
+                onSelect={() => handleSelect(o.value)}
+              >
+                {o.label}
+              </Command.Item>
+            ))}
+          </Command.List>
+        </Command>
+      </Popover.Content>
+    </Popover>
+  );
+};
+
 const SubscriberInfo = ({ subscriber }: { subscriber: ISubscriber }) => {
   const {
     _id,
@@ -194,6 +278,7 @@ const SubscriberInfo = ({ subscriber }: { subscriber: ISubscriber }) => {
     amount,
     currency,
     createdAt,
+    pausedDaysRemaining,
   } = subscriber;
 
   const [selectedTab] = useQueryState<string>('tab');
@@ -233,13 +318,7 @@ const SubscriberInfo = ({ subscriber }: { subscriber: ISubscriber }) => {
                             Status
                           </Table.Cell>
                           <Table.Cell className="p-1 px-2 h-auto min-h-10">
-                            <Badge
-                              variant={SelectSubscriberStatus.statusVariant(
-                                status,
-                              )}
-                            >
-                              {status || '-'}
-                            </Badge>
+                            <StatusEditor _id={_id} status={status} />
                           </Table.Cell>
                         </Table.Row>
                         <Row
@@ -264,7 +343,14 @@ const SubscriberInfo = ({ subscriber }: { subscriber: ISubscriber }) => {
                             />
                           }
                         />
-                        <Row label="Time Left" value={daysRemaining(endDate)} />
+                        <Row
+                          label="Time Left"
+                          value={
+                            status === 'paused'
+                              ? `${pausedDaysRemaining ?? 0} days remaining (paused)`
+                              : daysRemaining(endDate)
+                          }
+                        />
                         <Row
                           label="Amount"
                           value={

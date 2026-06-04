@@ -60,6 +60,21 @@ const EndDateAdjustedRow = ({ activity }: { activity: TActivityLog }) => {
   );
 };
 
+const StatusChangedRow = ({ activity }: { activity: TActivityLog }) => {
+  const prev = activity.changes?.prev?.status;
+  const current = activity.changes?.current?.status;
+
+  return (
+    <Sentence>
+      <ActivityLogs.ActorName activity={activity} />
+      <Muted>changed status</Muted>
+      {prev && current && (
+        <Muted>· {prev} → {current}</Muted>
+      )}
+    </Sentence>
+  );
+};
+
 const CancelledRow = ({ activity }: { activity: TActivityLog }) => (
   <Sentence>
     <ActivityLogs.ActorName activity={activity} />
@@ -92,6 +107,10 @@ export const subscriptionCustomActivities: ActivityLogCustomActivity[] = [
   {
     type: 'subscription.endDateAdjusted',
     render: (activity) => <EndDateAdjustedRow activity={activity} />,
+  },
+  {
+    type: 'subscription.statusChanged',
+    render: (activity) => <StatusChangedRow activity={activity} />,
   },
   {
     type: 'subscription.cancelled',
