@@ -6,7 +6,8 @@ export const ACCESS_TOKEN_EXPIRES_IN_PUBLIC = 8 * 60 * 60; // 8h
 export const REFRESH_TOKEN_EXPIRES_IN_PUBLIC = 90 * 24 * 60 * 60; // 90d
 
 // confidential (server-side apps) — same access lifetime as public clients
-export const ACCESS_TOKEN_EXPIRES_IN_CONFIDENTIAL = ACCESS_TOKEN_EXPIRES_IN_PUBLIC; // 8h
+export const ACCESS_TOKEN_EXPIRES_IN_CONFIDENTIAL =
+  ACCESS_TOKEN_EXPIRES_IN_PUBLIC; // 8h
 export const REFRESH_TOKEN_EXPIRES_IN_CONFIDENTIAL = 30 * 24 * 60 * 60; // 30d
 
 // backward-compat alias (gateway userMiddleware-д ашиглагдаж болно)

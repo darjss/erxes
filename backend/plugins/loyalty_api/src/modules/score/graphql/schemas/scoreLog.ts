@@ -22,6 +22,9 @@ export const types = `
 
     amount: Float
     quantity: Float
+
+    totalScore: Float
+    owner: JSON
   }
 
   type ScoreLog {
@@ -86,4 +89,5 @@ const mutationParams = `
 
 export const mutations = `
   changeScore(${mutationParams}): ScoreLogItem
+  loyaltyScoreRepairOwner(ownerId: String!, ownerType: String!): JSON
 `;
