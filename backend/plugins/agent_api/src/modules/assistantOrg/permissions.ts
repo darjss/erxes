@@ -4,9 +4,11 @@ import { IModels } from '~/connectionResolvers';
 
 type TIdentifier = {
   _id: string;
-  createdUserId?: string;
-  memberIds?: string[];
+  createdUserId?: unknown;
+  memberIds?: unknown[];
 };
+
+const normalizeId = (id: unknown) => (id ? String(id) : '');
 
 export const requireUser = (user?: IUserDocument) => {
   if (!user?._id) {
@@ -27,10 +29,12 @@ export const buildIdentifierAccessQuery = (user?: IUserDocument) => {
     return {};
   }
 
+  const currentUserId = normalizeId(currentUser._id);
+
   return {
     $or: [
-      { createdUserId: currentUser._id },
-      { memberIds: currentUser._id },
+      { createdUserId: currentUserId },
+      { memberIds: currentUserId },
     ],
   };
 };
@@ -49,9 +53,13 @@ export const hasIdentifierAccess = (
     return true;
   }
 
+  const currentUserId = normalizeId(currentUser._id);
+
   return (
-    identifier.createdUserId === currentUser._id ||
-    (identifier.memberIds || []).includes(currentUser._id)
+    normalizeId(identifier.createdUserId) === currentUserId ||
+    (identifier.memberIds || []).some(
+      (memberId) => normalizeId(memberId) === currentUserId,
+    )
   );
 };
 
@@ -65,7 +73,10 @@ export const canManageIdentifier = (
 
   const currentUser = requireUser(user);
 
-  return isAdminUser(currentUser) || identifier.createdUserId === currentUser._id;
+  return (
+    isAdminUser(currentUser) ||
+    normalizeId(identifier.createdUserId) === normalizeId(currentUser._id)
+  );
 };
 
 export const assertIdentifierAccess = async (
@@ -103,4 +114,3 @@ export const assertIdentifierManageAccess = async (
 
   return identifier;
 };
-
