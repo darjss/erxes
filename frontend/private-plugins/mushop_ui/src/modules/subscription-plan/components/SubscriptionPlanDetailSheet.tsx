@@ -12,6 +12,7 @@ import {
   useQueryState,
 } from 'erxes-ui';
 import { ActivityLogs } from 'ui-modules';
+import { useTranslation } from 'react-i18next';
 import { useSubscriptionPlanDetail } from '../hooks/useSubscriptionPlanDetail';
 import { subscriptionPlanCustomActivities } from './SubscriptionPlanActivityRows';
 
@@ -42,6 +43,7 @@ const formatDate = (dateStr?: string) => {
 };
 
 const PlanSidebar = () => {
+  const { t } = useTranslation('mushop');
   const [selectedTab, setSelectedTab] = useQueryState<string>('planTab');
 
   return (
@@ -58,7 +60,7 @@ const PlanSidebar = () => {
                   }
                   onClick={() => setSelectedTab(tab)}
                 >
-                  {tab.charAt(0).toUpperCase() + tab.slice(1)}
+                  {t(tab.charAt(0).toUpperCase() + tab.slice(1))}
                 </Sidebar.MenuButton>
               </Sidebar.MenuItem>
             ))}
@@ -70,6 +72,7 @@ const PlanSidebar = () => {
 };
 
 const PlanDetail = ({ plan }: { plan: any }) => {
+  const { t } = useTranslation('mushop');
   const [selectedTab] = useQueryState<string>('planTab');
 
   return (
@@ -85,31 +88,33 @@ const PlanDetail = ({ plan }: { plan: any }) => {
         <Tabs.Content value="overview" className="flex-1 overflow-hidden mt-0">
           <ScrollArea className="h-full">
             <div className="p-4">
-              <InfoCard title="Plan Details">
+              <InfoCard title={t('Plan Details')}>
                 <InfoCard.Content className="shadow-none p-0 overflow-hidden">
                   <Table>
                     <Table.Body className="bt:[&_td]:px-2 bt:[&_tr:first-child_td]:border-t bt:[&_td]:h-10">
-                      <Row label="Name" value={plan.name} />
-                      <Row label="Description" value={plan.description} />
+                      <Row label={t('Name')} value={plan.name} />
+                      <Row label={t('Description')} value={plan.description} />
                       <Row
-                        label="Price"
+                        label={t('Price')}
                         value={`${plan.price.toLocaleString()} ${plan.currency}`}
                       />
                       <Row
-                        label="Duration"
-                        value={`${plan.durationMonths} months`}
+                        label={t('Duration')}
+                        value={t('{{count}} months', {
+                          count: plan.durationMonths,
+                        })}
                       />
                       <Table.Row>
                         <Table.Cell className="bg-sidebar p-2 w-44 h-auto min-h-10 text-muted-foreground">
-                          Status
+                          {t('Status')}
                         </Table.Cell>
                         <Table.Cell className="p-1 px-2 h-auto min-h-10">
                           <Badge variant={plan.isActive ? 'success' : 'secondary'}>
-                            {plan.isActive ? 'Active' : 'Inactive'}
+                            {plan.isActive ? t('Active') : t('Inactive')}
                           </Badge>
                         </Table.Cell>
                       </Table.Row>
-                      <Row label="Created" value={formatDate(plan.createdAt)} />
+                      <Row label={t('Created')} value={formatDate(plan.createdAt)} />
                     </Table.Body>
                   </Table>
                 </InfoCard.Content>
@@ -125,7 +130,7 @@ const PlanDetail = ({ plan }: { plan: any }) => {
                 targetId={plan._id}
                 customActivities={subscriptionPlanCustomActivities}
                 variant="backward"
-                emptyMessage="No activity yet"
+                emptyMessage={t('No activity yet')}
               />
             </div>
           </ScrollArea>
@@ -136,6 +141,7 @@ const PlanDetail = ({ plan }: { plan: any }) => {
 };
 
 export const SubscriptionPlanDetailSheet = () => {
+  const { t } = useTranslation('mushop');
   const [activePlanId, setActivePlanId] = useQueryState<string>('activePlanId');
   const { plan, loading } = useSubscriptionPlanDetail(activePlanId);
 
@@ -145,7 +151,7 @@ export const SubscriptionPlanDetailSheet = () => {
       onOpenChange={() => setActivePlanId(null)}
     >
       <FocusSheet.View className="sm:max-w-2xl">
-        <FocusSheet.Header title="Subscription Plan" />
+        <FocusSheet.Header title={t('Subscription Plan')} />
         <FocusSheet.Content className="flex flex-auto overflow-hidden p-0">
           {loading && (
             <div className="flex flex-1 items-center justify-center">
@@ -154,13 +160,13 @@ export const SubscriptionPlanDetailSheet = () => {
           )}
           {!loading && plan && <PlanDetail plan={plan} />}
           {!loading && !plan && (
-            <div className="p-4">Plan not found</div>
+            <div className="p-4">{t('Plan not found')}</div>
           )}
         </FocusSheet.Content>
         <Sheet.Footer className="flex-none">
           <Sheet.Close asChild>
             <Button variant="secondary" className="bg-border">
-              Close
+              {t('Close')}
             </Button>
           </Sheet.Close>
         </Sheet.Footer>

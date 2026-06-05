@@ -1,6 +1,8 @@
 import { useCustomerInline } from 'ui-modules';
+import { useTranslation } from 'react-i18next';
 
 export const CustomerName = ({ customerId }: { customerId: string }) => {
+  const { t } = useTranslation('mushop');
   const { customer, loading } = useCustomerInline({
     variables: { _id: customerId },
     skip: !customerId,
@@ -13,7 +15,7 @@ export const CustomerName = ({ customerId }: { customerId: string }) => {
   const fullName =
     firstName || lastName
       ? `${firstName || ''} ${lastName || ''}`.trim()
-      : primaryEmail || primaryPhone || 'Unnamed customer';
+      : primaryEmail || primaryPhone || t('Unnamed customer');
 
   return <span>{fullName}</span>;
 };

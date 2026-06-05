@@ -16,6 +16,8 @@ import {
   useQueryState,
 } from 'erxes-ui';
 import { useState } from 'react';
+import type { TFunction } from 'i18next';
+import { useTranslation } from 'react-i18next';
 import {
   ActivityLogs,
   CustomersInline,
@@ -63,17 +65,18 @@ const formatDate = (dateStr?: string) => {
   });
 };
 
-const daysRemaining = (endDate?: string) => {
+const daysRemaining = (t: TFunction, endDate?: string) => {
   if (!endDate) return null;
   const diff = Math.ceil(
     (new Date(endDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24),
   );
-  if (diff < 0) return 'Expired';
-  if (diff === 0) return 'Expires today';
-  return `${diff} days remaining`;
+  if (diff < 0) return t('Expired');
+  if (diff === 0) return t('Expires today');
+  return t('{{count}} days remaining', { count: diff });
 };
 
 const SubscriberSidebar = () => {
+  const { t } = useTranslation('mushop');
   const [selectedTab, setSelectedTab] = useQueryState<string>('tab');
 
   return (
@@ -89,7 +92,7 @@ const SubscriberSidebar = () => {
                   }
                   onClick={() => setSelectedTab(tab)}
                 >
-                  {tab.charAt(0).toUpperCase() + tab.slice(1)}
+                  {t(tab.charAt(0).toUpperCase() + tab.slice(1))}
                 </Sidebar.MenuButton>
               </Sidebar.MenuItem>
             ))}
@@ -109,6 +112,7 @@ const EndDateEditor = ({
   startDate?: string;
   endDate?: string;
 }) => {
+  const { t } = useTranslation('mushop');
   const [open, setOpen] = useState(false);
   const { updateEndDate, loading } = useUpdateSubscriptionEndDate();
   const { hasActionPermission } = usePermissionCheck();
@@ -143,11 +147,14 @@ const EndDateEditor = ({
     const newLabel = formatDate(date.toISOString());
 
     confirm({
-      message: `Change subscription end date?`,
+      message: t('Change subscription end date?'),
       options: {
-        description: `This subscription will end on ${newLabel} instead of ${oldLabel}. The customer's access period will change accordingly.`,
+        description: t(
+          "This subscription will end on {{newLabel}} instead of {{oldLabel}}. The customer's access period will change accordingly.",
+          { newLabel, oldLabel },
+        ),
         confirmationValue: "update",
-        okLabel: 'Update',
+        okLabel: t('Update'),
       },
     }).then(() => {
       updateEndDate(_id, date);
@@ -200,6 +207,7 @@ const StatusEditor = ({
   _id: string;
   status?: string;
 }) => {
+  const { t } = useTranslation('mushop');
   const [open, setOpen] = useState(false);
   const { updateStatus, loading } = useUpdateSubscriptionStatus();
   const { hasActionPermission } = usePermissionCheck();
@@ -222,14 +230,18 @@ const StatusEditor = ({
 
     if (next === status) return;
 
-    const nextLabel = STATUS_OPTIONS.find((o) => o.value === next)?.label || next;
+    const rawLabel = STATUS_OPTIONS.find((o) => o.value === next)?.label;
+    const nextLabel = rawLabel ? t(rawLabel) : next;
 
     confirm({
-      message: 'Change subscription status?',
+      message: t('Change subscription status?'),
       options: {
-        description: `Status will change from "${status || '-'}" to "${nextLabel}".`,
+        description: t('Status will change from "{{from}}" to "{{to}}".', {
+          from: status || '-',
+          to: nextLabel,
+        }),
         confirmationValue: "update",
-        okLabel: 'Update',
+        okLabel: t('Update'),
       },
     }).then(() => {
       updateStatus(_id, next);
@@ -257,7 +269,7 @@ const StatusEditor = ({
                 value={o.value}
                 onSelect={() => handleSelect(o.value)}
               >
-                {o.label}
+                {t(o.label)}
               </Command.Item>
             ))}
           </Command.List>
@@ -268,6 +280,7 @@ const StatusEditor = ({
 };
 
 const SubscriberInfo = ({ subscriber }: { subscriber: ISubscriber }) => {
+  const { t } = useTranslation('mushop');
   const {
     _id,
     customerId,
@@ -300,12 +313,12 @@ const SubscriberInfo = ({ subscriber }: { subscriber: ISubscriber }) => {
           >
             <ScrollArea className="h-full">
               <div className="p-4">
-                <InfoCard title="Subscription">
+                <InfoCard title={t('Subscription')}>
                   <InfoCard.Content className="shadow-none p-0 overflow-hidden">
                     <Table>
                       <Table.Body className="bt:[&_td]:px-2 bt:[&_tr:first-child_td]:border-t bt:[&_td]:h-10">
                         <Row
-                          label="Customer"
+                          label={t('Customer')}
                           value={
                             <span className="inline-flex items-center gap-2">
                               <CustomersInline.Avatar />
@@ -315,26 +328,26 @@ const SubscriberInfo = ({ subscriber }: { subscriber: ISubscriber }) => {
                         />
                         <Table.Row>
                           <Table.Cell className="bg-sidebar p-2 w-44 h-auto min-h-10 text-muted-foreground">
-                            Status
+                            {t('Status')}
                           </Table.Cell>
                           <Table.Cell className="p-1 px-2 h-auto min-h-10">
                             <StatusEditor _id={_id} status={status} />
                           </Table.Cell>
                         </Table.Row>
                         <Row
-                          label="Plan"
+                          label={t('Plan')}
                           value={
                             plan
                               ? `${plan.name} · ${
                                   plan.durationMonths
-                                } months · ${plan.price.toLocaleString()} ${
+                                } ${t('months')} · ${plan.price.toLocaleString()} ${
                                   plan.currency
                                 }`
                               : '-'
                           }
                         />
                         <Row
-                          label="Period"
+                          label={t('Period')}
                           value={
                             <EndDateEditor
                               _id={_id}
@@ -344,15 +357,17 @@ const SubscriberInfo = ({ subscriber }: { subscriber: ISubscriber }) => {
                           }
                         />
                         <Row
-                          label="Time Left"
+                          label={t('Time Left')}
                           value={
                             status === 'paused'
-                              ? `${pausedDaysRemaining ?? 0} days remaining (paused)`
-                              : daysRemaining(endDate)
+                              ? t('{{count}} days remaining (paused)', {
+                                  count: pausedDaysRemaining ?? 0,
+                                })
+                              : daysRemaining(t, endDate)
                           }
                         />
                         <Row
-                          label="Amount"
+                          label={t('Amount')}
                           value={
                             amount != null
                               ? `${amount.toLocaleString()} ${
@@ -361,7 +376,7 @@ const SubscriberInfo = ({ subscriber }: { subscriber: ISubscriber }) => {
                               : undefined
                           }
                         />
-                        <Row label="Created" value={formatDate(createdAt)} />
+                        <Row label={t('Created')} value={formatDate(createdAt)} />
                       </Table.Body>
                     </Table>
                   </InfoCard.Content>
@@ -380,7 +395,7 @@ const SubscriberInfo = ({ subscriber }: { subscriber: ISubscriber }) => {
                   targetId={_id}
                   customActivities={subscriptionCustomActivities}
                   variant="backward"
-                  emptyMessage="No activity yet"
+                  emptyMessage={t('No activity yet')}
                 />
               </div>
             </ScrollArea>
@@ -398,6 +413,7 @@ const SubscriberInfo = ({ subscriber }: { subscriber: ISubscriber }) => {
 };
 
 export const SubscriberDetailSheet = () => {
+  const { t } = useTranslation('mushop');
   const [activeSubscriberId, setActiveSubscriberId] =
     useQueryState<string>('activeSubscriberId');
   const { subscriber, loading } = useSubscriberDetail(activeSubscriberId);
@@ -408,7 +424,7 @@ export const SubscriberDetailSheet = () => {
       onOpenChange={() => setActiveSubscriberId(null)}
     >
       <FocusSheet.View className="sm:max-w-5xl">
-        <FocusSheet.Header title="Subscription Detail" />
+        <FocusSheet.Header title={t('Subscription Detail')} />
         <FocusSheet.Content className="flex flex-auto p-0 overflow-hidden">
           {loading && (
             <div className="flex flex-1 justify-center items-center">
@@ -417,13 +433,13 @@ export const SubscriberDetailSheet = () => {
           )}
           {!loading && subscriber && <SubscriberInfo subscriber={subscriber} />}
           {!loading && !subscriber && (
-            <div className="p-4">Subscription not found</div>
+            <div className="p-4">{t('Subscription not found')}</div>
           )}
         </FocusSheet.Content>
         <Sheet.Footer className="flex-none">
           <Sheet.Close asChild>
             <Button variant="secondary" className="bg-border">
-              Close
+              {t('Close')}
             </Button>
           </Sheet.Close>
         </Sheet.Footer>

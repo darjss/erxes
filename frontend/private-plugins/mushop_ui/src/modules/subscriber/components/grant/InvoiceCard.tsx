@@ -1,4 +1,5 @@
 import { InfoCard } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { GrantSheetState } from '../../hooks/useGrantSheetState';
 import { formatMoney } from '../../utils/grantHelpers';
 import { CustomerName } from './CustomerName';
@@ -13,30 +14,32 @@ export const InvoiceCard = ({
   GrantSheetState,
   'customerId' | 'amount' | 'selectedPlan' | 'selectedPayment'
 >) => {
+  const { t } = useTranslation('mushop');
+
   if (!selectedPlan || !selectedPayment) return null;
 
   return (
-    <InfoCard title="Invoice" className="flex-1">
+    <InfoCard title={t('Invoice')} className="flex-1">
       <InfoCard.Content>
         <div className="flex flex-col text-sm">
-          <Row label="Description">{selectedPlan.name}</Row>
-          <Row label="Customer">
+          <Row label={t('Description')}>{selectedPlan.name}</Row>
+          <Row label={t('Customer')}>
             {customerId ? (
               <CustomerName customerId={customerId} />
             ) : (
               '—'
             )}
           </Row>
-          <Row label="Content">
+          <Row label={t('Content')}>
             <span className="font-mono text-sm">mushop:subscription</span>
           </Row>
-          <Row label="Payment">
+          <Row label={t('Payment')}>
             {selectedPayment.name}
             <span className="ml-1 text-muted-foreground text-sm">
               ({selectedPayment.kind})
             </span>
           </Row>
-          <Row label="Amount">
+          <Row label={t('Amount')}>
             <span className="font-semibold">
               {formatMoney(
                 amount === '' ? selectedPlan.price : Number(amount),
@@ -44,10 +47,10 @@ export const InvoiceCard = ({
               )}
             </span>
           </Row>
-          <Row label="Status">
+          <Row label={t('Status')}>
             <span className="inline-flex items-center gap-1.5 bg-emerald-100 px-2 py-0.5 rounded-full font-medium text-emerald-700 text-sm">
               <span className="bg-emerald-500 rounded-full w-1.5 h-1.5" />
-              paid
+              {t('paid')}
             </span>
           </Row>
         </div>

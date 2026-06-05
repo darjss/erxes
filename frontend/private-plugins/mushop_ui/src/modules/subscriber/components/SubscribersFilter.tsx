@@ -4,9 +4,11 @@ import {
   IconSearch,
 } from '@tabler/icons-react';
 import { Combobox, Command, Filter, useMultiQueryState } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { SelectSubscriberStatus } from './SelectSubscriberStatus';
 
 const SubscribersFilterPopover = () => {
+  const { t } = useTranslation('mushop');
   const [queries] = useMultiQueryState<{
     searchValue: string;
     status: string;
@@ -23,22 +25,22 @@ const SubscribersFilterPopover = () => {
           <Filter.View>
             <Command>
               <Filter.CommandInput
-                placeholder="Filter"
+                placeholder={t('Filter')}
                 variant="secondary"
                 className="bg-background"
               />
               <Command.List className="p-1">
                 <Filter.Item value="searchValue" inDialog>
                   <IconSearch />
-                  Search
+                  {t('Search')}
                 </Filter.Item>
                 <Filter.Item value="status">
                   <IconProgress />
-                  Status
+                  {t('Status')}
                 </Filter.Item>
                 <Filter.Item value="created">
                   <IconCalendarPlus />
-                  Created At
+                  {t('Created At')}
                 </Filter.Item>
               </Command.List>
             </Command>
@@ -62,6 +64,7 @@ const SubscribersFilterPopover = () => {
 };
 
 export const SubscribersFilter = () => {
+  const { t } = useTranslation('mushop');
   const [queries] = useMultiQueryState<{ searchValue: string }>([
     'searchValue',
   ]);
@@ -72,7 +75,7 @@ export const SubscribersFilter = () => {
         <Filter.BarItem queryKey="searchValue">
           <Filter.BarName>
             <IconSearch />
-            Search
+            {t('Search')}
           </Filter.BarName>
           <Filter.BarButton filterKey="searchValue" inDialog>
             {queries?.searchValue || ''}
@@ -81,14 +84,14 @@ export const SubscribersFilter = () => {
         <Filter.BarItem queryKey="status">
           <Filter.BarName>
             <IconProgress />
-            Status
+            {t('Status')}
           </Filter.BarName>
           <SelectSubscriberStatus.FilterBar />
         </Filter.BarItem>
         <Filter.BarItem queryKey="created">
           <Filter.BarName>
             <IconCalendarPlus />
-            Created At
+            {t('Created At')}
           </Filter.BarName>
           <Filter.Date filterKey="created" />
         </Filter.BarItem>

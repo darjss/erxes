@@ -1,6 +1,7 @@
 import { IconGift } from '@tabler/icons-react';
 import { Button, Sheet, Spinner } from 'erxes-ui';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useGrantSheetState } from '../hooks/useGrantSheetState';
 import { DetailsCard } from './grant/DetailsCard';
 import { InvoiceCard } from './grant/InvoiceCard';
@@ -9,6 +10,7 @@ import { PaymentMirrorCard } from './grant/PaymentMirrorCard';
 import { SummaryCard } from './grant/SummaryCard';
 
 export const GrantSubscriptionSheet = () => {
+  const { t } = useTranslation('mushop');
   const [open, setOpen] = useState(false);
   const state = useGrantSheetState(open);
   const {
@@ -35,7 +37,7 @@ export const GrantSubscriptionSheet = () => {
     <Sheet open={open} onOpenChange={onOpenChange}>
       <Sheet.Trigger asChild>
         <Button variant="outline" size="sm">
-          Add Subscription
+          {t('Add Subscription')}
         </Button>
       </Sheet.Trigger>
       <Sheet.View
@@ -46,7 +48,7 @@ export const GrantSubscriptionSheet = () => {
         }
       >
         <Sheet.Header>
-          <Sheet.Title>Add Subscription</Sheet.Title>
+          <Sheet.Title>{t('Add Subscription')}</Sheet.Title>
           <Sheet.Close />
         </Sheet.Header>
 
@@ -73,14 +75,14 @@ export const GrantSubscriptionSheet = () => {
 
         <Sheet.Footer>
           <Sheet.Close asChild>
-            <Button variant="secondary">Cancel</Button>
+            <Button variant="secondary">{t('Cancel')}</Button>
           </Sheet.Close>
           <Button
             onClick={onSubmit}
             disabled={!customerId || !planId || granting}
           >
             {granting && <Spinner />}
-            {isExtending ? 'Extend' : 'Create'}
+            {isExtending ? t('Extend') : t('Create')}
           </Button>
         </Sheet.Footer>
       </Sheet.View>

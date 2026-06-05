@@ -1,4 +1,5 @@
 import { InfoCard } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { GrantSheetState } from '../../hooks/useGrantSheetState';
 import {
   daysBetween,
@@ -25,44 +26,47 @@ export const SummaryCard = ({
   | 'isSamePlan'
   | 'previewEndDate'
 >) => {
+  const { t } = useTranslation('mushop');
   const showCurrent = isExtending && !selectedPlan && activeSub;
   const showSummary = !isExtending || selectedPlan;
 
   return (
-    <InfoCard title={showCurrent ? 'Current subscription' : 'Summary'}>
+    <InfoCard title={showCurrent ? t('Current subscription') : t('Summary')}>
       <InfoCard.Content>
         <div className="flex flex-col text-sm">
           {showCurrent && activeSub && (
             <>
-              <Row label="Customer">
+              <Row label={t('Customer')}>
                 {customerId ? (
                   <CustomerName customerId={customerId} />
                 ) : (
                   '—'
                 )}
               </Row>
-              <Row label="Plan">
+              <Row label={t('Plan')}>
                 {activeSub.plan
                   ? `${activeSub.plan.name} · ${
                       activeSub.plan.durationMonths ?? '-'
-                    } mo`
+                    } ${t('mo')}`
                   : '—'}
               </Row>
-              <Row label="Period">
+              <Row label={t('Period')}>
                 {formatDate(activeSub.startDate)} →{' '}
                 {formatDate(activeSub.endDate)}
               </Row>
-              <Row label="Time left">
+              <Row label={t('Time left')}>
                 {(() => {
                   if (!activeSub.endDate) return '—';
                   const d = daysBetween(
                     new Date(),
                     new Date(activeSub.endDate),
                   );
-                  return d <= 0 ? 'Expires today' : `${d} days`;
+                  return d <= 0
+                    ? t('Expires today')
+                    : t('{{count}} days', { count: d });
                 })()}
               </Row>
-              <Row label="Last paid">
+              <Row label={t('Last paid')}>
                 {formatMoney(activeSub.amount, activeSub.currency)}
               </Row>
             </>
@@ -70,33 +74,37 @@ export const SummaryCard = ({
 
           {showSummary && (
             <>
-              <Row label="Plan">
+              <Row label={t('Plan')}>
                 {selectedPlan ? (
                   <span className="text-primary">
                     {selectedPlan.name}
                     {isExtending && !isSamePlan && (
                       <span className="ml-2 text-[10px] text-emerald-700 uppercase tracking-wide">
-                        (change)
+                        {t('(change)')}
                       </span>
                     )}
                   </span>
                 ) : (
-                  <span className="text-muted-foreground">Select a plan</span>
+                  <span className="text-muted-foreground">
+                    {t('Select a plan')}
+                  </span>
                 )}
               </Row>
-              <Row label="Duration">
+              <Row label={t('Duration')}>
                 {selectedPlan?.durationMonths
-                  ? `+ ${selectedPlan.durationMonths} months`
+                  ? t('+ {{count}} months', {
+                      count: selectedPlan.durationMonths,
+                    })
                   : '—'}
               </Row>
               {isExtending && activeSub?.endDate && (
-                <Row label="Current end">
+                <Row label={t('Current end')}>
                   <span className="text-muted-foreground line-through">
                     {formatDate(activeSub.endDate)}
                   </span>
                 </Row>
               )}
-              <Row label="New end">
+              <Row label={t('New end')}>
                 {previewEndDate ? (
                   <span className="text-primary">
                     {formatDate(previewEndDate.toISOString())}

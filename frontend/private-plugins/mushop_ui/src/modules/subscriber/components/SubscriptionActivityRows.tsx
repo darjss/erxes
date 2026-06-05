@@ -1,5 +1,6 @@
 import { ActivityLogCustomActivity, TActivityLog } from 'ui-modules';
 import { ActivityLogs } from 'ui-modules';
+import { useTranslation } from 'react-i18next';
 
 const Sentence = ({ children }: { children: React.ReactNode }) => (
   <span className="flex flex-wrap items-center gap-1 text-sm">{children}</span>
@@ -13,20 +14,26 @@ const Bold = ({ children }: { children: React.ReactNode }) => (
   <span className="font-medium">{children}</span>
 );
 
-const CreatedRow = ({ activity }: { activity: TActivityLog }) => (
-  <Sentence>
-    <ActivityLogs.ActorName activity={activity} />
-    <Muted>activated subscription</Muted>
-    {activity.changes?.planId && (
-      <Bold>plan {activity.changes.planId}</Bold>
-    )}
-    {activity.changes?.amount != null && (
-      <Muted>· {activity.changes.amount.toLocaleString()} {activity.changes.currency || 'MNT'}</Muted>
-    )}
-  </Sentence>
-);
+const CreatedRow = ({ activity }: { activity: TActivityLog }) => {
+  const { t } = useTranslation('mushop');
+  return (
+    <Sentence>
+      <ActivityLogs.ActorName activity={activity} />
+      <Muted>{t('activated subscription')}</Muted>
+      {activity.changes?.planId && (
+        <Bold>
+          {t('plan')} {activity.changes.planId}
+        </Bold>
+      )}
+      {activity.changes?.amount != null && (
+        <Muted>· {activity.changes.amount.toLocaleString()} {activity.changes.currency || 'MNT'}</Muted>
+      )}
+    </Sentence>
+  );
+};
 
 const ExtendedRow = ({ activity }: { activity: TActivityLog }) => {
+  const { t } = useTranslation('mushop');
   const prev = activity.changes?.prev?.endDate;
   const current = activity.changes?.current?.endDate;
   const fmt = (d?: string) =>
@@ -35,7 +42,7 @@ const ExtendedRow = ({ activity }: { activity: TActivityLog }) => {
   return (
     <Sentence>
       <ActivityLogs.ActorName activity={activity} />
-      <Muted>renewed subscription</Muted>
+      <Muted>{t('renewed subscription')}</Muted>
       {prev && current && (
         <Muted>· {fmt(prev)} → {fmt(current)}</Muted>
       )}
@@ -44,6 +51,7 @@ const ExtendedRow = ({ activity }: { activity: TActivityLog }) => {
 };
 
 const EndDateAdjustedRow = ({ activity }: { activity: TActivityLog }) => {
+  const { t } = useTranslation('mushop');
   const prev = activity.changes?.prev?.endDate;
   const current = activity.changes?.current?.endDate;
   const fmt = (d?: string) =>
@@ -52,7 +60,7 @@ const EndDateAdjustedRow = ({ activity }: { activity: TActivityLog }) => {
   return (
     <Sentence>
       <ActivityLogs.ActorName activity={activity} />
-      <Muted>adjusted end date</Muted>
+      <Muted>{t('adjusted end date')}</Muted>
       {prev && current && (
         <Muted>· {fmt(prev)} → {fmt(current)}</Muted>
       )}
@@ -61,13 +69,14 @@ const EndDateAdjustedRow = ({ activity }: { activity: TActivityLog }) => {
 };
 
 const StatusChangedRow = ({ activity }: { activity: TActivityLog }) => {
+  const { t } = useTranslation('mushop');
   const prev = activity.changes?.prev?.status;
   const current = activity.changes?.current?.status;
 
   return (
     <Sentence>
       <ActivityLogs.ActorName activity={activity} />
-      <Muted>changed status</Muted>
+      <Muted>{t('changed status')}</Muted>
       {prev && current && (
         <Muted>· {prev} → {current}</Muted>
       )}
@@ -75,22 +84,26 @@ const StatusChangedRow = ({ activity }: { activity: TActivityLog }) => {
   );
 };
 
-const CancelledRow = ({ activity }: { activity: TActivityLog }) => (
-  <Sentence>
-    <ActivityLogs.ActorName activity={activity} />
-    <Muted>cancelled subscription</Muted>
-  </Sentence>
-);
+const CancelledRow = ({ activity }: { activity: TActivityLog }) => {
+  const { t } = useTranslation('mushop');
+  return (
+    <Sentence>
+      <ActivityLogs.ActorName activity={activity} />
+      <Muted>{t('cancelled subscription')}</Muted>
+    </Sentence>
+  );
+};
 
 const ExpiredRow = ({ activity }: { activity: TActivityLog }) => {
+  const { t } = useTranslation('mushop');
   const endDate = activity.changes?.endDate || activity.metadata?.endDate;
   const fmt = (d?: string) =>
     d ? new Date(d).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' }) : null;
 
   return (
     <Sentence>
-      <Muted>Subscription expired</Muted>
-      {fmt(endDate) && <Muted>on {fmt(endDate)}</Muted>}
+      <Muted>{t('Subscription expired')}</Muted>
+      {fmt(endDate) && <Muted>{t('on {{date}}', { date: fmt(endDate) })}</Muted>}
     </Sentence>
   );
 };

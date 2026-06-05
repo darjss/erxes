@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { formatDate } from '../../utils/grantHelpers';
 
 export const Timeline = ({
@@ -9,6 +10,7 @@ export const Timeline = ({
   end: Date;
   today?: Date;
 }) => {
+  const { t } = useTranslation('mushop');
   const total = end.getTime() - start.getTime();
   const elapsed = today.getTime() - start.getTime();
   const pct =
@@ -27,7 +29,7 @@ export const Timeline = ({
       </div>
       <div className="flex justify-between mt-2 text-[11px] text-muted-foreground">
         <span>{formatDate(start.toISOString())}</span>
-        <span className="font-medium text-primary">today</span>
+        <span className="font-medium text-primary">{t('today')}</span>
         <span>{formatDate(end.toISOString())}</span>
       </div>
     </div>

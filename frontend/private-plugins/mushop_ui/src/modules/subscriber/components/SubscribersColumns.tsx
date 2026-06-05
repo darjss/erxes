@@ -15,6 +15,7 @@ import {
   IconPackage,
 } from '@tabler/icons-react';
 import { CustomersInline } from 'ui-modules';
+import { useTranslation } from 'react-i18next';
 import { ISubscriber } from '../types';
 import { SelectSubscriberStatus } from './SelectSubscriberStatus';
 
@@ -38,7 +39,10 @@ export const subscribersColumns: ColumnDef<ISubscriber>[] = [
   {
     id: 'customerId',
     accessorKey: 'customerId',
-    header: () => <RecordTable.InlineHead label="Customer" icon={IconUser} />,
+    header: () => {
+      const { t } = useTranslation('mushop');
+      return <RecordTable.InlineHead label={t('Customer')} icon={IconUser} />;
+    },
     cell: ({ cell, row }) => {
       const [, setActiveSubscriberId] =
         useQueryState<string>('activeSubscriberId');
@@ -61,7 +65,10 @@ export const subscribersColumns: ColumnDef<ISubscriber>[] = [
   {
     id: 'status',
     accessorKey: 'status',
-    header: () => <RecordTable.InlineHead label="Status" icon={IconProgress} />,
+    header: () => {
+      const { t } = useTranslation('mushop');
+      return <RecordTable.InlineHead label={t('Status')} icon={IconProgress} />;
+    },
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         <Badge variant={statusVariant(cell.getValue() as string)}>
@@ -73,7 +80,10 @@ export const subscribersColumns: ColumnDef<ISubscriber>[] = [
   },
   {
     id: 'plan',
-    header: () => <RecordTable.InlineHead label="Plan" icon={IconPackage} />,
+    header: () => {
+      const { t } = useTranslation('mushop');
+      return <RecordTable.InlineHead label={t('Plan')} icon={IconPackage} />;
+    },
     cell: ({ row }) => {
       const plan = row.original.plan;
       return (
@@ -87,7 +97,10 @@ export const subscribersColumns: ColumnDef<ISubscriber>[] = [
   {
     id: 'amount',
     accessorKey: 'amount',
-    header: () => <RecordTable.InlineHead label="Amount" icon={IconCash} />,
+    header: () => {
+      const { t } = useTranslation('mushop');
+      return <RecordTable.InlineHead label={t('Amount')} icon={IconCash} />;
+    },
     cell: ({ cell, row }) => {
       const amount = cell.getValue() as number;
       const currency = row.original.currency || 'MNT';
@@ -101,10 +114,14 @@ export const subscribersColumns: ColumnDef<ISubscriber>[] = [
   },
   {
     id: 'timeLeft',
-    header: () => (
-      <RecordTable.InlineHead label="Time Left" icon={IconClockHour4} />
-    ),
+    header: () => {
+      const { t } = useTranslation('mushop');
+      return (
+        <RecordTable.InlineHead label={t('Time Left')} icon={IconClockHour4} />
+      );
+    },
     cell: ({ row }) => {
+      const { t } = useTranslation('mushop');
       const { endDate, status } = row.original;
       if (!endDate || status !== 'active') {
         return <RecordTableInlineCell>-</RecordTableInlineCell>;
@@ -113,16 +130,22 @@ export const subscribersColumns: ColumnDef<ISubscriber>[] = [
         (new Date(endDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24),
       );
       const label =
-        diff <= 0 ? 'Expires today' : `${diff} day${diff === 1 ? '' : 's'}`;
+        diff <= 0 ? t('Expires today') : t('{{count}} day', { count: diff });
       return <RecordTableInlineCell>{label}</RecordTableInlineCell>;
     },
     size: 120,
   },
   {
     id: 'duration',
-    header: () => (
-      <RecordTable.InlineHead label="Subscription Period" icon={IconCalendar} />
-    ),
+    header: () => {
+      const { t } = useTranslation('mushop');
+      return (
+        <RecordTable.InlineHead
+          label={t('Subscription Period')}
+          icon={IconCalendar}
+        />
+      );
+    },
     cell: ({ row }) => {
       const { startDate, endDate } = row.original;
       return (
@@ -138,9 +161,12 @@ export const subscribersColumns: ColumnDef<ISubscriber>[] = [
   {
     id: 'subscribedAt',
     accessorKey: 'createdAt',
-    header: () => (
-      <RecordTable.InlineHead label="Subscribed At" icon={IconCalendar} />
-    ),
+    header: () => {
+      const { t } = useTranslation('mushop');
+      return (
+        <RecordTable.InlineHead label={t('Subscribed At')} icon={IconCalendar} />
+      );
+    },
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         {formatDate(cell.getValue() as string)}

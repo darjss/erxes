@@ -1,6 +1,7 @@
 import { IconCreditCard } from '@tabler/icons-react';
 import { Breadcrumb, Button, PageContainer, PageSubHeader, Separator } from 'erxes-ui';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Can, PageHeader } from 'ui-modules';
 import { SubscribersFilter } from '../components/SubscribersFilter';
 import { SubscribersTable } from '../components/SubscribersTable';
@@ -8,6 +9,7 @@ import { SubscriberDetailSheet } from '../components/SubscriberDetailSheet';
 import { GrantSubscriptionSheet } from '../components/GrantSubscriptionSheet';
 
 export const SubscribersPage = () => {
+  const { t } = useTranslation('mushop');
   return (
     <PageContainer>
       <PageHeader>
@@ -18,7 +20,7 @@ export const SubscribersPage = () => {
                 <Button variant="ghost" asChild>
                   <Link to="/mushop/subscribers">
                     <IconCreditCard />
-                    Subscribers
+                    {t('Subscribers')}
                   </Link>
                 </Button>
               </Breadcrumb.Item>

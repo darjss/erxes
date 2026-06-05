@@ -1,5 +1,6 @@
 import { Button, Dialog, DropdownMenu, Label, Textarea } from 'erxes-ui';
 import { ReactNode, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { usePermissionCheck } from 'ui-modules';
 import { useUpdateProductStatus } from '../hooks/useUpdateProductStatus';
 
@@ -14,6 +15,7 @@ export const ProductStatusAction = ({
   status?: string;
   children: ReactNode;
 }) => {
+  const { t } = useTranslation('mushop');
   const { updateStatus } = useUpdateProductStatus();
   const { hasActionPermission } = usePermissionCheck();
   const [rejectOpen, setRejectOpen] = useState(false);
@@ -46,7 +48,7 @@ export const ProductStatusAction = ({
               disabled={s === status}
               onClick={() => handleSelect(s)}
             >
-              Mark as {s}
+              {t('Mark as {{status}}', { status: t(s) })}
             </DropdownMenu.Item>
           ))}
         </DropdownMenu.Content>
@@ -55,16 +57,16 @@ export const ProductStatusAction = ({
       <Dialog open={rejectOpen} onOpenChange={setRejectOpen}>
         <Dialog.Content className="sm:max-w-md">
           <Dialog.Header>
-            <Dialog.Title>Reject product</Dialog.Title>
+            <Dialog.Title>{t('Reject product')}</Dialog.Title>
             <Dialog.Description>
-              Provide a reason for rejection. This note will be sent to the supplier.
+              {t('Provide a reason for rejection. This note will be sent to the supplier.')}
             </Dialog.Description>
           </Dialog.Header>
           <div className="flex flex-col gap-2">
-            <Label htmlFor="reject-note">Note</Label>
+            <Label htmlFor="reject-note">{t('Note')}</Label>
             <Textarea
               id="reject-note"
-              placeholder="Enter rejection reason..."
+              placeholder={t('Enter rejection reason...')}
               value={note}
               onChange={(e) => setNote(e.target.value)}
               rows={4}
@@ -72,10 +74,10 @@ export const ProductStatusAction = ({
           </div>
           <Dialog.Footer>
             <Button variant="outline" onClick={() => setRejectOpen(false)}>
-              Cancel
+              {t('Cancel')}
             </Button>
             <Button variant="destructive" onClick={handleConfirmReject}>
-              Reject
+              {t('Reject')}
             </Button>
           </Dialog.Footer>
         </Dialog.Content>

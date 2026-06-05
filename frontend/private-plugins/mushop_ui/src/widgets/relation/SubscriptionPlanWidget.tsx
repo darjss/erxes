@@ -1,10 +1,12 @@
 import { Badge, Button, ScrollArea, Separator, Spinner, useQueryState } from 'erxes-ui';
 import { IconCaretDownFilled, IconFileDescription } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 import { useSubscriberDetail } from '@/subscriber/hooks/useSubscriberDetail';
 import { SubscriptionPlanDetailSheet } from '@/subscription-plan/components/SubscriptionPlanDetailSheet';
 import { ISubscriptionPlan } from '@/subscriber/types';
 
 const PlanCard = ({ plan }: { plan: ISubscriptionPlan }) => {
+  const { t } = useTranslation('mushop');
   const [, setActivePlanId] = useQueryState<string>('activePlanId');
 
   return (
@@ -16,7 +18,7 @@ const PlanCard = ({ plan }: { plan: ISubscriptionPlan }) => {
             <span className="font-medium text-sm truncate">{plan.name}</span>
           </div>
           <Badge variant={plan.isActive ? 'success' : 'secondary'} className="shrink-0">
-            {plan.isActive ? 'Active' : 'Inactive'}
+            {plan.isActive ? t('Active') : t('Inactive')}
           </Badge>
         </div>
 
@@ -26,14 +28,16 @@ const PlanCard = ({ plan }: { plan: ISubscriptionPlan }) => {
 
         <div className="space-y-1.5 text-sm">
           <div className="flex items-center justify-between gap-2">
-            <span className="text-accent-foreground">Price</span>
+            <span className="text-accent-foreground">{t('Price')}</span>
             <span className="text-foreground font-medium">
               {plan.price.toLocaleString()} {plan.currency}
             </span>
           </div>
           <div className="flex items-center justify-between gap-2">
-            <span className="text-accent-foreground">Duration</span>
-            <span className="text-foreground">{plan.durationMonths} months</span>
+            <span className="text-accent-foreground">{t('Duration')}</span>
+            <span className="text-foreground">
+              {t('{{count}} months', { count: plan.durationMonths })}
+            </span>
           </div>
         </div>
       </div>
@@ -47,7 +51,7 @@ const PlanCard = ({ plan }: { plan: ISubscriptionPlan }) => {
           className="w-full text-accent-foreground"
           onClick={() => setActivePlanId(plan._id)}
         >
-          View details
+          {t('View details')}
           <IconCaretDownFilled />
         </Button>
       </div>
@@ -56,6 +60,7 @@ const PlanCard = ({ plan }: { plan: ISubscriptionPlan }) => {
 };
 
 export const SubscriptionPlanWidget = ({ contentId }: { contentId: string }) => {
+  const { t } = useTranslation('mushop');
   const { subscriber, loading } = useSubscriberDetail(contentId);
 
   const plan = subscriber?.plan;
@@ -73,7 +78,9 @@ export const SubscriptionPlanWidget = ({ contentId }: { contentId: string }) => 
           ) : (
             <div className="flex flex-col gap-2 items-center justify-center py-10">
               <IconFileDescription className="size-6 text-muted-foreground" />
-              <span className="text-sm text-muted-foreground">No plan linked</span>
+              <span className="text-sm text-muted-foreground">
+                {t('No plan linked')}
+              </span>
             </div>
           )}
         </div>

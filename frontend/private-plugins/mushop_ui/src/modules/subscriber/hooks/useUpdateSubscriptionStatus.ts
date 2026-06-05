@@ -1,5 +1,6 @@
 import { useMutation } from '@apollo/client';
 import { toast } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { MUSHOP_UPDATE_SUBSCRIPTION_STATUS } from '../graphql/mutations';
 import {
   MUSHOP_SUBSCRIPTIONS,
@@ -7,13 +8,14 @@ import {
 } from '../graphql/queries';
 
 export const useUpdateSubscriptionStatus = () => {
+  const { t } = useTranslation('mushop');
   const [mutate, { loading }] = useMutation(
     MUSHOP_UPDATE_SUBSCRIPTION_STATUS,
     {
-      onCompleted: () => toast({ title: 'Status updated' }),
+      onCompleted: () => toast({ title: t('Status updated') }),
       onError: (e) =>
         toast({
-          title: 'Error',
+          title: t('Error'),
           description: e.message,
           variant: 'destructive',
         }),

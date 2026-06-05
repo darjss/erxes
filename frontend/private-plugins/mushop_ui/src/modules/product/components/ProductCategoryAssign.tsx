@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Combobox,
   Command,
@@ -36,6 +37,7 @@ const useCtx = () => {
 };
 
 const Content = () => {
+  const { t } = useTranslation('mushop');
   const { productId, categoryId, search, setSearch, setOpen } = useCtx();
   const { categories, loading } = useCoreProductCategories(search || undefined);
   const { assign } = useAssignProductCategory();
@@ -49,13 +51,13 @@ const Content = () => {
   return (
     <Command shouldFilter={false}>
       <Command.Input
-        placeholder="Search categories..."
+        placeholder={t('Search categories...')}
         value={search}
         onValueChange={setSearch}
       />
       <Command.List>
-        {loading && <Command.Item disabled>Loading...</Command.Item>}
-        <Command.Empty>No categories found.</Command.Empty>
+        {loading && <Command.Item disabled>{t('Loading...')}</Command.Item>}
+        <Command.Empty>{t('No categories found.')}</Command.Empty>
         <Command.Group>
           {categoryId && (
             <Command.Item
@@ -64,7 +66,7 @@ const Content = () => {
                 setOpen(false);
               }}
             >
-              <span className="text-muted-foreground">Clear category</span>
+              <span className="text-muted-foreground">{t('Clear category')}</span>
             </Command.Item>
           )}
           {categories.map((cat) => (
@@ -84,6 +86,7 @@ const Content = () => {
 };
 
 const InlineCell = () => {
+  const { t } = useTranslation('mushop');
   const { categoryId, category, initialCategory, open, setOpen } = useCtx();
   const { hasActionPermission } = usePermissionCheck();
   const canAssign = hasActionPermission('mushopAssignProductCategory');
@@ -110,7 +113,7 @@ const InlineCell = () => {
       <Popover.Trigger asChild>
         <RecordTableInlineCell>
           {displayValue ? <span className={`${!categoryId && 'text-muted-foreground'}`}>{displayValue}</span> : (
-            <span className="text-muted-foreground/60">Assign category...</span>
+            <span className="text-muted-foreground/60">{t('Assign category...')}</span>
           )}
         </RecordTableInlineCell>
       </Popover.Trigger>
@@ -122,13 +125,14 @@ const InlineCell = () => {
 };
 
 const DetailTrigger = () => {
+  const { t } = useTranslation('mushop');
   const { category, initialCategory, open, setOpen } = useCtx();
   const { hasActionPermission } = usePermissionCheck();
   const canAssign = hasActionPermission('mushopAssignProductCategory');
   const displayValue = category?.name;
   const placeholder = initialCategory?.name
-    ? `From supplier: ${initialCategory.name}`
-    : 'Assign category...';
+    ? t('From supplier: {{name}}', { name: initialCategory.name })
+    : t('Assign category...');
 
   if (!canAssign) {
     return (
@@ -136,7 +140,7 @@ const DetailTrigger = () => {
         {displayValue ?? (
           <span className="text-muted-foreground">
             {initialCategory?.name
-              ? `From supplier: ${initialCategory.name}`
+              ? t('From supplier: {{name}}', { name: initialCategory.name })
               : '—'}
           </span>
         )}
