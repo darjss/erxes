@@ -11,6 +11,7 @@ const MushopNavigation = lazy(() =>
 export const CONFIG: IUIConfig = {
   name: 'mushop',
   path: 'mushop',
+  i18n: true,
   navigationGroup: {
     name: 'MuShop',
     icon: IconBuildingStore,
