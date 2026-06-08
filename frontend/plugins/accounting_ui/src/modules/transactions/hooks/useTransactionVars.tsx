@@ -5,7 +5,7 @@ import {
   useMultiQueryState,
   useRecordTableCursor,
 } from 'erxes-ui';
-import { ACCTRANSACTIONS_CURSOR_SESSION_KEY } from '~/modules/accountsSessionKeys';
+import { ACC_TR_RECORDS_CURSOR_SESSION_KEY } from '~/modules/accountsSessionKeys';
 import { ACC_TRS__PER_PAGE } from '../types/constants';
 import { ITransaction, trsQueryParamTypes } from '../types/Transaction';
 
@@ -115,7 +115,7 @@ export const useTransactionsVariables = (
   const queryParams = useTransactionsQueryParams();
 
   const { cursor } = useRecordTableCursor({
-    sessionKey: ACCTRANSACTIONS_CURSOR_SESSION_KEY,
+    sessionKey: ACC_TR_RECORDS_CURSOR_SESSION_KEY,
   });
 
   const curVariables = Object.entries(queryParams).reduce(
@@ -133,7 +133,7 @@ export const useTransactionsVariables = (
     orderBy: {
       date: 1,
     },
-    cursor: cursor || '',
+    cursor,
     ...variables,
     ...curVariables,
   };

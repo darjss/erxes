@@ -9,7 +9,6 @@ import {
   IconHash,
   IconHome,
   IconLabelFilled,
-  IconNote,
   IconUser,
 } from '@tabler/icons-react';
 import { useCustomerDetail } from 'ui-modules';
@@ -128,15 +127,13 @@ const ContractCell = ({ payment }: { payment: IContractPayment }) => {
 const StatusCell = ({ payment }: { payment: IContractPayment }) => {
   const setActivePayment = useSetAtom(paymentSheetState);
   return (
-    <RecordTableInlineCell>
-      <RecordTableInlineCell.Anchor
-        onClick={(e) => {
-          e.stopPropagation();
-          setActivePayment(payment._id);
-        }}
-      >
-        <StatusBadge payment={payment} />
-      </RecordTableInlineCell.Anchor>
+    <RecordTableInlineCell
+      onClick={(e) => {
+        e.stopPropagation();
+        setActivePayment(payment._id);
+      }}
+    >
+      <StatusBadge payment={payment} />
     </RecordTableInlineCell>
   );
 };
@@ -260,17 +257,6 @@ export const paymentsColumns = ({
         </RecordTableInlineCell>
       ),
       size: 160,
-    },
-    {
-      id: 'note',
-      accessorKey: 'note',
-      header: () => <RecordTable.InlineHead label="Note" icon={IconNote} />,
-      cell: ({ row }) => (
-        <RecordTableInlineCell>
-          {row.original.note || '-'}
-        </RecordTableInlineCell>
-      ),
-      size: 240,
     },
   );
 

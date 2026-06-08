@@ -1,6 +1,32 @@
-import { cursorPaginate } from 'erxes-api-shared/utils';
+import { cursorPaginateAggregation } from 'erxes-api-shared/utils';
+import { Types } from 'mongoose';
 import { IContractPaymentDocument } from '@/contract/@types/payment';
 import { IContext } from '~/connectionResolvers';
+
+const paymentSortPipeline = (matchStage: Record<string, any>) => [
+  { $match: matchStage },
+  {
+    $addFields: {
+      _sortPriority: {
+        $switch: {
+          branches: [
+            { case: { $eq: ['$status', 'paid'] }, then: 2 },
+            {
+              case: {
+                $and: [
+                  { $ne: ['$status', 'paid'] },
+                  { $lt: ['$dueDate', new Date()] },
+                ],
+              },
+              then: 0,
+            },
+          ],
+          default: 1,
+        },
+      },
+    },
+  },
+];
 
 export const contractPaymentQueries = {
   blockGetContractPayments: async (
@@ -18,15 +44,15 @@ export const contractPaymentQueries = {
     },
     { models }: IContext,
   ) => {
-    return cursorPaginate<IContractPaymentDocument>({
+    return cursorPaginateAggregation<IContractPaymentDocument>({
       model: models.ContractPayment as any,
+      pipeline: paymentSortPipeline({ contractId: new Types.ObjectId(contractId) }),
       params: {
         limit: limit ?? 30,
         cursor,
         direction: direction ?? 'forward',
-        orderBy: { index: 'asc' },
+        orderBy: { _sortPriority: 1, dueDate: 1 } as any,
       },
-      query: { contractId },
     });
   },
 
@@ -47,20 +73,20 @@ export const contractPaymentQueries = {
     },
     { models }: IContext,
   ) => {
-    const filter: Record<string, any> = { projectId };
+    const match: Record<string, any> = { projectId: new Types.ObjectId(projectId) };
     if (typeof paid === 'boolean') {
-      filter.status = paid ? 'paid' : { $in: ['unpaid', 'partial'] };
+      match.status = paid ? 'paid' : { $in: ['unpaid', 'partial'] };
     }
 
-    return cursorPaginate<IContractPaymentDocument>({
+    return cursorPaginateAggregation<IContractPaymentDocument>({
       model: models.ContractPayment as any,
+      pipeline: paymentSortPipeline(match),
       params: {
-        limit: limit ?? 30,
+        limit: limit ?? 10,
         cursor,
         direction: direction ?? 'forward',
-        orderBy: { dueDate: 'asc' },
+        orderBy: { _sortPriority: 1, dueDate: 1 } as any,
       },
-      query: filter,
     });
   },
 
