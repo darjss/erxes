@@ -4,7 +4,7 @@ import { IContext } from '~/connectionResolvers';
 
 const STATUS_TYPE_ORDER = ['reserved', 'draft', 'lost', 'cancelled', 'signed'];
 
-interface IContractFilter {
+export interface IContractFilter {
   projectId?: string;
   search?: string;
   status?: string;
