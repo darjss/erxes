@@ -1,3 +1,4 @@
+import './slowbuffer-polyfill';
 import './sentry-instrument';
 import * as Sentry from '@sentry/node';
 import * as dotenv from 'dotenv';

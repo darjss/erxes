@@ -203,6 +203,8 @@ export const loadContractPaymentClass = (models: IModels) => {
         unit: contract.unit,
         currency,
         paid: false,
+        status: 'unpaid' as const,
+        paidAmount: 0,
       };
 
       if (isOneTime) {
