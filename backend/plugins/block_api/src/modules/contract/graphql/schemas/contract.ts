@@ -23,6 +23,7 @@ export const types = `
     penaltyPercentage: Float
     vatIncluded: Boolean
     paymentDates: [Int]
+    paymentDueDates: [String]
   }
 
   input BlockContractPaymentPlanInput {
@@ -38,6 +39,7 @@ export const types = `
     penaltyPercentage: Float
     vatIncluded: Boolean
     paymentDates: [Int]
+    paymentDueDates: [String]
   }
 
   enum BlockContractAmountType {

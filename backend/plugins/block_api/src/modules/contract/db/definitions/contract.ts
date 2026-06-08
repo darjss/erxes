@@ -42,6 +42,7 @@ const contractPaymentPlanSchema = new Schema(
     vatIncluded: { type: Boolean },
     type: { type: String, enum: Object.values(BlockProjectPaymentPlanType) },
     paymentDates: { type: [Number] },
+    paymentDueDates: { type: [String] },
   },
   { _id: false },
 );

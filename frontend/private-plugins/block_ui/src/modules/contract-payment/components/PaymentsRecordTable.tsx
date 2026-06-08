@@ -17,11 +17,13 @@ const sortPayments = (payments: IContractPayment[]) => {
     return Number.isFinite(t) ? t : 0;
   };
   return [...payments].sort((a, b) => {
-    // unpaid first, paid last
-    if (a.paid !== b.paid) return a.paid ? 1 : -1;
-    // among unpaid: earliest due first (overdue floats up naturally)
-    // among paid: by paidDate desc (most recent paid first)
-    if (!a.paid) return due(a) - due(b);
+    const aPaid = a.status === 'paid';
+    const bPaid = b.status === 'paid';
+    // unpaid/partial first, paid last
+    if (aPaid !== bPaid) return aPaid ? 1 : -1;
+    // among unpaid: earliest due first
+    if (!aPaid) return due(a) - due(b);
+    // among paid: by paidDate desc
     const ap = a.paidDate ? Number(new Date(a.paidDate)) : 0;
     const bp = b.paidDate ? Number(new Date(b.paidDate)) : 0;
     return bp - ap;

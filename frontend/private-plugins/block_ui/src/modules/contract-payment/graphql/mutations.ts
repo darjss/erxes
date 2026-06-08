@@ -1,34 +1,57 @@
 import { gql } from '@apollo/client';
 
-export const MARK_PAYMENT_PAID = gql`
-  mutation BlockMarkContractPaymentPaid(
-    $id: String!
-    $paidAmount: Float
-    $paidDate: Date
+export const ADD_PAYMENT_TRANSACTION = gql`
+  mutation BlockAddPaymentTransaction(
+    $paymentId: String!
+    $amount: Float!
+    $date: Date
     $note: String
   ) {
-    blockMarkContractPaymentPaid(
-      _id: $id
-      paidAmount: $paidAmount
-      paidDate: $paidDate
+    blockAddPaymentTransaction(
+      paymentId: $paymentId
+      amount: $amount
+      date: $date
       note: $note
     ) {
       _id
-      paid
-      paidAmount
-      paidDate
+      paymentId
+      contractId
+      amount
+      date
+      note
+      createdBy
+      createdAt
+    }
+  }
+`;
+
+export const UPDATE_PAYMENT_TRANSACTION = gql`
+  mutation BlockUpdatePaymentTransaction(
+    $id: String!
+    $amount: Float
+    $date: Date
+    $note: String
+  ) {
+    blockUpdatePaymentTransaction(
+      _id: $id
+      amount: $amount
+      date: $date
+      note: $note
+    ) {
+      _id
+      paymentId
+      contractId
+      amount
+      date
       note
     }
   }
 `;
 
-export const MARK_PAYMENT_UNPAID = gql`
-  mutation BlockMarkContractPaymentUnpaid($id: String!) {
-    blockMarkContractPaymentUnpaid(_id: $id) {
+export const REMOVE_PAYMENT_TRANSACTION = gql`
+  mutation BlockRemovePaymentTransaction($id: String!) {
+    blockRemovePaymentTransaction(_id: $id) {
       _id
-      paid
-      paidAmount
-      paidDate
     }
   }
 `;

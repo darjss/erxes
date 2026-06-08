@@ -3,16 +3,33 @@ import {
   IContractPayment,
   IContractPaymentDocument,
 } from '@/contract/@types/payment';
+import { IContractPaymentTransactionDocument } from '@/contract/@types/transaction';
 import { IModels } from '~/connectionResolvers';
 import { contractPaymentSchema } from '@/contract/db/definitions/payment';
 
 export interface IContractPaymentModel extends Model<IContractPaymentDocument> {
-  regenerateForContract(contractId: string): Promise<IContractPaymentDocument[]>;
-  markPaid(
-    _id: string,
-    input: { paidAmount?: number; paidDate?: Date; note?: string },
+  regenerateForContract(
+    contractId: string,
+  ): Promise<IContractPaymentDocument[]>;
+  recomputeStatus(
+    paymentId: string,
   ): Promise<IContractPaymentDocument | null>;
-  markUnpaid(_id: string): Promise<IContractPaymentDocument | null>;
+  addTransaction(
+    paymentId: string,
+    input: {
+      amount: number;
+      date?: Date;
+      note?: string;
+      createdBy?: string;
+    },
+  ): Promise<IContractPaymentTransactionDocument>;
+  updateTransaction(
+    _id: string,
+    input: { amount?: number; date?: Date; note?: string },
+  ): Promise<IContractPaymentTransactionDocument | null>;
+  removeTransaction(
+    _id: string,
+  ): Promise<IContractPaymentTransactionDocument>;
 }
 
 const addMonths = (base: Date, months: number) => {
@@ -112,14 +129,31 @@ export const loadContractPaymentClass = (models: IModels) => {
         return building?.project;
       })();
 
-      const existingPaid = await models.ContractPayment.find({
+      const existingPayments = await models.ContractPayment.find({
         contractId,
-        paid: true,
       }).lean();
-      const paidByIndex = new Map<number, any>();
-      for (const p of existingPaid) paidByIndex.set(p.index, p);
+      const existingByIndex = new Map<number, any>();
+      const paymentIdsToDelete: string[] = [];
+      for (const p of existingPayments) {
+        existingByIndex.set(p.index, p);
+        paymentIdsToDelete.push(p._id.toString());
+      }
+
+      // Keep transactions for payments that will be regenerated with same index
+      const existingTransactions = paymentIdsToDelete.length
+        ? await models.ContractPaymentTransaction.find({
+            paymentId: { $in: paymentIdsToDelete },
+          }).lean()
+        : [];
+      const txByOldPaymentId = new Map<string, any[]>();
+      for (const tx of existingTransactions) {
+        const key = tx.paymentId.toString();
+        if (!txByOldPaymentId.has(key)) txByOldPaymentId.set(key, []);
+        txByOldPaymentId.get(key)!.push(tx);
+      }
 
       await models.ContractPayment.deleteMany({ contractId });
+      await models.ContractPaymentTransaction.deleteMany({ contractId });
 
       const paymentPlan = contract.paymentPlan as any;
       if (!paymentPlan) return [];
@@ -139,13 +173,23 @@ export const loadContractPaymentClass = (models: IModels) => {
 
       const startDate =
         contract.startDate || contract.date || new Date();
-      const dates = isOneTime
+      const customDueDates = (paymentPlan.paymentDueDates || [])
+        .map((d: string) => (d ? new Date(d) : null))
+        .filter((d): d is Date => !!d && !isNaN(d.getTime()));
+
+      const autoDates = isOneTime
         ? []
         : generateInstallmentDates(
             startDate,
             installmentCount,
             paymentPlan.frequency,
             paymentPlan.paymentDates || [],
+          );
+
+      const dates: Date[] = isOneTime
+        ? []
+        : Array.from({ length: installmentCount }).map(
+            (_, i) => customDueDates[i] || autoDates[i],
           );
 
       const rows: IContractPayment[] = [];
@@ -208,51 +252,114 @@ export const loadContractPaymentClass = (models: IModels) => {
         }
       }
 
-      // restore paid markers
-      for (const row of rows) {
-        const existing = paidByIndex.get(row.index);
-        if (existing) {
-          row.paid = true;
-          row.paidAmount = existing.paidAmount;
-          row.paidDate = existing.paidDate;
-          row.note = existing.note;
-        }
-      }
-
       if (rows.length) {
         const created = await models.ContractPayment.insertMany(rows);
+
+        // Restore transactions from old payments matching by index
+        for (const newPayment of created) {
+          const oldPayment = existingByIndex.get(newPayment.index);
+          if (!oldPayment) continue;
+          const oldTxs = txByOldPaymentId.get(oldPayment._id.toString()) || [];
+          if (oldTxs.length === 0) continue;
+          const newTxs = oldTxs.map((tx) => ({
+            paymentId: newPayment._id,
+            contractId: newPayment.contractId,
+            amount: tx.amount,
+            date: tx.date,
+            note: tx.note,
+            createdBy: tx.createdBy,
+          }));
+          await models.ContractPaymentTransaction.insertMany(newTxs);
+          await ContractPayment.recomputeStatus(newPayment._id.toString());
+        }
+
         return created;
       }
       return [];
     }
 
-    public static async markPaid(
-      _id: string,
-      input: { paidAmount?: number; paidDate?: Date; note?: string },
-    ) {
-      const payment = await models.ContractPayment.findOne({ _id });
-      if (!payment) throw new Error('Payment not found');
+    public static async recomputeStatus(paymentId: string) {
+      const payment = await models.ContractPayment.findOne({ _id: paymentId });
+      if (!payment) return null;
+
+      const transactions = await models.ContractPaymentTransaction.find({
+        paymentId,
+      }).lean();
+
+      const paidAmount = transactions.reduce(
+        (sum, tx) => sum + (tx.amount || 0),
+        0,
+      );
+
+      let status: 'unpaid' | 'partial' | 'paid' = 'unpaid';
+      if (paidAmount >= payment.amount) {
+        status = 'paid';
+      } else if (paidAmount > 0) {
+        status = 'partial';
+      }
+
+      const latestTx = transactions.sort(
+        (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
+      )[0];
 
       return models.ContractPayment.findOneAndUpdate(
-        { _id },
+        { _id: paymentId },
         {
           $set: {
-            paid: true,
-            paidAmount: input.paidAmount ?? payment.amount,
-            paidDate: input.paidDate || new Date(),
-            note: input.note,
+            status,
+            paidAmount,
+            paidDate: latestTx?.date,
           },
         },
         { new: true },
       );
     }
 
-    public static async markUnpaid(_id: string) {
-      return models.ContractPayment.findOneAndUpdate(
+    public static async addTransaction(
+      paymentId: string,
+      input: { amount: number; date?: Date; note?: string; createdBy?: string },
+    ) {
+      const payment = await models.ContractPayment.findOne({ _id: paymentId });
+      if (!payment) throw new Error('Payment not found');
+
+      const tx = await models.ContractPaymentTransaction.create({
+        paymentId,
+        contractId: payment.contractId,
+        amount: input.amount,
+        date: input.date || new Date(),
+        note: input.note,
+        createdBy: input.createdBy,
+      });
+
+      await ContractPayment.recomputeStatus(paymentId);
+      return tx;
+    }
+
+    public static async updateTransaction(
+      _id: string,
+      input: { amount?: number; date?: Date; note?: string },
+    ) {
+      const tx = await models.ContractPaymentTransaction.findOne({ _id });
+      if (!tx) throw new Error('Transaction not found');
+
+      const updated = await models.ContractPaymentTransaction.findOneAndUpdate(
         { _id },
-        { $set: { paid: false, paidAmount: null, paidDate: null } },
+        { $set: input },
         { new: true },
       );
+
+      await ContractPayment.recomputeStatus(tx.paymentId.toString());
+      return updated;
+    }
+
+    public static async removeTransaction(_id: string) {
+      const tx = await models.ContractPaymentTransaction.findOne({ _id });
+      if (!tx) throw new Error('Transaction not found');
+
+      const paymentId = tx.paymentId.toString();
+      await models.ContractPaymentTransaction.deleteOne({ _id });
+      await ContractPayment.recomputeStatus(paymentId);
+      return tx;
     }
   }
 

@@ -10,9 +10,11 @@ import {
 import { useBlockContractStatusesByType } from '@/contract-status/hooks/useGetBlockContractStatuses';
 import {
   STATUS_TYPE_VARIANT,
+  formatAmount,
   formatDate,
   renderRow,
 } from './shared';
+import { CONTRACT_AMOUNT_TYPE_OPTIONS } from '@/contract/constants/contract';
 
 export const ContractOverviewBody = ({
   contract,
@@ -95,6 +97,17 @@ export const ContractOverviewBody = ({
                 zoning?.floor != null ? `Floor ${zoning.floor}` : null,
               )}
               {renderRow('Unit', unitLabel)}
+              {renderRow(
+                'Amount',
+                formatAmount(contract.amount, contract.currency),
+              )}
+              {renderRow(
+                'Amount Type',
+                CONTRACT_AMOUNT_TYPE_OPTIONS.find(
+                  (o) => o.value === contract.amountType,
+                )?.label || contract.amountType,
+              )}
+              {renderRow('Currency', contract.currency)}
               {renderRow('Contract Date', formatDate(contract.date))}
               {renderRow('Start Date', formatDate(contract.startDate))}
               {renderRow(

@@ -31,6 +31,7 @@ export const GET_CONTRACTS = gql`
         penaltyPercentage
         vatIncluded
         paymentDates
+        paymentDueDates
       }
       user
     }
@@ -113,6 +114,7 @@ export const GET_CONTRACT = gql`
         penaltyPercentage
         vatIncluded
         paymentDates
+        paymentDueDates
       }
       user
     }

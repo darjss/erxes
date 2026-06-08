@@ -1,24 +1,51 @@
 import { IContext } from '~/connectionResolvers';
 
 export const contractPaymentMutations = {
-  blockMarkContractPaymentPaid: async (
+  blockAddPaymentTransaction: async (
+    _parent: undefined,
+    {
+      paymentId,
+      amount,
+      date,
+      note,
+    }: {
+      paymentId: string;
+      amount: number;
+      date?: Date;
+      note?: string;
+    },
+    { models, user }: IContext,
+  ) => {
+    return models.ContractPayment.addTransaction(paymentId, {
+      amount,
+      date,
+      note,
+      createdBy: user?._id,
+    });
+  },
+
+  blockUpdatePaymentTransaction: async (
     _parent: undefined,
     {
       _id,
-      paidAmount,
-      paidDate,
+      amount,
+      date,
       note,
-    }: { _id: string; paidAmount?: number; paidDate?: Date; note?: string },
+    }: { _id: string; amount?: number; date?: Date; note?: string },
     { models }: IContext,
   ) => {
-    return models.ContractPayment.markPaid(_id, { paidAmount, paidDate, note });
+    return models.ContractPayment.updateTransaction(_id, {
+      amount,
+      date,
+      note,
+    });
   },
 
-  blockMarkContractPaymentUnpaid: async (
+  blockRemovePaymentTransaction: async (
     _parent: undefined,
     { _id }: { _id: string },
     { models }: IContext,
   ) => {
-    return models.ContractPayment.markUnpaid(_id);
+    return models.ContractPayment.removeTransaction(_id);
   },
 };

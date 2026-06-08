@@ -18,6 +18,7 @@ import {
 } from '@/contract-payment/components/PaymentsFilter';
 import { IContractPayment } from '@/contract-payment/types';
 import { contractDetailSheetState } from '@/contract/states/contractDetailSheetState';
+import { PaymentTransactionsSheet } from '@/contract-payment/components/PaymentTransactionsSheet';
 
 const ContractDetailSheet = lazy(() =>
   import('@/contract/components/ContractDetailSheet').then((m) => ({
@@ -49,9 +50,9 @@ const summarize = (payments: IContractPayment[]) => {
 
   for (const p of payments) {
     totalDue += p.amount || 0;
-    if (p.paid) {
+    totalPaid += p.paidAmount ?? 0;
+    if (p.status === 'paid') {
       paidCount += 1;
-      totalPaid += p.paidAmount ?? p.amount ?? 0;
     } else {
       unpaidCount += 1;
       const due = p.dueDate ? Number(new Date(p.dueDate)) : 0;
@@ -80,7 +81,7 @@ export const PaymentsPage = () => {
   const filtered =
     filter === 'overdue'
       ? payments.filter((p) => {
-          if (p.paid) return false;
+          if (p.status === 'paid') return false;
           const due = p.dueDate ? Number(new Date(p.dueDate)) : 0;
           return due && due < Date.now();
         })
@@ -141,6 +142,7 @@ export const PaymentsPage = () => {
         cursorSessionKey={`project_payments_${projectId}_${filter || 'all'}`}
       />
       <ContractDetailSheetMount />
+      <PaymentTransactionsSheet />
     </PageContainer>
   );
 };

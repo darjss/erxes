@@ -48,7 +48,9 @@ export const contractPaymentQueries = {
     { models }: IContext,
   ) => {
     const filter: Record<string, any> = { projectId };
-    if (typeof paid === 'boolean') filter.paid = paid;
+    if (typeof paid === 'boolean') {
+      filter.status = paid ? 'paid' : { $in: ['unpaid', 'partial'] };
+    }
 
     return cursorPaginate<IContractPaymentDocument>({
       model: models.ContractPayment as any,
@@ -59,6 +61,16 @@ export const contractPaymentQueries = {
         orderBy: { dueDate: 'asc' },
       },
       query: filter,
+    });
+  },
+
+  blockGetPaymentTransactions: async (
+    _parent: undefined,
+    { paymentId }: { paymentId: string },
+    { models }: IContext,
+  ) => {
+    return models.ContractPaymentTransaction.find({ paymentId }).sort({
+      date: -1,
     });
   },
 };

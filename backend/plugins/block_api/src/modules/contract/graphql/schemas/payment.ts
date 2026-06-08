@@ -12,7 +12,7 @@ export const types = `
     dueDate: Date
     amount: Float
     currency: String
-    paid: Boolean
+    status: String
     paidAmount: Float
     paidDate: Date
     note: String
@@ -24,6 +24,18 @@ export const types = `
     list: [BlockContractPayment]
     pageInfo: PageInfo
     totalCount: Int
+  }
+
+  type BlockContractPaymentTransaction {
+    _id: String!
+    paymentId: String!
+    contractId: String!
+    amount: Float!
+    date: Date!
+    note: String
+    createdBy: String
+    createdAt: Date
+    updatedAt: Date
   }
 `;
 
@@ -41,9 +53,11 @@ export const queries = `
     cursor: String,
     direction: String,
   ): BlockContractPaymentListResponse
+  blockGetPaymentTransactions(paymentId: String!): [BlockContractPaymentTransaction]
 `;
 
 export const mutations = `
-  blockMarkContractPaymentPaid(_id: String!, paidAmount: Float, paidDate: Date, note: String): BlockContractPayment
-  blockMarkContractPaymentUnpaid(_id: String!): BlockContractPayment
+  blockAddPaymentTransaction(paymentId: String!, amount: Float!, date: Date, note: String): BlockContractPaymentTransaction
+  blockUpdatePaymentTransaction(_id: String!, amount: Float, date: Date, note: String): BlockContractPaymentTransaction
+  blockRemovePaymentTransaction(_id: String!): BlockContractPaymentTransaction
 `;

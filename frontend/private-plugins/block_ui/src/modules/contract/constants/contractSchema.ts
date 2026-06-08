@@ -32,6 +32,7 @@ export const contractSchema = z.object({
       penaltyPercentage: z.number().min(0).optional(),
       vatIncluded: z.boolean().optional(),
       paymentDates: z.array(z.number()).optional(),
+      paymentDueDates: z.array(z.string()).optional(),
     })
     .optional(),
 });

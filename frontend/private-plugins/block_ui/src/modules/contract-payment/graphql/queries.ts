@@ -28,7 +28,7 @@ export const GET_PROJECT_PAYMENTS = gql`
         dueDate
         amount
         currency
-        paid
+        status
         paidAmount
         paidDate
         note
@@ -70,7 +70,7 @@ export const GET_CONTRACT_PAYMENTS = gql`
         dueDate
         amount
         currency
-        paid
+        status
         paidAmount
         paidDate
         note
@@ -82,6 +82,21 @@ export const GET_CONTRACT_PAYMENTS = gql`
         endCursor
       }
       totalCount
+    }
+  }
+`;
+
+export const GET_PAYMENT_TRANSACTIONS = gql`
+  query BlockGetPaymentTransactions($paymentId: String!) {
+    blockGetPaymentTransactions(paymentId: $paymentId) {
+      _id
+      paymentId
+      contractId
+      amount
+      date
+      note
+      createdBy
+      createdAt
     }
   }
 `;

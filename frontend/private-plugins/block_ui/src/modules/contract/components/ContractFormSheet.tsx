@@ -27,6 +27,7 @@ import {
   CONTRACT_PARTY_TYPE_OPTIONS,
 } from '@/contract/constants/contract';
 import { PaymentPlanForm } from '@/pricing/components/PaymentPlanForm';
+import { PaymentScheduleEditor } from './PaymentScheduleEditor';
 import { ContractUnit } from './ContractUnit';
 import { ContractUnitSelector } from './ContractUnitSelector';
 import { useBlockContractStatusesByType } from '@/contract-status/hooks/useGetBlockContractStatuses';
@@ -500,10 +501,17 @@ export const ContractFormSheet = ({
                 </div>
               </div>
 
-              <div style={{ display: activeTab === FORM_TABS.PAYMENT_PLAN ? undefined : 'none' }}>
+              <div
+                style={{
+                  display:
+                    activeTab === FORM_TABS.PAYMENT_PLAN ? undefined : 'none',
+                }}
+                className="flex flex-col gap-4"
+              >
                 <div className="gap-4 grid grid-cols-4">
                   <PaymentPlanForm form={form} />
                 </div>
+                <PaymentScheduleEditor form={form} />
               </div>
             </div>
           </ScrollArea>

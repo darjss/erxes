@@ -34,6 +34,7 @@ export interface IContractPaymentPlan {
   penaltyPercentage?: number;
   vatIncluded?: boolean;
   paymentDates?: number[];
+  paymentDueDates?: string[];
 }
 
 export interface IContractInput {
