@@ -47,6 +47,63 @@ interface DeployResponse {
   serverId: number;
 }
 
+interface ManagedDeployPayload {
+  orgId: string;
+  assistantId: string;
+  serverName: string;
+  provider: string;
+  kimiApiKey: string;
+  description?: string;
+  systemPrompt?: string;
+}
+
+export interface ManagedDeployResponse {
+  success: boolean;
+  status: 'approved';
+  url: string;
+  serverName: string;
+  gatewayToken: string;
+  serverId: number;
+  stages?: Array<{
+    stage: string;
+    message: string;
+    startedAt: string;
+    completedAt?: string;
+    durationMs?: number;
+  }>;
+}
+
+const getRequiredEnv = (name: string) => {
+  const value = getEnv({ name }).trim();
+
+  if (!value) {
+    throw new Error(`${name} is not configured`);
+  }
+
+  return value;
+};
+
+const getManagedDeployerUrl = () =>
+  (getEnv({ name: 'MANAGED_OPENCLAW_DEPLOYER_URL' }).trim() || getDeployerUrl())
+    .replace(/\/$/, '');
+
+const getManagedDeployerSecret = () =>
+  getRequiredEnv('MANAGED_OPENCLAW_DEPLOYER_SECRET');
+
+const getRuntimeSharedSecret = () =>
+  getRequiredEnv('ERXES_AI_ASSISTANT_RUNTIME_SHARED_SECRET');
+
+const normalizeRuntimeUrl = (url: string) => url.trim().replace(/\/+$/, '');
+
+const managedRuntimeRequest = async (
+  url: string,
+  options: RequestInit = {},
+) =>
+  fetch(url, {
+    ...options,
+    signal: AbortSignal.timeout(30_000),
+  });
+
 export const deployServer = async (
   payload: DeployPaylaod,
 ): Promise<DeployResponse> => {
@@ -89,6 +146,64 @@ export const deployServer = async (
   }
 
   return response.json();
+};
+
+export const verifyManagedRuntime = async (runtimeUrl: string) => {
+  const baseUrl = normalizeRuntimeUrl(runtimeUrl);
+  const healthUrl = `${baseUrl}/api/erxes-ai-assistant/health`;
+  const runtimeSecret = getRuntimeSharedSecret();
+
+  const unauthenticated = await managedRuntimeRequest(healthUrl);
+
+  if (unauthenticated.status !== 401) {
+    throw new Error('Managed runtime health endpoint did not reject unauthenticated requests');
+  }
+
+  const authenticated = await managedRuntimeRequest(healthUrl, {
+    headers: {
+      'x-erxes-ai-assistant-secret': runtimeSecret,
+    },
+  });
+
+  if (!authenticated.ok) {
+    const message = await readDeployerError(authenticated);
+    throw new Error(`Managed runtime health check failed: ${message}`);
+  }
+};
+
+export const deployManagedServer = async (
+  payload: ManagedDeployPayload,
+): Promise<ManagedDeployResponse> => {
+  const DEPLOYER = getManagedDeployerUrl();
+  const response = await fetch(`${DEPLOYER}/agents/managed`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-erxes-managed-deployer-secret': getManagedDeployerSecret(),
+    },
+    body: JSON.stringify({
+      ...payload,
+      erxesAssistantSecret: getRuntimeSharedSecret(),
+    }),
+  });
+
+  if (!response.ok) {
+    const message = await readDeployerError(response);
+    throw new Error(`Managed deployment failed: ${message}`);
+  }
+
+  const result = (await response.json()) as ManagedDeployResponse;
+
+  if (result.status !== 'approved' || !result.url?.trim()) {
+    throw new Error('Managed deployer did not return an approved runtime URL');
+  }
+
+  await verifyManagedRuntime(result.url);
+
+  return {
+    ...result,
+    url: normalizeRuntimeUrl(result.url),
+  };
 };
 
 export const approveServer = async (

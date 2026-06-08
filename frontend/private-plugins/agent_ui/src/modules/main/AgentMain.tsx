@@ -39,8 +39,9 @@ export const AgentMain = () => {
   const [transferOpen, setTransferOpen] = useState(false);
   const refreshIframe = useCallback(() => setIframeKey((k) => k + 1), []);
 
+  const runtimeUrl = agent?.url?.trim().replace(/\/+$/, '');
   const isApproved =
-    !!agent && agent.status === SERVER_STATUSES.APPROVED;
+    !!agent && agent.status === SERVER_STATUSES.APPROVED && !!runtimeUrl;
   const { hasKey, refetch: refetchKimiKey } = useKimiKeyStatus(!isApproved);
   const [kimiKeyManualOpen, setKimiKeyManualOpen] = useState(false);
   const kimiKeyForced = isApproved && hasKey === false;
@@ -128,7 +129,7 @@ export const AgentMain = () => {
       </div>
       <iframe
         key={iframeKey}
-        src={`https://${agent.name}.assistant.erxes.io/#token=${agent.token}`}
+        src={`${runtimeUrl}/#token=${agent.token}`}
         title="Agent"
         className="w-full flex-1 border-0 transition-opacity duration-200 opacity-100"
         allow="clipboard-read; clipboard-write; microphone"
@@ -169,9 +170,7 @@ export const AgentMain = () => {
           refetchKimiKey();
           refreshIframe();
         }}
-        onCancel={
-          kimiKeyForced ? undefined : () => setKimiKeyManualOpen(false)
-        }
+        onCancel={kimiKeyForced ? undefined : () => setKimiKeyManualOpen(false)}
       />
     </div>
   );
