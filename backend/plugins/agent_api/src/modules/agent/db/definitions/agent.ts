@@ -21,6 +21,13 @@ export const agentServerSchema = schemaWrapper(
       transferredAt: { type: Date, label: 'Transferred at' },
 
       status: { type: String, enum: SERVER_STATUSES.ALL, label: 'Status' },
+      provisioning: {
+        stage: { type: String, label: 'Provisioning stage' },
+        message: { type: String, label: 'Provisioning message' },
+        startedAt: { type: Date, label: 'Provisioning started at' },
+        updatedAt: { type: Date, label: 'Provisioning updated at' },
+        error: { type: String, label: 'Provisioning error' },
+      },
     },
     {
       timestamps: true,

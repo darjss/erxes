@@ -31,9 +31,13 @@ type AssistantOrgValues = z.infer<typeof assistantOrgSchema>;
 
 interface Props {
   org: Identifier;
+  triggerLabel?: string;
 }
 
-export const AssistantOrgManageSheet = ({ org }: Props) => {
+export const AssistantOrgManageSheet = ({
+  org,
+  triggerLabel = 'Manage',
+}: Props) => {
   const { toast } = useToast();
   const currentUser = useAtomValue(currentUserState) as IUser | null;
   const { updateIdentifier, loading: updating } = useUpdateIdentifier();
@@ -150,7 +154,7 @@ export const AssistantOrgManageSheet = ({ org }: Props) => {
       <Sheet.Trigger asChild>
         <Button variant="outline" className="gap-2">
           <IconSettings className="h-4 w-4" />
-          Manage
+          {triggerLabel}
         </Button>
       </Sheet.Trigger>
       <Sheet.View className="p-0 md:w-[calc(100vw-theme(spacing.4))] sm:max-w-xl">

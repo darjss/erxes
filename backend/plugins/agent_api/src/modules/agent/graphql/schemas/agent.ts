@@ -6,6 +6,14 @@ export const types = `
     failed
   }
 
+  type AgentProvisioningProgress {
+    stage: String
+    message: String
+    startedAt: Date
+    updatedAt: Date
+    error: String
+  }
+
   type AgentServer {
     _id: String
 
@@ -17,6 +25,7 @@ export const types = `
     agentId: String
     serverId: String
     status: AgentDeploymentStatus!
+    provisioning: AgentProvisioningProgress
     transferredFromSubdomain: String
     transferredAt: Date
 
@@ -43,6 +52,13 @@ export const types = `
   input DeployAgentInput {
     token: String!
     kimiApiKey: String!
+  }
+
+  input DeployManagedAgentInput {
+    provider: String
+    kimiApiKey: String!
+    description: String
+    systemPrompt: String
   }
 
   input TransferAgentInput {
@@ -83,6 +99,11 @@ export const types = `
     guildId: String!
   }
 
+  input UpdateDiscordBindingInput {
+    responseMode: String
+    enabled: Boolean
+  }
+
   input SetKimiApiKeyInput {
     kimiApiKey: String!
   }
@@ -99,10 +120,15 @@ export const queries = `
   getAgentDetails(identifierId: String!, agentId: String): [AgentFile]
   getDiscordGuilds(identifierId: String!): [DiscordGuild]
   checkKimiKeySet(identifierId: String!): Boolean
+  agentDiscordConnectUrl(assistantId: String!, returnUrl: String): String
+  agentDiscordInstallations(assistantId: String!): JSON
+  agentDiscordChannels(assistantId: String!, installationId: String!): JSON
+  agentDiscordBindings(assistantId: String!): JSON
 `;
 
 export const mutations = `
   deployAgent(identifierId: String!, input: DeployAgentInput!): AgentServer
+  deployManagedAgent(identifierId: String!, input: DeployManagedAgentInput!): AgentServer
   transferAgent(identifierId: String!, input: TransferAgentInput!): AgentServer
   createAgentTransferCredentials(identifierId: String!): AgentTransferCredentials
   destroyAgent(identifierId: String!): AgentServer
@@ -113,4 +139,7 @@ export const mutations = `
   updateDiscordSettings(identifierId: String!, input: UpdateDiscordSettingsInput!): Boolean
   addDiscordGuild(identifierId: String!, input: AddDiscordGuildInput!): Boolean
   setKimiApiKey(identifierId: String!, input: SetKimiApiKeyInput!): Boolean
+  agentDiscordCreateBinding(assistantId: String!, installationId: String!, discordChannelId: String!): JSON
+  agentDiscordUpdateBinding(assistantId: String!, bindingId: String!, input: UpdateDiscordBindingInput!): JSON
+  agentDiscordDeleteBinding(assistantId: String!, bindingId: String!): JSON
 `;

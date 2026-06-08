@@ -1,12 +1,17 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
   IconArrowRight,
+  IconBrandDiscord,
+  IconCheck,
   IconCode,
+  IconLink,
   IconPlus,
+  IconRefresh,
   IconSparkles,
   IconUsers,
 } from '@tabler/icons-react';
 import {
+  Alert,
   Breadcrumb,
   Button,
   Form,
@@ -18,9 +23,9 @@ import {
   Textarea,
   useToast,
 } from 'erxes-ui';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { MembersInline, PageHeader } from 'ui-modules';
 import { z } from 'zod';
 import { AssistantOrgManageSheet } from '~/modules/assistant-orgs/components/AssistantOrgManageSheet';
@@ -31,18 +36,23 @@ import {
   useIdentifiers,
 } from '~/modules/assistant-orgs/hooks/useAssistantOrgs';
 import { SERVER_STATUSES } from '~/modules/deploy/constants';
+import { ManagedProvisioningProgress } from '~/modules/deploy/components/ManagedProvisioningProgress';
 import { useAgentDeploy } from '~/modules/deploy/hooks/useAgentDeploy';
+import { useManagedAgentDeploy } from '~/modules/deploy/hooks/useManagedAgentDeploy';
 import { useAgentTransfer } from '~/modules/deploy/hooks/useAgentTransfer';
 import { useAgent } from '~/modules/main/hooks/useAgent';
 import { OPENCODE_PROVIDER_OPTIONS } from '~/modules/opencode/constants';
 import { useOpencodeDeploy } from '~/modules/opencode/deploy/hooks/useOpencodeDeploy';
 import { useOpencodeTransfer } from '~/modules/opencode/deploy/hooks/useOpencodeTransfer';
 import { useOpencode } from '~/modules/opencode/main/hooks/useOpencode';
+import { useManagedDiscordSetup } from '../hooks/useManagedDiscordSetup';
 
 const ASSISTANT_PROVIDER_OPTIONS = [{ value: 'kimi', label: 'Kimi' }] as const;
+const MANUAL_REFRESH_THROTTLE_MS = 1_500;
 
 const workspaceFormSchema = z.object({
   setupMode: z.enum(['new', 'transfer']),
+  discordConnectionMode: z.enum(['managed', 'byob']),
   serverName: z.string().min(1, 'Identifier name is required'),
   provider: z.string().optional(),
   apiToken: z.string().optional(),
@@ -57,6 +67,15 @@ const workspaceFormSchema = z.object({
 });
 
 type WorkspaceFormValues = z.infer<typeof workspaceFormSchema>;
+type DiscordConnectionMode = WorkspaceFormValues['discordConnectionMode'];
+type ManagedCreationStep =
+  | 'details'
+  | 'provisioning'
+  | 'connect'
+  | 'channel'
+  | 'complete';
+
+const DEFAULT_DISCORD_CONNECTION_MODE: DiscordConnectionMode = 'byob';
 
 const getStatusLabel = (status?: string | null) => {
   if (!status) {
@@ -103,21 +122,661 @@ const InvitedMembersRow = ({ memberIds }: { memberIds?: string[] | null }) => {
   );
 };
 
-const AssistantWorkspaceCard = ({
+const buildRuntimeLabel = (status?: string | null, url?: string | null) => {
+  if (status === SERVER_STATUSES.APPROVED && url?.trim()) {
+    return 'Ready';
+  }
+
+  if (status === SERVER_STATUSES.FAILED) {
+    return 'Failed';
+  }
+
+  if (status === SERVER_STATUSES.PENDING) {
+    return 'Provisioning';
+  }
+
+  if (status === SERVER_STATUSES.DEPLOYING) {
+    return 'Deploying';
+  }
+
+  return 'Not ready';
+};
+
+const AssistantDiscordManageSheet = ({
   identifier,
 }: {
   identifier: Identifier;
 }) => {
+  const { toast } = useToast();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [open, setOpen] = useState(false);
+  const [error, setError] = useState('');
+  const [retryApiToken, setRetryApiToken] = useState('');
+  const [refreshingRuntime, setRefreshingRuntime] = useState(false);
+  const lastRuntimeRefreshAt = useRef(0);
+  const {
+    agent,
+    loading: loadingAgent,
+    refetch: refetchAgent,
+  } = useAgent(identifier._id, { pollWhilePending: true });
+  const { deployManagedAgent, loading: retryingProvisioning } =
+    useManagedAgentDeploy(identifier._id);
+
+  const runtimeUrl = agent?.url?.trim() || '';
+  const runtimeReady =
+    agent?.status === SERVER_STATUSES.APPROVED && !!runtimeUrl;
+  const runtimeFailed = agent?.status === SERVER_STATUSES.FAILED;
+
+  const managedDiscord = useManagedDiscordSetup({
+    assistantId: identifier._id,
+    runtimeStatus: agent?.status,
+    runtimeUrl,
+    mode: 'manage',
+    enabled: open,
+  });
+
+  const selectedInstallation = managedDiscord.installations.find(
+    (installation) =>
+      installation._id === managedDiscord.selectedInstallationId,
+  );
+  const activeInstallation = managedDiscord.activeBinding
+    ? managedDiscord.installations.find(
+        (installation) =>
+          installation.discordGuildId ===
+          managedDiscord.activeBinding?.discordGuildId,
+      )
+    : undefined;
+  const activeChannel = managedDiscord.activeBinding
+    ? managedDiscord.channels.find(
+        (channel) =>
+          channel.id === managedDiscord.activeBinding?.discordChannelId,
+      )
+    : undefined;
+  const selectedBindingAlreadyActive =
+    !!managedDiscord.activeBinding &&
+    managedDiscord.activeBinding.discordGuildId ===
+      selectedInstallation?.discordGuildId &&
+    managedDiscord.activeBinding.discordChannelId ===
+      managedDiscord.selectedChannelId;
+  const isBusy =
+    managedDiscord.loading ||
+    managedDiscord.saving ||
+    loadingAgent ||
+    refreshingRuntime ||
+    retryingProvisioning;
+  const responseMode =
+    managedDiscord.activeBinding?.responseMode || 'slash_only';
+
+  const buildManageReturnUrl = () => {
+    const returnUrl = new URL(window.location.href);
+
+    returnUrl.searchParams.set('discordSetup', 'managed');
+    returnUrl.searchParams.set('discordMode', 'manage');
+    returnUrl.searchParams.set('discordStep', 'channel');
+    returnUrl.searchParams.set('assistantId', identifier._id);
+    returnUrl.searchParams.delete('discordConnection');
+    returnUrl.searchParams.delete('installationId');
+    returnUrl.searchParams.delete('message');
+
+    return returnUrl.toString();
+  };
+
+  const handleInstallDiscord = async () => {
+    try {
+      setError('');
+      await managedDiscord.connectDiscord(buildManageReturnUrl());
+    } catch (connectError) {
+      const message =
+        connectError instanceof Error
+          ? connectError.message
+          : String(connectError);
+
+      setError(message);
+      toast({
+        variant: 'destructive',
+        title: 'Could not connect Discord',
+        description: message,
+      });
+    }
+  };
+
+  const handleConnectChannel = async () => {
+    if (!runtimeReady) {
+      const message =
+        'Discord is connected, but this assistant runtime is not ready yet.';
+      setError(message);
+      toast({
+        variant: 'destructive',
+        title: 'Runtime not ready',
+        description: message,
+      });
+      return;
+    }
+
+    try {
+      setError('');
+      await managedDiscord.connectChannel();
+      await managedDiscord.refresh();
+      toast({
+        variant: 'success',
+        title: 'Discord channel connected',
+      });
+    } catch (connectError) {
+      const message =
+        connectError instanceof Error
+          ? connectError.message
+          : String(connectError);
+
+      setError(message);
+      toast({
+        variant: 'destructive',
+        title: 'Could not connect channel',
+        description: message,
+      });
+    }
+  };
+
+  const handleDisconnectChannel = async () => {
+    const bindingId = managedDiscord.activeBinding?._id;
+
+    if (!bindingId) {
+      return;
+    }
+
+    try {
+      setError('');
+      await managedDiscord.disconnectChannel(bindingId);
+      toast({
+        variant: 'success',
+        title: 'Discord channel disconnected',
+      });
+    } catch (disconnectError) {
+      const message =
+        disconnectError instanceof Error
+          ? disconnectError.message
+          : String(disconnectError);
+
+      setError(message);
+      toast({
+        variant: 'destructive',
+        title: 'Could not disconnect channel',
+        description: message,
+      });
+    }
+  };
+
+  const handleResponseModeChange = async (value: string) => {
+    const bindingId = managedDiscord.activeBinding?._id;
+
+    if (
+      !bindingId ||
+      (value !== 'slash_only' && value !== 'all_messages') ||
+      value === responseMode
+    ) {
+      return;
+    }
+
+    try {
+      setError('');
+      await managedDiscord.updateBindingResponseMode(bindingId, value);
+      toast({
+        variant: 'success',
+        title: 'Response mode updated',
+      });
+    } catch (updateError) {
+      const message =
+        updateError instanceof Error ? updateError.message : String(updateError);
+
+      setError(message);
+      toast({
+        variant: 'destructive',
+        title: 'Could not update response mode',
+        description: message,
+      });
+    }
+  };
+
+  const handleRetryProvisioning = async () => {
+    if (!retryApiToken.trim()) {
+      const message = 'Kimi API key is required to retry provisioning.';
+      setError(message);
+      toast({
+        variant: 'destructive',
+        title: 'Kimi API key required',
+        description: message,
+      });
+      return;
+    }
+
+    try {
+      setError('');
+      await deployManagedAgent({
+        apiToken: retryApiToken,
+        provider: 'kimi',
+      });
+      setRetryApiToken('');
+      await refetchAgent();
+      toast({
+        variant: 'success',
+        title: 'Runtime provisioned',
+      });
+    } catch (retryError) {
+      const message =
+        retryError instanceof Error ? retryError.message : String(retryError);
+
+      setError(message);
+      toast({
+        variant: 'destructive',
+        title: 'Retry provisioning failed',
+        description: message,
+      });
+    }
+  };
+
+  const handleRefreshRuntime = async () => {
+    const now = Date.now();
+
+    if (
+      refreshingRuntime ||
+      now - lastRuntimeRefreshAt.current < MANUAL_REFRESH_THROTTLE_MS
+    ) {
+      return;
+    }
+
+    lastRuntimeRefreshAt.current = now;
+    setRefreshingRuntime(true);
+
+    try {
+      setError('');
+      await Promise.all([refetchAgent(), managedDiscord.refresh()]);
+    } finally {
+      setRefreshingRuntime(false);
+    }
+  };
+
+  const clearManageSearchParams = () => {
+    const next = new URLSearchParams(searchParams);
+
+    next.delete('discordSetup');
+    next.delete('discordMode');
+    next.delete('discordStep');
+    next.delete('assistantId');
+    next.delete('discordConnection');
+    next.delete('installationId');
+    next.delete('message');
+
+    setSearchParams(next, { replace: true });
+  };
+
+  const handleOpenChange = (nextOpen: boolean) => {
+    setOpen(nextOpen);
+
+    if (!nextOpen) {
+      clearManageSearchParams();
+    }
+  };
+
+  useEffect(() => {
+    const discordSetup = searchParams.get('discordSetup');
+    const discordMode = searchParams.get('discordMode');
+    const assistantId = searchParams.get('assistantId');
+
+    if (
+      discordSetup !== 'managed' ||
+      discordMode !== 'manage' ||
+      assistantId !== identifier._id
+    ) {
+      return;
+    }
+
+    setOpen(true);
+
+    const connection = searchParams.get('discordConnection');
+
+    if (connection === 'success') {
+      setError('');
+      managedDiscord.refresh();
+      toast({
+        variant: 'success',
+        title: 'Discord connected',
+        description: 'Select a server and channel to finish setup.',
+      });
+    } else if (connection === 'error') {
+      setError(
+        searchParams.get('message') ||
+          'Discord connection was cancelled or failed. Try connecting again.',
+      );
+    }
+
+    if (
+      connection ||
+      searchParams.has('installationId') ||
+      searchParams.has('message')
+    ) {
+      const next = new URLSearchParams(searchParams);
+      next.delete('discordConnection');
+      next.delete('installationId');
+      next.delete('message');
+      setSearchParams(next, { replace: true });
+    }
+  }, [
+    identifier._id,
+    managedDiscord.refresh,
+    searchParams,
+    setSearchParams,
+    toast,
+  ]);
+
+  return (
+    <Sheet open={open} onOpenChange={handleOpenChange}>
+      <Sheet.Trigger asChild>
+        <Button variant="outline" className="gap-2">
+          <IconBrandDiscord className="h-4 w-4" />
+          Connect Discord
+        </Button>
+      </Sheet.Trigger>
+      <Sheet.View className="p-0 md:w-[calc(100vw-theme(spacing.4))] sm:max-w-xl">
+        <Sheet.Header>
+          <IconBrandDiscord />
+          <Sheet.Title>Discord connection</Sheet.Title>
+          <Sheet.Close />
+        </Sheet.Header>
+        <Sheet.Content className="flex min-h-0 flex-1 flex-col gap-5 px-5 py-5">
+          <div className="space-y-1">
+            <h3 className="text-sm font-medium">{identifier.name}</h3>
+            <p className="text-xs text-muted-foreground">
+              Manage where this AI Assistant responds in Discord.
+            </p>
+          </div>
+
+          <div className="grid gap-3 rounded-lg border border-border bg-muted/20 p-3 text-xs">
+            <div className="flex items-center justify-between gap-3">
+              <span className="text-muted-foreground">Runtime status</span>
+              <span className="font-medium">
+                {loadingAgent
+                  ? 'Checking'
+                  : buildRuntimeLabel(agent?.status, runtimeUrl)}
+              </span>
+            </div>
+            <div className="flex items-center justify-between gap-3">
+              <span className="text-muted-foreground">Server</span>
+              <span className="max-w-64 truncate font-medium">
+                {agent?.name || 'Not provisioned'}
+              </span>
+            </div>
+            <div className="flex items-center justify-between gap-3">
+              <span className="text-muted-foreground">Server ID</span>
+              <span className="font-medium">{agent?.serverId || 'Not set'}</span>
+            </div>
+          </div>
+
+          {(error || managedDiscord.error) && (
+            <Alert variant="destructive">
+              <Alert.Title>Discord setup failed</Alert.Title>
+              <Alert.Description>
+                {error || managedDiscord.error?.message}
+              </Alert.Description>
+            </Alert>
+          )}
+
+          {(agent?.status === SERVER_STATUSES.PENDING ||
+            agent?.status === SERVER_STATUSES.DEPLOYING ||
+            agent?.status === SERVER_STATUSES.FAILED) && (
+            <ManagedProvisioningProgress
+              status={agent.status}
+              stage={agent.provisioning?.stage}
+              message={agent.provisioning?.message}
+              startedAt={agent.provisioning?.startedAt || agent.createdAt}
+              updatedAt={agent.provisioning?.updatedAt}
+              error={agent.provisioning?.error}
+              runtimeUrl={runtimeUrl}
+              retrying={retryingProvisioning}
+            />
+          )}
+
+          {!runtimeReady &&
+            agent?.status !== SERVER_STATUSES.PENDING &&
+            agent?.status !== SERVER_STATUSES.DEPLOYING &&
+            agent?.status !== SERVER_STATUSES.FAILED && (
+            <Alert variant={runtimeFailed ? 'destructive' : 'warning'}>
+              <Alert.Title>Runtime provisioning</Alert.Title>
+              <Alert.Description>
+                {runtimeFailed
+                  ? 'Runtime provisioning failed. Retry provisioning before connecting a Discord channel.'
+                  : 'Discord is connected, but this assistant runtime is not ready yet.'}
+              </Alert.Description>
+            </Alert>
+          )}
+
+          {runtimeFailed && (
+            <div className="space-y-2 rounded-lg border border-border bg-muted/20 p-3">
+              <div className="text-sm font-medium">Retry provisioning</div>
+              <Input
+                value={retryApiToken}
+                onChange={(event) => setRetryApiToken(event.target.value)}
+                placeholder="Paste your Kimi API key"
+                autoComplete="off"
+                disabled={retryingProvisioning}
+              />
+              <Button
+                type="button"
+                variant="outline"
+                disabled={retryingProvisioning || !retryApiToken.trim()}
+                onClick={handleRetryProvisioning}
+                className="gap-2"
+              >
+                {retryingProvisioning && (
+                  <IconRefresh className="size-4 animate-spin" />
+                )}
+                Retry provisioning
+              </Button>
+            </div>
+          )}
+
+          {managedDiscord.loadingInstallations ? (
+            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+              <IconRefresh className="size-4 animate-spin" />
+              Loading Discord installations
+            </div>
+          ) : !managedDiscord.installations.length ? (
+            <Alert>
+              <Alert.Title>Connect Erxes AI Assistant</Alert.Title>
+              <Alert.Description>
+                Add the official Erxes AI Assistant bot to a Discord server to
+                choose a response channel.
+              </Alert.Description>
+            </Alert>
+          ) : (
+            <>
+              <div className="space-y-2">
+                <div className="text-sm font-medium">Discord server</div>
+                <Select
+                  value={managedDiscord.selectedInstallationId}
+                  onValueChange={(value) => {
+                    managedDiscord.setSelectedInstallationId(value);
+                    managedDiscord.setSelectedChannelId('');
+                  }}
+                  disabled={isBusy}
+                >
+                  <Select.Trigger>
+                    <Select.Value placeholder="Select server" />
+                  </Select.Trigger>
+                  <Select.Content>
+                    {managedDiscord.installations.map((installation) => (
+                      <Select.Item
+                        key={installation._id}
+                        value={installation._id}
+                      >
+                        {installation.discordGuildName ||
+                          installation.discordGuildId}
+                      </Select.Item>
+                    ))}
+                  </Select.Content>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <div className="text-sm font-medium">Discord channel</div>
+                <Select
+                  value={managedDiscord.selectedChannelId}
+                  onValueChange={managedDiscord.setSelectedChannelId}
+                  disabled={
+                    isBusy ||
+                    !selectedInstallation ||
+                    managedDiscord.loadingChannels
+                  }
+                >
+                  <Select.Trigger>
+                    <Select.Value
+                      placeholder={
+                        managedDiscord.loadingChannels
+                          ? 'Loading channels'
+                          : 'Select channel'
+                      }
+                    />
+                  </Select.Trigger>
+                  <Select.Content>
+                    {managedDiscord.channels.map((channel) => (
+                      <Select.Item key={channel.id} value={channel.id}>
+                        #{channel.name}
+                      </Select.Item>
+                    ))}
+                  </Select.Content>
+                </Select>
+              </div>
+            </>
+          )}
+
+          {managedDiscord.activeBinding && (
+            <Alert>
+              <Alert.Title>Connected</Alert.Title>
+              <Alert.Description>
+                {activeInstallation?.discordGuildName ||
+                  managedDiscord.activeBinding.discordGuildId}{' '}
+                ·{' '}
+                {activeChannel
+                  ? `#${activeChannel.name}`
+                  : managedDiscord.activeBinding.discordChannelId}
+              </Alert.Description>
+            </Alert>
+          )}
+
+          {managedDiscord.activeBinding && (
+            <div className="space-y-3 rounded-lg border border-border bg-muted/20 p-3">
+              <div className="space-y-1">
+                <div className="text-sm font-medium">Response mode</div>
+                <p className="text-xs text-muted-foreground">
+                  Choose how this assistant listens in the connected channel.
+                </p>
+              </div>
+              <Select
+                value={responseMode}
+                onValueChange={handleResponseModeChange}
+                disabled={isBusy || managedDiscord.updatingBinding}
+              >
+                <Select.Trigger>
+                  <Select.Value />
+                </Select.Trigger>
+                <Select.Content>
+                  <Select.Item value="slash_only">
+                    Slash commands only
+                  </Select.Item>
+                  <Select.Item value="all_messages">
+                    Every message in this channel
+                  </Select.Item>
+                </Select.Content>
+              </Select>
+              {responseMode === 'all_messages' && (
+                <Alert variant="warning">
+                  <Alert.Title>Every message enabled</Alert.Title>
+                  <Alert.Description>
+                    The assistant will respond to every user message posted in
+                    this connected channel.
+                  </Alert.Description>
+                </Alert>
+              )}
+            </div>
+          )}
+        </Sheet.Content>
+        <Sheet.Footer>
+          <div className="flex w-full flex-wrap items-center justify-end gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              disabled={isBusy}
+              onClick={handleRefreshRuntime}
+            >
+              <IconRefresh
+                className={`size-4 ${refreshingRuntime ? 'animate-spin' : ''}`}
+              />
+              Refresh runtime
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              disabled={isBusy}
+              onClick={handleInstallDiscord}
+            >
+              <IconBrandDiscord className="size-4" />
+              {managedDiscord.installations.length
+                ? 'Install into another server'
+                : 'Add to server'}
+            </Button>
+            {managedDiscord.activeBinding && (
+              <Button
+                type="button"
+                variant="outline"
+                disabled={isBusy}
+                onClick={handleDisconnectChannel}
+              >
+                Disconnect channel
+              </Button>
+            )}
+            <Button
+              type="button"
+              disabled={
+                isBusy ||
+                !runtimeReady ||
+                !managedDiscord.selectedInstallationId ||
+                !managedDiscord.selectedChannelId ||
+                selectedBindingAlreadyActive
+              }
+              onClick={handleConnectChannel}
+            >
+              {managedDiscord.creatingBinding && (
+                <IconRefresh className="size-4 animate-spin" />
+              )}
+              {selectedBindingAlreadyActive ? 'Connected' : 'Connect channel'}
+            </Button>
+          </div>
+        </Sheet.Footer>
+      </Sheet.View>
+    </Sheet>
+  );
+};
+
+const AssistantWorkspaceCard = ({ identifier }: { identifier: Identifier }) => {
   const { agent, loading } = useAgent(identifier._id);
+  const isManagedAssistant = agent?.name?.startsWith('assistant-managed-');
 
   return (
     <div className="group flex min-h-56 flex-col gap-4 rounded-xl border border-border bg-card p-5 transition-all hover:border-primary/30 hover:shadow-md">
-      <div className="flex items-start justify-between gap-3">
-        <div className="flex items-center gap-2">
+      <div className="flex min-w-0 flex-wrap items-start gap-2">
+        <div className="flex min-w-0 flex-wrap items-center gap-2">
           <span className="rounded-full border border-border bg-muted px-2.5 py-1 text-[11px] font-medium text-muted-foreground">
             {loading ? 'Loading' : getStatusLabel(agent?.status)}
           </span>
-          <AssistantOrgManageSheet org={identifier} />
+          <span className="min-w-0 [&_button]:h-8 [&_button]:px-2.5 [&_button]:text-xs">
+            <AssistantOrgManageSheet
+              org={identifier}
+              triggerLabel="Edit assistant"
+            />
+          </span>
+          {isManagedAssistant && (
+            <span className="min-w-0 [&_button]:h-8 [&_button]:px-2.5 [&_button]:text-xs">
+              <AssistantDiscordManageSheet identifier={identifier} />
+            </span>
+          )}
         </div>
       </div>
 
@@ -152,11 +811,7 @@ const AssistantWorkspaceCard = ({
   );
 };
 
-const AiAgentWorkspaceCard = ({
-  identifier,
-}: {
-  identifier: Identifier;
-}) => {
+const AiAgentWorkspaceCard = ({ identifier }: { identifier: Identifier }) => {
   const { opencode, loading } = useOpencode(identifier._id);
 
   return (
@@ -207,6 +862,7 @@ export const CompanyBrainWorkspacePage = ({
   mode: 'assistant' | 'agent';
 }) => {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { toast } = useToast();
   const { identifiers, loading } = useIdentifiers(mode);
   const { createIdentifier, loading: creatingIdentifier } =
@@ -214,18 +870,41 @@ export const CompanyBrainWorkspacePage = ({
   const { deleteIdentifier, loading: deletingIdentifier } =
     useDeleteIdentifier();
   const { deployAgent, loading: deployingAssistant } = useAgentDeploy();
+  const { deployManagedAgent, loading: deployingManagedAssistant } =
+    useManagedAgentDeploy();
   const { transferAgent, loading: transferringAssistant } = useAgentTransfer();
   const { deployOpencode, loading: deployingAgent } = useOpencodeDeploy();
-  const { transferOpencode, loading: transferringAgent } = useOpencodeTransfer();
+  const { transferOpencode, loading: transferringAgent } =
+    useOpencodeTransfer();
   const [open, setOpen] = useState(false);
+  const [discordConnectionMode, setDiscordConnectionModeState] =
+    useState<DiscordConnectionMode>(DEFAULT_DISCORD_CONNECTION_MODE);
+  const [managedAssistantId, setManagedAssistantId] = useState('');
+  const [managedStep, setManagedStep] =
+    useState<ManagedCreationStep>('details');
+  const [managedError, setManagedError] = useState('');
+  const [managedRetryApiToken, setManagedRetryApiToken] = useState('');
+  const [managedProvisioningStartedAt, setManagedProvisioningStartedAt] =
+    useState('');
+  const [refreshingManagedRuntime, setRefreshingManagedRuntime] =
+    useState(false);
+  const lastManagedRuntimeRefreshAt = useRef(0);
+
+  const managedDiscord = useManagedDiscordSetup(
+    mode === 'assistant' ? managedAssistantId : undefined,
+  );
+  const {
+    agent: managedAgent,
+    loading: loadingManagedAgent,
+    refetch: refetchManagedAgent,
+  } = useAgent(managedAssistantId, { pollWhilePending: true });
 
   const config = useMemo(
     () =>
       mode === 'assistant'
         ? {
             title: 'AI Assistant',
-            subtitle:
-              'Manage assistants for your company brain.',
+            subtitle: 'Manage assistants for your company brain.',
             buttonLabel: 'Add AI Assistant',
             emptyTitle: 'No AI assistants yet',
             emptyDescription:
@@ -237,8 +916,7 @@ export const CompanyBrainWorkspacePage = ({
           }
         : {
             title: 'AI Agents',
-            subtitle:
-              'Manage agents for your company brain.',
+            subtitle: 'Manage agents for your company brain.',
             buttonLabel: 'Add AI Agent',
             emptyTitle: 'No AI agents yet',
             emptyDescription:
@@ -255,6 +933,7 @@ export const CompanyBrainWorkspacePage = ({
     resolver: zodResolver(workspaceFormSchema),
     defaultValues: {
       setupMode: 'new',
+      discordConnectionMode: DEFAULT_DISCORD_CONNECTION_MODE,
       serverName: '',
       provider: config.providerOptions[0]?.value || '',
       apiToken: '',
@@ -271,14 +950,508 @@ export const CompanyBrainWorkspacePage = ({
 
   const setupMode = form.watch('setupMode');
   const isTransfer = setupMode === 'transfer';
+  const isManagedAssistantCreation =
+    mode === 'assistant' && !isTransfer && discordConnectionMode === 'managed';
+  const showManagedDiscordStep =
+    mode === 'assistant' && !!managedAssistantId && managedStep !== 'details';
+  const isManagedRuntimeReady =
+    managedAgent?.status === SERVER_STATUSES.APPROVED && !!managedAgent?.url;
+  const isManagedRuntimeFailed =
+    managedAgent?.status === SERVER_STATUSES.FAILED;
+
+  const setDiscordConnectionMode = (value: DiscordConnectionMode) => {
+    setDiscordConnectionModeState(value);
+    form.setValue('discordConnectionMode', value, {
+      shouldDirty: true,
+      shouldValidate: true,
+    });
+
+    if (value === 'managed') {
+      form.setValue('discordBotToken', '');
+    }
+  };
 
   const isSubmitting =
     creatingIdentifier ||
     deletingIdentifier ||
     deployingAssistant ||
+    deployingManagedAssistant ||
     transferringAssistant ||
     deployingAgent ||
-    transferringAgent;
+    transferringAgent ||
+    refreshingManagedRuntime ||
+    managedDiscord.loading ||
+    managedDiscord.saving;
+
+  const resetCreateForm = () => {
+    form.reset({
+      setupMode: 'new',
+      discordConnectionMode: DEFAULT_DISCORD_CONNECTION_MODE,
+      serverName: '',
+      provider: config.providerOptions[0]?.value || '',
+      apiToken: '',
+      discordBotToken: '',
+      transferServerName: '',
+      transferGatewayToken: '',
+      transferServerUrl: '',
+      transferServerId: '',
+      transferServerPassword: '',
+      transferSourceSubdomain: '',
+      description: '',
+    });
+    setDiscordConnectionModeState(DEFAULT_DISCORD_CONNECTION_MODE);
+    setManagedAssistantId('');
+    setManagedStep('details');
+    setManagedError('');
+    setManagedRetryApiToken('');
+    setManagedProvisioningStartedAt('');
+  };
+
+  const clearManagedSearchParams = () => {
+    const next = new URLSearchParams(searchParams);
+
+    next.delete('discordSetup');
+    next.delete('discordMode');
+    next.delete('discordStep');
+    next.delete('assistantId');
+    next.delete('discordConnection');
+    next.delete('installationId');
+    next.delete('message');
+
+    setSearchParams(next, { replace: true });
+  };
+
+  const finishManagedCreation = (assistantId: string) => {
+    resetCreateForm();
+    setOpen(false);
+    clearManagedSearchParams();
+    navigate(`/agent/assistant/${assistantId}`);
+  };
+
+  const buildManagedReturnUrl = (assistantId: string) => {
+    const returnUrl = new URL(window.location.href);
+
+    returnUrl.searchParams.set('discordSetup', 'managed');
+    returnUrl.searchParams.set('discordStep', 'connect');
+    returnUrl.searchParams.set('assistantId', assistantId);
+    returnUrl.searchParams.delete('discordConnection');
+    returnUrl.searchParams.delete('installationId');
+    returnUrl.searchParams.delete('message');
+
+    return returnUrl.toString();
+  };
+
+  const handleConnectManagedDiscord = async () => {
+    if (!managedAssistantId) {
+      return;
+    }
+
+    try {
+      setManagedError('');
+      await managedDiscord.connectDiscord(
+        buildManagedReturnUrl(managedAssistantId),
+      );
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+
+      setManagedError(message);
+      toast({
+        variant: 'destructive',
+        title: 'Could not connect Discord',
+        description: message,
+      });
+    }
+  };
+
+  const handleCreateManagedBinding = async () => {
+    if (!managedAssistantId) {
+      return;
+    }
+
+    if (!isManagedRuntimeReady) {
+      const message =
+        'Assistant runtime is still provisioning. Wait until it is ready before connecting a Discord channel.';
+
+      setManagedError(message);
+      toast({
+        variant: 'destructive',
+        title: 'Runtime not ready',
+        description: message,
+      });
+      return;
+    }
+
+    try {
+      setManagedError('');
+      await managedDiscord.connectChannel();
+      setManagedStep('complete');
+      toast({
+        variant: 'success',
+        title: 'Discord channel connected',
+        description: 'Opening the AI Assistant.',
+      });
+      finishManagedCreation(managedAssistantId);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+
+      setManagedError(message);
+      toast({
+        variant: 'destructive',
+        title: 'Could not connect channel',
+        description: message,
+      });
+    }
+  };
+
+  const handleRetryManagedProvisioning = async () => {
+    if (!managedAssistantId) {
+      return;
+    }
+
+    if (!managedRetryApiToken.trim()) {
+      const message = 'Kimi API key is required to retry provisioning.';
+      setManagedError(message);
+      toast({
+        variant: 'destructive',
+        title: 'Kimi API key required',
+        description: message,
+      });
+      return;
+    }
+
+    try {
+      setManagedError('');
+      await deployManagedAgent({
+        identifierId: managedAssistantId,
+        provider: 'kimi',
+        apiToken: managedRetryApiToken,
+      });
+      setManagedRetryApiToken('');
+      await refetchManagedAgent();
+      toast({
+        variant: 'success',
+        title: 'Runtime provisioned',
+        description: 'You can connect a Discord channel now.',
+      });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+
+      setManagedError(message);
+      toast({
+        variant: 'destructive',
+        title: 'Retry provisioning failed',
+        description: message,
+      });
+    }
+  };
+
+  const handleRefreshManagedRuntime = async () => {
+    const now = Date.now();
+
+    if (
+      refreshingManagedRuntime ||
+      now - lastManagedRuntimeRefreshAt.current < MANUAL_REFRESH_THROTTLE_MS
+    ) {
+      return;
+    }
+
+    lastManagedRuntimeRefreshAt.current = now;
+    setRefreshingManagedRuntime(true);
+
+    try {
+      setManagedError('');
+      await Promise.all([refetchManagedAgent(), managedDiscord.refresh()]);
+    } finally {
+      setRefreshingManagedRuntime(false);
+    }
+  };
+
+  useEffect(() => {
+    if (mode !== 'assistant') {
+      return;
+    }
+
+    const discordSetup = searchParams.get('discordSetup');
+    const discordMode = searchParams.get('discordMode');
+    const assistantId = searchParams.get('assistantId');
+
+    if (discordSetup !== 'managed' || discordMode === 'manage' || !assistantId) {
+      return;
+    }
+
+    setManagedAssistantId(assistantId);
+    setOpen(true);
+
+    const connection = searchParams.get('discordConnection');
+    const requestedStep = searchParams.get('discordStep');
+
+    if (connection === 'success') {
+      setManagedStep('channel');
+      setManagedError('');
+      toast({
+        variant: 'success',
+        title: 'Discord connected',
+        description: 'Select a server channel to finish setup.',
+      });
+    } else if (connection === 'error') {
+      setManagedStep('connect');
+      setManagedError(
+        searchParams.get('message') ||
+          'Discord connection was cancelled or failed. Try connecting again.',
+      );
+    } else if (requestedStep === 'channel') {
+      setManagedStep('channel');
+    } else {
+      setManagedStep('connect');
+    }
+
+    if (
+      connection ||
+      searchParams.has('installationId') ||
+      searchParams.has('message')
+    ) {
+      const next = new URLSearchParams(searchParams);
+      if (connection === 'success') {
+        next.set('discordStep', 'channel');
+      }
+      if (connection === 'error') {
+        next.set('discordStep', 'connect');
+      }
+      next.delete('discordConnection');
+      next.delete('installationId');
+      next.delete('message');
+      setSearchParams(next, { replace: true });
+    }
+  }, [mode, searchParams, setSearchParams, toast]);
+
+  const renderManagedDiscordStep = () => {
+    const selectedInstallation = managedDiscord.installations.find(
+      (installation) =>
+        installation._id === managedDiscord.selectedInstallationId,
+    );
+
+    const activeChannel = managedDiscord.activeBinding
+      ? managedDiscord.channels.find(
+          (channel) =>
+            channel.id === managedDiscord.activeBinding?.discordChannelId,
+        )
+      : undefined;
+
+    if (managedStep === 'complete') {
+      return (
+        <div className="flex min-h-80 flex-col items-center justify-center gap-4 text-center">
+          <div className="flex size-12 items-center justify-center rounded-full bg-primary/10 text-primary">
+            <IconCheck className="size-6" />
+          </div>
+          <div className="space-y-1">
+            <h3 className="text-sm font-medium">Discord channel connected</h3>
+            <p className="text-xs text-muted-foreground">
+              Opening the AI Assistant workspace.
+            </p>
+          </div>
+        </div>
+      );
+    }
+
+    if (managedStep === 'provisioning') {
+      return (
+        <div className="flex min-h-0 flex-1 flex-col gap-5">
+          <ManagedProvisioningProgress
+            status={managedAgent?.status || SERVER_STATUSES.PENDING}
+            stage={managedAgent?.provisioning?.stage}
+            message={managedAgent?.provisioning?.message}
+            startedAt={
+              managedAgent?.provisioning?.startedAt ||
+              managedAgent?.createdAt ||
+              managedProvisioningStartedAt
+            }
+            updatedAt={managedAgent?.provisioning?.updatedAt}
+            error={managedAgent?.provisioning?.error}
+            runtimeUrl={managedAgent?.url}
+            retrying={deployingManagedAssistant}
+          />
+        </div>
+      );
+    }
+
+    return (
+      <div className="flex min-h-0 flex-1 flex-col gap-5">
+        <div className="space-y-1">
+          <h3 className="text-sm font-medium">
+            {managedStep === 'connect'
+              ? 'Connect Discord'
+              : 'Choose server and channel'}
+          </h3>
+          <p className="text-xs text-muted-foreground">
+            {managedStep === 'connect'
+              ? 'Install the official erxes AI Assistant bot to continue setup.'
+              : 'Select where this assistant should respond in Discord.'}
+          </p>
+        </div>
+
+        {(managedError || managedDiscord.error) && (
+          <Alert variant="destructive">
+            <Alert.Title>Discord setup failed</Alert.Title>
+            <Alert.Description>
+              {managedError || managedDiscord.error?.message}
+            </Alert.Description>
+          </Alert>
+        )}
+
+        {managedStep === 'connect' && (
+          <>
+            <Alert>
+              <Alert.Title>Assistant created</Alert.Title>
+              <Alert.Description>
+                The assistant was created. Finish Discord setup here by
+                approving the official erxes AI Assistant bot.
+              </Alert.Description>
+            </Alert>
+
+            {!!managedDiscord.installations.length && (
+              <Alert>
+                <Alert.Title>Discord connected</Alert.Title>
+                <Alert.Description>
+                  Select a server and channel to finish setup.
+                </Alert.Description>
+              </Alert>
+            )}
+          </>
+        )}
+
+        {managedStep === 'channel' &&
+          (managedDiscord.loading && !managedDiscord.installations.length ? (
+            <div className="flex min-h-40 items-center justify-center">
+              <Spinner />
+            </div>
+          ) : !managedDiscord.installations.length ? (
+            <Alert variant="warning">
+              <Alert.Title>No Discord server found</Alert.Title>
+              <Alert.Description>
+                Connect Discord again, then approve a server for the official
+                erxes AI Assistant bot.
+              </Alert.Description>
+            </Alert>
+          ) : (
+            <>
+              {!isManagedRuntimeReady && (
+                <Alert variant="warning">
+                  <Alert.Title>Runtime provisioning</Alert.Title>
+                  <Alert.Description>
+                    {isManagedRuntimeFailed
+                      ? 'Discord is connected, but runtime provisioning failed. Retry provisioning before connecting a channel.'
+                      : 'Discord is connected, but this assistant runtime is not ready yet. Refresh status before connecting a channel.'}
+                  </Alert.Description>
+                </Alert>
+              )}
+
+              {isManagedRuntimeFailed && (
+                <div className="space-y-2 rounded-lg border border-border bg-muted/20 p-3">
+                  <div className="text-sm font-medium">Retry provisioning</div>
+                  <p className="text-xs text-muted-foreground">
+                    Reuses this assistant and the existing managed server name.
+                  </p>
+                  <Input
+                    value={managedRetryApiToken}
+                    onChange={(event) =>
+                      setManagedRetryApiToken(event.target.value)
+                    }
+                    placeholder="Paste your Kimi API key"
+                    autoComplete="off"
+                    disabled={deployingManagedAssistant}
+                  />
+                </div>
+              )}
+
+              {managedDiscord.activeBinding && (
+                <Alert>
+                  <Alert.Title>Discord channel already connected</Alert.Title>
+                  <Alert.Description>
+                    Connected channel:{' '}
+                    {activeChannel
+                      ? `#${activeChannel.name}`
+                      : managedDiscord.activeBinding.discordChannelId}
+                  </Alert.Description>
+                </Alert>
+              )}
+
+              <div className="grid gap-4 lg:grid-cols-2">
+                <div className="space-y-2">
+                  <div className="text-sm font-medium">Discord server</div>
+                  <Select
+                    value={managedDiscord.selectedInstallationId}
+                    onValueChange={(value) => {
+                      managedDiscord.setSelectedInstallationId(value);
+                      managedDiscord.setSelectedChannelId('');
+                    }}
+                    disabled={isSubmitting}
+                  >
+                    <Select.Trigger>
+                      <Select.Value placeholder="Select server" />
+                    </Select.Trigger>
+                    <Select.Content>
+                      {managedDiscord.installations.map((installation) => (
+                        <Select.Item
+                          key={installation._id}
+                          value={installation._id}
+                        >
+                          {installation.discordGuildName ||
+                            installation.discordGuildId}
+                        </Select.Item>
+                      ))}
+                    </Select.Content>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <div className="text-sm font-medium">Discord channel</div>
+                  <Select
+                    value={managedDiscord.selectedChannelId}
+                    onValueChange={managedDiscord.setSelectedChannelId}
+                    disabled={
+                      isSubmitting ||
+                      !selectedInstallation ||
+                      managedDiscord.loadingChannels
+                    }
+                  >
+                    <Select.Trigger>
+                      <Select.Value
+                        placeholder={
+                          managedDiscord.loadingChannels
+                            ? 'Loading channels'
+                            : 'Select channel'
+                        }
+                      />
+                    </Select.Trigger>
+                    <Select.Content>
+                      {managedDiscord.channels.map((channel) => (
+                        <Select.Item key={channel.id} value={channel.id}>
+                          #{channel.name}
+                        </Select.Item>
+                      ))}
+                    </Select.Content>
+                  </Select>
+                </div>
+              </div>
+            </>
+          ))}
+
+        {managedDiscord.loading && (
+          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+            <IconRefresh className="size-4 animate-spin" />
+            Syncing Discord setup
+          </div>
+        )}
+
+        {loadingManagedAgent && (
+          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+            <IconRefresh className="size-4 animate-spin" />
+            Checking runtime status
+          </div>
+        )}
+      </div>
+    );
+  };
 
   const onSubmit = async (values: WorkspaceFormValues) => {
     let createdIdentifier: Identifier | null = null;
@@ -292,7 +1465,12 @@ export const CompanyBrainWorkspacePage = ({
         return;
       }
 
-      if (!isTransfer && mode === 'assistant' && !values.discordBotToken?.trim()) {
+      if (
+        !isTransfer &&
+        mode === 'assistant' &&
+        values.discordConnectionMode === 'byob' &&
+        !values.discordBotToken?.trim()
+      ) {
         form.setError('discordBotToken', {
           type: 'required',
           message: 'Discord bot token is required',
@@ -346,7 +1524,8 @@ export const CompanyBrainWorkspacePage = ({
             gatewayToken: transferGatewayToken,
             serverUrl: transferServerUrl || undefined,
             serverId: values.transferServerId?.trim() || undefined,
-            sourceSubdomain: values.transferSourceSubdomain?.trim() || undefined,
+            sourceSubdomain:
+              values.transferSourceSubdomain?.trim() || undefined,
           });
         } else {
           await transferOpencode({
@@ -357,13 +1536,42 @@ export const CompanyBrainWorkspacePage = ({
             serverUrl: transferServerUrl,
             serverId: values.transferServerId?.trim() || undefined,
             serverPassword: values.transferServerPassword?.trim() || undefined,
-            sourceSubdomain: values.transferSourceSubdomain?.trim() || undefined,
+            sourceSubdomain:
+              values.transferSourceSubdomain?.trim() || undefined,
           });
         }
       } else {
         const apiToken = values.apiToken?.trim() || '';
 
         if (mode === 'assistant') {
+          if (values.discordConnectionMode === 'managed') {
+            setManagedAssistantId(createdIdentifier._id);
+            setManagedStep('provisioning');
+            setManagedError('');
+            setManagedProvisioningStartedAt(new Date().toISOString());
+
+            await deployManagedAgent({
+              identifierId: createdIdentifier._id,
+              provider: values.provider || config.providerOptions[0]?.value,
+              apiToken,
+              description: values.description?.trim() || undefined,
+              systemPrompt: values.description?.trim() || undefined,
+            });
+
+            setManagedStep('connect');
+
+            const next = new URLSearchParams(searchParams);
+            next.set('discordSetup', 'managed');
+            next.set('discordStep', 'connect');
+            next.set('assistantId', createdIdentifier._id);
+            next.delete('discordConnection');
+            next.delete('installationId');
+            next.delete('message');
+            setSearchParams(next, { replace: true });
+
+            return;
+          }
+
           await deployAgent({
             identifierId: createdIdentifier._id,
             token: values.discordBotToken?.trim() || '',
@@ -378,20 +1586,7 @@ export const CompanyBrainWorkspacePage = ({
         }
       }
 
-      form.reset({
-        setupMode: 'new',
-        serverName: '',
-        provider: config.providerOptions[0]?.value || '',
-        apiToken: '',
-        discordBotToken: '',
-        transferServerName: '',
-        transferGatewayToken: '',
-        transferServerUrl: '',
-        transferServerId: '',
-        transferServerPassword: '',
-        transferSourceSubdomain: '',
-        description: '',
-      });
+      resetCreateForm();
       setOpen(false);
       navigate(
         mode === 'assistant'
@@ -425,7 +1620,10 @@ export const CompanyBrainWorkspacePage = ({
 
       toast({
         variant: 'destructive',
-        title: mode === 'assistant' ? 'Add AI Assistant failed' : 'Add AI Agent failed',
+        title:
+          mode === 'assistant'
+            ? 'Add AI Assistant failed'
+            : 'Add AI Agent failed',
         description,
       });
 
@@ -438,18 +1636,12 @@ export const CompanyBrainWorkspacePage = ({
   const renderCard = (identifier: Identifier) => {
     if (mode === 'assistant') {
       return (
-        <AssistantWorkspaceCard
-          key={identifier._id}
-          identifier={identifier}
-        />
+        <AssistantWorkspaceCard key={identifier._id} identifier={identifier} />
       );
     }
 
     return (
-      <AiAgentWorkspaceCard
-        key={identifier._id}
-        identifier={identifier}
-      />
+      <AiAgentWorkspaceCard key={identifier._id} identifier={identifier} />
     );
   };
 
@@ -461,7 +1653,13 @@ export const CompanyBrainWorkspacePage = ({
             <Breadcrumb.List className="gap-1">
               <Breadcrumb.Item>
                 <Button variant="ghost" asChild>
-                  <Link to={mode === 'assistant' ? '/agent/assistant' : '/agent/agents'}>
+                  <Link
+                    to={
+                      mode === 'assistant'
+                        ? '/agent/assistant'
+                        : '/agent/agents'
+                    }
+                  >
                     Company Brain
                   </Link>
                 </Button>
@@ -484,9 +1682,7 @@ export const CompanyBrainWorkspacePage = ({
               <h1 className="text-2xl font-semibold tracking-tight">
                 {config.title}
               </h1>
-              <p className="text-sm text-muted-foreground">
-                {config.subtitle}
-              </p>
+              <p className="text-sm text-muted-foreground">{config.subtitle}</p>
             </div>
             <Button onClick={() => setOpen(true)} className="gap-2">
               <IconPlus className="h-4 w-4" />
@@ -537,185 +1733,57 @@ export const CompanyBrainWorkspacePage = ({
               </Sheet.Header>
 
               <Sheet.Content className="flex min-h-0 flex-1 flex-col gap-5 px-5 py-5">
-                <div className="space-y-1">
-                  <h3 className="text-sm font-medium">{config.title}</h3>
-                  <p className="text-xs text-muted-foreground">
-                    {config.sheetDescription}
-                  </p>
-                </div>
-
-                <Form.Field
-                  name="setupMode"
-                  render={({ field }) => (
-                    <Form.Item>
-                      <Form.Label>Setup type</Form.Label>
-                      <Select
-                        value={field.value || 'new'}
-                        onValueChange={field.onChange}
-                      >
-                        <Form.Control>
-                          <Select.Trigger className="w-full">
-                            <Select.Value placeholder="Choose setup type" />
-                          </Select.Trigger>
-                        </Form.Control>
-                        <Select.Content>
-                          <Select.Item value="new">Create new server</Select.Item>
-                          <Select.Item value="transfer">
-                            Transfer existing server
-                          </Select.Item>
-                        </Select.Content>
-                      </Select>
-                      <Form.Message />
-                    </Form.Item>
-                  )}
-                />
-
-                <Form.Field
-                  name="serverName"
-                  render={({ field }) => (
-                    <Form.Item>
-                      <Form.Label>Identifier name</Form.Label>
-                      <Form.Control>
-                        <Input
-                          {...field}
-                          placeholder={
-                            mode === 'assistant'
-                              ? 'Support Assistant'
-                              : 'Frontend Agent'
-                          }
-                          autoComplete="off"
-                        />
-                      </Form.Control>
-                      <Form.Message />
-                    </Form.Item>
-                  )}
-                />
-
-                {(!isTransfer || mode === 'agent') && (
-                  <Form.Field
-                    name="provider"
-                    render={({ field }) => (
-                      <Form.Item>
-                        <Form.Label>Provider</Form.Label>
-                        <Select
-                          value={field.value || config.providerOptions[0]?.value || ''}
-                          onValueChange={field.onChange}
-                        >
-                          <Form.Control>
-                            <Select.Trigger className="w-full">
-                              <Select.Value placeholder="Choose provider" />
-                            </Select.Trigger>
-                          </Form.Control>
-                          <Select.Content>
-                            {config.providerOptions.map((option) => (
-                              <Select.Item key={option.value} value={option.value}>
-                                {option.label}
-                              </Select.Item>
-                            ))}
-                          </Select.Content>
-                        </Select>
-                        <Form.Message />
-                      </Form.Item>
-                    )}
-                  />
-                )}
-
-                {!isTransfer && (
-                  <Form.Field
-                    name="apiToken"
-                    render={({ field }) => (
-                      <Form.Item>
-                        <Form.Label>API token</Form.Label>
-                        <Form.Control>
-                          <Input
-                            {...field}
-                            value={field.value || ''}
-                            placeholder="Paste your API token"
-                            autoComplete="off"
-                          />
-                        </Form.Control>
-                        <Form.Message />
-                      </Form.Item>
-                    )}
-                  />
-                )}
-
-                {!isTransfer && mode === 'assistant' && (
-                  <Form.Field
-                    name="discordBotToken"
-                    render={({ field }) => (
-                      <Form.Item>
-                        <Form.Label>Discord bot token</Form.Label>
-                        <Form.Control>
-                          <Input
-                            {...field}
-                            value={field.value || ''}
-                            placeholder="Paste your Discord bot token"
-                            autoComplete="off"
-                          />
-                        </Form.Control>
-                        <p className="text-xs text-muted-foreground">
-                          Required. uses this token during bootstrap so the bot
-                          can come online and send the pairing code.
-                        </p>
-                        <Form.Message />
-                      </Form.Item>
-                    )}
-                  />
-                )}
-
-
-                {isTransfer && (
+                {showManagedDiscordStep ? (
+                  renderManagedDiscordStep()
+                ) : (
                   <>
+                    <div className="space-y-1">
+                      <h3 className="text-sm font-medium">{config.title}</h3>
+                      <p className="text-xs text-muted-foreground">
+                        {config.sheetDescription}
+                      </p>
+                    </div>
+
                     <Form.Field
-                      name="transferServerName"
+                      name="setupMode"
                       render={({ field }) => (
                         <Form.Item>
-                          <Form.Label>Transferred server name</Form.Label>
-                          <Form.Control>
-                            <Input
-                              {...field}
-                              value={field.value || ''}
-                              placeholder="existing-server-name"
-                              autoComplete="off"
-                            />
-                          </Form.Control>
+                          <Form.Label>Setup type</Form.Label>
+                          <Select
+                            value={field.value || 'new'}
+                            onValueChange={field.onChange}
+                          >
+                            <Form.Control>
+                              <Select.Trigger className="w-full">
+                                <Select.Value placeholder="Choose setup type" />
+                              </Select.Trigger>
+                            </Form.Control>
+                            <Select.Content>
+                              <Select.Item value="new">
+                                Create new server
+                              </Select.Item>
+                              <Select.Item value="transfer">
+                                Transfer existing server
+                              </Select.Item>
+                            </Select.Content>
+                          </Select>
                           <Form.Message />
                         </Form.Item>
                       )}
                     />
+
                     <Form.Field
-                      name="transferGatewayToken"
+                      name="serverName"
                       render={({ field }) => (
                         <Form.Item>
-                          <Form.Label>Gateway token</Form.Label>
+                          <Form.Label>Identifier name</Form.Label>
                           <Form.Control>
                             <Input
                               {...field}
-                              value={field.value || ''}
-                              placeholder="Paste the exported gateway token"
-                              autoComplete="off"
-                            />
-                          </Form.Control>
-                          <Form.Message />
-                        </Form.Item>
-                      )}
-                    />
-                    <Form.Field
-                      name="transferServerUrl"
-                      render={({ field }) => (
-                        <Form.Item>
-                          <Form.Label>
-                            Server URL{mode === 'agent' ? '' : ' (optional)'}
-                          </Form.Label>
-                          <Form.Control>
-                            <Input
-                              {...field}
-                              value={field.value || ''}
                               placeholder={
-                                mode === 'agent'
-                                  ? 'https://server.example.com'
-                                  : 'https://server.assistant.erxes.io'
+                                mode === 'assistant'
+                                  ? 'Support Assistant'
+                                  : 'Frontend Agent'
                               }
                               autoComplete="off"
                             />
@@ -724,34 +1792,54 @@ export const CompanyBrainWorkspacePage = ({
                         </Form.Item>
                       )}
                     />
-                    <Form.Field
-                      name="transferServerId"
-                      render={({ field }) => (
-                        <Form.Item>
-                          <Form.Label>Server ID (optional)</Form.Label>
-                          <Form.Control>
-                            <Input
-                              {...field}
-                              value={field.value || ''}
-                              placeholder="Remote deployer server ID"
-                              autoComplete="off"
-                            />
-                          </Form.Control>
-                          <Form.Message />
-                        </Form.Item>
-                      )}
-                    />
-                    {mode === 'agent' && (
+
+                    {(!isTransfer || mode === 'agent') && (
                       <Form.Field
-                        name="transferServerPassword"
+                        name="provider"
                         render={({ field }) => (
                           <Form.Item>
-                            <Form.Label>Server password (optional)</Form.Label>
+                            <Form.Label>Provider</Form.Label>
+                            <Select
+                              value={
+                                field.value ||
+                                config.providerOptions[0]?.value ||
+                                ''
+                              }
+                              onValueChange={field.onChange}
+                            >
+                              <Form.Control>
+                                <Select.Trigger className="w-full">
+                                  <Select.Value placeholder="Choose provider" />
+                                </Select.Trigger>
+                              </Form.Control>
+                              <Select.Content>
+                                {config.providerOptions.map((option) => (
+                                  <Select.Item
+                                    key={option.value}
+                                    value={option.value}
+                                  >
+                                    {option.label}
+                                  </Select.Item>
+                                ))}
+                              </Select.Content>
+                            </Select>
+                            <Form.Message />
+                          </Form.Item>
+                        )}
+                      />
+                    )}
+
+                    {!isTransfer && (
+                      <Form.Field
+                        name="apiToken"
+                        render={({ field }) => (
+                          <Form.Item>
+                            <Form.Label>API token</Form.Label>
                             <Form.Control>
                               <Input
                                 {...field}
                                 value={field.value || ''}
-                                placeholder="Opencode login password"
+                                placeholder="Paste your API token"
                                 autoComplete="off"
                               />
                             </Form.Control>
@@ -760,17 +1848,238 @@ export const CompanyBrainWorkspacePage = ({
                         )}
                       />
                     )}
+
+                    {!isTransfer && mode === 'assistant' && (
+                      <Form.Field
+                        name="discordConnectionMode"
+                        render={() => (
+                          <Form.Item>
+                            <Form.Label>Discord connection</Form.Label>
+                            <Form.Control>
+                              <div className="grid gap-3 sm:grid-cols-2">
+                                <button
+                                  type="button"
+                                  className={`flex cursor-pointer items-center gap-3 rounded-lg border p-3 text-left text-sm transition-colors ${
+                                    discordConnectionMode === 'managed'
+                                      ? 'border-primary bg-primary/5'
+                                      : 'border-border bg-background'
+                                  }`}
+                                  onClick={() =>
+                                    setDiscordConnectionMode('managed')
+                                  }
+                                >
+                                  <span
+                                    className={`flex size-4 shrink-0 items-center justify-center rounded-full border ${
+                                      discordConnectionMode === 'managed'
+                                        ? 'border-primary'
+                                        : 'border-input'
+                                    }`}
+                                  >
+                                    {discordConnectionMode === 'managed' && (
+                                      <span className="size-2 rounded-full bg-primary" />
+                                    )}
+                                  </span>
+                                  <span className="space-y-1">
+                                    <span className="block font-medium">
+                                      Use erxes Ai Assistant
+                                    </span>
+                                  </span>
+                                </button>
+                                <button
+                                  type="button"
+                                  className={`flex cursor-pointer items-center gap-3 rounded-lg border p-3 text-left text-sm transition-colors ${
+                                    discordConnectionMode === 'byob'
+                                      ? 'border-primary bg-primary/5'
+                                      : 'border-border bg-background'
+                                  }`}
+                                  onClick={() =>
+                                    setDiscordConnectionMode('byob')
+                                  }
+                                >
+                                  <span
+                                    className={`flex size-4 shrink-0 items-center justify-center rounded-full border ${
+                                      discordConnectionMode === 'byob'
+                                        ? 'border-primary'
+                                        : 'border-input'
+                                    }`}
+                                  >
+                                    {discordConnectionMode === 'byob' && (
+                                      <span className="size-2 rounded-full bg-primary" />
+                                    )}
+                                  </span>
+                                  <span className="space-y-1">
+                                    <span className="block font-medium">
+                                      Bring your own bot
+                                    </span>
+                                  </span>
+                                </button>
+                              </div>
+                            </Form.Control>
+                            <Form.Message />
+                          </Form.Item>
+                        )}
+                      />
+                    )}
+
+                    {!isTransfer &&
+                      mode === 'assistant' &&
+                      discordConnectionMode === 'byob' && (
+                        <Form.Field
+                          name="discordBotToken"
+                          render={({ field }) => (
+                            <Form.Item>
+                              <Form.Label>Discord bot token</Form.Label>
+                              <Form.Control>
+                                <Input
+                                  {...field}
+                                  value={field.value || ''}
+                                  placeholder="Paste your Discord bot token"
+                                  autoComplete="off"
+                                />
+                              </Form.Control>
+                              <p className="text-xs text-muted-foreground">
+                                Required. Uses this token during bootstrap so
+                                the bot can come online and send the pairing
+                                code.
+                              </p>
+                              <Form.Message />
+                            </Form.Item>
+                          )}
+                        />
+                      )}
+
+                    {isTransfer && (
+                      <>
+                        <Form.Field
+                          name="transferServerName"
+                          render={({ field }) => (
+                            <Form.Item>
+                              <Form.Label>Transferred server name</Form.Label>
+                              <Form.Control>
+                                <Input
+                                  {...field}
+                                  value={field.value || ''}
+                                  placeholder="existing-server-name"
+                                  autoComplete="off"
+                                />
+                              </Form.Control>
+                              <Form.Message />
+                            </Form.Item>
+                          )}
+                        />
+                        <Form.Field
+                          name="transferGatewayToken"
+                          render={({ field }) => (
+                            <Form.Item>
+                              <Form.Label>Gateway token</Form.Label>
+                              <Form.Control>
+                                <Input
+                                  {...field}
+                                  value={field.value || ''}
+                                  placeholder="Paste the exported gateway token"
+                                  autoComplete="off"
+                                />
+                              </Form.Control>
+                              <Form.Message />
+                            </Form.Item>
+                          )}
+                        />
+                        <Form.Field
+                          name="transferServerUrl"
+                          render={({ field }) => (
+                            <Form.Item>
+                              <Form.Label>
+                                Server URL
+                                {mode === 'agent' ? '' : ' (optional)'}
+                              </Form.Label>
+                              <Form.Control>
+                                <Input
+                                  {...field}
+                                  value={field.value || ''}
+                                  placeholder={
+                                    mode === 'agent'
+                                      ? 'https://server.example.com'
+                                      : 'https://server.assistant.erxes.io'
+                                  }
+                                  autoComplete="off"
+                                />
+                              </Form.Control>
+                              <Form.Message />
+                            </Form.Item>
+                          )}
+                        />
+                        <Form.Field
+                          name="transferServerId"
+                          render={({ field }) => (
+                            <Form.Item>
+                              <Form.Label>Server ID (optional)</Form.Label>
+                              <Form.Control>
+                                <Input
+                                  {...field}
+                                  value={field.value || ''}
+                                  placeholder="Remote deployer server ID"
+                                  autoComplete="off"
+                                />
+                              </Form.Control>
+                              <Form.Message />
+                            </Form.Item>
+                          )}
+                        />
+                        {mode === 'agent' && (
+                          <Form.Field
+                            name="transferServerPassword"
+                            render={({ field }) => (
+                              <Form.Item>
+                                <Form.Label>
+                                  Server password (optional)
+                                </Form.Label>
+                                <Form.Control>
+                                  <Input
+                                    {...field}
+                                    value={field.value || ''}
+                                    placeholder="Opencode login password"
+                                    autoComplete="off"
+                                  />
+                                </Form.Control>
+                                <Form.Message />
+                              </Form.Item>
+                            )}
+                          />
+                        )}
+                        <Form.Field
+                          name="transferSourceSubdomain"
+                          render={({ field }) => (
+                            <Form.Item>
+                              <Form.Label>
+                                Source SaaS subdomain (optional)
+                              </Form.Label>
+                              <Form.Control>
+                                <Input
+                                  {...field}
+                                  value={field.value || ''}
+                                  placeholder="source-workspace"
+                                  autoComplete="off"
+                                />
+                              </Form.Control>
+                              <Form.Message />
+                            </Form.Item>
+                          )}
+                        />
+                      </>
+                    )}
+
                     <Form.Field
-                      name="transferSourceSubdomain"
+                      name="description"
                       render={({ field }) => (
                         <Form.Item>
-                          <Form.Label>Source SaaS subdomain (optional)</Form.Label>
+                          <Form.Label>Description</Form.Label>
                           <Form.Control>
-                            <Input
+                            <Textarea
                               {...field}
                               value={field.value || ''}
-                              placeholder="source-workspace"
-                              autoComplete="off"
+                              rows={5}
+                              className="resize-none"
+                              placeholder="What this identifier is used for"
                             />
                           </Form.Control>
                           <Form.Message />
@@ -779,55 +2088,129 @@ export const CompanyBrainWorkspacePage = ({
                     />
                   </>
                 )}
-
-                <Form.Field
-                  name="description"
-                  render={({ field }) => (
-                    <Form.Item>
-                      <Form.Label>Description</Form.Label>
-                      <Form.Control>
-                        <Textarea
-                          {...field}
-                          value={field.value || ''}
-                          rows={5}
-                          className="resize-none"
-                          placeholder="What this identifier is used for"
-                        />
-                      </Form.Control>
-                      <Form.Message />
-                    </Form.Item>
-                  )}
-                />
               </Sheet.Content>
 
               <Sheet.Footer>
-                <Button
-                  type="button"
-                  variant="outline"
-                  disabled={isSubmitting}
-                  onClick={() => {
-                    form.reset({
-                      setupMode: 'new',
-                      serverName: '',
-                      provider: config.providerOptions[0]?.value || '',
-                      apiToken: '',
-                      discordBotToken: '',
-                      transferServerName: '',
-                      transferGatewayToken: '',
-                      transferServerUrl: '',
-                      transferServerId: '',
-                      transferServerPassword: '',
-                      transferSourceSubdomain: '',
-                      description: '',
-                    });
-                    setOpen(false);
-                  }}
-                >
-                  Cancel
-                </Button>
-                <Button type="submit" disabled={isSubmitting}>
-                  {isSubmitting ? 'Saving...' : config.buttonLabel}
-                </Button>
+                {showManagedDiscordStep ? (
+                  <>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      disabled={isSubmitting}
+                      onClick={() => {
+                        if (managedAssistantId) {
+                          finishManagedCreation(managedAssistantId);
+                        } else {
+                          setOpen(false);
+                        }
+                      }}
+                    >
+                      Open assistant
+                    </Button>
+
+                    {managedStep === 'connect' && (
+                      <>
+                        {!!managedDiscord.installations.length && (
+                          <Button
+                            type="button"
+                            variant="outline"
+                            disabled={isSubmitting}
+                            onClick={() => setManagedStep('channel')}
+                          >
+                            <IconArrowRight className="size-4" />
+                            Continue
+                          </Button>
+                        )}
+                        <Button
+                          type="button"
+                          disabled={isSubmitting}
+                          onClick={handleConnectManagedDiscord}
+                        >
+                          <IconBrandDiscord className="size-4" />
+                          Connect erxes Ai Assistant
+                        </Button>
+                      </>
+                    )}
+
+                    {managedStep === 'channel' && (
+                      <>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          disabled={isSubmitting}
+                          onClick={handleRefreshManagedRuntime}
+                        >
+                          <IconRefresh
+                            className={`size-4 ${
+                              refreshingManagedRuntime ? 'animate-spin' : ''
+                            }`}
+                          />
+                          Refresh runtime
+                        </Button>
+                        {isManagedRuntimeFailed && (
+                          <Button
+                            type="button"
+                            variant="outline"
+                            disabled={
+                              isSubmitting || !managedRetryApiToken.trim()
+                            }
+                            onClick={handleRetryManagedProvisioning}
+                          >
+                            {deployingManagedAssistant ? (
+                              <IconRefresh className="size-4 animate-spin" />
+                            ) : (
+                              <IconRefresh className="size-4" />
+                            )}
+                            Retry provisioning
+                          </Button>
+                        )}
+                        <Button
+                          type="button"
+                          variant="outline"
+                          disabled={isSubmitting}
+                          onClick={handleConnectManagedDiscord}
+                        >
+                          <IconBrandDiscord className="size-4" />
+                          Install into another server
+                        </Button>
+                        <Button
+                          type="button"
+                          disabled={
+                            isSubmitting ||
+                            !isManagedRuntimeReady ||
+                            !managedDiscord.selectedInstallationId ||
+                            !managedDiscord.selectedChannelId
+                          }
+                          onClick={handleCreateManagedBinding}
+                        >
+                          <IconLink className="size-4" />
+                          Connect channel
+                        </Button>
+                      </>
+                    )}
+                  </>
+                ) : (
+                  <>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      disabled={isSubmitting}
+                      onClick={() => {
+                        resetCreateForm();
+                        setOpen(false);
+                      }}
+                    >
+                      Cancel
+                    </Button>
+                    <Button type="submit" disabled={isSubmitting}>
+                      {isSubmitting
+                        ? 'Saving...'
+                        : isManagedAssistantCreation
+                        ? 'Connect erxes Ai Assistant'
+                        : config.buttonLabel}
+                    </Button>
+                  </>
+                )}
               </Sheet.Footer>
             </form>
           </Form>

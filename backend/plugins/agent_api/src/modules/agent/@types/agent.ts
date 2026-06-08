@@ -13,6 +13,13 @@ export interface IAgentServer {
   transferredAt?: Date;
 
   status: string;
+  provisioning?: {
+    stage?: string;
+    message?: string;
+    startedAt?: Date;
+    updatedAt?: Date;
+    error?: string;
+  };
 }
 
 export interface IAgentServerDocument extends IAgentServer, Document {

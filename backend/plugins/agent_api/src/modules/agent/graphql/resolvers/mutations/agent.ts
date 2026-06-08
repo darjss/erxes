@@ -5,6 +5,7 @@ import { ensureLegacyIdentifierLinks } from '~/modules/assistantOrg/utils';
 import {
   addAgent,
   addDiscordGuild,
+  deployManagedServer,
   approveServer,
   deployServer,
   destroyServer,
@@ -13,7 +14,167 @@ import {
   setKimiApiKey,
   updateAgentFile,
   updateDiscordSettings,
+  verifyManagedRuntime,
 } from '~/modules/agent/utils';
+import {
+  createOrUpdateDiscordBinding,
+  deleteDiscordBinding,
+  getDiscordBinding,
+  getDiscordInstallation,
+  updateDiscordBinding,
+} from '~/modules/agent/discordGatewayClient';
+
+const getRuntimeUrl = (server: { url?: string; name?: string }) => {
+  const configuredUrl = server.url?.trim();
+
+  if (configuredUrl) {
+    return configuredUrl;
+  }
+
+  throw new Error(
+    'Assistant runtime URL is not configured. Wait until runtime provisioning finishes before connecting Discord.',
+  );
+};
+
+const managedDeploymentsInProgress = new Set<string>();
+
+const PROVISIONING_MESSAGES: Record<string, string> = {
+  preparing: 'We are preparing your managed OpenClaw runtime.',
+  server_lookup: 'A secure runtime server is being created or reused.',
+  approved: 'Your assistant runtime is ready.',
+  failed:
+    'The runtime could not be prepared. You can retry provisioning. If this keeps happening, check the deployer logs.',
+};
+
+const sanitizeProvisioningError = (message: string) =>
+  message
+    .replace(/sk-[A-Za-z0-9_-]+/g, '[redacted]')
+    .replace(/[A-Fa-f0-9]{32,}/g, '[redacted]')
+    .slice(0, 500);
+
+const provisioningUpdate = (stage: string, error?: string) => {
+  const now = new Date();
+
+  return {
+    stage,
+    message: PROVISIONING_MESSAGES[stage] || PROVISIONING_MESSAGES.preparing,
+    updatedAt: now,
+    ...(error ? { error: sanitizeProvisioningError(error) } : { error: '' }),
+  };
+};
+
+const provisioningSet = (stage: string, error?: string) => {
+  const progress = provisioningUpdate(stage, error);
+
+  return {
+    'provisioning.stage': progress.stage,
+    'provisioning.message': progress.message,
+    'provisioning.updatedAt': progress.updatedAt,
+    'provisioning.error': progress.error,
+  };
+};
+
+const runManagedDeployment = async ({
+  models,
+  subdomain,
+  identifier,
+  serverMongoId,
+  input,
+}: {
+  models: IContext['models'];
+  subdomain: string;
+  identifier: {
+    _id: string;
+    name?: string;
+    slug: string;
+    description?: string;
+  };
+  serverMongoId: string;
+  input: {
+    kimiApiKey: string;
+    provider?: string;
+    description?: string;
+    systemPrompt?: string;
+  };
+}) => {
+  const identifierId = String(identifier._id);
+
+  if (managedDeploymentsInProgress.has(identifierId)) {
+    throw new Error('Managed assistant deployment is already running');
+  }
+
+  managedDeploymentsInProgress.add(identifierId);
+
+  const description = input.description?.trim() || identifier.description || '';
+  const systemPrompt = input.systemPrompt?.trim() || description || undefined;
+
+  try {
+    await models.AgentServer.findOneAndUpdate(
+      { _id: serverMongoId },
+      {
+        $set: {
+          status: SERVER_STATUSES.PENDING,
+          ...provisioningSet('server_lookup'),
+          updatedAt: new Date(),
+        },
+      },
+    );
+
+    const server = await deployManagedServer({
+      orgId: subdomain,
+      assistantId: identifier.slug,
+      serverName: identifier.slug,
+      provider: input.provider?.trim() || 'kimi',
+      kimiApiKey: input.kimiApiKey.trim(),
+      description,
+      systemPrompt,
+    });
+
+    const updated = await models.AgentServer.findOneAndUpdate(
+      { _id: serverMongoId },
+      {
+        $set: {
+          agentId: identifier.slug,
+          name: server.serverName,
+          url: server.url,
+          token: server.gatewayToken,
+          serverId: String(server.serverId),
+          status: SERVER_STATUSES.APPROVED,
+          ...provisioningSet('approved'),
+          updatedAt: new Date(),
+        },
+      },
+      { new: true },
+    );
+
+    if (!updated) {
+      throw new Error('Agent server record disappeared during deployment');
+    }
+
+    return updated;
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    console.error('Managed assistant deployment failed:', {
+      identifierId,
+      message,
+    });
+
+    await models.AgentServer.findOneAndUpdate(
+      { _id: serverMongoId },
+      {
+        $set: {
+          status: SERVER_STATUSES.FAILED,
+          ...provisioningSet('failed', message),
+          updatedAt: new Date(),
+        },
+      },
+    );
+
+    throw new Error(message);
+  } finally {
+    managedDeploymentsInProgress.delete(identifierId);
+  }
+};
 
 export const agentMutations = {
   deployAgent: async (
@@ -52,7 +213,9 @@ export const agentMutations = {
       );
     }
 
-    const agentServer = await models.AgentServer.findOne({ identifierId }).lean();
+    const agentServer = await models.AgentServer.findOne({
+      identifierId,
+    }).lean();
 
     if (agentServer) {
       return { ...agentServer, identifierId: agentServer.identifierId };
@@ -87,6 +250,120 @@ export const agentMutations = {
     }
   },
 
+  deployManagedAgent: async (
+    _root: undefined,
+    {
+      identifierId,
+      input,
+    }: {
+      identifierId: string;
+      input: {
+        kimiApiKey: string;
+        provider?: string;
+        description?: string;
+        systemPrompt?: string;
+      };
+    },
+    { models, subdomain, user }: IContext,
+  ) => {
+    const { kimiApiKey } = input || {};
+
+    if (!kimiApiKey?.trim()) {
+      throw new Error('kimiApiKey is required');
+    }
+
+    if (input.provider?.trim() && input.provider.trim() !== 'kimi') {
+      throw new Error('Only the Kimi provider is supported for AI Assistants');
+    }
+
+    await ensureLegacyIdentifierLinks(models);
+    const identifier = await assertIdentifierManageAccess(
+      models,
+      identifierId,
+      user,
+    );
+
+    if (identifier.kind && identifier.kind !== 'assistant') {
+      throw new Error(
+        'This identifier belongs to AI Agents and cannot deploy OpenClaw.',
+      );
+    }
+
+    const agentServer = await models.AgentServer.findOne({
+      identifierId,
+    });
+
+    if (agentServer) {
+      if (
+        agentServer.status === SERVER_STATUSES.PENDING ||
+        agentServer.status === SERVER_STATUSES.FAILED
+      ) {
+        const pendingServer = await models.AgentServer.findOneAndUpdate(
+          { _id: agentServer._id },
+          {
+            $set: {
+              agentId: identifier.slug,
+              status: SERVER_STATUSES.PENDING,
+              provisioning: {
+                ...provisioningUpdate('preparing'),
+                startedAt: new Date(),
+              },
+              updatedAt: new Date(),
+            },
+          },
+          { new: true },
+        );
+
+        if (!pendingServer) {
+          throw new Error('Agent server not found');
+        }
+
+        const approvedServer = await runManagedDeployment({
+          models,
+          subdomain,
+          identifier,
+          serverMongoId: String(pendingServer._id),
+          input,
+        });
+
+        return {
+          ...approvedServer.toObject(),
+          identifierId: approvedServer.identifierId,
+        };
+      }
+
+      return { ...agentServer.toObject(), identifierId: agentServer.identifierId };
+    }
+
+    const serverName = identifier.slug;
+
+    const createdServer = await models.AgentServer.create({
+      identifierId,
+      agentId: identifier.slug,
+      name: serverName,
+      url: '',
+      token: '',
+      serverId: '',
+      status: SERVER_STATUSES.PENDING,
+      provisioning: {
+        ...provisioningUpdate('preparing'),
+        startedAt: new Date(),
+      },
+    });
+
+    const approvedServer = await runManagedDeployment({
+      models,
+      subdomain,
+      identifier,
+      serverMongoId: String(createdServer._id),
+      input,
+    });
+
+    return {
+      ...approvedServer.toObject(),
+      identifierId: approvedServer.identifierId,
+    };
+  },
 
   transferAgent: async (
     _root: undefined,
@@ -143,8 +420,7 @@ export const agentMutations = {
       agentId: input?.agentId?.trim() || identifier.slug,
       name: serverName,
       url:
-        input?.serverUrl?.trim() ||
-        `https://${serverName}.assistant.erxes.io`,
+        input?.serverUrl?.trim() || `https://${serverName}.assistant.erxes.io`,
       token: gatewayToken,
       serverId: input?.serverId?.trim() || '',
       status: SERVER_STATUSES.APPROVED,
@@ -190,10 +466,7 @@ export const agentMutations = {
 
   approveAgent: async (
     _root: undefined,
-    {
-      identifierId,
-      input,
-    }: { identifierId: string; input: { code: string } },
+    { identifierId, input }: { identifierId: string; input: { code: string } },
     { models, user }: IContext,
   ) => {
     await ensureLegacyIdentifierLinks(models);
@@ -393,6 +666,136 @@ export const agentMutations = {
       const message = error instanceof Error ? error.message : String(error);
       throw new Error(message);
     }
+  },
+
+  agentDiscordCreateBinding: async (
+    _root: undefined,
+    {
+      assistantId,
+      installationId,
+      discordChannelId,
+    }: {
+      assistantId: string;
+      installationId: string;
+      discordChannelId: string;
+    },
+    { models, subdomain, user }: IContext,
+  ) => {
+    const identifier = await assertIdentifierManageAccess(
+      models,
+      assistantId,
+      user,
+    );
+
+    if (identifier.kind && identifier.kind !== 'assistant') {
+      throw new Error('This identifier is not an AI Assistant');
+    }
+
+    const server = await models.AgentServer.findOne({
+      identifierId: assistantId,
+    }).lean();
+
+    if (!server) {
+      throw new Error('Assistant server not found');
+    }
+
+    if (server.status !== SERVER_STATUSES.APPROVED) {
+      throw new Error(
+        'Assistant runtime is not ready. Wait until provisioning finishes before connecting Discord.',
+      );
+    }
+
+    await verifyManagedRuntime(getRuntimeUrl(server));
+
+    const { installation } = await getDiscordInstallation(installationId);
+
+    if (installation.tenantId !== subdomain) {
+      throw new Error('Discord installation does not belong to this tenant');
+    }
+
+    const { binding } = await createOrUpdateDiscordBinding({
+      installationId,
+      tenantId: subdomain,
+      assistantId,
+      assistantName: identifier.name,
+      discordGuildId: installation.discordGuildId,
+      discordChannelId,
+      openclawUrl: getRuntimeUrl(server),
+    });
+
+    return binding;
+  },
+
+  agentDiscordDeleteBinding: async (
+    _root: undefined,
+    { assistantId, bindingId }: { assistantId: string; bindingId: string },
+    { models, subdomain, user }: IContext,
+  ) => {
+    const identifier = await assertIdentifierManageAccess(
+      models,
+      assistantId,
+      user,
+    );
+
+    if (identifier.kind && identifier.kind !== 'assistant') {
+      throw new Error('This identifier is not an AI Assistant');
+    }
+
+    const { binding } = await getDiscordBinding(bindingId);
+
+    if (binding.tenantId !== subdomain || binding.assistantId !== assistantId) {
+      throw new Error('Discord binding does not belong to this assistant');
+    }
+
+    return deleteDiscordBinding(bindingId);
+  },
+
+  agentDiscordUpdateBinding: async (
+    _root: undefined,
+    {
+      assistantId,
+      bindingId,
+      input,
+    }: {
+      assistantId: string;
+      bindingId: string;
+      input: {
+        responseMode?: 'slash_only' | 'all_messages';
+        enabled?: boolean;
+      };
+    },
+    { models, subdomain, user }: IContext,
+  ) => {
+    const identifier = await assertIdentifierManageAccess(
+      models,
+      assistantId,
+      user,
+    );
+
+    if (identifier.kind && identifier.kind !== 'assistant') {
+      throw new Error('This identifier is not an AI Assistant');
+    }
+
+    const { binding } = await getDiscordBinding(bindingId);
+
+    if (binding.tenantId !== subdomain || binding.assistantId !== assistantId) {
+      throw new Error('Discord binding does not belong to this assistant');
+    }
+
+    const responseMode = input?.responseMode;
+
+    if (
+      responseMode &&
+      responseMode !== 'slash_only' &&
+      responseMode !== 'all_messages'
+    ) {
+      throw new Error('Unsupported Discord response mode');
+    }
+
+    return updateDiscordBinding(bindingId, {
+      responseMode,
+      enabled: input?.enabled,
+    });
   },
 
   setKimiApiKey: async (
