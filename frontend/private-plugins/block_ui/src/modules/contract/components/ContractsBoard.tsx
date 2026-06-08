@@ -21,7 +21,7 @@ import { useContracts } from '../hooks/useContracts';
 import { useUpdateContractStatus } from '../hooks/useManageContract';
 import { IBlockContractStatus } from '@/contract-status/types';
 
-const TYPE_ORDER = ['reserved', 'draft', 'signed', 'lost', 'cancelled'];
+const TYPE_ORDER = ['reserved', 'draft', 'lost', 'cancelled', 'signed'];
 
 const sortStatuses = (statuses: IBlockContractStatus[]) =>
   [...statuses].sort((a, b) => {

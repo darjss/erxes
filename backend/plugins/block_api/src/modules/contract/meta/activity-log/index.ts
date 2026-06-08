@@ -7,7 +7,6 @@ import {
 const CONTRACT_ACTIVITY_FIELDS = [
   { field: 'status', label: 'Status' },
   { field: 'amount', label: 'Amount' },
-  { field: 'amountType', label: 'Amount Type' },
   { field: 'currency', label: 'Currency' },
   { field: 'date', label: 'Contract Date' },
   { field: 'startDate', label: 'Start Date' },

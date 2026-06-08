@@ -9,11 +9,6 @@ export enum ContractPartyType {
   COMPANY = 'company',
 }
 
-export enum ContractAmountType {
-  PER_SIZE = 'perSize',
-  PER_UNIT = 'perUnit',
-}
-
 export interface IContractParty {
   type: ContractPartyType;
   id: string;
@@ -44,7 +39,6 @@ export interface IContract {
   unit: string;
   date: Date;
   amount: number;
-  amountType: ContractAmountType;
   currency: string;
   status: string;
   startDate: Date;

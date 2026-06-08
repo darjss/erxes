@@ -47,6 +47,7 @@ export const contractsColumns = (
 
         return (
           <RecordTableInlineCell.Anchor
+            className="cursor-pointer ml-2"
             onClick={() => setActiveContract(cell.row.original._id)}
           >
             #{number || cell.row.original._id}

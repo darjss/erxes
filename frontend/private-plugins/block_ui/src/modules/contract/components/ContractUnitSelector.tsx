@@ -103,7 +103,6 @@ export const ContractUnitSelector = ({
                 const selected = units.find((u) => u._id === unitId);
                 if (selected?.unitType?.price != null) {
                   setValue('amount', Number(selected.unitType.price));
-                  setValue('amountType', 'perUnit');
                 }
               }}
               disabled={!zoningId}

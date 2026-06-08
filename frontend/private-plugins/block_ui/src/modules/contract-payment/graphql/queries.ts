@@ -4,6 +4,9 @@ export const GET_PROJECT_PAYMENTS = gql`
   query BlockGetProjectPayments(
     $projectId: String!
     $paid: Boolean
+    $contractNumber: String
+    $customerId: String
+    $unitNumber: String
     $limit: Int
     $cursor: String
     $direction: String
@@ -11,6 +14,9 @@ export const GET_PROJECT_PAYMENTS = gql`
     blockGetProjectPayments(
       projectId: $projectId
       paid: $paid
+      contractNumber: $contractNumber
+      customerId: $customerId
+      unitNumber: $unitNumber
       limit: $limit
       cursor: $cursor
       direction: $direction

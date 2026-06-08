@@ -49,6 +49,9 @@ export const queries = `
   blockGetProjectPayments(
     projectId: String!,
     paid: Boolean,
+    contractNumber: String,
+    customerId: String,
+    unitNumber: String,
     limit: Int,
     cursor: String,
     direction: String,

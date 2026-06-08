@@ -5,6 +5,7 @@ import {
   PageContainer,
   PageSubHeader,
   useQueryState,
+  useMultiQueryState,
 } from 'erxes-ui';
 import { Link, useParams } from 'react-router-dom';
 import { PageHeader } from 'ui-modules';
@@ -66,6 +67,11 @@ const summarize = (payments: IContractPayment[]) => {
 export const PaymentsPage = () => {
   const { projectId } = useParams();
   const [filter] = useQueryState<PaymentFilterValue>('payment_filter');
+  const [queries] = useMultiQueryState<{
+    payment_contractNumber: string;
+    payment_customerId: string;
+    payment_unitNumber: string;
+  }>(['payment_contractNumber', 'payment_customerId', 'payment_unitNumber']);
 
   const paidArg =
     filter === 'paid'
@@ -74,7 +80,13 @@ export const PaymentsPage = () => {
       ? false
       : undefined;
   const { payments, loading, pageInfo, handleFetchMore, totalCount } =
-    useProjectPayments(projectId, paidArg);
+    useProjectPayments(
+      projectId,
+      paidArg,
+      queries?.payment_contractNumber || undefined,
+      queries?.payment_customerId || undefined,
+      queries?.payment_unitNumber || undefined,
+    );
 
   if (!projectId) return null;
 

@@ -42,11 +42,6 @@ export const types = `
     paymentDueDates: [String]
   }
 
-  enum BlockContractAmountType {
-    perSize
-    perUnit
-  }
-
   type BlockContract {
     _id: String
     unit: String!
@@ -54,7 +49,6 @@ export const types = `
     currency: String
     date: String
     amount: Float
-    amountType: BlockContractAmountType
     status: String
     startDate: String
     endDate: String
@@ -81,7 +75,6 @@ export const types = `
     currency: String
     date: String
     amount: Float
-    amountType: BlockContractAmountType
     status: String
     startDate: String
     endDate: String

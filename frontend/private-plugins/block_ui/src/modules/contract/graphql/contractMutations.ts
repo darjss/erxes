@@ -9,7 +9,6 @@ export const CREATE_CONTRACT = gql`
       currency
       date
       amount
-      amountType
       status
       startDate
       endDate
@@ -56,7 +55,6 @@ export const UPDATE_CONTRACT = gql`
       currency
       date
       amount
-      amountType
       status
       startDate
       endDate

@@ -55,6 +55,7 @@ export const opptysColumns = (
 
         return (
           <RecordTableInlineCell.Anchor
+            className="cursor-pointer ml-2"
             onClick={() => setActiveOpptyId(cell.row.original._id)}
           >
             #{number || cell.row.original._id}

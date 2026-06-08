@@ -9,7 +9,6 @@ export const GET_CONTRACTS = gql`
       currency
       date
       amount
-      amountType
       status
       startDate
       endDate
@@ -58,8 +57,7 @@ export const GET_CONTRACTS_LIST = gql`
         currency
         date
         amount
-        amountType
-        status
+          status
         startDate
         endDate
         isLifeTime
@@ -92,7 +90,6 @@ export const GET_CONTRACT = gql`
       currency
       date
       amount
-      amountType
       status
       startDate
       endDate

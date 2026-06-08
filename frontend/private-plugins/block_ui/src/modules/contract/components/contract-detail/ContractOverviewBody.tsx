@@ -14,7 +14,6 @@ import {
   formatDate,
   renderRow,
 } from './shared';
-import { CONTRACT_AMOUNT_TYPE_OPTIONS } from '@/contract/constants/contract';
 
 export const ContractOverviewBody = ({
   contract,
@@ -100,12 +99,6 @@ export const ContractOverviewBody = ({
               {renderRow(
                 'Amount',
                 formatAmount(contract.amount, contract.currency),
-              )}
-              {renderRow(
-                'Amount Type',
-                CONTRACT_AMOUNT_TYPE_OPTIONS.find(
-                  (o) => o.value === contract.amountType,
-                )?.label || contract.amountType,
               )}
               {renderRow('Currency', contract.currency)}
               {renderRow('Contract Date', formatDate(contract.date))}

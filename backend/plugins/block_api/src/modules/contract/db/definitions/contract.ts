@@ -1,8 +1,5 @@
 import { Schema } from 'mongoose';
-import {
-  ContractPartyType,
-  ContractAmountType,
-} from '@/contract/@types/contract';
+import { ContractPartyType } from '@/contract/@types/contract';
 
 import {
   BlockProjectPaymentPlanFrequency,
@@ -54,7 +51,6 @@ export const contractSchema = new Schema(
     unit: { type: Schema.Types.ObjectId, ref: 'block_units', required: true },
     date: { type: Date, required: true },
     amount: { type: Number, required: true },
-    amountType: { type: String, enum: Object.values(ContractAmountType) },
     status: {
       type: Schema.Types.ObjectId,
       ref: 'block_contract_statuses',

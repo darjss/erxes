@@ -61,12 +61,18 @@ export const contractPaymentQueries = {
     {
       projectId,
       paid,
+      contractNumber,
+      customerId,
+      unitNumber,
       limit,
       cursor,
       direction,
     }: {
       projectId: string;
       paid?: boolean;
+      contractNumber?: string;
+      customerId?: string;
+      unitNumber?: string;
       limit?: number;
       cursor?: string;
       direction?: 'forward' | 'backward';
@@ -76,6 +82,20 @@ export const contractPaymentQueries = {
     const match: Record<string, any> = { projectId: new Types.ObjectId(projectId) };
     if (typeof paid === 'boolean') {
       match.status = paid ? 'paid' : { $in: ['unpaid', 'partial'] };
+    }
+    if (contractNumber) {
+      match.contractNumber = { $regex: contractNumber, $options: 'i' };
+    }
+    if (customerId) {
+      match.partyId = customerId;
+      match.partyType = 'customer';
+    }
+    if (unitNumber) {
+      const matchedUnits = await models.Unit.find(
+        { number: { $regex: unitNumber, $options: 'i' } },
+        { _id: 1 },
+      ).lean();
+      match.unit = { $in: matchedUnits.map((u: any) => u._id) };
     }
 
     return cursorPaginateAggregation<IContractPaymentDocument>({

@@ -34,10 +34,16 @@ type ProjectPaymentsResponse = {
   };
 };
 
-export const useProjectPayments = (projectId?: string, paid?: boolean) => {
+export const useProjectPayments = (
+  projectId?: string,
+  paid?: boolean,
+  contractNumber?: string,
+  customerId?: string,
+  unitNumber?: string,
+) => {
   const { data, loading, refetch, fetchMore } =
     useQuery<ProjectPaymentsResponse>(GET_PROJECT_PAYMENTS, {
-      variables: { projectId, paid, limit: PAYMENTS_PER_PAGE },
+      variables: { projectId, paid, contractNumber, customerId, unitNumber, limit: PAYMENTS_PER_PAGE },
       skip: !projectId,
       notifyOnNetworkStatusChange: true,
     });

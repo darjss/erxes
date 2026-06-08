@@ -22,10 +22,7 @@ import {
   ContractFormData,
   contractSchema,
 } from '@/contract/constants/contractSchema';
-import {
-  CONTRACT_AMOUNT_TYPE_OPTIONS,
-  CONTRACT_PARTY_TYPE_OPTIONS,
-} from '@/contract/constants/contract';
+import { CONTRACT_PARTY_TYPE_OPTIONS } from '@/contract/constants/contract';
 import { PaymentPlanForm } from '@/pricing/components/PaymentPlanForm';
 import { PaymentScheduleEditor } from './PaymentScheduleEditor';
 import { ContractUnit } from './ContractUnit';
@@ -33,6 +30,7 @@ import { ContractUnitSelector } from './ContractUnitSelector';
 import { useBlockContractStatusesByType } from '@/contract-status/hooks/useGetBlockContractStatuses';
 import { IUnit } from '@/unit/types/unitType';
 import { useState } from 'react';
+import { useUnit } from '@/unit/hooks/useUnit';
 
 const TYPE_ORDER = ['reserved', 'draft', 'signed', 'lost', 'cancelled'];
 
@@ -90,13 +88,19 @@ export const ContractFormSheet = ({
       status: '',
       party: { type: 'customer', id: '' },
       currency: CurrencyCode.MNT,
-      amountType: 'perUnit',
       ...defaultValues,
     },
   });
 
   const partyType = form.watch('party.type');
   const isLifeTime = form.watch('isLifeTime');
+  const watchedUnitId = form.watch('unit');
+  const { unit: fetchedUnit } = useUnit(!unit ? watchedUnitId : null);
+  const activeUnit = unit || fetchedUnit;
+  const unitSize = activeUnit?.unitType?.size || 0;
+
+  const [useRateMode, setUseRateMode] = useState(false);
+  const [ratePerSize, setRatePerSize] = useState<number>(0);
 
   const onValidationError = (errors: any) => {
     const messages: string[] = [];
@@ -454,50 +458,64 @@ export const ContractFormSheet = ({
                     control={form.control}
                     render={({ field }) => (
                       <Form.Item>
-                        <Form.Label>Amount</Form.Label>
-                        <CurrencyField.ValueInput
-                          value={field.value}
-                          onChange={(value) => field.onChange(value)}
-                        />
+                        <Form.Label>
+                          {useRateMode ? 'Rate per m²' : 'Total Amount'}
+                        </Form.Label>
+                        {useRateMode ? (
+                          <CurrencyField.ValueInput
+                            value={ratePerSize}
+                            onChange={(v) => {
+                              const rate = v || 0;
+                              setRatePerSize(rate);
+                              field.onChange(unitSize > 0 ? rate * unitSize : rate);
+                            }}
+                          />
+                        ) : (
+                          <CurrencyField.ValueInput
+                            value={field.value}
+                            onChange={field.onChange}
+                          />
+                        )}
+                        {useRateMode && unitSize > 0 && (
+                          <p className="text-xs text-muted-foreground">
+                            Total: {(ratePerSize * unitSize).toLocaleString()} ({unitSize} m²)
+                          </p>
+                        )}
+                        {useRateMode && !unitSize && (
+                          <p className="text-xs text-destructive">
+                            Select a unit with a size first
+                          </p>
+                        )}
                         <Form.Message />
                       </Form.Item>
                     )}
                   />
 
-                  <Form.Field
-                    name="amountType"
-                    control={form.control}
-                    render={({ field }) => (
-                      <Form.Item>
-                        <Form.Label>Amount Type</Form.Label>
-                        <Select
-                          onValueChange={field.onChange}
-                          value={field.value || ''}
+                  <Form.Item>
+                    <Form.Label>Entry Mode</Form.Label>
+                    <div className="flex gap-1 h-8">
+                      {[
+                        { label: 'Total', value: false },
+                        { label: 'Per m²', value: true },
+                      ].map((opt) => (
+                        <button
+                          key={String(opt.value)}
+                          type="button"
+                          onClick={() => {
+                            setUseRateMode(opt.value);
+                            if (!opt.value) setRatePerSize(0);
+                          }}
+                          className={`flex-1 rounded-md text-xs font-medium border transition-colors ${
+                            useRateMode === opt.value
+                              ? 'bg-primary text-primary-foreground border-primary'
+                              : 'bg-background text-muted-foreground border-input hover:border-ring hover:text-foreground'
+                          }`}
                         >
-                          <Form.Control>
-                            <Select.Trigger className="h-8">
-                              <Select.Value placeholder="Select amount type">
-                                {CONTRACT_AMOUNT_TYPE_OPTIONS.find(
-                                  (o) => o.value === field.value,
-                                )?.label || 'Select amount type'}
-                              </Select.Value>
-                            </Select.Trigger>
-                          </Form.Control>
-                          <Select.Content>
-                            {CONTRACT_AMOUNT_TYPE_OPTIONS.map((option) => (
-                              <Select.Item
-                                key={option.value}
-                                value={option.value}
-                              >
-                                {option.label}
-                              </Select.Item>
-                            ))}
-                          </Select.Content>
-                        </Select>
-                        <Form.Message />
-                      </Form.Item>
-                    )}
-                  />
+                          {opt.label}
+                        </button>
+                      ))}
+                    </div>
+                  </Form.Item>
                 </div>
               </div>
 

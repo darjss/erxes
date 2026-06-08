@@ -59,9 +59,13 @@ const OpptyGridCard = ({ oppty }: { oppty: IOppty }) => {
       className="border rounded-lg bg-background hover:border-primary/40 transition cursor-pointer flex flex-col"
     >
       <div className="flex items-center justify-between px-4 pt-3">
-        <span className="text-xs font-mono uppercase text-muted-foreground">
+        <Badge
+          variant="secondary"
+          className="ml-2 cursor-pointer font-medium"
+          onClick={(e) => { e.stopPropagation(); setActiveOpptyId(oppty._id); }}
+        >
           #{oppty.number || oppty._id.slice(-6)}
-        </span>
+        </Badge>
         {oppty.customerSource && (
           <Badge variant="secondary" className="capitalize">
             {oppty.customerSource.replace(/_/g, ' ').toLowerCase()}

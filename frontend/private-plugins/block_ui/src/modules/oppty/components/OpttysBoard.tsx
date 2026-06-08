@@ -19,18 +19,29 @@ import { clsx } from 'clsx';
 import { useInView } from 'react-intersection-observer';
 import { useUpdateOppty } from '@/oppty/hooks/useUpdateOppty';
 import { useBlockStatusesByType } from '@/status/hooks/useGetBlockStatuses';
+import { IBlockStatus } from '@/status/types';
 
 import { allOpptysMapState } from '@/oppty/states/allOpptysMapState';
 
 const fetchedOpptysState = atom<BoardItemProps[]>([]);
 const opptyCountByProjectAtom = atom<Record<string, number>>({});
 
+const TYPE_ORDER = ['lead', 'qualified', 'site_visit', 'negotiation', 'closed_lost', 'closed_won'];
+
+const sortStatuses = (statuses: IBlockStatus[]) =>
+  [...statuses].sort((a, b) => {
+    const ti = TYPE_ORDER.indexOf(a.type);
+    const tj = TYPE_ORDER.indexOf(b.type);
+    if (ti !== tj) return ti - tj;
+    return (a.order || 0) - (b.order || 0);
+  });
+
 export const OpptysBoard = ({ projectId }: { projectId: string }) => {
   const { statuses, loading: columnsLoading } = useBlockStatusesByType({
     projectId,
   });
 
-  const columns = (statuses || []).map((status) => ({
+  const columns = sortStatuses(statuses || []).map((status) => ({
     id: status._id,
     name: status.name,
     color: status.color,

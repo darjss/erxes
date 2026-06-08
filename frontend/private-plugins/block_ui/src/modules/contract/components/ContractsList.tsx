@@ -80,9 +80,13 @@ export const ContractItem = ({
   return (
     <div className="flex gap-2">
       <div className="grid grid-cols-5 gap-2 items-center flex-auto">
-        <div className="font-medium flex items-center gap-1 text-xs">
+        <Badge
+          variant="secondary"
+          className="ml-2 cursor-pointer truncate font-medium"
+          onClick={() => onSelect?.({ _id, number, party, amount, currency, status, date, endDate } as IContract)}
+        >
           #{number || _id}
-        </div>
+        </Badge>
         <div className="truncate">
           <DisplayParty party={party} />
         </div>

@@ -1,6 +1,8 @@
-import { cursorPaginate } from 'erxes-api-shared/utils';
+import { cursorPaginateAggregation } from 'erxes-api-shared/utils';
 import { IContractDocument } from '@/contract/@types/contract';
 import { IContext } from '~/connectionResolvers';
+
+const STATUS_TYPE_ORDER = ['reserved', 'draft', 'lost', 'cancelled', 'signed'];
 
 interface IContractFilter {
   projectId?: string;
@@ -95,15 +97,42 @@ export const contractQueries = {
       }
     }
 
-    return cursorPaginate<IContractDocument>({
+    const pipeline = [
+      { $match: query },
+      {
+        $lookup: {
+          from: 'block_contract_statuses',
+          localField: 'status',
+          foreignField: '_id',
+          as: '_statusDoc',
+        },
+      },
+      {
+        $addFields: {
+          _statusType: { $arrayElemAt: ['$_statusDoc.type', 0] },
+          _statusOrder: { $arrayElemAt: ['$_statusDoc.order', 0] },
+          _statusPriority: {
+            $switch: {
+              branches: STATUS_TYPE_ORDER.map((type, i) => ({
+                case: { $eq: [{ $arrayElemAt: ['$_statusDoc.type', 0] }, type] },
+                then: i,
+              })),
+              default: STATUS_TYPE_ORDER.length,
+            },
+          },
+        },
+      },
+    ];
+
+    return cursorPaginateAggregation<IContractDocument>({
       model: models.Contract as any,
+      pipeline,
       params: {
         limit: limit ?? 30,
         cursor,
         direction: direction ?? 'forward',
-        orderBy: { createdAt: 'desc' },
+        orderBy: { _statusPriority: 1, _statusOrder: 1, createdAt: -1 } as any,
       },
-      query,
     });
   },
 };
