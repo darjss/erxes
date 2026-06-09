@@ -10,6 +10,7 @@ import { AgentPendingForm } from './AgentPendingForm';
 import { AgentDeploySuccess } from './AgentDeploySuccess';
 import { useManagedAgentDeploy } from '../hooks/useManagedAgentDeploy';
 import { ManagedProvisioningProgress } from './ManagedProvisioningProgress';
+import { isManagedAssistantAgent } from '../utils/isManagedAssistantAgent';
 
 const AgentManagedRetry = () => {
   const { agent, refetch } = useAgent();
@@ -155,7 +156,7 @@ export const AgentDeployScreen = () => {
     agent?.status === SERVER_STATUSES.DEPLOYING ||
     agent?.status === SERVER_STATUSES.PENDING
   ) {
-    if (agent?.name?.startsWith('assistant-managed-')) {
+    if (isManagedAssistantAgent(agent)) {
       return (
         <ManagedProvisioningProgress
           status={agent.status}

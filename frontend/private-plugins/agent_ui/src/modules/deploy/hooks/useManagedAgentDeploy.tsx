@@ -3,15 +3,30 @@ import { useParams } from 'react-router';
 import { GET_AGENT } from '../../main/graphql/queries';
 import { DEPLOY_MANAGED_AGENT } from '../graphql/mutations';
 
+interface ManagedAgentDeployResult {
+  deployManagedAgent?: {
+    status?: string;
+    url?: string | null;
+  } | null;
+}
+
 export const useManagedAgentDeploy = (identifierId?: string) => {
   const params = useParams();
   const routeIdentifierId = params.id;
   const currentIdentifierId = identifierId || routeIdentifierId;
-  const [deploy, { loading }] = useMutation(DEPLOY_MANAGED_AGENT, {
-    refetchQueries: currentIdentifierId
-      ? [{ query: GET_AGENT, variables: { identifierId: currentIdentifierId } }]
-      : [],
-  });
+  const [deploy, { loading }] = useMutation<ManagedAgentDeployResult>(
+    DEPLOY_MANAGED_AGENT,
+    {
+      refetchQueries: currentIdentifierId
+        ? [
+            {
+              query: GET_AGENT,
+              variables: { identifierId: currentIdentifierId },
+            },
+          ]
+        : [],
+    },
+  );
 
   const deployManagedAgent = async (
     input: {
@@ -29,7 +44,7 @@ export const useManagedAgentDeploy = (identifierId?: string) => {
       throw new Error('identifierId is required');
     }
 
-    await deploy({
+    const { data } = await deploy({
       ...(options || {}),
       variables: {
         identifierId: nextIdentifierId,
@@ -41,6 +56,8 @@ export const useManagedAgentDeploy = (identifierId?: string) => {
         },
       },
     });
+
+    return data?.deployManagedAgent ?? null;
   };
 
   return {
