@@ -23,7 +23,7 @@ import {
   Textarea,
   useToast,
 } from 'erxes-ui';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { MembersInline, PageHeader } from 'ui-modules';
@@ -40,6 +40,7 @@ import { ManagedProvisioningProgress } from '~/modules/deploy/components/Managed
 import { useAgentDeploy } from '~/modules/deploy/hooks/useAgentDeploy';
 import { useManagedAgentDeploy } from '~/modules/deploy/hooks/useManagedAgentDeploy';
 import { useAgentTransfer } from '~/modules/deploy/hooks/useAgentTransfer';
+import { isManagedAssistantAgent } from '~/modules/deploy/utils/isManagedAssistantAgent';
 import { useAgent } from '~/modules/main/hooks/useAgent';
 import { OPENCODE_PROVIDER_OPTIONS } from '~/modules/opencode/constants';
 import { useOpencodeDeploy } from '~/modules/opencode/deploy/hooks/useOpencodeDeploy';
@@ -757,7 +758,7 @@ const AssistantDiscordManageSheet = ({
 
 const AssistantWorkspaceCard = ({ identifier }: { identifier: Identifier }) => {
   const { agent, loading } = useAgent(identifier._id);
-  const isManagedAssistant = agent?.name?.startsWith('assistant-managed-');
+  const isManagedAssistant = isManagedAssistantAgent(agent);
 
   return (
     <div className="group flex min-h-56 flex-col gap-4 rounded-xl border border-border bg-card p-5 transition-all hover:border-primary/30 hover:shadow-md">
@@ -1021,6 +1022,22 @@ export const CompanyBrainWorkspacePage = ({
     setSearchParams(next, { replace: true });
   };
 
+  const setManagedSetupSearchParams = useCallback(
+    (assistantId: string, step: ManagedCreationStep) => {
+      const next = new URLSearchParams(searchParams);
+
+      next.set('discordSetup', 'managed');
+      next.set('discordStep', step);
+      next.set('assistantId', assistantId);
+      next.delete('discordConnection');
+      next.delete('installationId');
+      next.delete('message');
+
+      setSearchParams(next, { replace: true });
+    },
+    [searchParams, setSearchParams],
+  );
+
   const finishManagedCreation = (assistantId: string) => {
     resetCreateForm();
     setOpen(false);
@@ -1199,6 +1216,8 @@ export const CompanyBrainWorkspacePage = ({
         searchParams.get('message') ||
           'Discord connection was cancelled or failed. Try connecting again.',
       );
+    } else if (requestedStep === 'provisioning') {
+      setManagedStep('provisioning');
     } else if (requestedStep === 'channel') {
       setManagedStep('channel');
     } else {
@@ -1223,6 +1242,52 @@ export const CompanyBrainWorkspacePage = ({
       setSearchParams(next, { replace: true });
     }
   }, [mode, searchParams, setSearchParams, toast]);
+
+  useEffect(() => {
+    if (
+      mode !== 'assistant' ||
+      !managedAssistantId ||
+      managedStep !== 'provisioning' ||
+      isManagedRuntimeReady ||
+      isManagedRuntimeFailed
+    ) {
+      return;
+    }
+
+    const timer = window.setInterval(() => {
+      void refetchManagedAgent().catch(() => undefined);
+    }, 4000);
+
+    return () => window.clearInterval(timer);
+  }, [
+    isManagedRuntimeReady,
+    isManagedRuntimeFailed,
+    managedAssistantId,
+    managedStep,
+    mode,
+    refetchManagedAgent,
+  ]);
+
+  useEffect(() => {
+    if (
+      mode !== 'assistant' ||
+      !managedAssistantId ||
+      managedStep !== 'provisioning' ||
+      !isManagedRuntimeReady
+    ) {
+      return;
+    }
+
+    setManagedError('');
+    setManagedStep('connect');
+    setManagedSetupSearchParams(managedAssistantId, 'connect');
+  }, [
+    isManagedRuntimeReady,
+    managedAssistantId,
+    managedStep,
+    mode,
+    setManagedSetupSearchParams,
+  ]);
 
   const renderManagedDiscordStep = () => {
     const selectedInstallation = managedDiscord.installations.find(
@@ -1256,6 +1321,13 @@ export const CompanyBrainWorkspacePage = ({
     if (managedStep === 'provisioning') {
       return (
         <div className="flex min-h-0 flex-1 flex-col gap-5">
+          {managedError && (
+            <Alert variant="destructive">
+              <Alert.Title>Provisioning interrupted</Alert.Title>
+              <Alert.Description>{managedError}</Alert.Description>
+            </Alert>
+          )}
+
           <ManagedProvisioningProgress
             status={managedAgent?.status || SERVER_STATUSES.PENDING}
             stage={managedAgent?.provisioning?.stage}
@@ -1270,6 +1342,24 @@ export const CompanyBrainWorkspacePage = ({
             runtimeUrl={managedAgent?.url}
             retrying={deployingManagedAssistant}
           />
+
+          {isManagedRuntimeFailed && (
+            <div className="space-y-2 rounded-lg border border-border bg-muted/20 p-3">
+              <div className="text-sm font-medium">Retry provisioning</div>
+              <p className="text-xs text-muted-foreground">
+                Reuses this assistant and the existing managed server name.
+              </p>
+              <Input
+                value={managedRetryApiToken}
+                onChange={(event) =>
+                  setManagedRetryApiToken(event.target.value)
+                }
+                placeholder="Paste your Kimi API key"
+                autoComplete="off"
+                disabled={deployingManagedAssistant}
+              />
+            </div>
+          )}
         </div>
       );
     }
@@ -1549,8 +1639,9 @@ export const CompanyBrainWorkspacePage = ({
             setManagedStep('provisioning');
             setManagedError('');
             setManagedProvisioningStartedAt(new Date().toISOString());
+            setManagedSetupSearchParams(createdIdentifier._id, 'provisioning');
 
-            await deployManagedAgent({
+            const deployedAgent = await deployManagedAgent({
               identifierId: createdIdentifier._id,
               provider: values.provider || config.providerOptions[0]?.value,
               apiToken,
@@ -1558,16 +1649,13 @@ export const CompanyBrainWorkspacePage = ({
               systemPrompt: values.description?.trim() || undefined,
             });
 
-            setManagedStep('connect');
-
-            const next = new URLSearchParams(searchParams);
-            next.set('discordSetup', 'managed');
-            next.set('discordStep', 'connect');
-            next.set('assistantId', createdIdentifier._id);
-            next.delete('discordConnection');
-            next.delete('installationId');
-            next.delete('message');
-            setSearchParams(next, { replace: true });
+            if (
+              deployedAgent?.status === SERVER_STATUSES.APPROVED &&
+              deployedAgent.url?.trim()
+            ) {
+              setManagedStep('connect');
+              setManagedSetupSearchParams(createdIdentifier._id, 'connect');
+            }
 
             return;
           }
@@ -1597,6 +1685,30 @@ export const CompanyBrainWorkspacePage = ({
       const message = error instanceof Error ? error.message : String(error);
       let cleanupMessage = '';
       let description = message;
+      const isManagedCreationAttempt =
+        mode === 'assistant' &&
+        !isTransfer &&
+        values.discordConnectionMode === 'managed' &&
+        !!createdIdentifier?._id;
+
+      if (isManagedCreationAttempt && createdIdentifier?._id) {
+        const assistantId = createdIdentifier._id;
+
+        setOpen(true);
+        setManagedAssistantId(assistantId);
+        setManagedStep('provisioning');
+        setManagedError(message);
+        setManagedSetupSearchParams(assistantId, 'provisioning');
+
+        toast({
+          variant: 'destructive',
+          title: 'Assistant provisioning interrupted',
+          description:
+            'Setup is still open for this assistant. Keep this sheet open while runtime status is checked.',
+        });
+
+        return;
+      }
 
       if (mode === 'agent' && createdIdentifier?._id) {
         try {
@@ -2107,6 +2219,41 @@ export const CompanyBrainWorkspacePage = ({
                     >
                       Open assistant
                     </Button>
+
+                    {managedStep === 'provisioning' && (
+                      <>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          disabled={isSubmitting}
+                          onClick={handleRefreshManagedRuntime}
+                        >
+                          <IconRefresh
+                            className={`size-4 ${
+                              refreshingManagedRuntime ? 'animate-spin' : ''
+                            }`}
+                          />
+                          Refresh runtime
+                        </Button>
+                        {isManagedRuntimeFailed && (
+                          <Button
+                            type="button"
+                            variant="outline"
+                            disabled={
+                              isSubmitting || !managedRetryApiToken.trim()
+                            }
+                            onClick={handleRetryManagedProvisioning}
+                          >
+                            {deployingManagedAssistant ? (
+                              <IconRefresh className="size-4 animate-spin" />
+                            ) : (
+                              <IconRefresh className="size-4" />
+                            )}
+                            Retry provisioning
+                          </Button>
+                        )}
+                      </>
+                    )}
 
                     {managedStep === 'connect' && (
                       <>
