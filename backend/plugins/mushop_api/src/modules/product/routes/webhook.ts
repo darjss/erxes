@@ -16,6 +16,14 @@ router.post('/syncProduct', async (req: Request, res: Response) => {
 
     const models = await generateModels(subdomain);
 
+    const supplier = await models.Supplier.findOne({ subdomain }).lean();
+
+    if (!supplier) {
+      console.log('Supplier not found for subdomain', subdomain);
+
+      return;
+    }
+
     if (action === 'delete') {
       const ids = entityIds?.length ? entityIds : entityId ? [entityId] : [];
 
