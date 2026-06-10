@@ -8,11 +8,13 @@ export const contractPaymentMutations = {
       amount,
       date,
       note,
+      paymentMethod,
     }: {
       paymentId: string;
       amount: number;
       date?: Date;
       note?: string;
+      paymentMethod?: string;
     },
     { models, user }: IContext,
   ) => {
@@ -20,6 +22,7 @@ export const contractPaymentMutations = {
       amount,
       date,
       note,
+      paymentMethod,
       createdBy: user?._id,
     });
   },
@@ -31,13 +34,15 @@ export const contractPaymentMutations = {
       amount,
       date,
       note,
-    }: { _id: string; amount?: number; date?: Date; note?: string },
+      paymentMethod,
+    }: { _id: string; amount?: number; date?: Date; note?: string; paymentMethod?: string },
     { models }: IContext,
   ) => {
     return models.ContractPayment.updateTransaction(_id, {
       amount,
       date,
       note,
+      paymentMethod,
     });
   },
 

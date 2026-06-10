@@ -63,7 +63,6 @@ const ContractEditBody = ({
     status: orUndef(contract.status),
     startDate: orUndef(contract.startDate),
     endDate: orUndef(contract.endDate),
-    isLifeTime: contract.isLifeTime || false,
     user: orUndef(contract.user),
     party: contract.party
       ? {
@@ -92,6 +91,8 @@ const ContractEditBody = ({
           vatIncluded: contract.paymentPlan.vatIncluded || false,
           paymentDates: orUndef(contract.paymentPlan.paymentDates),
           paymentDueDates: orUndef(contract.paymentPlan.paymentDueDates),
+          firstPaymentDate: orUndef(contract.paymentPlan.firstPaymentDate),
+          advancePaymentDate: orUndef(contract.paymentPlan.advancePaymentDate),
         }
       : undefined,
   };
@@ -117,7 +118,6 @@ const ContractEditBody = ({
         status: data.status || undefined,
         startDate: data.startDate || undefined,
         endDate: data.endDate || undefined,
-        isLifeTime: data.isLifeTime,
         party,
         paymentPlan,
         user: data.user || undefined,

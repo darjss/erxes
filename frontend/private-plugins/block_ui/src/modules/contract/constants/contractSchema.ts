@@ -10,7 +10,6 @@ export const contractSchema = z.object({
   user: z.string().optional(),
   startDate: z.string().optional(),
   endDate: z.string().optional(),
-  isLifeTime: z.boolean().optional(),
   party: z
     .object({
       type: z.enum(['customer', 'company']),
@@ -32,6 +31,8 @@ export const contractSchema = z.object({
       vatIncluded: z.boolean().optional(),
       paymentDates: z.array(z.number()).optional(),
       paymentDueDates: z.array(z.string()).optional(),
+      firstPaymentDate: z.string().optional(),
+      advancePaymentDate: z.string().optional(),
     })
     .optional(),
 });

@@ -1,5 +1,7 @@
 export type ContractPaymentStatus = 'unpaid' | 'partial' | 'paid';
 
+export type ContractPaymentStatus = 'unpaid' | 'partial' | 'paid';
+
 export interface IContractPayment {
   _id: string;
   contractId: string;
@@ -17,6 +19,8 @@ export interface IContractPayment {
   paidAmount?: number;
   paidDate?: string;
   note?: string;
+  penaltyAmount?: number;
+  overdueDays?: number;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -29,6 +33,7 @@ export interface IContractPaymentTransaction {
   date: string;
   note?: string;
   createdBy?: string;
+  paymentMethod?: string;
   createdAt?: string;
   updatedAt?: string;
 }

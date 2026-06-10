@@ -10,7 +10,7 @@ export const contractPaymentSchema = new Schema(
     contractNumber: { type: String },
     partyId: { type: String, index: true },
     partyType: { type: String },
-    projectId: { type: Schema.Types.ObjectId, index: true },
+    projectId: { type: String, index: true },
     unit: { type: Schema.Types.ObjectId, index: true },
     index: { type: Number, required: true },
     label: { type: String },
@@ -26,6 +26,8 @@ export const contractPaymentSchema = new Schema(
     paidAmount: { type: Number, default: 0 },
     paidDate: { type: Date, index: true },
     note: { type: String },
+    penaltyAmount: { type: Number, default: 0 },
+    overdueDays: { type: Number, default: 0 },
   },
   { timestamps: true },
 );

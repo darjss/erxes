@@ -1,5 +1,17 @@
 import { DatePicker, InfoCard } from 'erxes-ui';
 import { format } from 'date-fns';
+
+const periodsPerYear = (frequency: string | undefined): number => {
+  switch (frequency) {
+    case 'ONE_TIME_PER_MONTH': return 12;
+    case 'TWO_TIME_PER_MONTH': return 24;
+    case 'THREE_TIME_PER_MONTH': return 36;
+    case 'QUARTERLY': return 4;
+    case 'HALF_YEARLY': return 2;
+    case 'YEARLY': return 1;
+    default: return 12;
+  }
+};
 import { UseFormReturn } from 'react-hook-form';
 import { ContractFormData } from '@/contract/constants/contractSchema';
 import { generateInstallmentDates } from './contract-detail/shared';
@@ -26,6 +38,7 @@ export const PaymentScheduleEditor = ({
   if (!paymentPlan) return null;
 
   const downPct = paymentPlan.downPaymentPercentage || 0;
+  const advancePct = paymentPlan.advancePaymentPercentage || 0;
   const discountPct = paymentPlan.discountPercentage || 0;
   const interestPct = paymentPlan.interestPercentage || 0;
   const interestType = paymentPlan.interestType || 'FLAT';
@@ -34,18 +47,23 @@ export const PaymentScheduleEditor = ({
   const installmentCount = isOneTime
     ? 0
     : Math.max(0, paymentPlan.installment || 0);
+  const ppy = periodsPerYear(frequency);
 
   if (!amount && installmentCount === 0 && !isOneTime) return null;
 
   const discountAmount = (amount * discountPct) / 100;
   const priceAfterDiscount = amount - discountAmount;
   const downAmount = (priceAfterDiscount * downPct) / 100;
-  const principal = priceAfterDiscount - downAmount;
+  const advanceAmount = (priceAfterDiscount * advancePct) / 100;
+  const principal = priceAfterDiscount - downAmount - advanceAmount;
   const principalPerInstallment =
     installmentCount > 0 ? principal / installmentCount : 0;
 
   const baseStart =
-    parseDateLike(startDate) || parseDateLike(contractDate) || new Date();
+    parseDateLike(paymentPlan.firstPaymentDate) ||
+    parseDateLike(startDate) ||
+    parseDateLike(contractDate) ||
+    new Date();
   const autoDates = generateInstallmentDates(
     baseStart,
     installmentCount,
@@ -80,9 +98,10 @@ export const PaymentScheduleEditor = ({
     }
     if (interestType === 'REDUCING') {
       const remaining = principal - principalPerInstallment * index;
-      return (remaining * interestPct) / 100 / 12;
+      return (remaining * interestPct) / 100 / ppy;
     }
-    return (principal * interestPct) / 100 / installmentCount;
+    // SIMPLE: annualized total interest spread equally
+    return ((principal * interestPct) / 100) * (installmentCount / ppy) / installmentCount;
   };
 
   const fmt = (val: number) =>
@@ -146,7 +165,7 @@ export const PaymentScheduleEditor = ({
           );
         })() : (
           <>
-            {(downAmount > 0 || downPct > 0) && (() => {
+            {downAmount > 0 && (() => {
               grandTotal += downAmount;
               return (
                 <div
@@ -164,6 +183,28 @@ export const PaymentScheduleEditor = ({
                   <Cell>{fmt(downAmount)}</Cell>
                   {hasInterest && <Cell>-</Cell>}
                   <Cell>{fmt(downAmount)}</Cell>
+                </div>
+              );
+            })()}
+            {advanceAmount > 0 && (() => {
+              grandTotal += advanceAmount;
+              const advanceDateLabel = parseDateLike(paymentPlan.advancePaymentDate) || contractDateLabel;
+              return (
+                <div
+                  className={`grid ${
+                    hasInterest ? 'grid-cols-6' : 'grid-cols-5'
+                  }`}
+                >
+                  <Cell>Advance</Cell>
+                  <Cell>
+                    {advanceDateLabel
+                      ? format(advanceDateLabel, 'dd.MM.yyyy')
+                      : '-'}
+                  </Cell>
+                  <Cell>Advance payment</Cell>
+                  <Cell>{fmt(advanceAmount)}</Cell>
+                  {hasInterest && <Cell>-</Cell>}
+                  <Cell>{fmt(advanceAmount)}</Cell>
                 </div>
               );
             })()}

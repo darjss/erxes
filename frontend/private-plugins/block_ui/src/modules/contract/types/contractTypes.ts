@@ -30,6 +30,8 @@ export interface IContractPaymentPlan {
   vatIncluded?: boolean;
   paymentDates?: number[];
   paymentDueDates?: string[];
+  firstPaymentDate?: string;
+  advancePaymentDate?: string;
 }
 
 export interface IContractInput {
@@ -41,7 +43,6 @@ export interface IContractInput {
   status?: string;
   startDate?: string;
   endDate?: string;
-  isLifeTime?: boolean;
   party?: IContractParty;
   paymentPlan?: IContractPaymentPlan;
   user?: string;

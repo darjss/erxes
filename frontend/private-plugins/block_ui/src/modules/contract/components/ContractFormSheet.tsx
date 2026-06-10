@@ -10,7 +10,6 @@ import {
   CurrencyCode,
   DatePicker,
   toast,
-  Checkbox,
   Textarea,
   Sidebar,
 } from 'erxes-ui';
@@ -93,7 +92,6 @@ export const ContractFormSheet = ({
   });
 
   const partyType = form.watch('party.type');
-  const isLifeTime = form.watch('isLifeTime');
   const watchedUnitId = form.watch('unit');
   const { unit: fetchedUnit } = useUnit(!unit ? watchedUnitId : null);
   const activeUnit = unit || fetchedUnit;
@@ -237,43 +235,18 @@ export const ContractFormSheet = ({
                       )}
                     />
 
-                    {!isLifeTime && (
-                      <Form.Field
-                        name="endDate"
-                        control={form.control}
-                        render={({ field }) => (
-                          <Form.Item>
-                            <Form.Label>End Date</Form.Label>
-                            <DatePicker
-                              placeholder="Select end date"
-                              value={parseDateValue(field.value)}
-                              onChange={handleDateChange(field.onChange)}
-                            />
-                            <Form.Message />
-                          </Form.Item>
-                        )}
-                      />
-                    )}
-
                     <Form.Field
-                      name="isLifeTime"
+                      name="endDate"
                       control={form.control}
                       render={({ field }) => (
-                        <Form.Item className="flex flex-row items-center space-x-3 space-y-0 h-8">
-                          <Form.Control>
-                            <Checkbox
-                              checked={field.value}
-                              onCheckedChange={(checked) => {
-                                field.onChange(checked);
-                                if (checked) {
-                                  form.setValue('endDate', undefined);
-                                }
-                              }}
-                            />
-                          </Form.Control>
-                          <Form.Label variant="peer">
-                            Lifetime Contract
-                          </Form.Label>
+                        <Form.Item>
+                          <Form.Label>End Date</Form.Label>
+                          <DatePicker
+                            placeholder="Select end date"
+                            value={parseDateValue(field.value)}
+                            onChange={handleDateChange(field.onChange)}
+                          />
+                          <Form.Message />
                         </Form.Item>
                       )}
                     />

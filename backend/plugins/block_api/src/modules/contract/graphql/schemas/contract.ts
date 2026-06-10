@@ -23,7 +23,9 @@ export const types = `
     penaltyPercentage: Float
     vatIncluded: Boolean
     paymentDates: [Int]
-    paymentDueDates: [String]
+    paymentDueDates: [Date]
+    firstPaymentDate: Date
+    advancePaymentDate: Date
   }
 
   input BlockContractPaymentPlanInput {
@@ -39,7 +41,9 @@ export const types = `
     penaltyPercentage: Float
     vatIncluded: Boolean
     paymentDates: [Int]
-    paymentDueDates: [String]
+    paymentDueDates: [Date]
+    firstPaymentDate: Date
+    advancePaymentDate: Date
   }
 
   type BlockContract {
@@ -52,7 +56,6 @@ export const types = `
     status: String
     startDate: String
     endDate: String
-    isLifeTime: Boolean
     party: BlockContractParty
     paymentPlan: BlockContractPaymentPlan
     user: String
@@ -78,7 +81,6 @@ export const types = `
     status: String
     startDate: String
     endDate: String
-    isLifeTime: Boolean
     party: BlockContractPartyInput
     paymentPlan: BlockContractPaymentPlanInput
     user: String

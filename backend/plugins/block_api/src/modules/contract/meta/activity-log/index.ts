@@ -11,7 +11,6 @@ const CONTRACT_ACTIVITY_FIELDS = [
   { field: 'date', label: 'Contract Date' },
   { field: 'startDate', label: 'Start Date' },
   { field: 'endDate', label: 'End Date' },
-  { field: 'isLifeTime', label: 'Lifetime' },
   { field: 'description', label: 'Description' },
   { field: 'party', label: 'Party' },
   { field: 'unit', label: 'Unit' },

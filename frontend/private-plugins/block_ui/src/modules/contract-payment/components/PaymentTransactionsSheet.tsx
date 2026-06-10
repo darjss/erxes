@@ -4,7 +4,7 @@ import {
   CurrencyField,
   DatePicker,
   FocusSheet,
-  Input,
+  Select,
   Sheet,
   Spinner,
   Textarea,
@@ -16,7 +16,16 @@ import {
   IconCalendar,
   IconCoin,
   IconNote,
+  IconCreditCard,
 } from '@tabler/icons-react';
+
+const PAYMENT_METHOD_OPTIONS = [
+  { value: 'cash', label: 'Cash' },
+  { value: 'bank_transfer', label: 'Bank transfer' },
+  { value: 'card', label: 'Card' },
+  { value: 'online', label: 'Online' },
+  { value: 'other', label: 'Other' },
+];
 import { useAtom } from 'jotai';
 import { format } from 'date-fns';
 import { useState } from 'react';
@@ -45,6 +54,8 @@ const GET_PAYMENT = gql`
         status
         paidAmount
         paidDate
+        penaltyAmount
+        overdueDays
       }
     }
   }
@@ -235,14 +246,12 @@ const AddTransactionForm = ({
   const [amount, setAmount] = useState<number>(defaultAmount);
   const [date, setDate] = useState<Date>(new Date());
   const [note, setNote] = useState('');
+  const [paymentMethod, setPaymentMethod] = useState<string>('bank_transfer');
   const { addTransaction, loading } = useAddPaymentTransaction();
 
   const handleSubmit = async () => {
     if (!amount || amount <= 0) {
-      toast({
-        title: 'Amount required',
-        variant: 'destructive',
-      });
+      toast({ title: 'Amount required', variant: 'destructive' });
       return;
     }
     try {
@@ -251,6 +260,7 @@ const AddTransactionForm = ({
         amount,
         date: date.toISOString(),
         note: note || undefined,
+        paymentMethod,
       });
       toast({ title: 'Payment added', variant: 'success' });
       onDone();
@@ -292,6 +302,24 @@ const AddTransactionForm = ({
       </div>
       <div className="space-y-1">
         <label className="text-xs text-muted-foreground flex items-center gap-1">
+          <IconCreditCard className="size-3" />
+          Payment method
+        </label>
+        <Select value={paymentMethod} onValueChange={setPaymentMethod}>
+          <Select.Trigger className="h-8">
+            <Select.Value placeholder="Select method" />
+          </Select.Trigger>
+          <Select.Content>
+            {PAYMENT_METHOD_OPTIONS.map((opt) => (
+              <Select.Item key={opt.value} value={opt.value}>
+                {opt.label}
+              </Select.Item>
+            ))}
+          </Select.Content>
+        </Select>
+      </div>
+      <div className="space-y-1">
+        <label className="text-xs text-muted-foreground flex items-center gap-1">
           <IconNote className="size-3" />
           Note
         </label>
@@ -319,7 +347,7 @@ const TransactionRow = ({
   tx,
   currency,
 }: {
-  tx: { _id: string; amount: number; date: string; note?: string };
+  tx: { _id: string; amount: number; date: string; note?: string; paymentMethod?: string };
   currency: string;
 }) => {
   const { removeTransaction, loading } = useRemovePaymentTransaction();
@@ -349,6 +377,11 @@ const TransactionRow = ({
           <span className="text-sm text-muted-foreground">
             {dateObj ? format(dateObj, 'MMM dd, yyyy') : '-'}
           </span>
+          {tx.paymentMethod && (
+            <span className="text-xs bg-muted text-muted-foreground px-2 py-0.5 rounded-full capitalize">
+              {PAYMENT_METHOD_OPTIONS.find((o) => o.value === tx.paymentMethod)?.label ?? tx.paymentMethod}
+            </span>
+          )}
         </div>
         {tx.note && (
           <div className="text-sm text-muted-foreground mt-1">{tx.note}</div>

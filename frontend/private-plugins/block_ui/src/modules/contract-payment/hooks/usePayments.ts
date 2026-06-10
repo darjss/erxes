@@ -199,6 +199,7 @@ export const useAddPaymentTransaction = () => {
       amount: number;
       date?: string;
       note?: string;
+      paymentMethod?: string;
     }) => {
       const { data } = await addTransaction({ variables: input });
       return data?.blockAddPaymentTransaction;
@@ -218,6 +219,7 @@ export const useUpdatePaymentTransaction = () => {
       amount?: number;
       date?: string;
       note?: string;
+      paymentMethod?: string;
     }) => {
       const { data } = await updateTransaction({ variables: input });
       return data?.blockUpdatePaymentTransaction;

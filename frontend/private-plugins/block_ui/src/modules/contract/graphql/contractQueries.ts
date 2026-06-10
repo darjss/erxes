@@ -12,7 +12,7 @@ export const GET_CONTRACTS = gql`
       status
       startDate
       endDate
-      isLifeTime
+
       party {
         type
         id
@@ -31,6 +31,8 @@ export const GET_CONTRACTS = gql`
         vatIncluded
         paymentDates
         paymentDueDates
+        firstPaymentDate
+        advancePaymentDate
       }
       user
     }
@@ -60,7 +62,7 @@ export const GET_CONTRACTS_LIST = gql`
           status
         startDate
         endDate
-        isLifeTime
+  
         party {
           type
           id
@@ -93,7 +95,7 @@ export const GET_CONTRACT = gql`
       status
       startDate
       endDate
-      isLifeTime
+
       party {
         type
         id
@@ -112,6 +114,8 @@ export const GET_CONTRACT = gql`
         vatIncluded
         paymentDates
         paymentDueDates
+        firstPaymentDate
+        advancePaymentDate
       }
       user
     }

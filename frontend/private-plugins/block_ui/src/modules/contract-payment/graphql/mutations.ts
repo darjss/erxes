@@ -6,12 +6,14 @@ export const ADD_PAYMENT_TRANSACTION = gql`
     $amount: Float!
     $date: Date
     $note: String
+    $paymentMethod: String
   ) {
     blockAddPaymentTransaction(
       paymentId: $paymentId
       amount: $amount
       date: $date
       note: $note
+      paymentMethod: $paymentMethod
     ) {
       _id
       paymentId
@@ -19,6 +21,7 @@ export const ADD_PAYMENT_TRANSACTION = gql`
       amount
       date
       note
+      paymentMethod
       createdBy
       createdAt
     }
@@ -31,12 +34,14 @@ export const UPDATE_PAYMENT_TRANSACTION = gql`
     $amount: Float
     $date: Date
     $note: String
+    $paymentMethod: String
   ) {
     blockUpdatePaymentTransaction(
       _id: $id
       amount: $amount
       date: $date
       note: $note
+      paymentMethod: $paymentMethod
     ) {
       _id
       paymentId
@@ -44,6 +49,7 @@ export const UPDATE_PAYMENT_TRANSACTION = gql`
       amount
       date
       note
+      paymentMethod
     }
   }
 `;

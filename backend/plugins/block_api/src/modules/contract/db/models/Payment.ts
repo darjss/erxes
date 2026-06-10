@@ -21,11 +21,12 @@ export interface IContractPaymentModel extends Model<IContractPaymentDocument> {
       date?: Date;
       note?: string;
       createdBy?: string;
+      paymentMethod?: string;
     },
   ): Promise<IContractPaymentTransactionDocument>;
   updateTransaction(
     _id: string,
-    input: { amount?: number; date?: Date; note?: string },
+    input: { amount?: number; date?: Date; note?: string; paymentMethod?: string },
   ): Promise<IContractPaymentTransactionDocument | null>;
   removeTransaction(
     _id: string,
@@ -47,6 +48,18 @@ const setSafeDay = (date: Date, day: number) => {
   const lastDay = new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate();
   d.setDate(Math.min(day, lastDay));
   return d;
+};
+
+const periodsPerYear = (frequency: string | undefined): number => {
+  switch (frequency) {
+    case 'ONE_TIME_PER_MONTH': return 12;
+    case 'TWO_TIME_PER_MONTH': return 24;
+    case 'THREE_TIME_PER_MONTH': return 36;
+    case 'QUARTERLY': return 4;
+    case 'HALF_YEARLY': return 2;
+    case 'YEARLY': return 1;
+    default: return 12;
+  }
 };
 
 function generateInstallmentDates(
@@ -160,27 +173,36 @@ export const loadContractPaymentClass = (models: IModels) => {
 
       const totalPrice = contract.amount || 0;
       const downPct = paymentPlan.downPaymentPercentage || 0;
+      const advancePct = paymentPlan.advancePaymentPercentage || 0;
       const discountPct = paymentPlan.discountPercentage || 0;
       const interestPct = paymentPlan.interestPercentage || 0;
       const interestType = paymentPlan.interestType || 'FLAT';
       const installmentCount = Math.max(0, paymentPlan.installment || 0);
       const isOneTime = paymentPlan.frequency === 'ONE_TIME';
+      const ppy = periodsPerYear(paymentPlan.frequency);
 
       const discountAmount = (totalPrice * discountPct) / 100;
       const priceAfterDiscount = totalPrice - discountAmount;
       const downAmount = (priceAfterDiscount * downPct) / 100;
-      const principal = priceAfterDiscount - downAmount;
+      const advanceAmount = (priceAfterDiscount * advancePct) / 100;
+      const principal = priceAfterDiscount - downAmount - advanceAmount;
 
-      const startDate =
-        contract.startDate || contract.date || new Date();
+      const contractDate = contract.date || new Date();
+      const startDate = contract.startDate || contractDate;
+      // paymentDueDates are stored as Date objects
       const customDueDates = (paymentPlan.paymentDueDates || [])
-        .map((d: string) => (d ? new Date(d) : null))
-        .filter((d): d is Date => !!d && !isNaN(d.getTime()));
+        .map((d: Date | string) => (d instanceof Date ? d : new Date(d)))
+        .filter((d: Date) => !isNaN(d.getTime()));
+
+      const firstInstallmentStart =
+        paymentPlan.firstPaymentDate
+          ? new Date(paymentPlan.firstPaymentDate)
+          : startDate;
 
       const autoDates = isOneTime
         ? []
         : generateInstallmentDates(
-            startDate,
+            firstInstallmentStart,
             installmentCount,
             paymentPlan.frequency,
             paymentPlan.paymentDates || [],
@@ -199,54 +221,80 @@ export const loadContractPaymentClass = (models: IModels) => {
         contractNumber,
         partyId,
         partyType,
-        projectId,
+        projectId: projectId?.toString(),
         unit: contract.unit,
         currency,
-        paid: false,
         status: 'unpaid' as const,
         paidAmount: 0,
+        penaltyAmount: 0,
+        overdueDays: 0,
       };
 
       if (isOneTime) {
+        // SIMPLE/FLAT for one-time: total interest on discounted price
         const totalInterest = (priceAfterDiscount * interestPct) / 100;
         rows.push({
           ...commonFields,
           index: 0,
           label: 'Full payment',
-          dueDate: contract.date || startDate,
+          dueDate: contractDate,
           amount: priceAfterDiscount + totalInterest,
         });
       } else {
-        if (downAmount > 0 || downPct > 0) {
+        let rowIndex = 0;
+
+        if (downAmount > 0) {
           rows.push({
             ...commonFields,
-            index: 0,
+            index: rowIndex++,
             label: 'Down payment',
-            dueDate: contract.date || startDate,
+            dueDate: contractDate,
             amount: downAmount,
+          });
+        }
+
+        if (advanceAmount > 0) {
+          const advanceDue = paymentPlan.advancePaymentDate
+            ? new Date(paymentPlan.advancePaymentDate)
+            : contractDate;
+          rows.push({
+            ...commonFields,
+            index: rowIndex++,
+            label: 'Advance payment',
+            dueDate: advanceDue,
+            amount: advanceAmount,
           });
         }
 
         const principalPerInstallment =
           installmentCount > 0 ? principal / installmentCount : 0;
 
+        // SIMPLE: total interest = principal × rate × (installments / ppy), spread evenly
+        const simpleInterestPerInstallment =
+          interestPct > 0 && installmentCount > 0
+            ? (principal * interestPct) / 100 * (installmentCount / ppy) / installmentCount
+            : 0;
+
         for (let i = 0; i < installmentCount; i++) {
           let interest = 0;
 
           if (interestPct > 0 && installmentCount > 0) {
             if (interestType === 'FLAT') {
+              // Fixed interest on original principal, divided equally
               interest = (principal * interestPct) / 100 / installmentCount;
             } else if (interestType === 'REDUCING') {
+              // Interest on remaining balance for the current period
               const remainingPrincipal = principal - principalPerInstallment * i;
-              interest = (remainingPrincipal * interestPct) / 100 / 12;
+              interest = (remainingPrincipal * interestPct) / 100 / ppy;
             } else {
-              interest = (principal * interestPct) / 100 / installmentCount;
+              // SIMPLE: annualized total interest divided equally
+              interest = simpleInterestPerInstallment;
             }
           }
 
           rows.push({
             ...commonFields,
-            index: i + 1,
+            index: rowIndex++,
             label: `Installment ${i + 1}`,
             dueDate: dates[i] || startDate,
             amount: principalPerInstallment + interest,
@@ -319,7 +367,7 @@ export const loadContractPaymentClass = (models: IModels) => {
 
     public static async addTransaction(
       paymentId: string,
-      input: { amount: number; date?: Date; note?: string; createdBy?: string },
+      input: { amount: number; date?: Date; note?: string; createdBy?: string; paymentMethod?: string },
     ) {
       const payment = await models.ContractPayment.findOne({ _id: paymentId });
       if (!payment) throw new Error('Payment not found');
@@ -331,6 +379,7 @@ export const loadContractPaymentClass = (models: IModels) => {
         date: input.date || new Date(),
         note: input.note,
         createdBy: input.createdBy,
+        paymentMethod: input.paymentMethod,
       });
 
       await ContractPayment.recomputeStatus(paymentId);
@@ -339,7 +388,7 @@ export const loadContractPaymentClass = (models: IModels) => {
 
     public static async updateTransaction(
       _id: string,
-      input: { amount?: number; date?: Date; note?: string },
+      input: { amount?: number; date?: Date; note?: string; paymentMethod?: string },
     ) {
       const tx = await models.ContractPaymentTransaction.findOne({ _id });
       if (!tx) throw new Error('Transaction not found');

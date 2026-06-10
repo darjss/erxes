@@ -29,7 +29,9 @@ export interface IContractPaymentPlan {
   penaltyPercentage: number;
   vatIncluded: boolean;
   paymentDates: number[];
-  paymentDueDates?: string[];
+  paymentDueDates?: Date[];
+  firstPaymentDate?: Date;
+  advancePaymentDate?: Date;
   interestType: BlockProjectPaymentPlanInterestType;
 }
 
@@ -43,7 +45,6 @@ export interface IContract {
   status: string;
   startDate: Date;
   endDate: Date;
-  isLifeTime: boolean;
   party: IContractParty;
   paymentPlan: IContractPaymentPlan;
   user: string;

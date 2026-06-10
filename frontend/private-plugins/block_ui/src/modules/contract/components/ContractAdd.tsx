@@ -59,7 +59,6 @@ export const ContractAddForm = ({ onClose }: { onClose: () => void }) => {
           status: data.status || undefined,
           startDate: data.startDate || undefined,
           endDate: data.endDate || undefined,
-          isLifeTime: data.isLifeTime,
           party,
           paymentPlan,
           user: data.user || undefined,

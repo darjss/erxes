@@ -16,6 +16,8 @@ export const types = `
     paidAmount: Float
     paidDate: Date
     note: String
+    penaltyAmount: Float
+    overdueDays: Int
     createdAt: Date
     updatedAt: Date
   }
@@ -34,6 +36,7 @@ export const types = `
     date: Date!
     note: String
     createdBy: String
+    paymentMethod: String
     createdAt: Date
     updatedAt: Date
   }
@@ -60,7 +63,7 @@ export const queries = `
 `;
 
 export const mutations = `
-  blockAddPaymentTransaction(paymentId: String!, amount: Float!, date: Date, note: String): BlockContractPaymentTransaction
-  blockUpdatePaymentTransaction(_id: String!, amount: Float, date: Date, note: String): BlockContractPaymentTransaction
+  blockAddPaymentTransaction(paymentId: String!, amount: Float!, date: Date, note: String, paymentMethod: String): BlockContractPaymentTransaction
+  blockUpdatePaymentTransaction(_id: String!, amount: Float, date: Date, note: String, paymentMethod: String): BlockContractPaymentTransaction
   blockRemovePaymentTransaction(_id: String!): BlockContractPaymentTransaction
 `;

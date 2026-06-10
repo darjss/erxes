@@ -102,11 +102,7 @@ const ContractGridCard = ({ contract }: { contract: IContract }) => {
             <span className="truncate">
               {startLabel ? format(startLabel, 'MMM dd, yyyy') : '—'}
               {' – '}
-              {contract.isLifeTime
-                ? 'Lifetime'
-                : endLabel
-                ? format(endLabel, 'MMM dd, yyyy')
-                : '—'}
+              {endLabel ? format(endLabel, 'MMM dd, yyyy') : '—'}
             </span>
           </div>
         )}

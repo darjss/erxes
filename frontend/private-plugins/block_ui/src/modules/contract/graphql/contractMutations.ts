@@ -12,7 +12,7 @@ export const CREATE_CONTRACT = gql`
       status
       startDate
       endDate
-      isLifeTime
+
       party {
         type
         id
@@ -31,6 +31,8 @@ export const CREATE_CONTRACT = gql`
         vatIncluded
         paymentDates
         paymentDueDates
+        firstPaymentDate
+        advancePaymentDate
       }
       user
     }
@@ -58,7 +60,7 @@ export const UPDATE_CONTRACT = gql`
       status
       startDate
       endDate
-      isLifeTime
+
       party {
         type
         id
@@ -77,6 +79,8 @@ export const UPDATE_CONTRACT = gql`
         vatIncluded
         paymentDates
         paymentDueDates
+        firstPaymentDate
+        advancePaymentDate
       }
       user
     }

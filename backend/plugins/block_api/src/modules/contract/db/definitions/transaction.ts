@@ -16,6 +16,7 @@ export const contractPaymentTransactionSchema = new Schema(
     date: { type: Date, required: true, index: true },
     note: { type: String },
     createdBy: { type: String },
+    paymentMethod: { type: String },
   },
   { timestamps: true },
 );

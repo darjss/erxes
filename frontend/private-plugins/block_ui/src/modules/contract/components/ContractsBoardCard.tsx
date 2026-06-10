@@ -37,7 +37,6 @@ export const ContractsBoardCard = ({ id }: BoardCardProps) => {
     date,
     startDate,
     endDate,
-    isLifeTime,
     amount,
     currency,
     unit,
@@ -106,11 +105,7 @@ export const ContractsBoardCard = ({ id }: BoardCardProps) => {
         >
           <IconCalendarEventFilled />
           <span>
-            {isLifeTime
-              ? 'Lifetime'
-              : endLabel
-              ? format(endLabel, 'MMM dd, yyyy')
-              : '—'}
+            {endLabel ? format(endLabel, 'MMM dd, yyyy') : '—'}
           </span>
         </Button>
       </div>

@@ -186,13 +186,10 @@ export const contractsColumns = (
         <RecordTable.InlineHead label="End Date" icon={IconCalendarCheck} />
       ),
       cell: ({ cell }) => {
-        const isLifeTime = cell.row.original.isLifeTime;
         const d = parseDate(cell.getValue());
         return (
           <RecordTableInlineCell>
-            {isLifeTime ? (
-              <Badge variant="secondary">Lifetime</Badge>
-            ) : d ? (
+            {d ? (
               <span>{format(d, 'MMM dd, yyyy')}</span>
             ) : (
               <span className="text-muted-foreground">-</span>

@@ -38,6 +38,8 @@ export const GET_PROJECT_PAYMENTS = gql`
         paidAmount
         paidDate
         note
+        penaltyAmount
+        overdueDays
         createdAt
         updatedAt
       }
@@ -80,6 +82,8 @@ export const GET_CONTRACT_PAYMENTS = gql`
         paidAmount
         paidDate
         note
+        penaltyAmount
+        overdueDays
       }
       pageInfo {
         hasNextPage
@@ -101,6 +105,7 @@ export const GET_PAYMENT_TRANSACTIONS = gql`
       amount
       date
       note
+      paymentMethod
       createdBy
       createdAt
     }

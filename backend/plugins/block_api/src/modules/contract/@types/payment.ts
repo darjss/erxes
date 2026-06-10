@@ -18,6 +18,8 @@ export interface IContractPayment {
   paidAmount: number;
   paidDate?: Date;
   note?: string;
+  penaltyAmount?: number;
+  overdueDays?: number;
 }
 
 export interface IContractPaymentDocument

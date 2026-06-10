@@ -105,7 +105,7 @@ export const ContractOverviewBody = ({
               {renderRow('Start Date', formatDate(contract.startDate))}
               {renderRow(
                 'End Date',
-                contract.isLifeTime ? 'Lifetime' : formatDate(contract.endDate),
+                formatDate(contract.endDate),
               )}
               {renderRow('Party', partyLabel)}
               {renderRow(
