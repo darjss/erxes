@@ -138,4 +138,71 @@ export const productMutations = {
 
     return updated;
   },
+
+  mushopSyncProductsToPosclient: async (
+    _root: undefined,
+    { supplierId, status }: { supplierId?: string; status?: string },
+    { models, subdomain }: IContext,
+  ) => {
+    if (status && !MUSHOP_PRODUCT_STATUS.ALL.includes(status)) {
+      throw new Error('Invalid product status');
+    }
+
+    // Only approved products with a category are eligible to sync to posclient,
+    // mirroring the per-product sync paths above.
+    if (status && status !== MUSHOP_PRODUCT_STATUS.APPROVED) {
+      throw new Error('Only approved products can be synced to POS client');
+    }
+
+    const filter: Record<string, any> = {
+      status: MUSHOP_PRODUCT_STATUS.APPROVED,
+      categoryId: { $exists: true, $ne: null },
+    };
+
+    if (supplierId) {
+      const supplier = await models.Supplier.getSupplier(supplierId);
+      filter.subdomain = supplier.subdomain;
+    }
+
+    const products = await models.MushopProduct.find(filter).lean();
+
+    // Cache posToken per supplier subdomain so we don't refetch for every product.
+    const posTokenCache = new Map<string, string | undefined>();
+    const getPosToken = async (sub: string) => {
+      if (!posTokenCache.has(sub)) {
+        posTokenCache.set(sub, await getSupplierMushopPosToken(models, sub));
+      }
+      return posTokenCache.get(sub);
+    };
+
+    let synced = 0;
+    let skipped = 0;
+    let failed = 0;
+
+    await Promise.all(
+      products.map(async (product) => {
+        const posToken = await getPosToken(product.subdomain);
+
+        if (!posToken) {
+          skipped++;
+          return;
+        }
+
+        try {
+          await syncProductToPosclient({
+            subdomain,
+            posToken,
+            product,
+            action: 'create',
+          });
+          synced++;
+        } catch (e) {
+          failed++;
+          console.error('mushopSyncProductsToPosclient error:', e);
+        }
+      }),
+    );
+
+    return { total: products.length, synced, skipped, failed };
+  },
 };
