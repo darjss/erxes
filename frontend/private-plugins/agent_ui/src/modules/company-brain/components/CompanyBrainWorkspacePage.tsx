@@ -539,12 +539,11 @@ const AssistantDiscordManageSheet = ({
             agent?.status !== SERVER_STATUSES.PENDING &&
             agent?.status !== SERVER_STATUSES.DEPLOYING &&
             agent?.status !== SERVER_STATUSES.FAILED && (
-            <Alert variant={runtimeFailed ? 'destructive' : 'warning'}>
+            <Alert variant="warning">
               <Alert.Title>Runtime provisioning</Alert.Title>
               <Alert.Description>
-                {runtimeFailed
-                  ? 'Runtime provisioning failed. Retry provisioning before connecting a Discord channel.'
-                  : 'Discord is connected, but this assistant runtime is not ready yet.'}
+                Discord is connected, but this assistant runtime is not ready
+                yet.
               </Alert.Description>
             </Alert>
           )}
@@ -1321,13 +1320,6 @@ export const CompanyBrainWorkspacePage = ({
     if (managedStep === 'provisioning') {
       return (
         <div className="flex min-h-0 flex-1 flex-col gap-5">
-          {managedError && (
-            <Alert variant="destructive">
-              <Alert.Title>Provisioning interrupted</Alert.Title>
-              <Alert.Description>{managedError}</Alert.Description>
-            </Alert>
-          )}
-
           <ManagedProvisioningProgress
             status={managedAgent?.status || SERVER_STATUSES.PENDING}
             stage={managedAgent?.provisioning?.stage}
@@ -1428,9 +1420,8 @@ export const CompanyBrainWorkspacePage = ({
                 <Alert variant="warning">
                   <Alert.Title>Runtime provisioning</Alert.Title>
                   <Alert.Description>
-                    {isManagedRuntimeFailed
-                      ? 'Discord is connected, but runtime provisioning failed. Retry provisioning before connecting a channel.'
-                      : 'Discord is connected, but this assistant runtime is not ready yet. Refresh status before connecting a channel.'}
+                    Discord is connected, but this assistant runtime is not
+                    ready yet.
                   </Alert.Description>
                 </Alert>
               )}
@@ -2202,162 +2193,164 @@ export const CompanyBrainWorkspacePage = ({
                 )}
               </Sheet.Content>
 
-              <Sheet.Footer>
-                {showManagedDiscordStep ? (
-                  <>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      disabled={isSubmitting}
-                      onClick={() => {
-                        if (managedAssistantId) {
-                          finishManagedCreation(managedAssistantId);
-                        } else {
-                          setOpen(false);
-                        }
-                      }}
-                    >
-                      Open assistant
-                    </Button>
+              <Sheet.Footer className="!h-auto min-h-14 py-3 sm:space-x-0">
+                <div className="flex w-full flex-wrap items-center justify-end gap-2">
+                  {showManagedDiscordStep ? (
+                    <>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        disabled={isSubmitting}
+                        onClick={() => {
+                          if (managedAssistantId) {
+                            finishManagedCreation(managedAssistantId);
+                          } else {
+                            setOpen(false);
+                          }
+                        }}
+                      >
+                        Open assistant
+                      </Button>
 
-                    {managedStep === 'provisioning' && (
-                      <>
-                        <Button
-                          type="button"
-                          variant="outline"
-                          disabled={isSubmitting}
-                          onClick={handleRefreshManagedRuntime}
-                        >
-                          <IconRefresh
-                            className={`size-4 ${
-                              refreshingManagedRuntime ? 'animate-spin' : ''
-                            }`}
-                          />
-                          Refresh runtime
-                        </Button>
-                        {isManagedRuntimeFailed && (
-                          <Button
-                            type="button"
-                            variant="outline"
-                            disabled={
-                              isSubmitting || !managedRetryApiToken.trim()
-                            }
-                            onClick={handleRetryManagedProvisioning}
-                          >
-                            {deployingManagedAssistant ? (
-                              <IconRefresh className="size-4 animate-spin" />
-                            ) : (
-                              <IconRefresh className="size-4" />
-                            )}
-                            Retry provisioning
-                          </Button>
-                        )}
-                      </>
-                    )}
-
-                    {managedStep === 'connect' && (
-                      <>
-                        {!!managedDiscord.installations.length && (
+                      {managedStep === 'provisioning' && (
+                        <>
                           <Button
                             type="button"
                             variant="outline"
                             disabled={isSubmitting}
-                            onClick={() => setManagedStep('channel')}
+                            onClick={handleRefreshManagedRuntime}
                           >
-                            <IconArrowRight className="size-4" />
-                            Continue
+                            <IconRefresh
+                              className={`size-4 ${
+                                refreshingManagedRuntime ? 'animate-spin' : ''
+                              }`}
+                            />
+                            Refresh runtime
                           </Button>
-                        )}
-                        <Button
-                          type="button"
-                          disabled={isSubmitting}
-                          onClick={handleConnectManagedDiscord}
-                        >
-                          <IconBrandDiscord className="size-4" />
-                          Connect erxes Ai Assistant
-                        </Button>
-                      </>
-                    )}
+                          {isManagedRuntimeFailed && (
+                            <Button
+                              type="button"
+                              variant="outline"
+                              disabled={
+                                isSubmitting || !managedRetryApiToken.trim()
+                              }
+                              onClick={handleRetryManagedProvisioning}
+                            >
+                              {deployingManagedAssistant ? (
+                                <IconRefresh className="size-4 animate-spin" />
+                              ) : (
+                                <IconRefresh className="size-4" />
+                              )}
+                              Retry provisioning
+                            </Button>
+                          )}
+                        </>
+                      )}
 
-                    {managedStep === 'channel' && (
-                      <>
-                        <Button
-                          type="button"
-                          variant="outline"
-                          disabled={isSubmitting}
-                          onClick={handleRefreshManagedRuntime}
-                        >
-                          <IconRefresh
-                            className={`size-4 ${
-                              refreshingManagedRuntime ? 'animate-spin' : ''
-                            }`}
-                          />
-                          Refresh runtime
-                        </Button>
-                        {isManagedRuntimeFailed && (
+                      {managedStep === 'connect' && (
+                        <>
+                          {!!managedDiscord.installations.length && (
+                            <Button
+                              type="button"
+                              variant="outline"
+                              disabled={isSubmitting}
+                              onClick={() => setManagedStep('channel')}
+                            >
+                              <IconArrowRight className="size-4" />
+                              Continue
+                            </Button>
+                          )}
+                          <Button
+                            type="button"
+                            disabled={isSubmitting}
+                            onClick={handleConnectManagedDiscord}
+                          >
+                            <IconBrandDiscord className="size-4" />
+                            Connect erxes Ai Assistant
+                          </Button>
+                        </>
+                      )}
+
+                      {managedStep === 'channel' && (
+                        <>
                           <Button
                             type="button"
                             variant="outline"
-                            disabled={
-                              isSubmitting || !managedRetryApiToken.trim()
-                            }
-                            onClick={handleRetryManagedProvisioning}
+                            disabled={isSubmitting}
+                            onClick={handleRefreshManagedRuntime}
                           >
-                            {deployingManagedAssistant ? (
-                              <IconRefresh className="size-4 animate-spin" />
-                            ) : (
-                              <IconRefresh className="size-4" />
-                            )}
-                            Retry provisioning
+                            <IconRefresh
+                              className={`size-4 ${
+                                refreshingManagedRuntime ? 'animate-spin' : ''
+                              }`}
+                            />
+                            Refresh runtime
                           </Button>
-                        )}
-                        <Button
-                          type="button"
-                          variant="outline"
-                          disabled={isSubmitting}
-                          onClick={handleConnectManagedDiscord}
-                        >
-                          <IconBrandDiscord className="size-4" />
-                          Install into another server
-                        </Button>
-                        <Button
-                          type="button"
-                          disabled={
-                            isSubmitting ||
-                            !isManagedRuntimeReady ||
-                            !managedDiscord.selectedInstallationId ||
-                            !managedDiscord.selectedChannelId
-                          }
-                          onClick={handleCreateManagedBinding}
-                        >
-                          <IconLink className="size-4" />
-                          Connect channel
-                        </Button>
-                      </>
-                    )}
-                  </>
-                ) : (
-                  <>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      disabled={isSubmitting}
-                      onClick={() => {
-                        resetCreateForm();
-                        setOpen(false);
-                      }}
-                    >
-                      Cancel
-                    </Button>
-                    <Button type="submit" disabled={isSubmitting}>
-                      {isSubmitting
-                        ? 'Saving...'
-                        : isManagedAssistantCreation
-                        ? 'Connect erxes Ai Assistant'
-                        : config.buttonLabel}
-                    </Button>
-                  </>
-                )}
+                          {isManagedRuntimeFailed && (
+                            <Button
+                              type="button"
+                              variant="outline"
+                              disabled={
+                                isSubmitting || !managedRetryApiToken.trim()
+                              }
+                              onClick={handleRetryManagedProvisioning}
+                            >
+                              {deployingManagedAssistant ? (
+                                <IconRefresh className="size-4 animate-spin" />
+                              ) : (
+                                <IconRefresh className="size-4" />
+                              )}
+                              Retry provisioning
+                            </Button>
+                          )}
+                          <Button
+                            type="button"
+                            variant="outline"
+                            disabled={isSubmitting}
+                            onClick={handleConnectManagedDiscord}
+                          >
+                            <IconBrandDiscord className="size-4" />
+                            Install into another server
+                          </Button>
+                          <Button
+                            type="button"
+                            disabled={
+                              isSubmitting ||
+                              !isManagedRuntimeReady ||
+                              !managedDiscord.selectedInstallationId ||
+                              !managedDiscord.selectedChannelId
+                            }
+                            onClick={handleCreateManagedBinding}
+                          >
+                            <IconLink className="size-4" />
+                            Connect channel
+                          </Button>
+                        </>
+                      )}
+                    </>
+                  ) : (
+                    <>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        disabled={isSubmitting}
+                        onClick={() => {
+                          resetCreateForm();
+                          setOpen(false);
+                        }}
+                      >
+                        Cancel
+                      </Button>
+                      <Button type="submit" disabled={isSubmitting}>
+                        {isSubmitting
+                          ? 'Saving...'
+                          : isManagedAssistantCreation
+                          ? 'Connect erxes Ai Assistant'
+                          : config.buttonLabel}
+                      </Button>
+                    </>
+                  )}
+                </div>
               </Sheet.Footer>
             </form>
           </Form>
