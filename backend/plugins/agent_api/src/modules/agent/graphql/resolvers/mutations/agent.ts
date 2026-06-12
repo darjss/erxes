@@ -17,6 +17,13 @@ import {
   verifyManagedRuntime,
 } from '~/modules/agent/utils';
 import {
+  buildPluginInstallIdentifier,
+  assertSafeRuntimeIdentifier,
+  assertSafeRuntimeVersion,
+  callManagedRuntimeOperation,
+  mapRuntimePayload,
+} from '~/modules/agent/runtimeClient';
+import {
   createOrUpdateDiscordBinding,
   deleteDiscordBinding,
   getDiscordBinding,
@@ -826,5 +833,117 @@ export const agentMutations = {
       const message = error instanceof Error ? error.message : String(error);
       throw new Error(message);
     }
+  },
+
+  agentRuntimeInstallSkill: async (
+    _root: undefined,
+    {
+      agentId,
+      slug,
+      version,
+    }: { agentId: string; slug: string; version?: string },
+    { models, subdomain, user }: IContext,
+  ) => {
+    const safeSlug = assertSafeRuntimeIdentifier(slug, 'slug');
+    const safeVersion = assertSafeRuntimeVersion(version);
+
+    return callManagedRuntimeOperation({
+      models,
+      user,
+      subdomain,
+      agentId,
+      operation: 'agentRuntimeInstallSkill',
+      identifier: safeSlug,
+      requireAdmin: true,
+      request: {
+        method: 'POST',
+        path: '/openclaw/skills/install',
+        body: {
+          slug: safeSlug,
+          ...(safeVersion ? { version: safeVersion } : {}),
+        },
+      },
+      message: 'Managed runtime skill install completed',
+      mapResult: (payload) =>
+        mapRuntimePayload('Managed runtime skill install completed', payload, {
+          diagnostics:
+            payload.verification && typeof payload.verification === 'object'
+              ? (payload.verification as Record<string, unknown>)
+              : payload,
+          records: payload,
+        }),
+    });
+  },
+
+  agentRuntimeInstallPlugin: async (
+    _root: undefined,
+    {
+      agentId,
+      plugin,
+      version,
+    }: { agentId: string; plugin: string; version?: string },
+    { models, subdomain, user }: IContext,
+  ) => {
+    const installPlugin = buildPluginInstallIdentifier(plugin, version);
+
+    return callManagedRuntimeOperation({
+      models,
+      user,
+      subdomain,
+      agentId,
+      operation: 'agentRuntimeInstallPlugin',
+      identifier: installPlugin,
+      requireAdmin: true,
+      request: {
+        method: 'POST',
+        path: '/openclaw/plugins/install',
+        body: {
+          plugin: installPlugin,
+        },
+      },
+      message: 'Managed runtime plugin install completed',
+      mapResult: (payload) =>
+        mapRuntimePayload('Managed runtime plugin install completed', payload, {
+          diagnostics:
+            payload.verification && typeof payload.verification === 'object'
+              ? (payload.verification as Record<string, unknown>)
+              : payload,
+          records: payload,
+        }),
+    });
+  },
+
+  agentRuntimeEnablePlugin: async (
+    _root: undefined,
+    { agentId, pluginId }: { agentId: string; pluginId: string },
+    { models, subdomain, user }: IContext,
+  ) => {
+    const safePluginId = assertSafeRuntimeIdentifier(pluginId, 'pluginId');
+
+    return callManagedRuntimeOperation({
+      models,
+      user,
+      subdomain,
+      agentId,
+      operation: 'agentRuntimeEnablePlugin',
+      identifier: safePluginId,
+      requireAdmin: true,
+      request: {
+        method: 'POST',
+        path: '/openclaw/plugins/enable',
+        body: {
+          plugin: safePluginId,
+        },
+      },
+      message: 'Managed runtime plugin enable completed',
+      mapResult: (payload) =>
+        mapRuntimePayload('Managed runtime plugin enable completed', payload, {
+          diagnostics:
+            payload.verification && typeof payload.verification === 'object'
+              ? (payload.verification as Record<string, unknown>)
+              : payload,
+          records: payload,
+        }),
+    });
   },
 };
