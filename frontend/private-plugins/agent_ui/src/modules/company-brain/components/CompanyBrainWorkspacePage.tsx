@@ -206,7 +206,7 @@ const AssistantDiscordManageSheet = ({
     refreshingRuntime ||
     retryingProvisioning;
   const responseMode =
-    managedDiscord.activeBinding?.responseMode || 'slash_only';
+    managedDiscord.activeBinding?.responseMode || 'all_messages';
 
   const buildManageReturnUrl = () => {
     const returnUrl = new URL(window.location.href);

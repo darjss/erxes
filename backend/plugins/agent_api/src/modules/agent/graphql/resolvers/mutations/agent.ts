@@ -728,6 +728,9 @@ export const agentMutations = {
       discordGuildId: installation.discordGuildId,
       discordChannelId,
       openclawUrl: getRuntimeUrl(server),
+      // Default new channel bindings to respond on every message, not just
+      // slash commands.
+      responseMode: 'all_messages',
     });
 
     return binding;
