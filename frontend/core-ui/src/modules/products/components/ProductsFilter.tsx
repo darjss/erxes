@@ -103,10 +103,7 @@ function OptionFilterBar({ config }: { config: OptionFilterConfig }) {
         <Icon />
         {label}
       </Filter.BarName>
-      <Select
-        value={value || ''}
-        onValueChange={(next) => setValue(next || null)}
-      >
+      <Select value={value} onValueChange={(next) => setValue(next || null)}>
         <Filter.BarButton filterKey={queryKey}>
           <Select.Value placeholder={placeholder} />
         </Filter.BarButton>

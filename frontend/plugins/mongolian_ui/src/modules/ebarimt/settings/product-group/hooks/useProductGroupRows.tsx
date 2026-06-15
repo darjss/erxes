@@ -55,9 +55,11 @@ export const useProductGroupRows = () => {
   const productGroupRows = useMemo(() => list ?? [], [list]);
 
   useEffect(() => {
-    if (!loading) {
-      setProductGroupTotalCount(totalCount);
+    if (loading) {
+      setProductGroupTotalCount(null);
+      return;
     }
+    setProductGroupTotalCount(totalCount);
   }, [loading, totalCount, setProductGroupTotalCount]);
 
   const handleFetchMore = ({
