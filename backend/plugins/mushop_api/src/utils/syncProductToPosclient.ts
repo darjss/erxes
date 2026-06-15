@@ -25,7 +25,7 @@ const getPosInitialCategoryIds = async (
       pluginName: 'core',
       module: 'productCategories',
       action: 'withChilds',
-      input: { _ids: config?.initialCategoryIds ?? [] },
+      input: { ids: config?.initialCategoryIds ?? [] },
       defaultValue: [],
     });
 
