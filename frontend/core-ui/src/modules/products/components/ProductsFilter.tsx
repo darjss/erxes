@@ -50,7 +50,9 @@ const PRODUCT_STATUS_FILTER: OptionFilterConfig = {
   ],
 };
 
-function OptionFilterItem({ config }: { config: OptionFilterConfig }) {
+type OptionFilterProps = Readonly<{ config: OptionFilterConfig }>;
+
+function OptionFilterItem({ config }: OptionFilterProps) {
   const { queryKey, label, icon: Icon } = config;
   return (
     <Filter.Item value={queryKey}>
@@ -60,7 +62,7 @@ function OptionFilterItem({ config }: { config: OptionFilterConfig }) {
   );
 }
 
-function OptionFilterView({ config }: { config: OptionFilterConfig }) {
+function OptionFilterView({ config }: OptionFilterProps) {
   const { queryKey, icon: Icon, options } = config;
   const [value, setValue] = useQueryState<string>(queryKey);
   const { resetFilterState } = useFilterContext();
@@ -89,7 +91,7 @@ function OptionFilterView({ config }: { config: OptionFilterConfig }) {
   );
 }
 
-function OptionFilterBar({ config }: { config: OptionFilterConfig }) {
+function OptionFilterBar({ config }: OptionFilterProps) {
   const { queryKey, label, placeholder, icon: Icon, options } = config;
   const [value, setValue] = useQueryState<string>(queryKey);
 
