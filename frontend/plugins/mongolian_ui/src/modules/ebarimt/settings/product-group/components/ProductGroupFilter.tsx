@@ -157,7 +157,10 @@ export const ProductGroupFilter = () => {
   const resetCursor = useResetProductGroupCursor();
 
   return (
-    <Filter id={PRODUCT_GROUP_FILTER_ID} sessionKey={PRODUCT_GROUP_CURSOR_SESSION_KEY}>
+    <Filter
+      id={PRODUCT_GROUP_FILTER_ID}
+      sessionKey={PRODUCT_GROUP_CURSOR_SESSION_KEY}
+    >
       <Filter.Bar>
         <ProductGroupFilterPopover />
         <Filter.SearchValueBarItem />
