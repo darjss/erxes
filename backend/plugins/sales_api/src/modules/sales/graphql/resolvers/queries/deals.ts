@@ -302,7 +302,18 @@ export const generateFilter = async (
     Object.assign(filter, {
       $or: [
         regexSearchText(search),
-        { number: { $regex: new RegExp(`.*${escapeRegExp(search)}.*`, 'i') } },
+        // Match against `number` coerced to a string, so the search works even
+        // when a deal's number is stored as a numeric type (or is missing) —
+        // a plain `$regex` only matches string-typed fields.
+        {
+          $expr: {
+            $regexMatch: {
+              input: { $toString: { $ifNull: ['$number', ''] } },
+              regex: escapeRegExp(search),
+              options: 'i',
+            },
+          },
+        },
       ],
     });
   }

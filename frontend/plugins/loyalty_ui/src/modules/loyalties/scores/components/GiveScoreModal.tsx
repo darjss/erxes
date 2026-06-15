@@ -169,6 +169,9 @@ export const GiveScoreModal = ({
                     <Tabs.List className="bg-accent rounded-md w-full px-1 flex items-center gap-2 border-none no-underline!">
                       <Tabs.Trigger
                         value="sales"
+                        onClick={() => {
+                          if (targetType === 'sales') setDealSheetOpen(true);
+                        }}
                         className="flex-1 cursor-pointer w-[50%] font-normal gap-1.5 data-[state=active]:bg-background bg-background data-[state=active]:shadow after:content-none after:border-none after:shadow-none after:bg-transparent"
                       >
                         <IconBriefcase size={15} />

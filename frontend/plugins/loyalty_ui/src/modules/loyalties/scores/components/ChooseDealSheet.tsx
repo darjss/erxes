@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   Button,
   Input,
@@ -196,6 +196,15 @@ export const ChooseDealSheet = ({
   selectedDealId,
 }: ChooseDealSheetProps) => {
   const [selectedDeal, setSelectedDeal] = useState<IDeal | null>(null);
+
+  useEffect(() => {
+    if (!open) {
+      const timer = setTimeout(() => {
+        document.body.style.pointerEvents = '';
+      }, 0);
+      return () => clearTimeout(timer);
+    }
+  }, [open]);
 
   const handleOpenChange = (val: boolean) => {
     if (!val) setSelectedDeal(null);
