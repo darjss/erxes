@@ -9,45 +9,49 @@ import {
   useConfirm,
 } from 'erxes-ui';
 import { useMutation, useQuery } from '@apollo/client';
-import { useState } from 'react';
-import { AssociationFilters } from '@/association/types/associationFilters';
-import { MTO_ASSOCIATIONS } from '@/association/graphql/associationQueries';
-import { MTO_ASSOCIATIONS_REMOVE } from '@/association/graphql/associationMutations';
-import { AssociationFormSheet } from '@/association/components/AssociationFormSheet';
+import { useMemo, useState } from 'react';
+import { CategoryFilters } from '@/category/types/categoryFilters';
+import { MtoCategory } from '@/category/types/category';
+import { MTO_CATEGORIES } from '@/category/graphql/categoryQueries';
+import { MTO_CATEGORIES_REMOVE } from '@/category/graphql/categoryMutations';
+import { CategoryFormSheet } from '@/category/components/CategoryFormSheet';
+import { isMainCategory } from '@/category/hooks/useCategoryOptions';
 
-type AssociationRow = {
-  _id: string;
-  name?: { en?: string; mn?: string };
-  logo?: string;
-  isActive?: boolean;
-  createdAt?: string;
-};
-
-interface AssociationsListProps {
-  filters?: AssociationFilters;
+interface CategoriesListProps {
+  filters?: CategoryFilters;
 }
 
-export function AssociationsList({ filters }: AssociationsListProps) {
+export function CategoriesList({ filters }: CategoriesListProps) {
   const { confirm } = useConfirm();
-  const { data, loading, refetch } = useQuery(MTO_ASSOCIATIONS, {
+  const { data, loading, refetch } = useQuery(MTO_CATEGORIES, {
     variables: {
       isActive: filters?.isActive,
+      level: filters?.level && filters.level !== 'all' ? filters.level : undefined,
+      onlyTopLevel: filters?.level === 'main' ? true : undefined,
     },
   });
 
-  const [removeAssociations] = useMutation(MTO_ASSOCIATIONS_REMOVE);
+  const [removeCategories] = useMutation(MTO_CATEGORIES_REMOVE);
 
   const [editId, setEditId] = useState<string | null>(null);
   const [sheetOpen, setSheetOpen] = useState(false);
 
-  const associations: AssociationRow[] = data?.mtoAssociations ?? [];
+  const categories = useMemo(() => {
+    const rows = (data?.mtoAssociations ?? []) as MtoCategory[];
+
+    if (filters?.level === 'sub') {
+      return rows.filter((category) => !isMainCategory(category));
+    }
+
+    return rows;
+  }, [data?.mtoAssociations, filters?.level]);
 
   const handleRemove = (id: string) => {
     void confirm({
-      message: 'Are you sure you want to remove this association?',
+      message: 'Are you sure you want to remove this category?',
       options: { confirmationValue: 'delete' },
     }).then(() => {
-      void removeAssociations({ variables: { ids: [id] } }).then(() => refetch());
+      void removeCategories({ variables: { ids: [id] } }).then(() => refetch());
     });
   };
 
@@ -56,7 +60,8 @@ export function AssociationsList({ filters }: AssociationsListProps) {
       accessorKey: 'name',
       header: 'Name (EN)',
       cell: ({ cell }) => {
-        const name = cell.getValue() as AssociationRow['name'];
+        const name = cell.getValue() as MtoCategory['name'];
+
         return (
           <RecordTableInlineCell className="font-medium max-w-[200px]">
             {name?.en || '—'}
@@ -69,10 +74,27 @@ export function AssociationsList({ filters }: AssociationsListProps) {
       accessorKey: 'name',
       header: 'Name (MN)',
       cell: ({ cell }) => {
-        const name = cell.getValue() as AssociationRow['name'];
+        const name = cell.getValue() as MtoCategory['name'];
+
         return (
           <RecordTableInlineCell className="max-w-[200px]">
             {name?.mn || '—'}
+          </RecordTableInlineCell>
+        );
+      },
+    },
+    {
+      id: 'level',
+      header: 'Level',
+      cell: ({ row }) => {
+        const category = row.original as MtoCategory;
+        const main = isMainCategory(category);
+
+        return (
+          <RecordTableInlineCell>
+            <Badge variant={main ? 'default' : 'secondary'}>
+              {main ? 'Main' : 'Sub'}
+            </Badge>
           </RecordTableInlineCell>
         );
       },
@@ -82,6 +104,7 @@ export function AssociationsList({ filters }: AssociationsListProps) {
       header: 'Status',
       cell: ({ cell }) => {
         const active = cell.getValue() as boolean;
+
         return (
           <RecordTableInlineCell>
             <Badge variant={active ? 'success' : 'secondary'}>
@@ -107,6 +130,7 @@ export function AssociationsList({ filters }: AssociationsListProps) {
       header: '',
       cell: ({ row }) => {
         const id = row.original._id as string;
+
         return (
           <RecordTableInlineCell className="flex gap-2">
             <Button
@@ -124,7 +148,7 @@ export function AssociationsList({ filters }: AssociationsListProps) {
               type="button"
               variant="destructive"
               size="icon"
-              onClick={() => void handleRemove(id)}
+              onClick={() => handleRemove(id)}
             >
               <IconTrash size={16} />
             </Button>
@@ -136,11 +160,7 @@ export function AssociationsList({ filters }: AssociationsListProps) {
 
   return (
     <>
-      <RecordTable.Provider
-        columns={columns}
-        data={associations}
-        className="m-3"
-      >
+      <RecordTable.Provider columns={columns} data={categories} className="m-3">
         <RecordTable>
           <RecordTable.Header />
           <RecordTable.Body>
@@ -150,10 +170,11 @@ export function AssociationsList({ filters }: AssociationsListProps) {
         </RecordTable>
       </RecordTable.Provider>
 
-      <AssociationFormSheet
+      <CategoryFormSheet
         open={sheetOpen}
         onOpenChange={(open) => {
           setSheetOpen(open);
+
           if (!open) setEditId(null);
         }}
         editId={editId}
