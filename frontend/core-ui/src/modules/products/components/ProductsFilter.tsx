@@ -16,48 +16,71 @@ import {
   SelectTags,
 } from 'ui-modules';
 import { IconBriefcase, IconCheck, IconCircleDot } from '@tabler/icons-react';
+import { ComponentType } from 'react';
 
-const PRODUCT_TYPE_OPTIONS = [
-  { label: 'Product', value: 'product' },
-  { label: 'Service', value: 'service' },
-  { label: 'Subscription', value: 'subscription' },
-  { label: 'Unique', value: 'unique' },
-];
+type OptionFilterConfig = {
+  queryKey: string;
+  label: string;
+  placeholder: string;
+  icon: ComponentType;
+  options: { label: string; value: string }[];
+};
 
-const PRODUCT_STATUS_OPTIONS = [
-  { label: 'Active', value: 'active' },
-  { label: 'Deleted', value: 'deleted' },
-];
+const PRODUCT_TYPE_FILTER: OptionFilterConfig = {
+  queryKey: 'type',
+  label: 'Type',
+  placeholder: 'Select type',
+  icon: IconBriefcase,
+  options: [
+    { label: 'Product', value: 'product' },
+    { label: 'Service', value: 'service' },
+    { label: 'Subscription', value: 'subscription' },
+    { label: 'Unique', value: 'unique' },
+  ],
+};
 
-function ProductTypeFilterItem() {
+const PRODUCT_STATUS_FILTER: OptionFilterConfig = {
+  queryKey: 'status',
+  label: 'Status',
+  placeholder: 'Select status',
+  icon: IconCircleDot,
+  options: [
+    { label: 'Active', value: 'active' },
+    { label: 'Deleted', value: 'deleted' },
+  ],
+};
+
+function OptionFilterItem({ config }: { config: OptionFilterConfig }) {
+  const { queryKey, label, icon: Icon } = config;
   return (
-    <Filter.Item value="type">
-      <IconBriefcase />
-      Type
+    <Filter.Item value={queryKey}>
+      <Icon />
+      {label}
     </Filter.Item>
   );
 }
 
-function ProductTypeFilterView() {
-  const [type, setType] = useQueryState<string>('type');
+function OptionFilterView({ config }: { config: OptionFilterConfig }) {
+  const { queryKey, icon: Icon, options } = config;
+  const [value, setValue] = useQueryState<string>(queryKey);
   const { resetFilterState } = useFilterContext();
 
   return (
-    <Filter.View filterKey="type">
+    <Filter.View filterKey={queryKey}>
       <Command className="outline-hidden">
         <Command.List className="p-1">
-          {PRODUCT_TYPE_OPTIONS.map((option) => (
+          {options.map((option) => (
             <Command.Item
               key={option.value}
               value={option.value}
               onSelect={() => {
-                setType(option.value);
+                setValue(option.value);
                 resetFilterState();
               }}
             >
-              <IconBriefcase />
+              <Icon />
               {option.label}
-              {type === option.value && <IconCheck className="ml-auto" />}
+              {value === option.value && <IconCheck className="ml-auto" />}
             </Command.Item>
           ))}
         </Command.List>
@@ -66,97 +89,29 @@ function ProductTypeFilterView() {
   );
 }
 
-function ProductTypeFilterBar() {
-  const [type, setType] = useQueryState<string>('type');
+function OptionFilterBar({ config }: { config: OptionFilterConfig }) {
+  const { queryKey, label, placeholder, icon: Icon, options } = config;
+  const [value, setValue] = useQueryState<string>(queryKey);
 
-  if (!type) {
+  if (!value) {
     return null;
   }
 
   return (
-    <Filter.BarItem queryKey="type">
+    <Filter.BarItem queryKey={queryKey}>
       <Filter.BarName>
-        <IconBriefcase />
-        Type
+        <Icon />
+        {label}
       </Filter.BarName>
       <Select
-        value={type || ''}
-        onValueChange={(value) => setType(value || null)}
+        value={value || ''}
+        onValueChange={(next) => setValue(next || null)}
       >
-        <Filter.BarButton filterKey="type">
-          <Select.Value placeholder="Select type" />
+        <Filter.BarButton filterKey={queryKey}>
+          <Select.Value placeholder={placeholder} />
         </Filter.BarButton>
         <Select.Content>
-          {PRODUCT_TYPE_OPTIONS.map((option) => (
-            <Select.Item key={option.value} value={option.value}>
-              {option.label}
-            </Select.Item>
-          ))}
-        </Select.Content>
-      </Select>
-    </Filter.BarItem>
-  );
-}
-
-function ProductStatusFilterItem() {
-  return (
-    <Filter.Item value="status">
-      <IconCircleDot />
-      Status
-    </Filter.Item>
-  );
-}
-
-function ProductStatusFilterView() {
-  const [status, setStatus] = useQueryState<string>('status');
-  const { resetFilterState } = useFilterContext();
-
-  return (
-    <Filter.View filterKey="status">
-      <Command className="outline-hidden">
-        <Command.List className="p-1">
-          {PRODUCT_STATUS_OPTIONS.map((option) => (
-            <Command.Item
-              key={option.value}
-              value={option.value}
-              onSelect={() => {
-                setStatus(option.value);
-                resetFilterState();
-              }}
-            >
-              <IconCircleDot />
-              {option.label}
-              {status === option.value && <IconCheck className="ml-auto" />}
-            </Command.Item>
-          ))}
-        </Command.List>
-      </Command>
-    </Filter.View>
-  );
-}
-
-function ProductStatusFilterBar() {
-  const [status, setStatus] = useQueryState<string>('status');
-
-  if (!status) {
-    return null;
-  }
-
-  return (
-    <Filter.BarItem queryKey="status">
-      <Filter.BarName>
-        <IconCircleDot />
-        Status
-      </Filter.BarName>
-      <Select
-        value={status || ''}
-        onValueChange={(value) => setStatus(value || null)}
-      >
-        <Filter.BarButton filterKey="status">
-          <Select.Value placeholder="Select status" />
-        </Filter.BarButton>
-        <Select.Content>
-          {PRODUCT_STATUS_OPTIONS.map((option) => (
+          {options.map((option) => (
             <Select.Item key={option.value} value={option.value}>
               {option.label}
             </Select.Item>
@@ -232,11 +187,11 @@ export const ProductsFilter = () => {
           label="Category"
           mode="multiple"
         />
-        <ProductTypeFilterBar />
+        <OptionFilterBar config={PRODUCT_TYPE_FILTER} />
         <VendorFilterBar />
         <BrandsFilterBar />
         <TagsFilterBar />
-        <ProductStatusFilterBar />
+        <OptionFilterBar config={PRODUCT_STATUS_FILTER} />
         <ProductsTotalCount />
       </Filter.Bar>
     </Filter>
@@ -259,20 +214,20 @@ export const ProductsFilterPopover = () => {
                   value="categoryIds"
                   label="Category"
                 />
-                <ProductTypeFilterItem />
+                <OptionFilterItem config={PRODUCT_TYPE_FILTER} />
                 <SelectCompany.FilterItem value="vendorId" label="Vendor" />
                 <SelectBrands.FilterItem value="brandIds" label="Brands" />
                 <SelectTags.FilterItem value="tags" label="Tags" />
-                <ProductStatusFilterItem />
+                <OptionFilterItem config={PRODUCT_STATUS_FILTER} />
               </Command.List>
             </Command>
           </Filter.View>
           <SelectCategory.FilterView filterKey="categoryIds" mode="multiple" />
-          <ProductTypeFilterView />
+          <OptionFilterView config={PRODUCT_TYPE_FILTER} />
           <SelectCompany.FilterView mode="single" filterKey="vendorId" />
           <SelectBrands.FilterView mode="multiple" filterKey="brandIds" />
           <SelectTags.FilterView mode="multiple" filterKey="tags" />
-          <ProductStatusFilterView />
+          <OptionFilterView config={PRODUCT_STATUS_FILTER} />
         </Combobox.Content>
       </Filter.Popover>
     </>
