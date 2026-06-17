@@ -14,7 +14,7 @@ export const types = `
     type: BlockProjectPaymentPlanType!  
     downPaymentPercentage: Float
     interestPercentage: Float
-    advancePaymentPercentage: Float
+    completionPaymentPercentage: Float
     discountPercentage: Float
     description: String
     installment: Int
@@ -23,7 +23,7 @@ export const types = `
     vatIncluded: Boolean
     paymentDates: [Int]
     firstPaymentDate: Date
-    advancePaymentDate: Date
+    completionPaymentDate: Date
   }
 
   input BlockOfferPaymentPlanInput {
@@ -31,7 +31,7 @@ export const types = `
     downPaymentPercentage: Float
     interestPercentage: Float
     interestType: BlockContractInterestType
-    advancePaymentPercentage: Float
+    completionPaymentPercentage: Float
     discountPercentage: Float
     description: String
     installment: Int
@@ -40,7 +40,7 @@ export const types = `
     firstPaymentDate: Date
     vatIncluded: Boolean
     paymentDates: [Int]
-    advancePaymentDate: Date
+    completionPaymentDate: Date
   }
 
   enum BlockOfferAmountType {

@@ -1,10 +1,10 @@
 import { z } from 'zod';
 
 export const paymentPlanSchema = z.object({
-  // advancePaymentPercentage: z
-  //   .number()
-  //   .min(0, { message: 'Advance payment is required' })
-  //   .max(100, { message: 'Advance payment must be less than 100%' }),
+  completionPaymentPercentage: z
+    .number()
+    .min(0)
+    .max(100, { message: 'Completion payment must be less than 100%' }),
   description: z.string().min(1, { message: 'Description is required' }),
   discountPercentage: z
     .number()

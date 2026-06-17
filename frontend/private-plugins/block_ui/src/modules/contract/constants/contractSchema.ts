@@ -10,6 +10,7 @@ export const contractSchema = z.object({
   user: z.string().optional(),
   startDate: z.string().optional(),
   endDate: z.string().optional(),
+  endDateLabel: z.string().optional(),
   party: z
     .object({
       type: z.enum(['customer', 'company']),
@@ -22,7 +23,7 @@ export const contractSchema = z.object({
       downPaymentPercentage: z.number().min(0).max(100).optional(),
       interestPercentage: z.number().min(0).optional(),
       interestType: z.enum(['SIMPLE', 'FLAT', 'REDUCING']).optional(),
-      advancePaymentPercentage: z.number().min(0).max(100).optional(),
+      completionPaymentPercentage: z.number().min(0).max(100).optional(),
       discountPercentage: z.number().min(0).max(100).optional(),
       description: z.string().optional(),
       installment: z.number().min(0).optional(),
@@ -32,7 +33,8 @@ export const contractSchema = z.object({
       paymentDates: z.array(z.number()).optional(),
       paymentDueDates: z.array(z.string()).optional(),
       firstPaymentDate: z.string().optional(),
-      advancePaymentDate: z.string().optional(),
+      completionPaymentDate: z.string().optional(),
+      completionPaymentDateLabel: z.string().optional(),
     })
     .optional(),
 });

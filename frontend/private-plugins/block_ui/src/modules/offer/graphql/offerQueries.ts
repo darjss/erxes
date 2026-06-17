@@ -18,7 +18,7 @@ export const GET_OFFERS = gql`
         type
         downPaymentPercentage
         interestPercentage
-        advancePaymentPercentage
+        completionPaymentPercentage
         discountPercentage
         description
         installment
@@ -27,7 +27,7 @@ export const GET_OFFERS = gql`
         vatIncluded
         paymentDates
         firstPaymentDate
-        advancePaymentDate
+        completionPaymentDate
       }
       user
     }
@@ -52,7 +52,7 @@ export const GET_OFFER = gql`
         type
         downPaymentPercentage
         interestPercentage
-        advancePaymentPercentage
+        completionPaymentPercentage
         discountPercentage
         description
         installment
@@ -61,7 +61,7 @@ export const GET_OFFER = gql`
         vatIncluded
         paymentDates
         firstPaymentDate
-        advancePaymentDate
+        completionPaymentDate
       }
       user
     }
@@ -81,7 +81,7 @@ export const GET_OFFER = gql`
         type
         downPaymentPercentage
         interestPercentage
-        advancePaymentPercentage
+        completionPaymentPercentage
         discountPercentage
         description
         installment
@@ -90,7 +90,7 @@ export const GET_OFFER = gql`
         vatIncluded
         paymentDates
         firstPaymentDate
-        advancePaymentDate
+        completionPaymentDate
       }
       unit
       user

@@ -26,7 +26,6 @@ import {
   Label,
   readImage,
   ScrollArea,
-  Select,
   Sheet,
   Spinner,
 } from 'erxes-ui';
@@ -295,7 +294,7 @@ export const UpdateUnitType = ({
                   </Label>
                   {fields.map((field, index) => (
                     <div key={field.id} className="flex items-center gap-2">
-                      <div className="flex-1 gap-2 grid grid-cols-4">
+                      <div className="flex-1 gap-2 grid grid-cols-3">
                         <Form.Field
                           name={`prices.${index}.currency`}
                           render={({ field }) => (
@@ -316,31 +315,6 @@ export const UpdateUnitType = ({
                                 placeholder="0"
                                 {...field}
                               />
-                            </Form.Item>
-                          )}
-                        />
-                        <Form.Field
-                          name={`prices.${index}.priceType`}
-                          render={({ field }) => (
-                            <Form.Item>
-                              <Select
-                                value={field.value}
-                                onValueChange={field.onChange}
-                              >
-                                <Form.Control>
-                                  <Select.Trigger className="h-8">
-                                    <Select.Value placeholder="Price type" />
-                                  </Select.Trigger>
-                                </Form.Control>
-                                <Select.Content>
-                                  <Select.Item value="priceBySize">
-                                    per m²
-                                  </Select.Item>
-                                  <Select.Item value="priceByUnit">
-                                    per unit
-                                  </Select.Item>
-                                </Select.Content>
-                              </Select>
                             </Form.Item>
                           )}
                         />

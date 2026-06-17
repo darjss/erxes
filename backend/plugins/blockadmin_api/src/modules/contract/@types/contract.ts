@@ -31,7 +31,7 @@ export interface IContractPaymentPlan {
   type: BlockProjectPaymentPlanType;
   downPaymentPercentage: number;
   interestPercentage: number;
-  advancePaymentPercentage: number;
+  completionPaymentPercentage: number;
   discountPercentage: number;
   description: string;
   installment: number;

@@ -29,7 +29,7 @@ const offerPaymentPlanSchema = new Schema(
       type: String,
       enum: Object.values(BlockProjectPaymentPlanInterestType),
     },
-    advancePaymentPercentage: { type: Number },
+    completionPaymentPercentage: { type: Number },
     discountPercentage: { type: Number },
     installment: { type: Number },
     frequency: {
@@ -41,7 +41,7 @@ const offerPaymentPlanSchema = new Schema(
     type: { type: String, enum: Object.values(BlockProjectPaymentPlanType) },
     paymentDates: { type: [Number] },
     firstPaymentDate: { type: Date },
-    advancePaymentDate: { type: Date },
+    completionPaymentDate: { type: Date },
   },
   { _id: false },
 );

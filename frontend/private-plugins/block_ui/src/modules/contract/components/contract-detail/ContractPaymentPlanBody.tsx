@@ -56,9 +56,9 @@ export const ContractPaymentPlanBody = ({
               )}
               {renderRow('Interest Type', paymentPlan.interestType)}
               {renderRow(
-                'Advance Payment',
-                paymentPlan.advancePaymentPercentage != null
-                  ? `${paymentPlan.advancePaymentPercentage}%`
+                'Completion Payment',
+                paymentPlan.completionPaymentPercentage != null
+                  ? `${paymentPlan.completionPaymentPercentage}%`
                   : null,
               )}
               {renderRow(
@@ -89,9 +89,9 @@ export const ContractPaymentPlanBody = ({
                   : null,
               )}
               {renderRow(
-                'Advance Payment Date',
-                paymentPlan.advancePaymentDate
-                  ? formatDate(paymentPlan.advancePaymentDate)
+                'Completion Payment Date',
+                paymentPlan.completionPaymentDate
+                  ? formatDate(paymentPlan.completionPaymentDate)
                   : null,
               )}
               {renderRow(
@@ -116,7 +116,7 @@ const PaymentSchedule = ({ contract }: { contract: IContract }) => {
 
   const totalPrice = amount || 0;
   const downPct = paymentPlan.downPaymentPercentage || 0;
-  const advancePct = paymentPlan.advancePaymentPercentage || 0;
+  const completionPct = paymentPlan.completionPaymentPercentage || 0;
   const discountPct = paymentPlan.discountPercentage || 0;
   const interestPct = paymentPlan.interestPercentage || 0;
   const interestType = paymentPlan.interestType || 'FLAT';
@@ -132,8 +132,8 @@ const PaymentSchedule = ({ contract }: { contract: IContract }) => {
   const discountAmount = (totalPrice * discountPct) / 100;
   const priceAfterDiscount = totalPrice - discountAmount;
   const downAmount = (priceAfterDiscount * downPct) / 100;
-  const advanceAmount = (priceAfterDiscount * advancePct) / 100;
-  const principal = priceAfterDiscount - downAmount - advanceAmount;
+  const completionAmount = (priceAfterDiscount * completionPct) / 100;
+  const principal = priceAfterDiscount - downAmount - completionAmount;
   const principalPerInstallment =
     installmentCount > 0 ? principal / installmentCount : 0;
 
@@ -243,11 +243,11 @@ const PaymentSchedule = ({ contract }: { contract: IContract }) => {
                   </div>
                 );
               })()}
-            {advanceAmount > 0 &&
+            {completionAmount > 0 &&
               (() => {
-                grandTotal += advanceAmount;
-                const advanceDateStr = paymentPlan.advancePaymentDate
-                  ? formatDate(paymentPlan.advancePaymentDate) || contractDateStr
+                grandTotal += completionAmount;
+                const finalDateStr = paymentPlan.completionPaymentDate
+                  ? formatDate(paymentPlan.completionPaymentDate) || contractDateStr
                   : contractDateStr;
                 return (
                   <div
@@ -255,13 +255,13 @@ const PaymentSchedule = ({ contract }: { contract: IContract }) => {
                       hasInterest ? 'grid-cols-7' : 'grid-cols-5'
                     }`}
                   >
-                    <Cell>Advance</Cell>
-                    <Cell>{advanceDateStr}</Cell>
-                    <Cell>Advance payment</Cell>
-                    <Cell>{fmt(advanceAmount)}</Cell>
+                    <Cell>Final</Cell>
+                    <Cell>{finalDateStr}</Cell>
+                    <Cell>Completion payment</Cell>
+                    <Cell>{fmt(completionAmount)}</Cell>
                     {hasInterest && <Cell>-</Cell>}
                     {hasInterest && <Cell>-</Cell>}
-                    <Cell>{fmt(advanceAmount)}</Cell>
+                    <Cell>{fmt(completionAmount)}</Cell>
                   </div>
                 );
               })()}
@@ -286,7 +286,7 @@ const PaymentSchedule = ({ contract }: { contract: IContract }) => {
                       ? 'Key handover'
                       : '-'}
                   </Cell>
-                  <Cell>{isLast ? 'Final payment' : 'Progress payment'}</Cell>
+                  <Cell>{isLast ? 'Completion payment' : 'Progress payment'}</Cell>
                   <Cell>{fmt(principalPerInstallment)}</Cell>
                   {hasInterest && <Cell>{fmt(interest)}</Cell>}
                   {hasInterest && (

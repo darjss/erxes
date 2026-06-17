@@ -12,6 +12,7 @@ import {
   toast,
   Textarea,
   Sidebar,
+  Checkbox,
 } from 'erxes-ui';
 import { useForm } from 'react-hook-form';
 import { useParams } from 'react-router-dom';
@@ -35,14 +36,12 @@ const TYPE_ORDER = ['reserved', 'draft', 'signed', 'lost', 'cancelled'];
 
 const FORM_TABS = {
   GENERAL: 'general',
-  AMOUNT: 'amount',
   PAYMENT_PLAN: 'payment-plan',
 } as const;
 type FormTab = (typeof FORM_TABS)[keyof typeof FORM_TABS];
 
 const FORM_TAB_LABELS: Record<FormTab, string> = {
   [FORM_TABS.GENERAL]: 'General',
-  [FORM_TABS.AMOUNT]: 'Amount',
   [FORM_TABS.PAYMENT_PLAN]: 'Payment plan',
 };
 
@@ -97,7 +96,6 @@ export const ContractFormSheet = ({
   const activeUnit = unit || fetchedUnit;
   const unitSize = activeUnit?.unitType?.size || 0;
 
-  const [useRateMode, setUseRateMode] = useState(false);
   const [ratePerSize, setRatePerSize] = useState<number>(0);
 
   const onValidationError = (errors: any) => {
@@ -202,13 +200,61 @@ export const ContractFormSheet = ({
                     </div>
                   )}
 
+                  <div className="gap-4 grid grid-cols-3">
+                    <Form.Field
+                      name="currency"
+                      control={form.control}
+                      render={({ field }) => (
+                        <Form.Item>
+                          <Form.Label>Currency</Form.Label>
+                          <CurrencyField.SelectCurrency
+                            value={field.value as CurrencyCode}
+                            onChange={(value) =>
+                              field.onChange(value as CurrencyCode)
+                            }
+                          />
+                          <Form.Message />
+                        </Form.Item>
+                      )}
+                    />
+
+                    <Form.Field
+                      name="amount"
+                      control={form.control}
+                      render={({ field }) => (
+                        <Form.Item>
+                          <Form.Label>Rate per m²</Form.Label>
+                          <CurrencyField.ValueInput
+                            value={ratePerSize}
+                            onChange={(v) => {
+                              const rate = v || 0;
+                              setRatePerSize(rate);
+                              field.onChange(unitSize > 0 ? rate * unitSize : rate);
+                            }}
+                          />
+                          {unitSize > 0 && (
+                            <p className="text-xs text-muted-foreground">
+                              Total: {(ratePerSize * unitSize).toLocaleString()} ({unitSize} m²)
+                            </p>
+                          )}
+                          {!unitSize && (
+                            <p className="text-xs text-destructive">
+                              Select a unit with a size first
+                            </p>
+                          )}
+                          <Form.Message />
+                        </Form.Item>
+                      )}
+                    />
+                  </div>
+
                   <div className="gap-4 grid grid-cols-3 items-end">
                     <Form.Field
                       name="date"
                       control={form.control}
                       render={({ field }) => (
                         <Form.Item>
-                          <Form.Label>Contract Date</Form.Label>
+                          <Form.Label>Contract Date (Down payment due)</Form.Label>
                           <DatePicker
                             placeholder="Select date"
                             value={parseDateValue(field.value)}
@@ -224,7 +270,7 @@ export const ContractFormSheet = ({
                       control={form.control}
                       render={({ field }) => (
                         <Form.Item>
-                          <Form.Label>Start Date</Form.Label>
+                          <Form.Label>Start Date (Installments from)</Form.Label>
                           <DatePicker
                             placeholder="Select start date"
                             value={parseDateValue(field.value)}
@@ -238,17 +284,41 @@ export const ContractFormSheet = ({
                     <Form.Field
                       name="endDate"
                       control={form.control}
-                      render={({ field }) => (
-                        <Form.Item>
-                          <Form.Label>End Date</Form.Label>
-                          <DatePicker
-                            placeholder="Select end date"
-                            value={parseDateValue(field.value)}
-                            onChange={handleDateChange(field.onChange)}
-                          />
-                          <Form.Message />
-                        </Form.Item>
-                      )}
+                      render={({ field: endDateField }) => {
+                        const isConditional = form.watch('endDateLabel') !== undefined;
+                        return (
+                          <Form.Item>
+                            <Form.Label>End Date</Form.Label>
+                            <div className="flex items-center gap-2">
+                              {isConditional ? (
+                                <div className="flex-1 h-8 flex items-center rounded-md border bg-muted px-3 text-sm text-muted-foreground truncate">
+                                  Барилга ашиглалтанд орсны дараа
+                                </div>
+                              ) : (
+                                <div className="flex-1">
+                                  <DatePicker
+                                    placeholder="Select end date"
+                                    value={parseDateValue(endDateField.value)}
+                                    onChange={handleDateChange(endDateField.onChange)}
+                                  />
+                                </div>
+                              )}
+                              <Checkbox
+                                checked={isConditional}
+                                onCheckedChange={(checked) => {
+                                  if (checked) {
+                                    form.setValue('endDate', undefined);
+                                    form.setValue('endDateLabel', 'Барилга ашиглалтанд орсны дараа');
+                                  } else {
+                                    form.setValue('endDateLabel', undefined);
+                                  }
+                                }}
+                              />
+                            </div>
+                            <Form.Message />
+                          </Form.Item>
+                        );
+                      }}
                     />
                   </div>
 
@@ -405,91 +475,6 @@ export const ContractFormSheet = ({
                       )}
                     />
                   </div>
-              </div>
-
-              <div style={{ display: activeTab === FORM_TABS.AMOUNT ? undefined : 'none' }}>
-                <div className="gap-4 grid grid-cols-3">
-                  <Form.Field
-                    name="currency"
-                    control={form.control}
-                    render={({ field }) => (
-                      <Form.Item>
-                        <Form.Label>Currency</Form.Label>
-                        <CurrencyField.SelectCurrency
-                          value={field.value as CurrencyCode}
-                          onChange={(value) =>
-                            field.onChange(value as CurrencyCode)
-                          }
-                        />
-                        <Form.Message />
-                      </Form.Item>
-                    )}
-                  />
-
-                  <Form.Field
-                    name="amount"
-                    control={form.control}
-                    render={({ field }) => (
-                      <Form.Item>
-                        <Form.Label>
-                          {useRateMode ? 'Rate per m²' : 'Total Amount'}
-                        </Form.Label>
-                        {useRateMode ? (
-                          <CurrencyField.ValueInput
-                            value={ratePerSize}
-                            onChange={(v) => {
-                              const rate = v || 0;
-                              setRatePerSize(rate);
-                              field.onChange(unitSize > 0 ? rate * unitSize : rate);
-                            }}
-                          />
-                        ) : (
-                          <CurrencyField.ValueInput
-                            value={field.value}
-                            onChange={field.onChange}
-                          />
-                        )}
-                        {useRateMode && unitSize > 0 && (
-                          <p className="text-xs text-muted-foreground">
-                            Total: {(ratePerSize * unitSize).toLocaleString()} ({unitSize} m²)
-                          </p>
-                        )}
-                        {useRateMode && !unitSize && (
-                          <p className="text-xs text-destructive">
-                            Select a unit with a size first
-                          </p>
-                        )}
-                        <Form.Message />
-                      </Form.Item>
-                    )}
-                  />
-
-                  <Form.Item>
-                    <Form.Label>Entry Mode</Form.Label>
-                    <div className="flex gap-1 h-8">
-                      {[
-                        { label: 'Total', value: false },
-                        { label: 'Per m²', value: true },
-                      ].map((opt) => (
-                        <button
-                          key={String(opt.value)}
-                          type="button"
-                          onClick={() => {
-                            setUseRateMode(opt.value);
-                            if (!opt.value) setRatePerSize(0);
-                          }}
-                          className={`flex-1 rounded-md text-xs font-medium border transition-colors ${
-                            useRateMode === opt.value
-                              ? 'bg-primary text-primary-foreground border-primary'
-                              : 'bg-background text-muted-foreground border-input hover:border-ring hover:text-foreground'
-                          }`}
-                        >
-                          {opt.label}
-                        </button>
-                      ))}
-                    </div>
-                  </Form.Item>
-                </div>
               </div>
 
               <div

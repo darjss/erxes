@@ -36,7 +36,6 @@ import { IUnit } from '@/unit/types/unitType';
 import { InfoCard, InfoCardContent } from '@/block/components/card';
 import { SelectPrice } from '@/pricing/components/SelectPrice';
 import { IProjectPrice } from '@/project/types/projectTypes';
-import { SelectPriceType } from '@/pricing/components/SelectPriceType';
 import { addDays } from 'date-fns';
 import { PaymentPlanForm } from '@/pricing/components/PaymentPlanForm';
 
@@ -92,7 +91,7 @@ export const OfferAddForm = ({ onClose }: { onClose: () => void }) => {
       variables: {
         input: {
           amount: data.price.price,
-          amountType: data.price.priceType,
+          amountType: 'priceBySize',
           currency: data.price.currency,
           date: new Date(),
           endDate: data.endDate,
@@ -237,20 +236,6 @@ export const OfferAddForm = ({ onClose }: { onClose: () => void }) => {
                   </Form.Item>
                 )}
               />
-              <Form.Field
-                name="price.priceType"
-                render={({ field }) => (
-                  <Form.Item>
-                    <Form.Label>Price Type</Form.Label>
-                    <SelectPriceType
-                      value={field.value as IProjectPrice['priceType']}
-                      onValueChange={(value) =>
-                        field.onChange(value as IProjectPrice['priceType'])
-                      }
-                    />
-                  </Form.Item>
-                )}
-              />
             </div>
             <Separator className="col-span-4 mt-2" />
 
@@ -289,12 +274,11 @@ export const OfferPrice = ({
   const { downPaymentPercentage, discountPercentage, installment } =
     formData.paymentPlan;
 
-  const { price, priceType } = formData.price;
+  const { price } = formData.price;
 
   const discountAmount = ((discountPercentage || 0) * price) / 100;
   const offerPrice = price - discountAmount;
-  const offerTotalPrice =
-    offerPrice * (priceType === 'priceBySize' ? unit?.size : 1);
+  const offerTotalPrice = offerPrice * (unit?.size || 1);
 
   const installmentPercentage = (100 - downPaymentPercentage) / installment;
 
@@ -346,7 +330,7 @@ export const OfferPrice = ({
               <CurrencyField.ValueInput
                 value={
                   (offerPrice *
-                    (priceType === 'priceBySize' ? unit?.size : 1) *
+                    (unit?.size || 1) *
                     downPaymentPercentage) /
                   100
                 }
@@ -438,17 +422,14 @@ export const OfferSummary = ({
 
   const { discountPercentage } = formData.paymentPlan;
 
-  const { price, priceType } = formData.price;
+  const { price } = formData.price;
 
   const discountAmount = ((discountPercentage || 0) * price) / 100;
   const offerPrice = price - discountAmount;
-  const offerTotalPrice =
-    offerPrice * (priceType === 'priceBySize' ? unit?.size : 1);
-  const totalDiscount =
-    discountAmount * (priceType === 'priceBySize' ? unit?.size : 1);
+  const offerTotalPrice = offerPrice * (unit?.size || 1);
+  const totalDiscount = discountAmount * (unit?.size || 1);
 
-  const initialPrice =
-    (priceType === 'priceBySize' ? unit?.size : 1) * (price || 0);
+  const initialPrice = (unit?.size || 1) * (price || 0);
 
   return (
     <div className="flex-auto flex gap-4 items-center text-sm">

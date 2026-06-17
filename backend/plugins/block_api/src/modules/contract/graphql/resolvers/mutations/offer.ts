@@ -49,18 +49,6 @@ export const offerMutations = {
 
     const offer = await models.Offer.createOffer(rest);
 
-    if (paymentPlan.frequency === BlockProjectPaymentPlanFrequency.CUSTOM) {
-      for (const invoice of invoices) {
-        await models.Invoice.createInvoice({
-          ...invoice,
-          itemId: offer._id,
-          itemType: InvoiceItemType.OFFER,
-        });
-      }
-
-      return offer;
-    }
-
     let totalAmount =
       input.amountType === OfferAmountType.PER_SIZE
         ? input.amount * unitType.size
@@ -70,7 +58,7 @@ export const offerMutations = {
       frequency,
       discountPercentage,
       downPaymentPercentage,
-      advancePaymentDate,
+      completionPaymentDate,
       installment,
       interestPercentage,
       interestType,
@@ -95,7 +83,7 @@ export const offerMutations = {
     if (downPaymentPercentage) {
       await models.Invoice.createInvoice({
         amount: downPaymentAmount,
-        date: advancePaymentDate || new Date(),
+        date: completionPaymentDate || new Date(),
         status: InvoiceStatus.UNPAID,
         number: 1,
         itemId: offer._id,
@@ -107,7 +95,7 @@ export const offerMutations = {
     if (frequency === BlockProjectPaymentPlanFrequency.ONE_TIME) {
       return models.Invoice.createInvoice({
         amount: totalAmount - downPaymentAmount,
-        date: advancePaymentDate || new Date(),
+        date: completionPaymentDate || new Date(),
         status: InvoiceStatus.UNPAID,
         number: downPaymentPercentage ? 2 : 1,
         itemId: offer._id,
@@ -117,7 +105,7 @@ export const offerMutations = {
     }
 
     if (installment && installment > 0) {
-      const currentDate = advancePaymentDate || new Date();
+      const currentDate = completionPaymentDate || new Date();
       const addMonths = (date: Date, months: number) => {
         const d = new Date(date);
         d.setMonth(d.getMonth() + months);

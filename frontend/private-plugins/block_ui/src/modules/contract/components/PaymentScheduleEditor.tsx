@@ -38,7 +38,7 @@ export const PaymentScheduleEditor = ({
   if (!paymentPlan) return null;
 
   const downPct = paymentPlan.downPaymentPercentage || 0;
-  const advancePct = paymentPlan.advancePaymentPercentage || 0;
+  const completionPct = paymentPlan.completionPaymentPercentage || 0;
   const discountPct = paymentPlan.discountPercentage || 0;
   const interestPct = paymentPlan.interestPercentage || 0;
   const interestType = paymentPlan.interestType || 'FLAT';
@@ -54,8 +54,8 @@ export const PaymentScheduleEditor = ({
   const discountAmount = (amount * discountPct) / 100;
   const priceAfterDiscount = amount - discountAmount;
   const downAmount = (priceAfterDiscount * downPct) / 100;
-  const advanceAmount = (priceAfterDiscount * advancePct) / 100;
-  const principal = priceAfterDiscount - downAmount - advanceAmount;
+  const completionAmount = (priceAfterDiscount * completionPct) / 100;
+  const principal = priceAfterDiscount - downAmount - completionAmount;
   const principalPerInstallment =
     installmentCount > 0 ? principal / installmentCount : 0;
 
@@ -86,9 +86,7 @@ export const PaymentScheduleEditor = ({
       (_, i) => dueDates[i] || '',
     );
     next[index] = date ? date.toISOString() : '';
-    form.setValue('paymentPlan.paymentDueDates', next, {
-      shouldDirty: true,
-    });
+    form.setValue('paymentPlan.paymentDueDates', next, { shouldDirty: true });
   };
 
   const getInterest = (index: number) => {
@@ -120,8 +118,8 @@ export const PaymentScheduleEditor = ({
       {children}
     </div>
   );
-  const Cell = ({ children }: { children: React.ReactNode }) => (
-    <div className="px-2 py-2 border-t text-sm flex items-center">
+  const Cell = ({ children, className }: { children: React.ReactNode; className?: string }) => (
+    <div className={`px-2 py-2 border-t text-sm flex items-center ${className || ''}`}>
       {children}
     </div>
   );
@@ -186,30 +184,7 @@ export const PaymentScheduleEditor = ({
                 </div>
               );
             })()}
-            {advanceAmount > 0 && (() => {
-              grandTotal += advanceAmount;
-              const advanceDateLabel = parseDateLike(paymentPlan.advancePaymentDate) || contractDateLabel;
-              return (
-                <div
-                  className={`grid ${
-                    hasInterest ? 'grid-cols-6' : 'grid-cols-5'
-                  }`}
-                >
-                  <Cell>Advance</Cell>
-                  <Cell>
-                    {advanceDateLabel
-                      ? format(advanceDateLabel, 'dd.MM.yyyy')
-                      : '-'}
-                  </Cell>
-                  <Cell>Advance payment</Cell>
-                  <Cell>{fmt(advanceAmount)}</Cell>
-                  {hasInterest && <Cell>-</Cell>}
-                  <Cell>{fmt(advanceAmount)}</Cell>
-                </div>
-              );
-            })()}
             {Array.from({ length: installmentCount }).map((_, index) => {
-              const isLast = index === installmentCount - 1;
               const dueDate = getDueDate(index);
               const interest = getInterest(index);
               const rowTotal = principalPerInstallment + interest;
@@ -232,15 +207,30 @@ export const PaymentScheduleEditor = ({
                       placeholder="Pick date"
                     />
                   </Cell>
-                  <Cell>
-                    {isLast ? 'Final payment' : 'Progress payment'}
-                  </Cell>
+                  <Cell>Progress payment</Cell>
                   <Cell>{fmt(principalPerInstallment)}</Cell>
                   {hasInterest && <Cell>{fmt(interest)}</Cell>}
                   <Cell>{fmt(rowTotal)}</Cell>
                 </div>
               );
             })}
+            {completionAmount > 0 && (() => {
+              grandTotal += completionAmount;
+              return (
+                <div
+                  className={`grid ${
+                    hasInterest ? 'grid-cols-6' : 'grid-cols-5'
+                  }`}
+                >
+                  <Cell>Completion</Cell>
+                  <Cell className="text-muted-foreground text-xs">After building completed</Cell>
+                  <Cell>Completion payment</Cell>
+                  <Cell>{fmt(completionAmount)}</Cell>
+                  {hasInterest && <Cell>-</Cell>}
+                  <Cell>{fmt(completionAmount)}</Cell>
+                </div>
+              );
+            })()}
           </>
         )}
         <div

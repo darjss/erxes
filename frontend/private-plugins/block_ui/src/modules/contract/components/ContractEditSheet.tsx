@@ -78,8 +78,8 @@ const ContractEditBody = ({
           ),
           interestPercentage: orUndef(contract.paymentPlan.interestPercentage),
           interestType: orUndef(contract.paymentPlan.interestType),
-          advancePaymentPercentage: orUndef(
-            contract.paymentPlan.advancePaymentPercentage,
+          completionPaymentPercentage: orUndef(
+            contract.paymentPlan.completionPaymentPercentage,
           ),
           discountPercentage: orUndef(
             contract.paymentPlan.discountPercentage,
@@ -92,7 +92,7 @@ const ContractEditBody = ({
           paymentDates: orUndef(contract.paymentPlan.paymentDates),
           paymentDueDates: orUndef(contract.paymentPlan.paymentDueDates),
           firstPaymentDate: orUndef(contract.paymentPlan.firstPaymentDate),
-          advancePaymentDate: orUndef(contract.paymentPlan.advancePaymentDate),
+          completionPaymentDate: orUndef(contract.paymentPlan.completionPaymentDate),
         }
       : undefined,
   };

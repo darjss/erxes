@@ -11,7 +11,7 @@ export interface IContractPayment {
   unit?: string;
   index: number;
   label?: string;
-  dueDate: Date;
+  dueDate?: Date;
   amount: number;
   currency?: string;
   status: ContractPaymentStatus;

@@ -15,10 +15,8 @@ const INTEREST_TYPE_OPTIONS = [
 export const PaymentPlanForm = ({ form }: { form: UseFormReturn<any> }) => {
   const frequency = form.watch('paymentPlan.frequency');
   const interestPct = form.watch('paymentPlan.interestPercentage') || 0;
-  const advancePct = form.watch('paymentPlan.advancePaymentPercentage') || 0;
   const isOneTime = frequency === ONE_TIME_FREQUENCY;
   const hasInterest = Number(interestPct) > 0;
-  const hasAdvance = Number(advancePct) > 0;
 
   const handlePercentChange =
     (callback: (value: number) => void) =>
@@ -114,10 +112,10 @@ export const PaymentPlanForm = ({ form }: { form: UseFormReturn<any> }) => {
       />
 
       <Form.Field
-        name="paymentPlan.advancePaymentPercentage"
+        name="paymentPlan.completionPaymentPercentage"
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>Advance payment %</Form.Label>
+            <Form.Label>Completion payment %</Form.Label>
             <Input
               {...field}
               value={field.value ?? ''}
@@ -261,23 +259,6 @@ export const PaymentPlanForm = ({ form }: { form: UseFormReturn<any> }) => {
           render={({ field }) => (
             <Form.Item>
               <Form.Label>First installment date</Form.Label>
-              <DatePicker
-                placeholder="Select date"
-                value={parseDateValue(field.value)}
-                onChange={handleDateChange(field.onChange)}
-              />
-              <Form.Message />
-            </Form.Item>
-          )}
-        />
-      )}
-
-      {hasAdvance && (
-        <Form.Field
-          name="paymentPlan.advancePaymentDate"
-          render={({ field }) => (
-            <Form.Item>
-              <Form.Label>Advance payment due date</Form.Label>
               <DatePicker
                 placeholder="Select date"
                 value={parseDateValue(field.value)}

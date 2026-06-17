@@ -15,7 +15,7 @@ export const types = `
     downPaymentPercentage: Float
     interestPercentage: Float
     interestType: BlockContractInterestType
-    advancePaymentPercentage: Float
+    completionPaymentPercentage: Float
     discountPercentage: Float
     description: String
     installment: Int
@@ -25,7 +25,8 @@ export const types = `
     paymentDates: [Int]
     paymentDueDates: [Date]
     firstPaymentDate: Date
-    advancePaymentDate: Date
+    completionPaymentDate: Date
+    completionPaymentDateLabel: String
   }
 
   input BlockContractPaymentPlanInput {
@@ -33,7 +34,7 @@ export const types = `
     downPaymentPercentage: Float
     interestPercentage: Float
     interestType: BlockContractInterestType
-    advancePaymentPercentage: Float
+    completionPaymentPercentage: Float
     discountPercentage: Float
     description: String
     installment: Int
@@ -43,7 +44,8 @@ export const types = `
     paymentDates: [Int]
     paymentDueDates: [Date]
     firstPaymentDate: Date
-    advancePaymentDate: Date
+    completionPaymentDate: Date
+    completionPaymentDateLabel: String
   }
 
   type BlockContract {
@@ -56,6 +58,7 @@ export const types = `
     status: String
     startDate: String
     endDate: String
+    endDateLabel: String
     party: BlockContractParty
     paymentPlan: BlockContractPaymentPlan
     user: String
@@ -81,6 +84,7 @@ export const types = `
     status: String
     startDate: String
     endDate: String
+    endDateLabel: String
     party: BlockContractPartyInput
     paymentPlan: BlockContractPaymentPlanInput
     user: String

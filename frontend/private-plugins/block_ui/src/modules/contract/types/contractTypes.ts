@@ -21,7 +21,7 @@ export interface IContractPaymentPlan {
   downPaymentPercentage?: number;
   interestPercentage?: number;
   interestType?: ContractInterestType;
-  advancePaymentPercentage?: number;
+  completionPaymentPercentage?: number;
   discountPercentage?: number;
   description?: string;
   installment?: number;
@@ -31,7 +31,8 @@ export interface IContractPaymentPlan {
   paymentDates?: number[];
   paymentDueDates?: string[];
   firstPaymentDate?: string;
-  advancePaymentDate?: string;
+  completionPaymentDate?: string;
+  completionPaymentDateLabel?: string;
 }
 
 export interface IContractInput {
@@ -43,6 +44,7 @@ export interface IContractInput {
   status?: string;
   startDate?: string;
   endDate?: string;
+  endDateLabel?: string;
   party?: IContractParty;
   paymentPlan?: IContractPaymentPlan;
   user?: string;

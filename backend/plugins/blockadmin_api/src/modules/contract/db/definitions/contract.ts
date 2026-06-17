@@ -33,7 +33,7 @@ const contractPaymentPlanSchema = new Schema(
       type: String,
       enum: Object.values(BlockProjectPaymentPlanInterestType),
     },
-    advancePaymentPercentage: { type: Number },
+    completionPaymentPercentage: { type: Number },
     discountPercentage: { type: Number },
     installment: { type: Number },
     frequency: {

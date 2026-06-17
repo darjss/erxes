@@ -12,6 +12,7 @@ export const GET_CONTRACTS = gql`
       status
       startDate
       endDate
+      endDateLabel
 
       party {
         type
@@ -22,7 +23,7 @@ export const GET_CONTRACTS = gql`
         downPaymentPercentage
         interestPercentage
         interestType
-        advancePaymentPercentage
+        completionPaymentPercentage
         discountPercentage
         description
         installment
@@ -32,7 +33,8 @@ export const GET_CONTRACTS = gql`
         paymentDates
         paymentDueDates
         firstPaymentDate
-        advancePaymentDate
+        completionPaymentDate
+        completionPaymentDateLabel
       }
       user
     }
@@ -95,6 +97,7 @@ export const GET_CONTRACT = gql`
       status
       startDate
       endDate
+      endDateLabel
 
       party {
         type
@@ -105,7 +108,7 @@ export const GET_CONTRACT = gql`
         downPaymentPercentage
         interestPercentage
         interestType
-        advancePaymentPercentage
+        completionPaymentPercentage
         discountPercentage
         description
         installment
@@ -115,7 +118,8 @@ export const GET_CONTRACT = gql`
         paymentDates
         paymentDueDates
         firstPaymentDate
-        advancePaymentDate
+        completionPaymentDate
+        completionPaymentDateLabel
       }
       user
     }

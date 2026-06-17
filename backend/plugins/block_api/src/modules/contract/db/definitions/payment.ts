@@ -14,7 +14,7 @@ export const contractPaymentSchema = new Schema(
     unit: { type: Schema.Types.ObjectId, index: true },
     index: { type: Number, required: true },
     label: { type: String },
-    dueDate: { type: Date, required: true, index: true },
+    dueDate: { type: Date, index: true },
     amount: { type: Number, required: true },
     currency: { type: String, default: 'MNT' },
     status: {

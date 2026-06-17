@@ -10,6 +10,7 @@ import { contractPaymentSchema } from '@/contract/db/definitions/payment';
 export interface IContractPaymentModel extends Model<IContractPaymentDocument> {
   regenerateForContract(
     contractId: string,
+    force?: boolean,
   ): Promise<IContractPaymentDocument[]>;
   recomputeStatus(
     paymentId: string,
@@ -117,11 +118,11 @@ function generateInstallmentDates(
 
 export const loadContractPaymentClass = (models: IModels) => {
   class ContractPayment {
-    public static async regenerateForContract(contractId: string) {
+    public static async regenerateForContract(contractId: string, force = false) {
       const contract = await models.Contract.findOne({ _id: contractId });
       if (!contract) return [];
 
-      if (contract.status) {
+      if (!force && contract.status) {
         const stage = await models.ContractStatus.findOne({
           _id: contract.status,
         });
@@ -173,7 +174,7 @@ export const loadContractPaymentClass = (models: IModels) => {
 
       const totalPrice = contract.amount || 0;
       const downPct = paymentPlan.downPaymentPercentage || 0;
-      const advancePct = paymentPlan.advancePaymentPercentage || 0;
+      const finalPct = paymentPlan.completionPaymentPercentage || 0;
       const discountPct = paymentPlan.discountPercentage || 0;
       const interestPct = paymentPlan.interestPercentage || 0;
       const interestType = paymentPlan.interestType || 'FLAT';
@@ -184,7 +185,7 @@ export const loadContractPaymentClass = (models: IModels) => {
       const discountAmount = (totalPrice * discountPct) / 100;
       const priceAfterDiscount = totalPrice - discountAmount;
       const downAmount = (priceAfterDiscount * downPct) / 100;
-      const advanceAmount = (priceAfterDiscount * advancePct) / 100;
+      const advanceAmount = (priceAfterDiscount * finalPct) / 100;
       const principal = priceAfterDiscount - downAmount - advanceAmount;
 
       const contractDate = contract.date || new Date();
@@ -253,19 +254,6 @@ export const loadContractPaymentClass = (models: IModels) => {
           });
         }
 
-        if (advanceAmount > 0) {
-          const advanceDue = paymentPlan.advancePaymentDate
-            ? new Date(paymentPlan.advancePaymentDate)
-            : contractDate;
-          rows.push({
-            ...commonFields,
-            index: rowIndex++,
-            label: 'Advance payment',
-            dueDate: advanceDue,
-            amount: advanceAmount,
-          });
-        }
-
         const principalPerInstallment =
           installmentCount > 0 ? principal / installmentCount : 0;
 
@@ -298,6 +286,16 @@ export const loadContractPaymentClass = (models: IModels) => {
             label: `Installment ${i + 1}`,
             dueDate: dates[i] || startDate,
             amount: principalPerInstallment + interest,
+          });
+        }
+
+        if (advanceAmount > 0) {
+          rows.push({
+            ...commonFields,
+            index: rowIndex++,
+            label: 'Completion payment',
+            dueDate: new Date('2099-12-31'),
+            amount: advanceAmount,
           });
         }
       }

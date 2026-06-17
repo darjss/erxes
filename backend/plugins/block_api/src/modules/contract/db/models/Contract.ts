@@ -122,6 +122,10 @@ export const loadContractClass = (
         );
       }
 
+      if (updated && newStage.type === 'signed') {
+        await models.ContractPayment.regenerateForContract(_id, true);
+      }
+
       return updated;
     }
 

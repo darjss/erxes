@@ -105,7 +105,7 @@ export const ContractOverviewBody = ({
               {renderRow('Start Date', formatDate(contract.startDate))}
               {renderRow(
                 'End Date',
-                formatDate(contract.endDate),
+                (contract as any).endDateLabel || formatDate(contract.endDate),
               )}
               {renderRow('Party', partyLabel)}
               {renderRow(

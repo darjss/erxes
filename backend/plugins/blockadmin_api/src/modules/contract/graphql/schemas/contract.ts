@@ -22,7 +22,7 @@ export const types = `
     downPaymentPercentage: Float
     interestPercentage: Float
     interestType: BlockAdminContractInterestType
-    advancePaymentPercentage: Float
+    completionPaymentPercentage: Float
     discountPercentage: Float
     description: String
     installment: Int

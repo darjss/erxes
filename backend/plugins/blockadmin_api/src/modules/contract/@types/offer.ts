@@ -19,7 +19,7 @@ export interface IOfferPaymentPlan {
   type: BlockProjectPaymentPlanType;
   downPaymentPercentage: number;
   interestPercentage: number;
-  advancePaymentPercentage: number;
+  completionPaymentPercentage: number;
   discountPercentage: number;
   description: string;
   installment: number;
@@ -28,7 +28,7 @@ export interface IOfferPaymentPlan {
   vatIncluded: boolean;
   paymentDates: number[];
   firstPaymentDate: Date;
-  advancePaymentDate: Date;
+  completionPaymentDate: Date;
   interestType: BlockProjectPaymentPlanInterestType;
 }
 
