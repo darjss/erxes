@@ -20,8 +20,10 @@ export interface IContractParty {
 export interface IContractPaymentPlan {
   type: BlockProjectPaymentPlanType;
   downPaymentPercentage: number;
+  downPaymentAmount?: number;
   interestPercentage: number;
   completionPaymentPercentage: number;
+  completionPaymentAmount?: number;
   discountPercentage: number;
   description: string;
   installment: number;

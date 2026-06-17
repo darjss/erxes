@@ -22,6 +22,7 @@ const contractPartySchema = new Schema(
 const contractPaymentPlanSchema = new Schema(
   {
     downPaymentPercentage: { type: Number },
+    downPaymentAmount: { type: Number },
     description: { type: String },
     interestPercentage: { type: Number },
     interestType: {
@@ -29,6 +30,7 @@ const contractPaymentPlanSchema = new Schema(
       enum: Object.values(BlockProjectPaymentPlanInterestType),
     },
     completionPaymentPercentage: { type: Number },
+    completionPaymentAmount: { type: Number },
     discountPercentage: { type: Number },
     installment: { type: Number },
     frequency: {

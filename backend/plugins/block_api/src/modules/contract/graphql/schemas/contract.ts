@@ -13,9 +13,11 @@ export const types = `
   type BlockContractPaymentPlan {
     type: BlockProjectPaymentPlanType!
     downPaymentPercentage: Float
+    downPaymentAmount: Float
     interestPercentage: Float
     interestType: BlockContractInterestType
     completionPaymentPercentage: Float
+    completionPaymentAmount: Float
     discountPercentage: Float
     description: String
     installment: Int
@@ -33,9 +35,11 @@ export const types = `
   input BlockContractPaymentPlanInput {
     type: BlockProjectPaymentPlanType!
     downPaymentPercentage: Float
+    downPaymentAmount: Float
     interestPercentage: Float
     interestType: BlockContractInterestType
     completionPaymentPercentage: Float
+    completionPaymentAmount: Float
     discountPercentage: Float
     description: String
     installment: Int

@@ -137,8 +137,12 @@ const PaymentSchedule = ({ contract }: { contract: IContract }) => {
 
   const discountAmount = (totalPrice * discountPct) / 100;
   const priceAfterDiscount = totalPrice - discountAmount;
-  const downAmount = (priceAfterDiscount * downPct) / 100;
-  const completionAmount = (priceAfterDiscount * completionPct) / 100;
+  const downAmount = (paymentPlan.downPaymentAmount || 0) > 0
+    ? paymentPlan.downPaymentAmount!
+    : (priceAfterDiscount * downPct) / 100;
+  const completionAmount = (paymentPlan.completionPaymentAmount || 0) > 0
+    ? paymentPlan.completionPaymentAmount!
+    : (priceAfterDiscount * completionPct) / 100;
   const principal = priceAfterDiscount - downAmount - completionAmount;
   const principalPerInstallment =
     installmentCount > 0 ? principal / installmentCount : 0;
@@ -155,6 +159,7 @@ const PaymentSchedule = ({ contract }: { contract: IContract }) => {
   );
 
   const contractDateStr = formatDate(contract.date) || '-';
+  const downPaymentDateStr = formatDate(paymentPlan.downPaymentDate) || contractDateStr;
 
   const fmt = (val: number) =>
     new Intl.NumberFormat('mn-MN', {
@@ -239,7 +244,7 @@ const PaymentSchedule = ({ contract }: { contract: IContract }) => {
                     }`}
                   >
                     <Cell>Reservation</Cell>
-                    <Cell>{contractDateStr}</Cell>
+                    <Cell>{downPaymentDateStr}</Cell>
                     <Cell>Down payment</Cell>
                     <Cell>{fmt(downAmount)}</Cell>
                     {hasInterest && <Cell>-</Cell>}

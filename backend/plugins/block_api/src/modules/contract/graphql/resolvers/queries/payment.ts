@@ -79,7 +79,7 @@ export const contractPaymentQueries = {
     },
     { models }: IContext,
   ) => {
-    const match: Record<string, any> = { projectId: new Types.ObjectId(projectId) };
+    const match: Record<string, any> = { projectId: projectId.toString() };
     if (typeof paid === 'boolean') {
       match.status = paid ? 'paid' : { $in: ['unpaid', 'partial'] };
     }

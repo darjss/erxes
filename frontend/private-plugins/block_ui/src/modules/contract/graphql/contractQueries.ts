@@ -19,9 +19,11 @@ export const GET_CONTRACTS = gql`
       paymentPlan {
         type
         downPaymentPercentage
+        downPaymentAmount
         interestPercentage
         interestType
         completionPaymentPercentage
+        completionPaymentAmount
         discountPercentage
         description
         installment
@@ -102,9 +104,11 @@ export const GET_CONTRACT = gql`
       paymentPlan {
         type
         downPaymentPercentage
+        downPaymentAmount
         interestPercentage
         interestType
         completionPaymentPercentage
+        completionPaymentAmount
         discountPercentage
         description
         installment

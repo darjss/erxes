@@ -19,9 +19,11 @@ export interface IContractParty {
 export interface IContractPaymentPlan {
   type: string;
   downPaymentPercentage?: number;
+  downPaymentAmount?: number;
   interestPercentage?: number;
   interestType?: ContractInterestType;
   completionPaymentPercentage?: number;
+  completionPaymentAmount?: number;
   discountPercentage?: number;
   description?: string;
   installment?: number;

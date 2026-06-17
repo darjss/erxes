@@ -52,8 +52,12 @@ export const PaymentScheduleEditor = ({
 
   const discountAmount = (amount * discountPct) / 100;
   const priceAfterDiscount = amount - discountAmount;
-  const downAmount = (priceAfterDiscount * downPct) / 100;
-  const completionAmount = (priceAfterDiscount * completionPct) / 100;
+  const downAmount = (paymentPlan.downPaymentAmount || 0) > 0
+    ? paymentPlan.downPaymentAmount!
+    : (priceAfterDiscount * downPct) / 100;
+  const completionAmount = (paymentPlan.completionPaymentAmount || 0) > 0
+    ? paymentPlan.completionPaymentAmount!
+    : (priceAfterDiscount * completionPct) / 100;
   const principal = priceAfterDiscount - downAmount - completionAmount;
   const principalPerInstallment =
     installmentCount > 0 ? principal / installmentCount : 0;
@@ -109,6 +113,7 @@ export const PaymentScheduleEditor = ({
 
   const hasInterest = interestPct > 0;
   const contractDateLabel = parseDateLike(contractDate);
+  const downPaymentDateLabel = parseDateLike(paymentPlan.downPaymentDate) || contractDateLabel;
   let grandTotal = 0;
 
   const Header = ({ children }: { children: React.ReactNode }) => (
@@ -171,8 +176,8 @@ export const PaymentScheduleEditor = ({
                 >
                   <Cell>Reservation</Cell>
                   <Cell>
-                    {contractDateLabel
-                      ? format(contractDateLabel, 'dd.MM.yyyy')
+                    {downPaymentDateLabel
+                      ? format(downPaymentDateLabel, 'dd.MM.yyyy')
                       : '-'}
                   </Cell>
                   <Cell>Down payment</Cell>

@@ -3,6 +3,7 @@ import { SelectPaymentPlan } from './SelectPaymentPlan';
 import { SelectPaymentPlanType } from './SelectPaymentPlanType';
 import { UseFormReturn } from 'react-hook-form';
 import { SelectPaymentPlanFrequency } from './SelectPaymentPlanFrequency';
+import { useState } from 'react';
 
 const ONE_TIME_FREQUENCY = 'ONE_TIME';
 
@@ -12,11 +13,45 @@ const INTEREST_TYPE_OPTIONS = [
   { value: 'SIMPLE', label: 'Simple interest' },
 ];
 
+type AmountMode = 'percent' | 'amount';
+
+const ModeToggle = ({
+  mode,
+  onChange,
+}: {
+  mode: AmountMode;
+  onChange: (m: AmountMode) => void;
+}) => (
+  <div className="flex border rounded-md overflow-hidden h-6 text-xs ml-auto">
+    <button
+      type="button"
+      className={`px-2 ${mode === 'percent' ? 'bg-primary text-primary-foreground' : 'bg-background text-muted-foreground hover:bg-muted'}`}
+      onClick={() => onChange('percent')}
+    >
+      %
+    </button>
+    <button
+      type="button"
+      className={`px-2 ${mode === 'amount' ? 'bg-primary text-primary-foreground' : 'bg-background text-muted-foreground hover:bg-muted'}`}
+      onClick={() => onChange('amount')}
+    >
+      #
+    </button>
+  </div>
+);
+
 export const PaymentPlanForm = ({ form }: { form: UseFormReturn<any> }) => {
   const frequency = form.watch('paymentPlan.frequency');
   const interestPct = form.watch('paymentPlan.interestPercentage') || 0;
   const isOneTime = frequency === ONE_TIME_FREQUENCY;
   const hasInterest = Number(interestPct) > 0;
+
+  const [downMode, setDownMode] = useState<AmountMode>(() =>
+    (form.getValues('paymentPlan.downPaymentAmount') || 0) > 0 ? 'amount' : 'percent',
+  );
+  const [completionMode, setCompletionMode] = useState<AmountMode>(() =>
+    (form.getValues('paymentPlan.completionPaymentAmount') || 0) > 0 ? 'amount' : 'percent',
+  );
 
   const handlePercentChange =
     (callback: (value: number) => void) =>
@@ -43,6 +78,38 @@ export const PaymentPlanForm = ({ form }: { form: UseFormReturn<any> }) => {
       const d = Array.isArray(date) ? date[0] : date;
       onChange(d ? d.toISOString() : undefined);
     };
+
+  const switchDownMode = (mode: AmountMode) => {
+    setDownMode(mode);
+    if (mode === 'percent') {
+      form.setValue('paymentPlan.downPaymentAmount', undefined);
+    } else {
+      form.setValue('paymentPlan.downPaymentPercentage', undefined);
+    }
+  };
+
+  const switchCompletionMode = (mode: AmountMode) => {
+    setCompletionMode(mode);
+    if (mode === 'percent') {
+      form.setValue('paymentPlan.completionPaymentAmount', undefined);
+    } else {
+      form.setValue('paymentPlan.completionPaymentPercentage', undefined);
+    }
+  };
+
+  const downLabel = (
+    <div className="flex items-center">
+      <Form.Label>Down payment</Form.Label>
+      <ModeToggle mode={downMode} onChange={switchDownMode} />
+    </div>
+  );
+
+  const completionLabel = (
+    <div className="flex items-center">
+      <Form.Label>Completion payment</Form.Label>
+      <ModeToggle mode={completionMode} onChange={switchCompletionMode} />
+    </div>
+  );
 
   return (
     <>
@@ -93,11 +160,12 @@ export const PaymentPlanForm = ({ form }: { form: UseFormReturn<any> }) => {
         )}
       />
 
+      {/* Down payment — both fields always mounted; only one visible */}
       <Form.Field
         name="paymentPlan.downPaymentPercentage"
         render={({ field }) => (
-          <Form.Item>
-            <Form.Label>Down payment %</Form.Label>
+          <Form.Item className={downMode !== 'percent' ? 'hidden' : ''}>
+            {downLabel}
             <Input
               {...field}
               value={field.value ?? ''}
@@ -105,17 +173,36 @@ export const PaymentPlanForm = ({ form }: { form: UseFormReturn<any> }) => {
               type="number"
               max={100}
               min={0}
+              placeholder="0 – 100 %"
+            />
+            <Form.Message />
+          </Form.Item>
+        )}
+      />
+      <Form.Field
+        name="paymentPlan.downPaymentAmount"
+        render={({ field }) => (
+          <Form.Item className={downMode !== 'amount' ? 'hidden' : ''}>
+            {downLabel}
+            <Input
+              {...field}
+              value={field.value ?? ''}
+              onChange={(e) => field.onChange(e.target.value === '' ? undefined : Number(e.target.value))}
+              type="number"
+              min={0}
+              placeholder="Exact amount"
             />
             <Form.Message />
           </Form.Item>
         )}
       />
 
+      {/* Completion payment — both fields always mounted; only one visible */}
       <Form.Field
         name="paymentPlan.completionPaymentPercentage"
         render={({ field }) => (
-          <Form.Item>
-            <Form.Label>Completion payment %</Form.Label>
+          <Form.Item className={completionMode !== 'percent' ? 'hidden' : ''}>
+            {completionLabel}
             <Input
               {...field}
               value={field.value ?? ''}
@@ -123,6 +210,24 @@ export const PaymentPlanForm = ({ form }: { form: UseFormReturn<any> }) => {
               type="number"
               max={100}
               min={0}
+              placeholder="0 – 100 %"
+            />
+            <Form.Message />
+          </Form.Item>
+        )}
+      />
+      <Form.Field
+        name="paymentPlan.completionPaymentAmount"
+        render={({ field }) => (
+          <Form.Item className={completionMode !== 'amount' ? 'hidden' : ''}>
+            {completionLabel}
+            <Input
+              {...field}
+              value={field.value ?? ''}
+              onChange={(e) => field.onChange(e.target.value === '' ? undefined : Number(e.target.value))}
+              type="number"
+              min={0}
+              placeholder="Exact amount"
             />
             <Form.Message />
           </Form.Item>

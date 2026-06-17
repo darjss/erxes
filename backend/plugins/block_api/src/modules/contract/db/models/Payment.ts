@@ -122,12 +122,10 @@ export const loadContractPaymentClass = (models: IModels) => {
       const contract = await models.Contract.findOne({ _id: contractId });
       if (!contract) return [];
 
-      if (!force && contract.status) {
-        const stage = await models.ContractStatus.findOne({
-          _id: contract.status,
-        });
-        if (stage?.type === 'signed') return [];
-      }
+      const stage = contract.status
+        ? await models.ContractStatus.findOne({ _id: contract.status })
+        : null;
+      if (!force && stage?.type !== 'signed') return [];
 
       const contractNumber = contract.number;
       const partyId = contract.party?.id;
@@ -184,11 +182,18 @@ export const loadContractPaymentClass = (models: IModels) => {
 
       const discountAmount = (totalPrice * discountPct) / 100;
       const priceAfterDiscount = totalPrice - discountAmount;
-      const downAmount = (priceAfterDiscount * downPct) / 100;
-      const advanceAmount = (priceAfterDiscount * finalPct) / 100;
+      const downAmount = paymentPlan.downPaymentAmount > 0
+        ? paymentPlan.downPaymentAmount
+        : (priceAfterDiscount * downPct) / 100;
+      const advanceAmount = paymentPlan.completionPaymentAmount > 0
+        ? paymentPlan.completionPaymentAmount
+        : (priceAfterDiscount * finalPct) / 100;
       const principal = priceAfterDiscount - downAmount - advanceAmount;
 
       const contractDate = contract.date || new Date();
+      const downPaymentDate = paymentPlan.downPaymentDate
+        ? new Date(paymentPlan.downPaymentDate)
+        : contractDate;
       // paymentDueDates are stored as Date objects
       const customDueDates = (paymentPlan.paymentDueDates || [])
         .map((d: Date | string) => (d instanceof Date ? d : new Date(d)))
@@ -248,7 +253,7 @@ export const loadContractPaymentClass = (models: IModels) => {
             ...commonFields,
             index: rowIndex++,
             label: 'Down payment',
-            dueDate: contractDate,
+            dueDate: downPaymentDate,
             amount: downAmount,
           });
         }
