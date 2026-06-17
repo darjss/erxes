@@ -63,8 +63,17 @@ export const PaymentScheduleEditor = ({
     ? paymentPlan.completionPaymentAmount!
     : (priceAfterDiscount * completionPct) / 100;
   const principal = priceAfterDiscount - downAmount - barterValue - completionAmount;
+  const roundedAmount = paymentPlan.roundedInstallmentAmount || 0;
   const principalPerInstallment =
-    installmentCount > 0 ? principal / installmentCount : 0;
+    installmentCount > 0
+      ? roundedAmount > 0
+        ? roundedAmount
+        : principal / installmentCount
+      : 0;
+  const lastInstallmentPrincipal =
+    roundedAmount > 0 && installmentCount > 0
+      ? principal - roundedAmount * (installmentCount - 1)
+      : principalPerInstallment;
 
   const baseStart =
     parseDateLike(paymentPlan.firstPaymentDate) ||
@@ -215,7 +224,9 @@ export const PaymentScheduleEditor = ({
             {Array.from({ length: installmentCount }).map((_, index) => {
               const dueDate = getDueDate(index);
               const interest = getInterest(index);
-              const rowTotal = principalPerInstallment + interest;
+              const isLast = index === installmentCount - 1;
+              const installPrincipal = isLast ? lastInstallmentPrincipal : principalPerInstallment;
+              const rowTotal = installPrincipal + interest;
               grandTotal += rowTotal;
               return (
                 <div
@@ -236,7 +247,7 @@ export const PaymentScheduleEditor = ({
                     />
                   </Cell>
                   <Cell>Progress payment</Cell>
-                  <Cell>{fmt(principalPerInstallment)}</Cell>
+                  <Cell>{fmt(installPrincipal)}</Cell>
                   {hasInterest && <Cell>{fmt(interest)}</Cell>}
                   <Cell>{fmt(rowTotal)}</Cell>
                 </div>

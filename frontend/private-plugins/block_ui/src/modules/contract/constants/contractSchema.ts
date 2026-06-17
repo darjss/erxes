@@ -31,6 +31,7 @@ export const contractSchema = z.object({
       frequency: z.string().optional(),
       penaltyPercentage: z.number().min(0).optional(),
       vatIncluded: z.boolean().optional(),
+      roundedInstallmentAmount: z.number().min(0).optional(),
       paymentDates: z.array(z.number()).optional(),
       paymentDueDates: z.array(z.string()).optional(),
       firstPaymentDate: z.string().optional(),

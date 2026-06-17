@@ -397,6 +397,28 @@ export const PaymentPlanForm = ({ form }: { form: UseFormReturn<any> }) => {
 
       {!isOneTime && (
         <Form.Field
+          name="paymentPlan.roundedInstallmentAmount"
+          render={({ field }) => (
+            <Form.Item>
+              <Form.Label>Installment amount</Form.Label>
+              <Input
+                {...field}
+                value={field.value ?? ''}
+                onChange={(e) =>
+                  field.onChange(e.target.value === '' ? undefined : Number(e.target.value))
+                }
+                type="number"
+                min={0}
+                placeholder="e.g. 7,000,000 — remainder goes to last"
+              />
+              <Form.Message />
+            </Form.Item>
+          )}
+        />
+      )}
+
+      {!isOneTime && (
+        <Form.Field
           name="paymentPlan.paymentDates"
           render={({ field }) => (
             <Form.Item>
