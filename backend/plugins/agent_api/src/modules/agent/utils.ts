@@ -199,6 +199,23 @@ export const deployManagedServer = async (
     throw new Error('Managed deployer did not return an approved runtime URL');
   }
 
+  const maxAttempts = 6;
+  const delayMs = 10_000;
+  let lastError: Error | undefined;
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    try {
+      await verifyManagedRuntime(normalizeRuntimeUrl(result.url));
+      lastError = undefined;
+      break;
+    } catch (err: any) {
+      lastError = err;
+      if (attempt < maxAttempts) {
+        await new Promise(resolve => setTimeout(resolve, delayMs));
+      }
+    }
+  }
+  if (lastError) throw lastError;
+
   return {
     ...result,
     url: normalizeRuntimeUrl(result.url),
@@ -210,8 +227,6 @@ export const approveServer = async (
   code: string,
 ) => {
   const DEPLOYER = getDeployerUrl();
-
-  console.log(agent.name);
 
   const DEPLOYER_URL = `${DEPLOYER}/tools/${agent.name}/discordapprove`;
 
@@ -296,7 +311,6 @@ export const listAgents = async (serverName: string): Promise<AgentItem[]> => {
 
   const data = (await response.json()) as { agents: AgentItem[] };
 
-  console.log('data', data);
   return data.agents;
 };
 
