@@ -23,6 +23,8 @@ const contractPaymentPlanSchema = new Schema(
   {
     downPaymentPercentage: { type: Number },
     downPaymentAmount: { type: Number },
+    barterPercentage: { type: Number },
+    barterAmount: { type: Number },
     description: { type: String },
     interestPercentage: { type: Number },
     interestType: {

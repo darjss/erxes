@@ -49,6 +49,9 @@ export const PaymentPlanForm = ({ form }: { form: UseFormReturn<any> }) => {
   const [downMode, setDownMode] = useState<AmountMode>(() =>
     (form.getValues('paymentPlan.downPaymentAmount') || 0) > 0 ? 'amount' : 'percent',
   );
+  const [barterMode, setBarterMode] = useState<AmountMode>(() =>
+    (form.getValues('paymentPlan.barterAmount') || 0) > 0 ? 'amount' : 'percent',
+  );
   const [completionMode, setCompletionMode] = useState<AmountMode>(() =>
     (form.getValues('paymentPlan.completionPaymentAmount') || 0) > 0 ? 'amount' : 'percent',
   );
@@ -88,6 +91,15 @@ export const PaymentPlanForm = ({ form }: { form: UseFormReturn<any> }) => {
     }
   };
 
+  const switchBarterMode = (mode: AmountMode) => {
+    setBarterMode(mode);
+    if (mode === 'percent') {
+      form.setValue('paymentPlan.barterAmount', undefined);
+    } else {
+      form.setValue('paymentPlan.barterPercentage', undefined);
+    }
+  };
+
   const switchCompletionMode = (mode: AmountMode) => {
     setCompletionMode(mode);
     if (mode === 'percent') {
@@ -101,6 +113,13 @@ export const PaymentPlanForm = ({ form }: { form: UseFormReturn<any> }) => {
     <div className="flex items-center">
       <Form.Label>Down payment</Form.Label>
       <ModeToggle mode={downMode} onChange={switchDownMode} />
+    </div>
+  );
+
+  const barterLabel = (
+    <div className="flex items-center">
+      <Form.Label>Barter</Form.Label>
+      <ModeToggle mode={barterMode} onChange={switchBarterMode} />
     </div>
   );
 
@@ -184,6 +203,43 @@ export const PaymentPlanForm = ({ form }: { form: UseFormReturn<any> }) => {
         render={({ field }) => (
           <Form.Item className={downMode !== 'amount' ? 'hidden' : ''}>
             {downLabel}
+            <Input
+              {...field}
+              value={field.value ?? ''}
+              onChange={(e) => field.onChange(e.target.value === '' ? undefined : Number(e.target.value))}
+              type="number"
+              min={0}
+              placeholder="Exact amount"
+            />
+            <Form.Message />
+          </Form.Item>
+        )}
+      />
+
+      {/* Barter — both fields always mounted; only one visible */}
+      <Form.Field
+        name="paymentPlan.barterPercentage"
+        render={({ field }) => (
+          <Form.Item className={barterMode !== 'percent' ? 'hidden' : ''}>
+            {barterLabel}
+            <Input
+              {...field}
+              value={field.value ?? ''}
+              onChange={handlePercentChange(field.onChange)}
+              type="number"
+              max={100}
+              min={0}
+              placeholder="0 – 100 %"
+            />
+            <Form.Message />
+          </Form.Item>
+        )}
+      />
+      <Form.Field
+        name="paymentPlan.barterAmount"
+        render={({ field }) => (
+          <Form.Item className={barterMode !== 'amount' ? 'hidden' : ''}>
+            {barterLabel}
             <Input
               {...field}
               value={field.value ?? ''}

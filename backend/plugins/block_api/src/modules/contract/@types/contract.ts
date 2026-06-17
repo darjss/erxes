@@ -21,6 +21,8 @@ export interface IContractPaymentPlan {
   type: BlockProjectPaymentPlanType;
   downPaymentPercentage: number;
   downPaymentAmount?: number;
+  barterPercentage?: number;
+  barterAmount?: number;
   interestPercentage: number;
   completionPaymentPercentage: number;
   completionPaymentAmount?: number;

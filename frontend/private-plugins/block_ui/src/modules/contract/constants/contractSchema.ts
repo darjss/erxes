@@ -19,6 +19,8 @@ export const contractSchema = z.object({
       type: z.string().optional(),
       downPaymentPercentage: z.number().min(0).max(100).optional(),
       downPaymentAmount: z.number().min(0).optional(),
+      barterPercentage: z.number().min(0).max(100).optional(),
+      barterAmount: z.number().min(0).optional(),
       interestPercentage: z.number().min(0).optional(),
       interestType: z.enum(['SIMPLE', 'FLAT', 'REDUCING']).optional(),
       completionPaymentPercentage: z.number().min(0).max(100).optional(),

@@ -14,6 +14,8 @@ export const types = `
     type: BlockProjectPaymentPlanType!
     downPaymentPercentage: Float
     downPaymentAmount: Float
+    barterPercentage: Float
+    barterAmount: Float
     interestPercentage: Float
     interestType: BlockContractInterestType
     completionPaymentPercentage: Float
@@ -36,6 +38,8 @@ export const types = `
     type: BlockProjectPaymentPlanType!
     downPaymentPercentage: Float
     downPaymentAmount: Float
+    barterPercentage: Float
+    barterAmount: Float
     interestPercentage: Float
     interestType: BlockContractInterestType
     completionPaymentPercentage: Float

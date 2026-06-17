@@ -20,6 +20,8 @@ export const GET_CONTRACTS = gql`
         type
         downPaymentPercentage
         downPaymentAmount
+        barterPercentage
+        barterAmount
         interestPercentage
         interestType
         completionPaymentPercentage
@@ -105,6 +107,8 @@ export const GET_CONTRACT = gql`
         type
         downPaymentPercentage
         downPaymentAmount
+        barterPercentage
+        barterAmount
         interestPercentage
         interestType
         completionPaymentPercentage

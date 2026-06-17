@@ -44,8 +44,18 @@ export const ContractPaymentPlanBody = ({
               {renderRow('Type', paymentPlan.type, true)}
               {renderRow(
                 'Down Payment',
-                paymentPlan.downPaymentPercentage != null
+                (paymentPlan.downPaymentAmount || 0) > 0
+                  ? paymentPlan.downPaymentAmount!.toLocaleString()
+                  : paymentPlan.downPaymentPercentage != null
                   ? `${paymentPlan.downPaymentPercentage}%`
+                  : null,
+              )}
+              {renderRow(
+                'Barter',
+                (paymentPlan.barterAmount || 0) > 0
+                  ? paymentPlan.barterAmount!.toLocaleString()
+                  : (paymentPlan.barterPercentage || 0) > 0
+                  ? `${paymentPlan.barterPercentage}%`
                   : null,
               )}
               {renderRow(
@@ -122,6 +132,7 @@ const PaymentSchedule = ({ contract }: { contract: IContract }) => {
 
   const totalPrice = amount || 0;
   const downPct = paymentPlan.downPaymentPercentage || 0;
+  const barterPct = paymentPlan.barterPercentage || 0;
   const completionPct = paymentPlan.completionPaymentPercentage || 0;
   const discountPct = paymentPlan.discountPercentage || 0;
   const interestPct = paymentPlan.interestPercentage || 0;
@@ -140,10 +151,13 @@ const PaymentSchedule = ({ contract }: { contract: IContract }) => {
   const downAmount = (paymentPlan.downPaymentAmount || 0) > 0
     ? paymentPlan.downPaymentAmount!
     : (priceAfterDiscount * downPct) / 100;
+  const barterValue = (paymentPlan.barterAmount || 0) > 0
+    ? paymentPlan.barterAmount!
+    : (priceAfterDiscount * barterPct) / 100;
   const completionAmount = (paymentPlan.completionPaymentAmount || 0) > 0
     ? paymentPlan.completionPaymentAmount!
     : (priceAfterDiscount * completionPct) / 100;
-  const principal = priceAfterDiscount - downAmount - completionAmount;
+  const principal = priceAfterDiscount - downAmount - barterValue - completionAmount;
   const principalPerInstallment =
     installmentCount > 0 ? principal / installmentCount : 0;
 
@@ -234,6 +248,25 @@ const PaymentSchedule = ({ contract }: { contract: IContract }) => {
           })()
         ) : (
           <>
+            {barterValue > 0 &&
+              (() => {
+                grandTotal += barterValue;
+                return (
+                  <div
+                    className={`grid ${
+                      hasInterest ? 'grid-cols-7' : 'grid-cols-5'
+                    }`}
+                  >
+                    <Cell>Barter</Cell>
+                    <Cell>{contractDateStr}</Cell>
+                    <Cell>Barter</Cell>
+                    <Cell>{fmt(barterValue)}</Cell>
+                    {hasInterest && <Cell>-</Cell>}
+                    {hasInterest && <Cell>-</Cell>}
+                    <Cell>{fmt(barterValue)}</Cell>
+                  </div>
+                );
+              })()}
             {downAmount > 0 &&
               (() => {
                 grandTotal += downAmount;
@@ -325,9 +358,9 @@ const PaymentSchedule = ({ contract }: { contract: IContract }) => {
           <Cell>Total</Cell>
           <Cell>{hasDiscount ? `Discount: ${fmt(discountAmount)}` : ' '}</Cell>
           <Cell> </Cell>
-          <Cell>{fmt(principal + downAmount)}</Cell>
+          <Cell>{fmt(principal + downAmount + barterValue)}</Cell>
           {hasInterest && (
-            <Cell>{fmt(grandTotal - (principal + downAmount))}</Cell>
+            <Cell>{fmt(grandTotal - (principal + downAmount + barterValue))}</Cell>
           )}
           {hasInterest && <Cell> </Cell>}
           <Cell>{fmt(grandTotal)}</Cell>

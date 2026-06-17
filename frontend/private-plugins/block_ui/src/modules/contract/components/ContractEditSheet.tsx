@@ -75,6 +75,8 @@ const ContractEditBody = ({
             contract.paymentPlan.downPaymentPercentage,
           ),
           downPaymentAmount: orUndef(contract.paymentPlan.downPaymentAmount),
+          barterPercentage: orUndef(contract.paymentPlan.barterPercentage),
+          barterAmount: orUndef(contract.paymentPlan.barterAmount),
           interestPercentage: orUndef(contract.paymentPlan.interestPercentage),
           interestType: orUndef(contract.paymentPlan.interestType),
           completionPaymentPercentage: orUndef(
