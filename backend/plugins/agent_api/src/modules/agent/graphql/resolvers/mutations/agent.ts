@@ -247,7 +247,9 @@ export const agentMutations = {
         url: server.serverUrl,
         token: server.gatewayToken,
         serverId: server.serverId,
-        status: SERVER_STATUSES.DEPLOYING,
+        status: server.status === 'approved'
+          ? SERVER_STATUSES.APPROVED
+          : SERVER_STATUSES.DEPLOYING,
       });
     } catch (error) {
       await models.AgentServer.deleteOne({ identifierId });
