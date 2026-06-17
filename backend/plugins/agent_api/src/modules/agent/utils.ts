@@ -199,23 +199,9 @@ export const deployManagedServer = async (
     throw new Error('Managed deployer did not return an approved runtime URL');
   }
 
-  const maxAttempts = 6;
-  const delayMs = 10_000;
-  let lastError: Error | undefined;
-  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-    try {
-      await verifyManagedRuntime(normalizeRuntimeUrl(result.url));
-      lastError = undefined;
-      break;
-    } catch (err: any) {
-      lastError = err;
-      if (attempt < maxAttempts) {
-        await new Promise(resolve => setTimeout(resolve, delayMs));
-      }
-    }
-  }
-  if (lastError) throw lastError;
-
+  // The deployer already verifies the runtime health before returning
+  // "approved" — a second verification from the platform would hit the same
+  // Cloudflare proxy that blocks same-DC requests, causing a false failure.
   return {
     ...result,
     url: normalizeRuntimeUrl(result.url),

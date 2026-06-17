@@ -138,7 +138,7 @@ const runManagedDeployment = async ({
     const server = await deployManagedServer({
       orgId: subdomain,
       assistantId: identifier.slug,
-      serverName: identifier.slug,
+      serverName: expectedServerName,
       provider: input.provider?.trim() || 'kimi',
       kimiApiKey: input.kimiApiKey.trim(),
       description,
