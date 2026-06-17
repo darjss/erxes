@@ -45,6 +45,7 @@ interface DeployResponse {
   serverUrl: string;
   gatewayToken: string;
   serverId: number;
+  status?: string;
 }
 
 interface ManagedDeployPayload {
