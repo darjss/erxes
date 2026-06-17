@@ -25,6 +25,7 @@ export const types = `
     paymentDates: [Int]
     paymentDueDates: [Date]
     firstPaymentDate: Date
+    downPaymentDate: Date
     completionPaymentDate: Date
     completionPaymentDateLabel: String
   }
@@ -44,6 +45,7 @@ export const types = `
     paymentDates: [Int]
     paymentDueDates: [Date]
     firstPaymentDate: Date
+    downPaymentDate: Date
     completionPaymentDate: Date
     completionPaymentDateLabel: String
   }
@@ -56,9 +58,6 @@ export const types = `
     date: String
     amount: Float
     status: String
-    startDate: String
-    endDate: String
-    endDateLabel: String
     party: BlockContractParty
     paymentPlan: BlockContractPaymentPlan
     user: String
@@ -82,9 +81,6 @@ export const types = `
     date: String
     amount: Float
     status: String
-    startDate: String
-    endDate: String
-    endDateLabel: String
     party: BlockContractPartyInput
     paymentPlan: BlockContractPaymentPlanInput
     user: String

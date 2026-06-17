@@ -88,7 +88,6 @@ export const UpdateUnitType = ({
   });
 
   const usageType = form.watch('type');
-  const size = form.watch('size');
   const areaType = form.watch('areaType');
   const tenureTypes = form.watch('tenureTypes');
 
@@ -101,12 +100,6 @@ export const UpdateUnitType = ({
   );
 
   const { updateUnitType, loading } = useUnitTypeUpdate({ id: unitType._id });
-
-  useEffect(() => {
-    const price = size * (project?.mainPrice || 0);
-
-    form.setValue('price', price);
-  }, [size]);
 
   useEffect(() => {
     if (unitType.price) {
@@ -280,7 +273,7 @@ export const UpdateUnitType = ({
                   name="price"
                   render={({ field }) => (
                     <Form.Item>
-                      <Form.Label>Price</Form.Label>
+                      <Form.Label>Price per m²</Form.Label>
                       <CurrencyField.ValueInput placeholder="0" {...field} />
                     </Form.Item>
                   )}
@@ -290,7 +283,7 @@ export const UpdateUnitType = ({
               <div className="gap-3 grid grid-cols-2">
                 <div className="space-y-2">
                   <Label asChild>
-                    <legend>Prices</legend>
+                    <legend>Prices per m²</legend>
                   </Label>
                   {fields.map((field, index) => (
                     <div key={field.id} className="flex items-center gap-2">

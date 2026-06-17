@@ -83,6 +83,12 @@ export const ContractPaymentPlanBody = ({
               )}
               {renderRow('Description', paymentPlan.description)}
               {renderRow(
+                'Down Payment Due',
+                paymentPlan.downPaymentDate
+                  ? formatDate(paymentPlan.downPaymentDate)
+                  : null,
+              )}
+              {renderRow(
                 'First Installment Date',
                 paymentPlan.firstPaymentDate
                   ? formatDate(paymentPlan.firstPaymentDate)
@@ -140,7 +146,6 @@ const PaymentSchedule = ({ contract }: { contract: IContract }) => {
   const contractDate = parseDateLike(contract.date) || new Date();
   const firstInstallmentStart =
     parseDateLike(paymentPlan.firstPaymentDate) ||
-    parseDateLike(contract.startDate) ||
     contractDate;
   const installmentDates = generateInstallmentDates(
     firstInstallmentStart,

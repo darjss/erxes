@@ -10,9 +10,7 @@ export const GET_CONTRACTS = gql`
       date
       amount
       status
-      startDate
-      endDate
-      endDateLabel
+
 
       party {
         type
@@ -33,6 +31,7 @@ export const GET_CONTRACTS = gql`
         paymentDates
         paymentDueDates
         firstPaymentDate
+        downPaymentDate
         completionPaymentDate
         completionPaymentDateLabel
       }
@@ -62,9 +61,8 @@ export const GET_CONTRACTS_LIST = gql`
         date
         amount
           status
-        startDate
-        endDate
   
+
         party {
           type
           id
@@ -95,9 +93,7 @@ export const GET_CONTRACT = gql`
       date
       amount
       status
-      startDate
-      endDate
-      endDateLabel
+
 
       party {
         type
@@ -118,6 +114,7 @@ export const GET_CONTRACT = gql`
         paymentDates
         paymentDueDates
         firstPaymentDate
+        downPaymentDate
         completionPaymentDate
         completionPaymentDateLabel
       }

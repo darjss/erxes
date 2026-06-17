@@ -46,8 +46,6 @@ export const types = `
     amount: Int
     amountType: BlockAdminContractAmountType
     status: BlockAdminContractStatus
-    startDate: String
-    endDate: String
     isLifeTime: Boolean
     party: BlockAdminContractParty
     paymentPlan: BlockAdminContractPaymentPlan

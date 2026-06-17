@@ -12,7 +12,6 @@ import {
   toast,
   Textarea,
   Sidebar,
-  Checkbox,
 } from 'erxes-ui';
 import { useForm } from 'react-hook-form';
 import { useParams } from 'react-router-dom';
@@ -29,7 +28,7 @@ import { ContractUnit } from './ContractUnit';
 import { ContractUnitSelector } from './ContractUnitSelector';
 import { useBlockContractStatusesByType } from '@/contract-status/hooks/useGetBlockContractStatuses';
 import { IUnit } from '@/unit/types/unitType';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useUnit } from '@/unit/hooks/useUnit';
 
 const TYPE_ORDER = ['reserved', 'draft', 'signed', 'lost', 'cancelled'];
@@ -97,6 +96,21 @@ export const ContractFormSheet = ({
   const unitSize = activeUnit?.unitType?.size || 0;
 
   const [ratePerSize, setRatePerSize] = useState<number>(0);
+
+  useEffect(() => {
+    if (!activeUnit) return;
+    const currency = form.getValues('currency');
+    const prices = activeUnit.unitType?.prices || [];
+    const match = prices.find(
+      (p) => p.priceType === 'priceBySize' && p.currency === currency,
+    ) || prices.find((p) => p.priceType === 'priceBySize');
+    const rate = match?.price ?? activeUnit.unitType?.price ?? 0;
+    if (rate) {
+      setRatePerSize(rate);
+      const size = activeUnit.unitType?.size || 0;
+      form.setValue('amount', size > 0 ? rate * size : rate);
+    }
+  }, [activeUnit?._id]);
 
   const onValidationError = (errors: any) => {
     const messages: string[] = [];
@@ -248,80 +262,6 @@ export const ContractFormSheet = ({
                     />
                   </div>
 
-                  <div className="gap-4 grid grid-cols-3 items-end">
-                    <Form.Field
-                      name="date"
-                      control={form.control}
-                      render={({ field }) => (
-                        <Form.Item>
-                          <Form.Label>Contract Date (Down payment due)</Form.Label>
-                          <DatePicker
-                            placeholder="Select date"
-                            value={parseDateValue(field.value)}
-                            onChange={handleDateChange(field.onChange)}
-                          />
-                          <Form.Message />
-                        </Form.Item>
-                      )}
-                    />
-
-                    <Form.Field
-                      name="startDate"
-                      control={form.control}
-                      render={({ field }) => (
-                        <Form.Item>
-                          <Form.Label>Start Date (Installments from)</Form.Label>
-                          <DatePicker
-                            placeholder="Select start date"
-                            value={parseDateValue(field.value)}
-                            onChange={handleDateChange(field.onChange)}
-                          />
-                          <Form.Message />
-                        </Form.Item>
-                      )}
-                    />
-
-                    <Form.Field
-                      name="endDate"
-                      control={form.control}
-                      render={({ field: endDateField }) => {
-                        const isConditional = form.watch('endDateLabel') !== undefined;
-                        return (
-                          <Form.Item>
-                            <Form.Label>End Date</Form.Label>
-                            <div className="flex items-center gap-2">
-                              {isConditional ? (
-                                <div className="flex-1 h-8 flex items-center rounded-md border bg-muted px-3 text-sm text-muted-foreground truncate">
-                                  Барилга ашиглалтанд орсны дараа
-                                </div>
-                              ) : (
-                                <div className="flex-1">
-                                  <DatePicker
-                                    placeholder="Select end date"
-                                    value={parseDateValue(endDateField.value)}
-                                    onChange={handleDateChange(endDateField.onChange)}
-                                  />
-                                </div>
-                              )}
-                              <Checkbox
-                                checked={isConditional}
-                                onCheckedChange={(checked) => {
-                                  if (checked) {
-                                    form.setValue('endDate', undefined);
-                                    form.setValue('endDateLabel', 'Барилга ашиглалтанд орсны дараа');
-                                  } else {
-                                    form.setValue('endDateLabel', undefined);
-                                  }
-                                }}
-                              />
-                            </div>
-                            <Form.Message />
-                          </Form.Item>
-                        );
-                      }}
-                    />
-                  </div>
-
                   <div className="gap-4 grid grid-cols-2">
                     <Form.Field
                       name="number"
@@ -342,38 +282,16 @@ export const ContractFormSheet = ({
                     />
 
                     <Form.Field
-                      name="status"
+                      name="date"
                       control={form.control}
                       render={({ field }) => (
                         <Form.Item>
-                          <Form.Label>Status</Form.Label>
-                          <Select
-                            onValueChange={field.onChange}
-                            value={field.value || ''}
-                          >
-                            <Form.Control>
-                              <Select.Trigger className="h-8">
-                                <Select.Value placeholder="Select status" />
-                              </Select.Trigger>
-                            </Form.Control>
-                            <Select.Content>
-                              {stages.map((stage) => (
-                                <Select.Item key={stage._id} value={stage._id}>
-                                  <span className="flex items-center gap-2">
-                                    {stage.color && (
-                                      <span
-                                        className="rounded-full size-2"
-                                        style={{
-                                          backgroundColor: stage.color,
-                                        }}
-                                      />
-                                    )}
-                                    {stage.name}
-                                  </span>
-                                </Select.Item>
-                              ))}
-                            </Select.Content>
-                          </Select>
+                          <Form.Label>Contract Date</Form.Label>
+                          <DatePicker
+                            placeholder="Select date"
+                            value={parseDateValue(field.value)}
+                            onChange={handleDateChange(field.onChange)}
+                          />
                           <Form.Message />
                         </Form.Item>
                       )}
@@ -434,6 +352,44 @@ export const ContractFormSheet = ({
                               />
                             )}
                           </Form.Control>
+                          <Form.Message />
+                        </Form.Item>
+                      )}
+                    />
+
+                    <Form.Field
+                      name="status"
+                      control={form.control}
+                      render={({ field }) => (
+                        <Form.Item>
+                          <Form.Label>Status</Form.Label>
+                          <Select
+                            onValueChange={field.onChange}
+                            value={field.value || ''}
+                          >
+                            <Form.Control>
+                              <Select.Trigger className="h-8">
+                                <Select.Value placeholder="Select status" />
+                              </Select.Trigger>
+                            </Form.Control>
+                            <Select.Content>
+                              {stages.map((stage) => (
+                                <Select.Item key={stage._id} value={stage._id}>
+                                  <span className="flex items-center gap-2">
+                                    {stage.color && (
+                                      <span
+                                        className="rounded-full size-2"
+                                        style={{
+                                          backgroundColor: stage.color,
+                                        }}
+                                      />
+                                    )}
+                                    {stage.name}
+                                  </span>
+                                </Select.Item>
+                              ))}
+                            </Select.Content>
+                          </Select>
                           <Form.Message />
                         </Form.Item>
                       )}

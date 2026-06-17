@@ -8,9 +8,6 @@ export const contractSchema = z.object({
   amount: z.number().min(0, 'Amount must be positive').optional(),
   status: z.string().optional(),
   user: z.string().optional(),
-  startDate: z.string().optional(),
-  endDate: z.string().optional(),
-  endDateLabel: z.string().optional(),
   party: z
     .object({
       type: z.enum(['customer', 'company']),
@@ -33,6 +30,7 @@ export const contractSchema = z.object({
       paymentDates: z.array(z.number()).optional(),
       paymentDueDates: z.array(z.string()).optional(),
       firstPaymentDate: z.string().optional(),
+      downPaymentDate: z.string().optional(),
       completionPaymentDate: z.string().optional(),
       completionPaymentDateLabel: z.string().optional(),
     })

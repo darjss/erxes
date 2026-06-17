@@ -59,8 +59,6 @@ const ContractGridCard = ({ contract }: { contract: IContract }) => {
       : ''
     : '';
 
-  const startLabel = parseDate(contract.startDate);
-  const endLabel = parseDate(contract.endDate);
   const dateLabel = parseDate(contract.date);
   const planTypeLabel = contract.paymentPlan?.type
     ? String(contract.paymentPlan.type).replace(/_/g, ' ').toLowerCase()
@@ -96,16 +94,6 @@ const ContractGridCard = ({ contract }: { contract: IContract }) => {
         )}
       </div>
       <div className="px-4 pb-3 flex flex-col gap-1.5 text-xs text-muted-foreground">
-        {(startLabel || endLabel) && (
-          <div className="flex items-center gap-1.5">
-            <IconCalendar className="size-3.5 flex-none" />
-            <span className="truncate">
-              {startLabel ? format(startLabel, 'MMM dd, yyyy') : '—'}
-              {' – '}
-              {endLabel ? format(endLabel, 'MMM dd, yyyy') : '—'}
-            </span>
-          </div>
-        )}
         {planTypeLabel && (
           <div className="flex items-center gap-1.5">
             <IconCreditCard className="size-3.5 flex-none" />

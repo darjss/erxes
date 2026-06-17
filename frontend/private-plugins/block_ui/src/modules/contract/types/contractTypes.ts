@@ -31,6 +31,7 @@ export interface IContractPaymentPlan {
   paymentDates?: number[];
   paymentDueDates?: string[];
   firstPaymentDate?: string;
+  downPaymentDate?: string;
   completionPaymentDate?: string;
   completionPaymentDateLabel?: string;
 }
@@ -42,9 +43,6 @@ export interface IContractInput {
   date?: string;
   amount?: number;
   status?: string;
-  startDate?: string;
-  endDate?: string;
-  endDateLabel?: string;
   party?: IContractParty;
   paymentPlan?: IContractPaymentPlan;
   user?: string;

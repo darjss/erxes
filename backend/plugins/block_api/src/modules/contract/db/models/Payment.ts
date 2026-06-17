@@ -189,7 +189,6 @@ export const loadContractPaymentClass = (models: IModels) => {
       const principal = priceAfterDiscount - downAmount - advanceAmount;
 
       const contractDate = contract.date || new Date();
-      const startDate = contract.startDate || contractDate;
       // paymentDueDates are stored as Date objects
       const customDueDates = (paymentPlan.paymentDueDates || [])
         .map((d: Date | string) => (d instanceof Date ? d : new Date(d)))
@@ -198,7 +197,7 @@ export const loadContractPaymentClass = (models: IModels) => {
       const firstInstallmentStart =
         paymentPlan.firstPaymentDate
           ? new Date(paymentPlan.firstPaymentDate)
-          : startDate;
+          : contractDate;
 
       const autoDates = isOneTime
         ? []
@@ -284,7 +283,7 @@ export const loadContractPaymentClass = (models: IModels) => {
             ...commonFields,
             index: rowIndex++,
             label: `Installment ${i + 1}`,
-            dueDate: dates[i] || startDate,
+            dueDate: dates[i] || firstInstallmentStart,
             amount: principalPerInstallment + interest,
           });
         }

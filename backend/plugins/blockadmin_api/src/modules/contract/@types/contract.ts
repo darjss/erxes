@@ -51,8 +51,6 @@ export interface IContract extends IBlock {
   amountType: ContractAmountType;
   currency: string;
   status: ContractStatus;
-  startDate: Date;
-  endDate: Date;
   isLifeTime: boolean;
   party: IContractParty;
   paymentPlan: IContractPaymentPlan;

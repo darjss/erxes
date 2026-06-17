@@ -61,8 +61,6 @@ const ContractEditBody = ({
     date: orUndef(contract.date),
     amount: orUndef(contract.amount),
     status: orUndef(contract.status),
-    startDate: orUndef(contract.startDate),
-    endDate: orUndef(contract.endDate),
     user: orUndef(contract.user),
     party: contract.party
       ? {
@@ -92,6 +90,7 @@ const ContractEditBody = ({
           paymentDates: orUndef(contract.paymentPlan.paymentDates),
           paymentDueDates: orUndef(contract.paymentPlan.paymentDueDates),
           firstPaymentDate: orUndef(contract.paymentPlan.firstPaymentDate),
+          downPaymentDate: orUndef(contract.paymentPlan.downPaymentDate),
           completionPaymentDate: orUndef(contract.paymentPlan.completionPaymentDate),
         }
       : undefined,
@@ -116,8 +115,6 @@ const ContractEditBody = ({
         date: data.date,
         amount,
         status: data.status || undefined,
-        startDate: data.startDate || undefined,
-        endDate: data.endDate || undefined,
         party,
         paymentPlan,
         user: data.user || undefined,

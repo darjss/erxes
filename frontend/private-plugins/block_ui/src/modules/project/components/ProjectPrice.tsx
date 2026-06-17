@@ -71,10 +71,10 @@ export const ProjectPrice = () => {
   };
 
   return (
-    <InfoCard title="Pricing Settings" description="Square meter price">
+    <InfoCard title="Pricing Settings" description="Price per m²">
       <InfoCardContent className="space-y-4">
         <div className="space-y-2">
-          <Label>Main Price</Label>
+          <Label>Main Price per m²</Label>
           <CurrencyField.ValueInput
             value={mainPrice}
             onChange={setMainPrice}
@@ -83,7 +83,7 @@ export const ProjectPrice = () => {
         </div>
         <div className="space-y-2">
           <Label asChild>
-            <legend>Prices</legend>
+            <legend>Prices per m²</legend>
           </Label>
           {prices && prices.length > 0 && (
             <div className="space-y-2 pb-2">
@@ -137,7 +137,7 @@ export const ProjectPriceAddPrice = ({
   return (
     <>
       <div className="space-y-2">
-        <Label>Add Price</Label>
+        <Label>Add Price per m²</Label>
         <div className="gap-2 grid grid-cols-2">
           <CurrencyField.SelectCurrency
             value={currency as CurrencyCode}

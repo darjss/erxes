@@ -271,6 +271,21 @@ export const PaymentPlanForm = ({ form }: { form: UseFormReturn<any> }) => {
       )}
 
       <Form.Field
+        name="paymentPlan.downPaymentDate"
+        render={({ field }) => (
+          <Form.Item>
+            <Form.Label>Down payment due</Form.Label>
+            <DatePicker
+              placeholder="Select date"
+              value={parseDateValue(field.value)}
+              onChange={handleDateChange(field.onChange)}
+            />
+            <Form.Message />
+          </Form.Item>
+        )}
+      />
+
+      <Form.Field
         name="paymentPlan.vatIncluded"
         render={({ field }) => (
           <Form.Item className="flex flex-row items-center space-x-3 space-y-0 h-8 col-span-2">

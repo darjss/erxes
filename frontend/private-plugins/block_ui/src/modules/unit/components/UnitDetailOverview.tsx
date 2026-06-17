@@ -1,4 +1,3 @@
-import { SelectUnitStatus } from '@/unit/components/SelectUnitStatus';
 import { useUnitContext } from '@/unit/context/unitContext';
 import { useUnitType } from '@/unit/hooks/useUnitType';
 import { useUnitUpdate } from '@/unit/hooks/useUnitUpdate';
@@ -32,14 +31,6 @@ export const UnitDetailOverview = () => {
           <SelectUnitType
             value={type || ''}
             onValueChange={(value) => updateUnit({ type: value })}
-          />
-        </div>
-        <div className="space-y-2">
-          <Label>Status</Label>
-          <SelectUnitStatus
-            value={unit?.status}
-            onValueChange={(value) => updateUnit({ status: value })}
-            tenureType={unitType?.tenureType}
           />
         </div>
         <UnitTransferSection

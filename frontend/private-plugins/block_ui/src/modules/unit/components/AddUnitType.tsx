@@ -59,7 +59,7 @@ export const AddUnitType = ({ onClose }: { onClose: () => void }) => {
       areaType: '',
       tenureTypes: [],
       content: '',
-      price: undefined,
+      price: project?.mainPrice || undefined,
       prices: project?.prices?.length
         ? project.prices.map((p) => ({
             currency: p.currency,
@@ -80,7 +80,6 @@ export const AddUnitType = ({ onClose }: { onClose: () => void }) => {
   });
 
   const usageType = form.watch('type');
-  const size = form.watch('size');
   const areaType = form.watch('areaType');
   const tenureTypes = form.watch('tenureTypes');
 
@@ -90,12 +89,6 @@ export const AddUnitType = ({ onClose }: { onClose: () => void }) => {
   const [planImages, setPlanImages] = useState<string[]>([]);
 
   const { createUnitType, loading } = useUnitTypeCreate();
-
-  useEffect(() => {
-    const price = size * (project?.mainPrice || 0);
-
-    form.setValue('price', price);
-  }, [size]);
 
   useEffect(() => {
     form.setValue('subTypes', []);
@@ -269,7 +262,7 @@ export const AddUnitType = ({ onClose }: { onClose: () => void }) => {
                   name="price"
                   render={({ field }) => (
                     <Form.Item>
-                      <Form.Label>Price</Form.Label>
+                      <Form.Label>Price per m²</Form.Label>
                       <CurrencyField.ValueInput placeholder="0" {...field} />
                     </Form.Item>
                   )}
@@ -279,7 +272,7 @@ export const AddUnitType = ({ onClose }: { onClose: () => void }) => {
               <div className="gap-3 grid grid-cols-2">
                 <div className="space-y-2">
                   <Label asChild>
-                    <legend>Prices</legend>
+                    <legend>Prices per m²</legend>
                   </Label>
                   {fields.map((field, index) => (
                     <div key={field.id} className="flex gap-2 m-0">

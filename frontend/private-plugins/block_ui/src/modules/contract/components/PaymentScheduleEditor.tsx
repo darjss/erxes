@@ -31,7 +31,6 @@ export const PaymentScheduleEditor = ({
   const amount = form.watch('amount') || 0;
   const currency = form.watch('currency') || 'MNT';
   const contractDate = form.watch('date');
-  const startDate = form.watch('startDate');
   const paymentPlan = form.watch('paymentPlan');
   const dueDates = form.watch('paymentPlan.paymentDueDates') || [];
 
@@ -61,7 +60,6 @@ export const PaymentScheduleEditor = ({
 
   const baseStart =
     parseDateLike(paymentPlan.firstPaymentDate) ||
-    parseDateLike(startDate) ||
     parseDateLike(contractDate) ||
     new Date();
   const autoDates = generateInstallmentDates(

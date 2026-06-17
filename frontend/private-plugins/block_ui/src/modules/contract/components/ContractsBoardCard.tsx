@@ -35,8 +35,6 @@ export const ContractsBoardCard = ({ id }: BoardCardProps) => {
     number,
     _id,
     date,
-    startDate,
-    endDate,
     amount,
     currency,
     unit,
@@ -75,8 +73,6 @@ export const ContractsBoardCard = ({ id }: BoardCardProps) => {
   };
 
   const dateLabel = parseDate(date);
-  const startLabel = parseDate(startDate);
-  const endLabel = parseDate(endDate);
 
   const planTypeLabel = paymentPlan?.type
     ? String(paymentPlan.type).replace(/_/g, ' ').toLowerCase()
@@ -87,28 +83,6 @@ export const ContractsBoardCard = ({ id }: BoardCardProps) => {
       onClick={() => setActiveContract(id)}
       className="blk:w-76 overflow-hidden cursor-pointer"
     >
-      <div className="h-9 flex items-center justify-between px-1.5">
-        <Button
-          variant="ghost"
-          size="sm"
-          className="text-muted-foreground px-1 hover:bg-background"
-        >
-          <IconCalendarEventFilled />
-          <span>
-            {startLabel ? format(startLabel, 'MMM dd, yyyy') : '—'}
-          </span>
-        </Button>
-        <Button
-          variant="ghost"
-          size="sm"
-          className="text-muted-foreground px-1 hover:bg-background"
-        >
-          <IconCalendarEventFilled />
-          <span>
-            {endLabel ? format(endLabel, 'MMM dd, yyyy') : '—'}
-          </span>
-        </Button>
-      </div>
       <Separator />
       <div className="flex flex-col gap-1 p-3">
         {number && (

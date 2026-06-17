@@ -62,8 +62,6 @@ export const contractSchema = schemaWrapper(
         enum: Object.values(ContractStatus),
         default: ContractStatus.DRAFT,
       },
-      startDate: { type: Date },
-      endDate: { type: Date },
       isLifeTime: { type: Boolean, default: false },
       party: { type: contractPartySchema, required: true },
       description: { type: String },

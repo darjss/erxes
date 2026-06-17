@@ -10,9 +10,7 @@ export const CREATE_CONTRACT = gql`
       date
       amount
       status
-      startDate
-      endDate
-      endDateLabel
+
 
       party {
         type
@@ -33,6 +31,7 @@ export const CREATE_CONTRACT = gql`
         paymentDates
         paymentDueDates
         firstPaymentDate
+        downPaymentDate
         completionPaymentDate
         completionPaymentDateLabel
       }
@@ -60,9 +59,7 @@ export const UPDATE_CONTRACT = gql`
       date
       amount
       status
-      startDate
-      endDate
-      endDateLabel
+
 
       party {
         type
@@ -83,6 +80,7 @@ export const UPDATE_CONTRACT = gql`
         paymentDates
         paymentDueDates
         firstPaymentDate
+        downPaymentDate
         completionPaymentDate
         completionPaymentDateLabel
       }
