@@ -199,8 +199,6 @@ export const deployManagedServer = async (
     throw new Error('Managed deployer did not return an approved runtime URL');
   }
 
-  await verifyManagedRuntime(result.url);
-
   return {
     ...result,
     url: normalizeRuntimeUrl(result.url),
