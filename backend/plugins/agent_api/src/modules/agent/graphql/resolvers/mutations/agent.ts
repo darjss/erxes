@@ -115,12 +115,20 @@ const runManagedDeployment = async ({
   const description = input.description?.trim() || identifier.description || '';
   const systemPrompt = input.systemPrompt?.trim() || description || undefined;
 
+  // Pre-compute the K8s namespace name so frontend polls during deployment
+  // hit the right endpoint. Format mirrors the deployer's sanitizeId logic.
+  const sanitizeId = (v: string) =>
+    v.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/^-+|-+$/g, '').slice(0, 20);
+  const expectedServerName = `assistant-${sanitizeId(subdomain)}-${sanitizeId(identifier.slug)}`;
+
   try {
     await models.AgentServer.findOneAndUpdate(
       { _id: serverMongoId },
       {
         $set: {
           status: SERVER_STATUSES.PENDING,
+          name: expectedServerName,
+          url: `https://${expectedServerName}.assistant.erxes.io`,
           ...provisioningSet('server_lookup'),
           updatedAt: new Date(),
         },
