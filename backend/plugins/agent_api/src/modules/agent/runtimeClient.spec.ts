@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import test from 'node:test';
+import test, { afterEach } from 'node:test';
 
 import {
   assertApprovedRuntimeServer,
@@ -62,7 +62,7 @@ const createManagerModels = (server?: Record<string, unknown>) =>
 const ownerUser = { _id: 'owner-1', isOwner: true } as any;
 const memberUser = { _id: 'member-1', isOwner: false } as any;
 
-test.afterEach(() => {
+afterEach(() => {
   global.fetch = originalFetch;
   process.env.ERXES_AI_ASSISTANT_RUNTIME_SHARED_SECRET =
     originalEnv.runtimeSecret;
