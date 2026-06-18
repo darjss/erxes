@@ -33,6 +33,7 @@ export const GET_CONTRACTS = gql`
         penaltyPercentage
         vatIncluded
         roundedInstallmentAmount
+        installmentAmounts
         paymentDates
         paymentDueDates
         firstPaymentDate
@@ -121,6 +122,7 @@ export const GET_CONTRACT = gql`
         penaltyPercentage
         vatIncluded
         roundedInstallmentAmount
+        installmentAmounts
         paymentDates
         paymentDueDates
         firstPaymentDate

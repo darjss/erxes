@@ -69,10 +69,31 @@ export const PaymentScheduleEditor = ({
   const contractDate = form.watch('date');
   const paymentPlan = form.watch('paymentPlan');
   const dueDates = form.watch('paymentPlan.paymentDueDates') || [];
-  const [principalOverrides, setPrincipalOverrides] = useState<Record<number, number>>({});
+  const savedAmounts = form.getValues('paymentPlan.installmentAmounts');
+  const [principalOverrides, setPrincipalOverrides] = useState<Record<number, number>>(() => {
+    if (!savedAmounts?.length) return {};
+    // 0 means "not set, use computed" — skip zeros
+    return Object.fromEntries(
+      (savedAmounts as number[])
+        .map((v, i) => [i, v] as [number, number])
+        .filter(([, v]) => v > 0),
+    );
+  });
+
   const handlePrincipalCommit = useCallback((index: number, val: number) => {
-    setPrincipalOverrides((prev) => ({ ...prev, [index]: val }));
-  }, []);
+    setPrincipalOverrides((prev) => {
+      const installments = form.getValues('paymentPlan.installment') || 0;
+      const lastIndex = installments - 1;
+      // last row is always auto-computed — never store its override
+      if (index === lastIndex) return prev;
+      const next = { ...prev, [index]: val };
+      const amounts = Array.from({ length: installments }, (_, i) =>
+        i === lastIndex ? 0 : (next[i] ?? 0),
+      );
+      form.setValue('paymentPlan.installmentAmounts', amounts, { shouldDirty: true });
+      return next;
+    });
+  }, [form]);
 
   if (!paymentPlan) return null;
 
@@ -272,8 +293,10 @@ export const PaymentScheduleEditor = ({
             {Array.from({ length: installmentCount }).map((_, index) => {
               const dueDate = getDueDate(index);
               const interest = getInterest(index);
+              const isLast = index === installmentCount - 1;
               const installPrincipal = effectivePrincipals[index];
               const rowTotal = installPrincipal + interest;
+              const isNegative = isLast && installPrincipal < 0;
               grandTotal += rowTotal;
               return (
                 <div
@@ -294,13 +317,20 @@ export const PaymentScheduleEditor = ({
                     />
                   </Cell>
                   <Cell>Progress payment</Cell>
-                  <Cell className="p-1">
-                    <PrincipalInput
-                      index={index}
-                      value={installPrincipal}
-                      onCommit={handlePrincipalCommit}
-                    />
-                  </Cell>
+                  {isLast ? (
+                    <Cell className={isNegative ? 'text-destructive font-medium' : ''}>
+                      {fmt(installPrincipal)}
+                      {isNegative && <span className="ml-1 text-xs">(over)</span>}
+                    </Cell>
+                  ) : (
+                    <Cell className="p-1">
+                      <PrincipalInput
+                        index={index}
+                        value={installPrincipal}
+                        onCommit={handlePrincipalCommit}
+                      />
+                    </Cell>
+                  )}
                   {hasInterest && <Cell>{fmt(interest)}</Cell>}
                   <Cell>{fmt(rowTotal)}</Cell>
                 </div>

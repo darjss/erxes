@@ -6,7 +6,7 @@ export const contractSchema = z.object({
   currency: z.string().optional(),
   date: z.string().optional(),
   amount: z.number().min(0, 'Amount must be positive').optional(),
-  status: z.string().optional(),
+  status: z.string().min(1, 'Status is required'),
   user: z.string().optional(),
   party: z
     .object({
@@ -32,6 +32,7 @@ export const contractSchema = z.object({
       penaltyPercentage: z.number().min(0).optional(),
       vatIncluded: z.boolean().optional(),
       roundedInstallmentAmount: z.number().min(0).optional(),
+      installmentAmounts: z.array(z.number()).optional(),
       paymentDates: z.array(z.number()).optional(),
       paymentDueDates: z.array(z.string()).optional(),
       firstPaymentDate: z.string().optional(),

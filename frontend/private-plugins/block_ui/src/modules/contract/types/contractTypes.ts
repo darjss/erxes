@@ -33,6 +33,7 @@ export interface IContractPaymentPlan {
   penaltyPercentage?: number;
   vatIncluded?: boolean;
   roundedInstallmentAmount?: number;
+  installmentAmounts?: number[];
   paymentDates?: number[];
   paymentDueDates?: string[];
   firstPaymentDate?: string;

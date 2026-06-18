@@ -27,6 +27,7 @@ export const types = `
     penaltyPercentage: Float
     vatIncluded: Boolean
     roundedInstallmentAmount: Float
+    installmentAmounts: [Float]
     paymentDates: [Int]
     paymentDueDates: [Date]
     firstPaymentDate: Date
@@ -52,6 +53,7 @@ export const types = `
     penaltyPercentage: Float
     vatIncluded: Boolean
     roundedInstallmentAmount: Float
+    installmentAmounts: [Float]
     paymentDates: [Int]
     paymentDueDates: [Date]
     firstPaymentDate: Date

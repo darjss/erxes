@@ -82,7 +82,6 @@ export const ContractFormSheet = ({
     resolver: zodResolver(contractSchema),
     defaultValues: {
       unit: unitIdFromUrl || '',
-      status: '',
       party: { type: 'customer', id: '' },
       currency: CurrencyCode.MNT,
       ...defaultValues,
@@ -366,7 +365,7 @@ export const ContractFormSheet = ({
                           <Form.Label>Status</Form.Label>
                           <Select
                             onValueChange={field.onChange}
-                            value={field.value || ''}
+                            value={field.value ?? ''}
                           >
                             <Form.Control>
                               <Select.Trigger className="h-8">
