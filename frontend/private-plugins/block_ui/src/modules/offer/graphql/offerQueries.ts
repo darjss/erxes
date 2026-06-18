@@ -29,6 +29,7 @@ export const GET_OFFERS = gql`
         firstPaymentDate
         completionPaymentDate
       }
+      status
       user
     }
   }
@@ -63,6 +64,7 @@ export const GET_OFFER = gql`
         firstPaymentDate
         completionPaymentDate
       }
+      status
       user
     }
     blockGetOffer(_id: $id) {
@@ -92,6 +94,7 @@ export const GET_OFFER = gql`
         firstPaymentDate
         completionPaymentDate
       }
+      status
       unit
       user
     }

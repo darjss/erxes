@@ -162,7 +162,7 @@ export const offerMutations = {
       return offer;
     }
 
-    return models.Offer.createOffer(rest);
+    return offer;
   },
 
   blockUpdateOffer: async (

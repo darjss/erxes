@@ -25,7 +25,7 @@ interface IContractsListResponse {
   };
 }
 
-export const useContractsFilterVariables = () => {
+export const useContractsFilterVariables = (overrides?: { unit?: string }) => {
   const { projectId: projectIdParam, id } = useParams<{
     projectId?: string;
     id?: string;
@@ -50,6 +50,7 @@ export const useContractsFilterVariables = () => {
       partyType: partyType || undefined,
       currency: currency || undefined,
       user: user || undefined,
+      ...(overrides?.unit ? { unit: overrides.unit } : {}),
     },
     cursor: '',
     limit: CONTRACTS_PER_PAGE,
@@ -57,8 +58,8 @@ export const useContractsFilterVariables = () => {
   };
 };
 
-export const useContractsList = () => {
-  const variables = useContractsFilterVariables();
+export const useContractsList = (overrides?: { unit?: string }) => {
+  const variables = useContractsFilterVariables(overrides);
 
   const { data, loading, fetchMore } =
     useQuery<IContractsListResponse>(GET_CONTRACTS_LIST, {

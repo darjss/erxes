@@ -1,26 +1,38 @@
 import { z } from 'zod';
 
 export const offerSchema = z.object({
-  priceId: z.string().min(1, 'Price is required'),
+  priceId: z.string().optional(),
   price: z.object({
     currency: z.string().min(1, 'Currency is required'),
-    price: z.number().min(0, 'Price is required'),
-    priceType: z.enum(['priceBySize', 'priceByUnit']),
+    price: z.number().min(0),
+    priceType: z.enum(['priceBySize', 'priceByUnit']).optional(),
   }),
   paymentPlanId: z.string().optional(),
-  paymentPlan: z.object({
-    type: z.string().min(1, 'Type is required'),
-    downPaymentPercentage: z
-      .number()
-      .min(0, 'Down payment percentage is required'),
-    interestPercentage: z.number().min(0, 'Interest percentage is required'),
-    discountPercentage: z.number().min(0, 'Discount percentage is required'),
-    installment: z.number().min(0, 'Installment is required'),
-    frequency: z.string().min(1, 'Frequency is required'),
-  }),
-  endDate: z.date().min(new Date(), 'End date must be in the future'),
+  paymentPlan: z
+    .object({
+      type: z.string().optional(),
+      downPaymentPercentage: z.number().optional(),
+      downPaymentAmount: z.number().optional(),
+      interestPercentage: z.number().optional(),
+      interestType: z.string().optional(),
+      discountPercentage: z.number().optional(),
+      installment: z.number().optional(),
+      frequency: z.string().optional(),
+      penaltyPercentage: z.number().optional(),
+      barterPercentage: z.number().optional(),
+      barterAmount: z.number().optional(),
+      completionPaymentPercentage: z.number().optional(),
+      completionPaymentAmount: z.number().optional(),
+      roundedInstallmentAmount: z.number().optional(),
+      paymentDates: z.array(z.number()).optional(),
+      firstPaymentDate: z.string().optional(),
+      downPaymentDate: z.string().optional(),
+      vatIncluded: z.boolean().optional(),
+    })
+    .optional(),
+  endDate: z.date().optional(),
   partyType: z.enum(['customer', 'company']),
-  partyId: z.string().min(1, 'customer or company is required'),
+  partyId: z.string().min(1, 'Customer or company is required'),
   user: z.string().min(1, 'User is required'),
 });
 

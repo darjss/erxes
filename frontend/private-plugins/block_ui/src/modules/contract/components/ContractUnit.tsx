@@ -20,7 +20,7 @@ export const ContractUnit = () => {
   return (
     <InfoCard title="Unit Details">
       <InfoCard.Content>
-        <div className="grid grid-cols-4 gap-4">
+        <div className="grid grid-cols-5 gap-4">
           <div className="space-y-2">
             <Label>Unit number</Label>
             <div className="font-medium">{unit.number}</div>
@@ -29,6 +29,14 @@ export const ContractUnit = () => {
             <Label>Area</Label>
             <div className="font-medium">
               {size != null ? `${size}m²` : '-'}
+            </div>
+          </div>
+          <div className="space-y-2">
+            <Label>Price/m²</Label>
+            <div className="font-medium">
+              {price != null
+                ? `${Number(price).toLocaleString()} ${currency}`
+                : '-'}
             </div>
           </div>
           <div className="space-y-2">

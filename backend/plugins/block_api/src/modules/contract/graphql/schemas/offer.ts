@@ -45,7 +45,7 @@ export const types = `
 
   enum BlockOfferAmountType {
     priceBySize
-    priceBySize
+    priceByUnit
   }
 
   type BlockOffer {
@@ -56,6 +56,7 @@ export const types = `
     date: String
     amount: Float
     amountType: BlockOfferAmountType
+    status: BlockOfferStatus
     endDate: String
     party: BlockOfferParty
     paymentPlan: BlockOfferPaymentPlan

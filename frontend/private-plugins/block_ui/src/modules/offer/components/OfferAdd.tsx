@@ -5,7 +5,6 @@ import {
   Form,
   ScrollArea,
   Select,
-  Input,
   Label,
   Separator,
   useQueryState,
@@ -20,7 +19,6 @@ import { useCreateOffer } from '@/offer/hooks/useManageOffer';
 import { useForm, UseFormReturn } from 'react-hook-form';
 import { OfferFormData, offerSchema } from '@/offer/constants/offerSchema';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
 import {
   SelectCustomer,
   SelectCompany,
@@ -28,16 +26,12 @@ import {
   currentUserState,
 } from 'ui-modules';
 import { useAtomValue } from 'jotai';
-import { SelectPaymentPlan } from '@/pricing/components/SelectPaymentPlan';
-import { SelectPaymentPlanType } from '@/pricing/components/SelectPaymentPlanType';
-import { SelectPaymentPlanFrequency } from '@/pricing/components/SelectPaymentPlanFrequency';
 import { useUnit } from '@/unit/hooks/useUnit';
 import { IUnit } from '@/unit/types/unitType';
-import { InfoCard, InfoCardContent } from '@/block/components/card';
-import { SelectPrice } from '@/pricing/components/SelectPrice';
-import { IProjectPrice } from '@/project/types/projectTypes';
 import { addDays } from 'date-fns';
 import { PaymentPlanForm } from '@/pricing/components/PaymentPlanForm';
+import { InfoCard, InfoCardContent } from '@/block/components/card';
+import { ContractUnit } from '@/contract/components/ContractUnit';
 
 export const OfferAddSheet = () => {
   const [open, setOpen] = useState(false);
@@ -60,6 +54,7 @@ export const OfferAddSheet = () => {
   );
 };
 
+
 export const OfferAddForm = ({ onClose }: { onClose: () => void }) => {
   const [unitId] = useQueryState<string>('unitId');
   const { unit } = useUnit(unitId);
@@ -67,8 +62,8 @@ export const OfferAddForm = ({ onClose }: { onClose: () => void }) => {
   const mainPrice = {
     _id: 'mainPrice',
     currency: CurrencyCode.MNT,
-    price: unit?.mainPrice,
-    priceType: 'priceBySize' as any,
+    price: unit?.unitType?.price,
+    priceType: 'priceBySize' as const,
   };
 
   const form = useForm<OfferFormData>({
@@ -87,11 +82,12 @@ export const OfferAddForm = ({ onClose }: { onClose: () => void }) => {
   const { createOffer, loading } = useCreateOffer();
 
   const handleSubmit = (data: OfferFormData) => {
+    const isPerSize = (data.price.priceType ?? 'priceBySize') === 'priceBySize';
     createOffer({
       variables: {
         input: {
           amount: data.price.price,
-          amountType: 'priceBySize',
+          amountType: isPerSize ? 'priceBySize' : 'priceByUnit',
           currency: data.price.currency,
           date: new Date(),
           endDate: data.endDate,
@@ -127,10 +123,17 @@ export const OfferAddForm = ({ onClose }: { onClose: () => void }) => {
       <form
         className="flex-auto flex flex-col overflow-hidden"
         onSubmit={form.handleSubmit(handleSubmit)}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' && (e.target as HTMLElement).tagName === 'INPUT')
+            e.preventDefault();
+        }}
       >
         <Sheet.Content className="flex-auto overflow-hidden">
           <ScrollArea className="h-full">
-            <div className="grid grid-cols-4 gap-5 p-5">
+            <div className="p-5">
+              <ContractUnit />
+            </div>
+            <div className="grid grid-cols-4 gap-5 px-5 pb-5">
               <Form.Field
                 name="user"
                 render={({ field }) => (
@@ -163,7 +166,6 @@ export const OfferAddForm = ({ onClose }: { onClose: () => void }) => {
                 render={({ field }) => (
                   <Form.Item>
                     <Form.Label>Lead Type</Form.Label>
-
                     <Select
                       onValueChange={(value) => {
                         field.onChange(value);
@@ -186,34 +188,11 @@ export const OfferAddForm = ({ onClose }: { onClose: () => void }) => {
                 )}
               />
               <SelectLead form={form} />
-              <Separator className="col-span-4" />
-              <PaymentPlanForm form={form} />
-              <Separator className="col-span-4" />
-              <Form.Field
-                name="priceId"
-                render={({ field }) => (
-                  <Form.Item className="col-start-1">
-                    <Form.Label>Price</Form.Label>
-                    <SelectPrice
-                      prices={[
-                        mainPrice,
-                        ...(unit?.prices || []).map((price: IProjectPrice) => ({
-                          ...price,
-                          _id: price.currency + price.price + price.priceType,
-                        })),
-                      ]}
-                      form={form}
-                      value={field.value}
-                      onValueChange={field.onChange}
-                    />
-                  </Form.Item>
-                )}
-              />
               <Form.Field
                 name="price.currency"
                 render={({ field }) => (
-                  <Form.Item className="col-start-1">
-                    <Form.Label>Price Currency</Form.Label>
+                  <Form.Item>
+                    <Form.Label>Currency</Form.Label>
                     <CurrencyField.SelectCurrency
                       value={field.value as CurrencyCode}
                       onChange={(value) =>
@@ -228,7 +207,7 @@ export const OfferAddForm = ({ onClose }: { onClose: () => void }) => {
                 name="price.price"
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>Price</Form.Label>
+                    <Form.Label>Price per m²</Form.Label>
                     <CurrencyField.ValueInput
                       value={field.value as number}
                       onChange={(value) => field.onChange(value as number)}
@@ -236,10 +215,11 @@ export const OfferAddForm = ({ onClose }: { onClose: () => void }) => {
                   </Form.Item>
                 )}
               />
+              <Separator className="col-span-4" />
+              <PaymentPlanForm form={form} />
             </div>
-            <Separator className="col-span-4 mt-2" />
-
-            <OfferPrice form={form} unit={unit} />
+            <Separator className="mt-2" />
+            <OfferSchedulePreview form={form} unit={unit} />
           </ScrollArea>
         </Sheet.Content>
         <Sheet.Footer className="flex-none">
@@ -259,134 +239,195 @@ export const OfferAddForm = ({ onClose }: { onClose: () => void }) => {
   );
 };
 
-export const OfferPrice = ({
+const periodsPerYear = (frequency?: string): number => {
+  switch (frequency) {
+    case 'ONE_TIME_PER_MONTH': return 12;
+    case 'TWO_TIME_PER_MONTH': return 24;
+    case 'THREE_TIME_PER_MONTH': return 36;
+    case 'QUARTERLY': return 4;
+    case 'HALF_YEARLY': return 2;
+    case 'YEARLY': return 1;
+    default: return 12;
+  }
+};
+
+const OfferSchedulePreview = ({
   form,
   unit,
 }: {
-  form: UseFormReturn<z.infer<typeof offerSchema>>;
+  form: UseFormReturn<OfferFormData>;
   unit: IUnit;
 }) => {
-  const formData = form.watch();
+  const pricePerUnit = form.watch('price.price') || 0;
+  const priceType = form.watch('price.priceType') ?? 'priceBySize';
+  const currency = form.watch('price.currency') || 'MNT';
+  const paymentPlan = form.watch('paymentPlan');
 
-  if (!formData.paymentPlanId) {
-    return null;
-  }
-  const { downPaymentPercentage, discountPercentage, installment } =
-    formData.paymentPlan;
+  if (!paymentPlan?.type) return null;
 
-  const { price } = formData.price;
+  const isPerSize = priceType === 'priceBySize';
+  const unitSize = unit?.unitType?.size || 0;
+  const totalAmount = isPerSize && unitSize > 0 ? pricePerUnit * unitSize : pricePerUnit;
 
-  const discountAmount = ((discountPercentage || 0) * price) / 100;
-  const offerPrice = price - discountAmount;
-  const offerTotalPrice = offerPrice * (unit?.size || 1);
+  const discountPct = paymentPlan.discountPercentage || 0;
+  const downPct = paymentPlan.downPaymentPercentage || 0;
+  const completionPct = paymentPlan.completionPaymentPercentage || 0;
+  const interestPct = paymentPlan.interestPercentage || 0;
+  const interestType = paymentPlan.interestType || 'FLAT';
+  const frequency = paymentPlan.frequency;
+  const installmentCount = frequency === 'ONE_TIME' ? 0 : (paymentPlan.installment || 0);
+  const ppy = periodsPerYear(frequency);
 
-  const installmentPercentage = (100 - downPaymentPercentage) / installment;
+  const discountAmount = (totalAmount * discountPct) / 100;
+  const priceAfterDiscount = totalAmount - discountAmount;
 
-  const installmentAmount = (offerTotalPrice * installmentPercentage) / 100;
+  const downAmount =
+    (paymentPlan.downPaymentAmount || 0) > 0
+      ? paymentPlan.downPaymentAmount!
+      : (priceAfterDiscount * downPct) / 100;
+
+  const completionAmount =
+    (paymentPlan.completionPaymentAmount || 0) > 0
+      ? paymentPlan.completionPaymentAmount!
+      : (priceAfterDiscount * completionPct) / 100;
+
+  const principal = priceAfterDiscount - downAmount - completionAmount;
+  const roundedAmount = paymentPlan.roundedInstallmentAmount || 0;
+  const baseInstallment =
+    installmentCount > 0
+      ? roundedAmount > 0
+        ? roundedAmount
+        : principal / installmentCount
+      : 0;
+
+  const hasInterest = interestPct > 0;
+  const isOneTime = frequency === 'ONE_TIME';
+
+  const fmt = (val: number) =>
+    new Intl.NumberFormat('mn-MN', {
+      style: 'currency',
+      currency,
+      minimumFractionDigits: 0,
+    }).format(val);
+
+  const getInterest = (index: number) => {
+    if (interestPct <= 0 || installmentCount <= 0) return 0;
+    if (interestType === 'FLAT') {
+      return (principal * interestPct) / 100 / installmentCount;
+    }
+    if (interestType === 'REDUCING') {
+      const paidSoFar = baseInstallment * index;
+      const remaining = principal - paidSoFar;
+      return (remaining * interestPct) / 100 / ppy;
+    }
+    return ((principal * interestPct) / 100) * (installmentCount / ppy) / installmentCount;
+  };
+
+  const cols = hasInterest ? 'grid-cols-5' : 'grid-cols-4';
+
+  const Header = ({ children }: { children: React.ReactNode }) => (
+    <div className="px-3 py-2 text-xs font-medium text-muted-foreground uppercase">
+      {children}
+    </div>
+  );
+  const Cell = ({ children, className }: { children: React.ReactNode; className?: string }) => (
+    <div className={`px-3 py-2 border-t text-sm flex items-center ${className || ''}`}>
+      {children}
+    </div>
+  );
+
+  let grandTotal = 0;
+
+  const sizeLabel = unitSize > 0 ? ` — ${unitSize} m² × ${pricePerUnit.toLocaleString()} = ${totalAmount.toLocaleString()} ${currency}` : '';
 
   return (
-    <div className="grid grid-cols-4 gap-5 p-5 bg-accent">
-      <div className="col-span-4">
-        <InfoCard title="Төлөлтийн график">
-          <InfoCardContent>
-            <div className="grid grid-cols-5 gap-2">
-              <Label asChild>
-                <div>Төлөлт</div>
-              </Label>
-              <Label asChild>
-                <div>Огноо</div>
-              </Label>
-              <Label asChild>
-                <div>Төлбөрийн хэлбэр</div>
-              </Label>
-              <Label asChild>
-                <div>100%</div>
-              </Label>
-              <Label asChild>
-                <div>ҮНДСЭН ДҮН</div>
-              </Label>
+    <InfoCard title={`Payment schedule (preview)${sizeLabel}`}>
+      <InfoCardContent className="shadow-none p-0 overflow-hidden">
+        <div className={`grid ${cols} bg-muted/30`}>
+          <Header>Payment</Header>
+          <Header>Type</Header>
+          <Header>Principal</Header>
+          {hasInterest && <Header>Interest</Header>}
+          <Header>Total</Header>
+        </div>
+
+        {downAmount > 0 && (() => {
+          const row = downAmount;
+          grandTotal += row;
+          return (
+            <div className={`grid ${cols}`}>
+              <Cell>Down payment</Cell>
+              <Cell>Down payment</Cell>
+              <Cell>{fmt(downAmount)}</Cell>
+              {hasInterest && <Cell>—</Cell>}
+              <Cell>{fmt(row)}</Cell>
             </div>
-            <div className="grid grid-cols-5 gap-2">
-              <Input
-                value={'Захиалга'}
-                disabled
-                className="disabled:opacity-100"
-              />
-              <Input
-                value={'Гэрээ хийгдсэн өдөр'}
-                disabled
-                className="disabled:opacity-100"
-              />
-              <Input
-                value={'Урьдчилгаа'}
-                disabled
-                className="disabled:opacity-100"
-              />
-              <Input
-                value={downPaymentPercentage + '%'}
-                disabled
-                className="disabled:opacity-100"
-              />
-              <CurrencyField.ValueInput
-                value={
-                  (offerPrice *
-                    (unit?.size || 1) *
-                    downPaymentPercentage) /
-                  100
-                }
-                disabled
-                className="disabled:opacity-100"
-              />
+          );
+        })()}
+
+        {isOneTime ? (() => {
+          const interest = (priceAfterDiscount * interestPct) / 100;
+          const row = priceAfterDiscount + interest;
+          grandTotal += row;
+          return (
+            <div className={`grid ${cols}`}>
+              <Cell>Full payment</Cell>
+              <Cell>One-time</Cell>
+              <Cell>{fmt(priceAfterDiscount)}</Cell>
+              {hasInterest && <Cell>{fmt(interest)}</Cell>}
+              <Cell>{fmt(row)}</Cell>
             </div>
-            {Array.from({ length: installment }).map((_, index) => (
-              <div className="grid grid-cols-5 gap-2">
-                <Input
-                  value={'Төлөлт ' + (index + 1)}
-                  disabled
-                  className="disabled:opacity-100"
-                />
-                <Input
-                  value={installment === index + 1 ? 'Түлхүүр хүлээлгэхэд' : ''}
-                  disabled
-                  className="disabled:opacity-100"
-                />
-                <Input
-                  value={
-                    installment !== index + 1
-                      ? 'ажлын гүйцэтгэлийн төлөлт '
-                      : ''
-                  }
-                  disabled
-                  className="disabled:opacity-100"
-                />
-                <Input
-                  value={
-                    installmentPercentage.toFixed(2).replace('.00', '') + '%'
-                  }
-                  disabled
-                  className="disabled:opacity-100"
-                />
-                <CurrencyField.ValueInput
-                  value={installmentAmount}
-                  disabled
-                  className="disabled:opacity-100"
-                />
-              </div>
-            ))}
-          </InfoCardContent>
-        </InfoCard>
-      </div>
-    </div>
+          );
+        })() : Array.from({ length: installmentCount }).map((_, i) => {
+          const isLast = i === installmentCount - 1;
+          const sumOthers = baseInstallment * (installmentCount - 1);
+          const installPrincipal = isLast ? principal - sumOthers : baseInstallment;
+          const interest = getInterest(i);
+          const row = installPrincipal + interest;
+          grandTotal += row;
+          return (
+            <div key={i} className={`grid ${cols}`}>
+              <Cell>{i + 1}</Cell>
+              <Cell>Progress payment</Cell>
+              <Cell>{fmt(installPrincipal)}</Cell>
+              {hasInterest && <Cell>{fmt(interest)}</Cell>}
+              <Cell>{fmt(row)}</Cell>
+            </div>
+          );
+        })}
+
+        {completionAmount > 0 && (() => {
+          grandTotal += completionAmount;
+          return (
+            <div className={`grid ${cols}`}>
+              <Cell>Completion</Cell>
+              <Cell>Completion payment</Cell>
+              <Cell>{fmt(completionAmount)}</Cell>
+              {hasInterest && <Cell>—</Cell>}
+              <Cell>{fmt(completionAmount)}</Cell>
+            </div>
+          );
+        })()}
+
+        <div className={`grid ${cols} bg-muted/30 border-t font-medium`}>
+          <Cell>Total</Cell>
+          <Cell>{discountPct > 0 ? `Discount: ${fmt(discountAmount)}` : ' '}</Cell>
+          <Cell>{fmt(priceAfterDiscount)}</Cell>
+          {hasInterest && <Cell>{fmt(grandTotal - priceAfterDiscount)}</Cell>}
+          <Cell>{fmt(grandTotal)}</Cell>
+        </div>
+      </InfoCardContent>
+    </InfoCard>
   );
 };
 
 export const SelectLead = ({
   form,
 }: {
-  form: UseFormReturn<z.infer<typeof offerSchema>>;
+  form: UseFormReturn<OfferFormData>;
 }) => {
   const leadType = form.watch('partyType');
-  const SelectLead =
+  const SelectLeadComponent =
     leadType === 'customer' ? SelectCustomer.FormItem : SelectCompany;
   return (
     <Form.Field
@@ -395,7 +436,7 @@ export const SelectLead = ({
       render={({ field }) => (
         <Form.Item>
           <Form.Label>Lead</Form.Label>
-          <SelectLead
+          <SelectLeadComponent
             value={field.value}
             onValueChange={field.onChange}
             mode="single"
@@ -411,49 +452,48 @@ export const OfferSummary = ({
   form,
   unit,
 }: {
-  form: UseFormReturn<z.infer<typeof offerSchema>>;
+  form: UseFormReturn<OfferFormData>;
   unit: IUnit;
 }) => {
-  const formData = form.watch();
+  const price = form.watch('price.price') || 0;
+  const currency = form.watch('price.currency');
+  const priceType = form.watch('price.priceType') ?? 'priceBySize';
+  const discountPct = form.watch('paymentPlan.discountPercentage') || 0;
 
-  if (!formData.paymentPlanId) {
-    return null;
-  }
-
-  const { discountPercentage } = formData.paymentPlan;
-
-  const { price } = formData.price;
-
-  const discountAmount = ((discountPercentage || 0) * price) / 100;
-  const offerPrice = price - discountAmount;
-  const offerTotalPrice = offerPrice * (unit?.size || 1);
-  const totalDiscount = discountAmount * (unit?.size || 1);
-
-  const initialPrice = (unit?.size || 1) * (price || 0);
+  const totalAmount =
+    priceType === 'priceBySize' && (unit?.unitType?.size || 0) > 0
+      ? price * unit!.unitType!.size
+      : price;
+  const discountAmount = (totalAmount * discountPct) / 100;
+  const offerPrice = totalAmount - discountAmount;
 
   return (
     <div className="flex-auto flex gap-4 items-center text-sm">
       <span className="text-muted-foreground flex items-center gap-1 font-medium">
-        Initial price:
+        Total:
         <span className="text-primary font-bold">
-          {initialPrice.toLocaleString()}
+          {totalAmount.toLocaleString()}
         </span>
-        {formData.price.currency}
+        {currency}
       </span>
-      <span className="text-muted-foreground flex items-center gap-1 font-medium">
-        Discount:
-        <span className="text-destructive font-bold">
-          -{totalDiscount.toLocaleString()}
+      {discountPct > 0 && (
+        <span className="text-muted-foreground flex items-center gap-1 font-medium">
+          Discount:
+          <span className="text-destructive font-bold">
+            -{discountAmount.toLocaleString()}
+          </span>
+          {currency}
         </span>
-        {formData.price.currency}
-      </span>
-      <span className="text-muted-foreground flex items-center gap-1 font-medium">
-        Offer price:
-        <span className="text-primary font-bold">
-          {offerTotalPrice.toLocaleString()}
+      )}
+      {discountPct > 0 && (
+        <span className="text-muted-foreground flex items-center gap-1 font-medium">
+          Offer price:
+          <span className="text-primary font-bold">
+            {offerPrice.toLocaleString()}
+          </span>
+          {currency}
         </span>
-        {formData.price.currency}
-      </span>
+      )}
     </div>
   );
 };
