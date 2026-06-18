@@ -1,5 +1,5 @@
 import { IContext } from '~/connectionResolvers';
-import { sendSupplierStatusToSupplier } from '~/utils/sendSupplierStatus';
+import { sendSupplierMessage } from '~/utils/sendSupplierMessage';
 import { fetchSupplierPosProducts } from '~/utils/fetchSupplierPosProducts';
 
 export const supplierMutations = {
@@ -16,12 +16,19 @@ export const supplierMutations = {
 
     const existing = await models.Supplier.getSupplier(_id);
 
-    await sendSupplierStatusToSupplier({
-      subdomain: existing.subdomain,
-      entityId: existing.entityId,
-      verificationStatus,
-      note,
-    });
+    try {
+      await sendSupplierMessage({
+        subdomain: existing.subdomain,
+        action: 'supplier',
+        payload: {
+          entityId: existing.entityId,
+          data: { verificationStatus, note },
+        },
+        timeout: 5000,
+      });
+    } catch (error) {
+      throw new Error(`Failed to send supplier status: ${error.message}`);
+    }
 
     return models.Supplier.updateVerificationStatus(
       _id,
@@ -60,7 +67,7 @@ export const supplierMutations = {
 
     await Promise.all(
       products.map((p) =>
-        models.MushopProduct.syncProduct(supplier.subdomain, p._id, {
+        models.Product.syncProduct(supplier.subdomain, p._id, {
           name: p.name,
           shortName: p.shortName,
           code: p.code,

@@ -33,7 +33,7 @@ router.post('/syncProduct', async (req: Request, res: Response) => {
           .json({ error: 'entityId or entityIds required for delete' });
       }
 
-      await models.MushopProduct.deleteMany({
+      await models.Product.deleteMany({
         subdomain,
         entityId: { $in: ids },
       });
@@ -45,7 +45,7 @@ router.post('/syncProduct', async (req: Request, res: Response) => {
 
     const { category, ...productRest } = product || {};
 
-    await models.MushopProduct.syncProduct(
+    await models.Product.syncProduct(
       subdomain,
       entityId,
       { ...productRest, initialCategory: category ?? null },
@@ -72,7 +72,7 @@ router.post('/syncProductCategory', async (req: Request, res: Response) => {
 
     const models = await generateModels(subdomain);
 
-    await models.MushopProduct.findOneAndUpdate(
+    await models.Product.findOneAndUpdate(
       { subdomain, 'initialCategory._id': category._id },
       { $set: { initialCategory: category ?? null } },
     );

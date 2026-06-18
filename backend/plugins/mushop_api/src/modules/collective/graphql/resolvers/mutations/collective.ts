@@ -1,7 +1,6 @@
 import { IContext } from '~/connectionResolvers';
 import { syncCollectiveProducts } from '@/collective/utils/syncCollectiveProducts';
-import { provisionCollectivePos } from '@/collective/utils/provisionCollectivePos';
-import { purgeCollectiveSupplier } from '@/collective/utils/purgeCollectiveSupplier';
+import { sendSupplierMessage } from '~/utils/sendSupplierMessage';
 import { Resolver } from 'erxes-api-shared/core-types';
 import { COLLECTIVE_STATUS } from '~/modules/collective/@types/collective';
 
@@ -17,7 +16,15 @@ export const collectiveMutations: Record<string, Resolver> = {
     },
     { models }: IContext,
   ) => {
-    const pos = await provisionCollectivePos({ targetSubdomain });
+    const pos = await sendSupplierMessage<{ _id: string; token: string }>({
+      subdomain: targetSubdomain,
+      action: 'create-pos',
+      timeout: 60000,
+    });
+
+    if (!pos?.token) {
+      throw new Error('POS provisioning response missing token');
+    }
 
     const collective = await models.Collective.createCollective({
       targetSubdomain,
@@ -62,13 +69,17 @@ export const collectiveMutations: Record<string, Resolver> = {
         if (!supplier.posToken) continue;
 
         try {
-          await purgeCollectiveSupplier({
-            supplierSubdomain: supplier.subdomain,
-            supplierPosToken: supplier.posToken,
-            supplierId: supplier._id,
-            targetSubdomain: collective.targetSubdomain,
-            targetPosToken: collective.targetPosToken,
-            collectiveId: collective._id,
+          await sendSupplierMessage({
+            subdomain: supplier.subdomain,
+            action: 'collective-purge-push',
+            payload: {
+              collectiveId: collective._id,
+              targetSubdomain: collective.targetSubdomain,
+              targetPosToken: collective.targetPosToken,
+              posToken: supplier.posToken,
+              supplierId: supplier._id,
+            },
+            timeout: 120000,
           });
         } catch (e) {
           console.error(

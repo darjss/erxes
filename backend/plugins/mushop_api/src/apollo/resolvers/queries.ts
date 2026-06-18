@@ -1,16 +1,16 @@
 import supplierQueries from '@/supplier/graphql/resolvers/queries';
 import productQueries from '@/product/graphql/resolvers/queries';
-import { subscriptionQueries } from '@/subscription/graphql/resolvers/queries/mushopSubscription';
-import { subscriptionPlanQueries } from '@/subscription/graphql/resolvers/queries/mushopSubscriptionPlan';
-import { mushopInvoiceQueries } from '@/subscription/graphql/resolvers/queries/invoices';
+import { membershipQueries } from '@/membership/graphql/resolvers/queries/mushopMembership';
+import { membershipPlanQueries } from '@/membership/graphql/resolvers/queries/mushopMembershipPlan';
+import { mushopInvoiceQueries } from '@/membership/graphql/resolvers/queries/invoices';
 import collectiveQueries from '@/collective/graphql/resolvers/queries';
 import collectivePackageQueries from '@/collective-package/graphql/resolvers/queries';
 
 export const queries = {
   ...supplierQueries,
   ...productQueries,
-  ...subscriptionQueries,
-  ...subscriptionPlanQueries,
+  ...membershipQueries,
+  ...membershipPlanQueries,
   ...mushopInvoiceQueries,
   ...collectiveQueries,
   ...collectivePackageQueries,

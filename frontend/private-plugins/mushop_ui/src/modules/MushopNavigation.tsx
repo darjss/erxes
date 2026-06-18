@@ -26,11 +26,11 @@ export const MushopNavigation = () => {
           pathPrefix="mushop"
         />
       </Can>
-      <Can module="subscription">
+      <Can module="membership">
         <NavigationMenuLinkItem
-          name="subscribers"
+          name="members"
           icon={IconCreditCard}
-          path="subscribers"
+          path="members"
           pathPrefix="mushop"
         />
       </Can>

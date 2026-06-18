@@ -8,7 +8,7 @@ export const cpPoscProduct = {
   ) => {
     console.log('product', product)
     
-    const mushopProduct = await models.MushopProduct.findOne({
+    const mushopProduct = await models.Product.findOne({
       _id: product._id,
     }).lean();
 

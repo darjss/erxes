@@ -5,7 +5,7 @@ export const SUPPLIER_VERIFICATION_STATUS = {
   ALL: ['verified', 'unverified', 'pending'],
 };
 
-export const SUBSCRIPTION_STATUS = {
+export const MEMBERSHIP_STATUS = {
   ACTIVE: 'active',
   EXPIRED: 'expired',
   CANCELLED: 'cancelled',

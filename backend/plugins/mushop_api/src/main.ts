@@ -6,7 +6,7 @@ import { generateModels } from './connectionResolvers';
 import { payments } from './meta/payments';
 import { permissions } from './meta/permissions';
 import router from './routes';
-import beforeResolvers from './modules/product/beforeResolvers';
+import beforeResolvers from './meta/beforeResolvers';
 
 startPlugin({
   name: 'mushop',

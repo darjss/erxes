@@ -1,6 +1,5 @@
-import crypto from 'crypto';
-import { isDev } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
+import { sendSupplierMessage } from '~/utils/sendSupplierMessage';
 import {
   COLLECTIVE_STATUS,
   ICollectiveSupplierSyncResult,
@@ -18,71 +17,6 @@ interface CollectiveWebhookResult {
     error?: string;
   }>;
 }
-
-const postToSupplierPush = async ({
-  supplierSubdomain,
-  targetSubdomain,
-  targetPosToken,
-  collectiveId,
-  posToken,
-  supplierId,
-  supplierName,
-}: {
-  supplierSubdomain: string;
-  targetSubdomain: string;
-  targetPosToken: string;
-  collectiveId: string;
-  posToken: string;
-  supplierId: string;
-  supplierName?: string;
-}): Promise<CollectiveWebhookResult> => {
-  const { SUPPLIER_API_URL, MUSHOP_SECRET } = process.env;
-
-  if (!SUPPLIER_API_URL || !MUSHOP_SECRET) {
-    throw new Error('SUPPLIER_API_URL or MUSHOP_SECRET is not configured');
-  }
-
-  const baseUrl = isDev
-    ? SUPPLIER_API_URL
-    : SUPPLIER_API_URL.replace('<subdomain>', supplierSubdomain);
-
-  const endpoint = `${baseUrl}/pl:supplier/webhook/mushop/collective-push`;
-
-  const body = JSON.stringify({
-    subdomain: supplierSubdomain,
-    payload: {
-      collectiveId,
-      targetSubdomain,
-      targetPosToken,
-      posToken,
-      supplierId,
-      supplierName,
-    },
-  });
-
-  const signature = crypto
-    .createHmac('sha256', MUSHOP_SECRET)
-    .update(body)
-    .digest('hex');
-
-  const res = await fetch(endpoint, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'X-Signature': `sha256=${signature}`,
-    },
-    body,
-    signal: AbortSignal.timeout(120000),
-  });
-
-  if (!res.ok) {
-    const text = await res.text().catch(() => '');
-
-    throw new Error(`Supplier push HTTP ${res.status}: ${text}`);
-  }
-
-  return (await res.json()) as CollectiveWebhookResult;
-};
 
 export const syncCollectiveProducts = async ({
   models,
@@ -140,14 +74,18 @@ export const syncCollectiveProducts = async ({
     }
 
     try {
-      const response = await postToSupplierPush({
-        supplierSubdomain: supplier.subdomain,
-        targetSubdomain: collective.targetSubdomain,
-        targetPosToken: collective.targetPosToken,
-        collectiveId: collective._id,
-        posToken: supplier.posToken,
-        supplierId: supplier._id,
-        supplierName: supplier.name,
+      const response = await sendSupplierMessage<CollectiveWebhookResult>({
+        subdomain: supplier.subdomain,
+        action: 'collective-push',
+        payload: {
+          collectiveId: collective._id,
+          targetSubdomain: collective.targetSubdomain,
+          targetPosToken: collective.targetPosToken,
+          posToken: supplier.posToken,
+          supplierId: supplier._id,
+          supplierName: supplier.name,
+        },
+        timeout: 120000,
       });
 
       result.total = response.total;

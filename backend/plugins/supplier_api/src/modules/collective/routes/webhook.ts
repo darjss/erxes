@@ -575,4 +575,44 @@ router.post('/create-pos', async (req: Request, res: Response) => {
   }
 });
 
+router.post('/order', async (req: Request, res: Response) => {
+  try {
+    const { subdomain, payload } = req.body || {};
+    const { posToken, order } = payload || {};
+
+    if (!subdomain) {
+      return res.status(400).json({ error: 'subdomain is required' });
+    }
+
+    if (!posToken) {
+      return res.status(400).json({ error: 'payload.posToken is required' });
+    }
+
+    if (!order || typeof order !== 'object') {
+      return res.status(400).json({ error: 'payload.order is required' });
+    }
+
+    const created = (await sendTRPCMessage({
+      subdomain,
+      pluginName: 'posclient',
+      method: 'mutation',
+      module: 'posclient',
+      action: 'createOrder',
+      input: { order: { ...order, posToken } },
+      defaultValue: null,
+    }))
+
+    if (!created?._id) {
+      return res
+        .status(502)
+        .json({ error: 'posclient did not create the order' });
+    }
+
+    return res.status(200).json({ success: true, order: { _id: created._id } });
+  } catch (e: any) {
+    console.error('mushop/order webhook failed:', e);
+    return res.status(400).json({ error: e.message });
+  }
+});
+
 export { router };

@@ -33,7 +33,7 @@ export const CONFIG: IUIConfig = {
   widgets: {
     relationWidgets: [
       {
-        name: 'subscription_plan',
+        name: 'membership_plan',
         icon: IconFileDescription,
       },
     ],
