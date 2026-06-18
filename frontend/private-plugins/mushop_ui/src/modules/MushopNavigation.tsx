@@ -1,5 +1,6 @@
 import { NavigationMenuLinkItem } from 'erxes-ui';
 import { Can } from 'ui-modules';
+import { useTranslation } from 'react-i18next';
 import {
   IconBuildingStore,
   IconCreditCard,
@@ -8,11 +9,13 @@ import {
 } from '@tabler/icons-react';
 
 export const MushopNavigation = () => {
+  const { t } = useTranslation('mushop');
+
   return (
     <>
       <Can module="supplier">
         <NavigationMenuLinkItem
-          name="suppliers"
+          name={t('Suppliers')}
           icon={IconUsers}
           path="suppliers"
           pathPrefix="mushop"
@@ -20,7 +23,7 @@ export const MushopNavigation = () => {
       </Can>
       <Can module="product">
         <NavigationMenuLinkItem
-          name="products"
+          name={t('Products')}
           icon={IconPackage}
           path="products"
           pathPrefix="mushop"
@@ -28,7 +31,7 @@ export const MushopNavigation = () => {
       </Can>
       <Can module="membership">
         <NavigationMenuLinkItem
-          name="members"
+          name={t('Members')}
           icon={IconCreditCard}
           path="members"
           pathPrefix="mushop"
@@ -36,7 +39,7 @@ export const MushopNavigation = () => {
       </Can>
       <Can module="collective">
         <NavigationMenuLinkItem
-          name="collectives"
+          name={t('Collectives')}
           icon={IconBuildingStore}
           path="collectives"
           pathPrefix="mushop"
