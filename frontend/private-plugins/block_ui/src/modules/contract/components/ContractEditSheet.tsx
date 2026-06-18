@@ -91,6 +91,7 @@ const ContractEditBody = ({
           frequency: orUndef(contract.paymentPlan.frequency),
           penaltyPercentage: orUndef(contract.paymentPlan.penaltyPercentage),
           vatIncluded: contract.paymentPlan.vatIncluded || false,
+          roundedInstallmentAmount: orUndef(contract.paymentPlan.roundedInstallmentAmount),
           paymentDates: orUndef(contract.paymentPlan.paymentDates),
           paymentDueDates: orUndef(contract.paymentPlan.paymentDueDates),
           firstPaymentDate: orUndef(contract.paymentPlan.firstPaymentDate),

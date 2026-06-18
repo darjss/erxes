@@ -32,6 +32,7 @@ export interface IContractPaymentPlan {
   frequency?: string;
   penaltyPercentage?: number;
   vatIncluded?: boolean;
+  roundedInstallmentAmount?: number;
   paymentDates?: number[];
   paymentDueDates?: string[];
   firstPaymentDate?: string;

@@ -1,4 +1,5 @@
 import { DatePicker, InfoCard } from 'erxes-ui';
+import { useState, useEffect, useRef, memo, useCallback } from 'react';
 import { format } from 'date-fns';
 
 const periodsPerYear = (frequency: string | undefined): number => {
@@ -23,6 +24,41 @@ const parseDateLike = (value: any): Date | null => {
   return isNaN(d.getTime()) ? null : d;
 };
 
+const PrincipalInput = memo(({
+  index,
+  value,
+  onCommit,
+}: {
+  index: number;
+  value: number;
+  onCommit: (index: number, val: number) => void;
+}) => {
+  const [text, setText] = useState(String(value));
+  const focusedRef = useRef(false);
+
+  useEffect(() => {
+    if (!focusedRef.current) {
+      setText(String(value));
+    }
+  }, [value]);
+
+  return (
+    <input
+      type="number"
+      step="any"
+      value={text}
+      onChange={(e) => setText(e.target.value)}
+      onFocus={() => { focusedRef.current = true; }}
+      onBlur={(e) => {
+        focusedRef.current = false;
+        const n = parseFloat(e.target.value);
+        if (!isNaN(n)) onCommit(index, n);
+      }}
+      className="h-7 text-sm w-full border rounded px-2 bg-background"
+    />
+  );
+});
+
 export const PaymentScheduleEditor = ({
   form,
 }: {
@@ -33,6 +69,10 @@ export const PaymentScheduleEditor = ({
   const contractDate = form.watch('date');
   const paymentPlan = form.watch('paymentPlan');
   const dueDates = form.watch('paymentPlan.paymentDueDates') || [];
+  const [principalOverrides, setPrincipalOverrides] = useState<Record<number, number>>({});
+  const handlePrincipalCommit = useCallback((index: number, val: number) => {
+    setPrincipalOverrides((prev) => ({ ...prev, [index]: val }));
+  }, []);
 
   if (!paymentPlan) return null;
 
@@ -70,10 +110,18 @@ export const PaymentScheduleEditor = ({
         ? roundedAmount
         : principal / installmentCount
       : 0;
-  const lastInstallmentPrincipal =
-    roundedAmount > 0 && installmentCount > 0
-      ? principal - roundedAmount * (installmentCount - 1)
-      : principalPerInstallment;
+
+  // Pre-compute all effective principals so last row auto-adjusts
+  const effectivePrincipals = Array.from({ length: installmentCount }, (_, i) => {
+    const base = roundedAmount > 0 ? roundedAmount : principalPerInstallment;
+    return principalOverrides[i] ?? base;
+  });
+  if (installmentCount > 0) {
+    const sumOfOthers = effectivePrincipals.slice(0, -1).reduce((a, b) => a + b, 0);
+    const lastFallback = principal - sumOfOthers;
+    effectivePrincipals[installmentCount - 1] =
+      principalOverrides[installmentCount - 1] ?? lastFallback;
+  }
 
   const baseStart =
     parseDateLike(paymentPlan.firstPaymentDate) ||
@@ -110,10 +158,10 @@ export const PaymentScheduleEditor = ({
       return (principal * interestPct) / 100 / installmentCount;
     }
     if (interestType === 'REDUCING') {
-      const remaining = principal - principalPerInstallment * index;
+      const paidSoFar = effectivePrincipals.slice(0, index).reduce((a, b) => a + b, 0);
+      const remaining = principal - paidSoFar;
       return (remaining * interestPct) / 100 / ppy;
     }
-    // SIMPLE: annualized total interest spread equally
     return ((principal * interestPct) / 100) * (installmentCount / ppy) / installmentCount;
   };
 
@@ -224,8 +272,7 @@ export const PaymentScheduleEditor = ({
             {Array.from({ length: installmentCount }).map((_, index) => {
               const dueDate = getDueDate(index);
               const interest = getInterest(index);
-              const isLast = index === installmentCount - 1;
-              const installPrincipal = isLast ? lastInstallmentPrincipal : principalPerInstallment;
+              const installPrincipal = effectivePrincipals[index];
               const rowTotal = installPrincipal + interest;
               grandTotal += rowTotal;
               return (
@@ -247,7 +294,13 @@ export const PaymentScheduleEditor = ({
                     />
                   </Cell>
                   <Cell>Progress payment</Cell>
-                  <Cell>{fmt(installPrincipal)}</Cell>
+                  <Cell className="p-1">
+                    <PrincipalInput
+                      index={index}
+                      value={installPrincipal}
+                      onCommit={handlePrincipalCommit}
+                    />
+                  </Cell>
                   {hasInterest && <Cell>{fmt(interest)}</Cell>}
                   <Cell>{fmt(rowTotal)}</Cell>
                 </div>

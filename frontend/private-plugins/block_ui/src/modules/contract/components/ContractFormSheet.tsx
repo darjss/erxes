@@ -153,6 +153,7 @@ export const ContractFormSheet = ({
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit, onValidationError)}
+        onKeyDown={(e) => { if (e.key === 'Enter' && (e.target as HTMLElement).tagName === 'INPUT') e.preventDefault(); }}
         className="flex flex-col flex-auto overflow-hidden"
       >
         <Sheet.Content className="flex-auto overflow-hidden flex">
