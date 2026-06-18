@@ -41,6 +41,7 @@ const contractPaymentPlanSchema = new Schema(
     },
     penaltyPercentage: { type: Number },
     vatIncluded: { type: Boolean },
+    roundedInstallmentAmount: { type: Number },
     type: { type: String, enum: Object.values(BlockProjectPaymentPlanType) },
     paymentDates: { type: [Number] },
     paymentDueDates: { type: [Date] },

@@ -32,6 +32,7 @@ export const GET_CONTRACTS = gql`
         frequency
         penaltyPercentage
         vatIncluded
+        roundedInstallmentAmount
         paymentDates
         paymentDueDates
         firstPaymentDate
@@ -119,6 +120,7 @@ export const GET_CONTRACT = gql`
         frequency
         penaltyPercentage
         vatIncluded
+        roundedInstallmentAmount
         paymentDates
         paymentDueDates
         firstPaymentDate

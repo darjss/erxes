@@ -26,6 +26,7 @@ export const types = `
     frequency: BlockProjectPaymentPlanFrequency
     penaltyPercentage: Float
     vatIncluded: Boolean
+    roundedInstallmentAmount: Float
     paymentDates: [Int]
     paymentDueDates: [Date]
     firstPaymentDate: Date
@@ -50,6 +51,7 @@ export const types = `
     frequency: BlockProjectPaymentPlanFrequency
     penaltyPercentage: Float
     vatIncluded: Boolean
+    roundedInstallmentAmount: Float
     paymentDates: [Int]
     paymentDueDates: [Date]
     firstPaymentDate: Date
