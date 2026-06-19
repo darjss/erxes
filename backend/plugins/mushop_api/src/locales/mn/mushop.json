@@ -1,4 +1,5 @@
 {
+  "mushop": "Мө станц",
   "(+{{count}} more)": "(+{{count}} нэмэлт)",
   "(Current)": "(Одоогийн)",
   "(change)": "(өөрчлөх)",
@@ -66,8 +67,8 @@
   "Loading…": "Ачаалж байна…",
   "Mark as {{status}}": "{{status}} болгох",
   "Method": "Хэлбэр",
-  "Mushop POS": "Mushop ПОС",
-  "Mushop Widget": "Mushop виджет",
+  "Mushop POS": "Мө станц ПОС",
+  "Mushop Widget": "Мө станц виджет",
   "Name": "Нэр",
   "New end": "Шинэ дуусах",
   "No POS configurations found": "ПОС тохиргоо олдсонгүй",
