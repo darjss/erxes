@@ -1,11 +1,13 @@
 import { cursorPaginateAggregation } from 'erxes-api-shared/utils';
 import { IContractDocument } from '@/contract/@types/contract';
 import { IContext } from '~/connectionResolvers';
+import { Types } from 'mongoose';
 
 const STATUS_TYPE_ORDER = ['reserved', 'draft', 'lost', 'cancelled', 'signed'];
 
 export interface IContractFilter {
   projectId?: string;
+  unit?: string;
   search?: string;
   status?: string;
   partyType?: string;
@@ -70,6 +72,9 @@ export const contractQueries = {
         const unitIds = units.map((u: any) => u._id);
 
         query.unit = { $in: unitIds };
+      }
+      if (filter.unit) {
+        query.unit = new Types.ObjectId(filter.unit);
       }
       if (filter.search) {
         query.number = { $regex: filter.search, $options: 'i' };

@@ -73,7 +73,12 @@ export const opptyQueries = {
     }
 
     if (filter?.unit) {
-      filterQuery.units = { $in: [filter.unit] };
+      filterQuery.$or = [
+        ...(filterQuery.$or || []),
+        { units: { $in: [filter.unit] } },
+        { unit: filter.unit },
+        { 'propertyRows.unitId': filter.unit },
+      ];
     }
 
     if (filter?.assignedUserId) {

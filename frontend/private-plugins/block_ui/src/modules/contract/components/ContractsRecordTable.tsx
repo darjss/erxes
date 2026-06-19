@@ -19,7 +19,7 @@ export const ContractsRecordTable = ({ unitId }: { unitId?: string } = {}) => {
   const setContractTotalCount = useSetAtom(contractTotalCountAtom);
 
   const { contracts, handleFetchMore, pageInfo, loading, totalCount } =
-    useContractsList(unitId ? { unit: unitId } : undefined);
+    useContractsList(unitId ? { variables: { unit: unitId } } : undefined);
 
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
 

@@ -38,7 +38,7 @@ export const OfferAddSheet = () => {
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <Sheet.Trigger asChild>
-        <Button variant="secondary">
+        <Button>
           <IconPlus />
           Add offer
         </Button>

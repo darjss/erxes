@@ -119,6 +119,7 @@ export const queries = `
 export const filterInputTypes = `
   input BlockContractFilterInput {
     projectId: String
+    unit: String
     search: String
     status: String
     partyType: String

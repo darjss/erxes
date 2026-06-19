@@ -20,9 +20,11 @@ export const offerMutations = {
   ) => {
     const { invoices, ...rest } = input;
 
-    const number = Math.floor(Math.random() * 1000000).toString();
+    const unit = await models.Unit.findOne({ _id: input.unit });
 
-    rest.number = number;
+    if (!unit) {
+      throw new Error('Unit not found');
+    }
 
     const contract = await models.Contract.findOne({
       unit: input.unit,
@@ -35,11 +37,10 @@ export const offerMutations = {
       throw new Error('Can not create offer because contract is signed');
     }
 
-    const unit = await models.Unit.findOne({ _id: input.unit });
+    const existingCount = await models.Offer.countDocuments({ unit: input.unit });
+    const number = `${unit.number}-${(existingCount + 1).toString().padStart(3, '0')}`;
 
-    if (!unit) {
-      throw new Error('Unit not found');
-    }
+    rest.number = number;
 
     const unitType = await models.UnitType.findOne({ _id: unit.type });
 
