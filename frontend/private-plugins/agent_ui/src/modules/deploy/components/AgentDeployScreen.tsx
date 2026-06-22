@@ -143,7 +143,7 @@ export const AgentDeployScreen = () => {
               <Sheet.Title>Add AI Assistant</Sheet.Title>
               <Sheet.Close />
             </Sheet.Header>
-            <Sheet.Content className="px-5 py-5">
+            <Sheet.Content className="min-h-0 flex-1 overflow-y-auto px-5 py-5">
               <AgentDeployForm />
             </Sheet.Content>
           </Sheet.View>

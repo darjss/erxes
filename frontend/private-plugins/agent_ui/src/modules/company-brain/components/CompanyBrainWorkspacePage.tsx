@@ -482,7 +482,7 @@ const AssistantDiscordManageSheet = ({
           <Sheet.Title>Discord connection</Sheet.Title>
           <Sheet.Close />
         </Sheet.Header>
-        <Sheet.Content className="flex min-h-0 flex-1 flex-col gap-5 px-5 py-5">
+        <Sheet.Content className="flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto px-5 py-5">
           <div className="space-y-1">
             <h3 className="text-sm font-medium">{identifier.name}</h3>
             <p className="text-xs text-muted-foreground">
@@ -1835,7 +1835,7 @@ export const CompanyBrainWorkspacePage = ({
                 <Sheet.Close />
               </Sheet.Header>
 
-              <Sheet.Content className="flex min-h-0 flex-1 flex-col gap-5 px-5 py-5">
+              <Sheet.Content className="flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto px-5 py-5">
                 {showManagedDiscordStep ? (
                   renderManagedDiscordStep()
                 ) : (
