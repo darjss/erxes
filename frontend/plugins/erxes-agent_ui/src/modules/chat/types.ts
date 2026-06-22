@@ -41,6 +41,11 @@ export type AgentDataParts = {
   activity: { text: string };
   'thread-title': { threadId: string; title: string };
   heartbeat: Record<string, never>;
+  // The native assistant-message id, reconciled AFTER the `finish` chunk: the
+  // backend now closes the message immediately and persists off the critical
+  // path, so the id the thumbs feedback rates arrives here once the background
+  // write resolves. Patched onto the latest assistant message's metadata.
+  'message-id': { messageId: string };
 };
 
 export type AgentUIMessage = UIMessage<AgentMessageMetadata, AgentDataParts>;

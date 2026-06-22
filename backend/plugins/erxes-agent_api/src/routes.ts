@@ -406,41 +406,81 @@ router.post('/chat/stream', llmRouteLimiter, async (req, res) => {
           }
         }
 
-        const { titlePromise, assistantMessageId } = await persistTurn({
-          models,
-          prepared,
-          message,
-          reply,
-          meta: reply ? acc.meta(interrupted, langfuseTraceId) : undefined,
-        });
+        const turnMeta = reply
+          ? acc.meta(interrupted, langfuseTraceId)
+          : undefined;
 
-        // Close the assistant message with its final metadata: the native id
-        // the client rates, the interrupted flag, and the Langfuse trace id.
-        // Replaces the old `done` event (sendFinish:false suppressed Mastra's).
+        // Close the assistant message NOW — the full reply already streamed, so
+        // nothing user-visible should wait on the turn-end DB write. The native
+        // message id (rated without a reload) and the thread title are reconciled
+        // over the still-open stream once the background persist resolves; on a
+        // reload the message recovers its id from the store regardless.
         writer.write({
           type: 'finish',
           messageMetadata: {
-            messageId: assistantMessageId,
+            messageId: null,
             interrupted,
             langfuseTraceId,
           },
         });
 
-        // The auto-titler summarizes the conversation in the background; hold
-        // the stream open briefly so the client gets the new sidebar title
-        // without a refetch. Bounded — a slow/failed titling never hangs the
-        // stream (the title still self-persists for the next session-list load).
-        if (!clientGone) {
-          const title = await Promise.race([
-            titlePromise,
-            new Promise<null>((resolve) => setTimeout(() => resolve(null), 8000)),
-          ]);
-          if (title && !clientGone) {
-            writer.write({
-              type: 'data-thread-title',
-              data: { threadId: prepared.sessionId, title },
-              transient: true,
-            });
+        // Persistence OFF the critical path. The write MUST still happen and must
+        // capture the full turn: Mastra already persisted the [user, assistant]
+        // pair during streaming; persistTurn enriches it with erxes turn meta and
+        // recovers the native id. We no longer block `finish` on it — but we
+        // never drop it (errors are logged, not swallowed).
+        const persistPromise = persistTurn({
+          models,
+          prepared,
+          message,
+          reply,
+          meta: turnMeta,
+        });
+
+        if (clientGone) {
+          // Nobody is waiting — let the write finish in the background, surfacing
+          // any failure so a lost turn is visible.
+          void persistPromise.catch((e) =>
+            console.warn(
+              `[mastra chat] background persist failed: ${
+                (e as Error)?.message || e
+              }`,
+            ),
+          );
+        } else {
+          // Client still connected: forward the reconciled native id + the new
+          // sidebar title over the already-open stream. This runs AFTER `finish`,
+          // so it is off the felt path — the user has the complete, rendered
+          // reply. Bounded titling: a slow/failed title never hangs the stream
+          // (it self-persists for the next session-list load).
+          try {
+            const { titlePromise, assistantMessageId } = await persistPromise;
+            if (assistantMessageId && !clientGone) {
+              writer.write({
+                type: 'data-message-id',
+                data: { messageId: assistantMessageId },
+                transient: true,
+              });
+            }
+            const title = await Promise.race([
+              titlePromise,
+              new Promise<null>((resolve) =>
+                setTimeout(() => resolve(null), 8000),
+              ),
+            ]);
+            if (title && !clientGone) {
+              writer.write({
+                type: 'data-thread-title',
+                data: { threadId: prepared.sessionId, title },
+                transient: true,
+              });
+            }
+          } catch (e) {
+            console.warn(
+              `[mastra chat] persist/title reconcile failed: ${
+                (e as Error)?.message || e
+              }`,
+            );
           }
         }
       } finally {

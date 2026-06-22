@@ -62,6 +62,13 @@ export interface TurnAgent {
 export interface MemoryBinding {
   thread: string;
   resource: string;
+  // Per-turn overrides deep-merged onto the shared Memory config (Mastra's
+  // AgentMemoryOption.options). Used to skip semantic recall on a thread's first
+  // turn — there is nothing to recall yet, so the embed + Qdrant round-trip is
+  // pure latency. Working memory, recent-history replay, and native titling are
+  // left untouched (deepMerge preserves the unset keys). Persist/patch read only
+  // thread/resource, so the extra field is inert for them.
+  options?: { semanticRecall?: boolean };
 }
 
 // Who/what is driving a turn — the one knob that varies across the four

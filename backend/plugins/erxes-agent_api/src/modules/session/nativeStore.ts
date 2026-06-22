@@ -245,6 +245,26 @@ export async function listOwnedThreads(
 }
 
 /**
+ * Whether a resource already owns at least one persisted thread. Used to decide
+ * if semantic recall is worth running on a turn whose own thread is brand new:
+ * under resource-scoped recall (the default) a new thread can still recall from
+ * the user's OTHER threads, so only a resource with no prior thread has nothing
+ * to recall. The current turn registers its thread AFTER this check, so it never
+ * counts itself. One bounded (perPage:1) existence read — no per-thread counts.
+ */
+export async function resourceHasThreads(
+  subdomain: string,
+  resourceId: string,
+): Promise<boolean> {
+  const memory = await getNativeMemory(subdomain);
+  const res = await memory.listThreads({
+    filter: { resourceId },
+    perPage: 1,
+  });
+  return Boolean(res?.threads?.length);
+}
+
+/**
  * Register a chat thread in the native store and stamp its erxes↔agent binding
  * (metadata.agentId + tenant) BEFORE the turn streams — so the session is
  * immediately listable (listOwnedThreads filters on metadata.agentId) and

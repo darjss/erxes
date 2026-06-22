@@ -2,15 +2,22 @@ import { IUserDocument } from 'erxes-api-shared/core-types';
 import { ExpectedError } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
 import { getOrCreateAgent } from '~/mastra/agentRuntime';
-import { isAdvancedMemoryEnabled } from '~/mastra/memory/config';
+import {
+  isAdvancedMemoryEnabled,
+  resolveRecallTuning,
+} from '~/mastra/memory/config';
 import { scopedResource, getMastraMemory } from '~/mastra/memory/mastraMemory';
 import { deriveResourceId, augmentConvo, MemoryContext } from '~/mastra/memory';
 import { readLearnedDigest } from '~/mastra/learning/digest';
 import { ApprovedOp } from '~/mastra/requestContext';
 import { buildChatUserContent } from '~/mastra/files/chatContent';
 import { IMastraChatAttachment } from '@/session/@types/session';
-import { ensureThreadRegistered } from '@/session/nativeStore';
 import {
+  ensureThreadRegistered,
+  resourceHasThreads,
+} from '@/session/nativeStore';
+import {
+  MemoryBinding,
   PreparedTurn,
   TurnAgent,
   TurnIdentity,
@@ -93,20 +100,19 @@ export async function prepareTurn(
     throw new ExpectedError('agentId must be a non-empty string');
   }
 
-  const agentConfig = await models.MastraAgent.findOne({
-    agentId,
-    isEnabled: true,
-  });
+  // The three independent reads a turn needs, collapsed into ONE round trip
+  // instead of three serial awaits (each a remote round trip on a hosted Mongo).
+  // settings + providers are then handed to getOrCreateAgent so it does not
+  // re-fetch them. getSettings() is the canonical accessor (30s process cache +
+  // env overrides) — the same one getOrCreateAgent and the bot path use, so the
+  // value (incl. the env-overridden api token below) stays consistent.
+  const [agentConfig, settings, providers] = await Promise.all([
+    models.MastraAgent.findOne({ agentId, isEnabled: true }),
+    models.MastraSettings.getSettings(),
+    models.MastraProvider.find({ isEnabled: true }),
+  ]);
   if (!agentConfig)
     throw new ExpectedError(`Agent "${agentId}" not found or disabled`);
-
-  const settings = await models.MastraSettings.findOne({});
-  const providers = await models.MastraProvider.find({ isEnabled: true });
-  const { agent, tools } = await getOrCreateAgent(
-    agentConfig,
-    models,
-    subdomain,
-  );
 
   // Stable session id — the persisted thread this turn belongs to.
   // typeof guard keeps crafted non-string payloads out of Mongo queries
@@ -137,28 +143,90 @@ export async function prepareTurn(
   // recall + working memory via the per-turn binding below. An unknown tenant
   // does NOT skip persistence — scopedResource defaults an empty subdomain to
   // the "os" scope so the thread is still persisted and listable.
-  const memoryBinding = useMemory
+  const memoryBinding: MemoryBinding | undefined = useMemory
     ? { thread: sessionId, resource: scopedResource(subdomain, resourceId) }
     : undefined;
+
+  // What the semantic recall is scoped to (env-driven, default 'resource'). This
+  // decides what "nothing to recall" means for the first-turn skip below.
+  const recallResource = memoryBinding?.resource;
+  const recallScope = resolveRecallTuning().scope;
+
+  // Build the agent, read the thread (ownership + thread-history), and — under
+  // resource-scoped recall — probe whether the resource owns any prior thread,
+  // all concurrently. None needs another's result, so they overlap instead of
+  // stacking round trips. The resource probe is issued speculatively (its result
+  // is only consulted when the thread itself turns out to be new); it rides
+  // alongside the ownership read, so it adds no wall-clock on the common path.
+  const needsThreadRead = Boolean(
+    identity.kind === 'user' &&
+      memoryBinding &&
+      typeof threadId === 'string' &&
+      threadId,
+  );
+  const needsResourceProbe = Boolean(
+    identity.kind === 'user' &&
+      memoryBinding &&
+      recallScope === 'resource' &&
+      recallResource,
+  );
+  const [{ agent, tools }, priorThread, resourceHadThreads] = await Promise.all([
+    getOrCreateAgent(agentConfig, models, subdomain, {
+      settings,
+      providers,
+    }),
+    needsThreadRead
+      ? (async () => {
+          const memory = await getMastraMemory(subdomain);
+          return (await memory.getThreadById({
+            threadId: sessionId,
+          } as never)) as { resourceId?: string } | null;
+        })()
+      : Promise.resolve<{ resourceId?: string } | null>(null),
+    needsResourceProbe && recallResource
+      ? // Best-effort: this is only a recall optimization, so a failure must degrade
+        // to the safe default (null → "history might exist" → recall stays on), never
+        // abort the turn via the Promise.all.
+        resourceHasThreads(subdomain, recallResource).catch(() => null)
+      : Promise.resolve<boolean | null>(null),
+  ]);
 
   // Ownership gate: a CONTINUED thread must belong to this caller. getThreadById
   // without a resource returns the thread whatever its owner; if it exists under
   // a different resource it is someone else's session — reported as "not found"
   // (no existence leak). Only in-app users own threads; bot/schedule resources
-  // are synthetic and self-scoped, so the gate is a no-op for them.
+  // are synthetic and self-scoped, so the gate is a no-op for them. (Building the
+  // agent for a thread that fails this check is harmless — the agent is cached.)
   if (
-    identity.kind === 'user' &&
+    priorThread &&
     memoryBinding &&
-    typeof threadId === 'string' &&
-    threadId
+    priorThread.resourceId !== memoryBinding.resource
   ) {
-    const memory = await getMastraMemory(subdomain);
-    const existing = (await memory.getThreadById({
-      threadId: sessionId,
-    } as never)) as { resourceId?: string } | null;
-    if (existing && existing.resourceId !== memoryBinding.resource) {
-      throw new ExpectedError('Thread not found');
-    }
+    throw new ExpectedError('Thread not found');
+  }
+
+  // Skip semantic recall only when it can return NOTHING — the embed + Qdrant
+  // round trip inside agent.stream() is otherwise pure latency. "Nothing to
+  // recall" is scope-aware (the critical correctness point):
+  //   • thread scope  → recall sees only THIS thread, so skip when it is new
+  //     (priorThread === null, i.e. owned thread does not exist yet).
+  //   • resource scope → recall spans every thread of the resource, so a new
+  //     thread can still recall from the user's other threads; only a resource
+  //     with no prior thread (resourceHadThreads === false) has nothing.
+  // A continued thread (priorThread present) always keeps recall on. Non-user
+  // identities keep their existing always-recall behaviour. The skip is a
+  // per-call deep-merge of semanticRecall:false, so working memory, recent
+  // history, and native titling are untouched.
+  const recallCanReturnHistory =
+    identity.kind !== 'user' || !memoryBinding
+      ? true
+      : priorThread
+        ? true
+        : recallScope === 'resource'
+          ? resourceHadThreads !== false
+          : false;
+  if (memoryBinding && !recallCanReturnHistory) {
+    memoryBinding.options = { semanticRecall: false };
   }
 
   // Register the thread + its agent binding NOW, before the model streams, so
@@ -188,9 +256,7 @@ export async function prepareTurn(
   // The tenant's learned digest (shared "Agent knowledge") is woven into the
   // turn — separate from Mastra Memory. Best-effort: null on error. Skipped for
   // scheduled runs (weaveDigest=false), whose prompt is run verbatim.
-  const digest = weaveDigest
-    ? await readLearnedDigest(models, agentId)
-    : null;
+  const digest = weaveDigest ? await readLearnedDigest(models, agentId) : null;
 
   // Mastra Memory replays recent history + recall itself, so generate() gets
   // ONLY the new user message (+ the learned digest). Passing replayed history

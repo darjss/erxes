@@ -22,6 +22,8 @@ import { ToolCallFilter } from '@mastra/core/processors';
 import { isEvaluationEnabled } from './scoring/config';
 import { buildAgentScorers } from './scoring/scorers';
 import { getObservabilityHost } from './scoring/observability';
+import type { IMastraProviderDocument } from '@/provider/@types/provider';
+import type { IMastraSettingsDocument } from '@/settings/@types/settings';
 
 // Cache agents by config ID + updatedAt + routing version.
 const agentCache = new Map<string, Agent>();
@@ -38,11 +40,21 @@ export interface AgentWithTools {
   tools: ToolsInput;
 }
 
+export interface GetOrCreateAgentOptions {
+  // Already-loaded config the caller fetched for its own use. When BOTH are
+  // supplied the duplicate Mongo reads here are skipped (prepareTurn loads them
+  // alongside the agent config in one Promise.all). Standalone callers omit them
+  // and the values are fetched here — getSettings() is process-cached anyway.
+  providers?: IMastraProviderDocument[];
+  settings?: IMastraSettingsDocument;
+}
+
 /** Build (or return the cached) Mastra agent for a stored agent config. */
 export async function getOrCreateAgent(
   agentConfig: IMastraAgentDocument,
   models: IModels,
   subdomain?: string,
+  options: GetOrCreateAgentOptions = {},
 ): Promise<AgentWithTools> {
   // Mastra Memory (persistence + semantic recall + working memory) is attached
   // whenever advanced memory is on and the agent hasn't opted out. An unknown
@@ -51,10 +63,14 @@ export async function getOrCreateAgent(
   // to the "os" scope.
   const useMemory =
     isAdvancedMemoryEnabled() && agentConfig.memoryEnabled !== false;
-  const [providers, settings] = await Promise.all([
-    models.MastraProvider.find({ isEnabled: true }),
-    models.MastraSettings.getSettings(),
-  ]);
+  // Reuse the caller's already-fetched config when present; otherwise load it.
+  const [providers, settings] =
+    options.providers && options.settings
+      ? [options.providers, options.settings]
+      : await Promise.all([
+          models.MastraProvider.find({ isEnabled: true }),
+          models.MastraSettings.getSettings(),
+        ]);
 
   // The agent's reach: 'all' (every erxes operation + builtin) by default, or a
   // restricted allowlist. The two meta-tools enforce this at execution time.

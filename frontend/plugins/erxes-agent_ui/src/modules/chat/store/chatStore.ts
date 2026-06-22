@@ -142,6 +142,27 @@ export const useChatStore = create<ChatStoreState>((set, get) => {
   const setThreadActivity = (key: string, text: string | undefined) =>
     set((s) => ({ threadActivity: { ...s.threadActivity, [key]: text } }));
 
+  // Stamp the reconciled native id onto the most recent assistant message of a
+  // thread (the backend sends it via a transient `data-message-id` part after
+  // `finish`, since persistence now runs off the critical path). Mirrors the
+  // hydrateFeedbacks pattern: reassigning chat.messages re-renders the bubble so
+  // its thumbs feedback becomes ratable without a reload.
+  const reconcileAssistantMessageId = (key: string, messageId: string) => {
+    const chat = get().chats[key];
+    if (!chat || !messageId) return;
+    const msgs = chat.messages;
+    for (let i = msgs.length - 1; i >= 0; i--) {
+      if (msgs[i].role === 'assistant') {
+        chat.messages = msgs.map((m, idx) =>
+          idx === i
+            ? { ...m, metadata: { ...m.metadata, messageId } }
+            : m,
+        );
+        return;
+      }
+    }
+  };
+
   // Mark the turn persisted: clear activity, reconcile the cached session list
   // (titles/ordering/counts + the real _id), and flag unread when the user is
   // looking at another agent.
@@ -196,6 +217,12 @@ export const useChatStore = create<ChatStoreState>((set, get) => {
             part.data.threadId || threadId,
             part.data.title,
           );
+        } else if (part.type === 'data-message-id') {
+          // Reconcile the native id onto the latest assistant message — the
+          // `finish` chunk now ships before the (off-critical-path) persist, so
+          // the id the thumbs feedback rates lands here a moment later. Without
+          // it the message still self-heals its id on the next reload.
+          reconcileAssistantMessageId(key, part.data.messageId);
         }
         // data-heartbeat is dropped — it only keeps the proxy socket warm.
       },
