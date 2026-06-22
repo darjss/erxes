@@ -28,7 +28,7 @@ import { ContractUnit } from './ContractUnit';
 import { ContractUnitSelector } from './ContractUnitSelector';
 import { useBlockContractStatusesByType } from '@/contract-status/hooks/useGetBlockContractStatuses';
 import { IUnit } from '@/unit/types/unitType';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useUnit } from '@/unit/hooks/useUnit';
 
 const TYPE_ORDER = ['reserved', 'draft', 'signed', 'lost', 'cancelled'];
