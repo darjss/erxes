@@ -86,7 +86,7 @@ const AgentManagedRetry = () => {
         />
       </div>
 
-      <div className="flex gap-2">
+      <div className="grid grid-cols-1 gap-2 sm:flex">
         <Button
           type="button"
           variant="outline"

@@ -698,8 +698,8 @@ const AssistantDiscordManageSheet = ({
             </div>
           )}
         </Sheet.Content>
-        <Sheet.Footer>
-          <div className="flex w-full flex-wrap items-center justify-end gap-2">
+        <Sheet.Footer className="!h-auto min-h-14 py-3 sm:space-x-0">
+          <div className="grid w-full grid-cols-1 gap-2 sm:flex sm:flex-wrap sm:items-center sm:justify-end">
             <Button
               type="button"
               variant="outline"
@@ -2194,7 +2194,7 @@ export const CompanyBrainWorkspacePage = ({
               </Sheet.Content>
 
               <Sheet.Footer className="!h-auto min-h-14 py-3 sm:space-x-0">
-                <div className="flex w-full flex-wrap items-center justify-end gap-2">
+                <div className="grid w-full grid-cols-1 gap-2 sm:flex sm:flex-wrap sm:items-center sm:justify-end">
                   {showManagedDiscordStep ? (
                     <>
                       <Button
