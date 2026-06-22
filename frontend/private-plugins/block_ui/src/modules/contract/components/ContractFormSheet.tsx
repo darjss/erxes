@@ -28,7 +28,7 @@ import { ContractUnit } from './ContractUnit';
 import { ContractUnitSelector } from './ContractUnitSelector';
 import { useBlockContractStatusesByType } from '@/contract-status/hooks/useGetBlockContractStatuses';
 import { IUnit } from '@/unit/types/unitType';
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import { useUnit } from '@/unit/hooks/useUnit';
 
 const TYPE_ORDER = ['reserved', 'draft', 'signed', 'lost', 'cancelled'];
@@ -93,28 +93,21 @@ export const ContractFormSheet = ({
   const { unit: fetchedUnit } = useUnit(!unit ? watchedUnitId : null);
   const activeUnit = unit || fetchedUnit;
   const unitSize = activeUnit?.unitType?.size || 0;
-
-  const [ratePerSize, setRatePerSize] = useState<number>(0);
+  const watchedAmount = form.watch('amount') || 0;
+  const ratePerSize = unitSize > 0 ? watchedAmount / unitSize : watchedAmount;
 
   useEffect(() => {
-    if (!activeUnit) return;
-    const size = activeUnit.unitType?.size || 0;
-    const existingAmount = form.getValues('amount');
-
-    // On edit, preserve the saved amount and back-derive ratePerSize from it
-    if (isEdit && existingAmount) {
-      setRatePerSize(size > 0 ? existingAmount / size : existingAmount);
-      return;
-    }
+    if (!activeUnit || isEdit) return;
+    if (form.getValues('amount')) return;
 
     const currency = form.getValues('currency');
     const prices = activeUnit.unitType?.prices || [];
-    const match = prices.find(
-      (p) => p.priceType === 'priceBySize' && p.currency === currency,
-    ) || prices.find((p) => p.priceType === 'priceBySize');
+    const match =
+      prices.find((p) => p.priceType === 'priceBySize' && p.currency === currency) ||
+      prices.find((p) => p.priceType === 'priceBySize');
     const rate = match?.price ?? activeUnit.unitType?.price ?? 0;
     if (rate) {
-      setRatePerSize(rate);
+      const size = activeUnit.unitType?.size || 0;
       form.setValue('amount', size > 0 ? rate * size : rate);
     }
   }, [activeUnit?._id]);
@@ -250,7 +243,6 @@ export const ContractFormSheet = ({
                             value={ratePerSize}
                             onChange={(v) => {
                               const rate = v || 0;
-                              setRatePerSize(rate);
                               field.onChange(unitSize > 0 ? rate * unitSize : rate);
                             }}
                           />
