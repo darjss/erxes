@@ -14,6 +14,9 @@ export const agentFormSchema = z.object({
   maxSteps: z.number().int().min(1).max(50),
   temperature: z.number().nullable(),
   isEnabled: z.boolean(),
+  visibility: z.enum(['private', 'team', 'department', 'org']).default('private'),
+  teamId: z.string().optional(),
+  departmentId: z.string().optional(),
 });
 
 export type AgentFormValues = z.infer<typeof agentFormSchema>;
@@ -32,4 +35,7 @@ export const AGENT_FORM_DEFAULTS: AgentFormValues = {
   maxSteps: 10,
   temperature: null,
   isEnabled: true,
+  visibility: 'private',
+  teamId: undefined,
+  departmentId: undefined,
 };

@@ -74,10 +74,20 @@ export interface IMastraSettings {
   erxesApiToken?: string | null;
   defaultAgentId?: string | null;
   attachmentsEnabled?: boolean | null;
+  defaultAgentQuota?: number | null;
   attachmentStorage?: IAttachmentStorage | null;
   advancedMemory?: boolean | null;
   advancedMemoryStatus?: IMemoryStatusView | null;
   knowledgeStatus?: IKnowledgeStatusView | null;
+}
+
+export interface IMastraUserSettings {
+  userId: string;
+  agentQuota?: number | null;
+}
+
+export interface IUserAgentQuotaResponse {
+  mastraUserAgentQuota: IMastraUserSettings | null;
 }
 
 export interface ISettingsResponse {

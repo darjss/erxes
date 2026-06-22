@@ -38,6 +38,31 @@ startPlugin({
     },
   },
   onServerInit: async () => {
+    // Flush the per-user permission action cache when this plugin's permissions
+    // definition has changed since the last startup. Uses SCAN (not KEYS) to
+    // avoid blocking Redis on large keyspaces.
+    {
+      const [{ redis }, { createHash }] = await Promise.all([
+        import('erxes-api-shared/utils'),
+        import('crypto'),
+      ]);
+      const HASH_KEY = 'erxes-agent:permissions_hash';
+      const current = createHash('sha256')
+        .update(JSON.stringify(permissions))
+        .digest('hex');
+      const stored = await redis.get(HASH_KEY);
+      if (stored !== current) {
+        let cursor = 0;
+        do {
+          const [next, batch] = await redis.scan(cursor, 'MATCH', 'user_actions_*', 'COUNT', 100);
+          cursor = parseInt(next, 10);
+          if (batch.length) await redis.del(...batch);
+        } while (cursor !== 0);
+        await redis.set(HASH_KEY, current);
+        console.log('[erxes-agent] permissions changed — user action cache cleared');
+      }
+    }
+
     // Advanced memory is on by default (chat persistence rides on it); ping
     // Qdrant and ensure the collection exists. Loaded lazily, and skipped only
     // when explicitly disabled via ERXES_AGENT_MEMORY=disable.

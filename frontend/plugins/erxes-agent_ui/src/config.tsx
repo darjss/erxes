@@ -20,9 +20,10 @@ const MastraNavigation = lazy(() =>
 );
 
 export const CONFIG: IUIConfig = {
-  // Must match the module-federation remote prefix: Nx rewrites dashes to
-  // underscores, so the runtime knows this plugin as `erxes_agent_ui`.
+  // MF remote name uses underscores (Nx convention); permissionName is the
+  // backend plugin name used for permission checks.
   name: 'erxes_agent',
+  permissionName: 'erxes-agent',
   path: 'erxes-agent',
   settingsNavigation: () => (
     <Suspense fallback={<div />}>

@@ -43,6 +43,14 @@ export const agentSchema = new Schema(
     temperature: { type: Number, min: 0, max: 2, label: 'Temperature' },
     isEnabled: { type: Boolean, default: true },
     createdBy: { type: String, label: 'Created By' },
+    visibility: {
+      type: String,
+      enum: ['private', 'team', 'department', 'org'],
+      default: 'private',
+      label: 'Visibility',
+    },
+    teamId: { type: String },
+    departmentId: { type: String },
   },
   { timestamps: true },
 );

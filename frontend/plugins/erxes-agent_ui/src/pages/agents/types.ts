@@ -13,12 +13,23 @@ export interface IMastraAgent {
   maxSteps?: number | null;
   temperature?: number | null;
   isEnabled?: boolean | null;
+  visibility?: 'private' | 'team' | 'department' | 'org' | null;
+  teamId?: string | null;
+  departmentId?: string | null;
+  createdBy?: string | null;
+  isOwnAgent?: boolean | null;
   createdAt?: string;
   updatedAt?: string;
 }
 
 export interface IMastraAgentResponse {
   mastraAgent: IMastraAgent | null;
+}
+
+export interface IMastraAgentQuotaStatus {
+  count: number;
+  quota: number;
+  atQuota: boolean;
 }
 
 export interface IErxesTool {

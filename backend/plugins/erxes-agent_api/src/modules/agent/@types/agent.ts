@@ -21,6 +21,10 @@ export interface IMastraAgent {
   temperature?: number;
   isEnabled?: boolean;
   createdBy?: string;
+  // Access control: who can see and chat with this agent.
+  visibility?: 'private' | 'team' | 'department' | 'org';
+  teamId?: string;       // set when visibility = 'team'  (branch _id)
+  departmentId?: string; // set when visibility = 'department'
 }
 
 export interface IMastraAgentDocument

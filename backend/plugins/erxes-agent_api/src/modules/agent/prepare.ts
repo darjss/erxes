@@ -1,5 +1,6 @@
 import { IUserDocument } from 'erxes-api-shared/core-types';
 import { ExpectedError } from 'erxes-api-shared/utils';
+import { isAgentAdmin, canUserAccessAgent } from '@/agent/utils';
 import { IModels } from '~/connectionResolvers';
 import { getOrCreateAgent } from '~/mastra/agentRuntime';
 import {
@@ -117,6 +118,20 @@ export async function prepareTurn(
   ]);
   if (!agentConfig)
     throw new ExpectedError(`Agent "${agentId}" not found or disabled`);
+
+  if (identity.kind === 'user' && identity.user) {
+    if (
+      !canUserAccessAgent(
+        agentConfig,
+        identity.user._id,
+        isAgentAdmin(identity.user),
+        identity.user.branchIds ?? [],
+        identity.user.departmentIds ?? [],
+      )
+    ) {
+      throw new ExpectedError(`Agent "${agentId}" not found or disabled`);
+    }
+  }
 
   // Stable session id — the persisted thread this turn belongs to.
   // typeof guard keeps crafted non-string payloads out of Mongo queries

@@ -30,6 +30,14 @@ export async function attachmentStorageStatus(
 
 /** Queries for plugin settings plus their derived feature-status blocks. */
 export const settingsQueries = {
+  mastraUserAgentQuota: async (
+    _parent: undefined,
+    { userId }: { userId: string },
+    { models, checkPermission }: IContext,
+  ) => {
+    await checkPermission('settingsManage');
+    return models.MastraUserSettings.getUserSettings(userId);
+  },
   // Lightweight status for the chat UI: decides whether the attach button shows.
   mastraAttachmentStorageStatus: (
     _parent: undefined,

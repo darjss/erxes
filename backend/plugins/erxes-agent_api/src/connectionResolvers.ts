@@ -5,6 +5,7 @@ import mongoose from 'mongoose';
 import { IMastraAgentDocument } from '@/agent/@types/agent';
 import { IMastraProviderDocument } from '@/provider/@types/provider';
 import { IMastraSettingsDocument } from '@/settings/@types/settings';
+import { IMastraUserSettingsDocument } from '@/settings/@types/userSettings';
 import { IMastraWorkingMemoryDocument } from '@/memory/@types/workingMemory';
 import {
   IMastraWorkflowDocument,
@@ -24,6 +25,10 @@ import {
   loadSettingsClass,
   IMastraSettingsModel,
 } from '@/settings/db/models/Settings';
+import {
+  loadUserSettingsClass,
+  IMastraUserSettingsModel,
+} from '@/settings/db/models/UserSettings';
 import {
   loadWorkingMemoryClass,
   IMastraWorkingMemoryModel,
@@ -59,6 +64,7 @@ export interface IModels {
   MastraAgentActionLog: IMastraAgentActionLogModel;
   MastraProvider: IMastraProviderModel;
   MastraSettings: IMastraSettingsModel;
+  MastraUserSettings: IMastraUserSettingsModel;
   MastraWorkingMemory: IMastraWorkingMemoryModel;
   MastraWorkflow: IMastraWorkflowModel;
   MastraWorkflowRun: IMastraWorkflowRunModel;
@@ -96,6 +102,11 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
     IMastraSettingsDocument,
     IMastraSettingsModel
   >('mastra_settings', loadSettingsClass(models));
+
+  models.MastraUserSettings = db.model<
+    IMastraUserSettingsDocument,
+    IMastraUserSettingsModel
+  >('mastra_user_settings', loadUserSettingsClass(models));
 
   models.MastraWorkingMemory = db.model<
     IMastraWorkingMemoryDocument,

@@ -1,5 +1,5 @@
 import { useNavigate, Link } from 'react-router-dom';
-import { ApolloCache, useMutation } from '@apollo/client';
+import { ApolloCache, useMutation, useQuery } from '@apollo/client';
 import { ColumnDef } from '@tanstack/react-table';
 import {
   IconPlus,
@@ -10,6 +10,7 @@ import {
   IconCalendar,
   IconPencil,
   IconMessageCircle,
+  IconEye,
 } from '@tabler/icons-react';
 import {
   Badge,
@@ -21,6 +22,7 @@ import {
   useConfirm,
 } from 'erxes-ui';
 import { MASTRA_AGENT_REMOVE, MASTRA_AGENT_UPDATE } from '~/graphql/mutations';
+import { MASTRA_MY_AGENT_QUOTA_STATUS } from '~/graphql/queries';
 import {
   RowActionsMenu,
   ToggleDeleteMenuItems,
@@ -32,8 +34,10 @@ import { useMastraAgentList, IMastraAgentRow } from './useMastraAgentList';
 import {
   agentMutationError,
   showAgentPermissionError,
+  showAgentQuotaError,
   useAgentAccess,
 } from './hooks/useAgentAccess';
+import type { IMastraAgentQuotaStatus } from './types';
 
 type IAgent = IMastraAgentRow;
 
@@ -50,11 +54,19 @@ const agentListCacheUpdate = (cache: ApolloCache<unknown>) => {
 
 const CreateAgentButton = ({ children }: { children: React.ReactNode }) => {
   const navigate = useNavigate();
-  const { canCreate } = useAgentAccess();
+  const { canCreate, isAdmin } = useAgentAccess();
+
+  const { data: quotaData } = useQuery<{
+    mastraMyAgentQuotaStatus: IMastraAgentQuotaStatus;
+  }>(MASTRA_MY_AGENT_QUOTA_STATUS, { skip: !canCreate || isAdmin });
+
+  const atQuota = !isAdmin && (quotaData?.mastraMyAgentQuotaStatus?.atQuota ?? false);
+  const allowed = canCreate && !atQuota;
+
   return (
     <PermissionButton
-      allowed={canCreate}
-      onDenied={() => showAgentPermissionError('create')}
+      allowed={allowed}
+      onDenied={atQuota ? showAgentQuotaError : showAgentPermissionError}
       onClick={() => navigate('/settings/erxes-agent/agents/new')}
     >
       {children}
@@ -67,16 +79,19 @@ const CreateAgentButton = ({ children }: { children: React.ReactNode }) => {
 const AgentMoreCell = ({ agent }: { agent: IAgent }) => {
   const navigate = useNavigate();
   const { confirm } = useConfirm();
-  const { canEdit, canRemove } = useAgentAccess();
+  const { canEditAgent, canRemoveAgent } = useAgentAccess();
+
+  const canEdit = canEditAgent(agent);
+  const canRemove = canRemoveAgent(agent);
 
   const [removeAgent] = useMutation(MASTRA_AGENT_REMOVE, {
     update: agentListCacheUpdate,
-    onError: agentMutationError('delete'),
+    onError: agentMutationError(),
   });
 
   const [updateAgent] = useMutation(MASTRA_AGENT_UPDATE, {
     update: agentListCacheUpdate,
-    onError: agentMutationError('edit'),
+    onError: agentMutationError(),
   });
 
   const handleDelete = () => {
@@ -110,7 +125,7 @@ const AgentMoreCell = ({ agent }: { agent: IAgent }) => {
           size="sm"
           className="justify-start w-full h-8"
           allowed={canEdit}
-          onDenied={() => showAgentPermissionError('edit')}
+          onDenied={showAgentPermissionError}
           onClick={() =>
             navigate(`/settings/erxes-agent/agents/edit/${agent._id}`)
           }
@@ -124,12 +139,19 @@ const AgentMoreCell = ({ agent }: { agent: IAgent }) => {
         onDelete={handleDelete}
         toggleDisabled={!canEdit}
         deleteDisabled={!canRemove}
-        onToggleDenied={() => showAgentPermissionError('edit')}
-        onDeleteDenied={() => showAgentPermissionError('delete')}
+        onToggleDenied={showAgentPermissionError}
+        onDeleteDenied={showAgentPermissionError}
       />
     </RowActionsMenu>
   );
 };
+
+const VISIBILITY_META = {
+  org:        { label: 'Org-wide',    variant: 'success' },
+  team:       { label: 'Team',        variant: 'secondary' },
+  department: { label: 'Department',  variant: 'secondary' },
+  private:    { label: 'Private',     variant: 'outline' },
+} as const;
 
 // ─── Static data columns (no refetch dependency) ──────────────────────────────
 
@@ -197,6 +219,22 @@ const baseColumns: ColumnDef<IAgent>[] = [
           ) : (
             <Badge variant="success">All tools</Badge>
           )}
+        </RecordTableInlineCell>
+      );
+    },
+    size: 110,
+  },
+  {
+    id: 'visibility',
+    accessorKey: 'visibility',
+    header: () => (
+      <RecordTable.InlineHead icon={IconEye} label="Visibility" />
+    ),
+    cell: ({ row }) => {
+      const { label, variant } = VISIBILITY_META[row.original.visibility ?? 'private'];
+      return (
+        <RecordTableInlineCell>
+          <Badge variant={variant}>{label}</Badge>
         </RecordTableInlineCell>
       );
     },
