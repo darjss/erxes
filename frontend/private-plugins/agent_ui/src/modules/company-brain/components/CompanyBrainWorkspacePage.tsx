@@ -479,7 +479,7 @@ const AssistantDiscordManageSheet = ({
       <Sheet.View className="p-0 md:w-[calc(100vw-theme(spacing.4))] sm:max-w-xl">
         <Sheet.Header>
           <IconBrandDiscord className="shrink-0" />
-          <Sheet.Title className="min-w-0 truncate">
+          <Sheet.Title className="sr-only min-w-0 truncate sm:not-sr-only">
             Discord connection
           </Sheet.Title>
           <Button
