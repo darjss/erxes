@@ -98,6 +98,15 @@ export const ContractFormSheet = ({
 
   useEffect(() => {
     if (!activeUnit) return;
+    const size = activeUnit.unitType?.size || 0;
+    const existingAmount = form.getValues('amount');
+
+    // On edit, preserve the saved amount and back-derive ratePerSize from it
+    if (isEdit && existingAmount) {
+      setRatePerSize(size > 0 ? existingAmount / size : existingAmount);
+      return;
+    }
+
     const currency = form.getValues('currency');
     const prices = activeUnit.unitType?.prices || [];
     const match = prices.find(
@@ -106,7 +115,6 @@ export const ContractFormSheet = ({
     const rate = match?.price ?? activeUnit.unitType?.price ?? 0;
     if (rate) {
       setRatePerSize(rate);
-      const size = activeUnit.unitType?.size || 0;
       form.setValue('amount', size > 0 ? rate * size : rate);
     }
   }, [activeUnit?._id]);
