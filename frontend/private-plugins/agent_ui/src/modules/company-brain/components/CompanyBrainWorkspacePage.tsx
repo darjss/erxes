@@ -1048,6 +1048,23 @@ export const CompanyBrainWorkspacePage = ({
     navigate(`/agent/assistant/${assistantId}`);
   };
 
+  const openManagedDiscordManageSheet = (assistantId: string) => {
+    resetCreateForm();
+    setOpen(false);
+
+    const next = new URLSearchParams(searchParams);
+
+    next.set('discordSetup', 'managed');
+    next.set('discordMode', 'manage');
+    next.set('discordStep', 'channel');
+    next.set('assistantId', assistantId);
+    next.delete('discordConnection');
+    next.delete('installationId');
+    next.delete('message');
+
+    setSearchParams(next, { replace: true });
+  };
+
   const buildManagedReturnUrl = (assistantId: string) => {
     const returnUrl = new URL(window.location.href);
 
@@ -1104,13 +1121,12 @@ export const CompanyBrainWorkspacePage = ({
     try {
       setManagedError('');
       await managedDiscord.connectChannel();
-      setManagedStep('complete');
       toast({
         variant: 'success',
         title: 'Discord channel connected',
-        description: 'Opening the AI Assistant.',
+        description: 'Opening Discord management.',
       });
-      finishManagedCreation(managedAssistantId);
+      openManagedDiscordManageSheet(managedAssistantId);
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
 
