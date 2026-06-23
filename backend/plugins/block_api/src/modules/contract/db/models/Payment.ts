@@ -127,6 +127,7 @@ export const loadContractPaymentClass = (models: IModels) => {
       const stage = contract.status
         ? await models.ContractStatus.findOne({ _id: contract.status })
         : null;
+      if (stage?.type === 'cancelled') return [];
       if (!force && stage?.type !== 'signed') return [];
 
       const contractNumber = contract.number;
@@ -360,6 +361,7 @@ export const loadContractPaymentClass = (models: IModels) => {
     public static async recomputeStatus(paymentId: string) {
       const payment = await models.ContractPayment.findOne({ _id: paymentId });
       if (!payment) return null;
+      if (payment.status === 'cancelled') return payment;
 
       const transactions = await models.ContractPaymentTransaction.find({
         paymentId,

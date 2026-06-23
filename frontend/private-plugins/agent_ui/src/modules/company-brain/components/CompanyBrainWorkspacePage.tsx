@@ -478,11 +478,26 @@ const AssistantDiscordManageSheet = ({
       </Sheet.Trigger>
       <Sheet.View className="p-0 md:w-[calc(100vw-theme(spacing.4))] sm:max-w-xl">
         <Sheet.Header>
-          <IconBrandDiscord />
-          <Sheet.Title>Discord connection</Sheet.Title>
-          <Sheet.Close />
+          <IconBrandDiscord className="shrink-0" />
+          <Sheet.Title className="sr-only min-w-0 truncate sm:not-sr-only">
+            Discord connection
+          </Sheet.Title>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            disabled={isBusy}
+            onClick={handleRefreshRuntime}
+            className="ml-auto shrink-0 whitespace-nowrap"
+          >
+            <IconRefresh
+              className={`size-4 ${refreshingRuntime ? 'animate-spin' : ''}`}
+            />
+            Refresh runtime
+          </Button>
+          <Sheet.Close className="ml-2 shrink-0" />
         </Sheet.Header>
-        <Sheet.Content className="flex min-h-0 flex-1 flex-col gap-5 px-5 py-5">
+        <Sheet.Content className="flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto px-5 py-5">
           <div className="space-y-1">
             <h3 className="text-sm font-medium">{identifier.name}</h3>
             <p className="text-xs text-muted-foreground">
@@ -698,19 +713,8 @@ const AssistantDiscordManageSheet = ({
             </div>
           )}
         </Sheet.Content>
-        <Sheet.Footer>
-          <div className="flex w-full flex-wrap items-center justify-end gap-2">
-            <Button
-              type="button"
-              variant="outline"
-              disabled={isBusy}
-              onClick={handleRefreshRuntime}
-            >
-              <IconRefresh
-                className={`size-4 ${refreshingRuntime ? 'animate-spin' : ''}`}
-              />
-              Refresh runtime
-            </Button>
+        <Sheet.Footer className="!h-auto min-h-14 py-3 sm:space-x-0">
+          <div className="grid w-full grid-cols-1 gap-2 sm:flex sm:flex-wrap sm:items-center sm:justify-end">
             <Button
               type="button"
               variant="outline"
@@ -1835,7 +1839,7 @@ export const CompanyBrainWorkspacePage = ({
                 <Sheet.Close />
               </Sheet.Header>
 
-              <Sheet.Content className="flex min-h-0 flex-1 flex-col gap-5 px-5 py-5">
+              <Sheet.Content className="flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto px-5 py-5">
                 {showManagedDiscordStep ? (
                   renderManagedDiscordStep()
                 ) : (
@@ -2194,7 +2198,7 @@ export const CompanyBrainWorkspacePage = ({
               </Sheet.Content>
 
               <Sheet.Footer className="!h-auto min-h-14 py-3 sm:space-x-0">
-                <div className="flex w-full flex-wrap items-center justify-end gap-2">
+                <div className="grid w-full grid-cols-1 gap-2 sm:flex sm:flex-wrap sm:items-center sm:justify-end">
                   {showManagedDiscordStep ? (
                     <>
                       <Button

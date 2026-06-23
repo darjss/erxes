@@ -165,11 +165,11 @@ export const PaymentScheduleEditor = ({
   };
 
   const setDueDate = (index: number, date: Date | undefined) => {
-    const next = Array.from(
-      { length: installmentCount },
-      (_, i) => dueDates[i] || '',
-    );
-    next[index] = date ? date.toISOString() : '';
+    const next = Array.from({ length: installmentCount }, (_, i) => {
+      if (i === index) return date?.toISOString() ?? autoDates[i]?.toISOString() ?? '';
+      const d = parseDateLike(dueDates[i]) || autoDates[i];
+      return d?.toISOString() ?? '';
+    });
     form.setValue('paymentPlan.paymentDueDates', next, { shouldDirty: true });
   };
 
