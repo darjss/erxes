@@ -20,6 +20,7 @@ export const types = `
     visibility: String
     teamId: String
     departmentId: String
+    unitId: String
     createdAt: Date
     updatedAt: Date
   }
@@ -42,6 +43,7 @@ export const types = `
     visibility: String
     teamId: String
     departmentId: String
+    unitId: String
   }
 
   type MastraAgentListResponse {

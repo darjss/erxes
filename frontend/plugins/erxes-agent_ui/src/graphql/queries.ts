@@ -19,6 +19,7 @@ export const AGENT_FIELDS = gql`
     visibility
     teamId
     departmentId
+    unitId
     createdBy
     isOwnAgent
     createdAt
@@ -90,6 +91,7 @@ export const MASTRA_AGENTS_MAIN = gql`
         visibility
         teamId
         departmentId
+        unitId
         createdBy
         isOwnAgent
         createdAt
@@ -279,6 +281,12 @@ export const AGENT_FORM_BRANCHES = gql`
 export const AGENT_FORM_DEPARTMENTS = gql`
   query AgentFormDepartments {
     departments { _id title }
+  }
+`;
+
+export const AGENT_FORM_UNITS = gql`
+  query AgentFormUnits {
+    units { _id title departmentId }
   }
 `;
 

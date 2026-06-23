@@ -1,4 +1,3 @@
-import { useQuery } from '@apollo/client';
 import { Link } from 'react-router-dom';
 import { IconInfoCircle } from '@tabler/icons-react';
 import {
@@ -22,12 +21,10 @@ import {
   SelectProvider,
   useProviderOptions,
 } from '~/components/SelectProviderModel';
-import { AGENT_FORM_BRANCHES, AGENT_FORM_DEPARTMENTS } from '~/graphql/queries';
 import { AgentToolPicker } from './AgentToolPicker';
+import { AgentVisibilitySectionFields } from './AgentVisibilitySectionFields';
 import { useAvailableErxesTools } from '../hooks/useAvailableErxesTools';
 import { AgentFormValues } from '../validations';
-
-interface INamedItem { _id: string; title?: string | null }
 
 // Canonical agent form body — every field group, shared by the Agents settings
 // page (AgentFormPage) and the in-chat quick editor (EditAgentDialog). The two
@@ -52,21 +49,9 @@ export const AgentFormFields = ({
   /** Lets the create page stop auto-slugging once agentId is hand-edited. */
   onAgentIdChange?: (value: string) => void;
 }) => {
-  const toolPolicy = form.watch('toolPolicy');
-  const provider = form.watch('provider');
+  const toolPolicy  = form.watch('toolPolicy');
+  const provider    = form.watch('provider');
   const temperature = form.watch('temperature');
-  const visibility = form.watch('visibility');
-
-  const { data: branchData } = useQuery<{ branches: INamedItem[] }>(
-    AGENT_FORM_BRANCHES,
-    { skip: !isAdmin || visibility !== 'team' },
-  );
-  const { data: deptData } = useQuery<{ departments: INamedItem[] }>(
-    AGENT_FORM_DEPARTMENTS,
-    { skip: !isAdmin || visibility !== 'department' },
-  );
-  const branches = branchData?.branches ?? [];
-  const departments = deptData?.departments ?? [];
 
   const { providers: enabledProviders } = useProviderOptions();
   const { operations, loading: availableLoading } = useAvailableErxesTools(
@@ -296,106 +281,7 @@ export const AgentFormFields = ({
         />
       </FormSection>
 
-      {isAdmin && (
-        <FormSection
-          title="Visibility"
-          description="Control who can see and chat with this agent."
-        >
-          <Form.Field
-            control={form.control}
-            name="visibility"
-            render={({ field }) => (
-              <Form.Item>
-                <Form.Label>Access scope</Form.Label>
-                <Select
-                  value={field.value}
-                  onValueChange={(v) => {
-                    field.onChange(v);
-                    form.setValue('teamId', undefined);
-                    form.setValue('departmentId', undefined);
-                  }}
-                >
-                  <Form.Control>
-                    <Select.Trigger>
-                      <Select.Value />
-                    </Select.Trigger>
-                  </Form.Control>
-                  <Select.Content>
-                    <Select.Item value="private">Private — only you</Select.Item>
-                    <Select.Item value="team">Team — a branch/unit</Select.Item>
-                    <Select.Item value="department">Department</Select.Item>
-                    <Select.Item value="org">Org-wide — everyone</Select.Item>
-                  </Select.Content>
-                </Select>
-                <Form.Description>
-                  Private: only the creator. Team/Department: members + creator. Org-wide: any authenticated user with chat access.
-                </Form.Description>
-                <Form.Message />
-              </Form.Item>
-            )}
-          />
-
-          {visibility === 'team' && (
-            <Form.Field
-              control={form.control}
-              name="teamId"
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label>Branch / Team</Form.Label>
-                  <Select
-                    value={field.value ?? ''}
-                    onValueChange={(v) => field.onChange(v || undefined)}
-                  >
-                    <Form.Control>
-                      <Select.Trigger>
-                        <Select.Value placeholder="— select branch —" />
-                      </Select.Trigger>
-                    </Form.Control>
-                    <Select.Content>
-                      {branches.map((b) => (
-                        <Select.Item key={b._id} value={b._id}>
-                          {b.title ?? b._id}
-                        </Select.Item>
-                      ))}
-                    </Select.Content>
-                  </Select>
-                  <Form.Message />
-                </Form.Item>
-              )}
-            />
-          )}
-
-          {visibility === 'department' && (
-            <Form.Field
-              control={form.control}
-              name="departmentId"
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label>Department</Form.Label>
-                  <Select
-                    value={field.value ?? ''}
-                    onValueChange={(v) => field.onChange(v || undefined)}
-                  >
-                    <Form.Control>
-                      <Select.Trigger>
-                        <Select.Value placeholder="— select department —" />
-                      </Select.Trigger>
-                    </Form.Control>
-                    <Select.Content>
-                      {departments.map((d) => (
-                        <Select.Item key={d._id} value={d._id}>
-                          {d.title ?? d._id}
-                        </Select.Item>
-                      ))}
-                    </Select.Content>
-                  </Select>
-                  <Form.Message />
-                </Form.Item>
-              )}
-            />
-          )}
-        </FormSection>
-      )}
+      {isAdmin && <AgentVisibilitySectionFields form={form} />}
 
       <FormSection title="Behavior">
         <Form.Field

@@ -57,9 +57,10 @@ export const EditAgentDialog = ({
       maxSteps: agent.maxSteps ?? 10,
       temperature: agent.temperature ?? null,
       isEnabled: agent.isEnabled ?? true,
-      visibility: (agent.visibility as 'private' | 'team' | 'department' | 'org') ?? 'private',
+      visibility: (agent.visibility as 'private' | 'team' | 'department' | 'unit' | 'org') ?? 'private',
       teamId: agent.teamId ?? undefined,
       departmentId: agent.departmentId ?? undefined,
+      unitId: agent.unitId ?? undefined,
     });
   }, [agent, form]);
 

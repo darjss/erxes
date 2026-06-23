@@ -1,7 +1,7 @@
 import { ExpectedError } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 import { IMastraAgent } from '@/agent/@types/agent';
-import { isAgentAdmin } from '@/agent/utils';
+import { isAgentAdmin, getAgentQuotaStatus } from '@/agent/utils';
 
 export const agentMutations = {
   mastraAgentCreate: async (
@@ -19,14 +19,9 @@ export const agentMutations = {
     }
 
     if (!admin) {
-      const [settings, userSettings, count] = await Promise.all([
-        models.MastraSettings.getSettings(),
-        models.MastraUserSettings.getUserSettings(user._id),
-        models.MastraAgent.countDocuments({ createdBy: user._id }),
-      ]);
-      const quota = userSettings?.agentQuota ?? settings?.defaultAgentQuota ?? 0;
-      if (quota > 0 && count >= quota) {
-        throw new ExpectedError(`Agent quota reached (${quota})`);
+      const status = await getAgentQuotaStatus(models, user._id);
+      if (status.atQuota) {
+        throw new ExpectedError(`Agent quota reached (${status.quota})`);
       }
     }
 

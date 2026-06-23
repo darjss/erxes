@@ -98,15 +98,17 @@ export const UserQuotasPage = () => {
             <Form.Field
               control={form.control}
               name="userId"
-              render={() => (
+              render={({ field }) => (
                 <Form.Item>
                   <Form.Label>User</Form.Label>
                   <SelectMemberFormItem
                     mode="single"
                     value={userId || undefined}
-                    onValueChange={(v) =>
-                      handleUserChange(typeof v === 'string' ? v : null)
-                    }
+                    onValueChange={(v) => {
+                      const id = typeof v === 'string' ? v : '';
+                      field.onChange(id);
+                      handleUserChange(id || null);
+                    }}
                     placeholder="Select a team member…"
                   />
                   <Form.Message />

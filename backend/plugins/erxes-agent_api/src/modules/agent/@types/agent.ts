@@ -22,9 +22,12 @@ export interface IMastraAgent {
   isEnabled?: boolean;
   createdBy?: string;
   // Access control: who can see and chat with this agent.
-  visibility?: 'private' | 'team' | 'department' | 'org';
-  teamId?: string;       // set when visibility = 'team'  (branch _id)
-  departmentId?: string; // set when visibility = 'department'
+  visibility?: 'private' | 'team' | 'department' | 'unit' | 'org';
+  // teamId stores the branch _id for all scoped modes (team/department/unit) so
+  // the edit form can reconstruct the cascade without a reverse-lookup.
+  teamId?: string;
+  departmentId?: string; // set when visibility = 'department' or 'unit'
+  unitId?: string;       // set when visibility = 'unit'
 }
 
 export interface IMastraAgentDocument

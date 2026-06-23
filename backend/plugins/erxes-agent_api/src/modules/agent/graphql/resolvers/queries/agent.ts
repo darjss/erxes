@@ -1,6 +1,7 @@
+import { ExpectedError } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 import { prepareChatTurn, persistTurn, runAgentTurn } from '@/agent/turn';
-import { isAgentAdmin } from '@/agent/utils';
+import { isAgentAdmin, getUserUnitIds, getAgentQuotaStatus } from '@/agent/utils';
 import { IMastraAgentDocument } from '@/agent/@types/agent';
 
 export const agentQueries = {
@@ -9,13 +10,17 @@ export const agentQueries = {
     _args: undefined,
     { models, user, checkPermission }: IContext,
   ) => {
-    await checkPermission('agentsView');
+    const [, unitIds] = await Promise.all([
+      checkPermission('agentsView'),
+      user?._id ? getUserUnitIds(models, user._id) : Promise.resolve<string[]>([]),
+    ]);
     const admin = isAgentAdmin(user);
     return models.MastraAgent.getAgents(
       user?._id,
       admin,
       user?.branchIds ?? [],
       user?.departmentIds ?? [],
+      unitIds,
     );
   },
 
@@ -24,7 +29,10 @@ export const agentQueries = {
     { _id }: { _id: string },
     { models, user, checkPermission }: IContext,
   ) => {
-    await checkPermission('agentsView');
+    const [, unitIds] = await Promise.all([
+      checkPermission('agentsView'),
+      user?._id ? getUserUnitIds(models, user._id) : Promise.resolve<string[]>([]),
+    ]);
     const admin = isAgentAdmin(user);
     return models.MastraAgent.getAgent(
       _id,
@@ -32,6 +40,7 @@ export const agentQueries = {
       admin,
       user?.branchIds ?? [],
       user?.departmentIds ?? [],
+      unitIds,
     );
   },
 
@@ -40,7 +49,10 @@ export const agentQueries = {
     params: { page?: number; perPage?: number; searchValue?: string },
     { models, user, checkPermission }: IContext,
   ) => {
-    await checkPermission('agentsView');
+    const [, unitIds] = await Promise.all([
+      checkPermission('agentsView'),
+      user?._id ? getUserUnitIds(models, user._id) : Promise.resolve<string[]>([]),
+    ]);
     const admin = isAgentAdmin(user);
     return models.MastraAgent.getAgentsList({
       ...(params || {}),
@@ -48,6 +60,7 @@ export const agentQueries = {
       isAdmin: admin,
       teamIds: user?.branchIds ?? [],
       deptIds: user?.departmentIds ?? [],
+      unitIds,
     });
   },
 
@@ -58,15 +71,8 @@ export const agentQueries = {
   ) => {
     await checkPermission('agentsCreate');
     if (!user?._id) throw new ExpectedError('Login required');
-    const admin = isAgentAdmin(user);
-    if (admin) return { count: 0, quota: 0, atQuota: false };
-    const [settings, userSettings, count] = await Promise.all([
-      models.MastraSettings.getSettings(),
-      models.MastraUserSettings.getUserSettings(user._id),
-      models.MastraAgent.countDocuments({ createdBy: user._id }),
-    ]);
-    const quota = userSettings?.agentQuota ?? settings?.defaultAgentQuota ?? 0;
-    return { count, quota, atQuota: quota > 0 && count >= quota };
+    if (isAgentAdmin(user)) return { count: 0, quota: 0, atQuota: false };
+    return getAgentQuotaStatus(models, user._id);
   },
 
   mastraAgentChat: async (

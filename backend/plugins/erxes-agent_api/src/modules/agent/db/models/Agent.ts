@@ -14,6 +14,7 @@ export interface IMastraAgentListParams {
   isAdmin?: boolean;
   teamIds?: string[];
   deptIds?: string[];
+  unitIds?: string[];
 }
 
 export interface IMastraAgentListResult {
@@ -28,12 +29,14 @@ export interface IMastraAgentModel extends Model<IMastraAgentDocument> {
     isAdmin?: boolean,
     teamIds?: string[],
     deptIds?: string[],
+    unitIds?: string[],
   ): Promise<IMastraAgentDocument>;
   getAgents(
     userId?: string,
     isAdmin?: boolean,
     teamIds?: string[],
     deptIds?: string[],
+    unitIds?: string[],
   ): Promise<IMastraAgentDocument[]>;
   getAgentsList(
     params: IMastraAgentListParams,
@@ -59,9 +62,10 @@ export const loadAgentClass = (_models: IModels) => {
       isAdmin = false,
       teamIds: string[] = [],
       deptIds: string[] = [],
+      unitIds: string[] = [],
     ) {
       const filter: FilterQuery<IMastraAgentDocument> = userId
-        ? { _id, ...visibilityFilter(userId, isAdmin, teamIds, deptIds) }
+        ? { _id, ...visibilityFilter(userId, isAdmin, teamIds, deptIds, unitIds) }
         : { _id };
       const agent = await _models.MastraAgent.findOne(filter);
       if (!agent) throw new ExpectedError('Agent not found');
@@ -74,9 +78,10 @@ export const loadAgentClass = (_models: IModels) => {
       isAdmin = false,
       teamIds: string[] = [],
       deptIds: string[] = [],
+      unitIds: string[] = [],
     ) {
       const filter: FilterQuery<IMastraAgentDocument> = userId
-        ? visibilityFilter(userId, isAdmin, teamIds, deptIds)
+        ? visibilityFilter(userId, isAdmin, teamIds, deptIds, unitIds)
         : {};
       return _models.MastraAgent.find(filter).sort({ createdAt: -1 });
     }
@@ -92,9 +97,10 @@ export const loadAgentClass = (_models: IModels) => {
       isAdmin = false,
       teamIds = [],
       deptIds = [],
+      unitIds = [],
     }: IMastraAgentListParams) {
       const baseFilter: FilterQuery<IMastraAgentDocument> = userId
-        ? visibilityFilter(userId, isAdmin, teamIds, deptIds)
+        ? visibilityFilter(userId, isAdmin, teamIds, deptIds, unitIds)
         : {};
 
       const searchRe = searchValue ? new RegExp(escapeRegExp(searchValue), 'i') : null;

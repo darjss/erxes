@@ -71,9 +71,10 @@ export const AgentFormPage = () => {
       maxSteps: agent.maxSteps ?? 10,
       temperature: agent.temperature ?? null,
       isEnabled: agent.isEnabled ?? true,
-      visibility: (agent.visibility as 'private' | 'team' | 'department' | 'org') ?? 'private',
+      visibility: (agent.visibility as 'private' | 'team' | 'department' | 'unit' | 'org') ?? 'private',
       teamId: agent.teamId ?? undefined,
       departmentId: agent.departmentId ?? undefined,
+      unitId: agent.unitId ?? undefined,
     }),
   });
 
@@ -98,7 +99,9 @@ export const AgentFormPage = () => {
 
   // ── Form ────────────────────────────────────────────────────────────────────
 
-  const canSave = isEdit ? canEditAgent(agent ?? {}) : canCreate;
+  // editBlocked redirect above already enforces edit permission, so no
+  // per-agent check is needed here — if we got this far, we can save.
+  const canSave = isEdit ? true : canCreate;
 
   const handleNameChange = (value: string) => {
     form.setValue('name', value, { shouldValidate: true });

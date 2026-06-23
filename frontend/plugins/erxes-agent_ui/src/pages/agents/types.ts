@@ -13,9 +13,10 @@ export interface IMastraAgent {
   maxSteps?: number | null;
   temperature?: number | null;
   isEnabled?: boolean | null;
-  visibility?: 'private' | 'team' | 'department' | 'org' | null;
+  visibility?: 'private' | 'team' | 'department' | 'unit' | 'org' | null;
   teamId?: string | null;
   departmentId?: string | null;
+  unitId?: string | null;
   createdBy?: string | null;
   isOwnAgent?: boolean | null;
   createdAt?: string;
