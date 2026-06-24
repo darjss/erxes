@@ -16,9 +16,10 @@ import { AddAgentTrigger } from '../detail/components/AddAgent';
 import { RestartServerDialog } from '../detail/components/RestartServerDialog';
 import { RestartingOverlay } from '../detail/components/RestartingOverlay';
 import { KimiKeyDialog } from '../detail/components/KimiKeyDialog';
+import { useRuntimeReadyGate } from '../detail/hooks/useRuntimeReadyGate';
 import { DestroyServerDialog } from '../deploy/components/DestroyServerDialog';
 import { useAgentDestroy } from '../deploy/hooks/useAgentDestroy';
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { SERVER_STATUSES } from '../deploy/constants';
 import { useCurrentIdentifierId } from '../assistant-orgs/hooks/useAssistantOrg';
 import { useDeleteIdentifier } from '../assistant-orgs/hooks/useDeleteAssistantOrg';
@@ -47,6 +48,45 @@ export const AgentMain = () => {
   const kimiKeyForced = isApproved && hasKey === false;
   const kimiKeyOpen = kimiKeyForced || kimiKeyManualOpen;
 
+  // While the runtime is (re)starting after create / kimi-key change / restart,
+  // the cross-origin iframe would show the gateway's raw 503 page. Gate it
+  // behind a server-side readiness probe and show the loading overlay instead.
+  const { waiting, ready, reason, beginWaiting } = useRuntimeReadyGate(
+    identifierId,
+    refreshIframe,
+    isApproved,
+  );
+
+  // On first open of an approved assistant, if the runtime isn't reachable yet
+  // (e.g. just created and still booting), wait for it instead of flashing 503.
+  const initialGateRef = useRef(false);
+  useEffect(() => {
+    if (!isApproved) {
+      initialGateRef.current = false;
+      return;
+    }
+    if (initialGateRef.current || ready === null) {
+      return;
+    }
+    initialGateRef.current = true;
+    if (ready === false) {
+      beginWaiting({ grace: false, reason: 'starting' });
+    }
+  }, [isApproved, ready, beginWaiting]);
+
+  // Copy differs by why we're waiting: a fresh assistant is "starting" (nothing
+  // to stop), whereas a key change / restart is "restarting".
+  const overlayProps =
+    reason === 'starting'
+      ? {
+          skipStopping: true,
+          loadingTitle: '✨ Starting your assistant',
+          loadingDescription: 'Your erxes Assistant is starting up',
+          footerText:
+            'This may take a minute. It will open automatically when ready.',
+        }
+      : {};
+
   if (loading) {
     return <Spinner />;
   }
@@ -67,7 +107,7 @@ export const AgentMain = () => {
     restart({
       onCompleted: () => {
         toast({ variant: 'success', title: 'Restarted' });
-        refreshIframe();
+        beginWaiting();
       },
       onError: (error) =>
         toast({
@@ -80,7 +120,7 @@ export const AgentMain = () => {
 
   return (
     <div className="relative h-full flex flex-col">
-      <RestartingOverlay visible={restarting} />
+      <RestartingOverlay visible={waiting || restarting} {...overlayProps} />
       <div className="flex items-center justify-start px-4 py-2 border-b">
         <div className="flex items-center gap-2">
           <button
@@ -168,7 +208,7 @@ export const AgentMain = () => {
         onSuccess={() => {
           setKimiKeyManualOpen(false);
           refetchKimiKey();
-          refreshIframe();
+          beginWaiting();
         }}
         onCancel={kimiKeyForced ? undefined : () => setKimiKeyManualOpen(false)}
       />
