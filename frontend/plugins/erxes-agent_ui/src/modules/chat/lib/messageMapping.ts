@@ -1,14 +1,17 @@
 import {
   AgentUIMessage,
+  DbNativePart,
   DbThreadMessage,
   DbToolCall,
   DbTurnPart,
 } from '~/modules/chat/types';
 
-// History hydration: rebuild AI SDK UIMessage parts from a persisted message's
-// Mongo `meta` (ordered `parts`, or the flat thinking/toolCalls aggregates on
-// older rows). The reverse direction — UIMessage chunks → persisted meta — lives
-// in the backend turn pipeline. Replaces the old `partsFromMeta`.
+// History hydration: rebuild AI SDK UIMessage parts from a persisted assistant
+// message. The source of truth is Mastra's NATIVE `content.parts`
+// (reasoning / text / tool-invocation, in order) — persisted by construction on
+// the correct row. The legacy `meta`-based path remains only as a fallback for
+// rows saved before the resolver surfaced native parts. The reverse direction —
+// UIMessage chunks → persisted meta — lives in the backend turn pipeline.
 
 type MessagePart = AgentUIMessage['parts'][number];
 
@@ -47,9 +50,55 @@ const toToolPart = (call: DbToolCall, fallbackId: string): MessagePart => {
   return { ...base, state: 'input-available', input: call.args };
 };
 
-// Ordered turn parts from meta, preferring the chronological `parts`; older rows
-// only carry the flat aggregates, so synthesize a best-effort order for those
-// (one thinking section, then the tools).
+// Reasoning text for a native part: prefer the flat `reasoning`/`text`, else
+// join the `details` text segments (the shape Mastra persists).
+const nativeReasoningText = (part: DbNativePart): string => {
+  const p = part as Extract<DbNativePart, { type: 'reasoning' }>;
+  if (p.reasoning?.trim()) return p.reasoning;
+  const fromDetails = (p.details ?? [])
+    .filter((d) => d.type === 'text')
+    .map((d) => d.text ?? '')
+    .join('');
+  return fromDetails || p.text || '';
+};
+
+// A native tool-invocation part → the DbToolCall shape `toToolPart` renders.
+const toolCallFromNative = (part: DbNativePart): DbToolCall | null => {
+  const ti = (part as Extract<DbNativePart, { type: 'tool-invocation' }>)
+    .toolInvocation;
+  if (!ti?.toolName) return null;
+  const isError = ti.state === 'output-error';
+  return {
+    toolCallId: ti.toolCallId,
+    toolName: ti.toolName,
+    args: ti.args,
+    result: isError ? ti.errorText : ti.result,
+    isError,
+  };
+};
+
+// Hydrate from Mastra's native `content.parts` (the source of truth): reasoning →
+// reasoning, tool-invocation → dynamic-tool, text → text, in stored order. Other
+// part types (e.g. `step-start`) are dropped.
+const nativeAssistantParts = (m: DbThreadMessage): MessagePart[] => {
+  const parts: MessagePart[] = [];
+  (m.parts ?? []).forEach((part, i) => {
+    if (part.type === 'reasoning') {
+      const text = nativeReasoningText(part);
+      if (text) parts.push({ type: 'reasoning', text, state: 'done' });
+    } else if (part.type === 'text') {
+      const text = (part as Extract<DbNativePart, { type: 'text' }>).text;
+      if (text) parts.push({ type: 'text', text, state: 'done' });
+    } else if (part.type === 'tool-invocation') {
+      const call = toolCallFromNative(part);
+      if (call) parts.push(toToolPart(call, `${m._id}-tool-${i}`));
+    }
+  });
+  return parts;
+};
+
+// Fallback for rows persisted before native parts were surfaced: rebuild from the
+// legacy `meta` (ordered `parts`, or the flat thinking/toolCalls aggregates).
 const turnParts = (meta: DbThreadMessage['meta']): DbTurnPart[] => {
   if (!meta) return [];
   if (Array.isArray(meta.parts) && meta.parts.length) {
@@ -65,7 +114,7 @@ const turnParts = (meta: DbThreadMessage['meta']): DbTurnPart[] => {
   return parts;
 };
 
-const assistantParts = (m: DbThreadMessage): MessagePart[] => {
+const metaAssistantParts = (m: DbThreadMessage): MessagePart[] => {
   const parts: MessagePart[] = [];
   turnParts(m.meta).forEach((part, i) => {
     if (part.kind === 'thinking') {
@@ -77,6 +126,10 @@ const assistantParts = (m: DbThreadMessage): MessagePart[] => {
   if (m.content) parts.push({ type: 'text', text: m.content, state: 'done' });
   return parts;
 };
+
+// Prefer native parts; fall back to meta only for rows that predate them.
+const assistantParts = (m: DbThreadMessage): MessagePart[] =>
+  m.parts?.length ? nativeAssistantParts(m) : metaAssistantParts(m);
 
 /** Convert persisted thread messages into seed UIMessages for a `Chat`. */
 export const metaToUIMessages = (

@@ -149,7 +149,9 @@ export type DbTurnPart =
   | { kind: 'thinking'; text: string }
   | { kind: 'tool'; call: DbToolCall };
 
-// Persisted-message metadata used to rebuild UIMessage parts on hydration.
+// Erxes-only persisted metadata — the fields NOT in Mastra's native turn parts.
+// (Reasoning / tool / text now hydrate from `parts`; the legacy thinking/
+// toolCalls aggregates remain as a fallback for rows saved before that move.)
 export interface DbMessageMeta {
   parts?: Array<{ kind?: string; text?: string; call?: DbToolCall }>;
   thinking?: string;
@@ -157,12 +159,40 @@ export interface DbMessageMeta {
   interrupted?: boolean;
 }
 
+// Mastra's native AI SDK v5 turn parts, as stored on `content.parts` and surfaced
+// by the resolver. Reasoning text lives on `reasoning` or `details[].text`; tool
+// calls on `toolInvocation`. Only the variants we render are typed; the rest
+// (e.g. `step-start`) are ignored.
+export type DbNativePart =
+  | {
+      type: 'reasoning';
+      reasoning?: string;
+      text?: string;
+      details?: Array<{ type?: string; text?: string }>;
+    }
+  | { type: 'text'; text?: string }
+  | {
+      type: 'tool-invocation';
+      toolInvocation?: {
+        state?: string;
+        toolCallId?: string;
+        toolName?: string;
+        args?: unknown;
+        result?: unknown;
+        errorText?: string;
+      };
+    }
+  | { type: string };
+
 // One persisted message as returned by `mastraThreadMessages`.
 export interface DbThreadMessage {
   _id: string;
   role: 'user' | 'assistant';
   content: string;
   createdAt?: string;
+  // Mastra's native turn parts — the source of truth for reasoning/tool/text on
+  // reload. Absent only on rows persisted before the resolver exposed it.
+  parts?: DbNativePart[];
   meta?: DbMessageMeta;
   attachments?: ChatAttachment[];
 }

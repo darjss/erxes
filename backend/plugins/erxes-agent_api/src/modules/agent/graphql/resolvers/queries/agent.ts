@@ -105,7 +105,7 @@ export const agentQueries = {
       memory: memoryBinding,
     });
 
-    await persistTurn({ models, prepared, message, reply });
+    await persistTurn({ models, prepared, reply });
 
     return reply;
   },

@@ -363,6 +363,12 @@ router.post('/chat/stream', llmRouteLimiter, async (req, res) => {
         // rating can attach a human score to the right trace. Undefined when
         // evaluation is off.
         let langfuseTraceId: string | undefined;
+
+        // The assistant turn's reasoning / tool / text parts are persisted by
+        // Mastra natively (content.parts, on the correct row) and replayed on
+        // reload via the resolver's `parts` field — so no turn-meta stamping is
+        // needed here. langfuseTraceId / interrupted / activeSkills still ride the
+        // finish chunk for the live client.
         try {
           await runWithAuth(authCtx, async () => {
             const modelStream = await agent.stream(convo, {
@@ -407,6 +413,10 @@ router.post('/chat/stream', llmRouteLimiter, async (req, res) => {
                 activity?.onToolCall(chunk.toolName, chunk.input);
               writer.write(chunk);
             }
+            // No flush barrier or post-write needed: Mastra persists the turn's
+            // parts natively as it saves the row. persistTurn below only
+            // reconciles the thread binding, attachments, title, and the native
+            // message id.
           });
         } catch (err) {
           // An abort lands here on most providers — an interrupt, not an error.
@@ -441,10 +451,6 @@ router.post('/chat/stream', llmRouteLimiter, async (req, res) => {
           }
         }
 
-        const turnMeta = reply
-          ? acc.meta(interrupted, langfuseTraceId)
-          : undefined;
-
         // Close the assistant message NOW — the full reply already streamed, so
         // nothing user-visible should wait on the turn-end DB write. The native
         // message id (rated without a reload) and the thread title are reconciled
@@ -462,17 +468,18 @@ router.post('/chat/stream', llmRouteLimiter, async (req, res) => {
           },
         });
 
-        // Persistence OFF the critical path. The write MUST still happen and must
-        // capture the full turn: Mastra already persisted the [user, assistant]
-        // pair during streaming; persistTurn enriches it with erxes turn meta and
-        // recovers the native id. We no longer block `finish` on it — but we
-        // never drop it (errors are logged, not swallowed).
+        // Persistence OFF the critical path. Mastra persists the turn's parts
+        // natively as it saves the row; persistTurn now only reconciles the
+        // thread binding, any user-message attachments, the title, and the native
+        // message id. We never block `finish` on it, but we never drop it (errors
+        // are logged, not swallowed).
         const persistPromise = persistTurn({
           models,
           prepared,
-          message,
           reply,
-          meta: turnMeta,
+          // Mastra's assigned id for this turn's assistant row, captured off the
+          // stream's `start` chunk — the id the client rates without a reload.
+          assistantMessageId: acc.messageId,
         });
 
         if (clientGone) {

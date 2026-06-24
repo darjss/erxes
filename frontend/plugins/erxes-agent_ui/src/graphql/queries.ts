@@ -129,6 +129,7 @@ export const MASTRA_THREAD_MESSAGES = gql`
       _id
       role
       content
+      parts
       meta
       attachments
       createdAt
