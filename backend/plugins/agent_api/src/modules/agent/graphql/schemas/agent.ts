@@ -131,7 +131,6 @@ export const queries = `
   getAgentDetails(identifierId: String!, agentId: String): [AgentFile]
   getDiscordGuilds(identifierId: String!): [DiscordGuild]
   checkKimiKeySet(identifierId: String!): Boolean
-  getAgentRuntimeReady(identifierId: String!): Boolean
   agentDiscordConnectUrl(assistantId: String!, returnUrl: String): String
   agentDiscordInstallations(assistantId: String!): JSON
   agentDiscordChannels(assistantId: String!, installationId: String!): JSON
