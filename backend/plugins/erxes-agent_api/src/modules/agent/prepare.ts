@@ -16,6 +16,7 @@ import {
   ensureThreadRegistered,
   resourceHasThreads,
 } from '@/session/nativeStore';
+import { buildActivatedSkillsBlock } from '@/skills/service/skillsService';
 import {
   MemoryBinding,
   PreparedTurn,
@@ -77,6 +78,8 @@ export interface PrepareTurnParams {
   // the turn). On for chat/bot; off for scheduled runs (whose prompt is run
   // verbatim, the pre-generalization behaviour).
   weaveDigest?: boolean;
+  // Skill names the user explicitly slash-activated for THIS turn.
+  activeSkillNames?: string[];
 }
 
 export async function prepareTurn(
@@ -92,6 +95,7 @@ export async function prepareTurn(
     attachments,
     approvedOperations,
     weaveDigest = true,
+    activeSkillNames,
   } = params;
 
   // Same NoSQL-injection guard as sessionId below: agentId arrives from the
@@ -281,9 +285,34 @@ export async function prepareTurn(
     convo[convo.length - 1] = { role: 'user', content };
   }
 
+  // Only an in-app user can slash-activate skills (bot/schedule turns carry no
+  // composer). The user's id resolves their own reachable skills below.
+  const userId =
+    identity.kind === 'user' ? identity.user?._id : undefined;
+
+  // Explicit slash-activation force-loads the chosen skill's FULL instructions
+  // into this turn (vs. the native skill tool, which the model may never call).
+  // Resolved through the reachable set so a crafted name can't reach a skill the
+  // user can't: the agent's globs still gate which GLOBAL skills are reachable,
+  // but a user's OWN published skill is always reachable, so an explicit
+  // activation works on any agent — matching what the slash palette offers. No
+  // store hit unless something is activated.
+  const activated =
+    userId && activeSkillNames?.length
+      ? await buildActivatedSkillsBlock(
+          subdomain,
+          userId,
+          agentConfig.skills ?? [],
+          activeSkillNames,
+        )
+      : undefined;
+
   const authCtx = {
     userHeader,
     token: settings?.erxesApiToken,
+    userId,
+    threadId: sessionId,
+    agentId,
     subdomain,
     approvedOps: approvedOperations,
   };
@@ -306,6 +335,8 @@ export async function prepareTurn(
     memCtx,
     attachments,
     learningIds: digest?.ids ?? [],
+    activeSkillInstructions: activated?.instructions,
+    appliedSkillNames: activated?.names ?? [],
   };
 }
 
@@ -320,6 +351,8 @@ export async function prepareChatTurn(params: {
   threadId?: string;
   attachments?: IMastraChatAttachment[];
   approvedOperations?: ApprovedOp[];
+  // Skill names the user explicitly slash-activated for THIS turn.
+  activeSkillNames?: string[];
 }): Promise<PreparedTurn> {
   const { user, ...rest } = params;
   return prepareTurn({ ...rest, identity: { kind: 'user', user } });

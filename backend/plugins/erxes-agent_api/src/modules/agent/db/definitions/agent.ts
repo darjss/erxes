@@ -20,6 +20,10 @@ export const agentSchema = new Schema(
       label: 'Tool Policy',
     },
     allowedTools: [{ type: String }],
+    // Skill allowlist. Glob patterns matched against global skills' name (or
+    // "category/name"); the requesting user's own published skills are always
+    // added on top. Empty/unset → the agent has no skills attached.
+    skills: [{ type: String }],
     // Consent for irreversible deletes/merges (remove/delete/merge mutations).
     //   'ask' (default) → the agent asks the user to approve each one in chat.
     //   'allow'         → they run without asking.

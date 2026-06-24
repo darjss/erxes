@@ -38,6 +38,11 @@ import {
   queries as scheduleQueries,
   mutations as scheduleMutations,
 } from '@/schedule/graphql/schemas/schedule';
+import {
+  types as skillTypes,
+  queries as skillQueriesSchema,
+  mutations as skillMutationsSchema,
+} from '@/skills/graphql/schemas/skills';
 
 export const types = `
   ${agentTypes}
@@ -48,6 +53,7 @@ export const types = `
   ${workflowTypes}
   ${learningTypes}
   ${scheduleTypes}
+  ${skillTypes}
 `;
 
 export const queries = `
@@ -59,6 +65,7 @@ export const queries = `
   ${workflowQueries}
   ${learningQueries}
   ${scheduleQueries}
+  ${skillQueriesSchema}
 `;
 
 export const mutations = `
@@ -70,4 +77,5 @@ export const mutations = `
   ${workflowMutations}
   ${learningMutations}
   ${scheduleMutations}
+  ${skillMutationsSchema}
 `;

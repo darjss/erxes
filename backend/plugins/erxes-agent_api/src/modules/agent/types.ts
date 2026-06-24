@@ -115,4 +115,13 @@ export interface PreparedTurn {
   // Learnings injected into this turn's context — stamped onto the assistant
   // message meta so feedback can be attributed back to them.
   learningIds: string[];
+  // Full instructions of the skill(s) the user EXPLICITLY slash-activated for
+  // this turn, force-loaded as the agent.stream `system` message. Undefined when
+  // no skill was activated (the model still uses the native skill tool for the
+  // rest). See buildActivatedSkillsBlock.
+  activeSkillInstructions?: string;
+  // Names of the skill(s) actually resolved + injected this turn (the reachable
+  // subset of the requested activeSkillNames). Stamped onto the assistant
+  // message metadata so the UI can show which skills shaped the answer.
+  appliedSkillNames?: string[];
 }

@@ -133,6 +133,27 @@ interface ChatStreamRequest {
   reasoningEffort?: ReasoningEffort;
   attachments: IMastraChatAttachment[];
   approvedOperations: ApprovedOp[];
+  // Skill names the user slash-activated in the composer for THIS message.
+  activeSkillNames: string[];
+}
+
+// Shape-check the slash-activated skill names the composer echoes on send.
+// Returns the sanitized list, or null when malformed. Names are re-resolved
+// against the user's reachable skills server-side (prepareChatTurn), so this is
+// only a payload-shape guard — it never trusts the names as authorization.
+const MAX_ACTIVE_SKILLS = 10;
+const MAX_SKILL_NAME_LEN = 64;
+function sanitizeActiveSkillNames(raw: unknown): string[] | null {
+  if (raw === undefined || raw === null) return [];
+  if (!Array.isArray(raw) || raw.length > MAX_ACTIVE_SKILLS) return null;
+  const out: string[] = [];
+  for (const item of raw) {
+    if (typeof item !== 'string') return null;
+    const name = item.trim();
+    if (!name || name.length > MAX_SKILL_NAME_LEN) return null;
+    out.push(name);
+  }
+  return out;
 }
 
 // Shape-check the per-turn destructive-op approvals the client echoes back when
@@ -190,6 +211,11 @@ function parseChatStreamBody(raw: unknown): ParseResult {
     return { ok: false, error: 'Invalid approvedOperations payload' };
   }
 
+  const activeSkillNames = sanitizeActiveSkillNames(body.activeSkillNames);
+  if (activeSkillNames === null) {
+    return { ok: false, error: 'Invalid activeSkillNames payload' };
+  }
+
   return {
     ok: true,
     value: {
@@ -199,6 +225,7 @@ function parseChatStreamBody(raw: unknown): ParseResult {
       reasoningEffort,
       attachments,
       approvedOperations,
+      activeSkillNames,
     },
   };
 }
@@ -216,7 +243,7 @@ router.post('/chat/stream', llmRouteLimiter, async (req, res) => {
   // reasoningEffort is the optional per-conversation override from the composer.
   const { agentId, message, threadId, reasoningEffort, attachments } =
     parsed.value;
-  const { approvedOperations } = parsed.value;
+  const { approvedOperations, activeSkillNames } = parsed.value;
 
   const subdomain = getSubdomain(req);
 
@@ -293,6 +320,7 @@ router.post('/chat/stream', llmRouteLimiter, async (req, res) => {
           threadId,
           attachments,
           approvedOperations,
+          activeSkillNames,
         });
         const { agent, convo, authCtx, memoryBinding } = prepared;
 
@@ -342,6 +370,13 @@ router.post('/chat/stream', llmRouteLimiter, async (req, res) => {
               ...(memoryBinding ? { memory: memoryBinding } : {}),
               ...(reasoningOptions
                 ? { providerOptions: reasoningOptions }
+                : {}),
+              // Force-load an explicitly slash-activated skill's full
+              // instructions as a user-provided system message for this turn
+              // (additive to the agent's base instructions + the native
+              // SkillsProcessor metadata).
+              ...(prepared.activeSkillInstructions
+                ? { system: prepared.activeSkillInstructions }
                 : {}),
             });
             langfuseTraceId = await resolveTraceId(
@@ -421,6 +456,9 @@ router.post('/chat/stream', llmRouteLimiter, async (req, res) => {
             messageId: null,
             interrupted,
             langfuseTraceId,
+            ...(prepared.appliedSkillNames?.length
+              ? { activeSkills: prepared.appliedSkillNames }
+              : {}),
           },
         });
 

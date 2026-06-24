@@ -9,6 +9,7 @@ export const types = `
     model: String
     toolPolicy: String
     allowedTools: [String]
+    skills: [String]
     destructiveOps: String
     memoryEnabled: Boolean
     maxSteps: Int
@@ -28,6 +29,7 @@ export const types = `
     model: String
     toolPolicy: String
     allowedTools: [String]
+    skills: [String]
     destructiveOps: String
     memoryEnabled: Boolean
     maxSteps: Int

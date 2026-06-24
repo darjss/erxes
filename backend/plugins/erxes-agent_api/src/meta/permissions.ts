@@ -161,6 +161,22 @@ const SPECS: Spec[] = [
     viewAlways: true,
     edit: 'Edit, re-status or pin a learning statement',
   },
+  {
+    name: 'skills',
+    description: 'Agent skills (reusable SKILL.md know-how)',
+    prefix: 'skills',
+    noun: 'skill',
+    view: 'List and read agent skills and their version history',
+    viewAlways: true,
+    edit: 'Edit, publish or restore a version of your skills',
+    extra: [
+      action(
+        'skillsPromote',
+        'Promote skill',
+        'Promote a private skill to a global (public) one',
+      ),
+    ],
+  },
 ];
 
 const modules: IPermissionModule[] = SPECS.map((s) =>
@@ -216,6 +232,12 @@ export const permissions: IPermissionConfig = {
         grant('workflow', ['workflowsView', 'workflowsRun']),
         grant('schedule', ['schedulesView']),
         grant('learning', ['learningView']),
+        grant('skills', [
+          'skillsView',
+          'skillsCreate',
+          'skillsEdit',
+          'skillsRemove',
+        ]),
       ],
     },
     {
@@ -229,6 +251,7 @@ export const permissions: IPermissionConfig = {
         grant('workflow', ['workflowsView']),
         grant('schedule', ['schedulesView']),
         grant('learning', ['learningView']),
+        grant('skills', ['skillsView']),
       ],
     },
   ],
