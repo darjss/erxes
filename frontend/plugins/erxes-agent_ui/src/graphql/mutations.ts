@@ -70,6 +70,16 @@ export const MASTRA_SETTINGS_SAVE = gql`
       erxesApiToken
       defaultAgentId
       attachmentsEnabled
+      defaultAgentQuota
+    }
+  }
+`;
+
+export const MASTRA_USER_AGENT_QUOTA_SET = gql`
+  mutation MastraUserAgentQuotaSet($userId: String!, $quota: Int) {
+    mastraUserAgentQuotaSet(userId: $userId, quota: $quota) {
+      userId
+      agentQuota
     }
   }
 `;

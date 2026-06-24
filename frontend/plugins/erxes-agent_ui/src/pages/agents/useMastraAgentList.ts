@@ -14,6 +14,12 @@ export interface IMastraAgentRow {
   toolPolicy?: 'all' | 'custom';
   allowedTools?: string[];
   isEnabled: boolean;
+  visibility?: 'private' | 'team' | 'department' | 'unit' | 'org';
+  teamId?: string;
+  departmentId?: string;
+  unitId?: string;
+  createdBy?: string;
+  isOwnAgent?: boolean;
   createdAt: string;
 }
 

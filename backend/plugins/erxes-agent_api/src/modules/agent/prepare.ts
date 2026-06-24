@@ -1,12 +1,13 @@
 import { IUserDocument } from 'erxes-api-shared/core-types';
 import { ExpectedError } from 'erxes-api-shared/utils';
+import { isAgentAdmin, canUserAccessAgent, getUserUnitIds } from '@/agent/utils';
 import { IModels } from '~/connectionResolvers';
 import { getOrCreateAgent } from '~/mastra/agentRuntime';
 import {
   isAdvancedMemoryEnabled,
   resolveRecallTuning,
 } from '~/mastra/memory/config';
-import { scopedResource, getMastraMemory } from '~/mastra/memory/mastraMemory';
+import { scopedResource } from '~/mastra/memory/mastraMemory';
 import { deriveResourceId, augmentConvo, MemoryContext } from '~/mastra/memory';
 import { readLearnedDigest } from '~/mastra/learning/digest';
 import { ApprovedOp } from '~/mastra/requestContext';
@@ -14,6 +15,7 @@ import { buildChatUserContent } from '~/mastra/files/chatContent';
 import { IMastraChatAttachment } from '@/session/@types/session';
 import {
   ensureThreadRegistered,
+  getNativeMemory,
   resourceHasThreads,
 } from '@/session/nativeStore';
 import { buildActivatedSkillsBlock } from '@/skills/service/skillsService';
@@ -104,19 +106,35 @@ export async function prepareTurn(
     throw new ExpectedError('agentId must be a non-empty string');
   }
 
-  // The three independent reads a turn needs, collapsed into ONE round trip
-  // instead of three serial awaits (each a remote round trip on a hosted Mongo).
-  // settings + providers are then handed to getOrCreateAgent so it does not
-  // re-fetch them. getSettings() is the canonical accessor (30s process cache +
-  // env overrides) — the same one getOrCreateAgent and the bot path use, so the
-  // value (incl. the env-overridden api token below) stays consistent.
-  const [agentConfig, settings, providers] = await Promise.all([
+  // Four independent reads collapsed into one round trip. Unit membership lives
+  // on the unit document (not the user), so it needs its own query — issued in
+  // parallel with the other three so it adds no wall-clock latency. Non-user
+  // identities (bot, schedule) don't need unit membership.
+  const [agentConfig, settings, providers, unitIds] = await Promise.all([
     models.MastraAgent.findOne({ agentId, isEnabled: true }),
     models.MastraSettings.getSettings(),
     models.MastraProvider.find({ isEnabled: true }),
+    identity.kind === 'user' && identity.user
+      ? getUserUnitIds(models, identity.user._id)
+      : Promise.resolve<string[]>([]),
   ]);
   if (!agentConfig)
     throw new ExpectedError(`Agent "${agentId}" not found or disabled`);
+
+  if (identity.kind === 'user' && identity.user) {
+    if (
+      !canUserAccessAgent(
+        agentConfig,
+        identity.user._id,
+        isAgentAdmin(identity.user),
+        identity.user.branchIds ?? [],
+        identity.user.departmentIds ?? [],
+        unitIds,
+      )
+    ) {
+      throw new ExpectedError(`Agent "${agentId}" not found or disabled`);
+    }
+  }
 
   // Stable session id — the persisted thread this turn belongs to.
   // typeof guard keeps crafted non-string payloads out of Mongo queries
@@ -180,13 +198,10 @@ export async function prepareTurn(
       providers,
     }),
     needsThreadRead
-      ? (async () => {
-          const memory = await getMastraMemory(subdomain);
-          return (await memory.getThreadById({
-            threadId: sessionId,
-          } as never)) as { resourceId?: string } | null;
-        })()
-      : Promise.resolve<{ resourceId?: string } | null>(null),
+      ? getNativeMemory(subdomain).then((m) =>
+          m.getThreadById({ threadId: sessionId }),
+        )
+      : Promise.resolve(null),
     needsResourceProbe && recallResource
       ? // Best-effort: this is only a recall optimization, so a failure must degrade
         // to the safe default (null → "history might exist" → recall stays on), never
@@ -222,13 +237,10 @@ export async function prepareTurn(
   // per-call deep-merge of semanticRecall:false, so working memory, recent
   // history, and native titling are untouched.
   const recallCanReturnHistory =
-    identity.kind !== 'user' || !memoryBinding
-      ? true
-      : priorThread
-        ? true
-        : recallScope === 'resource'
-          ? resourceHadThreads !== false
-          : false;
+    identity.kind !== 'user' ||
+    !memoryBinding ||
+    !!priorThread ||
+    (recallScope === 'resource' && resourceHadThreads !== false);
   if (memoryBinding && !recallCanReturnHistory) {
     memoryBinding.options = { semanticRecall: false };
   }

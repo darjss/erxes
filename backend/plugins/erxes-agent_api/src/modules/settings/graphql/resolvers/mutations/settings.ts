@@ -15,6 +15,16 @@ export const settingsMutations = {
     return models.MastraSettings.saveSettings(doc);
   },
 
+  mastraUserAgentQuotaSet: async (
+    _parent: undefined,
+    { userId, quota }: { userId: string; quota?: number | null },
+    { models, checkPermission }: IContext,
+  ) => {
+    await checkPermission('settingsManage');
+    // null or undefined clears the per-user override (falls back to default)
+    return models.MastraUserSettings.setUserQuota(userId, quota ?? null);
+  },
+
   /**
    * Force a Company Knowledge reindex now — AS the requesting user. Agent =
    * Person: the sweep reads company data with this user's permissions (the

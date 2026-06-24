@@ -43,6 +43,18 @@ export const agentSchema = new Schema(
     temperature: { type: Number, min: 0, max: 2, label: 'Temperature' },
     isEnabled: { type: Boolean, default: true },
     createdBy: { type: String, label: 'Created By' },
+    visibility: {
+      type: String,
+      enum: ['private', 'team', 'department', 'unit', 'org'],
+      default: 'private',
+      label: 'Visibility',
+    },
+    // teamId   — branch _id for 'team' scope; also stored as cascade context for
+    //            'department' and 'unit' scopes so the edit form can reconstruct
+    //            the branch selection without a reverse-lookup.
+    teamId: { type: String },
+    departmentId: { type: String },
+    unitId: { type: String },
   },
   { timestamps: true },
 );

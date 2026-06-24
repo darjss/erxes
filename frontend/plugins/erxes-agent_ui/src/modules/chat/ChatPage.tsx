@@ -338,8 +338,6 @@ export const ChatPage = () => {
               )}
             </Breadcrumb.List>
           </Breadcrumb>
-          <Separator.Inline />
-          <PageHeader.FavoriteToggleButton />
         </PageHeader.Start>
         {selectedAgent && (
           <PageHeader.End>
