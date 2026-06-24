@@ -24,27 +24,26 @@ export const useSessionBootstrap = (
   );
   const threadParam = searchParams.get('thread');
   const mastraAgentId = selectedAgent?.agentId;
+  const selectedId = selectedAgent?._id;
 
   // Slug routes normalize to the _id route so the chat store stays keyed by _id.
   useEffect(() => {
-    if (selectedAgent && agentId && selectedAgent._id !== agentId) {
+    if (selectedId && agentId && selectedId !== agentId) {
       const search = searchParams.toString();
       navigate(
-        `/erxes-agent/chat/${selectedAgent._id}${search ? `?${search}` : ''}`,
+        `/erxes-agent/chat/${selectedId}${search ? `?${search}` : ''}`,
         { replace: true },
       );
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedAgent?._id, agentId]);
+  }, [selectedId, agentId, searchParams, navigate]);
 
-  // Deep link: ?thread=<id> opens that session once sessions have loaded.
+  // Deep link: ?thread=<id> opens that session once sessions have loaded. Fires
+  // once per ?thread value — it does not depend on activeThreadId, so switching
+  // sessions afterwards never snaps the user back to the linked thread.
   useEffect(() => {
     if (!agentId || !mastraAgentId || !threadParam || !sessionsLoaded) return;
-    if (threadParam !== activeThreadId) {
-      chatStore.selectSession(apolloClient, agentId, mastraAgentId, threadParam);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [agentId, mastraAgentId, threadParam, sessionsLoaded]);
+    chatStore.selectSession(apolloClient, agentId, mastraAgentId, threadParam);
+  }, [agentId, mastraAgentId, threadParam, sessionsLoaded, apolloClient]);
 
   // Track the viewed agent (clears its unread badge); clear on navigate away.
   useEffect(() => {
@@ -56,14 +55,7 @@ export const useSessionBootstrap = (
   // nothing is selected (first open of this agent, or after deleting the active
   // session), open the most recent session or a fresh draft.
   useEffect(() => {
-    if (
-      !agentId ||
-      !selectedAgent ||
-      !mastraAgentId ||
-      !sessionsLoaded ||
-      activeThreadId
-    )
-      return;
+    if (!agentId || !mastraAgentId || !sessionsLoaded || activeThreadId) return;
     if (threads.length > 0) {
       chatStore.selectSession(
         apolloClient,
@@ -74,6 +66,12 @@ export const useSessionBootstrap = (
     } else {
       chatStore.newDraft(apolloClient, agentId, mastraAgentId);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [agentId, mastraAgentId, sessionsLoaded, activeThreadId, threads]);
+  }, [
+    agentId,
+    mastraAgentId,
+    sessionsLoaded,
+    activeThreadId,
+    threads,
+    apolloClient,
+  ]);
 };

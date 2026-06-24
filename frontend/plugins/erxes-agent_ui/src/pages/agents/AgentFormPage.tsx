@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import { IconRobot } from '@tabler/icons-react';
 import { ResourceFormLayout } from '~/components/ResourceFormLayout';
@@ -19,7 +19,10 @@ export const AgentFormPage = () => {
   const { id } = useParams();
   const isEdit = !!id;
 
-  const [autoSlug, setAutoSlug] = useState(true);
+  // Auto-fill the slug from the name only for brand-new agents, and only until
+  // the user edits the slug by hand. Never derived in render, so a ref (no
+  // re-render on change) rather than state. Existing agents keep their id.
+  const autoSlug = useRef(!isEdit);
 
   const { agent } = useAgent(id);
   const { saveAgent, saving } = useSaveAgent(id);
@@ -46,12 +49,11 @@ export const AgentFormPage = () => {
       temperature: agent.temperature ?? null,
       isEnabled: agent.isEnabled ?? true,
     }),
-    onLoaded: () => setAutoSlug(false),
   });
 
   const handleNameChange = (value: string) => {
     form.setValue('name', value, { shouldValidate: true });
-    if (autoSlug) form.setValue('agentId', toSlug(value));
+    if (autoSlug.current) form.setValue('agentId', toSlug(value));
   };
 
   const onSubmit = (doc: AgentFormValues) => saveAgent(doc);
@@ -77,7 +79,9 @@ export const AgentFormPage = () => {
         form={form}
         agentIdEditable
         onNameChange={handleNameChange}
-        onAgentIdChange={() => setAutoSlug(false)}
+        onAgentIdChange={() => {
+          autoSlug.current = false;
+        }}
       />
     </ResourceFormLayout>
   );

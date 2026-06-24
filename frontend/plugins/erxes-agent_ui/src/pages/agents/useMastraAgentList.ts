@@ -69,8 +69,9 @@ export const useMastraAgentList = (searchValue?: string) => {
 
     fetchMore({
       variables: {
-        ...variables,
         page: Math.ceil(agentsList.length / AGENTS_PER_PAGE) + 1,
+        perPage: AGENTS_PER_PAGE,
+        searchValue: searchValue || undefined,
       },
       updateQuery: (prev, { fetchMoreResult }) => {
         if (!fetchMoreResult?.mastraAgentsMain) return prev;
@@ -85,8 +86,7 @@ export const useMastraAgentList = (searchValue?: string) => {
         };
       },
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loading, agentsList.length, totalCount, fetchMore]);
+  }, [loading, agentsList.length, totalCount, fetchMore, searchValue]);
 
   return {
     agentsList,

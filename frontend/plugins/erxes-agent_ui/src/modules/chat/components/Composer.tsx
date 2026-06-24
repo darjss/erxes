@@ -70,6 +70,7 @@ export const Composer = ({
                 ref={fileInputRef}
                 type="file"
                 multiple
+                aria-label="Attach files"
                 className="hidden"
                 onChange={(e) => {
                   if (e.target.files?.length) addFiles(e.target.files);
