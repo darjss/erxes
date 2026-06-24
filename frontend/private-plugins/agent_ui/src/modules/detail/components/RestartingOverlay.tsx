@@ -2,10 +2,6 @@ import { useEffect, useState } from 'react';
 
 interface RestartingOverlayProps {
   visible: boolean;
-  // When true, skip the brief "Stopping..." phase and go straight to the
-  // loading state — used when nothing is being stopped (e.g. a fresh assistant
-  // that is just starting up for the first time).
-  skipStopping?: boolean;
   stoppingTitle?: string;
   stoppingDescription?: string;
   loadingTitle?: string;
@@ -15,31 +11,23 @@ interface RestartingOverlayProps {
 
 export const RestartingOverlay = ({
   visible,
-  skipStopping = false,
   stoppingTitle = 'Stopping...',
   stoppingDescription = 'Please wait while your assistant is being stopped',
   loadingTitle = '✨ Almost Ready!',
   loadingDescription = 'erxes Assistant is restarting',
   footerText = "This may take 1–2 minutes. You won't be able to chat during this time.",
 }: RestartingOverlayProps) => {
-  const [phase, setPhase] = useState<'stopping' | 'loading'>(
-    skipStopping ? 'loading' : 'stopping',
-  );
+  const [phase, setPhase] = useState<'stopping' | 'loading'>('stopping');
 
   useEffect(() => {
     if (!visible) {
-      setPhase(skipStopping ? 'loading' : 'stopping');
-      return;
-    }
-
-    if (skipStopping) {
-      setPhase('loading');
+      setPhase('stopping');
       return;
     }
 
     const stopTimer = setTimeout(() => setPhase('loading'), 3000);
     return () => clearTimeout(stopTimer);
-  }, [visible, skipStopping]);
+  }, [visible]);
 
   if (!visible) return null;
 

@@ -172,25 +172,6 @@ export const verifyManagedRuntime = async (runtimeUrl: string) => {
   }
 };
 
-// Non-throwing readiness probe used by the UI to tell whether the runtime is
-// actually serving (vs. 503-ing because the gateway is still restarting after a
-// create / kimi-key change / restart). Returns true only when the runtime
-// answers its health endpoint; any error (5xx, 404, network) means "not ready".
-export const isManagedRuntimeReady = async (
-  runtimeUrl: string,
-): Promise<boolean> => {
-  if (!runtimeUrl || !runtimeUrl.trim()) {
-    return false;
-  }
-
-  try {
-    await verifyManagedRuntime(runtimeUrl);
-    return true;
-  } catch {
-    return false;
-  }
-};
-
 export const deployManagedServer = async (
   payload: ManagedDeployPayload,
 ): Promise<ManagedDeployResponse> => {
