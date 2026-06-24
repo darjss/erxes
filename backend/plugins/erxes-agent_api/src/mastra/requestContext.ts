@@ -14,6 +14,16 @@ interface RequestAuth {
   token?: string;
   /** Tenant of the request — required by tools that query tenant-partitioned stores (Qdrant). */
   subdomain?: string;
+  /** The chat thread this turn belongs to — lets tools attribute generated
+   *  artifacts (charts/documents) to the thread for the Preview file list. */
+  threadId?: string;
+  /** Unique id for THIS turn — artifacts created in the turn share it, so they
+   *  can be grouped per chat instance and linked to the assistant message. */
+  turnId?: string;
+  /** The user's message that drove this turn — the Files-list group header. */
+  turnPrompt?: string;
+  /** Owner (scoped) resource id — stamped on artifacts for ownership scoping. */
+  resourceId?: string;
   /** Destructive ops the user approved for THIS turn — the execute guard runs an
    *  otherwise-gated delete/merge only when it matches one of these. */
   approvedOps?: ApprovedOp[];

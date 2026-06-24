@@ -124,6 +124,12 @@ export const MASTRA_THREAD_MESSAGES = gql`
   }
 `;
 
+export const MASTRA_THREAD_ARTIFACTS = gql`
+  query MastraThreadArtifacts($threadId: String!) {
+    mastraThreadArtifacts(threadId: $threadId)
+  }
+`;
+
 export const MASTRA_ATTACHMENT_STORAGE_STATUS = gql`
   query MastraAttachmentStorageStatus {
     mastraAttachmentStorageStatus {

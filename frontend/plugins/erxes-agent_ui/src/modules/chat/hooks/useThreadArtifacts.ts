@@ -1,0 +1,103 @@
+import { useMemo } from 'react';
+import { useQuery } from '@apollo/client';
+import type { ChartSpec } from 'erxes-ui';
+import { MASTRA_THREAD_ARTIFACTS } from '~/graphql/queries';
+import type { Artifact, DocumentFormat } from '~/modules/chat/lib/artifacts';
+
+// Persisted artifacts for a thread (charts + generated documents), read from the
+// dedicated store so they survive reloads. Returns the flat list, a lookup by
+// the assistant message id (to re-render inline chat cards), and groups by turn
+// (the Files-list "grouped by chat instance").
+
+interface ArtifactRow {
+  artifactId?: string;
+  _id?: string;
+  kind?: string;
+  format?: string;
+  title?: string;
+  fileName?: string;
+  mimeType?: string;
+  fileKey?: string;
+  inline?: boolean;
+  size?: number;
+  spec?: ChartSpec;
+  messageId?: string;
+  turnId?: string;
+  prompt?: string;
+}
+
+export interface ArtifactGroup {
+  turnId: string;
+  prompt: string;
+  items: Artifact[];
+}
+
+const isDocFormat = (v: unknown): v is DocumentFormat =>
+  v === 'pdf' || v === 'docx' || v === 'xlsx';
+
+const toArtifact = (row: ArtifactRow): Artifact | null => {
+  const id = String(row.artifactId ?? row._id ?? '');
+  if (!id) return null;
+
+  if (row.kind === 'chart' && row.spec) {
+    return { id, kind: 'chart', title: row.title ?? 'Chart', spec: row.spec };
+  }
+  if (row.kind === 'document' && isDocFormat(row.format)) {
+    return {
+      id,
+      kind: 'document',
+      format: row.format,
+      title: row.title ?? 'Document',
+      fileName: row.fileName ?? 'document',
+      mimeType: row.mimeType ?? '',
+      fileKey: row.fileKey ?? '',
+      inline: Boolean(row.inline),
+      size: typeof row.size === 'number' ? row.size : undefined,
+    };
+  }
+  return null;
+};
+
+export const useThreadArtifacts = (threadId?: string) => {
+  const { data, loading } = useQuery<{ mastraThreadArtifacts: ArtifactRow[] }>(
+    MASTRA_THREAD_ARTIFACTS,
+    {
+      variables: { threadId },
+      skip: !threadId,
+      fetchPolicy: 'cache-and-network',
+    },
+  );
+
+  return useMemo(() => {
+    const rows = data?.mastraThreadArtifacts ?? [];
+    const artifacts: Artifact[] = [];
+    const byMessageId = new Map<string, Artifact[]>();
+    const groups: ArtifactGroup[] = [];
+    const groupMap = new Map<string, ArtifactGroup>();
+
+    for (const row of rows) {
+      const artifact = toArtifact(row);
+      if (!artifact) continue;
+      artifacts.push(artifact);
+
+      if (row.messageId) {
+        const list = byMessageId.get(row.messageId) ?? [];
+        list.push(artifact);
+        byMessageId.set(row.messageId, list);
+      }
+
+      // Group by turn; fall back to the artifact id so an unlinked artifact
+      // still appears as its own group rather than vanishing.
+      const turnId = row.turnId || row.messageId || artifact.id;
+      let group = groupMap.get(turnId);
+      if (!group) {
+        group = { turnId, prompt: row.prompt || '', items: [] };
+        groupMap.set(turnId, group);
+        groups.push(group);
+      }
+      group.items.push(artifact);
+    }
+
+    return { artifacts, byMessageId, groups, loading: loading && !data };
+  }, [data, loading]);
+};

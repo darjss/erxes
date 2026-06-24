@@ -1,3 +1,4 @@
+import { randomUUID } from 'node:crypto';
 import { IUserDocument } from 'erxes-api-shared/core-types';
 import { ExpectedError } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
@@ -285,6 +286,10 @@ export async function prepareTurn(
     userHeader,
     token: settings?.erxesApiToken,
     subdomain,
+    threadId: sessionId,
+    turnId: randomUUID(),
+    turnPrompt: (message || '').slice(0, 200),
+    resourceId,
     approvedOps: approvedOperations,
   };
 

@@ -311,6 +311,19 @@ export async function ensureThreadRegistered(
 }
 
 /** Ownership-checked transcript for one thread (chronological), UI shape. */
+/** Throw "Thread not found" unless `userId` owns `threadId` (resourceId scope).
+ *  Reused by reads that live outside the native store (e.g. the artifact list). */
+export async function assertThreadOwned(
+  subdomain: string,
+  userId: string,
+  threadId: string,
+): Promise<void> {
+  const memory = await getNativeMemory(subdomain);
+  const resourceId = scopedResource(subdomain, userId);
+  const thread = await memory.getThreadById({ threadId, resourceId });
+  if (!thread) throw new ExpectedError('Thread not found');
+}
+
 export async function getOwnedThreadMessages(
   subdomain: string,
   userId: string,

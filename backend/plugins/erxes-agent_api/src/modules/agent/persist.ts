@@ -79,6 +79,17 @@ export async function persistTurn(params: {
     }
   }
 
+  // Link this turn's generated artifacts to the assistant message so the chat
+  // can re-render their inline cards on reload (the dedicated store survives,
+  // unlike the native-store message meta). Best-effort.
+  const turnId = prepared.authCtx?.turnId;
+  if (nativeAssistantId && turnId) {
+    await params.models.MastraArtifact.linkTurnToMessage(
+      turnId,
+      nativeAssistantId,
+    ).catch(() => undefined);
+  }
+
   return { titlePromise, assistantMessageId: nativeAssistantId };
 }
 

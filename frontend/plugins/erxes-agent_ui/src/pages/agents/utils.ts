@@ -17,7 +17,19 @@ export const BUILTIN_TOOLS: { key: string; description: string }[] = [
   { key: 'calculator', description: 'Evaluate a math expression' },
   {
     key: 'renderChart',
-    description: 'Render a bar / line / area / pie chart in chat',
+    description: 'Render an interactive chart in the Preview panel',
+  },
+  {
+    key: 'generatePdf',
+    description: 'Generate a downloadable PDF report (charts embeddable)',
+  },
+  {
+    key: 'generateDocx',
+    description: 'Generate a downloadable Word document (charts embeddable)',
+  },
+  {
+    key: 'generateXlsx',
+    description: 'Generate a downloadable Excel spreadsheet (charts embeddable)',
   },
   {
     key: 'readAttachment',

@@ -138,28 +138,46 @@ When asked who a user is, what they are allowed to do, or why something is (or i
 const RENDER_CHART_HINT = `
 **For renderChart specifically:**
 - Call renderChart whenever the user asks to visualise, chart, graph, or plot data.
-- After a SUCCESSFUL renderChart call, you MUST embed the returned \`chartJson\` string
-  verbatim inside a fenced code block with language "chart-viz" like this (no extra text inside the block):
+- The chart appears automatically in the Preview panel beside the chat — you do NOT
+  paste JSON, code blocks, or the chart data into your reply. Never output raw chart data.
+- After the call succeeds, write one short plain sentence telling the user the chart is
+  ready in the Preview panel (e.g. "Here's the revenue trend — it's open in the panel.").
+- Pick the chart type that fits: line/area for trends over time, bar/horizontalBar for
+  comparisons, stackedBar for parts of a whole over categories, pie/donut for shares,
+  radar for multi-metric comparison, scatter for correlation, combo to mix bars + a line.
+`.trim();
 
-\`\`\`chart-viz
-<paste chartJson here>
-\`\`\`
-
-- Do NOT rephrase, wrap, or summarise the JSON — output it exactly as returned.
-- You may add a short sentence OUTSIDE the block introducing the chart.
+// Injected when the agent has any document generator (PDF/DOCX/XLSX).
+const DOCUMENT_TOOLS_HINT = `
+**For generatePdf / generateDocx / generateXlsx:**
+- Call generatePdf or generateDocx when the user wants a report, summary, letter, or
+  document. Write the body as clean Markdown (headings, lists, tables, bold). Use
+  generateDocx when they want an editable Word file, generatePdf otherwise.
+- Call generateXlsx when the user wants a spreadsheet or tabular export: provide one or
+  more sheets, each with column headers and rows.
+- To put a chart INSIDE a PDF or Word document: first call renderChart to get its chart
+  id, then pass that chart (id + spec) in the tool's "charts" list and reference it in the
+  Markdown as an image — ![Chart title](chart:THAT_ID). For spreadsheets, pass charts and
+  they are added on a "Charts" tab.
+- Each generated file opens in the Preview panel and is downloadable. After a successful
+  call, tell the user in one plain sentence that the file is ready in the Preview panel
+  and can be downloaded. Never expose file keys, URLs, JSON, or tool names.
 `.trim();
 
 /** Prompt section listing the agent's standalone builtin tools. */
 const BUILTIN_BLOCK = (tools: ToolInfo[]) => {
-  const hasRenderChart = tools.some(
-    (t) => t.id === 'renderChart' || t.name === 'renderChart',
-  );
+  const has = (key: string) =>
+    tools.some((t) => t.id === key || t.name === key);
+  const hasRenderChart = has('renderChart');
+  const hasDocTools =
+    has('generatePdf') || has('generateDocx') || has('generateXlsx');
   return `
 ## Built-in Tools
 
 You also have these standalone tools — call them directly (no search needed):
 ${tools.map(describeTool).join('\n')}
 ${hasRenderChart ? `\n${RENDER_CHART_HINT}` : ''}
+${hasDocTools ? `\n${DOCUMENT_TOOLS_HINT}` : ''}
 `.trim();
 };
 

@@ -2,6 +2,7 @@ import { RefObject } from 'react';
 import { IconRobot } from '@tabler/icons-react';
 import { Badge, Skeleton } from 'erxes-ui';
 import { AgentUIMessage } from '~/modules/chat/types';
+import { Artifact } from '~/modules/chat/lib/artifacts';
 import { IChatAgent } from '~/modules/chat/hooks/useChatAgents';
 import { MessageBubble } from '~/modules/chat/components/MessageBubble';
 import { WaitingIndicator } from '~/modules/chat/components/Avatars';
@@ -19,6 +20,7 @@ export const MessageList = ({
   onSuggestion,
   onRegenerate,
   onRate,
+  storeArtifactsByMessage,
 }: {
   agent: IChatAgent;
   messages: AgentUIMessage[];
@@ -32,6 +34,9 @@ export const MessageList = ({
   onSuggestion: (text: string) => void;
   onRegenerate: () => void;
   onRate: (messageId: string, rating: 1 | -1) => void;
+  // Persisted artifacts per assistant message id — re-renders inline cards on
+  // reload (the live message's own tool parts take priority while streaming).
+  storeArtifactsByMessage?: Map<string, Artifact[]>;
 }) => {
   // Approve/deny replies are sent hidden — they continue a gated turn without a
   // visible user bubble.
@@ -96,6 +101,11 @@ export const MessageList = ({
                 ratingEnabled={ratingEnabled}
                 onRegenerate={onRegenerate}
                 onRate={onRate}
+                storeArtifacts={
+                  msg.metadata?.messageId
+                    ? storeArtifactsByMessage?.get(msg.metadata.messageId)
+                    : undefined
+                }
               />
             ))}
             {chatLoading && lastMsg?.role !== 'assistant' && <WaitingIndicator />}

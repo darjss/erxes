@@ -1,0 +1,134 @@
+import { useEffect, useRef, useState } from 'react';
+import { IconDownload, IconLoader2 } from '@tabler/icons-react';
+import { Button } from 'erxes-ui';
+import '@js-preview/excel/lib/index.css';
+import { DocumentArtifact, documentUrl } from '~/modules/chat/lib/artifacts';
+
+// Inline document rendering in the Preview panel — fully client-side (no
+// external service, no CDN), so private files never leave the instance:
+//   • PDF  → fetch bytes → same-origin blob: URL → native <iframe> viewer.
+//   • DOCX → docx-preview (jszip + DOM, browser-native, no Node polyfills).
+//   • XLSX → @js-preview/excel (x-data-spreadsheet grid).
+// The heavy renderers are loaded on demand (dynamic import).
+
+type Phase = 'loading' | 'ready' | 'error';
+
+interface DocPreviewer {
+  preview: (src: ArrayBuffer | Blob | string) => Promise<unknown>;
+  destroy: () => void;
+}
+
+export const DocumentViewer = ({ artifact }: { artifact: DocumentArtifact }) => {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [phase, setPhase] = useState<Phase>('loading');
+  const [pdfUrl, setPdfUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    let viewer: DocPreviewer | null = null;
+    let objectUrl: string | null = null;
+    const container = containerRef.current;
+    setPhase('loading');
+    setPdfUrl(null);
+
+    (async () => {
+      try {
+        const res = await fetch(documentUrl(artifact), {
+          credentials: 'include',
+        });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+        if (artifact.format === 'pdf') {
+          const blob = await res.blob();
+          if (cancelled) return;
+          objectUrl = URL.createObjectURL(blob);
+          setPdfUrl(objectUrl);
+          setPhase('ready');
+          return;
+        }
+
+        const buffer = await res.arrayBuffer();
+        if (cancelled || !container) return;
+        container.innerHTML = '';
+
+        if (artifact.format === 'docx') {
+          const { renderAsync } = await import('docx-preview');
+          // Library options make it flow to the container width (responsive)
+          // instead of a fixed A4 page that overflows/clips the panel.
+          await renderAsync(buffer, container, undefined, {
+            inWrapper: false,
+            ignoreWidth: true,
+            ignoreHeight: true,
+            breakPages: false,
+          });
+        } else {
+          const { default: jsPreviewExcel } = await import('@js-preview/excel');
+          viewer = jsPreviewExcel.init(container);
+          await viewer.preview(buffer);
+        }
+        if (!cancelled) setPhase('ready');
+      } catch {
+        if (!cancelled) setPhase('error');
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+      try {
+        viewer?.destroy();
+      } catch {
+        /* viewer already torn down */
+      }
+      if (container) container.innerHTML = '';
+      if (objectUrl) URL.revokeObjectURL(objectUrl);
+    };
+  }, [artifact.fileKey, artifact.format]);
+
+  return (
+    <div className="relative h-full w-full bg-white">
+      {artifact.format === 'pdf'
+        ? pdfUrl && (
+            <iframe
+              src={pdfUrl}
+              title={artifact.title}
+              className="h-full w-full border-0"
+            />
+          )
+        : null}
+      {artifact.format !== 'pdf' && (
+        <div
+          ref={containerRef}
+          className={
+            artifact.format === 'docx'
+              ? 'h-full w-full overflow-auto px-6 py-5 text-sm leading-relaxed [&_*]:max-w-full'
+              : 'h-full w-full overflow-auto'
+          }
+        />
+      )}
+
+      {phase === 'loading' && (
+        <div className="absolute inset-0 flex items-center justify-center bg-background/60">
+          <IconLoader2 className="size-6 animate-spin text-muted-foreground" />
+        </div>
+      )}
+      {phase === 'error' && (
+        <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 p-8 text-center">
+          <p className="text-sm text-muted-foreground">
+            Couldn’t render this preview.
+          </p>
+          <Button asChild>
+            <a
+              href={documentUrl(artifact)}
+              download={artifact.fileName}
+              target="_blank"
+              rel="noreferrer"
+            >
+              <IconDownload className="size-4" />
+              Download {artifact.format.toUpperCase()}
+            </a>
+          </Button>
+        </div>
+      )}
+    </div>
+  );
+};

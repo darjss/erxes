@@ -3,6 +3,7 @@ import { useApolloClient } from '@apollo/client';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
   IconArrowDown,
+  IconFiles,
   IconFileUpload,
   IconMessageCircle,
   IconPlus,
@@ -20,12 +21,15 @@ import { useMastraThreads } from '~/modules/chat/hooks/useMastraThreads';
 import { useRenameMastraThread } from '~/modules/chat/hooks/useRenameMastraThread';
 import { useRemoveMastraThread } from '~/modules/chat/hooks/useRemoveMastraThread';
 import { useAttachments } from '~/modules/chat/hooks/useAttachments';
+import { useThreadArtifacts } from '~/modules/chat/hooks/useThreadArtifacts';
 import { useSessionBootstrap } from '~/modules/chat/hooks/useSessionBootstrap';
 import { AgentRail } from '~/modules/chat/components/AgentRail';
 import { SessionList } from '~/modules/chat/components/SessionList';
 import { MessageList } from '~/modules/chat/components/MessageList';
 import { Composer } from '~/modules/chat/components/Composer';
 import { ApprovalBar } from '~/modules/chat/components/ApprovalBar';
+import { PreviewPanel } from '~/modules/chat/preview/PreviewPanel';
+import { previewStore } from '~/modules/chat/preview/previewStore';
 import { pendingApproval } from '~/modules/chat/lib/uiParts';
 import '~/modules/chat/chat.css';
 
@@ -106,6 +110,18 @@ export const ChatPage = () => {
   useEffect(() => {
     if (!chatLoading) textareaRef.current?.focus();
   }, [chatLoading, activeThreadId]);
+
+  // Artifact Preview panel (charts / generated documents). Switching agent or
+  // thread clears any open preview — it belongs to the prior conversation.
+  const previewOpen = previewStore((s) => s.open);
+  useEffect(() => {
+    previewStore.getState().close();
+  }, [agentId, activeThreadId]);
+
+  // Persisted artifacts for this thread — re-renders the inline chat cards on
+  // reload (live tool parts don't survive). Apollo dedupes with the Files panel.
+  const { byMessageId: storeArtifactsByMessage } =
+    useThreadArtifacts(activeThreadId);
 
   // Auto-grow the textarea with its content (capped via max-h on the element).
   useEffect(() => {
@@ -280,6 +296,14 @@ export const ChatPage = () => {
         </PageHeader.Start>
         {selectedAgent && (
           <PageHeader.End>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => previewStore.getState().openList()}
+            >
+              <IconFiles className="size-3.5" />
+              Files
+            </Button>
             <Button variant="outline" size="sm" onClick={handleNewThread}>
               <IconPlus className="size-3.5" />
               New chat
@@ -288,7 +312,7 @@ export const ChatPage = () => {
         )}
       </PageHeader>
 
-      <div className="flex flex-1 overflow-hidden">
+      <div className="flex flex-1 overflow-hidden relative">
         {/* ── Side panel: AgentRail ↔ SessionList slide ── */}
         <div className="relative shrink-0 border-r overflow-hidden w-60">
           <div
@@ -392,6 +416,7 @@ export const ChatPage = () => {
                 }}
                 onRegenerate={handleRegenerate}
                 onRate={handleRate}
+                storeArtifactsByMessage={storeArtifactsByMessage}
               />
 
               {showScrollDown && (
@@ -434,6 +459,11 @@ export const ChatPage = () => {
             </>
           )}
         </div>
+
+        {/* ── Artifact Preview panel (charts / generated documents) ── */}
+        {previewOpen && selectedAgent && (
+          <PreviewPanel threadId={activeThreadId} />
+        )}
       </div>
     </div>
   );
