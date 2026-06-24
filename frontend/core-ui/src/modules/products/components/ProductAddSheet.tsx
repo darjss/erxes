@@ -104,7 +104,9 @@ export const ProductAddSheet = () => {
               }}
               showMoreInfo={showMoreInfo}
               onShowMoreInfoChange={setShowMoreInfo}
-              options={{ refetchQueries: [productsQueries.productsMain] }}
+              options={{
+                refetchQueries: [productsQueries.productsMain],
+              }}
             />
           </div>
           <FormWidgetSideTabs contentType="core:product" form={form} />

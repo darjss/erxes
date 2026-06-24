@@ -51,6 +51,7 @@ export interface ISupplier {
   phones?: string[];
   dateFounded?: string;
   website?: string;
+  paymentId?: string;
   verificationStatus?: string;
   verificationNote?: string;
   tierLevel?: number;

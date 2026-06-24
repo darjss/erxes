@@ -48,6 +48,7 @@ export const types = `
     phones: [String]
     dateFounded: String
     website: String
+    paymentId: String
     verificationStatus: String
     verificationNote: String
     tierLevel: Int
@@ -79,6 +80,7 @@ export const types = `
     phones: [String]
     dateFounded: String
     website: String
+    paymentId: String
     socialLinks: JSON
   }
 `;
