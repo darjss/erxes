@@ -55,7 +55,7 @@ export const agentQueries = {
     ]);
     const admin = isAgentAdmin(user);
     return models.MastraAgent.getAgentsList({
-      ...(params || {}),
+      ...params,
       userId: user?._id,
       isAdmin: admin,
       teamIds: user?.branchIds ?? [],

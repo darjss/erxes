@@ -53,11 +53,8 @@ export const UserQuotasPage = () => {
   });
 
   const handleUserChange = (userId: string | null) => {
-    form.setValue('userId', userId ?? '');
     form.setValue('quota', null);
-    if (userId) {
-      fetchUserQuota({ variables: { userId } });
-    }
+    if (userId) fetchUserQuota({ variables: { userId } });
   };
 
   const onSubmit = (values: QuotaFormValues) => {

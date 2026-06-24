@@ -104,6 +104,7 @@ export const SplitBadge = ({
 }: SplitBadgeProps) => {
   return (
     <div
+      role="img"
       className={cn(outerVariants({ variant }), className)}
       aria-label={name ? `${label}: ${name}` : label}
     >
