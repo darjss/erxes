@@ -8,6 +8,7 @@ import {
   checkKimiKeySet,
   getAgentDetails,
   getGatewayToken,
+  isManagedRuntimeReady,
   listAgents,
   listDiscordGuilds,
 } from '~/modules/agent/utils';
@@ -136,6 +137,23 @@ export const agentQueries = {
     }
 
     return checkKimiKeySet(server.name);
+  },
+
+  getAgentRuntimeReady: async (
+    _root: undefined,
+    { identifierId }: { identifierId: string },
+    { models, user }: IContext,
+  ) => {
+    await ensureLegacyIdentifierLinks(models);
+    await assertIdentifierAccess(models, identifierId, user);
+
+    const server = await models.AgentServer.findOne({ identifierId }).lean();
+
+    if (!server) {
+      throw new Error('Agent server not found');
+    }
+
+    return isManagedRuntimeReady(server.url);
   },
 
   agentDiscordConnectUrl: async (

@@ -32,3 +32,9 @@ export const CHECK_KIMI_KEY_SET = gql`
     checkKimiKeySet(identifierId: $identifierId)
   }
 `;
+
+export const GET_AGENT_RUNTIME_READY = gql`
+  query GetAgentRuntimeReady($identifierId: String!) {
+    getAgentRuntimeReady(identifierId: $identifierId)
+  }
+`;
