@@ -26,12 +26,27 @@ const AgentFormPage = lazy(() =>
   })),
 );
 
+const SkillsIndexPage = lazy(() =>
+  import('~/modules/skills/components/SkillsIndexPage').then((m) => ({
+    default: m.SkillsIndexPage,
+  })),
+);
+
+const SkillFormPage = lazy(() =>
+  import('~/modules/skills/components/SkillFormPage').then((m) => ({
+    default: m.SkillFormPage,
+  })),
+);
+
 const MastraSettings = () => {
   return (
-    <PluginRoutesShell defaultPath="agents">
+    <PluginRoutesShell defaultPath="/settings/erxes-agent/agents">
       <Route path="/agents" element={<AgentsIndexPage />} />
       <Route path="/agents/new" element={<AgentFormPage />} />
       <Route path="/agents/edit/:id" element={<AgentFormPage />} />
+      <Route path="/skills" element={<SkillsIndexPage />} />
+      <Route path="/skills/new" element={<SkillFormPage />} />
+      <Route path="/skills/edit/:id" element={<SkillFormPage />} />
       <Route path="/providers" element={<ProvidersPage />} />
       <Route path="/general" element={<GeneralSettingsPage />} />
     </PluginRoutesShell>

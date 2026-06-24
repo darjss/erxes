@@ -25,6 +25,10 @@ export interface AgentMessageMetadata {
   createdAt?: string;
   // The caller's own thumbs vote (1 / -1), when one exists.
   rating?: number;
+  // Names of the skill(s) the user slash-activated that actually shaped this
+  // turn — set by the stream's final `finish` chunk. Drives the "Skills applied"
+  // badge on the assistant message.
+  activeSkills?: string[];
   // Files attached to a user message.
   attachments?: ChatAttachment[];
   // Approve/deny replies are sent to continue a gated turn without showing a

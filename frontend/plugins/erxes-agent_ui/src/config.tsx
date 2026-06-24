@@ -1,4 +1,9 @@
-import { IconCalendarTime, IconRobot, IconSitemap } from '@tabler/icons-react';
+import {
+  IconBook2,
+  IconCalendarTime,
+  IconRobot,
+  IconSitemap,
+} from '@tabler/icons-react';
 import { lazy, Suspense } from 'react';
 import { IUIConfig } from 'erxes-ui';
 
@@ -40,6 +45,11 @@ export const CONFIG: IUIConfig = {
       name: 'agents',
       icon: IconRobot,
       path: 'erxes-agent/agents',
+    },
+    {
+      name: 'skills',
+      icon: IconBook2,
+      path: 'erxes-agent/skills',
     },
     {
       name: 'workflows',

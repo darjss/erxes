@@ -34,7 +34,9 @@ interface MastraThreadMessagesResponse {
 }
 
 interface MastraMessageFeedbacksResponse {
-  mastraMessageFeedbacks?: Record<string, { rating: number }>;
+  // Entries are optional and may arrive partial from older/empty rows — read
+  // `rating` through optional chaining so a missing entry never throws.
+  mastraMessageFeedbacks?: Record<string, { rating?: number } | undefined>;
 }
 
 const threadKey = (agentKey: string, threadId: string) =>
@@ -121,6 +123,8 @@ interface ChatStoreState {
     // Don't render a user bubble for this send (approve/deny — the turn
     // continues without a visible "Approved" message).
     hidden?: boolean,
+    // Names of /slash-activated skills to force-load for this turn (names only).
+    activeSkillNames?: string[],
   ) => void;
   // Re-ask the question that produced the last reply (with its attachments).
   regenerate: (
@@ -260,7 +264,7 @@ export const useChatStore = create<ChatStoreState>((set, get) => {
       chat.messages = chat.messages.map((m) => {
         const id = m.metadata?.messageId;
         return id && byMessage[id]
-          ? { ...m, metadata: { ...m.metadata, rating: byMessage[id].rating } }
+          ? { ...m, metadata: { ...m.metadata, rating: byMessage[id]?.rating } }
           : m;
       });
     } catch {
@@ -277,6 +281,7 @@ export const useChatStore = create<ChatStoreState>((set, get) => {
     attachments?: ChatAttachment[],
     approvedOperations?: ApprovedOp[],
     hidden?: boolean,
+    activeSkillNames?: string[],
   ) => {
     let agent = get().agents[agentKey] ?? EMPTY_AGENT;
     if (!agent.activeThreadId) {
@@ -296,6 +301,14 @@ export const useChatStore = create<ChatStoreState>((set, get) => {
     prependThreadToCache(client, mastraAgentId, threadId);
     if (agent.isDraft) patchAgent(agentKey, { isDraft: false });
 
+    // Slash-activated skill names for this turn. The server re-resolves them
+    // against the user's reachable skills and force-loads their full
+    // instructions — so we send NAMES only (never ids or instructions), capped
+    // to the contract's 10 names / 64 chars each.
+    const skillNames = activeSkillNames?.length
+      ? activeSkillNames.slice(0, 10).map((n) => n.slice(0, 64))
+      : undefined;
+
     void chat.sendMessage(
       { text: message, ...(hidden ? { metadata: { hidden: true } } : {}) },
       {
@@ -305,6 +318,7 @@ export const useChatStore = create<ChatStoreState>((set, get) => {
             : {}),
           ...(attachments?.length ? { attachments } : {}),
           ...(approvedOperations?.length ? { approvedOperations } : {}),
+          ...(skillNames ? { activeSkillNames: skillNames } : {}),
         },
       },
     );
@@ -451,6 +465,7 @@ export const useChatStore = create<ChatStoreState>((set, get) => {
       attachments,
       approvedOperations,
       hidden,
+      activeSkillNames,
     ) =>
       doSend(
         client,
@@ -460,6 +475,7 @@ export const useChatStore = create<ChatStoreState>((set, get) => {
         attachments,
         approvedOperations,
         hidden,
+        activeSkillNames,
       ),
 
     regenerate: (client, agentKey, mastraAgentId) => {
