@@ -44,6 +44,11 @@ describe('buildTurnSystem', () => {
     expect(VOICE_BREVITY_SYSTEM).toMatch(/one or two sentences/i);
   });
 
+  it('asks to lead with a short first sentence so first-audio fires fast', () => {
+    expect(VOICE_BREVITY_SYSTEM).toMatch(/first sentence/i);
+    expect(VOICE_BREVITY_SYSTEM).toMatch(/immediately/i);
+  });
+
   it('tells the model to produce speakable Cyrillic (transliterate, spell out)', () => {
     expect(VOICE_BREVITY_SYSTEM).toMatch(/cyrillic/i);
     expect(VOICE_BREVITY_SYSTEM).toMatch(/transliterat/i);
