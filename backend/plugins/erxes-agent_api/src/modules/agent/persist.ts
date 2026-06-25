@@ -87,7 +87,20 @@ export async function persistTurn(params: {
     await params.models.MastraArtifact.linkTurnToMessage(
       turnId,
       nativeAssistantId,
-    ).catch(() => undefined);
+    ).catch((e) =>
+      console.warn(
+        `[artifact-store] turn→message link skipped: ${
+          (e as Error)?.message || e
+        }`,
+      ),
+    );
+  } else if (turnId) {
+    // The turn produced artifacts (turnId stamped) but we never recovered the
+    // assistant message id, so their inline cards can't be re-attached on reload.
+    // Surface it — this is the one thing that silently breaks the card rehydration.
+    console.warn(
+      '[artifact-store] turn→message link skipped: no assistant message id recovered',
+    );
   }
 
   return { titlePromise, assistantMessageId: nativeAssistantId };
@@ -145,13 +158,24 @@ export async function patchNativeTurn(params: {
   // first means a failure in the (best-effort) message patch can never leave a
   // turn that streamed fine but whose thread is invisible. ensureThreadRegistered
   // is idempotent — it back-fills the binding when missing/stale and no-ops
-  // otherwise (and re-creates the thread if it somehow vanished).
-  await ensureThreadRegistered(
-    subdomain,
-    binding.thread,
-    binding.resource,
-    agentId,
-  );
+  // otherwise (and re-creates the thread if it somehow vanished). Best-effort:
+  // prepareTurn already pre-registered the thread, so a hiccup here must not
+  // abort before we recover the assistant id below (which the inline-artifact
+  // card linking and the client-side rating both key off).
+  try {
+    await ensureThreadRegistered(
+      subdomain,
+      binding.thread,
+      binding.resource,
+      agentId,
+    );
+  } catch (e) {
+    console.warn(
+      `[native-chat-store] thread register skipped: ${
+        (e as Error)?.message || e
+      }`,
+    );
+  }
 
   const memory = await getNativeMemory(subdomain);
 
@@ -206,11 +230,25 @@ export async function patchNativeTurn(params: {
     });
   }
 
+  // The erxes turn-meta write is a best-effort enrichment (ordered parts,
+  // thinking, tool calls, attachments). Its failure MUST NOT cost us the
+  // recovered assistant id: that id is the link key for the inline artifact
+  // cards (persistTurn → linkTurnToMessage, so they re-render on reload) and the
+  // id the client rates. Guard the write on its own so a native-store updateMessages
+  // hiccup can never null out the returned id.
   if (patches.length) {
-    await memory.updateMessages({ messages: patches });
+    try {
+      await memory.updateMessages({ messages: patches });
+    } catch (e) {
+      console.warn(
+        `[native-chat-store] turn meta patch skipped: ${
+          (e as Error)?.message || e
+        }`,
+      );
+    }
   }
 
   // The native assistant message id — the client rates this (feedback resolves
-  // it back via the native store).
+  // it back via the native store) and this turn's artifacts are linked to it.
   return assistant?.id ?? null;
 }

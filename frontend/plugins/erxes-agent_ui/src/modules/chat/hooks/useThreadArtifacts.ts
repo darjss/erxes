@@ -30,6 +30,11 @@ export interface ArtifactGroup {
   turnId: string;
   prompt: string;
   items: Artifact[];
+  // True once any of this turn's rows carries a messageId — i.e. the backend
+  // linked it to its assistant bubble, so the inline cards re-render directly.
+  // False groups (legacy rows, or a turn whose id recovery failed) fall back to
+  // prompt/order matching on the client (see associateArtifacts).
+  linked: boolean;
 }
 
 const isDocFormat = (v: unknown): v is DocumentFormat =>
@@ -91,11 +96,12 @@ export const useThreadArtifacts = (threadId?: string) => {
       const turnId = row.turnId || row.messageId || artifact.id;
       let group = groupMap.get(turnId);
       if (!group) {
-        group = { turnId, prompt: row.prompt || '', items: [] };
+        group = { turnId, prompt: row.prompt || '', items: [], linked: false };
         groupMap.set(turnId, group);
         groups.push(group);
       }
       group.items.push(artifact);
+      if (row.messageId) group.linked = true;
     }
 
     return { artifacts, byMessageId, groups, loading: loading && !data };

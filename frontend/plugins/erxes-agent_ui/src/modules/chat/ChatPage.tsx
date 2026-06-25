@@ -31,6 +31,7 @@ import { ApprovalBar } from '~/modules/chat/components/ApprovalBar';
 import { PreviewPanel } from '~/modules/chat/preview/PreviewPanel';
 import { previewStore } from '~/modules/chat/preview/previewStore';
 import { pendingApproval } from '~/modules/chat/lib/uiParts';
+import { associateArtifacts } from '~/modules/chat/lib/artifacts';
 import '~/modules/chat/chat.css';
 
 // Distance (px) from the bottom under which we keep following streamed output.
@@ -120,8 +121,15 @@ export const ChatPage = () => {
 
   // Persisted artifacts for this thread — re-renders the inline chat cards on
   // reload (live tool parts don't survive). Apollo dedupes with the Files panel.
-  const { byMessageId: storeArtifactsByMessage } =
+  // Backend-linked groups attach by messageId; any unlinked group (legacy rows /
+  // a turn whose id recovery failed) is matched to its assistant bubble by the
+  // originating prompt + chat order so its cards still reappear.
+  const { byMessageId, groups: artifactGroups } =
     useThreadArtifacts(activeThreadId);
+  const storeArtifactsByMessage = useMemo(
+    () => associateArtifacts(messages, byMessageId, artifactGroups),
+    [messages, byMessageId, artifactGroups],
+  );
 
   // Auto-grow the textarea with its content (capped via max-h on the element).
   useEffect(() => {

@@ -12,6 +12,9 @@ interface PreviewState {
   open: boolean;
   view: PreviewView;
   artifact: Artifact | null;
+  // Whether the panel takes over the whole window (with a file-list sidebar)
+  // instead of docking beside the chat.
+  fullscreen: boolean;
   // Artifact ids already auto-presented this session — so a live streamed
   // artifact opens the panel once, but hydrated/historical ones never do.
   seen: Set<string>;
@@ -22,6 +25,8 @@ interface PreviewState {
   openList: () => void;
   // Back to the file list from a single item.
   showList: () => void;
+  setFullscreen: (value: boolean) => void;
+  toggleFullscreen: () => void;
   close: () => void;
 }
 
@@ -29,6 +34,7 @@ export const previewStore = create<PreviewState>((set, get) => ({
   open: false,
   view: 'item',
   artifact: null,
+  fullscreen: false,
   seen: new Set<string>(),
   openArtifact: (artifact) => {
     const seen = new Set(get().seen);
@@ -41,5 +47,8 @@ export const previewStore = create<PreviewState>((set, get) => ({
   },
   openList: () => set({ open: true, view: 'list' }),
   showList: () => set({ view: 'list' }),
-  close: () => set({ open: false }),
+  setFullscreen: (value) => set({ fullscreen: value }),
+  toggleFullscreen: () => set({ fullscreen: !get().fullscreen }),
+  // Closing always drops fullscreen so the next open starts docked.
+  close: () => set({ open: false, fullscreen: false }),
 }));
