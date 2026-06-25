@@ -1,7 +1,8 @@
 export const types = `
   type MushopProductSpecification {
     _id: String!
-    productId: String!
+    productId: String
+    code: String
     moq: Float
     cnyCost: Float
     profitPercent: Float
@@ -19,9 +20,9 @@ export const types = `
 `;
 
 export const queries = `
-  mushopProductSpecification(productId: String!): MushopProductSpecification
+  mushopProductSpecification(productId: String!, code: String): MushopProductSpecification
 `;
 
 export const mutations = `
-  mushopProductSpecificationSave(productId: String!, input: MushopProductSpecificationInput!): MushopProductSpecification
+  mushopProductSpecificationSave(productId: String, code: String, input: MushopProductSpecificationInput!): MushopProductSpecification
 `;

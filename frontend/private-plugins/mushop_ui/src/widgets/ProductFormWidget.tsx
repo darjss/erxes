@@ -20,8 +20,6 @@ const amountFromPercent = (unitPrice: number, percent: number) =>
 const percentFromAmount = (unitPrice: number, amount: number) =>
   unitPrice ? (amount / unitPrice) * 100 : 0;
 
-// A number input with a persistent unit pinned inside the right edge, so stacked
-// percent/amount fields stay distinguishable.
 const SuffixedNumberInput = ({
   suffix,
   value,
@@ -41,9 +39,6 @@ const SuffixedNumberInput = ({
   </div>
 );
 
-// A linked percent/amount pair, both derived from unitPrice. Editing either side
-// recomputes the other. The equality guard ignores the mount echo so existing
-// values are never clobbered on expand.
 const PercentAmountRow = ({
   label,
   unitPrice,
@@ -90,15 +85,11 @@ export const ProductFormWidget = ({ form, contentId }: IFormWidgetProps) => {
   const [rate, setRate] = useState(0);
   const [taxPercent, setTaxPercent] = useState(0);
 
-  // Global config values (same for every product) fetched in one round-trip.
   const { data: configData } = useQuery(MUSHOP_CONFIGS, {
     variables: { codes: CONFIG_CODES },
   });
   const [saveConfig] = useMutation(MUSHOP_CONFIG_SAVE);
 
-  // Seed config-backed fields once when the query resolves. After that the
-  // inputs own their value, so saving (which updates the cache) never feeds
-  // back into the input mid-typing and steals focus.
   const seededConfig = useRef(false);
   useEffect(() => {
     const list = configData?.mushopConfigs;
@@ -112,19 +103,18 @@ export const ProductFormWidget = ({ form, contentId }: IFormWidgetProps) => {
     if (typeof taxValue === 'number') setTaxPercent(taxValue);
   }, [configData]);
 
-  // Per-product specification values.
+  const productCode = String(form.watch('code') || '').trim();
   const { data: specData } = useQuery(MUSHOP_PRODUCT_SPECIFICATION, {
-    variables: { productId },
+    variables: { productId, code: productCode || undefined },
     skip: !productId,
   });
+
   const [saveSpecification] = useMutation(MUSHOP_PRODUCT_SPECIFICATION_SAVE);
 
   const [profitPercent, setProfitPercent] = useState(0);
   const [prepaymentPercent, setPrepaymentPercent] = useState(0);
   const [moq, setMoq] = useState(0);
 
-  // Seed spec state once it loads. The guard stops a re-seed when the save
-  // response re-normalizes the cached spec, which would steal input focus.
   const spec = specData?.mushopProductSpecification;
   const seededSpec = useRef(false);
   useEffect(() => {
@@ -138,22 +128,33 @@ export const ProductFormWidget = ({ form, contentId }: IFormWidgetProps) => {
     if (typeof spec.moq === 'number') setMoq(spec.moq);
   }, [spec]);
 
-  // Fire-and-forget per settled edit. The input owns its value via local state,
-  // so there is no need to refetch or rewrite the cache (which caused flicker).
   const saveConfigValue = useDebouncedCallback((code: string, value: number) => {
     saveConfig({ variables: { code, value } });
   }, 600);
 
-  // Holds the latest spec values so the post-create effect can flush them.
   const specRef = useRef({ cnyCost, profitPercent, prepaymentPercent, moq });
   specRef.current = { cnyCost, profitPercent, prepaymentPercent, moq };
 
   const saveSpec = useDebouncedCallback(() => {
-    if (!productId) return;
-    saveSpecification({
-      variables: { productId, input: specRef.current },
-    });
+    const code = String(form.watch('code') || '').trim();
+    if (productId) {
+      saveSpecification({
+        variables: { productId, code: code || undefined, input: specRef.current },
+      });
+      return;
+    }
+    if (!code) return;
+    saveSpecification({ variables: { code, input: specRef.current } });
   }, 600);
+
+  // Keep the spec's stored code in sync when the product code is edited.
+  const lastSyncedCode = useRef(productCode);
+  useEffect(() => {
+    if (lastSyncedCode.current === productCode) return;
+    lastSyncedCode.current = productCode;
+    if (!productId) return;
+    saveSpec();
+  }, [productCode, productId, saveSpec]);
 
   const setUnitPrice = (cost: number, conversionRate: number) => {
     form.setValue('unitPrice', cost * conversionRate, { shouldDirty: true });
