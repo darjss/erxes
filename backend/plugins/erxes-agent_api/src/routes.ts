@@ -133,6 +133,27 @@ interface ChatStreamRequest {
   reasoningEffort?: ReasoningEffort;
   attachments: IMastraChatAttachment[];
   approvedOperations: ApprovedOp[];
+  // Skill names the user slash-activated in the composer for THIS message.
+  activeSkillNames: string[];
+}
+
+// Shape-check the slash-activated skill names the composer echoes on send.
+// Returns the sanitized list, or null when malformed. Names are re-resolved
+// against the user's reachable skills server-side (prepareChatTurn), so this is
+// only a payload-shape guard — it never trusts the names as authorization.
+const MAX_ACTIVE_SKILLS = 10;
+const MAX_SKILL_NAME_LEN = 64;
+function sanitizeActiveSkillNames(raw: unknown): string[] | null {
+  if (raw === undefined || raw === null) return [];
+  if (!Array.isArray(raw) || raw.length > MAX_ACTIVE_SKILLS) return null;
+  const out: string[] = [];
+  for (const item of raw) {
+    if (typeof item !== 'string') return null;
+    const name = item.trim();
+    if (!name || name.length > MAX_SKILL_NAME_LEN) return null;
+    out.push(name);
+  }
+  return out;
 }
 
 // Shape-check the per-turn destructive-op approvals the client echoes back when
@@ -190,6 +211,11 @@ function parseChatStreamBody(raw: unknown): ParseResult {
     return { ok: false, error: 'Invalid approvedOperations payload' };
   }
 
+  const activeSkillNames = sanitizeActiveSkillNames(body.activeSkillNames);
+  if (activeSkillNames === null) {
+    return { ok: false, error: 'Invalid activeSkillNames payload' };
+  }
+
   return {
     ok: true,
     value: {
@@ -199,6 +225,7 @@ function parseChatStreamBody(raw: unknown): ParseResult {
       reasoningEffort,
       attachments,
       approvedOperations,
+      activeSkillNames,
     },
   };
 }
@@ -216,7 +243,7 @@ router.post('/chat/stream', llmRouteLimiter, async (req, res) => {
   // reasoningEffort is the optional per-conversation override from the composer.
   const { agentId, message, threadId, reasoningEffort, attachments } =
     parsed.value;
-  const { approvedOperations } = parsed.value;
+  const { approvedOperations, activeSkillNames } = parsed.value;
 
   const subdomain = getSubdomain(req);
 
@@ -293,6 +320,7 @@ router.post('/chat/stream', llmRouteLimiter, async (req, res) => {
           threadId,
           attachments,
           approvedOperations,
+          activeSkillNames,
         });
         const { agent, convo, authCtx, memoryBinding } = prepared;
 
@@ -335,6 +363,12 @@ router.post('/chat/stream', llmRouteLimiter, async (req, res) => {
         // rating can attach a human score to the right trace. Undefined when
         // evaluation is off.
         let langfuseTraceId: string | undefined;
+
+        // The assistant turn's reasoning / tool / text parts are persisted by
+        // Mastra natively (content.parts, on the correct row) and replayed on
+        // reload via the resolver's `parts` field — so no turn-meta stamping is
+        // needed here. langfuseTraceId / interrupted / activeSkills still ride the
+        // finish chunk for the live client.
         try {
           await runWithAuth(authCtx, async () => {
             const modelStream = await agent.stream(convo, {
@@ -342,6 +376,13 @@ router.post('/chat/stream', llmRouteLimiter, async (req, res) => {
               ...(memoryBinding ? { memory: memoryBinding } : {}),
               ...(reasoningOptions
                 ? { providerOptions: reasoningOptions }
+                : {}),
+              // Force-load an explicitly slash-activated skill's full
+              // instructions as a user-provided system message for this turn
+              // (additive to the agent's base instructions + the native
+              // SkillsProcessor metadata).
+              ...(prepared.activeSkillInstructions
+                ? { system: prepared.activeSkillInstructions }
                 : {}),
             });
             langfuseTraceId = await resolveTraceId(
@@ -372,6 +413,10 @@ router.post('/chat/stream', llmRouteLimiter, async (req, res) => {
                 activity?.onToolCall(chunk.toolName, chunk.input);
               writer.write(chunk);
             }
+            // No flush barrier or post-write needed: Mastra persists the turn's
+            // parts natively as it saves the row. persistTurn below only
+            // reconciles the thread binding, attachments, title, and the native
+            // message id.
           });
         } catch (err) {
           // An abort lands here on most providers — an interrupt, not an error.
@@ -406,10 +451,6 @@ router.post('/chat/stream', llmRouteLimiter, async (req, res) => {
           }
         }
 
-        const turnMeta = reply
-          ? acc.meta(interrupted, langfuseTraceId)
-          : undefined;
-
         // Close the assistant message NOW — the full reply already streamed, so
         // nothing user-visible should wait on the turn-end DB write. The native
         // message id (rated without a reload) and the thread title are reconciled
@@ -421,20 +462,24 @@ router.post('/chat/stream', llmRouteLimiter, async (req, res) => {
             messageId: null,
             interrupted,
             langfuseTraceId,
+            ...(prepared.appliedSkillNames?.length
+              ? { activeSkills: prepared.appliedSkillNames }
+              : {}),
           },
         });
 
-        // Persistence OFF the critical path. The write MUST still happen and must
-        // capture the full turn: Mastra already persisted the [user, assistant]
-        // pair during streaming; persistTurn enriches it with erxes turn meta and
-        // recovers the native id. We no longer block `finish` on it — but we
-        // never drop it (errors are logged, not swallowed).
+        // Persistence OFF the critical path. Mastra persists the turn's parts
+        // natively as it saves the row; persistTurn now only reconciles the
+        // thread binding, any user-message attachments, the title, and the native
+        // message id. We never block `finish` on it, but we never drop it (errors
+        // are logged, not swallowed).
         const persistPromise = persistTurn({
           models,
           prepared,
-          message,
           reply,
-          meta: turnMeta,
+          // Mastra's assigned id for this turn's assistant row, captured off the
+          // stream's `start` chunk — the id the client rates without a reload.
+          assistantMessageId: acc.messageId,
         });
 
         if (clientGone) {

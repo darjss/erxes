@@ -31,6 +31,7 @@ interface NativeMessage {
   createdAt?: Date;
   content?: {
     content?: string;
+    parts?: unknown[];
     metadata?: { erxes?: Record<string, unknown> };
   } & Record<string, unknown>;
 }
@@ -136,6 +137,9 @@ export interface ErxesMessage {
   threadId: string | null;
   role: string;
   content: string;
+  // Mastra's native AI SDK v5 turn parts (reasoning / text / tool-invocation, in
+  // order) — the source of truth for replaying thinking and tool calls on reload.
+  parts: unknown[] | null;
   meta: Record<string, unknown> | null;
   attachments: unknown;
   createdAt: Date | null;
@@ -172,6 +176,7 @@ function toErxesMessage(m: NativeMessage): ErxesMessage {
     threadId: m.threadId ?? null,
     role: m.role,
     content: typeof m.content?.content === 'string' ? m.content.content : '',
+    parts: Array.isArray(m.content?.parts) ? m.content.parts : null,
     meta: Object.keys(erxes).length ? erxes : null,
     attachments,
     createdAt: m.createdAt ?? null,

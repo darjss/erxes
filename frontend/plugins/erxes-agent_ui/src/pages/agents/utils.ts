@@ -101,9 +101,7 @@ export const buildNestedTools = (
       .sort(([a], [b]) => a.localeCompare(b))
       .map(([module, items]) => ({
         module,
-        items: [...items].sort((x, y) =>
-          x.operation.localeCompare(y.operation),
-        ),
+        items: items.sort((x, y) => x.operation.localeCompare(y.operation)),
       }));
     const count = modules.reduce((n, m) => n + m.items.length, 0);
     return {

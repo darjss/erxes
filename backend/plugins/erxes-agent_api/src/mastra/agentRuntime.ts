@@ -22,6 +22,8 @@ import { ToolCallFilter } from '@mastra/core/processors';
 import { isEvaluationEnabled } from './scoring/config';
 import { buildAgentScorers } from './scoring/scorers';
 import { getObservabilityHost } from './scoring/observability';
+import { getSkillsWorkspace } from '@/skills/store/skillsWorkspace';
+import { createMakeSkillTool } from '@/skills/tools/makeSkill';
 import type { IMastraProviderDocument } from '@/provider/@types/provider';
 import type { IMastraSettingsDocument } from '@/settings/@types/settings';
 
@@ -96,7 +98,15 @@ export async function getOrCreateAgent(
   const evaluationEnabled = isEvaluationEnabled();
   const evalTag = evaluationEnabled ? subdomain || 'os' : 'off';
 
-  const cacheKey = `${agentConfig._id}:${agentConfig.updatedAt?.getTime?.() ?? 0}:v${ROUTING_VERSION}:${inventory.fingerprint}:mem${useMemory ? subdomain : 'off'}:eval${evalTag}`;
+  // When skills are enabled the agent carries a per-subdomain Workspace, so the
+  // subdomain + allowlist MUST key the cache (otherwise a cached agent could be
+  // reused for another tenant with the wrong skills source). Per-user scoping
+  // still happens at request time inside the skills resolver.
+  const skillsTag = agentConfig.skills?.length
+    ? `${subdomain || 'os'}:${agentConfig.skills.join('|')}`
+    : 'off';
+
+  const cacheKey = `${agentConfig._id}:${agentConfig.updatedAt?.getTime?.() ?? 0}:v${ROUTING_VERSION}:${inventory.fingerprint}:mem${useMemory ? subdomain : 'off'}:eval${evalTag}:skills${skillsTag}`;
 
   const cached = agentCache.get(cacheKey);
   if (cached) {
@@ -168,6 +178,23 @@ export async function getOrCreateAgent(
     });
   }
 
+  // Skills-enabled agents can distill the current conversation into a SKILL.md
+  // draft via the makeSkill tool (the only creation path). Bound with the
+  // agent's own provider/model; the thread/user come from the request context.
+  if (agentConfig.skills?.length) {
+    const makeSkillTool = createMakeSkillTool({
+      provider: agentConfig.provider,
+      model: agentConfig.model,
+      providers,
+    });
+    tools.make_skill = makeSkillTool;
+    builtinInfos.push({
+      id: 'make_skill',
+      name: 'make_skill',
+      description: makeSkillTool.description,
+    });
+  }
+
   // Conversation persistence + recent-history replay + recall are owned by the
   // attached Mastra Memory (the chat store IS the native memory store; see
   // memory below + session/nativeStore.ts). No custom message store.
@@ -206,6 +233,15 @@ export async function getOrCreateAgent(
   // registered below.
   const scorers = evaluationEnabled ? buildAgentScorers(model) : undefined;
 
+  // Native Mastra skills: a per-subdomain Workspace (Mongo-backed SkillSource +
+  // dynamic per-user resolver). Passing `workspace` makes the Agent auto-wire the
+  // SkillsProcessor (name+description into the prompt) and the skill /
+  // skill_search / skill_read tools (progressive disclosure). Additive: only
+  // attached when the agent declares a skills allowlist.
+  const skillsWorkspace = agentConfig.skills?.length
+    ? getSkillsWorkspace(subdomain || 'os', agentConfig.skills)
+    : undefined;
+
   const agent = new Agent({
     id: agentConfig.agentId,
     name: agentConfig.name,
@@ -214,6 +250,7 @@ export async function getOrCreateAgent(
     tools: toolNames.length ? tools : undefined,
     ...(memory ? { memory, inputProcessors: [new ToolCallFilter()] } : {}),
     ...(scorers ? { scorers } : {}),
+    ...(skillsWorkspace ? { workspace: skillsWorkspace } : {}),
     // generate()/stream() read defaultOptions. Temperature is only set when the
     // agent configures it — otherwise the provider default applies (sending an
     // explicit 0 is what reasoning models like Kimi reject).

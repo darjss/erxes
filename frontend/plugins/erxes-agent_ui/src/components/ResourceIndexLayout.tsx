@@ -37,6 +37,8 @@ interface ResourceIndexLayoutProps<T> {
     className?: string;
   };
   headerExtra?: ReactNode;
+  /** Rendered inside RecordTable.Provider — use for CommandBar or other table-context consumers. */
+  commandBar?: ReactNode;
 }
 
 // Shared shell for the plugin's resource index pages (agents, schedules,
@@ -57,6 +59,7 @@ export const ResourceIndexLayout = <T,>({
   newButton,
   empty,
   headerExtra,
+  commandBar,
 }: ResourceIndexLayoutProps<T>) => {
   const EmptyIcon = empty.icon ?? Icon;
 
@@ -142,6 +145,7 @@ export const ResourceIndexLayout = <T,>({
                 </RecordTable.Body>
               </RecordTable>
             </RecordTable.CursorProvider>
+            {commandBar}
           </RecordTable.Provider>
         </div>
       )}

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useRef, useState } from 'react';
 import { useQuery } from '@apollo/client';
 import { Button, Combobox, Command, Input, Popover, Spinner } from 'erxes-ui';
 import {
@@ -156,23 +156,31 @@ export const SelectModel = ({
   const models: IProviderModel[] = data?.mastraProviderModels ?? [];
 
   const [open, setOpen] = useState(false);
-  const [custom, setCustom] = useState(false);
+  // null = follow auto-detection; true/false = an explicit user choice that
+  // sticks until the provider changes.
+  const [manualOverride, setManualOverride] = useState<boolean | null>(null);
+  // Last provider seen — bookkeeping only, so a ref, not state.
+  const lastProvider = useRef(provider);
 
-  // Manual mode is per-provider state: switching providers clears the model
-  // value, so always land back on the preset dropdown — otherwise a stale
-  // `custom` from the previous provider forces the manual input and the user
-  // has to click "Presets" before they can pick anything.
-  useEffect(() => {
-    setCustom(false);
-  }, [provider]);
+  // Switching providers clears the model value, so drop any manual override and
+  // land back on the preset dropdown — otherwise a stale choice from the
+  // previous provider forces the manual input. Reset during render (no stale
+  // frame), not in an effect.
+  if (provider !== lastProvider.current) {
+    lastProvider.current = provider;
+    setManualOverride(null);
+  }
 
   // A saved model the live catalog doesn't list is a manual entry — show the
-  // input so the value stays visible and editable.
-  useEffect(() => {
-    if (loading || !provider || !value) return;
-    if (models.length > 0 && !models.some((m) => m.id === value))
-      setCustom(true);
-  }, [loading, provider, value, models]);
+  // input so the value stays visible and editable. Derived from props, not
+  // stored, so it never lags a render behind.
+  const valueIsManual =
+    !loading &&
+    !!provider &&
+    !!value &&
+    models.length > 0 &&
+    !models.some((m) => m.id === value);
+  const custom = manualOverride ?? valueIsManual;
 
   if (custom) {
     return (
@@ -190,7 +198,7 @@ export const SelectModel = ({
             variant="outline"
             size="sm"
             onClick={() => {
-              setCustom(false);
+              setManualOverride(false);
               onValueChange('');
             }}
           >
@@ -262,7 +270,7 @@ export const SelectModel = ({
             <Command.Item
               value="__custom__"
               onSelect={() => {
-                setCustom(true);
+                setManualOverride(true);
                 onValueChange('');
                 setOpen(false);
               }}

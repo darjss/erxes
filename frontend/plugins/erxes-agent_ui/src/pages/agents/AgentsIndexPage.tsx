@@ -1,6 +1,7 @@
+import { useMemo } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { ApolloCache, useMutation } from '@apollo/client';
-import { ColumnDef } from '@tanstack/react-table';
+import { ApolloCache, useMutation, useQuery } from '@apollo/client';
+import { ColumnDef, Row } from '@tanstack/react-table';
 import {
   IconPlus,
   IconRobot,
@@ -10,17 +11,27 @@ import {
   IconCalendar,
   IconPencil,
   IconMessageCircle,
+  IconEye,
+  IconTrash,
 } from '@tabler/icons-react';
 import {
   Badge,
   Button,
+  CommandBar,
   Command,
   RecordTable,
   RecordTableInlineCell,
   RelativeDateDisplay,
+  Separator,
   useConfirm,
 } from 'erxes-ui';
 import { MASTRA_AGENT_REMOVE, MASTRA_AGENT_UPDATE } from '~/graphql/mutations';
+import {
+  MASTRA_MY_AGENT_QUOTA_STATUS,
+  AGENT_FORM_BRANCHES,
+  AGENT_FORM_DEPARTMENTS,
+  AGENT_FORM_UNITS,
+} from '~/graphql/queries';
 import {
   RowActionsMenu,
   ToggleDeleteMenuItems,
@@ -28,12 +39,15 @@ import {
 } from '~/components/RecordTableShared';
 import { PermissionButton } from '~/components/PermissionButton';
 import { ResourceIndexLayout } from '~/components/ResourceIndexLayout';
+import { SplitBadge } from '~/components/SplitBadge';
 import { useMastraAgentList, IMastraAgentRow } from './useMastraAgentList';
 import {
   agentMutationError,
   showAgentPermissionError,
+  showAgentQuotaError,
   useAgentAccess,
 } from './hooks/useAgentAccess';
+import type { IMastraAgentQuotaStatus } from './types';
 
 type IAgent = IMastraAgentRow;
 
@@ -50,11 +64,19 @@ const agentListCacheUpdate = (cache: ApolloCache<unknown>) => {
 
 const CreateAgentButton = ({ children }: { children: React.ReactNode }) => {
   const navigate = useNavigate();
-  const { canCreate } = useAgentAccess();
+  const { canCreate, isAdmin } = useAgentAccess();
+
+  const { data: quotaData } = useQuery<{
+    mastraMyAgentQuotaStatus: IMastraAgentQuotaStatus;
+  }>(MASTRA_MY_AGENT_QUOTA_STATUS, { skip: !canCreate || isAdmin });
+
+  const atQuota = !isAdmin && (quotaData?.mastraMyAgentQuotaStatus?.atQuota ?? false);
+  const allowed = canCreate && !atQuota;
+
   return (
     <PermissionButton
-      allowed={canCreate}
-      onDenied={() => showAgentPermissionError('create')}
+      allowed={allowed}
+      onDenied={atQuota ? showAgentQuotaError : showAgentPermissionError}
       onClick={() => navigate('/settings/erxes-agent/agents/new')}
     >
       {children}
@@ -67,16 +89,19 @@ const CreateAgentButton = ({ children }: { children: React.ReactNode }) => {
 const AgentMoreCell = ({ agent }: { agent: IAgent }) => {
   const navigate = useNavigate();
   const { confirm } = useConfirm();
-  const { canEdit, canRemove } = useAgentAccess();
+  const { canEditAgent, canRemoveAgent } = useAgentAccess();
+
+  const canEdit = canEditAgent(agent);
+  const canRemove = canRemoveAgent(agent);
 
   const [removeAgent] = useMutation(MASTRA_AGENT_REMOVE, {
     update: agentListCacheUpdate,
-    onError: agentMutationError('delete'),
+    onError: agentMutationError(),
   });
 
   const [updateAgent] = useMutation(MASTRA_AGENT_UPDATE, {
     update: agentListCacheUpdate,
-    onError: agentMutationError('edit'),
+    onError: agentMutationError(),
   });
 
   const handleDelete = () => {
@@ -110,7 +135,7 @@ const AgentMoreCell = ({ agent }: { agent: IAgent }) => {
           size="sm"
           className="justify-start w-full h-8"
           allowed={canEdit}
-          onDenied={() => showAgentPermissionError('edit')}
+          onDenied={showAgentPermissionError}
           onClick={() =>
             navigate(`/settings/erxes-agent/agents/edit/${agent._id}`)
           }
@@ -124,16 +149,79 @@ const AgentMoreCell = ({ agent }: { agent: IAgent }) => {
         onDelete={handleDelete}
         toggleDisabled={!canEdit}
         deleteDisabled={!canRemove}
-        onToggleDenied={() => showAgentPermissionError('edit')}
-        onDeleteDenied={() => showAgentPermissionError('delete')}
+        onToggleDenied={showAgentPermissionError}
+        onDeleteDenied={showAgentPermissionError}
       />
     </RowActionsMenu>
   );
 };
 
-// ─── Static data columns (no refetch dependency) ──────────────────────────────
+// ─── Bulk delete command bar ──────────────────────────────────────────────────
 
-const baseColumns: ColumnDef<IAgent>[] = [
+const AgentBulkDeleteCommandBar = () => {
+  const { table } = RecordTable.useRecordTable();
+  const selectedRows = table.getFilteredSelectedRowModel().rows as Row<IAgent>[];
+  const { confirm } = useConfirm();
+  const { canRemoveAgent } = useAgentAccess();
+
+  const [removeAgent] = useMutation(MASTRA_AGENT_REMOVE, {
+    update: agentListCacheUpdate,
+    onError: agentMutationError(),
+  });
+
+  const removable = selectedRows.filter((r) => canRemoveAgent(r.original));
+
+  const handleBulkDelete = () => {
+    const count = removable.length;
+    if (!count) return;
+    confirm({
+      message: `Delete ${count} agent${count !== 1 ? 's' : ''}? This cannot be undone.`,
+      options: { okLabel: 'Delete', cancelLabel: 'Cancel' },
+    }).then(() => {
+      Promise.all(
+        removable.map((row) =>
+          removeAgent({ variables: { _id: row.original._id } }),
+        ),
+      ).then(() => table.resetRowSelection());
+    });
+  };
+
+  return (
+    <CommandBar open={selectedRows.length > 0}>
+      <CommandBar.Bar>
+        <CommandBar.Value onClose={() => table.resetRowSelection()}>
+          {selectedRows.length} selected
+        </CommandBar.Value>
+        <Separator.Inline />
+        <Button
+          variant="secondary"
+          className="text-destructive"
+          disabled={removable.length === 0}
+          onClick={handleBulkDelete}
+        >
+          <IconTrash className="size-4" />
+          Delete{removable.length < selectedRows.length ? ` (${removable.length})` : ''}
+        </Button>
+      </CommandBar.Bar>
+    </CommandBar>
+  );
+};
+
+// ─── Visibility meta + scope-name column ─────────────────────────────────────
+
+const VISIBILITY_META = {
+  org:        { label: 'Org-wide',   variant: 'success'   },
+  team:       { label: 'Branch',     variant: 'secondary' },
+  department: { label: 'Department', variant: 'secondary' },
+  unit:       { label: 'Team',       variant: 'secondary' },
+  private:    { label: 'Private',    variant: 'secondary' },
+} as const;
+
+// ─── Column builders ──────────────────────────────────────────────────────────
+
+const buildBaseColumns = (
+  scopeNames: Record<string, string>,
+): ColumnDef<IAgent>[] => [
   {
     id: 'name',
     accessorKey: 'name',
@@ -202,6 +290,29 @@ const baseColumns: ColumnDef<IAgent>[] = [
     },
     size: 110,
   },
+  {
+    id: 'visibility',
+    accessorKey: 'visibility',
+    header: () => (
+      <RecordTable.InlineHead icon={IconEye} label="Visibility" />
+    ),
+    cell: ({ row }) => {
+      const { visibility, teamId, departmentId, unitId } = row.original;
+      const { label, variant } = VISIBILITY_META[visibility ?? 'private'];
+      const scopeId =
+        visibility === 'team' ? teamId
+        : visibility === 'department' ? departmentId
+        : visibility === 'unit' ? unitId
+        : undefined;
+      const scopeName = scopeId ? scopeNames[scopeId] : undefined;
+      return (
+        <RecordTableInlineCell>
+          <SplitBadge variant={variant} label={label} name={scopeName} />
+        </RecordTableInlineCell>
+      );
+    },
+    size: 160,
+  },
   enabledStatusColumn<IAgent>(),
   {
     id: 'createdAt',
@@ -220,15 +331,16 @@ const baseColumns: ColumnDef<IAgent>[] = [
   },
 ];
 
-// Row actions self-invalidate the list cache, so columns don't depend on refetch.
-const columns: ColumnDef<IAgent>[] = [
+const buildColumns = (
+  scopeNames: Record<string, string>,
+): ColumnDef<IAgent>[] => [
   {
     id: 'more',
     cell: ({ row }) => <AgentMoreCell agent={row.original} />,
     size: 33,
   },
   RecordTable.checkboxColumn as ColumnDef<IAgent>,
-  ...baseColumns,
+  ...buildBaseColumns(scopeNames),
 ];
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
@@ -236,6 +348,27 @@ const columns: ColumnDef<IAgent>[] = [
 export const AgentsIndexPage = () => {
   const { agentsList, loading, pageInfo, handleFetchMore } =
     useMastraAgentList();
+
+  // Fetch scope labels for the visibility column (branches, depts, units).
+  const { data: branchData } = useQuery<{ branches: { _id: string; title?: string | null }[] }>(
+    AGENT_FORM_BRANCHES,
+  );
+  const { data: deptData } = useQuery<{ departments: { _id: string; title?: string | null }[] }>(
+    AGENT_FORM_DEPARTMENTS,
+  );
+  const { data: unitData } = useQuery<{ units: { _id: string; title?: string | null }[] }>(
+    AGENT_FORM_UNITS,
+  );
+
+  const scopeNames = useMemo<Record<string, string>>(() => {
+    const map: Record<string, string> = {};
+    branchData?.branches?.forEach((b) => { if (b.title) map[b._id] = b.title; });
+    deptData?.departments?.forEach((d) => { if (d.title) map[d._id] = d.title; });
+    unitData?.units?.forEach((u) => { if (u.title) map[u._id] = u.title; });
+    return map;
+  }, [branchData, deptData, unitData]);
+
+  const columns = useMemo(() => buildColumns(scopeNames), [scopeNames]);
 
   return (
     <ResourceIndexLayout<IAgent>
@@ -249,6 +382,7 @@ export const AgentsIndexPage = () => {
       skeletonRows={20}
       pageInfo={pageInfo}
       onFetchMore={handleFetchMore}
+      commandBar={<AgentBulkDeleteCommandBar />}
       headerExtra={
         <CreateAgentButton>
           <IconPlus /> New Agent

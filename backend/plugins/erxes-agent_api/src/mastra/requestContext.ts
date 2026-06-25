@@ -12,11 +12,15 @@ export interface ApprovedOp {
 interface RequestAuth {
   userHeader?: string;
   token?: string;
+  /** Requesting user's id — used to resolve their own skills at request time. */
+  userId?: string;
+  /** Current chat thread — used by the makeSkill tool to read this turn's thread,
+   *  and to attribute generated artifacts (charts/documents) to the thread for
+   *  the Preview file list. */
+  threadId?: string;
+  agentId?: string;
   /** Tenant of the request — required by tools that query tenant-partitioned stores (Qdrant). */
   subdomain?: string;
-  /** The chat thread this turn belongs to — lets tools attribute generated
-   *  artifacts (charts/documents) to the thread for the Preview file list. */
-  threadId?: string;
   /** Unique id for THIS turn — artifacts created in the turn share it, so they
    *  can be grouped per chat instance and linked to the assistant message. */
   turnId?: string;

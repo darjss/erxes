@@ -16,6 +16,12 @@ export const AGENT_FIELDS = gql`
     maxSteps
     temperature
     isEnabled
+    visibility
+    teamId
+    departmentId
+    unitId
+    createdBy
+    isOwnAgent
     createdAt
     updatedAt
   }
@@ -82,6 +88,12 @@ export const MASTRA_AGENTS_MAIN = gql`
         toolPolicy
         allowedTools
         isEnabled
+        visibility
+        teamId
+        departmentId
+        unitId
+        createdBy
+        isOwnAgent
         createdAt
       }
       totalCount
@@ -117,6 +129,7 @@ export const MASTRA_THREAD_MESSAGES = gql`
       _id
       role
       content
+      parts
       meta
       attachments
       createdAt
@@ -215,6 +228,7 @@ export const MASTRA_SETTINGS = gql`
       erxesApiToken
       defaultAgentId
       attachmentsEnabled
+      defaultAgentQuota
       attachmentStorage {
         configured
         serviceType
@@ -243,6 +257,43 @@ export const MASTRA_SETTINGS = gql`
         lastError
       }
     }
+  }
+`;
+
+export const MASTRA_MY_AGENT_QUOTA_STATUS = gql`
+  query MastraMyAgentQuotaStatus {
+    mastraMyAgentQuotaStatus {
+      count
+      quota
+      atQuota
+    }
+  }
+`;
+
+export const MASTRA_USER_AGENT_QUOTA = gql`
+  query MastraUserAgentQuota($userId: String!) {
+    mastraUserAgentQuota(userId: $userId) {
+      userId
+      agentQuota
+    }
+  }
+`;
+
+export const AGENT_FORM_BRANCHES = gql`
+  query AgentFormBranches {
+    branches { _id title }
+  }
+`;
+
+export const AGENT_FORM_DEPARTMENTS = gql`
+  query AgentFormDepartments {
+    departments { _id title }
+  }
+`;
+
+export const AGENT_FORM_UNITS = gql`
+  query AgentFormUnits {
+    units { _id title departmentId }
   }
 `;
 

@@ -42,6 +42,18 @@ const LearningsIndexPage = lazy(() =>
   })),
 );
 
+const SkillsIndexPage = lazy(() =>
+  import('~/modules/skills/components/SkillsIndexPage').then((m) => ({
+    default: m.SkillsIndexPage,
+  })),
+);
+
+const SkillFormPage = lazy(() =>
+  import('~/modules/skills/components/SkillFormPage').then((m) => ({
+    default: m.SkillFormPage,
+  })),
+);
+
 const SchedulesIndexPage = lazy(() =>
   import('~/pages/schedules/SchedulesIndexPage').then((m) => ({
     default: m.SchedulesIndexPage,
@@ -56,7 +68,7 @@ const ScheduleFormPage = lazy(() =>
 
 const MastraMain = () => {
   return (
-    <PluginRoutesShell defaultPath="chat">
+    <PluginRoutesShell defaultPath="/erxes-agent/chat">
       <Route path="/chat" element={<ChatPage />} />
       <Route path="/chat/:agentId" element={<ChatPage />} />
       <Route path="/agents" element={<AgentsIndexPage />} />
@@ -66,6 +78,9 @@ const MastraMain = () => {
       <Route path="/workflows/new" element={<WorkflowFormPage />} />
       <Route path="/workflows/edit/:id" element={<WorkflowFormPage />} />
       <Route path="/workflows/:id" element={<WorkflowDetailPage />} />
+      <Route path="/skills" element={<SkillsIndexPage />} />
+      <Route path="/skills/new" element={<SkillFormPage />} />
+      <Route path="/skills/edit/:id" element={<SkillFormPage />} />
       <Route path="/learnings" element={<LearningsIndexPage />} />
       <Route path="/schedules" element={<SchedulesIndexPage />} />
       <Route path="/schedules/new" element={<ScheduleFormPage />} />

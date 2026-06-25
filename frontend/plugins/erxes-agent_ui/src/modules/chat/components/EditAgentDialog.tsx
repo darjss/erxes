@@ -9,6 +9,7 @@ import {
   AgentFormValues,
   agentFormSchema,
 } from '~/pages/agents/validations';
+import { useAgentAccess } from '~/pages/agents/hooks/useAgentAccess';
 import { IChatAgent } from '~/modules/chat/hooks/useChatAgents';
 import { useUpdateAgent } from '~/modules/chat/hooks/useUpdateAgent';
 
@@ -34,6 +35,7 @@ export const EditAgentDialog = ({
   });
 
   const model = form.watch('model');
+  const { isAdmin } = useAgentAccess();
   const { saveAgent, saving } = useUpdateAgent(agent._id, () =>
     onOpenChange(false),
   );
@@ -55,6 +57,10 @@ export const EditAgentDialog = ({
       maxSteps: agent.maxSteps ?? 10,
       temperature: agent.temperature ?? null,
       isEnabled: agent.isEnabled ?? true,
+      visibility: (agent.visibility as 'private' | 'team' | 'department' | 'unit' | 'org') ?? 'private',
+      teamId: agent.teamId ?? undefined,
+      departmentId: agent.departmentId ?? undefined,
+      unitId: agent.unitId ?? undefined,
     });
   }, [agent, form]);
 
@@ -74,7 +80,7 @@ export const EditAgentDialog = ({
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>
             <div className="max-h-[65vh] space-y-4 overflow-y-auto px-5 py-4">
-              <AgentFormFields form={form} />
+              <AgentFormFields form={form} isAdmin={isAdmin} />
             </div>
 
             <Dialog.Footer className="flex items-center gap-2 border-t px-5 py-3.5">

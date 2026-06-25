@@ -317,8 +317,11 @@ export const WorkflowFormPage = () => {
                   </Alert.Title>
                   <Alert.Description>
                     <ul className="space-y-1 mt-1">
-                      {(validation.errors || []).map((err, i) => (
-                        <li key={i} className="text-sm">
+                      {(validation.errors || []).map((err) => (
+                        <li
+                          key={`${err.path ?? ''}|${err.message}`}
+                          className="text-sm"
+                        >
                           {err.path && (
                             <code className="font-mono text-xs mr-1.5">
                               {err.path}

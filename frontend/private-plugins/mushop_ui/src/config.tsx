@@ -1,4 +1,4 @@
-import { IconBuildingStore, IconCreditCard, IconFileDescription, IconPackage, IconUsers } from '@tabler/icons-react';
+import { IconBuildingStore, IconCreditCard, IconCurrencyYuan, IconFileDescription, IconPackage, IconUsers } from '@tabler/icons-react';
 import { lazy, Suspense } from 'react';
 import { IUIConfig } from 'erxes-ui';
 
@@ -50,6 +50,13 @@ export const CONFIG: IUIConfig = {
       {
         name: 'membership_plan',
         icon: IconFileDescription,
+      },
+    ],
+    formWidgets: [
+      {
+        name: 'mushop',
+        contentType: 'core:product',
+        icon: IconCurrencyYuan,
       },
     ],
   },

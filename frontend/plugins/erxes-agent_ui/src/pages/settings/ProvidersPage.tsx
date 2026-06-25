@@ -221,25 +221,18 @@ export const ProvidersPage = () => {
               const envOnly =
                 !configured && catalogMap.get(preset.provider) === true;
               return (
-                <div
+                <button
+                  type="button"
                   key={preset.provider}
                   className={cn(
-                    'rounded-lg border p-4 cursor-pointer transition-colors',
+                    'w-full text-left rounded-lg border p-4 cursor-pointer transition-colors',
                     adding === preset.provider
                       ? 'border-primary bg-primary/5'
                       : envOnly
                         ? 'border-green-500/40 hover:border-green-500/70'
                         : 'border-border hover:border-primary/50',
                   )}
-                  role="button"
-                  tabIndex={0}
                   onClick={() => handleAddPreset(preset)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                      e.preventDefault();
-                      handleAddPreset(preset);
-                    }
-                  }}
                 >
                   <div className="flex items-center justify-between mb-1">
                     <span className="font-semibold text-sm">
@@ -259,26 +252,19 @@ export const ProvidersPage = () => {
                     {preset.isOpenAICompatible ? 'OpenAI-compatible' : 'Native'}{' '}
                     · models listed live from the provider
                   </p>
-                </div>
+                </button>
               );
             })}
 
-            <div
+            <button
+              type="button"
               className={cn(
-                'rounded-lg border border-dashed p-4 cursor-pointer transition-colors',
+                'w-full text-left rounded-lg border border-dashed p-4 cursor-pointer transition-colors',
                 adding === CUSTOM_KEY
                   ? 'border-primary bg-primary/5'
                   : 'border-border hover:border-primary/50',
               )}
-              role="button"
-              tabIndex={0}
               onClick={handleAddCustom}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                  e.preventDefault();
-                  handleAddCustom();
-                }
-              }}
             >
               <div className="flex items-center gap-2 mb-1">
                 <IconPlus size={14} />
@@ -287,7 +273,7 @@ export const ProvidersPage = () => {
               <p className="text-xs text-muted-foreground">
                 Add any OpenAI-compatible or native provider not listed above.
               </p>
-            </div>
+            </button>
           </div>
         </section>
       </div>

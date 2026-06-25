@@ -9,6 +9,16 @@ import {
   types as ProductTypes,
 } from '@/product/graphql/schemas/product';
 import {
+  mutations as ProductSpecificationMutations,
+  queries as ProductSpecificationQueries,
+  types as ProductSpecificationTypes,
+} from '@/product-specification/graphql/schemas/productSpecification';
+import {
+  mutations as ConfigMutations,
+  queries as ConfigQueries,
+  types as ConfigTypes,
+} from '@/config/graphql/schemas/config';
+import {
   mutations as MembershipMutations,
   queries as MembershipQueries,
   types as MembershipTypes,
@@ -39,6 +49,8 @@ export const types = `
 
   ${SupplierTypes}
   ${ProductTypes}
+  ${ProductSpecificationTypes}
+  ${ConfigTypes}
   ${MembershipTypes}
   ${MembershipPlanTypes}
   ${CustomerInvoiceTypes}
@@ -49,6 +61,8 @@ export const types = `
 export const queries = `
   ${SupplierQueries}
   ${ProductQueries}
+  ${ProductSpecificationQueries}
+  ${ConfigQueries}
   ${MembershipQueries}
   ${MembershipPlanQueries}
   ${CustomerInvoiceQueries}
@@ -59,6 +73,8 @@ export const queries = `
 export const mutations = `
   ${SupplierMutations}
   ${ProductMutations}
+  ${ProductSpecificationMutations}
+  ${ConfigMutations}
   ${MembershipMutations}
   ${MembershipPlanMutations}
   ${CollectiveMutations}

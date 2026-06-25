@@ -34,6 +34,9 @@ export interface IMastraMessageMeta {
   // Langfuse trace id for this turn — lets a later thumbs rating attach a human
   // score to the right trace in Langfuse (Plan B / langfuseClient.pushUserScore).
   langfuseTraceId?: string;
+  // Slash-skills active for this turn — rendered as a badge on the persisted
+  // assistant message so a reload shows which skills shaped the reply.
+  activeSkills?: string[];
 }
 
 // A file attached to a user message. `url` is either a storage key (private

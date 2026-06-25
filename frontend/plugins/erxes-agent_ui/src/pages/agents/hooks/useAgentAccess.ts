@@ -2,35 +2,60 @@ import { ApolloError } from '@apollo/client';
 import { toast } from 'erxes-ui';
 import { usePermissionCheck } from 'ui-modules';
 
-type AgentAction = 'create' | 'edit' | 'delete';
+const PERMISSION_DENIED = {
+  title: 'Permission denied',
+  description: 'You do not have permission to perform this action.',
+} as const;
 
-/** Red toaster shown when a non-admin/owner attempts a restricted agent action. */
-export const showAgentPermissionError = (action: AgentAction) =>
-  toast({
-    title: 'Permission denied',
-    description: `You don't have permission to ${action} agents.`,
-    variant: 'destructive',
-  });
+const QUOTA_REACHED = {
+  title: 'Agent limit reached',
+  description: 'You have reached your agent creation limit.',
+} as const;
+
+export const showAgentPermissionError = () =>
+  toast({ ...PERMISSION_DENIED, variant: 'destructive' });
+
+export const showAgentQuotaError = () =>
+  toast({ ...QUOTA_REACHED, variant: 'destructive' });
 
 const isPermissionError = (e: ApolloError) =>
   e.graphQLErrors?.some((g) => g.extensions?.code === 'FORBIDDEN') ||
-  /permission/i.test(e.message);
+  /permission|access denied/i.test(e.message);
 
-/** Apollo `onError` handler: permission denials get the friendly toast, other
- *  failures fall back to the raw message. Used as a backend-enforced safety net. */
-export const agentMutationError = (action: AgentAction) => (e: ApolloError) =>
-  isPermissionError(e)
-    ? showAgentPermissionError(action)
-    : toast({ title: 'Error', description: e.message, variant: 'destructive' });
+const isQuotaError = (e: ApolloError) => /quota/i.test(e.message);
 
-/** Frontend gate mirroring the backend agentsCreate/agentsEdit/agentsRemove
- *  checks. Owners and wildcard admins pass automatically (see usePermissionCheck);
- *  the erxes-agent:user / :viewer groups do not hold these actions. */
+/** Apollo `onError` handler — maps all backend access/quota errors to the same
+ *  friendly toasts so every user account sees identical messages. */
+export const agentMutationError = () => (e: ApolloError) => {
+  if (isPermissionError(e)) return showAgentPermissionError();
+  if (isQuotaError(e)) return showAgentQuotaError();
+  toast({ title: 'Error', description: e.message, variant: 'destructive' });
+};
+
+/** Permission checks for agent CRUD. canEditAgent / canRemoveAgent are
+ *  per-row: admins may touch any agent; regular users only their own. */
 export const useAgentAccess = () => {
-  const { hasActionPermission } = usePermissionCheck();
+  const { hasActionPermission, isLoaded } = usePermissionCheck();
+
+  const isAdmin = hasActionPermission('settingsManage');
+  const canCreate = hasActionPermission('agentsCreate');
+  const canEdit = hasActionPermission('agentsEdit');
+  const canRemove = hasActionPermission('agentsRemove');
+
+  /** Backend sets isOwnAgent per-row so the check is always accurate. */
+  const canEditAgent = (agent: { isOwnAgent?: boolean | null }) =>
+    isAdmin || (canEdit && !!agent.isOwnAgent);
+
+  const canRemoveAgent = (agent: { isOwnAgent?: boolean | null }) =>
+    isAdmin || (canRemove && !!agent.isOwnAgent);
+
   return {
-    canCreate: hasActionPermission('agentsCreate'),
-    canEdit: hasActionPermission('agentsEdit'),
-    canRemove: hasActionPermission('agentsRemove'),
+    isLoaded,
+    canCreate,
+    canEdit,
+    canRemove,
+    isAdmin,
+    canEditAgent,
+    canRemoveAgent,
   };
 };

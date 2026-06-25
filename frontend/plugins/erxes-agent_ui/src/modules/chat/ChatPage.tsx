@@ -7,8 +7,9 @@ import {
   IconFileUpload,
   IconMessageCircle,
   IconPlus,
+  IconSparkles,
 } from '@tabler/icons-react';
-import { Breadcrumb, Button, Empty, Separator } from 'erxes-ui';
+import { Breadcrumb, Button, Empty } from 'erxes-ui';
 import { PageHeader } from 'ui-modules';
 import { ChatAttachment, ApprovedOp } from '~/modules/chat/types';
 import { chatStore } from '~/modules/chat/store/chatStore';
@@ -32,6 +33,16 @@ import { PreviewPanel } from '~/modules/chat/preview/PreviewPanel';
 import { previewStore } from '~/modules/chat/preview/previewStore';
 import { pendingApproval } from '~/modules/chat/lib/uiParts';
 import { associateArtifacts } from '~/modules/chat/lib/artifacts';
+import { useSkillSlashPicker } from '~/modules/skills/hooks/useSkillSlashPicker';
+import { useSkillFromThread } from '~/modules/skills/hooks/useSkillFromThread';
+import {
+  showSkillPermissionError,
+  useSkillAccess,
+} from '~/modules/skills/hooks/useSkillAccess';
+import { SkillSlashPicker } from '~/modules/skills/components/SkillSlashPicker';
+import { SkillActivePill } from '~/modules/skills/components/SkillActivePill';
+import { SkillDraftPreviewDialog } from '~/modules/skills/components/SkillDraftPreviewDialog';
+import { findDraftSkillFromMessages } from '~/modules/skills/utils';
 import '~/modules/chat/chat.css';
 
 // Distance (px) from the bottom under which we keep following streamed output.
@@ -88,6 +99,49 @@ export const ChatPage = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const attachments = useAttachments(attachmentsEnabled);
+
+  // ── Skills: composer /slash picker + make_skill draft preview ──
+  const { canCreate: canCreateSkill } = useSkillAccess();
+  const slash = useSkillSlashPicker({
+    agentId: selectedAgent?.agentId,
+    input,
+    setInput,
+  });
+
+  const [draftSkillId, setDraftSkillId] = useState<string | null>(null);
+  const [draftOpen, setDraftOpen] = useState(false);
+  const [draftDismissed, setDraftDismissed] = useState(false);
+
+  const openDraft = useCallback((skillId: string) => {
+    setDraftSkillId(skillId);
+    setDraftOpen(true);
+    setDraftDismissed(false);
+  }, []);
+
+  const { makeSkill, making } = useSkillFromThread((skill) =>
+    openDraft(skill._id),
+  );
+
+  // A draft the makeSkill tool produced mid-conversation — surface a banner so
+  // the user can review/publish it. Dismissable until a new one appears. Memoized
+  // so the reverse scan doesn't re-walk messages on every streamed-token render.
+  const detectedDraft = useMemo(
+    () => findDraftSkillFromMessages(messages),
+    [messages],
+  );
+
+  const handleMakeSkill = () => {
+    if (!selectedAgent || !activeThreadId) return;
+    if (!canCreateSkill) return showSkillPermissionError('create');
+    makeSkill({ agentId: selectedAgent.agentId, threadId: activeThreadId });
+  };
+
+  // Activation is per-turn: drop the pill and any banner when the thread changes.
+  useEffect(() => {
+    slash.clearActiveSkill();
+    setDraftDismissed(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeThreadId]);
 
   // Session state-machine (slug→id redirect, ?thread= deep-link, current-agent
   // tracking, bootstrap/re-home) lives in the hook so the view keeps only its
@@ -177,6 +231,7 @@ export const ChatPage = () => {
       atts: ChatAttachment[],
       approvedOperations?: ApprovedOp[],
       hidden?: boolean,
+      activeSkillNames?: string[],
     ) => {
       if (!selectedAgent || !agentId) return;
       // Sending re-pins to the bottom so the user follows their own message.
@@ -191,6 +246,7 @@ export const ChatPage = () => {
         atts,
         approvedOperations,
         hidden,
+        activeSkillNames,
       );
     },
     [apolloClient, agentId, selectedAgent],
@@ -222,9 +278,14 @@ export const ChatPage = () => {
       return;
     const message = input.trim();
     const atts = attachments.collectReady();
+    // Carry the /slash-activated skill into this turn's request (names only —
+    // the server force-loads their instructions). Consumed on send.
+    const activeSkillNames = slash.activeSkill ? [slash.activeSkill] : undefined;
     attachments.clear();
     setInput('');
-    sendMessage(message, atts);
+    sendMessage(message, atts, undefined, undefined, activeSkillNames);
+    // The activated skill applied to this turn; drop the reminder pill.
+    slash.clearActiveSkill();
   };
 
   // Re-ask the question that produced the last reply (with its attachments).
@@ -250,6 +311,8 @@ export const ChatPage = () => {
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    // The /slash skill picker claims arrow/Enter/Tab/Esc while it's open.
+    if (slash.handleKeyDown(e)) return;
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       handleSend();
@@ -299,8 +362,6 @@ export const ChatPage = () => {
               )}
             </Breadcrumb.List>
           </Breadcrumb>
-          <Separator.Inline />
-          <PageHeader.FavoriteToggleButton />
         </PageHeader.Start>
         {selectedAgent && (
           <PageHeader.End>
@@ -312,6 +373,17 @@ export const ChatPage = () => {
               <IconFiles className="size-3.5" />
               Files
             </Button>
+            {activeThreadId && !isDraft && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleMakeSkill}
+                disabled={making || chatLoading}
+              >
+                <IconSparkles className="size-3.5" />
+                {making ? 'Distilling…' : 'Make skill'}
+              </Button>
+            )}
             <Button variant="outline" size="sm" onClick={handleNewThread}>
               <IconPlus className="size-3.5" />
               New chat
@@ -447,6 +519,54 @@ export const ChatPage = () => {
                 />
               )}
 
+              {detectedDraft && !draftOpen && !draftDismissed && (
+                <div className="max-w-3xl mx-auto w-full px-3 pb-1.5">
+                  <div className="flex items-center gap-2 rounded-lg border border-primary/40 bg-primary/8 px-3 py-1.5 text-xs">
+                    <IconSparkles className="size-4 text-primary" />
+                    <span className="flex-1 text-primary">
+                      A draft skill
+                      {detectedDraft.name ? (
+                        <span className="font-mono"> /{detectedDraft.name}</span>
+                      ) : null}{' '}
+                      was created from this conversation.
+                    </span>
+                    <Button
+                      size="sm"
+                      variant="secondary"
+                      className="h-6"
+                      onClick={() => openDraft(detectedDraft._id)}
+                    >
+                      Review
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="h-6"
+                      onClick={() => setDraftDismissed(true)}
+                    >
+                      Dismiss
+                    </Button>
+                  </div>
+                </div>
+              )}
+
+              {slash.open && (
+                <SkillSlashPicker
+                  items={slash.items}
+                  activeIndex={slash.activeIndex}
+                  loading={slash.loading}
+                  onSelect={slash.onSelect}
+                  onHover={slash.setActiveIndex}
+                />
+              )}
+
+              {slash.activeSkill && (
+                <SkillActivePill
+                  name={slash.activeSkill}
+                  onClear={slash.clearActiveSkill}
+                />
+              )}
+
               <Composer
                 input={input}
                 onInputChange={setInput}
@@ -473,6 +593,13 @@ export const ChatPage = () => {
           <PreviewPanel threadId={activeThreadId} />
         )}
       </div>
+
+      <SkillDraftPreviewDialog
+        skillId={draftSkillId}
+        open={draftOpen}
+        onOpenChange={setDraftOpen}
+        onDone={() => setDraftDismissed(true)}
+      />
     </div>
   );
 };
