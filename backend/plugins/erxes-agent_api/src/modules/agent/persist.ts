@@ -3,6 +3,7 @@ import {
   getThreadTitle,
   getNativeMemory,
   ensureThreadRegistered,
+  patchNativeMessages,
 } from '@/session/nativeStore';
 import { IMastraChatAttachment } from '@/session/@types/session';
 import { MemoryBinding, PreparedTurn } from '@/agent/types';
@@ -129,14 +130,19 @@ export async function patchNativeTurn(params: {
   if (wantUser) {
     const userMsg = recent.find((m) => m.role === 'user');
     if (userMsg) {
-      await memory.updateMessages({
-        messages: [
-          {
-            id: userMsg.id,
-            content: mergeErxesMeta(userMsg.content, { attachments }),
-          },
-        ],
-      });
+      // Patch the attachment pointers via the STORAGE domain, not
+      // Memory.updateMessages: the latter re-embeds the message and rewrites its
+      // Qdrant vectors whenever semantic recall is on (always, here). For a
+      // metadata-only patch that is pure waste (content.content is unchanged) and
+      // fragile — a single embed/Qdrant hiccup throws and loses the attachment
+      // pointer. patchNativeMessages is a plain Mongo write: no embeddings, no
+      // vector I/O, and best-effort.
+      await patchNativeMessages(subdomain, [
+        {
+          id: userMsg.id,
+          content: mergeErxesMeta(userMsg.content, { attachments }),
+        },
+      ]);
     }
   }
 

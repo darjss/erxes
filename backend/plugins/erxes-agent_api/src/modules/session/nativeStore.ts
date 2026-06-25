@@ -71,9 +71,6 @@ interface NativeMemoryFacade {
     metadata?: Record<string, unknown>;
   }): Promise<NativeThread>;
   deleteThread(threadId: string): Promise<unknown>;
-  updateMessages(args: {
-    messages: { id: string; content: Record<string, unknown> }[];
-  }): Promise<unknown>;
 }
 
 // Storage-domain methods Memory itself doesn't surface (e.g. message-id lookup
@@ -82,6 +79,15 @@ interface NativeStoreFacade {
   listMessagesById(args: {
     messageIds: string[];
   }): Promise<{ messages: NativeMessage[] }>;
+  // Storage-domain message write — patches content as a plain Mongo update.
+  // Deliberately NOT Memory.updateMessages: that one re-embeds the message and
+  // deletes/recreates its Qdrant vectors whenever semantic recall is configured
+  // (which it is here), so a metadata-only patch would pay an embed + vector
+  // round trip and, worse, abandon the whole patch on any embed/Qdrant hiccup.
+  // The store write touches only the message document. See patchNativeMessages.
+  updateMessages(args: {
+    messages: { id: string; content: Record<string, unknown> }[];
+  }): Promise<unknown>;
 }
 
 /** The shared Mastra Memory, typed to the slice this layer uses. Single cast
@@ -97,6 +103,38 @@ async function getNativeStore(subdomain: string): Promise<NativeStoreFacade> {
   const store = await getMastraStore(subdomain);
   return (store as unknown as { stores: { memory: NativeStoreFacade } }).stores
     .memory;
+}
+
+/**
+ * Patch persisted message content (e.g. the erxes turn meta — ordered parts,
+ * thinking, tool calls, attachments) via the STORAGE domain, bypassing
+ * Memory.updateMessages on purpose.
+ *
+ * Memory.updateMessages re-embeds each message and deletes/recreates its Qdrant
+ * vectors whenever semantic recall is on (it always is here). For a metadata-only
+ * patch that is pure waste — the embeddable text (content.content) is unchanged —
+ * and it is fragile: a single embed or Qdrant error there throws and abandons the
+ * turn-end patch, which is exactly what was silently dropping thinking history on
+ * reload (and, transitively, nulling the assistant-id the inline artifact cards
+ * link to). The store write is a plain Mongo update of the message document: no
+ * embeddings, no vector I/O. Best-effort — a write failure is logged, never
+ * thrown, so it can't abort the rest of the turn-end work.
+ */
+export async function patchNativeMessages(
+  subdomain: string,
+  patches: { id: string; content: Record<string, unknown> }[],
+): Promise<void> {
+  if (!patches.length) return;
+  try {
+    const store = await getNativeStore(subdomain);
+    await store.updateMessages({ messages: patches });
+  } catch (e) {
+    console.warn(
+      `[native-chat-store] message meta patch skipped: ${
+        (e as Error)?.message || e
+      }`,
+    );
+  }
 }
 
 /**
