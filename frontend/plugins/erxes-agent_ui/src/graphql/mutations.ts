@@ -84,6 +84,23 @@ export const MASTRA_USER_AGENT_QUOTA_SET = gql`
   }
 `;
 
+export const MASTRA_VOICE_CONFIG_SAVE = gql`
+  mutation MastraVoiceConfigSave($doc: MastraVoiceConfigInput!) {
+    mastraVoiceConfigSave(doc: $doc) {
+      enabled
+      sttEnabled
+      ttsEnabled
+      sttConfigured
+      ttsConfigured
+      sttSource
+      ttsSource
+      ttsVoice
+      ttsSampleRate
+      isEnabled
+    }
+  }
+`;
+
 export const MASTRA_KNOWLEDGE_SYNC = gql`
   mutation MastraKnowledgeSync {
     mastraKnowledgeSync {

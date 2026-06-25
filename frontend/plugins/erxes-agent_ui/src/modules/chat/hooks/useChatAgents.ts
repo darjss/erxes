@@ -2,6 +2,7 @@ import { useQuery } from '@apollo/client';
 import {
   MASTRA_AGENTS,
   MASTRA_ATTACHMENT_STORAGE_STATUS,
+  MASTRA_VOICE_STATUS,
 } from '~/graphql/queries';
 
 export interface IChatAgent {
@@ -35,6 +36,10 @@ interface AttachmentStorageStatusResponse {
   mastraAttachmentStorageStatus?: { enabled?: boolean };
 }
 
+interface VoiceStatusResponse {
+  mastraVoiceStatus?: { enabled?: boolean };
+}
+
 // Enabled agents for the chat rail.
 export const useChatAgents = () => {
   const { data, loading } = useQuery<MastraAgentsResponse>(MASTRA_AGENTS);
@@ -49,4 +54,11 @@ export const useAttachmentsEnabled = (): boolean => {
     MASTRA_ATTACHMENT_STORAGE_STATUS,
   );
   return !!data?.mastraAttachmentStorageStatus?.enabled;
+};
+
+// Whether voice mode is usable: the backend resolved an OpenAI key and the
+// feature isn't disabled. When off, the chat hides the voice mode entry point.
+export const useVoiceEnabled = (): boolean => {
+  const { data } = useQuery<VoiceStatusResponse>(MASTRA_VOICE_STATUS);
+  return !!data?.mastraVoiceStatus?.enabled;
 };

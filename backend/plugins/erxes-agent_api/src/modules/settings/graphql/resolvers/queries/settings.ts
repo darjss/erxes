@@ -9,6 +9,7 @@ import {
 import { ALL_KNOWLEDGE_TYPE_NAMES } from '~/mastra/knowledge/contentTypes';
 import { health as qdrantHealth } from '~/mastra/memory/vectorStore';
 import { getStorageStatus } from '~/mastra/files/storage';
+import { resolveVoiceStatusForTenant } from '~/mastra/voice/resolveConfig';
 import { IModels } from '~/connectionResolvers';
 import { IMastraSettings } from '@/settings/@types/settings';
 
@@ -46,6 +47,15 @@ export const settingsQueries = {
   ) => {
     return attachmentStorageStatus(models, subdomain);
   },
+
+  // Lightweight status for the chat UI: decides whether the voice mode entry
+  // point shows. Per-tenant (the tenant's stored Chimege tokens win over env),
+  // no secrets exposed — just the round-trip `enabled` boolean.
+  mastraVoiceStatus: (
+    _parent: undefined,
+    _args: undefined,
+    { subdomain }: IContext,
+  ) => resolveVoiceStatusForTenant(subdomain),
 
   mastraSettings: async (
     _parent: undefined,

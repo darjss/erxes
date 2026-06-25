@@ -6,6 +6,7 @@ import { workflowMutations } from '@/workflow/graphql/resolvers/mutations/workfl
 import { learningMutations } from '@/learning/graphql/resolvers/mutations/learning';
 import { scheduleMutations } from '@/schedule/graphql/resolvers/mutations/schedule';
 import { skillMutations } from '@/skills/graphql/resolvers/mutations/skills';
+import { voiceMutations } from '@/voice/graphql/resolvers/mutations/voice';
 
 export const mutations = {
   ...agentMutations,
@@ -16,4 +17,5 @@ export const mutations = {
   ...learningMutations,
   ...scheduleMutations,
   ...skillMutations,
+  ...voiceMutations,
 };

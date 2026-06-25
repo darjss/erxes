@@ -1,5 +1,4 @@
 import { Router } from 'express';
-import rateLimit from 'express-rate-limit';
 import {
   createUIMessageStream,
   pipeUIMessageStreamToResponse,
@@ -39,19 +38,22 @@ import {
 import { IMastraChatAttachment } from '@/session/@types/session';
 import { UITurnAccumulator } from '@/agent/uiTurn';
 import { attachmentStorageStatus } from '@/settings/graphql/resolvers/queries/settings';
+import { registerVoiceRoutes } from './mastra/voice/routes';
+import { buildTurnSystem } from './mastra/voice/voicePrompt';
+import { makeIpRateLimiter } from './utils/rateLimit';
 
 export const router: Router = Router();
 
+// Voice mode (speech-to-text + text-to-speech). Discrete pipeline that reuses
+// the existing chat path: STT only produces transcript text the client feeds
+// into POST /chat/stream, and TTS only voices text the client streamed back.
+registerVoiceRoutes(router);
+
 // Generous per-IP throttle on the LLM-backed endpoints — normal chat traffic
 // stays well under it; it only blunts abnormal high-frequency bursts (and the
-// LLM/API cost they would incur). Mirrors the limiter in start-plugin.ts.
-const llmRouteLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 1000,
-  standardHeaders: true,
-  legacyHeaders: false,
-  message: 'Too many requests from this IP, please try again later.',
-});
+// LLM/API cost they would incur). Single canonical definition shared with the
+// voice routes via makeIpRateLimiter so the limits never drift apart.
+const llmRouteLimiter = makeIpRateLimiter();
 
 // ─── Streaming chat (AI SDK UIMessage stream) ────────────────────────────────
 //
@@ -135,6 +137,9 @@ interface ChatStreamRequest {
   approvedOperations: ApprovedOp[];
   // Skill names the user slash-activated in the composer for THIS message.
   activeSkillNames: string[];
+  // True when this turn originated from hands-free voice mode: the reply is
+  // read aloud by TTS, so the agent should answer short and conversational.
+  voiceMode: boolean;
 }
 
 // Shape-check the slash-activated skill names the composer echoes on send.
@@ -226,6 +231,7 @@ function parseChatStreamBody(raw: unknown): ParseResult {
       attachments,
       approvedOperations,
       activeSkillNames,
+      voiceMode: body.voiceMode === true,
     },
   };
 }
@@ -243,7 +249,7 @@ router.post('/chat/stream', llmRouteLimiter, async (req, res) => {
   // reasoningEffort is the optional per-conversation override from the composer.
   const { agentId, message, threadId, reasoningEffort, attachments } =
     parsed.value;
-  const { approvedOperations, activeSkillNames } = parsed.value;
+  const { approvedOperations, activeSkillNames, voiceMode } = parsed.value;
 
   const subdomain = getSubdomain(req);
 
@@ -324,6 +330,14 @@ router.post('/chat/stream', llmRouteLimiter, async (req, res) => {
         });
         const { agent, convo, authCtx, memoryBinding } = prepared;
 
+        // Per-turn system message: voice brevity directive (voice turns only) +
+        // any slash-activated skill instructions. Undefined leaves the agent's
+        // base instructions untouched (the typed-chat path).
+        const turnSystem = buildTurnSystem({
+          voiceMode,
+          activeSkillInstructions: prepared.activeSkillInstructions,
+        });
+
         // Per-conversation reasoning override → provider-specific options,
         // resolved once against the agent's provider. Providers without a
         // portable reasoning knob yield undefined, so the model's configured
@@ -377,13 +391,11 @@ router.post('/chat/stream', llmRouteLimiter, async (req, res) => {
               ...(reasoningOptions
                 ? { providerOptions: reasoningOptions }
                 : {}),
-              // Force-load an explicitly slash-activated skill's full
-              // instructions as a user-provided system message for this turn
-              // (additive to the agent's base instructions + the native
-              // SkillsProcessor metadata).
-              ...(prepared.activeSkillInstructions
-                ? { system: prepared.activeSkillInstructions }
-                : {}),
+              // Per-turn system additions (additive to the agent's base
+              // instructions + the native SkillsProcessor metadata): a voice-mode
+              // brevity directive when the turn came from speech, plus an
+              // explicitly slash-activated skill's full instructions.
+              ...(turnSystem ? { system: turnSystem } : {}),
             });
             langfuseTraceId = await resolveTraceId(
               modelStream as { traceId?: unknown },
