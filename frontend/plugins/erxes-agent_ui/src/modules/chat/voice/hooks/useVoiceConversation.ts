@@ -184,18 +184,33 @@ export const useVoiceConversation = (
     [client, agentId, mastraAgentId, activeThreadId, resetSpeech],
   );
 
-  // Click-to-toggle push-to-talk: first press records, second press sends.
+  // Barge-in: silence the agent mid-reply. Stops playback and clears the queue
+  // (resetSpeech), then cancels the in-flight reply's voicing so the streaming
+  // effect can't re-enqueue audio after the interrupt. Disarming covers a 'thinking'
+  // interrupt (the reply message may not exist yet); muting the current voicing
+  // entry covers a 'speaking' interrupt (advanceVoicing then swallows every
+  // remaining delta for that same message instead of speaking it).
+  const interrupt = useCallback(() => {
+    resetSpeech();
+    expectVoiceReplyRef.current = false;
+    voicingRef.current = { ...voicingRef.current, mute: true };
+  }, [resetSpeech]);
+
+  // Click-to-toggle push-to-talk with barge-in: a tap while recording stops and
+  // sends; a tap while the agent is thinking/speaking interrupts it and opens the
+  // mic; a tap at rest just opens the mic.
   const toggleRecording = useCallback(() => {
-    if (transcribing || loading) return;
     if (recorder.recording) {
       void recorder.stop().then((blob) => {
         if (blob) void sendTranscript(blob);
       });
-    } else {
-      resetSpeech();
-      void recorder.start();
+      return;
     }
-  }, [recorder, transcribing, loading, sendTranscript, resetSpeech]);
+    // A take is still being transcribed into text — can't start another yet.
+    if (transcribing) return;
+    interrupt();
+    void recorder.start();
+  }, [recorder, transcribing, sendTranscript, interrupt]);
 
   // Leaving voice mode tears down the mic, any in-flight playback, and the Web
   // Audio tap (AnalyserNode + AudioContext) — not just on unmount. It is rebuilt

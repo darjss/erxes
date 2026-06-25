@@ -49,7 +49,11 @@ export const VoiceOverlay = ({
   }, [onExit]);
 
   const listening = phase === 'listening';
-  const busy = phase === 'transcribing' || phase === 'thinking';
+  // While the agent is thinking or speaking, the mic stays live so a tap barges
+  // in (stops playback + opens the mic). Only transcribing the user's own take
+  // blocks a new one.
+  const interruptible = phase === 'thinking' || phase === 'speaking';
+  const busy = phase === 'transcribing';
 
   return (
     <div
@@ -156,7 +160,13 @@ export const VoiceOverlay = ({
               <div className="flex flex-col items-center gap-3">
                 <Button
                   size="icon"
-                  aria-label={listening ? 'Stop and send' : 'Start talking'}
+                  aria-label={
+                    listening
+                      ? 'Stop and send'
+                      : interruptible
+                        ? 'Interrupt and talk'
+                        : 'Start talking'
+                  }
                   aria-pressed={listening}
                   disabled={busy}
                   onClick={toggleRecording}
@@ -175,7 +185,9 @@ export const VoiceOverlay = ({
                     ? 'Tap to stop and send'
                     : busy
                       ? 'One moment…'
-                      : 'Tap to speak'}
+                      : interruptible
+                        ? 'Tap to interrupt'
+                        : 'Tap to speak'}
                 </p>
               </div>
             </>
