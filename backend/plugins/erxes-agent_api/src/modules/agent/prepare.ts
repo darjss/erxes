@@ -1,3 +1,4 @@
+import { randomUUID } from 'node:crypto';
 import { IUserDocument } from 'erxes-api-shared/core-types';
 import { ExpectedError } from 'erxes-api-shared/utils';
 import { isAgentAdmin, canUserAccessAgent, getUserUnitIds } from '@/agent/utils';
@@ -326,6 +327,9 @@ export async function prepareTurn(
     threadId: sessionId,
     agentId,
     subdomain,
+    turnId: randomUUID(),
+    turnPrompt: (message || '').slice(0, 200),
+    resourceId,
     approvedOps: approvedOperations,
   };
 

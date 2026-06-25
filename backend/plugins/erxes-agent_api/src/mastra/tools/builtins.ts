@@ -11,6 +11,10 @@ import { companyKnowledgeTool } from '~/mastra/knowledge/knowledgeTool';
 import { agentKnowledgeTool } from '~/mastra/learning/learningTool';
 import { readAttachmentTool } from './attachmentTool';
 import { WORKFLOW_BUILTIN_TOOLS } from './workflowTools';
+import { chartSpecSchema, sanitizeChartSpec } from '~/mastra/charts/chartSpec';
+import { chartArtifactSchema, newArtifactId } from './artifacts';
+import { storeArtifact } from '~/mastra/artifactStore';
+import { DOCUMENT_BUILTIN_TOOLS } from './documentTools';
 
 const FETCH_TIMEOUT_MS = 10_000;
 const UA = 'Mozilla/5.0 (compatible; erxes-agent/1.0)';
@@ -306,90 +310,31 @@ function evalMathExpression(expr: string): number {
 
 // ─── Chart visualization tool ─────────────────────────────────────────────────
 //
-// Returns a serialized chart-viz JSON payload. The agent is instructed (via
-// routing.ts) to embed the returned string verbatim in a ```chart-viz``` fenced
-// code block so the chat UI renders it as an interactive chart.
-
-const SAFE_CSS_VAR_KEY = /^[a-zA-Z][a-zA-Z0-9_-]{0,49}$/;
-const SAFE_CSS_COLOR =
-  /^(#[0-9a-fA-F]{3,8}|rgb\(\s*\d{1,3}\s*,\s*\d{1,3}\s*,\s*\d{1,3}\s*\)|hsl\(\s*\d{1,3}\s*,\s*\d{1,3}%\s*,\s*\d{1,3}%\s*\))$/;
-
-const seriesItemSchema = z.object({
-  key: z.string().refine((key) => SAFE_CSS_VAR_KEY.test(key), {
-    message:
-      'key must start with a letter and contain only alphanumeric, dash, or underscore chars',
-  }),
-  label: z.string().max(200),
-  color: z.string().optional(),
-});
-
-const dataPointSchema = z.record(z.string(), z.union([z.string(), z.number()]));
+// Returns a structured chart ARTIFACT. The chat UI detects it on the tool
+// result and renders an interactive ECharts chart in the Preview panel — the
+// agent no longer pastes any JSON. The same ChartSpec is reused by the document
+// tools to embed an identical chart image into a PDF/DOCX/XLSX.
 
 export const renderChartTool = createTool({
   id: 'render-chart',
   description:
-    'Build a data visualization chart (bar, line, area, or pie) and return the serialized payload. ' +
-    'The UI will render it as an interactive chart in the chat. ' +
-    'Use this whenever the user asks to see data as a chart or graph.',
-  inputSchema: z.object({
-    chartType: z.enum(['bar', 'line', 'area', 'pie']).describe('Chart type'),
-    title: z.string().max(200).describe('Chart title shown above the chart'),
-    description: z.string().max(200).optional().describe('Optional subtitle'),
-    series: z
-      .array(seriesItemSchema)
-      .min(1)
-      .max(10)
-      .describe(
-        'Data series. Each entry maps a key (used as dataKey in data rows) to a label and optional color.',
-      ),
-    data: z
-      .array(dataPointSchema)
-      .min(1)
-      .max(100)
-      .describe(
-        'Data rows. Each row must have a "label" string field and numeric values for every series key.',
-      ),
-  }),
-  outputSchema: z.object({ chartJson: z.string() }),
-  execute: ({ chartType, title, description, series, data }) => {
-    const cleanSeries = series
-      .filter((item) => SAFE_CSS_VAR_KEY.test(item.key))
-      .map((item) => ({
-        key: item.key,
-        label: item.label.slice(0, 200),
-        color:
-          item.color && SAFE_CSS_COLOR.test(item.color.trim())
-            ? item.color.trim()
-            : undefined,
-      }));
-
-    const validKeys = new Set(cleanSeries.map((item) => item.key));
-
-    const cleanData = data.map((row) => {
-      const point: Record<string, string | number> = {
-        label:
-          typeof row['label'] === 'string' ? row['label'].slice(0, 200) : '',
-      };
-      for (const key of validKeys) {
-        const k = key as string;
-        const raw = (row as Record<string, unknown>)[k];
-        const num = Number(raw);
-        point[k] = Number.isFinite(num) ? num : 0;
-      }
-      return point;
-    });
-
-    const payload = {
-      type: 'chart-viz',
-      chartType,
-      title: title.slice(0, 200),
-      description: description?.slice(0, 200),
-      series: cleanSeries,
-      data: cleanData,
-      sentAt: new Date().toISOString(),
+    'Visualize data as an interactive chart (bar, horizontalBar, line, area, ' +
+    'stackedBar, pie, donut, radar, combo, or scatter). The chart opens in the ' +
+    'Preview panel beside the chat. Use this whenever the user asks to see data ' +
+    'as a chart, graph, or plot. The returned chart id can be reused to embed ' +
+    'the same chart inside a generated PDF/DOCX/XLSX document.',
+  inputSchema: chartSpecSchema,
+  outputSchema: z.object({ artifact: chartArtifactSchema }),
+  execute: async (input) => {
+    const spec = sanitizeChartSpec(input);
+    const artifact = {
+      id: newArtifactId('chart'),
+      kind: 'chart' as const,
+      title: spec.title,
+      spec,
     };
-
-    return Promise.resolve({ chartJson: JSON.stringify(payload) });
+    await storeArtifact(artifact);
+    return { artifact };
   },
 });
 
@@ -410,6 +355,9 @@ export const BUILTIN_TOOLS: Record<string, ReturnType<typeof createTool>> = {
   // Builder tools — the master-agent loop: guide → validate → simulate →
   // save → run/observe. Deny per agent via builtin:<key> when needed.
   ...WORKFLOW_BUILTIN_TOOLS,
+  // Document generators (PDF/DOCX/XLSX). Each returns a downloadable artifact
+  // shown in the Preview panel; charts embed via the render-chart spec.
+  ...DOCUMENT_BUILTIN_TOOLS,
 };
 
 /** Look up a builtin tool by its registry key, or null when unknown. */

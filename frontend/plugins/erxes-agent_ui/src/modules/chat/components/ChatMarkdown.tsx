@@ -3,8 +3,15 @@ import type { ComponentPropsWithoutRef, ReactNode } from 'react';
 import ReactMarkdown, { type Components } from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeSanitize from 'rehype-sanitize';
-import { ChatVizMessage } from 'erxes-ui';
+import { IconLayoutSidebarRightExpand } from '@tabler/icons-react';
+import {
+  Button,
+  EChart,
+  legacyPayloadToChartSpec,
+  type ChartSpec,
+} from 'erxes-ui';
 import { CopyButton } from '~/modules/chat/components/CopyButton';
+import { previewStore } from '~/modules/chat/preview/previewStore';
 import { splitStreamingMarkdown } from '~/modules/chat/lib/markdown';
 
 // Extract the raw text out of a code node's children (string or nested nodes).
@@ -14,13 +21,43 @@ const codeText = (children: ReactNode): string => {
   return '';
 };
 
+// Legacy ```chart-viz``` blocks (historical messages) render through the new
+// ECharts surface, with an opener for the Preview panel. New conversations stream
+// a chart artifact instead and never produce these blocks.
+const LegacyChartBlock = ({ spec }: { spec: ChartSpec }) => {
+  const openArtifact = previewStore((s) => s.openArtifact);
+  return (
+    <div className="my-2 overflow-hidden rounded-xl border border-border/70">
+      <div className="h-64">
+        <EChart spec={spec} height="100%" />
+      </div>
+      <div className="flex justify-end border-t p-1.5">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() =>
+            openArtifact({
+              id: `legacy-${spec.title}`,
+              kind: 'chart',
+              title: spec.title,
+              spec,
+            })
+          }
+        >
+          <IconLayoutSidebarRightExpand className="size-3.5" />
+          Open in Preview
+        </Button>
+      </div>
+    </div>
+  );
+};
+
 const CodeBlock = ({ lang, code }: { lang: string; code: string }) => {
-  // Render chart-viz fenced blocks as interactive charts. JSON.parse is safe
-  // here: ChatVizMessage re-sanitizes the payload before any rendering.
+  // Render legacy chart-viz fenced blocks as interactive charts.
   if (lang === 'chart-viz') {
     try {
-      const raw: unknown = JSON.parse(code);
-      if (raw) return <ChatVizMessage rawPayload={raw} className="my-2" />;
+      const spec = legacyPayloadToChartSpec(JSON.parse(code));
+      if (spec) return <LegacyChartBlock spec={spec} />;
     } catch {
       // malformed — fall through to a plain code block
     }

@@ -4,6 +4,7 @@ import { IContext } from '~/connectionResolvers';
 import {
   listOwnedThreads,
   getOwnedThreadMessages,
+  assertThreadOwned,
 } from '@/session/nativeStore';
 
 // Threads are private: every query requires a logged-in user and is filtered
@@ -35,5 +36,18 @@ export const sessionQueries = {
     // Ownership is enforced inside (resourceId scope) — reading another user's
     // transcript reads back as "Thread not found".
     return getOwnedThreadMessages(subdomain, requireUserId(user), threadId);
+  },
+
+  // The thread's generated artifacts (charts + documents) for the Preview
+  // panel's file list. Stored in their own collection so they survive reloads.
+  mastraThreadArtifacts: async (
+    _parent: undefined,
+    { threadId }: { threadId: string },
+    { models, user, subdomain, checkPermission }: IContext,
+  ) => {
+    await checkPermission('agentsChat');
+    // Same ownership gate as the transcript — non-owners get "Thread not found".
+    await assertThreadOwned(subdomain, requireUserId(user), threadId);
+    return models.MastraArtifact.listByThread(threadId);
   },
 };

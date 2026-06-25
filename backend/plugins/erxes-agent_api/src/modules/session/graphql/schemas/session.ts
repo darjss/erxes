@@ -25,6 +25,7 @@ export const types = `
 export const queries = `
   mastraThreads(agentId: String!): [MastraThread]
   mastraThreadMessages(threadId: String!): [MastraMessage]
+  mastraThreadArtifacts(threadId: String!): [JSON]
 `;
 
 export const mutations = `

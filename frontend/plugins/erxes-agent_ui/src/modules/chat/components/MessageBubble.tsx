@@ -3,7 +3,9 @@ import { IconBolt, IconRefresh } from '@tabler/icons-react';
 import { Collapsible, Tooltip } from 'erxes-ui';
 import { AgentUIMessage } from '~/modules/chat/types';
 import { asToolPart, messageText } from '~/modules/chat/lib/uiParts';
+import { asArtifactPart, type Artifact } from '~/modules/chat/lib/artifacts';
 import { AgentAvatar } from '~/modules/chat/components/Avatars';
+import { ArtifactCard } from '~/modules/chat/components/ArtifactCard';
 import {
   ChatMarkdown,
   StreamingMarkdown,
@@ -84,6 +86,7 @@ export const MessageBubble = memo(function MessageBubble({
   ratingEnabled,
   onRegenerate,
   onRate,
+  storeArtifacts,
 }: {
   msg: AgentUIMessage;
   isLast: boolean;
@@ -91,6 +94,9 @@ export const MessageBubble = memo(function MessageBubble({
   ratingEnabled: boolean;
   onRegenerate: () => void;
   onRate: (messageId: string, rating: 1 | -1) => void;
+  // Persisted artifacts for this message — used when the live tool parts are
+  // gone (after a reload), so the inline cards reappear.
+  storeArtifacts?: Artifact[];
 }) {
   const text = messageText(msg);
 
@@ -120,6 +126,19 @@ export const MessageBubble = memo(function MessageBubble({
   const turnParts = msg.parts.filter(
     (p) => p.type === 'reasoning' || !!asToolPart(p),
   );
+  // Charts and generated documents surface as prominent ArtifactCards (with a
+  // Preview-panel opener), not buried in the collapsed thinking section. Live
+  // turns read them off the tool parts; after a reload (tool parts gone) we fall
+  // back to the persisted store artifacts for this message.
+  const liveArtifacts: Artifact[] = msg.parts.reduce<Artifact[]>((acc, part) => {
+    const tool = asToolPart(part);
+    const artifact = tool ? asArtifactPart(tool) : null;
+    if (artifact) acc.push(artifact);
+    return acc;
+  }, []);
+  const artifacts = liveArtifacts.length
+    ? liveArtifacts
+    : (storeArtifacts ?? []);
   const canRegenerate = isLast && !chatLoading;
   const activeSkills = msg.metadata?.activeSkills;
   const messageId = msg.metadata?.messageId;
@@ -163,6 +182,17 @@ export const MessageBubble = memo(function MessageBubble({
           </div>
         ) : null}
         {streaming && text && <span className="ea-caret" />}
+        {artifacts.length > 0 && (
+          <div className="mt-1">
+            {artifacts.map((artifact, i) => (
+              <ArtifactCard
+                key={artifact.id || `artifact-${i}`}
+                artifact={artifact}
+                live={streaming}
+              />
+            ))}
+          </div>
+        )}
         {!streaming && (
           <div className="flex items-center justify-between gap-2 mt-1.5">
             <p className="text-[10px] text-muted-foreground">

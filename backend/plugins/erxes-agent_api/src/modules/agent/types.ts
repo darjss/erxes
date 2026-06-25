@@ -30,6 +30,10 @@ export interface TurnAuthCtx {
   userHeader?: string;
   token?: string;
   subdomain?: string;
+  threadId?: string;
+  turnId?: string;
+  turnPrompt?: string;
+  resourceId?: string;
 }
 
 // One message of the assembled LLM conversation. `content` widens beyond a
