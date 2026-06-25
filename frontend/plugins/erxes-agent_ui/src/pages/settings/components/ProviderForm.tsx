@@ -8,6 +8,12 @@ interface ProviderFormProps {
   title: string;
   isEdit: boolean;
   isCustom: boolean;
+  // Masked hint of the already-stored key (e.g. `••••a1b2`), or null when none.
+  // The key field is write-only, so we only ever show the mask, never the key.
+  existingKeyHint?: string | null;
+  // Names of the already-stored custom headers. Header values are write-only, so
+  // we only show the names, never the values.
+  existingHeaderKeys?: string[];
   saving: boolean;
   onSubmit: (values: ProviderFormValues) => void;
   onCancel: () => void;
@@ -19,6 +25,8 @@ export const ProviderForm = ({
   title,
   isEdit,
   isCustom,
+  existingKeyHint,
+  existingHeaderKeys = [],
   saving,
   onSubmit,
   onCancel,
@@ -62,8 +70,18 @@ export const ProviderForm = ({
           <Form.Item>
             <Form.Label>API Key</Form.Label>
             <Form.Control>
-              <Input {...field} type="password" placeholder="sk-..." />
+              <Input
+                {...field}
+                type="password"
+                placeholder={existingKeyHint ? existingKeyHint : 'sk-...'}
+                autoComplete="off"
+              />
             </Form.Control>
+            <Form.Description>
+              {existingKeyHint
+                ? 'A key is already set. Leave blank to keep it, or enter a new key to replace it.'
+                : 'Stored server-side and never shown again after saving.'}
+            </Form.Description>
             <Form.Message />
           </Form.Item>
         )}
@@ -149,6 +167,14 @@ export const ProviderForm = ({
               serves recognized coding agents, so it needs a{' '}
               <code>User-Agent</code> like{' '}
               <code>claude-cli/1.0.65 (external, cli)</code>.
+              {existingHeaderKeys.length > 0 && (
+                <>
+                  {' '}
+                  Header values are stored server-side and never shown again.
+                  Currently set: <code>{existingHeaderKeys.join(', ')}</code>.
+                  Leave blank to keep them, or re-enter all headers to replace.
+                </>
+              )}
             </Form.Description>
             <Form.Message />
           </Form.Item>

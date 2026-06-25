@@ -208,14 +208,15 @@ export const MASTRA_PROVIDERS = gql`
       _id
       provider
       label
-      apiKey
+      hasApiKey
+      apiKeyHint
       baseUrl
       isDefault
       isEnabled
       isOpenAICompatible
       modelsEndpoint
       envKey
-      headers
+      headerKeys
       createdAt
     }
   }

@@ -39,13 +39,17 @@ export const ProvidersPage = () => {
     const existing = providers.find((p) => p.provider === preset.provider);
     form.reset({
       provider: preset.provider,
-      apiKey: existing?.apiKey || '',
+      // Write-only: never pre-fill the real key. Blank means "keep existing".
+      apiKey: '',
       baseUrl: existing?.baseUrl || preset.baseUrl || '',
       modelsEndpoint: existing?.modelsEndpoint || preset.modelsEndpoint || '',
       isOpenAICompatible:
         existing?.isOpenAICompatible ?? preset.isOpenAICompatible ?? false,
       envKey: existing?.envKey || preset.envKey || '',
-      headersText: serializeHeaders(existing?.headers || preset.headers),
+      // Header values are write-only: never pre-fill an existing provider's
+      // stored headers (blank = keep them). Only seed a brand-new provider with
+      // the preset's non-secret default headers.
+      headersText: existing ? '' : serializeHeaders(preset.headers),
       isDefault: existing?.isDefault || false,
       isEnabled: existing?.isEnabled ?? true,
     });
@@ -60,12 +64,14 @@ export const ProvidersPage = () => {
     setAdding(p.provider);
     form.reset({
       provider: p.provider,
-      apiKey: p.apiKey || '',
+      // Write-only: never pre-fill the real key. Blank means "keep existing".
+      apiKey: '',
       baseUrl: p.baseUrl || '',
       modelsEndpoint: p.modelsEndpoint || '',
       isOpenAICompatible: p.isOpenAICompatible ?? false,
       envKey: p.envKey || '',
-      headersText: serializeHeaders(p.headers),
+      // Write-only: header values aren't returned. Blank keeps the stored ones.
+      headersText: '',
       isDefault: p.isDefault || false,
       isEnabled: p.isEnabled ?? true,
     });
@@ -122,6 +128,18 @@ export const ProvidersPage = () => {
     target && providers.some((p) => p.provider === target.key),
   );
 
+  // Masked hint for the provider being edited — drives the write-only key
+  // field's "a key is already set, leave blank to keep it" affordance.
+  const editingProvider = target
+    ? providers.find((p) => p.provider === target.key)
+    : undefined;
+  const existingKeyHint = editingProvider?.hasApiKey
+    ? editingProvider.apiKeyHint || '••••'
+    : null;
+  // Names of the stored (write-only) headers, shown so the admin knows which
+  // headers are already set without their secret values being exposed.
+  const existingHeaderKeys = editingProvider?.headerKeys ?? [];
+
   return (
     <div className="h-full overflow-y-auto">
       <div className="p-6 max-w-3xl space-y-8">
@@ -160,14 +178,19 @@ export const ProvidersPage = () => {
                     <div className="text-sm text-muted-foreground mt-0.5 flex items-center gap-1 flex-wrap">
                       <IconKey size={12} />
                       <span className="font-mono">
-                        {p.apiKey
-                          ? '••••••' + p.apiKey.slice(-4)
+                        {p.hasApiKey
+                          ? p.apiKeyHint || '••••'
                           : p.envKey
                             ? `env: ${p.envKey}`
                             : 'No key'}
                       </span>
                       {p.baseUrl && (
                         <span className="ml-2 text-xs">· {p.baseUrl}</span>
+                      )}
+                      {p.headerKeys && p.headerKeys.length > 0 && (
+                        <span className="ml-2 text-xs">
+                          · headers: {p.headerKeys.join(', ')}
+                        </span>
                       )}
                     </div>
                   </div>
@@ -200,6 +223,8 @@ export const ProvidersPage = () => {
               title={editingLabel}
               isEdit={isEdit}
               isCustom={adding === CUSTOM_KEY}
+              existingKeyHint={existingKeyHint}
+              existingHeaderKeys={existingHeaderKeys}
               saving={saving}
               onSubmit={handleSave}
               onCancel={() => setAdding(null)}

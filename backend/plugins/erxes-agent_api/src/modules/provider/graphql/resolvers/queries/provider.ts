@@ -1,5 +1,6 @@
 import { IContext } from '~/connectionResolvers';
 import { PROVIDER_PRESETS } from '~/mastra/providers';
+import { toPublicProvider } from '@/provider/utils/mask';
 
 // One entry of a provider's live model-listing response. Field names cover
 // the OpenAI/Anthropic/Mistral (`id`, `display_name`), Google (`name`,
@@ -20,7 +21,10 @@ export const providerQueries = {
     { models, checkPermission }: IContext,
   ) => {
     await checkPermission('providersView');
-    return models.MastraProvider.getProviders();
+    // Mask before the secret crosses the GraphQL boundary: callers get
+    // hasApiKey + a masked hint, never the raw apiKey.
+    const providers = await models.MastraProvider.getProviders();
+    return providers.map(toPublicProvider);
   },
 
   mastraProvider: async (
@@ -29,7 +33,7 @@ export const providerQueries = {
     { models, checkPermission }: IContext,
   ) => {
     await checkPermission('providersView');
-    return models.MastraProvider.getProvider(_id);
+    return toPublicProvider(await models.MastraProvider.getProvider(_id));
   },
 
   // Returns static presets — used only by the "Add Provider" form in the UI

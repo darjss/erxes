@@ -2,14 +2,17 @@ export interface IMastraProvider {
   _id: string;
   provider: string;
   label?: string | null;
-  apiKey?: string | null;
+  // apiKey is write-only: reads expose only these two secret-free fields.
+  hasApiKey?: boolean | null;
+  apiKeyHint?: string | null;
   baseUrl?: string | null;
   isDefault?: boolean | null;
   isEnabled?: boolean | null;
   isOpenAICompatible?: boolean | null;
   modelsEndpoint?: string | null;
   envKey?: string | null;
-  headers?: Record<string, string> | null;
+  // Header values are write-only; reads expose only the configured header names.
+  headerKeys?: string[] | null;
   createdAt?: string;
 }
 
