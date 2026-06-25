@@ -25,7 +25,7 @@ const CHART_REF = /\]\(\s*chart:([a-zA-Z0-9_-]+)\s*\)/g;
 // react-pdf-html supports a <style> block but only single font families and a
 // limited CSS subset — keep this conservative so it renders without warnings.
 const DOC_CSS = `
-  body { font-family: Helvetica; font-size: 11pt; color: #1f2937; line-height: 1.5; }
+  body { font-family: 'Noto Sans'; font-size: 11pt; color: #1f2937; line-height: 1.5; }
   h1 { font-size: 22pt; margin: 0 0 12px; }
   h2 { font-size: 16pt; margin: 18px 0 8px; }
   h3 { font-size: 13pt; margin: 14px 0 6px; }
@@ -34,7 +34,7 @@ const DOC_CSS = `
   table { width: 100%; margin: 8px 0; }
   th, td { border: 1px solid #d1d5db; padding: 6px 8px; text-align: left; font-size: 10pt; }
   th { background-color: #f3f4f6; font-weight: 700; }
-  code { font-family: Courier; background-color: #f3f4f6; }
+  code { font-family: 'Noto Sans'; background-color: #f3f4f6; }
   blockquote { margin: 8px 0; padding: 4px 12px; border-left: 3px solid #d1d5db; color: #4b5563; }
 `;
 
