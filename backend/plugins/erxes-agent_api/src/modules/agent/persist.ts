@@ -3,6 +3,7 @@ import {
   getThreadTitle,
   getNativeMemory,
   ensureThreadRegistered,
+  patchNativeMessages,
 } from '@/session/nativeStore';
 import {
   IMastraChatAttachment,
@@ -195,9 +196,12 @@ export async function patchNativeTurn(params: {
     });
   }
 
-  if (patches.length) {
-    await memory.updateMessages({ messages: patches });
-  }
+  // Write the meta via the STORAGE domain, not Memory.updateMessages — the latter
+  // re-embeds + rewrites Qdrant on every call (semantic recall is on), and a
+  // single embed/Qdrant hiccup there used to throw and abandon this whole patch,
+  // silently dropping thinking history on reload. patchNativeMessages is a plain
+  // Mongo write and is best-effort, so the assistant id below is always returned.
+  await patchNativeMessages(subdomain, patches);
 
   // The native assistant message id — the client rates this (feedback resolves
   // it back via the native store).
