@@ -147,6 +147,41 @@ export const MASTRA_ATTACHMENT_STORAGE_STATUS = gql`
   }
 `;
 
+export const MASTRA_VOICE_STATUS = gql`
+  query MastraVoiceStatus {
+    mastraVoiceStatus {
+      enabled
+    }
+  }
+`;
+
+export const MASTRA_VOICE_CONFIG = gql`
+  query MastraVoiceConfig {
+    mastraVoiceConfig {
+      enabled
+      sttEnabled
+      ttsEnabled
+      sttConfigured
+      ttsConfigured
+      sttSource
+      ttsSource
+      ttsVoice
+      ttsSampleRate
+      isEnabled
+    }
+  }
+`;
+
+export const MASTRA_VOICE_CATALOG = gql`
+  query MastraVoiceCatalog {
+    mastraVoiceCatalog {
+      id
+      label
+      gender
+    }
+  }
+`;
+
 export const MASTRA_AVAILABLE_ERXES_TOOLS = gql`
   query MastraAvailableErxesTools {
     mastraAvailableErxesTools {

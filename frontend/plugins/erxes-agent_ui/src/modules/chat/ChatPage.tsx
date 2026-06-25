@@ -15,6 +15,7 @@ import { chatStore } from '~/modules/chat/store/chatStore';
 import {
   useChatAgents,
   useAttachmentsEnabled,
+  useVoiceEnabled,
 } from '~/modules/chat/hooks/useChatAgents';
 import { useAgentChatView } from '~/modules/chat/hooks/useChatView';
 import { useMastraThreads } from '~/modules/chat/hooks/useMastraThreads';
@@ -38,6 +39,9 @@ import { SkillSlashPicker } from '~/modules/skills/components/SkillSlashPicker';
 import { SkillActivePill } from '~/modules/skills/components/SkillActivePill';
 import { SkillDraftPreviewDialog } from '~/modules/skills/components/SkillDraftPreviewDialog';
 import { findDraftSkillFromMessages } from '~/modules/skills/utils';
+import { VoiceOverlay } from '~/modules/chat/voice/components/VoiceOverlay';
+import { VoiceStageTakeover } from '~/modules/chat/voice/components/VoiceStageTakeover';
+import { useVoiceConversation } from '~/modules/chat/voice/hooks/useVoiceConversation';
 import '~/modules/chat/chat.css';
 
 // Distance (px) from the bottom under which we keep following streamed output.
@@ -53,6 +57,7 @@ export const ChatPage = () => {
 
   const { agents, loading: agentsLoading } = useChatAgents();
   const attachmentsEnabled = useAttachmentsEnabled();
+  const voiceEnabled = useVoiceEnabled();
 
   // The route is keyed by the agent record _id, but inbound links (e.g.
   // Schedules → View output) may carry the agent slug — accept both.
@@ -70,10 +75,21 @@ export const ChatPage = () => {
     activeThreadId,
     isDraft,
     reasoningEffort,
+    voiceMode,
     messages,
     loading: chatLoading,
     messagesLoading,
   } = view;
+
+  // Hands-free voice loop (mic → STT → existing send flow → spoken reply).
+  // Active only when this agent's voice mode is on AND the backend has voice
+  // configured; otherwise the hook is fully inert (no mic, no listeners).
+  const voiceActive = !!voiceMode && voiceEnabled && !!selectedAgent;
+  const voice = useVoiceConversation(
+    agentId,
+    selectedAgent?.agentId,
+    voiceActive,
+  );
 
   // The persisted session list lives in the Apollo cache, not the chat store.
   const { threads, loading: threadsLoading } = useMastraThreads(
@@ -316,6 +332,8 @@ export const ChatPage = () => {
 
   return (
     <div className="flex flex-col h-full">
+      {voiceActive && <VoiceStageTakeover />}
+      {!voiceActive && (
       <PageHeader>
         <PageHeader.Start>
           <Breadcrumb>
@@ -339,7 +357,7 @@ export const ChatPage = () => {
             </Breadcrumb.List>
           </Breadcrumb>
         </PageHeader.Start>
-        {selectedAgent && (
+        {selectedAgent && !voiceActive && (
           <PageHeader.End>
             {activeThreadId && !isDraft && (
               <Button
@@ -359,9 +377,11 @@ export const ChatPage = () => {
           </PageHeader.End>
         )}
       </PageHeader>
+      )}
 
       <div className="flex flex-1 overflow-hidden">
-        {/* ── Side panel: AgentRail ↔ SessionList slide ── */}
+        {/* ── Side panel: AgentRail ↔ SessionList slide (hidden in voice mode) ── */}
+        {!voiceActive && (
         <div className="relative shrink-0 border-r overflow-hidden w-60">
           <div
             className="absolute inset-0 transition-transform duration-200 ease-in-out"
@@ -401,6 +421,7 @@ export const ChatPage = () => {
             </div>
           )}
         </div>
+        )}
 
         {/* ── Chat area ── */}
         <div
@@ -548,9 +569,22 @@ export const ChatPage = () => {
                 onReasoningEffortChange={(effort) =>
                   chatStore.setReasoningEffort(agentId!, effort)
                 }
+                voiceEnabled={voiceEnabled}
+                voiceMode={!!voiceMode}
+                onVoiceModeToggle={() =>
+                  chatStore.setVoiceMode(agentId!, !voiceMode)
+                }
                 textareaRef={textareaRef}
                 fileInputRef={fileInputRef}
               />
+
+              {voiceActive && (
+                <VoiceOverlay
+                  agentName={selectedAgent.name}
+                  voice={voice}
+                  onExit={() => chatStore.setVoiceMode(agentId!, false)}
+                />
+              )}
             </>
           )}
         </div>

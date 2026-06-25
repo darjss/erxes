@@ -81,6 +81,33 @@ export interface IMastraSettings {
   knowledgeStatus?: IKnowledgeStatusView | null;
 }
 
+export interface IMastraVoiceConfigStatus {
+  enabled?: boolean | null;
+  sttEnabled?: boolean | null;
+  ttsEnabled?: boolean | null;
+  sttConfigured?: boolean | null;
+  ttsConfigured?: boolean | null;
+  sttSource?: 'db' | 'env' | 'none' | null;
+  ttsSource?: 'db' | 'env' | 'none' | null;
+  ttsVoice?: string | null;
+  ttsSampleRate?: number | null;
+  isEnabled?: boolean | null;
+}
+
+export interface IMastraVoiceOption {
+  id: string;
+  label: string;
+  gender: 'female' | 'male';
+}
+
+export interface IVoiceConfigResponse {
+  mastraVoiceConfig: IMastraVoiceConfigStatus | null;
+}
+
+export interface IVoiceCatalogResponse {
+  mastraVoiceCatalog: IMastraVoiceOption[];
+}
+
 export interface IMastraUserSettings {
   userId: string;
   agentQuota?: number | null;

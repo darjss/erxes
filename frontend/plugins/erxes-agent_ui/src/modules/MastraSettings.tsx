@@ -21,6 +21,12 @@ const UserQuotasPage = lazy(() =>
   })),
 );
 
+const VoiceSettingsPage = lazy(() =>
+  import('~/pages/settings/VoiceSettingsPage').then((m) => ({
+    default: m.VoiceSettingsPage,
+  })),
+);
+
 const AgentsIndexPage = lazy(() =>
   import('~/pages/agents/AgentsIndexPage').then((m) => ({
     default: m.AgentsIndexPage,
@@ -62,6 +68,7 @@ const MastraSettings = () => {
       <Route path="/skills/edit/:id" element={<SkillFormPage />} />
       <Route path="/providers" element={<AdminRoute element={<ProvidersPage />} />} />
       <Route path="/general" element={<AdminRoute element={<GeneralSettingsPage />} />} />
+      <Route path="/voice" element={<AdminRoute element={<VoiceSettingsPage />} />} />
       <Route path="/user-quotas" element={<AdminRoute element={<UserQuotasPage />} />} />
     </PluginRoutesShell>
   );

@@ -244,6 +244,9 @@ export interface AgentChatState {
   mastraAgentId?: string;
   // Power-user reasoning override for this agent's chat view. Unset = default.
   reasoningEffort?: ReasoningEffort;
+  // Whether this agent's chat is in hands-free voice mode (speak to send, spoken
+  // replies). Persisted per agent in localStorage like reasoningEffort.
+  voiceMode?: boolean;
 }
 
 export const EMPTY_AGENT: AgentChatState = {
@@ -251,4 +254,5 @@ export const EMPTY_AGENT: AgentChatState = {
   isDraft: false,
   mastraAgentId: undefined,
   reasoningEffort: undefined,
+  voiceMode: false,
 };

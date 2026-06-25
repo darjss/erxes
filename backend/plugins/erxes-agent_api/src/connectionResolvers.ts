@@ -58,6 +58,11 @@ import {
   IMastraScheduleModel,
 } from '@/schedule/db/models/Schedule';
 import { IMastraScheduleDocument } from '@/schedule/@types/schedule';
+import {
+  loadVoiceConfigClass,
+  IMastraVoiceConfigModel,
+} from '@/voice/db/models/VoiceConfig';
+import { IMastraVoiceConfigDocument } from '@/voice/@types/voice';
 
 export interface IModels {
   MastraAgent: IMastraAgentModel;
@@ -71,6 +76,7 @@ export interface IModels {
   MastraLearning: IMastraLearningModel;
   MastraFeedback: IMastraFeedbackModel;
   MastraSchedule: IMastraScheduleModel;
+  MastraVoiceConfig: IMastraVoiceConfigModel;
 }
 
 export interface IContext extends IMainContext {
@@ -137,6 +143,11 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
     IMastraScheduleDocument,
     IMastraScheduleModel
   >('mastra_schedules', loadScheduleClass(models));
+
+  models.MastraVoiceConfig = db.model<
+    IMastraVoiceConfigDocument,
+    IMastraVoiceConfigModel
+  >('mastra_voice_config', loadVoiceConfigClass(models));
 
   return models;
 };

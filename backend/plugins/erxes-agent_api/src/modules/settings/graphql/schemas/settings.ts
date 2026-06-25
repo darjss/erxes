@@ -36,6 +36,13 @@ export const types = `
     enabled: Boolean
   }
 
+  # Whether voice mode (Chimege Mongolian STT + TTS) is usable: a CHIMEGE_TOKEN
+  # resolves AND the feature is not disabled. When false the chat UI hides
+  # the voice mode entry point.
+  type MastraVoiceStatus {
+    enabled: Boolean
+  }
+
   type MastraSettings {
     _id: String
     erxesApiUrl: String
@@ -71,6 +78,7 @@ export const types = `
 export const queries = `
   mastraSettings: MastraSettings
   mastraAttachmentStorageStatus: MastraAttachmentStorageStatus
+  mastraVoiceStatus: MastraVoiceStatus
   mastraUserAgentQuota(userId: String!): MastraUserSettings
 `;
 

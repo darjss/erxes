@@ -10,6 +10,7 @@ import { ReasoningEffort } from '~/modules/chat/types';
 import { useAttachments } from '~/modules/chat/hooks/useAttachments';
 import { ComposerAttachmentChip } from '~/modules/chat/components/ComposerAttachmentChip';
 import { ReasoningEffortControl } from '~/modules/chat/components/ReasoningEffortControl';
+import { VoiceModeToggle } from '~/modules/chat/voice/components/VoiceModeToggle';
 
 type AttachmentsBag = ReturnType<typeof useAttachments>;
 
@@ -25,6 +26,9 @@ export const Composer = ({
   agentName,
   reasoningEffort,
   onReasoningEffortChange,
+  voiceEnabled,
+  voiceMode,
+  onVoiceModeToggle,
   textareaRef,
   fileInputRef,
 }: {
@@ -39,6 +43,9 @@ export const Composer = ({
   agentName: string;
   reasoningEffort?: ReasoningEffort;
   onReasoningEffortChange: (effort?: ReasoningEffort) => void;
+  voiceEnabled: boolean;
+  voiceMode: boolean;
+  onVoiceModeToggle: () => void;
   textareaRef: RefObject<HTMLTextAreaElement>;
   fileInputRef: RefObject<HTMLInputElement>;
 }) => {
@@ -102,6 +109,13 @@ export const Composer = ({
             onChange={onReasoningEffortChange}
             disabled={chatLoading}
           />
+          {voiceEnabled && (
+            <VoiceModeToggle
+              active={voiceMode}
+              onToggle={onVoiceModeToggle}
+              disabled={chatLoading}
+            />
+          )}
           <Textarea
             ref={textareaRef}
             value={input}

@@ -32,6 +32,11 @@ export const MastraSettingsNavigation = () => {
               />
               <SettingsNavigationMenuLinkItem
                 pathPrefix="erxes-agent"
+                path="/voice"
+                name="Voice (Chimege)"
+              />
+              <SettingsNavigationMenuLinkItem
+                pathPrefix="erxes-agent"
                 path="/user-quotas"
                 name="User Quotas"
               />

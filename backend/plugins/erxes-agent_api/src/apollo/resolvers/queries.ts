@@ -7,6 +7,7 @@ import { workflowQueries } from '@/workflow/graphql/resolvers/queries/workflow';
 import { learningQueries } from '@/learning/graphql/resolvers/queries/learning';
 import { scheduleQueries } from '@/schedule/graphql/resolvers/queries/schedule';
 import { skillQueries } from '@/skills/graphql/resolvers/queries/skills';
+import { voiceQueries } from '@/voice/graphql/resolvers/queries/voice';
 
 export const queries = {
   ...agentQueries,
@@ -18,4 +19,5 @@ export const queries = {
   ...learningQueries,
   ...scheduleQueries,
   ...skillQueries,
+  ...voiceQueries,
 };
