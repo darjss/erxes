@@ -5,9 +5,13 @@ import {
   selectActiveChat,
   useChatStore,
 } from '~/modules/chat/store/chatStore';
-import { useAgentChatView } from '~/modules/chat/hooks/useChatView';
+import { useAgentChatView, useAgentActivity } from '~/modules/chat/hooks/useChatView';
 import { AgentUIMessage } from '~/modules/chat/types';
-import { messageText } from '~/modules/chat/lib/uiParts';
+import { asToolPart, messageText } from '~/modules/chat/lib/uiParts';
+import {
+  deriveVoiceStatus,
+  VoiceStatusView,
+} from '~/modules/chat/voice/lib/voiceStatus';
 import { useVoiceRecorder } from '~/modules/chat/voice/hooks/useVoiceRecorder';
 import { useSpeechQueue } from '~/modules/chat/voice/hooks/useSpeechQueue';
 import { SpeechAnalyser } from '~/modules/chat/voice/lib/speechAnalyser';
@@ -44,6 +48,8 @@ export interface VoiceConversation {
   lastTranscript?: string;
   // Web Audio tap on the spoken reply, for the audio-reactive blob visual.
   analyser: SpeechAnalyser;
+  // Granular wait-window copy derived from the live turn (status label + detail).
+  status: VoiceStatusView;
   toggleRecording: () => void;
 }
 
@@ -54,6 +60,21 @@ const lastAssistant = (
     if (messages[i].role === 'assistant') return messages[i];
   }
   return undefined;
+};
+
+// Name of the tool whose call is in flight (input sent, no result yet) on the
+// latest assistant message — drives the per-tool wait label. The last pending
+// tool wins, so a fresh call supersedes one whose result already landed.
+const activeToolName = (
+  message: AgentUIMessage | undefined,
+): string | undefined => {
+  if (!message) return undefined;
+  let name: string | undefined;
+  for (const part of message.parts) {
+    const tool = asToolPart(part);
+    if (tool?.pending && tool.toolName) name = tool.toolName;
+  }
+  return name;
 };
 
 // The authoritative live messages of this agent's active Chat (un-throttled),
@@ -71,6 +92,8 @@ export const useVoiceConversation = (
   const speech = useSpeechQueue();
   const view = useAgentChatView(agentId);
   const { messages, loading, activeThreadId } = view;
+  // Server-pushed "what the agent is doing now" line for the working thread.
+  const serverActivity = useAgentActivity(agentId ?? '');
 
   const [transcribing, setTranscribing] = useState(false);
   const [lastTranscript, setLastTranscript] = useState<string>();
@@ -198,6 +221,20 @@ export const useVoiceConversation = (
   else if (speech.speaking) phase = 'speaking';
   else if (loading) phase = 'thinking';
 
+  // Granular wait copy: the active tool drives the thinking label, the server
+  // activity adds concrete detail, and the streamed reply becomes a read-along
+  // subtitle while speaking. Recomputed each streaming tick off `messages`.
+  const status = useMemo(() => {
+    const msg = lastAssistant(messages);
+    return deriveVoiceStatus({
+      phase,
+      error,
+      activeToolName: activeToolName(msg),
+      serverActivity,
+      partialText: msg ? messageText(msg) : '',
+    });
+  }, [phase, error, messages, serverActivity]);
+
   return useMemo(
     () => ({
       phase,
@@ -206,6 +243,7 @@ export const useVoiceConversation = (
       messages,
       lastTranscript,
       analyser: speech.analyser,
+      status,
       toggleRecording,
     }),
     [
@@ -215,6 +253,7 @@ export const useVoiceConversation = (
       messages,
       lastTranscript,
       speech.analyser,
+      status,
       toggleRecording,
     ],
   );

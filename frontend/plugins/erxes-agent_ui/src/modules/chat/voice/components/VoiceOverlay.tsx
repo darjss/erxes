@@ -14,17 +14,9 @@ import { VoiceTranscript } from '~/modules/chat/voice/components/VoiceTranscript
 // voice mode is on. One big iridescent blob floats centre-stage on a dark field,
 // alive and audio-reactive; the controls, status line, and spoken transcript
 // echo float over it. The assistant speaks its replies; the full transcript is
-// hidden behind a toggle. States map 1:1 to the conversation phase so the blob,
-// status line, and mic affordance always agree on what's happening.
-
-const STATUS_TEXT: Record<VoiceConversation['phase'], string> = {
-  idle: 'Tap the mic and start talking',
-  listening: 'Listening…',
-  transcribing: 'Transcribing…',
-  thinking: 'Thinking…',
-  speaking: 'Speaking…',
-  error: 'Something went wrong',
-};
+// hidden behind a toggle. The status line, detail subtitle, and mic affordance
+// always agree with the conversation phase — the granular wait copy (per-tool
+// labels, server activity, streamed read-along) is derived in the hook (status).
 
 export const VoiceOverlay = ({
   agentName,
@@ -43,6 +35,7 @@ export const VoiceOverlay = ({
     messages,
     lastTranscript,
     analyser,
+    status,
     toggleRecording,
   } = voice;
 
@@ -128,8 +121,9 @@ export const VoiceOverlay = ({
             <>
               <div className="flex flex-col items-center gap-2 min-h-16">
                 <p
+                  key={status.label}
                   aria-live="polite"
-                  className={`text-lg font-medium tracking-tight ${
+                  className={`ea-voice-line text-lg font-medium tracking-tight ${
                     phase === 'error'
                       ? 'text-red-300'
                       : phase === 'idle'
@@ -137,12 +131,25 @@ export const VoiceOverlay = ({
                         : 'ea-voice-status'
                   }`}
                 >
-                  {phase === 'error' ? error : STATUS_TEXT[phase]}
+                  {status.label}
                 </p>
-                {lastTranscript && phase !== 'error' && (
-                  <p className="max-w-md text-sm text-white/55 line-clamp-2">
-                    “{lastTranscript}”
+                {/* While the agent works/speaks, a calm subtitle shows concrete
+                    progress: the server activity line, then the streamed reply
+                    read-along. At rest it echoes what the user just said. */}
+                {status.detail ? (
+                  <p
+                    key={status.detail}
+                    className="ea-voice-line max-w-md text-sm text-white/60 line-clamp-2"
+                  >
+                    {status.detail}
                   </p>
+                ) : (
+                  lastTranscript &&
+                  phase !== 'error' && (
+                    <p className="max-w-md text-sm text-white/55 line-clamp-2">
+                      “{lastTranscript}”
+                    </p>
+                  )
                 )}
               </div>
 
