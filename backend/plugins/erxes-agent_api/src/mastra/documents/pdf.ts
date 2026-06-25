@@ -50,7 +50,10 @@ export async function renderPdfDocument(
     createElement(
       Page,
       { size: 'A4', style: { paddingTop: 48, paddingBottom: 56, paddingHorizontal: 48 } },
-      createElement(Html, { children: html }),
+      // react-pdf-html ignores the <style> body{} rule (the fragment has no
+      // <body>), so set the embedded family on <Html> directly — it inherits to
+      // every rendered tag and keeps the body off the Latin-only Helvetica.
+      createElement(Html, { style: { fontFamily: 'Noto Sans' }, children: html }),
     ),
   );
 
