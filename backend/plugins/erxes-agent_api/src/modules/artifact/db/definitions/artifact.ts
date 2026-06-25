@@ -13,7 +13,7 @@ export const artifactSchema = new Schema({
   agentId: { type: String, label: 'Agent id' },
   resourceId: { type: String, label: 'Owner resource id' },
   kind: { type: String, required: true, label: 'chart | document' },
-  format: { type: String, label: 'pdf | docx | xlsx' },
+  format: { type: String, label: 'pdf | docx | xlsx | pptx' },
   title: { type: String, default: '', label: 'Title' },
   fileName: { type: String, label: 'File name' },
   mimeType: { type: String, label: 'MIME type' },

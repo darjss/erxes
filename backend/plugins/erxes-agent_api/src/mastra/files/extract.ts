@@ -8,10 +8,11 @@ import {
 
 // ---------------------------------------------------------------------------
 // Text extraction from chat attachments. Pure buffer → text; storage access
-// lives in storage.ts, the agent-facing tool in tools/attachmentTool.ts.
+// lives in storage.ts, the agent-facing tool in tools/fileReaderTool.ts.
 //
-// Supported: pdf (pdf-parse), docx (mammoth), xlsx/xls (exceljs), and any
-// plain-text family (txt/csv/md/json/html/...). Images are handled upstream —
+// Supported: pdf (pdf-parse), docx (mammoth), xlsx/xls (exceljs), pptx (jszip +
+// slide-xml text), and any plain-text family (txt/csv/md/json/html/...). Images
+// are handled upstream —
 // they are inlined into the model message as multimodal parts, not extracted.
 // ---------------------------------------------------------------------------
 
@@ -107,6 +108,32 @@ async function extractDocx(buffer: Buffer): Promise<string> {
   return (result.value || '').trim();
 }
 
+/** Numeric index of a `ppt/slides/slideN.xml` path (for ordering). */
+function slideNumber(path: string): number {
+  return Number(path.match(/slide(\d+)\.xml$/)?.[1] ?? 0);
+}
+
+/** Extract the visible text of a .pptx deck, one labelled block per slide.
+ *  A .pptx is a zip; slide text lives in <a:t> runs inside ppt/slides/slideN.xml. */
+async function extractPptx(buffer: Buffer): Promise<string> {
+  const { default: JSZip } = await import('jszip');
+  const zip = await JSZip.loadAsync(buffer);
+  const slidePaths = Object.keys(zip.files)
+    .filter((p) => /^ppt\/slides\/slide\d+\.xml$/.test(p))
+    .sort((a, b) => slideNumber(a) - slideNumber(b));
+
+  const out: string[] = [];
+  for (let i = 0; i < slidePaths.length; i++) {
+    const xml = await zip.files[slidePaths[i]].async('string');
+    const runs = [...xml.matchAll(/<a:t>([\s\S]*?)<\/a:t>/g)].map((m) =>
+      decodeHtmlEntities(m[1]),
+    );
+    const text = runs.join(' ').replace(/\s+/g, ' ').trim();
+    out.push(`--- Slide ${i + 1} ---\n${text}`);
+  }
+  return out.join('\n\n').trim();
+}
+
 // Cells that carry their value behind a property (formula results, rich text,
 // hyperlinks) — structural type, narrowed from exceljs's CellValue union.
 interface LooseCell {
@@ -182,6 +209,11 @@ export async function extractFileText(params: {
     return { content, truncated, format: 'docx' };
   }
 
+  if (ext === 'pptx' || mime.includes('presentationml')) {
+    const { content, truncated } = clamp(await extractPptx(buffer));
+    return { content, truncated, format: 'pptx' };
+  }
+
   if (
     ext === 'xlsx' ||
     ext === 'xls' ||
@@ -221,6 +253,6 @@ export async function extractFileText(params: {
   throw new ExpectedError(
     `Unsupported file format "${
       ext || mimeType || 'unknown'
-    }". Supported: pdf, docx, xlsx, csv, txt, md, json, html.`,
+    }". Supported: pdf, docx, xlsx, pptx, csv, txt, md, json, html.`,
   );
 }

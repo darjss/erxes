@@ -35,7 +35,7 @@ const agentCache = new Map<string, Agent>();
 const toolsCache = new Map<string, ToolsInput>();
 
 // Increment this whenever routing.ts, the meta-tools, or provider logic changes.
-const ROUTING_VERSION = 26;
+const ROUTING_VERSION = 27;
 
 export interface AgentWithTools {
   agent: Agent;
@@ -165,15 +165,15 @@ export async function getOrCreateAgent(
     });
   }
 
-  // read-attachment is bound regardless of policy: when the chat transport
-  // accepts a file, the agent must always be able to open it. (It only reads
-  // files from this instance's own storage — no external reach.)
-  if (!tools.readAttachment) {
-    const tool = BUILTIN_TOOLS.readAttachment;
-    tools.readAttachment = tool;
+  // file_reader is bound regardless of policy: the agent must always be able to
+  // open a file the user attached or one it generated. (It only reads files from
+  // this instance's own storage / artifacts — no external reach.)
+  if (!tools.fileReader) {
+    const tool = BUILTIN_TOOLS.fileReader;
+    tools.fileReader = tool;
     builtinInfos.push({
-      id: 'readAttachment',
-      name: 'readAttachment',
+      id: 'fileReader',
+      name: 'fileReader',
       description: tool.description,
     });
   }

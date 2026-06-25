@@ -9,6 +9,7 @@ import { DocumentArtifact, documentUrl } from '~/modules/chat/lib/artifacts';
 //   • PDF  → fetch bytes → same-origin blob: URL → native <iframe> viewer.
 //   • DOCX → docx-preview (jszip + DOM, browser-native, no Node polyfills).
 //   • XLSX → @js-preview/excel (x-data-spreadsheet grid).
+//   • PPTX → @aiden0z/pptx-renderer (parses OOXML → HTML/SVG, browser-native).
 // The heavy renderers are loaded on demand (dynamic import).
 
 type Phase = 'loading' | 'ready' | 'error';
@@ -16,6 +17,11 @@ type Phase = 'loading' | 'ready' | 'error';
 interface DocPreviewer {
   preview: (src: ArrayBuffer | Blob | string) => Promise<unknown>;
   destroy: () => void;
+}
+
+interface Disposable {
+  destroy?: () => void;
+  dispose?: () => void;
 }
 
 export const DocumentViewer = ({ artifact }: { artifact: DocumentArtifact }) => {
@@ -26,6 +32,7 @@ export const DocumentViewer = ({ artifact }: { artifact: DocumentArtifact }) => 
   useEffect(() => {
     let cancelled = false;
     let viewer: DocPreviewer | null = null;
+    let pptxViewer: Disposable | null = null;
     let objectUrl: string | null = null;
     const container = containerRef.current;
     setPhase('loading');
@@ -61,6 +68,14 @@ export const DocumentViewer = ({ artifact }: { artifact: DocumentArtifact }) => 
             ignoreHeight: true,
             breakPages: false,
           });
+        } else if (artifact.format === 'pptx') {
+          const { PptxViewer, RECOMMENDED_ZIP_LIMITS } = await import(
+            '@aiden0z/pptx-renderer'
+          );
+          // Renders the actual .pptx (OOXML → HTML/SVG) — no server/LibreOffice.
+          pptxViewer = (await PptxViewer.open(buffer, container, {
+            zipLimits: RECOMMENDED_ZIP_LIMITS,
+          })) as Disposable;
         } else {
           const { default: jsPreviewExcel } = await import('@js-preview/excel');
           viewer = jsPreviewExcel.init(container);
@@ -76,6 +91,8 @@ export const DocumentViewer = ({ artifact }: { artifact: DocumentArtifact }) => 
       cancelled = true;
       try {
         viewer?.destroy();
+        pptxViewer?.destroy?.();
+        pptxViewer?.dispose?.();
       } catch {
         /* viewer already torn down */
       }
@@ -101,7 +118,9 @@ export const DocumentViewer = ({ artifact }: { artifact: DocumentArtifact }) => 
           className={
             artifact.format === 'docx'
               ? 'h-full w-full overflow-auto px-6 py-5 text-sm leading-relaxed [&_*]:max-w-full'
-              : 'h-full w-full overflow-auto'
+              : artifact.format === 'pptx'
+                ? 'h-full w-full overflow-auto bg-muted/30 p-4 [&_*]:max-w-full'
+                : 'h-full w-full overflow-auto'
           }
         />
       )}

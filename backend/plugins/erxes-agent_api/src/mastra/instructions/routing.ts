@@ -1,4 +1,5 @@
 import { splitCamelWords } from '~/mastra/text';
+import { staticSkillsBlock } from '~/mastra/instructions/staticSkills';
 
 const SMALL_TALK_BLOCK = `
 ## Small Talk & Casual Conversation
@@ -147,37 +148,19 @@ const RENDER_CHART_HINT = `
   radar for multi-metric comparison, scatter for correlation, combo to mix bars + a line.
 `.trim();
 
-// Injected when the agent has any document generator (PDF/DOCX/XLSX).
-const DOCUMENT_TOOLS_HINT = `
-**For generatePdf / generateDocx / generateXlsx:**
-- Call generatePdf or generateDocx when the user wants a report, summary, letter, or
-  document. Write the body as clean Markdown (headings, lists, tables, bold). Use
-  generateDocx when they want an editable Word file, generatePdf otherwise.
-- Call generateXlsx when the user wants a spreadsheet or tabular export: provide one or
-  more sheets, each with column headers and rows.
-- To put a chart INSIDE a PDF or Word document: first call renderChart to get its chart
-  id, then pass that chart (id + spec) in the tool's "charts" list and reference it in the
-  Markdown as an image — ![Chart title](chart:THAT_ID). For spreadsheets, pass charts and
-  they are added on a "Charts" tab.
-- Each generated file opens in the Preview panel and is downloadable. After a successful
-  call, tell the user in one plain sentence that the file is ready in the Preview panel
-  and can be downloaded. Never expose file keys, URLs, JSON, or tool names.
-`.trim();
-
-/** Prompt section listing the agent's standalone builtin tools. */
+/** Prompt section listing the agent's standalone builtin tools. The
+ *  document-creation guidance is a static codebase skill (staticSkills.ts) that
+ *  attaches itself whenever a generate tool is bound — see buildSystemPrompt. */
 const BUILTIN_BLOCK = (tools: ToolInfo[]) => {
   const has = (key: string) =>
     tools.some((t) => t.id === key || t.name === key);
   const hasRenderChart = has('renderChart');
-  const hasDocTools =
-    has('generatePdf') || has('generateDocx') || has('generateXlsx');
   return `
 ## Built-in Tools
 
 You also have these standalone tools — call them directly (no search needed):
 ${tools.map(describeTool).join('\n')}
 ${hasRenderChart ? `\n${RENDER_CHART_HINT}` : ''}
-${hasDocTools ? `\n${DOCUMENT_TOOLS_HINT}` : ''}
 `.trim();
 };
 
@@ -210,7 +193,15 @@ export function buildSystemPrompt(
   if (opts.hasErxesTools) {
     parts.push(ERXES_WORKFLOW_BLOCK(opts.scopeLine, opts.inventoryLines ?? []));
   }
-  if (opts.builtins.length) parts.push(BUILTIN_BLOCK(opts.builtins));
+  if (opts.builtins.length) {
+    parts.push(BUILTIN_BLOCK(opts.builtins));
+    // Static codebase skills that travel with their tools (e.g. document
+    // creation when a generate tool is bound). Runtime, not DB — always present.
+    const skills = staticSkillsBlock(
+      opts.builtins.flatMap((t) => [t.id, t.name].filter(Boolean) as string[]),
+    );
+    if (skills) parts.push(skills);
+  }
   if (!opts.hasErxesTools && !opts.builtins.length) parts.push(NO_TOOLS_BLOCK);
 
   if (agentInstructions?.trim()) {

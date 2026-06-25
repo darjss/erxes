@@ -14,13 +14,14 @@ import { chartSpecSchema } from '~/mastra/charts/chartSpec';
 // frontend/plugins/erxes-agent_ui/src/modules/chat/lib/artifacts.ts
 // ---------------------------------------------------------------------------
 
-export const DOCUMENT_FORMATS = ['pdf', 'docx', 'xlsx'] as const;
+export const DOCUMENT_FORMATS = ['pdf', 'docx', 'xlsx', 'pptx'] as const;
 export type DocumentFormat = (typeof DOCUMENT_FORMATS)[number];
 
 export const MIME_BY_FORMAT: Record<DocumentFormat, string> = {
   pdf: 'application/pdf',
   docx: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
   xlsx: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+  pptx: 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
 };
 
 export const chartArtifactSchema = z.object({

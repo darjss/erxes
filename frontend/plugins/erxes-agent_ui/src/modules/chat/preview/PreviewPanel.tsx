@@ -6,6 +6,7 @@ import {
   IconFile,
   IconFileTypeDocx,
   IconFileTypePdf,
+  IconFileTypePpt,
   IconFileTypeXls,
   IconMaximize,
   IconMinimize,
@@ -26,6 +27,7 @@ const artifactIcon = (a: Artifact) => {
   if (a.kind === 'chart') return IconChartBar;
   if (a.format === 'pdf') return IconFileTypePdf;
   if (a.format === 'docx') return IconFileTypeDocx;
+  if (a.format === 'pptx') return IconFileTypePpt;
   return IconFileTypeXls;
 };
 

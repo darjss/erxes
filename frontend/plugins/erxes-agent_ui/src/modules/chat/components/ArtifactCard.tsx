@@ -4,6 +4,7 @@ import {
   IconDownload,
   IconFileTypeDocx,
   IconFileTypePdf,
+  IconFileTypePpt,
   IconFileTypeXls,
   IconLayoutSidebarRightExpand,
 } from '@tabler/icons-react';
@@ -19,6 +20,7 @@ import { previewStore } from '~/modules/chat/preview/previewStore';
 const docIcon = (format: DocumentArtifact['format']) => {
   if (format === 'pdf') return IconFileTypePdf;
   if (format === 'docx') return IconFileTypeDocx;
+  if (format === 'pptx') return IconFileTypePpt;
   return IconFileTypeXls;
 };
 
