@@ -110,6 +110,44 @@ export const contractPaymentQueries = {
     });
   },
 
+  blockGetUnitPaymentPlanData: async (
+    _parent: undefined,
+    { unitId }: { unitId: string },
+    { models }: IContext,
+  ) => {
+    const signedStages = await models.ContractStatus.find({ type: 'signed' }, { _id: 1 }).lean();
+    if (!signedStages.length) return [];
+    const signedStageIds = signedStages.map((s: any) => s._id);
+    const contracts = await models.Contract.find(
+      { unit: new Types.ObjectId(unitId), status: { $in: signedStageIds } },
+      { _id: 1 },
+    ).lean();
+    if (!contracts.length) return [];
+    const contractIds = contracts.map((c: any) => c._id);
+    return models.ContractPayment.find({ contractId: { $in: contractIds } })
+      .sort({ dueDate: 1 })
+      .lean();
+  },
+
+  blockGetUnitPaymentTransactions: async (
+    _parent: undefined,
+    { unitId }: { unitId: string },
+    { models }: IContext,
+  ) => {
+    const signedStages = await models.ContractStatus.find({ type: 'signed' }, { _id: 1 }).lean();
+    if (!signedStages.length) return [];
+    const signedStageIds = signedStages.map((s: any) => s._id);
+    const contracts = await models.Contract.find(
+      { unit: new Types.ObjectId(unitId), status: { $in: signedStageIds } },
+      { _id: 1 },
+    ).lean();
+    if (!contracts.length) return [];
+    const contractIds = contracts.map((c: any) => c._id.toString());
+    return models.ContractPaymentTransaction.find({ contractId: { $in: contractIds } })
+      .sort({ date: -1 })
+      .lean();
+  },
+
   blockGetPaymentTransactions: async (
     _parent: undefined,
     { paymentId }: { paymentId: string },

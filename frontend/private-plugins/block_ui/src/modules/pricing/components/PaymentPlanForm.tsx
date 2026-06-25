@@ -109,27 +109,6 @@ export const PaymentPlanForm = ({ form }: { form: UseFormReturn<any> }) => {
     }
   };
 
-  const downLabel = (
-    <div className="flex items-center">
-      <Form.Label>Down payment</Form.Label>
-      <ModeToggle mode={downMode} onChange={switchDownMode} />
-    </div>
-  );
-
-  const barterLabel = (
-    <div className="flex items-center">
-      <Form.Label>Barter</Form.Label>
-      <ModeToggle mode={barterMode} onChange={switchBarterMode} />
-    </div>
-  );
-
-  const completionLabel = (
-    <div className="flex items-center">
-      <Form.Label>Completion payment</Form.Label>
-      <ModeToggle mode={completionMode} onChange={switchCompletionMode} />
-    </div>
-  );
-
   return (
     <>
       <Form.Field
@@ -184,16 +163,20 @@ export const PaymentPlanForm = ({ form }: { form: UseFormReturn<any> }) => {
         name="paymentPlan.downPaymentPercentage"
         render={({ field }) => (
           <Form.Item className={downMode !== 'percent' ? 'hidden' : ''}>
-            {downLabel}
-            <Input
-              {...field}
-              value={field.value ?? ''}
-              onChange={handlePercentChange(field.onChange)}
-              type="number"
-              max={100}
-              min={0}
-              placeholder="0 – 100 %"
-            />
+            <Form.Label>Down payment</Form.Label>
+            <div className="flex gap-1">
+              <Input
+                {...field}
+                value={field.value ?? ''}
+                onChange={handlePercentChange(field.onChange)}
+                type="number"
+                max={100}
+                min={0}
+                placeholder="0 – 100 %"
+                className="flex-1"
+              />
+              <ModeToggle mode={downMode} onChange={switchDownMode} />
+            </div>
             <Form.Message />
           </Form.Item>
         )}
@@ -202,15 +185,19 @@ export const PaymentPlanForm = ({ form }: { form: UseFormReturn<any> }) => {
         name="paymentPlan.downPaymentAmount"
         render={({ field }) => (
           <Form.Item className={downMode !== 'amount' ? 'hidden' : ''}>
-            {downLabel}
-            <Input
-              {...field}
-              value={field.value ?? ''}
-              onChange={(e) => field.onChange(e.target.value === '' ? undefined : Number(e.target.value))}
-              type="number"
-              min={0}
-              placeholder="Exact amount"
-            />
+            <Form.Label>Down payment</Form.Label>
+            <div className="flex gap-1">
+              <Input
+                {...field}
+                value={field.value ?? ''}
+                onChange={(e) => field.onChange(e.target.value === '' ? undefined : Number(e.target.value))}
+                type="number"
+                min={0}
+                placeholder="Exact amount"
+                className="flex-1"
+              />
+              <ModeToggle mode={downMode} onChange={switchDownMode} />
+            </div>
             <Form.Message />
           </Form.Item>
         )}
@@ -221,16 +208,20 @@ export const PaymentPlanForm = ({ form }: { form: UseFormReturn<any> }) => {
         name="paymentPlan.barterPercentage"
         render={({ field }) => (
           <Form.Item className={barterMode !== 'percent' ? 'hidden' : ''}>
-            {barterLabel}
-            <Input
-              {...field}
-              value={field.value ?? ''}
-              onChange={handlePercentChange(field.onChange)}
-              type="number"
-              max={100}
-              min={0}
-              placeholder="0 – 100 %"
-            />
+            <Form.Label>Barter</Form.Label>
+            <div className="flex gap-1">
+              <Input
+                {...field}
+                value={field.value ?? ''}
+                onChange={handlePercentChange(field.onChange)}
+                type="number"
+                max={100}
+                min={0}
+                placeholder="0 – 100 %"
+                className="flex-1"
+              />
+              <ModeToggle mode={barterMode} onChange={switchBarterMode} />
+            </div>
             <Form.Message />
           </Form.Item>
         )}
@@ -239,15 +230,19 @@ export const PaymentPlanForm = ({ form }: { form: UseFormReturn<any> }) => {
         name="paymentPlan.barterAmount"
         render={({ field }) => (
           <Form.Item className={barterMode !== 'amount' ? 'hidden' : ''}>
-            {barterLabel}
-            <Input
-              {...field}
-              value={field.value ?? ''}
-              onChange={(e) => field.onChange(e.target.value === '' ? undefined : Number(e.target.value))}
-              type="number"
-              min={0}
-              placeholder="Exact amount"
-            />
+            <Form.Label>Barter</Form.Label>
+            <div className="flex gap-1">
+              <Input
+                {...field}
+                value={field.value ?? ''}
+                onChange={(e) => field.onChange(e.target.value === '' ? undefined : Number(e.target.value))}
+                type="number"
+                min={0}
+                placeholder="Exact amount"
+                className="flex-1"
+              />
+              <ModeToggle mode={barterMode} onChange={switchBarterMode} />
+            </div>
             <Form.Message />
           </Form.Item>
         )}
@@ -258,16 +253,20 @@ export const PaymentPlanForm = ({ form }: { form: UseFormReturn<any> }) => {
         name="paymentPlan.completionPaymentPercentage"
         render={({ field }) => (
           <Form.Item className={completionMode !== 'percent' ? 'hidden' : ''}>
-            {completionLabel}
-            <Input
-              {...field}
-              value={field.value ?? ''}
-              onChange={handlePercentChange(field.onChange)}
-              type="number"
-              max={100}
-              min={0}
-              placeholder="0 – 100 %"
-            />
+            <Form.Label>Completion payment</Form.Label>
+            <div className="flex gap-1">
+              <Input
+                {...field}
+                value={field.value ?? ''}
+                onChange={handlePercentChange(field.onChange)}
+                type="number"
+                max={100}
+                min={0}
+                placeholder="0 – 100 %"
+                className="flex-1"
+              />
+              <ModeToggle mode={completionMode} onChange={switchCompletionMode} />
+            </div>
             <Form.Message />
           </Form.Item>
         )}
@@ -276,15 +275,19 @@ export const PaymentPlanForm = ({ form }: { form: UseFormReturn<any> }) => {
         name="paymentPlan.completionPaymentAmount"
         render={({ field }) => (
           <Form.Item className={completionMode !== 'amount' ? 'hidden' : ''}>
-            {completionLabel}
-            <Input
-              {...field}
-              value={field.value ?? ''}
-              onChange={(e) => field.onChange(e.target.value === '' ? undefined : Number(e.target.value))}
-              type="number"
-              min={0}
-              placeholder="Exact amount"
-            />
+            <Form.Label>Completion payment</Form.Label>
+            <div className="flex gap-1">
+              <Input
+                {...field}
+                value={field.value ?? ''}
+                onChange={(e) => field.onChange(e.target.value === '' ? undefined : Number(e.target.value))}
+                type="number"
+                min={0}
+                placeholder="Exact amount"
+                className="flex-1"
+              />
+              <ModeToggle mode={completionMode} onChange={switchCompletionMode} />
+            </div>
             <Form.Message />
           </Form.Item>
         )}

@@ -60,6 +60,8 @@ export const queries = `
     direction: String,
   ): BlockContractPaymentListResponse
   blockGetPaymentTransactions(paymentId: String!): [BlockContractPaymentTransaction]
+  blockGetUnitPaymentPlanData(unitId: String!): [BlockContractPayment]
+  blockGetUnitPaymentTransactions(unitId: String!): [BlockContractPaymentTransaction]
 `;
 
 export const mutations = `

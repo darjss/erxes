@@ -114,6 +114,19 @@ export const queries = `
     cursor: String
     direction: String
   ): BlockContractListResponse
+  blockGetUnitContractOverview(unitId: String!): BlockUnitContractOverview
+`;
+
+export const contractOverviewType = `
+  type BlockOverviewStageCount {
+    name: String
+    count: Int
+  }
+
+  type BlockUnitContractOverview {
+    total: Int
+    stages: [BlockOverviewStageCount]
+  }
 `;
 
 export const filterInputTypes = `

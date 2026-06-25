@@ -1,8 +1,9 @@
 import { useUnit } from '@/unit/hooks/useUnit';
 import { InfoCard, Label, useQueryState } from 'erxes-ui';
 
-export const ContractUnit = () => {
-  const [unitId] = useQueryState<string>('unitId');
+export const ContractUnit = ({ unitId: unitIdProp }: { unitId?: string } = {}) => {
+  const [unitIdFromState] = useQueryState<string>('unitId');
+  const unitId = unitIdProp || unitIdFromState;
   const { unit } = useUnit(unitId || '');
 
   if (!unitId || !unit) {

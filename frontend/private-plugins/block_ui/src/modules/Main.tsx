@@ -37,6 +37,12 @@ const OpptysPage = lazy(() =>
   })),
 );
 
+const OffersPage = lazy(() =>
+  import('~/pages/OffersPage').then((module) => ({
+    default: module.OffersPage,
+  })),
+);
+
 const PaymentsPage = lazy(() =>
   import('~/pages/PaymentsPage').then((module) => ({
     default: module.PaymentsPage,
@@ -53,6 +59,7 @@ const Main = () => {
         <Route path="project/:projectId">
           <Route path="stacking-plan" element={<StackingPlanPage />} />
           <Route path="opportunities" element={<OpptysPage />} />
+          <Route path="offers" element={<OffersPage />} />
           <Route path="contracts" element={<ContractsPage />} />
           <Route path="payments" element={<PaymentsPage />} />
         </Route>

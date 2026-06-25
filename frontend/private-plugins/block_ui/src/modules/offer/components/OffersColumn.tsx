@@ -1,9 +1,13 @@
 /* eslint-disable react-hooks/rules-of-hooks */
 import { IOffer } from '@/offer/types/offerTypes';
+import { offerDetailSheetState } from '@/offer/states/offerDetailSheetState';
 import {
   IconCalendar,
   IconCoin,
+  IconDots,
   IconHash,
+  IconMail,
+  IconPencil,
   IconProgressCheck,
   IconUser,
   IconUserCircle,
@@ -11,12 +15,15 @@ import {
 import { ColumnDef } from '@tanstack/table-core';
 import {
   Badge,
+  Button,
   CurrencyDisplay,
+  DropdownMenu,
   RecordTable,
   RecordTableInlineCell,
 } from 'erxes-ui';
 import { format } from 'date-fns';
 import { CustomersInline, CompaniesInline, MembersInline } from 'ui-modules';
+import { useSetAtom } from 'jotai';
 
 const parseDate = (value: any) => {
   if (!value) return null;
@@ -36,9 +43,14 @@ export const offersColumns = (): ColumnDef<IOffer>[] => {
       header: () => <RecordTable.InlineHead label="Number" icon={IconHash} />,
       cell: ({ cell }) => {
         const number = cell.getValue() as string;
+        const offerId = cell.row.original._id;
+        const setActiveOffer = useSetAtom(offerDetailSheetState);
         return (
-          <RecordTableInlineCell.Anchor className="ml-2">
-            #{number || cell.row.original._id?.slice(-6)}
+          <RecordTableInlineCell.Anchor
+            className="ml-2 cursor-pointer"
+            onClick={() => offerId && setActiveOffer(offerId)}
+          >
+            #{number || offerId?.slice(-6)}
           </RecordTableInlineCell.Anchor>
         );
       },
@@ -179,6 +191,39 @@ export const offersColumns = (): ColumnDef<IOffer>[] => {
         );
       },
       size: 180,
+    },
+    {
+      id: 'actions',
+      header: () => <span />,
+      cell: ({ cell }) => {
+        const offerId = cell.row.original._id;
+        const setActiveOffer = useSetAtom(offerDetailSheetState);
+        return (
+          <RecordTableInlineCell>
+            <DropdownMenu>
+              <DropdownMenu.Trigger asChild>
+                <Button variant="ghost" size="icon" className="h-7 w-7">
+                  <IconDots className="size-4" />
+                </Button>
+              </DropdownMenu.Trigger>
+              <DropdownMenu.Content className="blk:min-w-36" align="end">
+                <DropdownMenu.Item
+                  className="cursor-pointer"
+                  onClick={() => offerId && setActiveOffer(offerId)}
+                >
+                  <IconPencil className="size-4" />
+                  <span>Edit</span>
+                </DropdownMenu.Item>
+                <DropdownMenu.Item className="cursor-pointer">
+                  <IconMail className="size-4" />
+                  <span>Send via Email</span>
+                </DropdownMenu.Item>
+              </DropdownMenu.Content>
+            </DropdownMenu>
+          </RecordTableInlineCell>
+        );
+      },
+      size: 50,
     },
   ];
 };

@@ -14,6 +14,7 @@ import {
   IconContract,
   IconListCheck,
   IconFileInvoice,
+  IconFileText,
 } from '@tabler/icons-react';
 
 import { useProjects } from '@/project/hooks/useProjects';
@@ -75,6 +76,15 @@ function ProjectItem({ project }: ProjectItemProps) {
                 pathPrefix="block/project"
                 icon={IconListCheck}
                 path={`${project._id}/opportunities`}
+              />
+            </Sidebar.Menu>
+            <Sidebar.Menu>
+              <NavigationMenuLinkItem
+                name="Offers"
+                className="pl-6 font-medium"
+                pathPrefix="block/project"
+                icon={IconFileText}
+                path={`${project._id}/offers`}
               />
             </Sidebar.Menu>
             <Sidebar.Menu>
