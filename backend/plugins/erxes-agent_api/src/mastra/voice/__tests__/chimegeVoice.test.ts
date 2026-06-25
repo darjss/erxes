@@ -1,5 +1,4 @@
-import { concatWav } from '../audio';
-import { chunkTtsText, sanitizeTtsText } from '../chimegeVoice';
+import { chunkTtsText, concatWav, sanitizeTtsText } from '../chimegeVoice';
 import { computeVoiceStatus, resolveVoiceConfig } from '../config';
 
 describe('resolveVoiceConfig', () => {

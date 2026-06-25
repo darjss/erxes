@@ -9,45 +9,49 @@
 // SDK or new dependency. Failures surface as ExpectedError so the routes
 // translate them into a clean 4xx/5xx instead of a stack trace.
 //
-// Two Chimege constraints are bridged here (see ./audio.ts): STT wants WAV, so
-// the browser's webm/opus is transcoded first; TTS caps a request at 300
-// normalised chars, so long text is chunked and the WAV results are stitched.
+// No ffmpeg / server-side transcode: the browser captures raw PCM and encodes
+// the WAV itself, so STT just relays the uploaded WAV straight to Chimege. TTS
+// caps a request at 300 normalised chars, so long text is chunked and the
+// per-chunk WAV results are stitched here (concatWav).
 // ---------------------------------------------------------------------------
 
 import { ExpectedError } from 'erxes-api-shared/utils';
-import { concatWav, transcodeToWav } from '~/mastra/voice/audio';
 
 const CHIMEGE_API_BASE = 'https://api.chimege.com/v1.2';
 // Chimege rejects STT uploads over 3MB. At 16kHz mono 16-bit that is ~95s of
-// audio — ample for push-to-talk. Checked after transcode (the WAV is the
-// thing Chimege weighs, not the compressed upload).
-const MAX_WAV_BYTES = 3 * 1024 * 1024;
+// audio — ample for push-to-talk. The client encodes the WAV, but we never
+// trust it: the route enforces this bound before forwarding.
+export const MAX_WAV_BYTES = 3 * 1024 * 1024;
 // Chimege caps one /synthesize request at 300 normalised characters (err 4002).
 const MAX_TTS_CHUNK_CHARS = 300;
 
+/** Cheap RIFF/WAVE sanity check on an uploaded body — enough to reject obvious
+ *  non-WAV junk before forwarding it to Chimege, without decoding the stream. */
+export function isLikelyWav(buf: Buffer): boolean {
+  return (
+    buf.length >= 44 &&
+    buf.toString('ascii', 0, 4) === 'RIFF' &&
+    buf.toString('ascii', 8, 12) === 'WAVE'
+  );
+}
+
 export interface TranscribeParams {
   token: string;
+  // The body is ALREADY a 16-bit PCM WAV (encoded in the browser) — relayed
+  // verbatim to Chimege, no transcode.
   audio: Buffer;
   // Auto-punctuate the transcript (nicer text for the chat input).
   punctuate?: boolean;
-  // WAV sample rate to transcode the upload to before sending.
-  sampleRate?: number;
 }
 
-/** Transcribe recorded Mongolian speech to text via Chimege STT. Returns the
+/** Transcribe recorded Mongolian speech to text via Chimege STT. The body is
+ *  already a browser-encoded WAV, relayed straight to Chimege. Returns the
  *  trimmed transcript (empty string when the model heard nothing). */
 export async function transcribe(params: TranscribeParams): Promise<string> {
-  const { token, audio, punctuate = true, sampleRate = 16000 } = params;
+  const { token, audio, punctuate = true } = params;
 
-  // Bound the transcode at the source: -fs caps output bytes and the default
-  // -t caps duration, so a tiny compressed upload can't decode into gigabytes
-  // of PCM. The length check below is then just a safety net.
-  const wav = await transcodeToWav(audio, {
-    sampleRate,
-    channels: 1,
-    maxBytes: MAX_WAV_BYTES,
-  });
-  if (wav.length > MAX_WAV_BYTES) {
+  // Safety net behind the route's own guard: never forward an over-cap body.
+  if (audio.length > MAX_WAV_BYTES) {
     throw new ExpectedError(
       'Recording is too long. Please keep it under ~90 seconds.',
     );
@@ -62,7 +66,7 @@ export async function transcribe(params: TranscribeParams): Promise<string> {
         token,
         Punctuate: String(punctuate),
       },
-      body: new Uint8Array(wav),
+      body: new Uint8Array(audio),
     });
   } catch (err) {
     throw new ExpectedError(
@@ -230,4 +234,75 @@ function splitByWords(segment: string, max: number): string[] {
   }
   if (buf) out.push(buf);
   return out;
+}
+
+// ─── WAV stitching (TTS) ─────────────────────────────────────────────────────
+// Chimege TTS caps a request at 300 normalised chars, so a long reply is
+// synthesised in chunks. Each chunk comes back as its own WAV; concatWav
+// stitches the PCM payloads under one canonical header so the client plays a
+// single continuous clip. (This is pure buffer work — no ffmpeg, no transcode.)
+
+// Locate a RIFF subchunk by 4-char id, returning the byte range of its body.
+function findChunk(
+  buf: Buffer,
+  id: string,
+): { offset: number; size: number } | null {
+  let off = 12; // skip "RIFF"<size>"WAVE"
+  while (off + 8 <= buf.length) {
+    const cid = buf.toString('ascii', off, off + 4);
+    const size = buf.readUInt32LE(off + 4);
+    if (cid === id) return { offset: off + 8, size };
+    off += 8 + size + (size % 2); // chunks are word-aligned
+  }
+  return null;
+}
+
+function buildWavHeader(
+  dataLen: number,
+  fmt: { channels: number; sampleRate: number; bitsPerSample: number },
+): Buffer {
+  const { channels, sampleRate, bitsPerSample } = fmt;
+  const header = Buffer.alloc(44);
+  header.write('RIFF', 0);
+  header.writeUInt32LE(36 + dataLen, 4);
+  header.write('WAVE', 8);
+  header.write('fmt ', 12);
+  header.writeUInt32LE(16, 16);
+  header.writeUInt16LE(1, 20); // PCM
+  header.writeUInt16LE(channels, 22);
+  header.writeUInt32LE(sampleRate, 24);
+  header.writeUInt32LE((sampleRate * channels * bitsPerSample) / 8, 28);
+  header.writeUInt16LE((channels * bitsPerSample) / 8, 32);
+  header.writeUInt16LE(bitsPerSample, 34);
+  header.write('data', 36);
+  header.writeUInt32LE(dataLen, 40);
+  return header;
+}
+
+/** Stitch multiple PCM-WAV buffers (same format) into one clip. Reads the
+ *  format from the first part and concatenates every `data` payload under a
+ *  single canonical 44-byte header. */
+export function concatWav(parts: Buffer[]): Buffer {
+  const valid = parts.filter((p) => p && p.length > 44);
+  if (valid.length === 0) {
+    throw new ExpectedError('No audio was produced.');
+  }
+  if (valid.length === 1) return valid[0];
+
+  const first = valid[0];
+  const fmt = findChunk(first, 'fmt ');
+  if (!fmt) return first; // unparseable header — return the first clip as-is
+  const channels = first.readUInt16LE(fmt.offset + 2);
+  const sampleRate = first.readUInt32LE(fmt.offset + 4);
+  const bitsPerSample = first.readUInt16LE(fmt.offset + 14);
+
+  const datas = valid.map((p) => {
+    const d = findChunk(p, 'data');
+    return d ? p.subarray(d.offset, d.offset + d.size) : Buffer.alloc(0);
+  });
+  const pcm = Buffer.concat(datas);
+  return Buffer.concat([
+    buildWavHeader(pcm.length, { channels, sampleRate, bitsPerSample }),
+    pcm,
+  ]);
 }

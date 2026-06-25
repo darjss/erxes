@@ -2,7 +2,7 @@
 // Voice HTTP routes, mounted onto the plugin's express router by routes.ts.
 // Kept in its own module so the main chat-stream router stays focused.
 //
-//   POST /chat/voice/stt — raw audio body (audio/webm…) → { text } transcript
+//   POST /chat/voice/stt — raw WAV body (browser-encoded) → { text } transcript
 //   POST /chat/voice/tts — { text, voice? } JSON → audio bytes (audio/mpeg)
 //
 // Both share the chat path's gateway contract: the gateway authenticates the
@@ -20,10 +20,16 @@ import { makeIpRateLimiter } from '~/utils/rateLimit';
 import { VoiceConfig } from '~/mastra/voice/config';
 import { resolveVoiceConfigForTenant } from '~/mastra/voice/resolveConfig';
 import { CHIMEGE_VOICE_IDS } from '~/mastra/voice/voices';
-import { synthesize, transcribe } from '~/mastra/voice/chimegeVoice';
+import {
+  isLikelyWav,
+  MAX_WAV_BYTES,
+  synthesize,
+  transcribe,
+} from '~/mastra/voice/chimegeVoice';
 
-// Cap the raw upload well below abuse levels. The compressed webm is much
-// smaller than this; Chimege's own 3MB limit is enforced post-transcode.
+// Outer upload cap (express.raw limit). The body is a browser-encoded WAV; the
+// real bound is Chimege's 3MB cap (MAX_WAV_BYTES), enforced below before we
+// forward. This just stops an unauthenticated/oversized stream early.
 const MAX_AUDIO_BYTES = 25 * 1024 * 1024;
 // The client voices one sentence per call; long text is chunked into Chimege's
 // 300-char windows inside synthesize(). This is the outer request bound.
@@ -109,13 +115,23 @@ export function registerVoiceRoutes(router: Router): void {
       if (!Buffer.isBuffer(audio) || audio.length === 0) {
         return res.status(400).json({ error: 'No audio data received.' });
       }
+      // Don't trust the client: bound the WAV at Chimege's cap and sanity-check
+      // the header before forwarding. A bad/oversized body is a clean 400 (the
+      // client sent junk), never a 502 (upstream fault).
+      if (audio.length > MAX_WAV_BYTES) {
+        return res.status(400).json({
+          error: 'Recording is too long. Please keep it under ~90 seconds.',
+        });
+      }
+      if (!isLikelyWav(audio)) {
+        return res.status(400).json({ error: 'Invalid audio format.' });
+      }
 
       try {
         const text = await transcribe({
           token: voice.sttToken,
           audio,
           punctuate: voice.punctuate,
-          sampleRate: voice.sttSampleRate,
         });
         return res.json({ text });
       } catch (err) {

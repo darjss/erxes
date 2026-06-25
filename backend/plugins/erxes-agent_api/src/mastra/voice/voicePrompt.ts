@@ -15,6 +15,15 @@ export const VOICE_BREVITY_SYSTEM = [
   'emoji, or links. If you need to mention several things, say them in a flowing',
   'sentence rather than a list. Be warm, direct, and easy to listen to, and',
   'reply in the same language the user spoke.',
+  // The TTS voice can only pronounce Cyrillic; Latin script, foreign words, and
+  // raw digits come out wrong or get dropped. So make the reply itself speakable
+  // rather than relying solely on the downstream sanitizer.
+  'Your reply will be spoken by a Mongolian Cyrillic voice that can ONLY',
+  'pronounce Cyrillic. Write any foreign or Latin words, brand names, and',
+  'product names in Mongolian Cyrillic transliteration so they can be spoken,',
+  'never in Latin script. Spell out all numbers, dates, and units as Mongolian',
+  'words rather than digits. Do not use any Latin letters or other non-Cyrillic',
+  'characters in your reply.',
 ].join(' ');
 
 /**

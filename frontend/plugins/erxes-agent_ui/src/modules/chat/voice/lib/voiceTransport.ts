@@ -13,7 +13,7 @@ const errorMessage = async (res: Response, fallback: string): Promise<string> =>
   return (body as { error?: string } | null)?.error || fallback;
 };
 
-/** POST recorded audio to Whisper STT; resolves the transcript text. */
+/** POST the browser-encoded WAV to Chimege STT; resolves the transcript text. */
 export async function transcribeAudio(
   audio: Blob,
   signal?: AbortSignal,
@@ -21,7 +21,7 @@ export async function transcribeAudio(
   const res = await fetch(STT_URL, {
     method: 'POST',
     credentials: 'include',
-    headers: { 'Content-Type': audio.type || 'audio/webm' },
+    headers: { 'Content-Type': audio.type || 'audio/wav' },
     body: audio,
     signal,
   });

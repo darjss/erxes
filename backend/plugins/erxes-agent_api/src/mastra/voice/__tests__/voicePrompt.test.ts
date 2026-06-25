@@ -43,4 +43,18 @@ describe('buildTurnSystem', () => {
     expect(VOICE_BREVITY_SYSTEM).toMatch(/markdown/i);
     expect(VOICE_BREVITY_SYSTEM).toMatch(/one or two sentences/i);
   });
+
+  it('tells the model to produce speakable Cyrillic (transliterate, spell out)', () => {
+    expect(VOICE_BREVITY_SYSTEM).toMatch(/cyrillic/i);
+    expect(VOICE_BREVITY_SYSTEM).toMatch(/transliterat/i);
+    expect(VOICE_BREVITY_SYSTEM).toMatch(/spell out/i);
+  });
+
+  it('keeps the Cyrillic instruction out of the typed-chat path', () => {
+    const typed = buildTurnSystem({
+      voiceMode: false,
+      activeSkillInstructions: 'SKILL: do the thing',
+    });
+    expect(typed).not.toMatch(/cyrillic/i);
+  });
 });
