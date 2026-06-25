@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { IconCheck, IconCopy, IconPaperclip } from '@tabler/icons-react';
 import { Badge, Button, CopyText, Form, Input, cn, toast } from 'erxes-ui';
+import { ClampedNumberInput } from '~/components/ClampedNumberInput';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useGeneralSettings } from './hooks/useGeneralSettings';
@@ -42,6 +43,7 @@ export const GeneralSettingsPage = () => {
         erxesApiToken: settings.erxesApiToken || '',
         defaultAgentId: settings.defaultAgentId || '',
         attachmentsEnabled: settings.attachmentsEnabled !== false,
+        defaultAgentQuota: settings.defaultAgentQuota ?? 0,
       });
     }
   }, [settings, form]);
@@ -144,6 +146,29 @@ export const GeneralSettingsPage = () => {
                   <Form.Description>
                     Also used for GraphQL schema introspection when loading
                     erxes tools
+                  </Form.Description>
+                  <Form.Message />
+                </Form.Item>
+              )}
+            />
+
+            <Form.Field
+              control={form.control}
+              name="defaultAgentQuota"
+              render={({ field }) => (
+                <Form.Item>
+                  <Form.Label>Default agent creation quota</Form.Label>
+                  <Form.Control>
+                    <ClampedNumberInput
+                      field={field}
+                      min={0}
+                      max={10000}
+                      fallback={0}
+                      className="w-32"
+                    />
+                  </Form.Control>
+                  <Form.Description>
+                    Maximum agents a user may create (0 = unlimited). Shared / team-visible agents don't count toward this limit. Admins are always exempt.
                   </Form.Description>
                   <Form.Message />
                 </Form.Item>

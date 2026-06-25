@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useRef, useState } from 'react';
 import { Input } from 'erxes-ui';
 
 type NumberField = {
@@ -30,13 +30,15 @@ export const ClampedNumberInput = ({
   className?: string;
 }) => {
   const [text, setText] = useState(String(field.value));
+  // Tracks the last external field.value seen, so an outside change (form reset,
+  // blur clamp) re-syncs the text — but typing that already parses to field.value
+  // does not. A ref (not state): it's bookkeeping, never rendered.
+  const lastValue = useRef(field.value);
 
-  // Re-sync when the field changes from outside (form reset, blur clamp), but
-  // not while the user is typing a value that already parses to field.value.
-  useEffect(() => {
+  if (field.value !== lastValue.current) {
+    lastValue.current = field.value;
     if (parseInt(text, 10) !== field.value) setText(String(field.value));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [field.value]);
+  }
 
   return (
     <Input

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { IconChevronRight, IconSparkles } from '@tabler/icons-react';
 
 // Each reasoning burst is its own section, rendered in chronological order with
@@ -16,12 +16,17 @@ export const ThinkingSection = ({
   // can collapse them; finished bursts start collapsed. When a live burst
   // finishes it folds back to the one-line row.
   const [expanded, setExpanded] = useState(!!live);
+  // Whether the previous render was live — bookkeeping only, so a ref.
   const wasLive = useRef(!!live);
 
-  useEffect(() => {
-    if (wasLive.current && !live) setExpanded(false);
+  // When a live burst finishes it folds back to the one-line row. Adjusted
+  // during render (not in an effect) so it collapses in the same commit the
+  // stream ends, with no stale frame.
+  if (wasLive.current !== !!live) {
+    const justFinished = wasLive.current && !live;
     wasLive.current = !!live;
-  }, [live]);
+    if (justFinished) setExpanded(false);
+  }
 
   const tail = live && text.length > 280 ? '…' + text.slice(-280) : text;
 

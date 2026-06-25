@@ -34,15 +34,27 @@ import {
 } from '@/collective-package/db/models/CollectivePackage';
 import { IOrderDocument } from '@/supplier/@types/order';
 import { loadOrderClass, IOrderModel } from '@/supplier/db/models/Order';
+import { IMushopProductSpecificationDocument } from '@/product-specification/@types/productSpecification';
+import {
+  loadMushopProductSpecificationClass,
+  IMushopProductSpecificationModel,
+} from '@/product-specification/db/models/ProductSpecification';
+import { IMushopConfigDocument } from '@/config/@types/config';
+import {
+  loadMushopConfigClass,
+  IMushopConfigModel,
+} from '@/config/db/models/Config';
 
 export interface IModels {
   Supplier: ISupplierModel;
   Product: IMushopProductModel;
+  ProductSpecification: IMushopProductSpecificationModel;
   Membership: IMushopMembershipModel;
   MembershipPlan: IMushopMembershipPlanModel;
   Collective: ICollectiveModel;
   CollectivePackage: ICollectivePackageModel;
   Order: IOrderModel;
+  Config: IMushopConfigModel;
 }
 
 export interface IContext extends IMainContext {
@@ -75,6 +87,14 @@ export const loadClasses = (
       models,
       mushopEventHandlers('products', 'mushop_products'),
     ),
+  );
+
+  models.ProductSpecification = db.model<
+    IMushopProductSpecificationDocument,
+    IMushopProductSpecificationModel
+  >(
+    'mushop_product_specifications',
+    loadMushopProductSpecificationClass(models),
   );
 
   models.Membership = db.model<
@@ -115,6 +135,11 @@ export const loadClasses = (
   models.Order = db.model<IOrderDocument, IOrderModel>(
     'mushop_orders',
     loadOrderClass(models),
+  );
+
+  models.Config = db.model<IMushopConfigDocument, IMushopConfigModel>(
+    'mushop_configs',
+    loadMushopConfigClass(models),
   );
 
   return models;

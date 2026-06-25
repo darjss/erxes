@@ -1,4 +1,5 @@
 import {
+  useCallback,
   useState,
   type MouseEvent as ReactMouseEvent,
   type KeyboardEvent as ReactKeyboardEvent,
@@ -43,6 +44,12 @@ const SessionItem = ({
   const [editing, setEditing] = useState(false);
   const [draftTitle, setDraftTitle] = useState(title);
 
+  // Focus the rename field when it mounts. A stable callback ref (not autoFocus,
+  // which the a11y rule flags, and not an inline ref that re-fires every render).
+  const focusOnMount = useCallback((el: HTMLInputElement | null) => {
+    el?.focus();
+  }, []);
+
   const beginEdit = () => {
     setDraftTitle(title);
     setEditing(true);
@@ -58,6 +65,7 @@ const SessionItem = ({
 
   return (
     <button
+      type="button"
       onClick={() => onSelect(session.threadId)}
       className={`group/sess w-full text-left rounded-md px-2.5 py-2 transition-all hover:bg-accent border-l-2 ${
         active
@@ -73,7 +81,8 @@ const SessionItem = ({
         )}
         {editing ? (
           <input
-            autoFocus
+            ref={focusOnMount}
+            aria-label="Session title"
             value={draftTitle}
             onChange={(e) => setDraftTitle(e.target.value)}
             onClick={(e) => e.stopPropagation()}

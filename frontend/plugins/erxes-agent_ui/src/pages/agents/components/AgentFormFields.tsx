@@ -6,6 +6,7 @@ import {
   Form,
   Input,
   Label,
+  Select,
   Separator,
   Slider,
   Switch,
@@ -21,6 +22,7 @@ import {
   useProviderOptions,
 } from '~/components/SelectProviderModel';
 import { AgentToolPicker } from './AgentToolPicker';
+import { AgentVisibilitySectionFields } from './AgentVisibilitySectionFields';
 import { useAvailableErxesTools } from '../hooks/useAvailableErxesTools';
 import { AgentFormValues } from '../validations';
 
@@ -33,19 +35,22 @@ import { AgentFormValues } from '../validations';
 export const AgentFormFields = ({
   form,
   agentIdEditable = false,
+  isAdmin = false,
   onNameChange,
   onAgentIdChange,
 }: {
   form: UseFormReturn<AgentFormValues>;
   /** Create flow only — agentId is the bot-endpoint key, frozen once it exists. */
   agentIdEditable?: boolean;
+  /** When true the Visibility section is shown (admin-only feature). */
+  isAdmin?: boolean;
   /** Lets the create page drive its auto-slug behaviour off the name field. */
   onNameChange?: (value: string) => void;
   /** Lets the create page stop auto-slugging once agentId is hand-edited. */
   onAgentIdChange?: (value: string) => void;
 }) => {
-  const toolPolicy = form.watch('toolPolicy');
-  const provider = form.watch('provider');
+  const toolPolicy  = form.watch('toolPolicy');
+  const provider    = form.watch('provider');
   const temperature = form.watch('temperature');
 
   const { providers: enabledProviders } = useProviderOptions();
@@ -275,6 +280,8 @@ export const AgentFormFields = ({
           )}
         />
       </FormSection>
+
+      {isAdmin && <AgentVisibilitySectionFields form={form} />}
 
       <FormSection title="Behavior">
         <Form.Field

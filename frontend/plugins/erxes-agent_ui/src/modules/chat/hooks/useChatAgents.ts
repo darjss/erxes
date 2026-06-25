@@ -21,6 +21,10 @@ export interface IChatAgent {
   memoryEnabled?: boolean;
   maxSteps?: number;
   temperature?: number | null;
+  visibility?: 'private' | 'team' | 'department' | 'unit' | 'org';
+  teamId?: string | null;
+  departmentId?: string | null;
+  unitId?: string | null;
 }
 
 interface MastraAgentsResponse {

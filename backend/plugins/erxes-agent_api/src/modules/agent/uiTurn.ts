@@ -21,10 +21,22 @@ export class UITurnAccumulator {
   thinking = '';
   toolCalls: IMastraToolCall[] = [];
   parts: IMastraTurnPart[] = [];
+  // Mastra's assigned id for this turn's assistant message — emitted on the
+  // `start` chunk and reused when it persists the row. Carried to persistTurn so
+  // the client can rate the reply (feedback resolves this native id) without a
+  // reload. Meta itself is persisted by the output processor, not via this id.
+  messageId?: string;
   private thinkingOpen = false;
 
   fold(chunk: UIMessageChunk): void {
     switch (chunk.type) {
+      case 'start':
+        if (
+          typeof (chunk as { messageId?: unknown }).messageId === 'string'
+        ) {
+          this.messageId = (chunk as { messageId: string }).messageId;
+        }
+        break;
       case 'text-delta':
         this.text += chunk.delta ?? '';
         this.thinkingOpen = false;

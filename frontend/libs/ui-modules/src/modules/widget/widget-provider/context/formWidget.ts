@@ -13,6 +13,8 @@ export interface IFormWidgetForm {
 export interface IFormWidgetProps {
   pluginName: string;
   contentType: string;
+  // Id of the record the form belongs to. Empty while creating a new record.
+  contentId?: string;
   form: IFormWidgetForm;
 }
 

@@ -20,7 +20,8 @@ import {
 // agent config is global, so groups use the `all` scope while per-user
 // ownership for chat threads/feedback is enforced in the resolvers.
 
-const PLUGIN = 'erxes-agent';
+export const PLUGIN = 'erxes-agent';
+export const AGENT_ADMIN_GROUP_ID = `${PLUGIN}:admin`;
 type Scope = IPermissionScope['name'];
 
 const SCOPES: IPermissionScope[] = [
@@ -83,7 +84,6 @@ const SPECS: Spec[] = [
     prefix: 'agents',
     noun: 'agent',
     view: 'List and read AI agent configurations',
-    viewAlways: true,
     extra: [
       action(
         'agentsChat',
@@ -161,6 +161,22 @@ const SPECS: Spec[] = [
     viewAlways: true,
     edit: 'Edit, re-status or pin a learning statement',
   },
+  {
+    name: 'skills',
+    description: 'Agent skills (reusable SKILL.md know-how)',
+    prefix: 'skills',
+    noun: 'skill',
+    view: 'List and read agent skills and their version history',
+    viewAlways: true,
+    edit: 'Edit, publish or restore a version of your skills',
+    extra: [
+      action(
+        'skillsPromote',
+        'Promote skill',
+        'Promote a private skill to a global (public) one',
+      ),
+    ],
+  },
 ];
 
 const modules: IPermissionModule[] = SPECS.map((s) =>
@@ -210,25 +226,31 @@ export const permissions: IPermissionConfig = {
     {
       id: `${PLUGIN}:user`,
       name: 'Agent User',
-      description: 'Chat with agents and run existing workflows',
+      description: 'Chat with agents, create/edit/remove own private agents, and run existing workflows',
       permissions: [
-        grant('agent', ['agentsView', 'agentsChat']),
+        grant('agent', ['agentsView', 'agentsChat', 'agentsCreate', 'agentsEdit', 'agentsRemove']),
+        grant('provider', ['providersView']),
         grant('workflow', ['workflowsView', 'workflowsRun']),
         grant('schedule', ['schedulesView']),
         grant('learning', ['learningView']),
+        grant('skills', [
+          'skillsView',
+          'skillsCreate',
+          'skillsEdit',
+          'skillsRemove',
+        ]),
       ],
     },
     {
       id: `${PLUGIN}:viewer`,
       name: 'Agent Viewer',
-      description: 'Read-only access, including provider and settings status',
+      description: 'Read-only access to the plugin. Manually assigned by an admin. Can see the plugin in the sidebar but cannot use any agent services (no chat, no create/edit/remove, no run).',
       permissions: [
         grant('agent', ['agentsView']),
-        grant('provider', ['providersView']),
-        grant('settings', ['settingsView']),
         grant('workflow', ['workflowsView']),
         grant('schedule', ['schedulesView']),
         grant('learning', ['learningView']),
+        grant('skills', ['skillsView']),
       ],
     },
   ],

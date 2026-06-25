@@ -18,6 +18,7 @@ export const SUPPLIER_FRAGMENT = gql`
     phones
     dateFounded
     website
+    paymentId
     verificationStatus
     verificationNote
     tierLevel

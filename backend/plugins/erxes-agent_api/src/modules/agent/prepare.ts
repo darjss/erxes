@@ -1,12 +1,13 @@
 import { IUserDocument } from 'erxes-api-shared/core-types';
 import { ExpectedError } from 'erxes-api-shared/utils';
+import { isAgentAdmin, canUserAccessAgent, getUserUnitIds } from '@/agent/utils';
 import { IModels } from '~/connectionResolvers';
 import { getOrCreateAgent } from '~/mastra/agentRuntime';
 import {
   isAdvancedMemoryEnabled,
   resolveRecallTuning,
 } from '~/mastra/memory/config';
-import { scopedResource, getMastraMemory } from '~/mastra/memory/mastraMemory';
+import { scopedResource } from '~/mastra/memory/mastraMemory';
 import { deriveResourceId, augmentConvo, MemoryContext } from '~/mastra/memory';
 import { readLearnedDigest } from '~/mastra/learning/digest';
 import { ApprovedOp } from '~/mastra/requestContext';
@@ -14,8 +15,10 @@ import { buildChatUserContent } from '~/mastra/files/chatContent';
 import { IMastraChatAttachment } from '@/session/@types/session';
 import {
   ensureThreadRegistered,
+  getNativeMemory,
   resourceHasThreads,
 } from '@/session/nativeStore';
+import { buildActivatedSkillsBlock } from '@/skills/service/skillsService';
 import {
   MemoryBinding,
   PreparedTurn,
@@ -77,6 +80,8 @@ export interface PrepareTurnParams {
   // the turn). On for chat/bot; off for scheduled runs (whose prompt is run
   // verbatim, the pre-generalization behaviour).
   weaveDigest?: boolean;
+  // Skill names the user explicitly slash-activated for THIS turn.
+  activeSkillNames?: string[];
 }
 
 export async function prepareTurn(
@@ -92,6 +97,7 @@ export async function prepareTurn(
     attachments,
     approvedOperations,
     weaveDigest = true,
+    activeSkillNames,
   } = params;
 
   // Same NoSQL-injection guard as sessionId below: agentId arrives from the
@@ -100,19 +106,35 @@ export async function prepareTurn(
     throw new ExpectedError('agentId must be a non-empty string');
   }
 
-  // The three independent reads a turn needs, collapsed into ONE round trip
-  // instead of three serial awaits (each a remote round trip on a hosted Mongo).
-  // settings + providers are then handed to getOrCreateAgent so it does not
-  // re-fetch them. getSettings() is the canonical accessor (30s process cache +
-  // env overrides) — the same one getOrCreateAgent and the bot path use, so the
-  // value (incl. the env-overridden api token below) stays consistent.
-  const [agentConfig, settings, providers] = await Promise.all([
+  // Four independent reads collapsed into one round trip. Unit membership lives
+  // on the unit document (not the user), so it needs its own query — issued in
+  // parallel with the other three so it adds no wall-clock latency. Non-user
+  // identities (bot, schedule) don't need unit membership.
+  const [agentConfig, settings, providers, unitIds] = await Promise.all([
     models.MastraAgent.findOne({ agentId, isEnabled: true }),
     models.MastraSettings.getSettings(),
     models.MastraProvider.find({ isEnabled: true }),
+    identity.kind === 'user' && identity.user
+      ? getUserUnitIds(models, identity.user._id)
+      : Promise.resolve<string[]>([]),
   ]);
   if (!agentConfig)
     throw new ExpectedError(`Agent "${agentId}" not found or disabled`);
+
+  if (identity.kind === 'user' && identity.user) {
+    if (
+      !canUserAccessAgent(
+        agentConfig,
+        identity.user._id,
+        isAgentAdmin(identity.user),
+        identity.user.branchIds ?? [],
+        identity.user.departmentIds ?? [],
+        unitIds,
+      )
+    ) {
+      throw new ExpectedError(`Agent "${agentId}" not found or disabled`);
+    }
+  }
 
   // Stable session id — the persisted thread this turn belongs to.
   // typeof guard keeps crafted non-string payloads out of Mongo queries
@@ -176,13 +198,10 @@ export async function prepareTurn(
       providers,
     }),
     needsThreadRead
-      ? (async () => {
-          const memory = await getMastraMemory(subdomain);
-          return (await memory.getThreadById({
-            threadId: sessionId,
-          } as never)) as { resourceId?: string } | null;
-        })()
-      : Promise.resolve<{ resourceId?: string } | null>(null),
+      ? getNativeMemory(subdomain).then((m) =>
+          m.getThreadById({ threadId: sessionId }),
+        )
+      : Promise.resolve(null),
     needsResourceProbe && recallResource
       ? // Best-effort: this is only a recall optimization, so a failure must degrade
         // to the safe default (null → "history might exist" → recall stays on), never
@@ -218,13 +237,10 @@ export async function prepareTurn(
   // per-call deep-merge of semanticRecall:false, so working memory, recent
   // history, and native titling are untouched.
   const recallCanReturnHistory =
-    identity.kind !== 'user' || !memoryBinding
-      ? true
-      : priorThread
-        ? true
-        : recallScope === 'resource'
-          ? resourceHadThreads !== false
-          : false;
+    identity.kind !== 'user' ||
+    !memoryBinding ||
+    !!priorThread ||
+    (recallScope === 'resource' && resourceHadThreads !== false);
   if (memoryBinding && !recallCanReturnHistory) {
     memoryBinding.options = { semanticRecall: false };
   }
@@ -281,9 +297,34 @@ export async function prepareTurn(
     convo[convo.length - 1] = { role: 'user', content };
   }
 
+  // Only an in-app user can slash-activate skills (bot/schedule turns carry no
+  // composer). The user's id resolves their own reachable skills below.
+  const userId =
+    identity.kind === 'user' ? identity.user?._id : undefined;
+
+  // Explicit slash-activation force-loads the chosen skill's FULL instructions
+  // into this turn (vs. the native skill tool, which the model may never call).
+  // Resolved through the reachable set so a crafted name can't reach a skill the
+  // user can't: the agent's globs still gate which GLOBAL skills are reachable,
+  // but a user's OWN published skill is always reachable, so an explicit
+  // activation works on any agent — matching what the slash palette offers. No
+  // store hit unless something is activated.
+  const activated =
+    userId && activeSkillNames?.length
+      ? await buildActivatedSkillsBlock(
+          subdomain,
+          userId,
+          agentConfig.skills ?? [],
+          activeSkillNames,
+        )
+      : undefined;
+
   const authCtx = {
     userHeader,
     token: settings?.erxesApiToken,
+    userId,
+    threadId: sessionId,
+    agentId,
     subdomain,
     approvedOps: approvedOperations,
   };
@@ -306,6 +347,8 @@ export async function prepareTurn(
     memCtx,
     attachments,
     learningIds: digest?.ids ?? [],
+    activeSkillInstructions: activated?.instructions,
+    appliedSkillNames: activated?.names ?? [],
   };
 }
 
@@ -320,6 +363,8 @@ export async function prepareChatTurn(params: {
   threadId?: string;
   attachments?: IMastraChatAttachment[];
   approvedOperations?: ApprovedOp[];
+  // Skill names the user explicitly slash-activated for THIS turn.
+  activeSkillNames?: string[];
 }): Promise<PreparedTurn> {
   const { user, ...rest } = params;
   return prepareTurn({ ...rest, identity: { kind: 'user', user } });

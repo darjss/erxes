@@ -1,5 +1,5 @@
 import { memo } from 'react';
-import { IconRefresh } from '@tabler/icons-react';
+import { IconBolt, IconRefresh } from '@tabler/icons-react';
 import { Collapsible, Tooltip } from 'erxes-ui';
 import { AgentUIMessage } from '~/modules/chat/types';
 import { asToolPart, messageText } from '~/modules/chat/lib/uiParts';
@@ -121,6 +121,7 @@ export const MessageBubble = memo(function MessageBubble({
     (p) => p.type === 'reasoning' || !!asToolPart(p),
   );
   const canRegenerate = isLast && !chatLoading;
+  const activeSkills = msg.metadata?.activeSkills;
   const messageId = msg.metadata?.messageId;
   const handleRate =
     ratingEnabled && messageId
@@ -131,6 +132,20 @@ export const MessageBubble = memo(function MessageBubble({
     <div className="flex justify-start items-start gap-2.5 group ea-msg-in">
       <AgentAvatar live={streaming} />
       <div className="max-w-[82%] min-w-0 rounded-2xl rounded-bl-md px-4 py-2.5 shadow-sm">
+        {activeSkills && activeSkills.length > 0 && (
+          <div className="flex flex-wrap items-center gap-1 mb-1.5">
+            {activeSkills.map((name) => (
+              <span
+                key={name}
+                className="inline-flex items-center gap-1 rounded-full bg-primary/10 text-primary px-2 py-0.5 text-[10px] font-medium"
+                title={`Skill "${name}" was applied to this reply`}
+              >
+                <IconBolt className="size-3" />
+                {name}
+              </span>
+            ))}
+          </div>
+        )}
         {turnParts.length > 0 && (
           <ToolsSection parts={turnParts} streaming={streaming} />
         )}

@@ -12,6 +12,11 @@ export interface ApprovedOp {
 interface RequestAuth {
   userHeader?: string;
   token?: string;
+  /** Requesting user's id — used to resolve their own skills at request time. */
+  userId?: string;
+  /** Current chat thread + agent — used by the makeSkill tool to read this turn's thread. */
+  threadId?: string;
+  agentId?: string;
   /** Tenant of the request — required by tools that query tenant-partitioned stores (Qdrant). */
   subdomain?: string;
   /** Destructive ops the user approved for THIS turn — the execute guard runs an

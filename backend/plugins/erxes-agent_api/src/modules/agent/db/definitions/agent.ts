@@ -20,6 +20,10 @@ export const agentSchema = new Schema(
       label: 'Tool Policy',
     },
     allowedTools: [{ type: String }],
+    // Skill allowlist. Glob patterns matched against global skills' name (or
+    // "category/name"); the requesting user's own published skills are always
+    // added on top. Empty/unset → the agent has no skills attached.
+    skills: [{ type: String }],
     // Consent for irreversible deletes/merges (remove/delete/merge mutations).
     //   'ask' (default) → the agent asks the user to approve each one in chat.
     //   'allow'         → they run without asking.
@@ -39,6 +43,18 @@ export const agentSchema = new Schema(
     temperature: { type: Number, min: 0, max: 2, label: 'Temperature' },
     isEnabled: { type: Boolean, default: true },
     createdBy: { type: String, label: 'Created By' },
+    visibility: {
+      type: String,
+      enum: ['private', 'team', 'department', 'unit', 'org'],
+      default: 'private',
+      label: 'Visibility',
+    },
+    // teamId   — branch _id for 'team' scope; also stored as cascade context for
+    //            'department' and 'unit' scopes so the edit form can reconstruct
+    //            the branch selection without a reverse-lookup.
+    teamId: { type: String },
+    departmentId: { type: String },
+    unitId: { type: String },
   },
   { timestamps: true },
 );
