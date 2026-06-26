@@ -29,6 +29,7 @@ export const Composer = ({
   voiceEnabled,
   voiceMode,
   onVoiceModeToggle,
+  onVoiceSetup,
   textareaRef,
   fileInputRef,
 }: {
@@ -46,6 +47,7 @@ export const Composer = ({
   voiceEnabled: boolean;
   voiceMode: boolean;
   onVoiceModeToggle: () => void;
+  onVoiceSetup: () => void;
   textareaRef: RefObject<HTMLTextAreaElement>;
   fileInputRef: RefObject<HTMLInputElement>;
 }) => {
@@ -109,13 +111,13 @@ export const Composer = ({
             onChange={onReasoningEffortChange}
             disabled={chatLoading}
           />
-          {voiceEnabled && (
-            <VoiceModeToggle
-              active={voiceMode}
-              onToggle={onVoiceModeToggle}
-              disabled={chatLoading}
-            />
-          )}
+          <VoiceModeToggle
+            configured={voiceEnabled}
+            active={voiceMode}
+            onToggle={onVoiceModeToggle}
+            onConfigure={onVoiceSetup}
+            disabled={chatLoading}
+          />
           <Textarea
             ref={textareaRef}
             value={input}
