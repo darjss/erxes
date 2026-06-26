@@ -146,6 +146,22 @@ export const PROJECT_OFFERS_OVERVIEW = gql`
   }
 `;
 
+export const PROJECT_PAYMENT_TRANSACTIONS = gql`
+  query BlockGetProjectPaymentTransactions($projectId: String!) {
+    blockGetProjectPaymentTransactions(projectId: $projectId) {
+      _id
+      paymentId
+      contractId
+      amount
+      date
+      note
+      paymentMethod
+      createdBy
+      createdAt
+    }
+  }
+`;
+
 export const PROJECT_OPPTYS_OVERVIEW = gql`
   query ProjectOpptysOverview($projectId: String!) {
     blockGetOpptys(projectId: $projectId, filter: {}) {

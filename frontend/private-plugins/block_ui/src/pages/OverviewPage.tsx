@@ -19,6 +19,8 @@ import {
   IconArrowUpRight,
   IconArrowDownRight,
   IconChartLine,
+  IconCoin,
+  IconCreditCard,
 } from '@tabler/icons-react';
 import {
   Area,
@@ -29,15 +31,16 @@ import {
   YAxis,
 } from 'recharts';
 import { format } from 'date-fns';
-import { PROJECT_PAYMENT_PLAN_DATA, PROJECT_OFFERS_OVERVIEW } from '@/unit/graphql/unitStatsQueries';
-import { IContractPayment } from '@/contract-payment/types';
+import { PROJECT_PAYMENT_PLAN_DATA, PROJECT_OFFERS_OVERVIEW, PROJECT_PAYMENT_TRANSACTIONS } from '@/unit/graphql/unitStatsQueries';
+import { IContractPayment, IContractPaymentTransaction } from '@/contract-payment/types';
+import { PaymentsRecordTable } from '@/contract-payment/components/PaymentsRecordTable';
+import { PaymentTransactionsSheet } from '@/contract-payment/components/PaymentTransactionsSheet';
 import type { ComponentType } from 'react';
 
 type Period = 'monthly' | 'yearly';
 
 const EXPECTED_COLOR = '#6366f1';
 const RECEIVED_COLOR = '#10b981';
-const OFFER_COLOR = '#8b5cf6';
 
 const formatAmount = (val: number) => {
   if (val >= 1_000_000_000) return `${(val / 1_000_000_000).toFixed(1)}B`;
@@ -245,80 +248,11 @@ const PaymentPerformanceChart = ({
   );
 };
 
-const PriceInsightsChart = ({
-  offers,
-  period,
-}: {
-  offers: { _id: string; amount: number; date: string }[];
-  period: Period;
-}) => {
-  const [tooltip, setTooltip] = useState<{ x: number; y: number; label: string; value: number } | null>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const chartData = buildOfferChartData(offers, period);
-
-  if (!chartData.length) return null;
-
-  return (
-    <div className="flex flex-col gap-3">
-      <p className="text-sm font-semibold">Price Insights</p>
-      <div ref={containerRef} style={{ width: '100%', height: 240, position: 'relative' }}>
-        {tooltip && (() => {
-          const cw = containerRef.current?.offsetWidth ?? 0;
-          const flip = cw > 0 && tooltip.x > cw / 2;
-          return (
-            <div
-              className="absolute z-10 pointer-events-none rounded-lg border bg-background shadow-md p-2 text-xs"
-              style={{
-                left: flip ? tooltip.x - 8 : tooltip.x + 12,
-                top: Math.max(0, tooltip.y - 36),
-                transform: flip ? 'translateX(-100%)' : 'none',
-              }}
-            >
-              <p className="font-medium mb-1">{tooltip.label}</p>
-              <div className="flex items-center gap-1.5">
-                <span className="inline-block h-2 w-2 rounded-full" style={{ backgroundColor: OFFER_COLOR }} />
-                <span className="font-medium">{formatAmount(tooltip.value)}</span>
-              </div>
-            </div>
-          );
-        })()}
-        <ResponsiveContainer width="100%" height="100%">
-          <AreaChart
-            data={chartData}
-            margin={{ top: 4, right: 8, left: 0, bottom: 0 }}
-            onMouseMove={(state: any) => {
-              const idx = state.activeTooltipIndex;
-              if (state.activeCoordinate && idx !== undefined && chartData[idx]) {
-                const pt = chartData[idx];
-                setTooltip({ x: state.activeCoordinate.x, y: state.activeCoordinate.y, label: pt.label, value: pt.amount });
-              } else {
-                setTooltip(null);
-              }
-            }}
-            onMouseLeave={() => setTooltip(null)}
-          >
-            <defs>
-              <linearGradient id="ovGradOffer" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor={OFFER_COLOR} stopOpacity={0.25} />
-                <stop offset="95%" stopColor={OFFER_COLOR} stopOpacity={0} />
-              </linearGradient>
-            </defs>
-            <CartesianGrid vertical={false} strokeDasharray="3 3" />
-            <XAxis dataKey="label" tickLine={false} axisLine={false} tick={{ fontSize: 11 }} interval="preserveStartEnd" />
-            <YAxis tickLine={false} axisLine={false} tick={{ fontSize: 11 }} tickFormatter={formatAmount} width={52} />
-            <Area dataKey="amount" type="monotone" stroke={OFFER_COLOR} fill="url(#ovGradOffer)" strokeWidth={2} dot={false} isAnimationActive={false} />
-          </AreaChart>
-        </ResponsiveContainer>
-      </div>
-    </div>
-  );
-};
-
 // ── page ───────────────────────────────────────────────────────────────────
 
 export const OverviewPage = () => {
   const { projectId } = useParams();
-  const [period, setPeriod] = useState<Period>('yearly');
+  const [period, setPeriod] = useState<Period>('monthly');
 
   const { data: paymentData, loading: paymentLoading } = useQuery<{
     blockGetProjectPaymentPlanData: IContractPayment[];
@@ -334,8 +268,17 @@ export const OverviewPage = () => {
     skip: !projectId,
   });
 
+  const { data: txData, loading: txLoading } = useQuery<{
+    blockGetProjectPaymentTransactions: IContractPaymentTransaction[];
+  }>(PROJECT_PAYMENT_TRANSACTIONS, {
+    variables: { projectId },
+    skip: !projectId,
+    fetchPolicy: 'cache-and-network',
+  });
+
   const payments = paymentData?.blockGetProjectPaymentPlanData ?? [];
   const offers = offerData?.blockGetOffersList?.list ?? [];
+  const transactions = txData?.blockGetProjectPaymentTransactions ?? [];
   const now = Date.now();
   const nowDate = new Date(now);
   const currentYear = nowDate.getFullYear();
@@ -503,9 +446,9 @@ export const OverviewPage = () => {
             </div>
           )}
 
-          {/* Price insights stats + chart */}
+          {/* Price insights stats */}
           {offerLoading ? (
-            <Skeleton className="h-[300px] w-full rounded-xl" />
+            <Skeleton className="h-[120px] w-full rounded-xl" />
           ) : offers.length > 0 ? (() => {
             const periodOffers = buildOfferChartData(offers, period);
             const amounts = periodOffers.map((o) => o.amount).filter((a) => a > 0);
@@ -513,37 +456,99 @@ export const OverviewPage = () => {
             const highestAmount = amounts.length ? Math.max(...amounts) : 0;
             const lowestAmount = amounts.length ? Math.min(...amounts) : 0;
             return (
-              <>
-                <div className="grid grid-cols-3 gap-4">
-                  <StatCard
-                    icon={IconChartLine}
-                    color="#6366f1"
-                    label="Avg. Offer Amount"
-                    value={`₮ ${formatAmount(avgAmount)}`}
-                    sub={period === 'monthly' ? 'This month' : 'This year'}
-                    loading={false}
-                  />
-                  <StatCard
-                    icon={IconArrowUpRight}
-                    color="#10b981"
-                    label="Highest Offer"
-                    value={`₮ ${formatAmount(highestAmount)}`}
-                    loading={false}
-                  />
-                  <StatCard
-                    icon={IconArrowDownRight}
-                    color="#f59e0b"
-                    label="Lowest Offer"
-                    value={`₮ ${formatAmount(lowestAmount)}`}
-                    loading={false}
-                  />
-                </div>
-                <div className="rounded-xl border bg-card p-5">
-                  <PriceInsightsChart offers={offers} period={period} />
-                </div>
-              </>
+              <div className="grid grid-cols-3 gap-4">
+                <StatCard
+                  icon={IconChartLine}
+                  color="#6366f1"
+                  label="Avg. Offer Amount"
+                  value={`₮ ${formatAmount(avgAmount)}`}
+                  sub={period === 'monthly' ? 'This month' : 'This year'}
+                  loading={false}
+                />
+                <StatCard
+                  icon={IconArrowUpRight}
+                  color="#10b981"
+                  label="Highest Offer"
+                  value={`₮ ${formatAmount(highestAmount)}`}
+                  loading={false}
+                />
+                <StatCard
+                  icon={IconArrowDownRight}
+                  color="#f59e0b"
+                  label="Lowest Offer"
+                  value={`₮ ${formatAmount(lowestAmount)}`}
+                  loading={false}
+                />
+              </div>
             );
           })() : null}
+
+          {/* Transaction history */}
+          <div className="flex flex-col gap-2">
+            <p className="text-sm font-medium">Transaction History</p>
+            {txLoading && !transactions.length ? (
+              <div className="flex flex-col gap-2">
+                {Array.from({ length: 4 }).map((_, i) => (
+                  <Skeleton key={i} className="h-14 w-full rounded-lg" />
+                ))}
+              </div>
+            ) : transactions.length === 0 ? (
+              <div className="text-sm text-muted-foreground py-6 text-center">
+                No transactions recorded yet
+              </div>
+            ) : (
+              <div className="flex flex-col gap-2">
+                {transactions.map((tx) => {
+                  const d = parseDateLike(tx.date);
+                  return (
+                    <div
+                      key={tx._id}
+                      className="flex items-start justify-between gap-3 rounded-lg border p-3"
+                    >
+                      <div className="flex items-center gap-3 min-w-0">
+                        <div className="rounded-full p-2 shrink-0" style={{ backgroundColor: '#10b98120' }}>
+                          <IconCoin className="size-4" style={{ color: '#10b981' }} />
+                        </div>
+                        <div className="min-w-0">
+                          <div className="font-medium text-sm">
+                            {tx.amount?.toLocaleString()} ₮
+                          </div>
+                          {tx.note && (
+                            <div className="text-xs text-muted-foreground truncate">{tx.note}</div>
+                          )}
+                        </div>
+                      </div>
+                      <div className="flex flex-col items-end gap-1 shrink-0">
+                        <span className="text-xs text-muted-foreground">
+                          {d ? format(d, 'MMM dd, yyyy') : '-'}
+                        </span>
+                        {tx.paymentMethod && (
+                          <span className="flex items-center gap-1 text-xs bg-muted text-muted-foreground px-2 py-0.5 rounded-full">
+                            <IconCreditCard className="size-3" />
+                            {tx.paymentMethod}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+
+          {/* Payment schedule */}
+          <div className="flex flex-col gap-2">
+            <p className="text-sm font-medium">Payment Schedule</p>
+            <div className="h-[400px]">
+              <PaymentsRecordTable
+                payments={payments}
+                loading={paymentLoading}
+                tableId="overview_payment_schedule"
+                showUnit
+              />
+            </div>
+            <PaymentTransactionsSheet />
+          </div>
         </div>
         <ScrollArea.Bar orientation="vertical" />
       </ScrollArea>
