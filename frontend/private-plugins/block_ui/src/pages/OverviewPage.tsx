@@ -276,7 +276,22 @@ export const OverviewPage = () => {
     fetchPolicy: 'cache-and-network',
   });
 
-  const payments = paymentData?.blockGetProjectPaymentPlanData ?? [];
+  const rawPayments = paymentData?.blockGetProjectPaymentPlanData ?? [];
+  const _sortNow = Date.now();
+  const payments = [...rawPayments].sort((a, b) => {
+    const priority = (p: IContractPayment) => {
+      if (p.status === 'paid') return 2;
+      const due = parseDateLike(p.dueDate)?.getTime() ?? 0;
+      if (due && due < _sortNow) return 0;
+      return 1;
+    };
+    const pa = priority(a);
+    const pb = priority(b);
+    if (pa !== pb) return pa - pb;
+    const da = parseDateLike(a.dueDate)?.getTime() ?? 0;
+    const db = parseDateLike(b.dueDate)?.getTime() ?? 0;
+    return da - db;
+  });
   const offers = offerData?.blockGetOffersList?.list ?? [];
   const transactions = txData?.blockGetProjectPaymentTransactions ?? [];
   const now = Date.now();
@@ -539,14 +554,13 @@ export const OverviewPage = () => {
           {/* Payment schedule */}
           <div className="flex flex-col gap-2">
             <p className="text-sm font-medium">Payment Schedule</p>
-            <div className="h-[400px]">
-              <PaymentsRecordTable
-                payments={payments}
-                loading={paymentLoading}
-                tableId="overview_payment_schedule"
-                showUnit
-              />
-            </div>
+            <PaymentsRecordTable
+              payments={payments}
+              loading={paymentLoading}
+              tableId="overview_payment_schedule"
+              showUnit
+              className="!h-auto !overflow-visible"
+            />
             <PaymentTransactionsSheet />
           </div>
         </div>
