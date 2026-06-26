@@ -60,12 +60,18 @@ CSV, or XML yourself — the tools do the rendering.
    (For generateXlsx, passed charts are added on a "Charts" tab — no markdown ref.)
 The same chart then appears identically in chat and in the file.
 
-## Reading a file back (file_reader)
+## Reading a file (file_reader)
 - Every generate tool returns an artifact with an \`id\`. To re-read a file you
   just produced (to verify it or build a follow-up), call **file_reader** with
   that \`artifactId\`. To read a file the USER attached, call file_reader with the
-  \`key\` from the message's "Attached files" manifest. It handles pdf, docx, xlsx,
+  \`key\` from the message's "Attached files" manifest. To read a file from a
+  public link, call file_reader with its \`url\`. It handles pdf, docx, xlsx,
   pptx, csv, txt, md, json, and html.
+- To LOOK at an image given by URL (so you can describe or use it), call
+  file_reader with that image's \`url\` — png/jpeg/gif/webp images are shown to you
+  visually. (An image the user ATTACHED to the message is already visible — no
+  call needed for that.) file_reader fetches only images and documents by URL;
+  other file types are refused.
 
 ## After a successful generate call
 - Tell the user, in ONE plain sentence, that the file is ready in the Preview

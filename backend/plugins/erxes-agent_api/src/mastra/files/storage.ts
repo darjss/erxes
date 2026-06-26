@@ -1,5 +1,6 @@
 import { ExpectedError, sendTRPCMessage } from 'erxes-api-shared/utils';
 import { createTTLCache } from '~/utils/ttlCache';
+import { safeFetch } from '~/mastra/safeFetch';
 
 // ---------------------------------------------------------------------------
 // Attachment storage — detection + retrieval.
@@ -164,4 +165,45 @@ export async function fetchAttachmentBuffer(params: {
   }
 
   return { buffer, contentType: res.headers.get('content-type') || '' };
+}
+
+/**
+ * Download a file from a public http(s) URL the agent (or user) supplied —
+ * the file_reader URL path. Unlike fetchAttachmentBuffer (trusted internal
+ * keys), this URL is model/user-controlled, so it goes through safeFetch's
+ * SSRF guard: http(s) only, no private/link-local hosts, every redirect hop
+ * re-validated. Size is capped both by the declared content-length and the
+ * actual bytes.
+ */
+export async function fetchRemoteFile(params: {
+  url: string;
+  name?: string;
+  maxBytes?: number;
+}): Promise<{ buffer: Buffer; contentType: string; finalUrl: string }> {
+  const { url, name } = params;
+  const maxBytes = params.maxBytes ?? MAX_ATTACHMENT_BYTES;
+  const maxMb = Math.round(maxBytes / (1024 * 1024));
+
+  const { res, finalUrl } = await safeFetch(url);
+  if (!res.ok) {
+    throw new ExpectedError(
+      `Could not fetch "${name || url}" (HTTP ${res.status})`,
+    );
+  }
+
+  const lenHeader = Number(res.headers.get('content-length') || 0);
+  if (lenHeader > maxBytes) {
+    throw new ExpectedError(`File "${name || url}" is too large (max ${maxMb}MB)`);
+  }
+
+  const buffer = Buffer.from(await res.arrayBuffer());
+  if (buffer.length > maxBytes) {
+    throw new ExpectedError(`File "${name || url}" is too large (max ${maxMb}MB)`);
+  }
+
+  return {
+    buffer,
+    contentType: res.headers.get('content-type') || '',
+    finalUrl,
+  };
 }
