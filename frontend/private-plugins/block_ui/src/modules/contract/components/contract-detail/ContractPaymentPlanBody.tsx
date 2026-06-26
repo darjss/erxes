@@ -42,7 +42,6 @@ export const ContractPaymentPlanBody = ({
         <InfoCard.Content className="shadow-none p-0 overflow-hidden">
           <Table>
             <Table.Body className="bt:[&_td]:px-2 bt:[&_tr:first-child_td]:border-t bt:[&_td]:h-10">
-              {renderRow('Type', paymentPlan.type, true)}
               {renderRow(
                 'Down Payment',
                 (paymentPlan.downPaymentAmount || 0) > 0

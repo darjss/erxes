@@ -17,7 +17,6 @@ export interface IContractParty {
 }
 
 export interface IContractPaymentPlan {
-  type: string;
   downPaymentPercentage?: number;
   downPaymentAmount?: number;
   barterPercentage?: number;

@@ -1,7 +1,6 @@
 import { CurrencyCode } from 'erxes-ui';
 
 export interface IOfferPaymentPlan {
-  type?: string;
   downPaymentPercentage?: number;
   downPaymentAmount?: number;
   barterPercentage?: number;

@@ -67,7 +67,6 @@ const OfferEditBody = ({
     paymentPlanId: '',
     paymentPlan: offer.paymentPlan
       ? {
-          type: offer.paymentPlan.type,
           downPaymentPercentage: offer.paymentPlan.downPaymentPercentage,
           downPaymentAmount: offer.paymentPlan.downPaymentAmount,
           barterPercentage: offer.paymentPlan.barterPercentage,

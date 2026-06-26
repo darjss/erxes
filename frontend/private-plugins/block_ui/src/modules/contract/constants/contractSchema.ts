@@ -16,7 +16,6 @@ export const contractSchema = z.object({
     .optional(),
   paymentPlan: z
     .object({
-      type: z.string().nullish(),
       downPaymentPercentage: z.number().nullish(),
       downPaymentAmount: z.number().nullish(),
       barterPercentage: z.number().nullish(),

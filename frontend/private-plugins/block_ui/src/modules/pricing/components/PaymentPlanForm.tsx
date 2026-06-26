@@ -1,6 +1,5 @@
 import { Checkbox, DatePicker, Form, Input, Select } from 'erxes-ui';
 import { SelectPaymentPlan } from './SelectPaymentPlan';
-import { SelectPaymentPlanType } from './SelectPaymentPlanType';
 import { UseFormReturn } from 'react-hook-form';
 import { SelectPaymentPlanFrequency } from './SelectPaymentPlanFrequency';
 import { useState } from 'react';
@@ -121,21 +120,6 @@ export const PaymentPlanForm = ({ form }: { form: UseFormReturn<any> }) => {
               onValueChange={field.onChange}
               form={form}
             />
-          </Form.Item>
-        )}
-      />
-
-      <Form.Field
-        name="paymentPlan.type"
-        render={({ field }) => (
-          <Form.Item className="col-start-1">
-            <Form.Label>Contract type</Form.Label>
-            <SelectPaymentPlanType
-              value={field.value}
-              onValueChange={field.onChange}
-              inForm
-            />
-            <Form.Message />
           </Form.Item>
         )}
       />

@@ -1,6 +1,5 @@
 import {
   BlockProjectPaymentPlanInterestType,
-  BlockProjectPaymentPlanType,
 } from '@/project/@types/payment';
 
 export enum OfferPartyType {
@@ -14,7 +13,6 @@ export interface IOfferParty {
 }
 
 export interface IOfferPaymentPlan {
-  type: BlockProjectPaymentPlanType;
   downPaymentPercentage: number;
   downPaymentAmount?: number;
   barterPercentage?: number;

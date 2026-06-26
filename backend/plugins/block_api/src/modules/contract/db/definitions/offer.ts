@@ -2,7 +2,6 @@ import { Schema } from 'mongoose';
 import {
   BlockProjectPaymentPlanFrequency,
   BlockProjectPaymentPlanInterestType,
-  BlockProjectPaymentPlanType,
 } from '@/project/@types/payment';
 import { ContractPartyType } from '@/contract/@types/contract';
 import { OfferStatus } from '@/contract/@types/offer';
@@ -43,7 +42,6 @@ const offerPaymentPlanSchema = new Schema(
     vatIncluded: { type: Boolean },
     roundedInstallmentAmount: { type: Number },
     installmentAmounts: { type: [Number] },
-    type: { type: String, enum: Object.values(BlockProjectPaymentPlanType) },
     paymentDates: { type: [Number] },
     paymentDueDates: { type: [Date] },
     firstPaymentDate: { type: Date },
