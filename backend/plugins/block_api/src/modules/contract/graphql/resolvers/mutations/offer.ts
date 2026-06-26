@@ -1,7 +1,6 @@
 import {
   IOffer,
   IOfferInput,
-  OfferAmountType,
   OfferStatus,
 } from '@/contract/@types/offer';
 import { InvoiceItemType, InvoiceStatus } from '@/invoice/@types/invoice';
@@ -49,10 +48,7 @@ export const offerMutations = {
 
     const offer = await models.Offer.createOffer(rest);
 
-    let totalAmount =
-      input.amountType === OfferAmountType.PER_SIZE
-        ? input.amount * unitType.size
-        : input.amount;
+    let totalAmount = input.amount * unitType.size;
 
     const {
       frequency,

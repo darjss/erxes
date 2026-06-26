@@ -16,7 +16,7 @@ export const GET_OFFERS_LIST = gql`
       list {
         _id
         amount
-        amountType
+
         currency
         date
         endDate
@@ -45,7 +45,7 @@ export const GET_OFFERS = gql`
     blockGetOffers(unit: $unit) {
       _id
       amount
-      amountType
+
       currency
       date
       endDate
@@ -90,7 +90,7 @@ export const GET_OFFER = gql`
     blockGetOffers(unit: $unit) {
       _id
       amount
-      amountType
+
       currency
       date
       endDate
@@ -130,7 +130,7 @@ export const GET_OFFER = gql`
     blockGetOffer(_id: $id) {
       _id
       amount
-      amountType
+
       currency
       date
       endDate

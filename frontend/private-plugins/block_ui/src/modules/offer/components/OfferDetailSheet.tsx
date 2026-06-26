@@ -37,7 +37,6 @@ export const OfferDetailSheet = () => {
       await updateOffer(offer._id, {
         unit: offer.unit,
         amount: offer.amount,
-        amountType: offer.amountType,
         currency: offer.currency,
         date: offer.date as any,
         status,

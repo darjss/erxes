@@ -80,12 +80,13 @@ export const OfferAddForm = ({
     resolver: zodResolver(offerSchema),
     defaultValues: defaultValues ?? {
       paymentPlanId: '',
+      date: new Date().toISOString(),
       endDate: addDays(new Date(), 7),
       partyType: 'customer',
       partyId: '',
       user: currentUser?._id,
       priceId: 'mainPrice',
-      price: { currency: CurrencyCode.MNT, price: 0, priceType: 'priceBySize' },
+      price: { currency: CurrencyCode.MNT, price: 0 },
     },
   });
 
@@ -103,12 +104,10 @@ export const OfferAddForm = ({
       return;
     }
     const resolvedUnitId = unitId || (data as any).unit;
-    const isPerSize = (data.price?.priceType ?? 'priceBySize') === 'priceBySize';
     createOffer({
       variables: {
         input: {
           amount: data.price?.price,
-          amountType: isPerSize ? 'priceBySize' : 'priceByUnit',
           currency: data.price?.currency,
           date: data.date || new Date().toISOString(),
           endDate: data.endDate?.toISOString(),
@@ -291,13 +290,9 @@ const OfferPaymentSchedule = ({
   unit: IUnit;
 }) => {
   const pricePerUnit = form.watch('price.price') || 0;
-  const priceType = form.watch('price.priceType') ?? 'priceBySize';
   const currency = form.watch('price.currency') || 'MNT';
   const unitSize = unit?.unitType?.size || 0;
-  const totalAmount =
-    priceType === 'priceBySize' && unitSize > 0
-      ? pricePerUnit * unitSize
-      : pricePerUnit;
+  const totalAmount = unitSize > 0 ? pricePerUnit * unitSize : pricePerUnit;
 
   return (
     <PaymentScheduleEditor form={form} amount={totalAmount} currency={currency} />
@@ -410,13 +405,9 @@ export const OfferSummary = ({
 }) => {
   const price = form.watch('price.price') || 0;
   const currency = form.watch('price.currency');
-  const priceType = form.watch('price.priceType') ?? 'priceBySize';
   const discountPct = form.watch('paymentPlan.discountPercentage') || 0;
-
-  const totalAmount =
-    priceType === 'priceBySize' && (unit?.unitType?.size || 0) > 0
-      ? price * unit!.unitType!.size
-      : price;
+  const unitSize = unit?.unitType?.size || 0;
+  const totalAmount = unitSize > 0 ? price * unitSize : price;
   const discountAmount = (totalAmount * discountPct) / 100;
   const offerPrice = totalAmount - discountAmount;
 

@@ -5,7 +5,7 @@ import {
   BlockProjectPaymentPlanType,
 } from '@/project/@types/payment';
 import { ContractPartyType } from '@/contract/@types/contract';
-import { OfferStatus, OfferAmountType } from '@/contract/@types/offer';
+import { OfferStatus } from '@/contract/@types/offer';
 
 const offerPartySchema = new Schema(
   {
@@ -62,7 +62,6 @@ export const offerSchema = new Schema(
     project: { type: Schema.Types.ObjectId, ref: 'block_projects' },
     date: { type: Date, required: true },
     amount: { type: Number, required: true },
-    amountType: { type: String, enum: Object.values(OfferAmountType) },
     endDate: { type: Date },
     party: { type: offerPartySchema, required: true },
     description: { type: String },

@@ -57,7 +57,6 @@ export interface IOffer {
   paymentPlan: IOfferPaymentPlan;
   user: string;
   description: string;
-  amountType: OfferAmountType;
 }
 
 export interface IOfferInvoice {
@@ -73,11 +72,6 @@ export interface IOfferInvoice {
 
 export interface IOfferInput extends IOffer {
   invoices: IOfferInvoice[];
-}
-
-export enum OfferAmountType {
-  PER_SIZE = 'priceBySize',
-  PER_UNIT = 'priceByUnit',
 }
 
 export interface IOfferDocument extends IOffer, Document {

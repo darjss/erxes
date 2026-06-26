@@ -32,7 +32,6 @@ export interface IOffer {
   unit: string;
   project?: string;
   amount: number;
-  amountType: string;
   status: 'draft' | 'sent';
   currency: CurrencyCode;
   date: string;
@@ -48,7 +47,6 @@ export interface IOffer {
 export interface IOfferInput {
   unit: string;
   amount: number;
-  amountType: string;
   currency: CurrencyCode;
   date?: Date;
   endDate?: Date;

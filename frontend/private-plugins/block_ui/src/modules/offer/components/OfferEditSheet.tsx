@@ -63,8 +63,6 @@ const OfferEditBody = ({
     price: {
       currency: (offer.currency as CurrencyCode) || CurrencyCode.MNT,
       price: offer.amount || 0,
-      priceType:
-        offer.amountType === 'priceByUnit' ? 'priceByUnit' : 'priceBySize',
     },
     paymentPlanId: '',
     paymentPlan: offer.paymentPlan
@@ -104,12 +102,10 @@ const OfferEditBody = ({
   };
 
   const handleSubmit = async (data: OfferFormData) => {
-    const isPerSize = (data.price?.priceType ?? 'priceBySize') === 'priceBySize';
     try {
       await updateOffer(offerId, {
         unit: offer.unit,
         amount: data.price?.price,
-        amountType: isPerSize ? 'priceBySize' : 'priceByUnit',
         currency: data.price?.currency as CurrencyCode,
         date: data.date || new Date().toISOString(),
         endDate: data.endDate?.toISOString(),

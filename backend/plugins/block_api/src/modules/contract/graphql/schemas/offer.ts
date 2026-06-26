@@ -62,11 +62,6 @@ export const types = `
     completionPaymentDateLabel: String
   }
 
-  enum BlockOfferAmountType {
-    priceBySize
-    priceByUnit
-  }
-
   type BlockOffer {
     _id: String
     unit: String!
@@ -75,7 +70,6 @@ export const types = `
     currency: String
     date: String
     amount: Float
-    amountType: BlockOfferAmountType
     status: BlockOfferStatus
     endDate: String
     party: BlockOfferParty
@@ -117,7 +111,6 @@ export const types = `
     currency: String
     date: String
     amount: Float
-    amountType: BlockOfferAmountType
     status: BlockOfferStatus
     endDate: String
     party: BlockOfferPartyInput

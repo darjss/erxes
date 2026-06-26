@@ -14,6 +14,11 @@ import {
   IconCash,
   IconAlertCircle,
   IconClockExclamation,
+  IconFlagCheck,
+  IconExchange,
+  IconArrowUpRight,
+  IconArrowDownRight,
+  IconChartLine,
 } from '@tabler/icons-react';
 import {
   Area,
@@ -99,7 +104,7 @@ function buildPaymentChartData(payments: IContractPayment[], period: Period) {
 
   [...payments]
     .map((p) => ({ ...p, d: parseDateLike(p.dueDate) }))
-    .filter((p): p is typeof p & { d: Date } => p.d !== null)
+    .filter((p): p is typeof p & { d: Date } => p.d !== null && p.d.getFullYear() < 2099)
     .sort((a, b) => a.d.getTime() - b.d.getTime())
     .forEach((p) => {
       const key = bucketKey(p.d, period);
@@ -118,24 +123,19 @@ function buildPaymentChartData(payments: IContractPayment[], period: Period) {
   });
 }
 
-function buildOfferChartData(
-  offers: { amount: number; date: string }[],
-  period: Period,
-) {
-  const buckets = new Map<string, { label: string; amount: number }>();
-
-  [...offers]
+function buildOfferChartData(offers: { amount: number; date: string }[], period: Period) {
+  const now = new Date();
+  return [...offers]
     .map((o) => ({ ...o, d: parseDateLike(o.date) }))
-    .filter((o): o is typeof o & { d: Date } => o.d !== null)
+    .filter((o): o is typeof o & { d: Date } => {
+      if (o.d === null) return false;
+      if (period === 'monthly') {
+        return o.d.getFullYear() === now.getFullYear() && o.d.getMonth() === now.getMonth();
+      }
+      return o.d.getFullYear() === now.getFullYear();
+    })
     .sort((a, b) => a.d.getTime() - b.d.getTime())
-    .forEach((o) => {
-      const key = bucketKey(o.d, period);
-      const slot = buckets.get(key) ?? { label: bucketLabel(o.d, period), amount: 0 };
-      slot.amount += o.amount ?? 0;
-      buckets.set(key, slot);
-    });
-
-  return Array.from(buckets.values());
+    .map((o) => ({ label: format(o.d, period === 'monthly' ? 'dd MMM' : 'MMM yy'), amount: o.amount ?? 0 }));
 }
 
 // ── chart components ───────────────────────────────────────────────────────
@@ -337,12 +337,45 @@ export const OverviewPage = () => {
   const payments = paymentData?.blockGetProjectPaymentPlanData ?? [];
   const offers = offerData?.blockGetOffersList?.list ?? [];
   const now = Date.now();
+  const nowDate = new Date(now);
+  const currentYear = nowDate.getFullYear();
+  const currentMonth = nowDate.getMonth();
 
-  const totalExpected = payments.reduce((s, p) => s + (p.amount ?? 0), 0);
-  const totalReceived = payments.reduce((s, p) => s + (p.paidAmount ?? 0), 0);
+  const isInPeriod = (d: Date): boolean => {
+    if (period === 'monthly') {
+      return d.getFullYear() === currentYear && d.getMonth() === currentMonth;
+    }
+    return d.getFullYear() === currentYear;
+  };
+
+  const installments = payments.filter((p) => {
+    if (p.label === 'Barter') return false;
+    const d = parseDateLike(p.dueDate);
+    if (!d || d.getFullYear() >= 2099) return false;
+    return isInPeriod(d);
+  });
+  const barterPayments = payments.filter((p) => p.label === 'Barter');
+  const completionPayments = payments.filter((p) => {
+    const d = parseDateLike(p.dueDate);
+    return d !== null && d.getFullYear() >= 2099;
+  });
+
+  const totalExpected = installments.reduce((s, p) => s + (p.amount ?? 0), 0);
+  const totalReceived = installments.reduce((s, p) => s + (p.paidAmount ?? 0), 0);
   const shortfall = Math.max(0, totalExpected - totalReceived);
   const collectionRate = totalExpected > 0 ? Math.round((totalReceived / totalExpected) * 100) : 0;
-  const overdueCount = payments.filter((p) => {
+  const overdueCount = installments.filter((p) => {
+    if (p.status === 'paid') return false;
+    const due = parseDateLike(p.dueDate)?.getTime() ?? 0;
+    return due > 0 && due < now;
+  }).length;
+
+  const completionAmount = completionPayments.reduce((s, p) => s + (p.amount ?? 0), 0);
+  const completionReceived = completionPayments.reduce((s, p) => s + (p.paidAmount ?? 0), 0);
+
+  const barterAmount = barterPayments.reduce((s, p) => s + (p.amount ?? 0), 0);
+  const barterReceived = barterPayments.reduce((s, p) => s + (p.paidAmount ?? 0), 0);
+  const barterOverdueCount = barterPayments.filter((p) => {
     if (p.status === 'paid') return false;
     const due = parseDateLike(p.dueDate)?.getTime() ?? 0;
     return due > 0 && due < now;
@@ -387,19 +420,13 @@ export const OverviewPage = () => {
             key={p}
             type="button"
             onClick={() => setPeriod(p)}
-            className="relative py-3 px-1 mr-3 text-sm font-medium capitalize focus:outline-none"
-            style={{
-              color: period === p
-                ? 'hsl(var(--foreground))'
-                : 'hsl(var(--muted-foreground))',
-            }}
+            className={`relative py-3 px-1 mr-3 text-sm font-medium capitalize focus:outline-none ${
+              period === p ? 'text-foreground' : 'text-muted-foreground'
+            }`}
           >
             {p.charAt(0).toUpperCase() + p.slice(1)}
             {period === p && (
-              <span
-                className="absolute bottom-0 left-0 right-0 h-0.5 rounded-t-full"
-                style={{ backgroundColor: 'hsl(var(--primary))' }}
-              />
+              <span className="absolute bottom-0 left-0 right-0 h-0.5 rounded-t-full bg-primary" />
             )}
           </button>
         ))}
@@ -408,13 +435,13 @@ export const OverviewPage = () => {
       <ScrollArea className="flex-auto h-full">
         <div className="p-5 flex flex-col gap-6">
           {/* Stat cards */}
-          <div className="grid grid-cols-4 gap-4">
+          <div className="grid grid-cols-6 gap-4">
             <StatCard
               icon={IconCash}
               color="#6366f1"
               label="Total Expected"
               value={`₮ ${formatAmount(totalExpected)}`}
-              sub="For this period"
+              sub={period === 'monthly' ? 'This month' : 'This year'}
               loading={paymentLoading}
             />
             <StatCard
@@ -441,6 +468,30 @@ export const OverviewPage = () => {
               sub={totalExpected > 0 ? `${100 - collectionRate}% below target` : undefined}
               loading={paymentLoading}
             />
+            <StatCard
+              icon={IconFlagCheck}
+              color="#8b5cf6"
+              label="Completion Payment"
+              value={`₮ ${formatAmount(completionAmount)}`}
+              sub={completionAmount > 0 ? (completionReceived >= completionAmount ? 'Paid' : 'Pending on handover') : undefined}
+              loading={paymentLoading}
+            />
+            <StatCard
+              icon={IconExchange}
+              color="#0ea5e9"
+              label="Barter Payment"
+              value={`₮ ${formatAmount(barterAmount)}`}
+              sub={
+                barterAmount === 0
+                  ? undefined
+                  : barterReceived >= barterAmount
+                  ? 'Received'
+                  : barterOverdueCount > 0
+                  ? `${barterOverdueCount} overdue`
+                  : 'Pending'
+              }
+              loading={paymentLoading}
+            />
           </div>
 
           {/* Payment performance chart */}
@@ -452,14 +503,47 @@ export const OverviewPage = () => {
             </div>
           )}
 
-          {/* Price insights chart */}
+          {/* Price insights stats + chart */}
           {offerLoading ? (
             <Skeleton className="h-[300px] w-full rounded-xl" />
-          ) : offers.length > 0 ? (
-            <div className="rounded-xl border bg-card p-5">
-              <PriceInsightsChart offers={offers} period={period} />
-            </div>
-          ) : null}
+          ) : offers.length > 0 ? (() => {
+            const periodOffers = buildOfferChartData(offers, period);
+            const amounts = periodOffers.map((o) => o.amount).filter((a) => a > 0);
+            const avgAmount = amounts.length ? Math.round(amounts.reduce((s, a) => s + a, 0) / amounts.length) : 0;
+            const highestAmount = amounts.length ? Math.max(...amounts) : 0;
+            const lowestAmount = amounts.length ? Math.min(...amounts) : 0;
+            return (
+              <>
+                <div className="grid grid-cols-3 gap-4">
+                  <StatCard
+                    icon={IconChartLine}
+                    color="#6366f1"
+                    label="Avg. Offer Amount"
+                    value={`₮ ${formatAmount(avgAmount)}`}
+                    sub={period === 'monthly' ? 'This month' : 'This year'}
+                    loading={false}
+                  />
+                  <StatCard
+                    icon={IconArrowUpRight}
+                    color="#10b981"
+                    label="Highest Offer"
+                    value={`₮ ${formatAmount(highestAmount)}`}
+                    loading={false}
+                  />
+                  <StatCard
+                    icon={IconArrowDownRight}
+                    color="#f59e0b"
+                    label="Lowest Offer"
+                    value={`₮ ${formatAmount(lowestAmount)}`}
+                    loading={false}
+                  />
+                </div>
+                <div className="rounded-xl border bg-card p-5">
+                  <PriceInsightsChart offers={offers} period={period} />
+                </div>
+              </>
+            );
+          })() : null}
         </div>
         <ScrollArea.Bar orientation="vertical" />
       </ScrollArea>
