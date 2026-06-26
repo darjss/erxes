@@ -607,6 +607,7 @@ export const ChatPage = () => {
                 onVoiceModeToggle={() =>
                   chatStore.setVoiceMode(agentId!, !voiceMode)
                 }
+                onVoiceSetup={() => navigate('/settings/erxes-agent/voice')}
                 textareaRef={textareaRef}
                 fileInputRef={fileInputRef}
               />
