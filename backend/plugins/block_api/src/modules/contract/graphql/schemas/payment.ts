@@ -61,6 +61,7 @@ export const queries = `
   ): BlockContractPaymentListResponse
   blockGetPaymentTransactions(paymentId: String!): [BlockContractPaymentTransaction]
   blockGetUnitPaymentPlanData(unitId: String!): [BlockContractPayment]
+  blockGetProjectPaymentPlanData(projectId: String!): [BlockContractPayment]
   blockGetUnitPaymentTransactions(unitId: String!): [BlockContractPaymentTransaction]
 `;
 

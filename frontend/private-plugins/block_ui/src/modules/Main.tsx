@@ -49,6 +49,12 @@ const PaymentsPage = lazy(() =>
   })),
 );
 
+const OverviewPage = lazy(() =>
+  import('~/pages/OverviewPage').then((module) => ({
+    default: module.OverviewPage,
+  })),
+);
+
 const Main = () => {
   return (
     <Suspense fallback={<div />}>
@@ -57,6 +63,7 @@ const Main = () => {
         <Route path="/projects/:id" element={<ProjectDetail />} />
 
         <Route path="project/:projectId">
+          <Route path="overview" element={<OverviewPage />} />
           <Route path="stacking-plan" element={<StackingPlanPage />} />
           <Route path="opportunities" element={<OpptysPage />} />
           <Route path="offers" element={<OffersPage />} />

@@ -92,3 +92,68 @@ export const UNIT_OPPTY_OVERVIEW = gql`
     }
   }
 `;
+
+export const UNIT_OFFERS_FOR_CHART = gql`
+  query BlockGetOffersForChart($unitId: String!) {
+    blockGetOffersList(filter: { unit: $unitId }) {
+      list {
+        _id
+        amount
+        date
+      }
+    }
+  }
+`;
+
+export const PROJECT_PAYMENT_PLAN_DATA = gql`
+  query BlockGetProjectPaymentPlanData($projectId: String!) {
+    blockGetProjectPaymentPlanData(projectId: $projectId) {
+      _id
+      index
+      label
+      dueDate
+      amount
+      paidAmount
+      status
+      currency
+    }
+  }
+`;
+
+export const PROJECT_CONTRACTS_OVERVIEW = gql`
+  query ProjectContractsOverview($projectId: String!) {
+    blockGetContractsList(filter: { projectId: $projectId }) {
+      list {
+        _id
+        status
+      }
+      totalCount
+    }
+  }
+`;
+
+export const PROJECT_OFFERS_OVERVIEW = gql`
+  query ProjectOffersOverview($projectId: String!) {
+    blockGetOffersList(filter: { projectId: $projectId }) {
+      list {
+        _id
+        status
+        amount
+        date
+      }
+      totalCount
+    }
+  }
+`;
+
+export const PROJECT_OPPTYS_OVERVIEW = gql`
+  query ProjectOpptysOverview($projectId: String!) {
+    blockGetOpptys(projectId: $projectId, filter: {}) {
+      list {
+        _id
+        status
+      }
+      totalCount
+    }
+  }
+`;

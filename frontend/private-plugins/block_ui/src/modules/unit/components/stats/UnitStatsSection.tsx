@@ -1,6 +1,7 @@
 import { useQuery } from '@apollo/client';
 import { UNIT_OFFER_STATS } from '@/unit/graphql/unitStatsQueries';
 import { UnitOverviewCards } from './UnitOverviewCards';
+import { UnitPriceInsightsChart } from '../UnitPriceInsightsChart';
 import { Skeleton } from 'erxes-ui';
 import { IconEqual, IconTrendingUp, IconTrendingDown } from '@tabler/icons-react';
 import type { ComponentType } from 'react';
@@ -84,6 +85,7 @@ export const UnitStatsSection = ({
           loading={offerLoading}
         />
       </div>
+      {unitId && <UnitPriceInsightsChart unitId={unitId} />}
     </div>
   );
 };

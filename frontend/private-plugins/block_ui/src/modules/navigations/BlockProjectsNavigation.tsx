@@ -15,6 +15,7 @@ import {
   IconListCheck,
   IconFileInvoice,
   IconFileText,
+  IconChartBar,
 } from '@tabler/icons-react';
 
 import { useProjects } from '@/project/hooks/useProjects';
@@ -60,6 +61,15 @@ function ProjectItem({ project }: ProjectItemProps) {
         </div>
         <Collapsible.Content className="pt-1">
           <Sidebar.GroupContent>
+            <Sidebar.Menu>
+              <NavigationMenuLinkItem
+                name="Overview"
+                className="pl-6 font-medium"
+                pathPrefix="block/project"
+                icon={IconChartBar}
+                path={`${project._id}/overview`}
+              />
+            </Sidebar.Menu>
             <Sidebar.Menu>
               <NavigationMenuLinkItem
                 name="Stacking View"
