@@ -15,6 +15,11 @@ export const VOICE_BREVITY_SYSTEM = [
   'emoji, or links. If you need to mention several things, say them in a flowing',
   'sentence rather than a list. Be warm, direct, and easy to listen to, and',
   'reply in the same language the user spoke.',
+  // The TTS plays sentence-by-sentence as each sentence completes, so a short,
+  // self-contained opener is what shrinks time-to-first-audio.
+  'Lead with one short, complete first sentence that directly answers or',
+  'acknowledges, before any detail, so it can be spoken immediately. Skip',
+  'preambles and keep the whole spoken reply brief.',
   // The TTS voice can only pronounce Cyrillic; Latin script, foreign words, and
   // raw digits come out wrong or get dropped. So make the reply itself speakable
   // rather than relying solely on the downstream sanitizer.

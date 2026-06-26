@@ -421,6 +421,29 @@
   animation: ea-voice-status-glow 2.6s ease-in-out infinite;
 }
 
+/* Each status/detail line is keyed by its text, so React remounts it on change;
+   this calm fade+rise cross-fades one phrase into the next without a flash,
+   matching the visualiser's slow motion. The glow animation layers on top for
+   the active status line. */
+@keyframes ea-voice-line-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.ea-voice-line {
+  animation: ea-voice-line-in 420ms ease-out both;
+}
+.ea-voice-status.ea-voice-line {
+  animation:
+    ea-voice-line-in 420ms ease-out both,
+    ea-voice-status-glow 2.6s ease-in-out infinite;
+}
+
 /* The mic affordance: a glowing indigo-violet disc; turns red while open. */
 @keyframes ea-voice-mic-pulse {
   0%,
@@ -453,6 +476,8 @@
 @media (prefers-reduced-motion: reduce) {
   .ea-voice-fallback,
   .ea-voice-status,
+  .ea-voice-line,
+  .ea-voice-status.ea-voice-line,
   .ea-voice-mic.is-listening {
     animation: none !important;
   }

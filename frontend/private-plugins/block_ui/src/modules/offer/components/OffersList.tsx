@@ -2,6 +2,7 @@ import { useOffers } from '../hooks/useOffers';
 import { IOffer } from '../types/offerTypes';
 import { InfoCard, InfoCardContent } from '@/block/components/card';
 import { OfferAddSheet } from '@/offer/components/OfferAdd';
+import { offerDetailSheetState } from '@/offer/states/offerDetailSheetState';
 import { IconDots, IconMail, IconPencil } from '@tabler/icons-react';
 import { format } from 'date-fns';
 import {
@@ -14,6 +15,7 @@ import {
   useQueryState,
 } from 'erxes-ui';
 import { CustomersInline, CompaniesInline, MembersInline } from 'ui-modules';
+import { useSetAtom } from 'jotai';
 
 const parseDate = (val: string | number | undefined) => {
   if (!val) return null;
@@ -48,12 +50,16 @@ const OfferRow = ({ offer }: { offer: IOffer }) => {
   const offerDate = parseDate(offer.date);
   const expiryDate = parseDate(offer.endDate);
   const isExpired = expiryDate ? expiryDate < new Date() : false;
+  const setActiveOffer = useSetAtom(offerDetailSheetState);
 
   return (
     <div className={`grid ${COLS} gap-2 items-center px-3 py-2 border-t hover:bg-muted/40 transition-colors`}>
-      <span className="font-mono text-xs text-muted-foreground">
+      <button
+        className="font-mono text-xs text-muted-foreground text-left hover:underline"
+        onClick={() => offer._id && setActiveOffer(offer._id)}
+      >
         #{offer.number || offer._id?.slice(-6)}
-      </span>
+      </button>
       <div className="truncate text-sm">
         <DisplayParty party={offer.party} />
       </div>
@@ -87,13 +93,16 @@ const OfferRow = ({ offer }: { offer: IOffer }) => {
             </Button>
           </DropdownMenu.Trigger>
           <DropdownMenu.Content className="blk:min-w-36" align="end">
+            <DropdownMenu.Item
+              className="cursor-pointer"
+              onClick={() => offer._id && setActiveOffer(offer._id)}
+            >
+              <IconPencil className="size-4" />
+              <span>Edit</span>
+            </DropdownMenu.Item>
             <DropdownMenu.Item className="cursor-pointer">
               <IconMail className="size-4" />
               <span>Send via Email</span>
-            </DropdownMenu.Item>
-            <DropdownMenu.Item className="cursor-pointer">
-              <IconPencil className="size-4" />
-              <span>Edit</span>
             </DropdownMenu.Item>
           </DropdownMenu.Content>
         </DropdownMenu>

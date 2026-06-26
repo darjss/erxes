@@ -1,4 +1,5 @@
 import { OfferAddSheet } from '@/offer/components/OfferAdd';
+import { OfferDetailSheet } from '@/offer/components/OfferDetailSheet';
 import { OffersRecordTable } from '@/offer/components/OffersRecordTable';
 import { useUnitContext } from '@/unit/context/unitContext';
 
@@ -16,6 +17,7 @@ export const UnitOffers = () => {
         {canAdd && <OfferAddSheet />}
       </div>
       <OffersRecordTable unitId={unitId} />
+      <OfferDetailSheet />
     </div>
   );
 };

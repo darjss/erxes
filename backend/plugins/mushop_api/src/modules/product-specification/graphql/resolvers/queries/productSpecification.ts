@@ -3,9 +3,9 @@ import { IContext } from '~/connectionResolvers';
 export const productSpecificationQueries = {
   mushopProductSpecification: async (
     _root: undefined,
-    { productId }: { productId: string },
+    { productId, code }: { productId: string; code?: string },
     { models }: IContext,
   ) => {
-    return models.ProductSpecification.getByProductId(productId);
+    return models.ProductSpecification.resolve(productId, code);
   },
 };

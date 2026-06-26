@@ -1,6 +1,8 @@
 import { DatePicker, InfoCard } from 'erxes-ui';
 import { useState, useEffect, useRef, memo, useCallback } from 'react';
 import { format } from 'date-fns';
+import { UseFormReturn } from 'react-hook-form';
+import { generateInstallmentDates } from './contract-detail/shared';
 
 const periodsPerYear = (frequency: string | undefined): number => {
   switch (frequency) {
@@ -13,9 +15,6 @@ const periodsPerYear = (frequency: string | undefined): number => {
     default: return 12;
   }
 };
-import { UseFormReturn } from 'react-hook-form';
-import { ContractFormData } from '@/contract/constants/contractSchema';
-import { generateInstallmentDates } from './contract-detail/shared';
 
 const parseDateLike = (value: any): Date | null => {
   if (!value) return null;
@@ -61,12 +60,18 @@ const PrincipalInput = memo(({
 
 export const PaymentScheduleEditor = ({
   form,
+  amount: amountProp,
+  currency: currencyProp,
+  date: dateProp,
 }: {
-  form: UseFormReturn<ContractFormData>;
+  form: UseFormReturn<any>;
+  amount?: number;
+  currency?: string;
+  date?: string;
 }) => {
-  const amount = form.watch('amount') || 0;
-  const currency = form.watch('currency') || 'MNT';
-  const contractDate = form.watch('date');
+  const amount = amountProp ?? (form.watch('amount') || 0);
+  const currency = currencyProp ?? (form.watch('currency') || 'MNT');
+  const contractDate = dateProp ?? form.watch('date');
   const paymentPlan = form.watch('paymentPlan');
   const dueDates = form.watch('paymentPlan.paymentDueDates') || [];
   const savedAmounts = form.getValues('paymentPlan.installmentAmounts');

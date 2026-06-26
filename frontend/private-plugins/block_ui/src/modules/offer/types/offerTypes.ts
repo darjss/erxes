@@ -1,32 +1,36 @@
 import { CurrencyCode } from 'erxes-ui';
 
 export interface IOfferPaymentPlan {
-  type?: string;
   downPaymentPercentage?: number;
   downPaymentAmount?: number;
+  barterPercentage?: number;
+  barterAmount?: number;
   interestPercentage?: number;
   interestType?: string;
+  completionPaymentPercentage?: number;
+  completionPaymentAmount?: number;
   discountPercentage?: number;
+  description?: string;
   installment?: number;
   frequency?: string;
   penaltyPercentage?: number;
-  barterPercentage?: number;
-  barterAmount?: number;
-  completionPaymentPercentage?: number;
-  completionPaymentAmount?: number;
+  vatIncluded?: boolean;
   roundedInstallmentAmount?: number;
+  installmentAmounts?: number[];
   paymentDates?: number[];
+  paymentDueDates?: string[];
   firstPaymentDate?: string;
   downPaymentDate?: string;
-  vatIncluded?: boolean;
+  completionPaymentDate?: string;
+  completionPaymentDateLabel?: string;
 }
 
 export interface IOffer {
   _id: string;
   number: string;
   unit: string;
+  project?: string;
   amount: number;
-  amountType: string;
   status: 'draft' | 'sent';
   currency: CurrencyCode;
   date: string;
@@ -42,11 +46,11 @@ export interface IOffer {
 export interface IOfferInput {
   unit: string;
   amount: number;
-  amountType: string;
   currency: CurrencyCode;
   date?: Date;
   endDate?: Date;
   party?: { type: string; id: string };
   paymentPlan?: IOfferPaymentPlan;
   user?: string;
+  status?: 'draft' | 'sent';
 }

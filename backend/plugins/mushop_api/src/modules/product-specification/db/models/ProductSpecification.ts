@@ -6,32 +6,66 @@ import {
   IMushopProductSpecificationDocument,
 } from '@/product-specification/@types/productSpecification';
 
-export interface IMushopProductSpecificationModel
-  extends Model<IMushopProductSpecificationDocument> {
-  getByProductId(
+type SpecValues = Omit<IMushopProductSpecification, 'productId' | 'code'>;
+
+export interface IMushopProductSpecificationModel extends Model<IMushopProductSpecificationDocument> {
+  resolve(
+    productId: string,
+    code?: string,
+  ): Promise<IMushopProductSpecificationDocument | null>;
+  saveByProductId(
+    productId: string,
+    code: string | undefined,
+    doc: SpecValues,
+  ): Promise<IMushopProductSpecificationDocument>;
+  saveByCode(
+    code: string,
+    doc: SpecValues,
+  ): Promise<IMushopProductSpecificationDocument>;
+  linkByCode(
+    code: string,
     productId: string,
   ): Promise<IMushopProductSpecificationDocument | null>;
-  save(
-    productId: string,
-    doc: Omit<IMushopProductSpecification, 'productId'>,
-  ): Promise<IMushopProductSpecificationDocument>;
 }
 
 export const loadMushopProductSpecificationClass = (models: IModels) => {
   class MushopProductSpecification {
-    public static async getByProductId(productId: string) {
-      return models.ProductSpecification.findOne({ productId }).lean();
+    public static async resolve(productId: string, code?: string) {
+      const byId = await models.ProductSpecification.findOne({ productId }).lean();
+
+      if (byId || !code) {
+        return byId;
+      }
+
+      return models.ProductSpecification.linkByCode(code, productId);
     }
 
-    public static async save(
+    public static async saveByProductId(
       productId: string,
-      doc: Omit<IMushopProductSpecification, 'productId'>,
+      code: string | undefined,
+      doc: SpecValues,
     ) {
       return models.ProductSpecification.findOneAndUpdate(
         { productId },
-        { $set: { ...doc }, $setOnInsert: { productId } },
+        { $set: { ...doc, ...(code ? { code } : {}) }, $setOnInsert: { productId } },
         { upsert: true, new: true, setDefaultsOnInsert: true },
       );
+    }
+
+    public static async saveByCode(code: string, doc: SpecValues) {
+      return models.ProductSpecification.findOneAndUpdate(
+        { code, productId: { $exists: false } },
+        { $set: { ...doc, code } },
+        { upsert: true, new: true, setDefaultsOnInsert: true },
+      );
+    }
+
+    public static async linkByCode(code: string, productId: string) {
+      return models.ProductSpecification.findOneAndUpdate(
+        { code, productId: { $exists: false } },
+        { $set: { productId } },
+        { new: true },
+      ).lean();
     }
   }
 

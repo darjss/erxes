@@ -5,7 +5,6 @@ import {
   Form,
   ScrollArea,
   Select,
-  Label,
   Separator,
   useQueryState,
   CurrencyField,
@@ -14,7 +13,6 @@ import {
   toast,
 } from 'erxes-ui';
 import { IconPlus } from '@tabler/icons-react';
-import { useState } from 'react';
 import { useCreateOffer } from '@/offer/hooks/useManageOffer';
 import { useForm, UseFormReturn } from 'react-hook-form';
 import { OfferFormData, offerSchema } from '@/offer/constants/offerSchema';
@@ -30,8 +28,12 @@ import { useUnit } from '@/unit/hooks/useUnit';
 import { IUnit } from '@/unit/types/unitType';
 import { addDays } from 'date-fns';
 import { PaymentPlanForm } from '@/pricing/components/PaymentPlanForm';
-import { InfoCard, InfoCardContent } from '@/block/components/card';
+import { PaymentScheduleEditor } from '@/contract/components/PaymentScheduleEditor';
 import { ContractUnit } from '@/contract/components/ContractUnit';
+import { useParams } from 'react-router-dom';
+import { useBuildings, useBuildingZonings } from '@/building/hooks/useBuildings';
+import { useUnits } from '@/unit/hooks/useUnits';
+import { useState, useEffect } from 'react';
 
 export const OfferAddSheet = () => {
   const [open, setOpen] = useState(false);
@@ -55,49 +57,65 @@ export const OfferAddSheet = () => {
 };
 
 
-export const OfferAddForm = ({ onClose }: { onClose: () => void }) => {
+export const OfferAddForm = ({
+  onClose,
+  defaultValues,
+  onSubmit: externalOnSubmit,
+  submitLabel = 'Add offer',
+  externalLoading = false,
+  unit: unitProp,
+}: {
+  onClose: () => void;
+  defaultValues?: Partial<OfferFormData>;
+  onSubmit?: (data: OfferFormData) => void;
+  submitLabel?: string;
+  externalLoading?: boolean;
+  unit?: IUnit;
+}) => {
   const [unitId] = useQueryState<string>('unitId');
-  const { unit } = useUnit(unitId);
+  const { projectId } = useParams<{ projectId?: string }>();
   const currentUser = useAtomValue(currentUserState);
-  const mainPrice = {
-    _id: 'mainPrice',
-    currency: CurrencyCode.MNT,
-    price: unit?.unitType?.price,
-    priceType: 'priceBySize' as const,
-  };
 
   const form = useForm<OfferFormData>({
     resolver: zodResolver(offerSchema),
-    defaultValues: {
+    defaultValues: defaultValues ?? {
       paymentPlanId: '',
+      date: new Date().toISOString(),
       endDate: addDays(new Date(), 7),
       partyType: 'customer',
       partyId: '',
       user: currentUser?._id,
-      priceId: mainPrice._id,
-      price: mainPrice,
+      priceId: 'mainPrice',
+      price: { currency: CurrencyCode.MNT, price: 0 },
     },
   });
 
-  const { createOffer, loading } = useCreateOffer();
+  const selectedUnit = form.watch('unit' as any) as string | undefined;
+  const activeUnitId = unitProp?._id || unitId || selectedUnit;
+  const { unit: fetchedUnit } = useUnit(!unitProp ? activeUnitId : undefined);
+  const unit = unitProp || fetchedUnit;
+
+  const { createOffer, loading: createLoading } = useCreateOffer();
+  const loading = externalLoading || createLoading;
 
   const handleSubmit = (data: OfferFormData) => {
-    const isPerSize = (data.price.priceType ?? 'priceBySize') === 'priceBySize';
+    if (externalOnSubmit) {
+      externalOnSubmit(data);
+      return;
+    }
+    const resolvedUnitId = unitId || (data as any).unit;
     createOffer({
       variables: {
         input: {
-          amount: data.price.price,
-          amountType: isPerSize ? 'priceBySize' : 'priceByUnit',
-          currency: data.price.currency,
-          date: new Date(),
-          endDate: data.endDate,
-          party: {
-            type: data.partyType,
-            id: data.partyId,
-          },
+          amount: data.price?.price,
+          currency: data.price?.currency,
+          date: data.date || new Date().toISOString(),
+          endDate: data.endDate?.toISOString(),
+          party: data.partyType ? { type: data.partyType, id: data.partyId } : undefined,
           paymentPlan: data.paymentPlan,
           user: data.user,
-          unit: unitId,
+          unit: resolvedUnitId,
+          project: projectId || undefined,
         },
       },
       onCompleted: () => {
@@ -130,10 +148,16 @@ export const OfferAddForm = ({ onClose }: { onClose: () => void }) => {
       >
         <Sheet.Content className="flex-auto overflow-hidden">
           <ScrollArea className="h-full">
-            <div className="p-5">
-              <ContractUnit />
-            </div>
-            <div className="grid grid-cols-4 gap-5 px-5 pb-5">
+            {(unitProp || unitId || projectId) && (
+              <div className="p-5">
+                {unitProp || unitId ? (
+                  <ContractUnit unitId={unitProp?._id || unitId} />
+                ) : (
+                  <OfferUnitSelector form={form} projectId={projectId} />
+                )}
+              </div>
+            )}
+            <div className="grid grid-cols-4 gap-5 p-5">
               <Form.Field
                 name="user"
                 render={({ field }) => (
@@ -148,10 +172,27 @@ export const OfferAddForm = ({ onClose }: { onClose: () => void }) => {
                 )}
               />
               <Form.Field
+                name="date"
+                render={({ field }) => (
+                  <Form.Item>
+                    <Form.Label>Offer Date</Form.Label>
+                    <DatePicker
+                      placeholder="Select date"
+                      value={field.value ? new Date(Number(field.value) || field.value) : undefined}
+                      onChange={(date) => {
+                        const d = Array.isArray(date) ? date[0] : date;
+                        field.onChange(d ? d.toISOString() : undefined);
+                      }}
+                    />
+                    <Form.Message />
+                  </Form.Item>
+                )}
+              />
+              <Form.Field
                 name="endDate"
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>Offer expires on</Form.Label>
+                    <Form.Label>Offer Expires On</Form.Label>
                     <DatePicker
                       placeholder="end date"
                       value={field.value}
@@ -218,8 +259,10 @@ export const OfferAddForm = ({ onClose }: { onClose: () => void }) => {
               <Separator className="col-span-4" />
               <PaymentPlanForm form={form} />
             </div>
-            <Separator className="mt-2" />
-            <OfferSchedulePreview form={form} unit={unit} />
+            <Separator />
+            <div className="px-5 py-5">
+              <OfferPaymentSchedule form={form} unit={unit} />
+            </div>
           </ScrollArea>
         </Sheet.Content>
         <Sheet.Footer className="flex-none">
@@ -231,7 +274,7 @@ export const OfferAddForm = ({ onClose }: { onClose: () => void }) => {
           </Sheet.Close>
           <Button type="submit" disabled={loading}>
             <Spinner show={loading} />
-            Add offer
+            {submitLabel}
           </Button>
         </Sheet.Footer>
       </form>
@@ -239,19 +282,7 @@ export const OfferAddForm = ({ onClose }: { onClose: () => void }) => {
   );
 };
 
-const periodsPerYear = (frequency?: string): number => {
-  switch (frequency) {
-    case 'ONE_TIME_PER_MONTH': return 12;
-    case 'TWO_TIME_PER_MONTH': return 24;
-    case 'THREE_TIME_PER_MONTH': return 36;
-    case 'QUARTERLY': return 4;
-    case 'HALF_YEARLY': return 2;
-    case 'YEARLY': return 1;
-    default: return 12;
-  }
-};
-
-const OfferSchedulePreview = ({
+const OfferPaymentSchedule = ({
   form,
   unit,
 }: {
@@ -259,165 +290,12 @@ const OfferSchedulePreview = ({
   unit: IUnit;
 }) => {
   const pricePerUnit = form.watch('price.price') || 0;
-  const priceType = form.watch('price.priceType') ?? 'priceBySize';
   const currency = form.watch('price.currency') || 'MNT';
-  const paymentPlan = form.watch('paymentPlan');
-
-  if (!paymentPlan?.type) return null;
-
-  const isPerSize = priceType === 'priceBySize';
   const unitSize = unit?.unitType?.size || 0;
-  const totalAmount = isPerSize && unitSize > 0 ? pricePerUnit * unitSize : pricePerUnit;
-
-  const discountPct = paymentPlan.discountPercentage || 0;
-  const downPct = paymentPlan.downPaymentPercentage || 0;
-  const completionPct = paymentPlan.completionPaymentPercentage || 0;
-  const interestPct = paymentPlan.interestPercentage || 0;
-  const interestType = paymentPlan.interestType || 'FLAT';
-  const frequency = paymentPlan.frequency;
-  const installmentCount = frequency === 'ONE_TIME' ? 0 : (paymentPlan.installment || 0);
-  const ppy = periodsPerYear(frequency);
-
-  const discountAmount = (totalAmount * discountPct) / 100;
-  const priceAfterDiscount = totalAmount - discountAmount;
-
-  const downAmount =
-    (paymentPlan.downPaymentAmount || 0) > 0
-      ? paymentPlan.downPaymentAmount!
-      : (priceAfterDiscount * downPct) / 100;
-
-  const completionAmount =
-    (paymentPlan.completionPaymentAmount || 0) > 0
-      ? paymentPlan.completionPaymentAmount!
-      : (priceAfterDiscount * completionPct) / 100;
-
-  const principal = priceAfterDiscount - downAmount - completionAmount;
-  const roundedAmount = paymentPlan.roundedInstallmentAmount || 0;
-  const baseInstallment =
-    installmentCount > 0
-      ? roundedAmount > 0
-        ? roundedAmount
-        : principal / installmentCount
-      : 0;
-
-  const hasInterest = interestPct > 0;
-  const isOneTime = frequency === 'ONE_TIME';
-
-  const fmt = (val: number) =>
-    new Intl.NumberFormat('mn-MN', {
-      style: 'currency',
-      currency,
-      minimumFractionDigits: 0,
-    }).format(val);
-
-  const getInterest = (index: number) => {
-    if (interestPct <= 0 || installmentCount <= 0) return 0;
-    if (interestType === 'FLAT') {
-      return (principal * interestPct) / 100 / installmentCount;
-    }
-    if (interestType === 'REDUCING') {
-      const paidSoFar = baseInstallment * index;
-      const remaining = principal - paidSoFar;
-      return (remaining * interestPct) / 100 / ppy;
-    }
-    return ((principal * interestPct) / 100) * (installmentCount / ppy) / installmentCount;
-  };
-
-  const cols = hasInterest ? 'grid-cols-5' : 'grid-cols-4';
-
-  const Header = ({ children }: { children: React.ReactNode }) => (
-    <div className="px-3 py-2 text-xs font-medium text-muted-foreground uppercase">
-      {children}
-    </div>
-  );
-  const Cell = ({ children, className }: { children: React.ReactNode; className?: string }) => (
-    <div className={`px-3 py-2 border-t text-sm flex items-center ${className || ''}`}>
-      {children}
-    </div>
-  );
-
-  let grandTotal = 0;
-
-  const sizeLabel = unitSize > 0 ? ` — ${unitSize} m² × ${pricePerUnit.toLocaleString()} = ${totalAmount.toLocaleString()} ${currency}` : '';
+  const totalAmount = unitSize > 0 ? pricePerUnit * unitSize : pricePerUnit;
 
   return (
-    <InfoCard title={`Payment schedule (preview)${sizeLabel}`}>
-      <InfoCardContent className="shadow-none p-0 overflow-hidden">
-        <div className={`grid ${cols} bg-muted/30`}>
-          <Header>Payment</Header>
-          <Header>Type</Header>
-          <Header>Principal</Header>
-          {hasInterest && <Header>Interest</Header>}
-          <Header>Total</Header>
-        </div>
-
-        {downAmount > 0 && (() => {
-          const row = downAmount;
-          grandTotal += row;
-          return (
-            <div className={`grid ${cols}`}>
-              <Cell>Down payment</Cell>
-              <Cell>Down payment</Cell>
-              <Cell>{fmt(downAmount)}</Cell>
-              {hasInterest && <Cell>—</Cell>}
-              <Cell>{fmt(row)}</Cell>
-            </div>
-          );
-        })()}
-
-        {isOneTime ? (() => {
-          const interest = (priceAfterDiscount * interestPct) / 100;
-          const row = priceAfterDiscount + interest;
-          grandTotal += row;
-          return (
-            <div className={`grid ${cols}`}>
-              <Cell>Full payment</Cell>
-              <Cell>One-time</Cell>
-              <Cell>{fmt(priceAfterDiscount)}</Cell>
-              {hasInterest && <Cell>{fmt(interest)}</Cell>}
-              <Cell>{fmt(row)}</Cell>
-            </div>
-          );
-        })() : Array.from({ length: installmentCount }).map((_, i) => {
-          const isLast = i === installmentCount - 1;
-          const sumOthers = baseInstallment * (installmentCount - 1);
-          const installPrincipal = isLast ? principal - sumOthers : baseInstallment;
-          const interest = getInterest(i);
-          const row = installPrincipal + interest;
-          grandTotal += row;
-          return (
-            <div key={i} className={`grid ${cols}`}>
-              <Cell>{i + 1}</Cell>
-              <Cell>Progress payment</Cell>
-              <Cell>{fmt(installPrincipal)}</Cell>
-              {hasInterest && <Cell>{fmt(interest)}</Cell>}
-              <Cell>{fmt(row)}</Cell>
-            </div>
-          );
-        })}
-
-        {completionAmount > 0 && (() => {
-          grandTotal += completionAmount;
-          return (
-            <div className={`grid ${cols}`}>
-              <Cell>Completion</Cell>
-              <Cell>Completion payment</Cell>
-              <Cell>{fmt(completionAmount)}</Cell>
-              {hasInterest && <Cell>—</Cell>}
-              <Cell>{fmt(completionAmount)}</Cell>
-            </div>
-          );
-        })()}
-
-        <div className={`grid ${cols} bg-muted/30 border-t font-medium`}>
-          <Cell>Total</Cell>
-          <Cell>{discountPct > 0 ? `Discount: ${fmt(discountAmount)}` : ' '}</Cell>
-          <Cell>{fmt(priceAfterDiscount)}</Cell>
-          {hasInterest && <Cell>{fmt(grandTotal - priceAfterDiscount)}</Cell>}
-          <Cell>{fmt(grandTotal)}</Cell>
-        </div>
-      </InfoCardContent>
-    </InfoCard>
+    <PaymentScheduleEditor form={form} amount={totalAmount} currency={currency} />
   );
 };
 
@@ -448,6 +326,76 @@ export const SelectLead = ({
   );
 };
 
+const OfferUnitSelector = ({
+  form,
+  projectId,
+}: {
+  form: UseFormReturn<OfferFormData>;
+  projectId?: string;
+}) => {
+  const [buildingId, setBuildingId] = useState('');
+  const [zoningId, setZoningId] = useState('');
+  const { buildings = [] } = useBuildings({ projectId: projectId || '' });
+  const { buildingZonings = [] } = useBuildingZonings({ buildingId, skip: !buildingId });
+  const { units = [] } = useUnits({ variables: { zoning: zoningId }, skip: !zoningId });
+
+  useEffect(() => { setZoningId(''); (form as any).setValue('unit', ''); }, [buildingId]);
+  useEffect(() => { (form as any).setValue('unit', ''); }, [zoningId]);
+
+  if (!projectId) return null;
+
+  return (
+    <div className="grid grid-cols-3 gap-4">
+      <div className="space-y-2">
+        <Form.Label>Building</Form.Label>
+        <Select value={buildingId} onValueChange={setBuildingId}>
+          <Select.Trigger className="h-8"><Select.Value placeholder="Select building" /></Select.Trigger>
+          <Select.Content>
+            {buildings.map((b) => <Select.Item key={b._id} value={b._id}>{b.name}</Select.Item>)}
+          </Select.Content>
+        </Select>
+      </div>
+      <div className="space-y-2">
+        <Form.Label>Zone</Form.Label>
+        <Select value={zoningId} onValueChange={setZoningId} disabled={!buildingId}>
+          <Select.Trigger className="h-8"><Select.Value placeholder="Select zone" /></Select.Trigger>
+          <Select.Content>
+            {buildingZonings.map((z) => <Select.Item key={z._id} value={z._id}>Floor {z.floor}</Select.Item>)}
+          </Select.Content>
+        </Select>
+      </div>
+      <Form.Field
+        name={'unit' as any}
+        render={({ field }) => (
+          <Form.Item>
+            <Form.Label>Unit</Form.Label>
+            <Select
+              value={field.value || ''}
+              onValueChange={(uid) => {
+                field.onChange(uid);
+                const selected = units.find((u) => u._id === uid);
+                if (selected?.unitType?.price != null)
+                  form.setValue('price.price', Number(selected.unitType.price));
+              }}
+              disabled={!zoningId}
+            >
+              <Form.Control>
+                <Select.Trigger className="h-8"><Select.Value placeholder="Select unit" /></Select.Trigger>
+              </Form.Control>
+              <Select.Content>
+                {units.map((u) => (
+                  <Select.Item key={u._id} value={u._id}>Unit {u.number}</Select.Item>
+                ))}
+              </Select.Content>
+            </Select>
+            <Form.Message />
+          </Form.Item>
+        )}
+      />
+    </div>
+  );
+};
+
 export const OfferSummary = ({
   form,
   unit,
@@ -457,13 +405,9 @@ export const OfferSummary = ({
 }) => {
   const price = form.watch('price.price') || 0;
   const currency = form.watch('price.currency');
-  const priceType = form.watch('price.priceType') ?? 'priceBySize';
   const discountPct = form.watch('paymentPlan.discountPercentage') || 0;
-
-  const totalAmount =
-    priceType === 'priceBySize' && (unit?.unitType?.size || 0) > 0
-      ? price * unit!.unitType!.size
-      : price;
+  const unitSize = unit?.unitType?.size || 0;
+  const totalAmount = unitSize > 0 ? price * unitSize : price;
   const discountAmount = (totalAmount * discountPct) / 100;
   const offerPrice = totalAmount - discountAmount;
 

@@ -17,7 +17,6 @@ export const GET_CONTRACTS = gql`
         id
       }
       paymentPlan {
-        type
         downPaymentPercentage
         downPaymentAmount
         barterPercentage
@@ -73,9 +72,6 @@ export const GET_CONTRACTS_LIST = gql`
           type
           id
         }
-        paymentPlan {
-          type
-        }
         user
       }
       totalCount
@@ -106,7 +102,6 @@ export const GET_CONTRACT = gql`
         id
       }
       paymentPlan {
-        type
         downPaymentPercentage
         downPaymentAmount
         barterPercentage
