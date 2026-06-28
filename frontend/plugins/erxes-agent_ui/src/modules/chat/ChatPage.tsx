@@ -169,7 +169,12 @@ export const ChatPage = () => {
   // streaming update, so following it re-fires this effect as the reply grows.
   useEffect(() => {
     if (atBottomRef.current) {
-      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+      // Instant while a reply streams: smooth-following every throttled token
+      // re-fires the animation before it settles, which reads as the view
+      // bouncing up and down. A one-shot smooth scroll is fine once it's idle.
+      messagesEndRef.current?.scrollIntoView({
+        behavior: chatLoading ? 'auto' : 'smooth',
+      });
     }
   }, [messages, chatLoading]);
 
@@ -320,6 +325,27 @@ export const ChatPage = () => {
       chatStore.rateMessage(apolloClient, agentId, messageId, rating);
     },
     [apolloClient, agentId],
+  );
+
+  // Load a past user message back into the composer to tweak before sending.
+  const handleEditMessage = useCallback((value: string) => {
+    setInput(value);
+    // Focus and drop the caret at the end so it's ready to edit immediately.
+    requestAnimationFrame(() => {
+      const el = textareaRef.current;
+      if (!el) return;
+      el.focus();
+      el.setSelectionRange(el.value.length, el.value.length);
+    });
+  }, []);
+
+  // Send a past user message again as a fresh turn (carries its attachments).
+  const handleResendMessage = useCallback(
+    (value: string, atts: ChatAttachment[]) => {
+      if (chatLoading) return;
+      sendMessage(value, atts);
+    },
+    [sendMessage, chatLoading],
   );
 
   const handleStop = () => {
@@ -517,6 +543,8 @@ export const ChatPage = () => {
                 }}
                 onRegenerate={handleRegenerate}
                 onRate={handleRate}
+                onEditMessage={handleEditMessage}
+                onResendMessage={handleResendMessage}
                 storeArtifactsByMessage={storeArtifactsByMessage}
               />
 

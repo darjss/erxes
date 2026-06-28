@@ -1,10 +1,11 @@
 import { memo } from 'react';
-import { IconBolt, IconRefresh } from '@tabler/icons-react';
-import { Collapsible, Tooltip } from 'erxes-ui';
-import { AgentUIMessage } from '~/modules/chat/types';
+import { IconBolt, IconPencil, IconRefresh, IconRepeat } from '@tabler/icons-react';
+import { Tooltip } from 'erxes-ui';
+import { AgentUIMessage, ChatAttachment } from '~/modules/chat/types';
 import { asToolPart, messageText } from '~/modules/chat/lib/uiParts';
 import { asArtifactPart, type Artifact } from '~/modules/chat/lib/artifacts';
 import { AgentAvatar } from '~/modules/chat/components/Avatars';
+import { AgentTrace } from '~/modules/chat/components/AgentTrace';
 import { ArtifactCard } from '~/modules/chat/components/ArtifactCard';
 import {
   ChatMarkdown,
@@ -13,68 +14,12 @@ import {
 import { CopyButton } from '~/modules/chat/components/CopyButton';
 import { FeedbackButtons } from '~/modules/chat/components/FeedbackButtons';
 import { MessageAttachments } from '~/modules/chat/components/MessageAttachments';
-import { ThinkingSection } from '~/modules/chat/components/ThinkingSection';
-import { ToolCallRow } from '~/modules/chat/components/ToolCallRow';
-
-type MessagePart = AgentUIMessage['parts'][number];
 
 const formatTime = (iso?: string): string =>
   (iso ? new Date(iso) : new Date()).toLocaleTimeString([], {
     hour: '2-digit',
     minute: '2-digit',
   });
-
-// All reasoning + tool-call parts collapsed into one "Show thinking process" row.
-// Starts closed so the final response text is the first thing the user sees.
-const ToolsSection = ({
-  parts,
-  streaming,
-}: {
-  parts: MessagePart[];
-  streaming: boolean;
-}) => {
-  const toolCount = parts.filter((p) => !!asToolPart(p)).length;
-
-  return (
-    <Collapsible defaultOpen={false} className="mb-3">
-      <Collapsible.TriggerButton className="h-auto w-auto py-0.5 text-xs gap-1.5 text-muted-foreground hover:text-foreground">
-        <Collapsible.TriggerIcon className="size-3 shrink-0" />
-        Show thinking process
-        {toolCount > 0 && (
-          <span className="opacity-50 font-mono">
-            · {toolCount} tool{toolCount !== 1 ? 's' : ''}
-          </span>
-        )}
-      </Collapsible.TriggerButton>
-      <Collapsible.Content>
-        <div className="mt-2 space-y-1">
-          {parts.map((part, i) => {
-            const tool = asToolPart(part);
-            if (tool) {
-              return (
-                <ToolCallRow
-                  key={tool.toolCallId ?? `tool-${i}`}
-                  call={tool}
-                  streaming={streaming}
-                />
-              );
-            }
-            if (part.type === 'reasoning') {
-              return (
-                <ThinkingSection
-                  key={`reasoning-${i}`}
-                  text={part.text}
-                  live={streaming && part.state === 'streaming'}
-                />
-              );
-            }
-            return null;
-          })}
-        </div>
-      </Collapsible.Content>
-    </Collapsible>
-  );
-};
 
 // memo() so a streaming turn only re-renders the live bubble, not every prior
 // message — useChat keeps stable refs for settled messages, so shallow prop
@@ -86,6 +31,8 @@ export const MessageBubble = memo(function MessageBubble({
   ratingEnabled,
   onRegenerate,
   onRate,
+  onEditMessage,
+  onResendMessage,
   storeArtifacts,
 }: {
   msg: AgentUIMessage;
@@ -94,6 +41,10 @@ export const MessageBubble = memo(function MessageBubble({
   ratingEnabled: boolean;
   onRegenerate: () => void;
   onRate: (messageId: string, rating: 1 | -1) => void;
+  // Load a past user message back into the composer to tweak and send again.
+  onEditMessage: (text: string) => void;
+  // Send a past user message again as a new turn (text + its attachments).
+  onResendMessage: (text: string, attachments: ChatAttachment[]) => void;
   // Persisted artifacts for this message — used when the live tool parts are
   // gone (after a reload), so the inline cards reappear.
   storeArtifacts?: Artifact[];
@@ -105,23 +56,62 @@ export const MessageBubble = memo(function MessageBubble({
     const time = formatTime(msg.metadata?.createdAt);
     const hasText = !!text.trim();
     return (
-      <div className="flex flex-col items-end gap-1.5 ea-msg-in">
+      <div className="flex flex-col items-end gap-1 group ea-msg-in">
         {attachments && attachments.length > 0 && (
           <MessageAttachments attachments={attachments} />
         )}
         {hasText ? (
           <div className="ea-user-bubble text-primary-foreground rounded-2xl rounded-br-md px-4 py-2.5 shadow-sm">
-            <p className="text-sm whitespace-pre-wrap leading-relaxed">{text}</p>
+            {/* break-words so a long unbroken token (e.g. a base64 blob) wraps
+                inside the bubble instead of spilling past its right edge. */}
+            <p className="text-sm whitespace-pre-wrap break-words leading-relaxed">
+              {text}
+            </p>
             <p className="text-[10px] mt-1 text-primary-foreground/60">{time}</p>
           </div>
         ) : (
           <p className="text-[10px] text-muted-foreground pr-1">{time}</p>
         )}
+        {hasText && (
+          <div className="flex items-center gap-0.5 pr-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+            <Tooltip.Provider>
+              <Tooltip>
+                <Tooltip.Trigger asChild>
+                  <button
+                    type="button"
+                    onClick={() => onEditMessage(text)}
+                    className="size-6 flex items-center justify-center rounded text-muted-foreground transition-colors hover:bg-black/5 hover:text-foreground dark:hover:bg-white/10"
+                  >
+                    <IconPencil className="size-3.5" />
+                  </button>
+                </Tooltip.Trigger>
+                <Tooltip.Content>Edit</Tooltip.Content>
+              </Tooltip>
+            </Tooltip.Provider>
+            <Tooltip.Provider>
+              <Tooltip>
+                <Tooltip.Trigger asChild>
+                  <button
+                    type="button"
+                    onClick={() => onResendMessage(text, attachments ?? [])}
+                    disabled={chatLoading}
+                    className="size-6 flex items-center justify-center rounded text-muted-foreground transition-colors hover:bg-black/5 hover:text-foreground disabled:opacity-40 dark:hover:bg-white/10"
+                  >
+                    <IconRepeat className="size-3.5" />
+                  </button>
+                </Tooltip.Trigger>
+                <Tooltip.Content>Resend</Tooltip.Content>
+              </Tooltip>
+            </Tooltip.Provider>
+            <CopyButton text={text} />
+          </div>
+        )}
       </div>
     );
   }
 
-  // assistant — transparent bubble with subtle border + shadow.
+  // assistant — a borderless, full-width reading column (no bubble), so long
+  // answers read like a document and the width stays put while a reply streams.
   const streaming = isLast && chatLoading;
   const turnParts = msg.parts.filter(
     (p) => p.type === 'reasoning' || !!asToolPart(p),
@@ -148,9 +138,13 @@ export const MessageBubble = memo(function MessageBubble({
       : undefined;
 
   return (
-    <div className="flex justify-start items-start gap-2.5 group ea-msg-in">
+    <div className="flex justify-start items-start gap-3 group ea-msg-in">
       <AgentAvatar live={streaming} />
-      <div className="max-w-[82%] min-w-0 rounded-2xl rounded-bl-md px-4 py-2.5 shadow-sm">
+      {/* A full-width reading column — NOT shrink-to-fit. Sizing the assistant
+          message to its content made the width snap wider/narrower on every
+          streamed token (live thought tail, tool rows, growing markdown); a
+          stable column keeps it still while text reflows vertically. */}
+      <div className="min-w-0 flex-1 pt-0.5">
         {activeSkills && activeSkills.length > 0 && (
           <div className="flex flex-wrap items-center gap-1 mb-1.5">
             {activeSkills.map((name) => (
@@ -166,7 +160,7 @@ export const MessageBubble = memo(function MessageBubble({
           </div>
         )}
         {turnParts.length > 0 && (
-          <ToolsSection parts={turnParts} streaming={streaming} />
+          <AgentTrace parts={turnParts} streaming={streaming} />
         )}
         {text ? (
           streaming ? (

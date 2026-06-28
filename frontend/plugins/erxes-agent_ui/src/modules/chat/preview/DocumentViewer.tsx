@@ -112,15 +112,22 @@ export const DocumentViewer = ({ artifact }: { artifact: DocumentArtifact }) => 
             />
           )
         : null}
-      {artifact.format !== 'pdf' && (
+      {artifact.format === 'pptx' && (
+        // Slide deck: a calm brand stage with each slide framed as a card. The
+        // renderer draws into the inner "deck" (width-capped + centered); the
+        // card styling and the no-clip width rule live in chat.css. We must NOT
+        // put max-width on the slides themselves or their layout collapses.
+        <div className="ea-pptx-stage h-full w-full overflow-auto">
+          <div ref={containerRef} className="ea-pptx-deck" />
+        </div>
+      )}
+      {artifact.format !== 'pdf' && artifact.format !== 'pptx' && (
         <div
           ref={containerRef}
           className={
             artifact.format === 'docx'
               ? 'h-full w-full overflow-auto px-6 py-5 text-sm leading-relaxed [&_*]:max-w-full'
-              : artifact.format === 'pptx'
-                ? 'h-full w-full overflow-auto bg-muted/30 p-4 [&_*]:max-w-full'
-                : 'h-full w-full overflow-auto'
+              : 'h-full w-full overflow-auto'
           }
         />
       )}

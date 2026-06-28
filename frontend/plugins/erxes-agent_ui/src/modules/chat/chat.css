@@ -33,37 +33,52 @@
   );
 }
 
-/* Subtle primary-tinted tiles (agent avatar, empty-state icon, selected agent
-   rail item). Same reason as .ea-user-bubble: the `from-primary/NN`,
-   `via-primary/NN`, `to-primary/NN` and `border-primary/NN` utilities these
-   used are plugin-unique and aren't generated in the production host CSS, so
-   the fill + border tint vanish there. Keep the Tailwind `border` (width) on
-   the element; only the colours live here, off the --primary token. */
-.ea-avatar-tile {
-  background-image: linear-gradient(
-    to bottom right,
-    color-mix(in oklch, var(--primary) 25%, transparent),
-    color-mix(in oklch, var(--primary) 10%, transparent),
-    transparent
-  );
-  border-color: color-mix(in oklch, var(--primary) 20%, transparent);
+/* ── Agent mark ───────────────────────────────────────────────────────────
+   ONE brand mark for the agent everywhere it appears — chat avatar, empty
+   state, agent rail row. A FLAT fill (no gradient) off the --primary token, so
+   it survives the production CSS purge (same rule as .ea-user-bubble) and reads
+   identically in every spot. `.ea-mark-active` only deepens the flat tint. */
+.ea-mark {
+  background: color-mix(in oklch, var(--primary) 8%, var(--background));
+  border-color: color-mix(in oklch, var(--primary) 18%, transparent);
+  color: var(--primary);
 }
-.ea-empty-tile {
-  background-image: linear-gradient(
-    to bottom right,
-    color-mix(in oklch, var(--primary) 20%, transparent),
-    color-mix(in oklch, var(--primary) 8%, transparent),
-    transparent
-  );
-  border-color: color-mix(in oklch, var(--primary) 20%, transparent);
+.ea-mark-active {
+  background: color-mix(in oklch, var(--primary) 14%, var(--background));
+  border-color: color-mix(in oklch, var(--primary) 34%, transparent);
 }
-.ea-rail-active {
-  background-image: linear-gradient(
-    to bottom right,
-    color-mix(in oklch, var(--primary) 25%, transparent),
-    color-mix(in oklch, var(--primary) 5%, transparent)
+
+/* Thinking ring — the single "working" motion, shared by the mark and the
+   timeline's running node: one brand-coloured arc sweeping around the rim.
+   Replaces the old expanding-glow ping, the breathing halo, and the sliding
+   row gradients (all removed). */
+@keyframes ea-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.ea-spin-ring {
+  position: absolute;
+  inset: -2px;
+  border-radius: 9999px;
+  background: conic-gradient(
+    from 0deg,
+    transparent 0deg 210deg,
+    color-mix(in oklch, var(--primary) 30%, transparent) 300deg,
+    var(--primary) 360deg
   );
-  border-color: color-mix(in oklch, var(--primary) 30%, transparent);
+  -webkit-mask: radial-gradient(
+    farthest-side,
+    transparent calc(100% - 2px),
+    #000 calc(100% - 2px)
+  );
+  mask: radial-gradient(
+    farthest-side,
+    transparent calc(100% - 2px),
+    #000 calc(100% - 2px)
+  );
+  animation: ea-spin 0.9s linear infinite;
+  pointer-events: none;
 }
 
 /* Small elements (chips, tool rows) popping into the flow. */
@@ -94,6 +109,123 @@
 }
 .ea-expand {
   animation: ea-expand 0.18s ease-out both;
+}
+
+/* ── Agent run timeline ───────────────────────────────────────────────────
+   The assistant's reasoning + tool calls render as a single vertical thread:
+   a 1px rail with a status node per step. Replaces the old stack of bordered
+   pills. Colours come off the design tokens so they survive the production
+   CSS purge (same rule as .ea-user-bubble above). */
+.ea-trace {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  position: relative;
+}
+.ea-step {
+  position: relative;
+  display: flex;
+  align-items: stretch;
+}
+/* Gutter holds the node and draws the connecting thread behind it. */
+.ea-step-rail {
+  position: relative;
+  flex: none;
+  width: 1.25rem;
+  align-self: stretch;
+}
+.ea-step-rail::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  transform: translateX(-50%);
+  background: color-mix(in oklch, var(--border) 85%, transparent);
+  z-index: 0;
+}
+/* Trim the thread so it starts/ends at the node centre, not the row edge. */
+.ea-step:first-child .ea-step-rail::before {
+  top: 0.625rem;
+}
+.ea-step:last-child .ea-step-rail::before {
+  bottom: auto;
+  height: 0.625rem;
+}
+.ea-step:only-child .ea-step-rail::before {
+  display: none;
+}
+/* Node — opaque so it masks the thread, giving "beads on a string". */
+.ea-node {
+  position: absolute;
+  left: 50%;
+  top: 0.625rem;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 9999px;
+  transform: translate(-50%, -50%);
+  background: var(--background);
+  box-sizing: border-box;
+  z-index: 1;
+  transition: background-color 0.2s ease, box-shadow 0.2s ease;
+}
+/* Reasoning step — hollow ring. */
+.ea-node-reason {
+  box-shadow: inset 0 0 0 1.5px
+    color-mix(in oklch, var(--muted-foreground) 55%, transparent);
+}
+/* Tool step — solid bead. */
+.ea-node-tool {
+  background: color-mix(in oklch, var(--primary) 55%, transparent);
+}
+.ea-node-tool.is-running {
+  background: var(--primary);
+}
+/* Running node wears the same sweep ring as the agent mark — one motion. */
+.ea-node-tool.is-running::after {
+  content: '';
+  position: absolute;
+  inset: -3px;
+  border-radius: 9999px;
+  background: conic-gradient(
+    from 0deg,
+    transparent 0deg 210deg,
+    color-mix(in oklch, var(--primary) 30%, transparent) 300deg,
+    var(--primary) 360deg
+  );
+  -webkit-mask: radial-gradient(
+    farthest-side,
+    transparent calc(100% - 1.5px),
+    #000 calc(100% - 1.5px)
+  );
+  mask: radial-gradient(
+    farthest-side,
+    transparent calc(100% - 1.5px),
+    #000 calc(100% - 1.5px)
+  );
+  animation: ea-spin 0.9s linear infinite;
+}
+.ea-node-tool.is-error {
+  background: var(--destructive);
+}
+/* Step body sits to the right of the rail; first text line aligns to the node. */
+.ea-step-body {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 0.1875rem 0 0.375rem;
+}
+/* The clickable summary row — quiet by default, faint wash on hover. */
+.ea-trace-row {
+  border-radius: var(--radius-sm);
+  transition: background-color 0.12s ease, color 0.12s ease;
+}
+.ea-trace-row:hover {
+  background: color-mix(in oklch, var(--foreground) 6%, transparent);
+}
+/* Recessed request/response panes inside an expanded tool step. */
+.ea-trace-pre {
+  background: color-mix(in oklch, var(--muted) 65%, transparent);
 }
 
 /* Shimmer sweep over "Thinking…" labels while the model reasons. */
@@ -169,43 +301,6 @@
   animation: ea-caret 0.9s steps(1) infinite;
 }
 
-/* Slow-breathing gradient orb behind the empty-state robot. */
-@keyframes ea-orb {
-  0%,
-  100% {
-    transform: scale(1);
-    opacity: 0.55;
-  }
-  50% {
-    transform: scale(1.18);
-    opacity: 0.85;
-  }
-}
-.ea-orb {
-  background: radial-gradient(
-    circle at 35% 35%,
-    color-mix(in oklch, var(--primary) 55%, transparent),
-    color-mix(in oklch, var(--primary) 18%, transparent) 60%,
-    transparent 75%
-  );
-  filter: blur(18px);
-  animation: ea-orb 4.5s ease-in-out infinite;
-}
-
-/* Status dot on a tool row while it runs. */
-@keyframes ea-ping {
-  0% {
-    box-shadow: 0 0 0 0 color-mix(in oklch, var(--primary) 45%, transparent);
-  }
-  100% {
-    box-shadow: 0 0 0 6px transparent;
-  }
-}
-.ea-tool-running {
-  background: var(--primary);
-  animation: ea-ping 1.1s ease-out infinite;
-}
-
 /* The composer pill owns the focus treatment — the textarea inside it must
    not draw its own border/focus shadow (erxes-ui Textarea ships shadow-xs +
    focus-visible:shadow-focus, which tailwind-merge can't dedupe). */
@@ -214,81 +309,6 @@
   box-shadow: none !important;
   border: none !important;
   outline: none !important;
-}
-
-/* ── Working state ───────────────────────────────────────────────────────
-   Sidebar rows (agent + session) while a reply streams: a gradient that
-   drifts across the row's background while a halo breathes around it. */
-@keyframes ea-working-bg {
-  0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
-}
-@keyframes ea-working-halo {
-  0%,
-  100% {
-    box-shadow:
-      0 0 0 1px color-mix(in oklch, var(--primary) 22%, transparent),
-      0 0 10px 1px color-mix(in oklch, var(--primary) 12%, transparent);
-  }
-  50% {
-    box-shadow:
-      0 0 0 1px color-mix(in oklch, var(--primary) 42%, transparent),
-      0 0 20px 5px color-mix(in oklch, var(--primary) 22%, transparent);
-  }
-}
-.ea-working {
-  background-image: linear-gradient(
-    115deg,
-    transparent 0%,
-    color-mix(in oklch, var(--primary) 9%, transparent) 25%,
-    color-mix(in oklch, var(--primary) 16%, transparent) 50%,
-    color-mix(in oklch, var(--primary) 9%, transparent) 75%,
-    transparent 100%
-  );
-  background-size: 250% 250%;
-  animation:
-    ea-working-bg 3.2s ease-in-out infinite,
-    ea-working-halo 2.4s ease-in-out infinite;
-}
-
-/* Thought cloud trailing out of the working agent's avatar. */
-@keyframes ea-thought-dot {
-  0%,
-  100% {
-    opacity: 0.35;
-    transform: scale(0.8);
-  }
-  50% {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-.ea-thought-dot {
-  border-radius: 9999px;
-  background: color-mix(in oklch, var(--primary) 55%, transparent);
-  animation: ea-thought-dot 1.6s ease-in-out infinite;
-}
-.ea-thought-dot:nth-child(2) {
-  animation-delay: 0.25s;
-}
-@keyframes ea-thought-bob {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-1.5px);
-  }
-}
-.ea-thought-bubble {
-  animation: ea-thought-bob 2.8s ease-in-out infinite;
 }
 
 /* Ambient glow — two blurred gradient blobs that drift around the chat
@@ -358,18 +378,43 @@
   animation: ea-ambient-drift-2 13s ease-in-out infinite;
 }
 
-/* Agent avatar ring while a reply streams. */
-@keyframes ea-ring {
-  0%,
-  100% {
-    box-shadow: 0 0 0 0 color-mix(in oklch, var(--primary) 35%, transparent);
-  }
-  50% {
-    box-shadow: 0 0 0 5px color-mix(in oklch, var(--primary) 12%, transparent);
+/* Honor reduced-motion for the thinking sweep — show a static arc, no spin. */
+@media (prefers-reduced-motion: reduce) {
+  .ea-spin-ring,
+  .ea-node-tool.is-running::after {
+    animation: none;
   }
 }
-.ea-avatar-live {
-  animation: ea-ring 1.6s ease-in-out infinite;
+
+/* ── PPTX slide deck preview ───────────────────────────────────────────────
+   The deck itself is rendered by @aiden0z/pptx-renderer (high-fidelity OOXML →
+   HTML/SVG, pixel-tested against PowerPoint). This is ONLY the brand chrome
+   around it: a calm stage with each slide framed as a floating card. We style
+   the stage and the top-level slide nodes ONLY — never the renderer's inner
+   nodes. (An earlier `max-w-full` on every descendant collapsed the slides'
+   absolute layout and overlapped the text; that bug is gone.) Colours come off
+   design tokens so the frame is theme-aware and survives the production purge. */
+.ea-pptx-stage {
+  background: var(--muted);
+  padding: 1.25rem;
+}
+/* The renderer scales each slide to the width of the node it draws into, so the
+   width cap lives on this deck — capping the slides directly would clip them. */
+.ea-pptx-deck {
+  max-width: 60rem;
+  margin-inline: auto;
+}
+.ea-pptx-deck > * {
+  margin-bottom: 1.25rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow:
+    0 1px 2px color-mix(in oklch, var(--foreground) 8%, transparent),
+    0 10px 30px color-mix(in oklch, var(--foreground) 9%, transparent);
+}
+.ea-pptx-deck > *:last-child {
+  margin-bottom: 0;
 }
 
 /* ── Voice mode ──────────────────────────────────────────────────────────

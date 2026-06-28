@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { IconRobot, IconSettings } from '@tabler/icons-react';
-import { Button, Skeleton, Tooltip } from 'erxes-ui';
+import { IconSettings } from '@tabler/icons-react';
+import { Button, ErxesLogoIcon, Skeleton, Tooltip } from 'erxes-ui';
 import { IChatAgent } from '~/modules/chat/hooks/useChatAgents';
 import {
   useAgentActivity,
@@ -32,8 +32,8 @@ const AgentRailItem = ({
       role="button"
       tabIndex={0}
       className={`group relative w-full cursor-pointer rounded-md px-2.5 py-2 text-left transition-colors hover:bg-accent ${
-        isActive ? 'bg-accent' : ''
-      } ${isWorking ? 'ea-working' : ''}`}
+        isActive || isWorking ? 'bg-accent' : ''
+      }`}
       onClick={() => onSelect(agent._id)}
       onKeyDown={(e) => {
         // Only act on the row's own keys — ignore Enter/Space that bubbled up
@@ -69,49 +69,27 @@ const AgentRailItem = ({
         </Tooltip>
       </Tooltip.Provider>
 
-      <div className="flex items-start gap-2">
-        <div className="relative shrink-0">
-          <div
-            className={`size-7 rounded-lg border flex items-center justify-center transition-colors ${
-              isActive || isWorking
-                ? 'ea-rail-active'
-                : 'bg-muted border-border'
-            } ${isWorking ? 'ea-avatar-live' : ''}`}
-          >
-            <IconRobot
-              className={`size-4 transition-colors ${
-                isActive || isWorking ? 'text-primary' : 'text-muted-foreground'
-              }`}
-            />
-          </div>
+      {/* No icon — the name carries the row. pr-7 keeps text clear of the
+          hover gear. An unread dot sits inline before the name. */}
+      <div className="min-w-0 pr-7">
+        <p className="flex items-center gap-1.5 text-sm font-medium leading-tight">
           {hasUnread && (
-            <span className="absolute -top-0.5 -right-0.5 size-2 rounded-full bg-destructive animate-pulse" />
+            <span className="size-1.5 shrink-0 rounded-full bg-destructive" />
           )}
-        </div>
-        <div className="min-w-0 flex-1">
-          <p className="text-sm font-medium truncate leading-tight">
-            {agent.name}
+          <span className="truncate">{agent.name}</span>
+        </p>
+        {/* While working, the model line gives way to the live step — one
+            shimmering line — so the row stays the same height. */}
+        {showActivity ? (
+          <p className="mt-0.5 truncate text-xs">
+            <span className="ea-shimmer-text">{showActivity}</span>
           </p>
-          <p className="text-xs text-muted-foreground truncate font-mono mt-0.5">
+        ) : (
+          <p className="mt-0.5 truncate font-mono text-xs text-muted-foreground">
             {agent.model}
           </p>
-        </div>
+        )}
       </div>
-      {/* Thought cloud — trails out of the avatar while the agent works,
-          echoing the live turn's current step. */}
-      {showActivity && (
-        <div className="ea-pop mt-1 flex items-start gap-1">
-          <div className="flex flex-col items-center gap-[3px] pl-2 pt-0.5 shrink-0">
-            <span className="ea-thought-dot size-1" />
-            <span className="ea-thought-dot size-1.5" />
-          </div>
-          <div className="ea-thought-bubble min-w-0 flex-1 rounded-lg rounded-tl-sm border border-primary/25 bg-background/85 px-2 py-1">
-            <p className="text-[10px] leading-snug break-words line-clamp-2">
-              <span className="ea-shimmer-text">{showActivity}</span>
-            </p>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
@@ -147,7 +125,7 @@ export const AgentRail = ({
           </div>
         ) : agents.length === 0 ? (
           <div className="p-4 text-center">
-            <IconRobot className="size-8 text-muted-foreground mx-auto mb-2" />
+            <ErxesLogoIcon className="h-7 w-auto text-muted-foreground mx-auto mb-2" />
             <p className="text-sm text-muted-foreground">No enabled agents.</p>
           </div>
         ) : (

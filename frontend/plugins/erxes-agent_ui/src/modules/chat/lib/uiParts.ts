@@ -62,6 +62,27 @@ export const asToolPart = (part: MessagePart): ToolPartView | null => {
   };
 };
 
+/** A short, human hint for a tool call — the URL it fetched, the query it ran —
+ *  shown dimmed next to the tool name in the run timeline so a row reads as
+ *  "fetchUrl  docs.erxes.io/…" rather than a bare name. Defensive: unknown
+ *  shapes return '' so the row simply omits the hint. */
+export const toolHint = (input: unknown): string => {
+  if (typeof input === 'string') return cleanHint(input);
+  if (!input || typeof input !== 'object') return '';
+  const obj = input as Record<string, unknown>;
+  for (const key of ['url', 'href', 'query', 'q', 'search', 'path', 'name', 'title', 'id']) {
+    const v = obj[key];
+    if (typeof v === 'string' && v.trim()) return cleanHint(v);
+    if (typeof v === 'number') return String(v);
+  }
+  return '';
+};
+
+// Drop the scheme + leading www. from URLs and collapse whitespace so the hint
+// stays compact; truncation to a single line is the row's job (CSS).
+const cleanHint = (raw: string): string =>
+  raw.trim().replace(/^https?:\/\/(www\.)?/i, '').replace(/\s+/g, ' ');
+
 /** The concatenated assistant answer text across a message's text parts. */
 export const messageText = (message: AgentUIMessage): string =>
   message.parts
