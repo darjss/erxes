@@ -27,14 +27,17 @@ export const cpPoscProduct = {
   },
 
   prePaymentAmount: async (
-    product: { _id: string; unitPrice?: number },
+    product: { _id: string },
     _args: undefined,
     { models }: IContext,
   ) => {
-    const spec = await resolveSpec(product._id, models);
-    const percent = spec?.prepaymentPercent;
+    const [spec, mushopProduct] = await Promise.all([
+      resolveSpec(product._id, models),
+      models.Product.findOne({ _id: product._id }).lean(),
+    ]);
 
-    const unitPrice = product.unitPrice;
+    const percent = spec?.prepaymentPercent;
+    const unitPrice = mushopProduct?.unitPrice;
 
     if (unitPrice == null || percent == null) return null;
 

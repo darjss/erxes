@@ -9,6 +9,7 @@ import {
   Textarea,
   toast,
 } from 'erxes-ui';
+import { IconHash } from '@tabler/icons-react';
 import { useCallback, useEffect } from 'react';
 import { Path, useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -132,9 +133,10 @@ export const SupplierProfileForm = () => {
         <h1 className="font-bold text-lg">Supplier profile</h1>
         <div className="flex items-center gap-2">
           {supplier?.code && (
-            <span className="rounded-md bg-muted px-2 py-0.5 font-mono text-xs text-muted-foreground">
+            <Badge variant="secondary" className="font-mono tracking-wide">
+              <IconHash className="size-3.5 shrink-0 text-muted-foreground" />
               {supplier.code}
-            </span>
+            </Badge>
           )}
           <Badge variant={statusVariant(supplier?.verificationStatus)}>
             {supplier?.verificationStatus || 'pending'}

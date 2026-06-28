@@ -7,7 +7,12 @@ export interface IOrderModel extends Model<IOrderDocument> {
   logForward(doc: IOrder): Promise<IOrderDocument>;
   markResult(
     _id: string,
-    result: { ok: boolean; orderId?: string; error?: string },
+    result: {
+      ok: boolean;
+      orderId?: string;
+      customerId?: string;
+      error?: string;
+    },
   ): Promise<void>;
 }
 
@@ -24,7 +29,12 @@ export const loadOrderClass = (models: IModels) => {
     // Closes out the record once the supplier server responds.
     public static async markResult(
       _id: string,
-      result: { ok: boolean; orderId?: string; error?: string },
+      result: {
+        ok: boolean;
+        orderId?: string;
+        customerId?: string;
+        error?: string;
+      },
     ) {
       await models.Order.updateOne(
         { _id },
@@ -33,6 +43,7 @@ export const loadOrderClass = (models: IModels) => {
             ? {
                 status: ORDER_STATUS.FORWARDED,
                 entityId: result.orderId ?? null,
+                customerId: result.customerId ?? null,
                 error: null,
               }
             : {

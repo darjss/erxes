@@ -16,6 +16,8 @@ export interface IOrder {
   status?: string;
   // Order id returned by the supplier server on success.
   entityId?: string | null;
+  // The supplier tenant's own customer id for this order, returned on success.
+  customerId?: string | null;
   error?: string | null;
 }
 
