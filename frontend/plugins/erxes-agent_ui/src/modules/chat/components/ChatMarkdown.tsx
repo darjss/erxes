@@ -4,12 +4,7 @@ import ReactMarkdown, { type Components } from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeSanitize from 'rehype-sanitize';
 import { IconLayoutSidebarRightExpand } from '@tabler/icons-react';
-import {
-  Button,
-  EChart,
-  legacyPayloadToChartSpec,
-  type ChartSpec,
-} from 'erxes-ui';
+import { Button, EChart, parseChartViz, type ChartSpec } from 'erxes-ui';
 import { CopyButton } from '~/modules/chat/components/CopyButton';
 import { previewStore } from '~/modules/chat/preview/previewStore';
 import { splitStreamingMarkdown } from '~/modules/chat/lib/markdown';
@@ -53,13 +48,21 @@ const LegacyChartBlock = ({ spec }: { spec: ChartSpec }) => {
 };
 
 const CodeBlock = ({ lang, code }: { lang: string; code: string }) => {
-  // Render legacy chart-viz fenced blocks as interactive charts.
-  if (lang === 'chart-viz') {
-    try {
-      const spec = legacyPayloadToChartSpec(JSON.parse(code));
-      if (spec) return <LegacyChartBlock spec={spec} />;
-    } catch {
-      // malformed — fall through to a plain code block
+  // Render chart payloads the model emitted as text. A `chart-viz` fence is the
+  // canonical case, but some models tag it ```json (or leave it unlabelled), so
+  // we also catch any block carrying the chart-viz marker. parseChartViz is
+  // defensive — it recovers one, many, or run-together objects — and we render a
+  // chart for each; only a block with no valid chart falls through to code.
+  if (lang === 'chart-viz' || /"type"\s*:\s*"chart-viz"/.test(code)) {
+    const specs = parseChartViz(code);
+    if (specs.length) {
+      return (
+        <>
+          {specs.map((spec, i) => (
+            <LegacyChartBlock key={i} spec={spec} />
+          ))}
+        </>
+      );
     }
   }
   return (
