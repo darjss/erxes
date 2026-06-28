@@ -1,6 +1,9 @@
 import { IContext } from '~/connectionResolvers';
 import { MUSHOP_PRODUCT_STATUS } from '@/product/db/definitions/product';
-import { syncProductToPosclient } from '~/utils/syncProductToPosclient';
+import {
+  removeProductFromPosclient,
+  syncProductToPosclient,
+} from '~/utils/syncProductToPosclient';
 
 const getSupplierMushopPosToken = async (
   models: IContext['models'],
@@ -23,17 +26,25 @@ export const productMutations = {
       categoryId || null,
     );
 
-    if (categoryId && product?.status === 'approved') {
+    if (product?.status === 'approved') {
       const posToken = await getSupplierMushopPosToken(
         models,
         product.subdomain,
       );
 
-      await syncProductToPosclient({
-        subdomain,
-        posToken,
-        product,
-      });
+      if (categoryId) {
+        await syncProductToPosclient({
+          subdomain,
+          posToken,
+          product,
+        });
+      } else {
+        await removeProductFromPosclient({
+          subdomain,
+          posToken,
+          productId: _id,
+        });
+      }
     }
 
     return product;
@@ -56,8 +67,6 @@ export const productMutations = {
           categoryId: { $exists: true, $ne: null },
         }).lean();
 
-        console.log('products', products.length);
-
         await Promise.all(
           products.map(async (p) => {
             const posToken = await getSupplierMushopPosToken(
@@ -69,6 +78,27 @@ export const productMutations = {
               subdomain,
               posToken,
               product: p,
+            });
+          }),
+        );
+      }
+
+      if (status === MUSHOP_PRODUCT_STATUS.REJECTED) {
+        const products = await models.Product.find({
+          _id: { $in: ids },
+        }).lean();
+
+        await Promise.all(
+          products.map(async (p) => {
+            const posToken = await getSupplierMushopPosToken(
+              models,
+              p.subdomain,
+            );
+
+            return removeProductFromPosclient({
+              subdomain,
+              posToken,
+              productId: p._id,
             });
           }),
         );
@@ -136,6 +166,18 @@ export const productMutations = {
       });
     }
 
+    if (status === MUSHOP_PRODUCT_STATUS.REJECTED) {
+      const posToken = await getSupplierMushopPosToken(
+        models,
+        existing.subdomain,
+      );
+      await removeProductFromPosclient({
+        subdomain,
+        posToken,
+        productId: _id,
+      });
+    }
+
     return updated;
   },
 
@@ -148,8 +190,6 @@ export const productMutations = {
       throw new Error('Invalid product status');
     }
 
-    // Only approved products with a category are eligible to sync to posclient,
-    // mirroring the per-product sync paths above.
     if (status && status !== MUSHOP_PRODUCT_STATUS.APPROVED) {
       throw new Error('Only approved products can be synced to POS client');
     }
@@ -166,7 +206,6 @@ export const productMutations = {
 
     const products = await models.Product.find(filter).lean();
 
-    // Cache posToken per supplier subdomain so we don't refetch for every product.
     const posTokenCache = new Map<string, string | undefined>();
     const getPosToken = async (sub: string) => {
       if (!posTokenCache.has(sub)) {

@@ -33,6 +33,7 @@ export const types = `
 
   type Supplier {
     _id: String!
+    code: String
     name: String
     description: String
     about: String

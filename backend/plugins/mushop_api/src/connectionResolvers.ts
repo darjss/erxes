@@ -7,6 +7,11 @@ import {
   loadSupplierClass,
   ISupplierModel,
 } from '@/supplier/db/models/Supplier';
+import {
+  loadCounterClass,
+  ICounterModel,
+  ICounterDocument,
+} from '@/supplier/db/models/Counter';
 import { IMushopProductMushopDocument } from '@/product/@types/product';
 import {
   loadMushopProductClass,
@@ -47,6 +52,7 @@ import {
 
 export interface IModels {
   Supplier: ISupplierModel;
+  Counter: ICounterModel;
   Product: IMushopProductModel;
   ProductSpecification: IMushopProductSpecificationModel;
   Membership: IMushopMembershipModel;
@@ -76,6 +82,11 @@ export const loadClasses = (
       models,
       mushopEventHandlers('suppliers', 'mushop_suppliers'),
     ),
+  );
+
+  models.Counter = db.model<ICounterDocument, ICounterModel>(
+    'mushop_counters',
+    loadCounterClass(models),
   );
 
   models.Product = db.model<

@@ -6,20 +6,41 @@ export const cpPoscProduct = {
     _args: undefined,
     { models }: IContext,
   ) => {
-    console.log('product', product)
-    
     const mushopProduct = await models.Product.findOne({
       _id: product._id,
     }).lean();
 
-    console.log('mushopProduct', mushopProduct)
-
     if (!mushopProduct?.subdomain) return null;
-
-    console.log('mushopProduct.subdomain', mushopProduct.subdomain)
 
     return models.Supplier.findOne({
       subdomain: mushopProduct.subdomain,
     }).lean();
-  }
+  },
+
+  moq: async (
+    product: { _id: string },
+    _args: undefined,
+    { models }: IContext,
+  ) => {
+    const spec = await resolveSpec(product._id, models);
+    return spec?.moq ?? null;
+  },
+
+  prePaymentAmount: async (
+    product: { _id: string; unitPrice?: number },
+    _args: undefined,
+    { models }: IContext,
+  ) => {
+    const spec = await resolveSpec(product._id, models);
+    const percent = spec?.prepaymentPercent;
+
+    const unitPrice = product.unitPrice;
+
+    if (unitPrice == null || percent == null) return null;
+
+    return (unitPrice * percent) / 100;
+  },
 };
+
+const resolveSpec = (productId: string, models: IContext['models']) =>
+  models.ProductSpecification.findOne({ productId }).lean();

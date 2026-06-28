@@ -44,9 +44,7 @@ export const syncCollectiveProducts = async ({
     status: COLLECTIVE_STATUS.SYNCING,
   });
 
-  const filterIds = supplierIds?.length
-    ? supplierIds
-    : collective.supplierIds;
+  const filterIds = supplierIds?.length ? supplierIds : collective.supplierIds;
 
   const suppliers = await models.Supplier.find({
     _id: { $in: filterIds },
@@ -84,6 +82,7 @@ export const syncCollectiveProducts = async ({
           posToken: supplier.posToken,
           supplierId: supplier._id,
           supplierName: supplier.name,
+          supplierCode: supplier.code,
         },
         timeout: 120000,
       });

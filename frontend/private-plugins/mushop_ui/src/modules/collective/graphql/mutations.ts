@@ -1,5 +1,22 @@
 import { gql } from '@apollo/client';
 
+export const MUSHOP_CREATE_COLLECTIVE = gql`
+  mutation MushopCreateCollective(
+    $targetSubdomain: String!
+    $supplierIds: [String!]!
+  ) {
+    mushopCreateCollective(
+      targetSubdomain: $targetSubdomain
+      supplierIds: $supplierIds
+    ) {
+      _id
+      targetSubdomain
+      supplierIds
+      status
+    }
+  }
+`;
+
 export const MUSHOP_UPDATE_COLLECTIVE_SUPPLIERS = gql`
   mutation MushopUpdateCollectiveSuppliers(
     $_id: String!

@@ -3,6 +3,7 @@ import { syncCollectiveProducts } from '@/collective/utils/syncCollectiveProduct
 import { sendSupplierMessage } from '~/utils/sendSupplierMessage';
 import { Resolver } from 'erxes-api-shared/core-types';
 import { COLLECTIVE_STATUS } from '~/modules/collective/@types/collective';
+import { registerCollectivePartners } from '@/collective/utils/registerCollectivePartners';
 
 export const collectiveMutations: Record<string, Resolver> = {
   mushopCreateCollective: async (
@@ -16,6 +17,29 @@ export const collectiveMutations: Record<string, Resolver> = {
     },
     { models }: IContext,
   ) => {
+    const suppliers = await models.Supplier.find({ _id: { $in: supplierIds }}).lean();
+
+    if (suppliers.length !== supplierIds.length) {
+      throw new Error('One or more suppliers not found');
+    }
+
+    const subdomains = new Set<string>();
+
+    for (const supplier of suppliers) {
+      if (supplier.subdomain) {
+        subdomains.add(supplier.subdomain);
+      }
+    }
+
+    if (!subdomains.size) {
+      throw new Error('Selected suppliers have no subdomains to register');
+    }
+
+    await registerCollectivePartners({
+      subdomain: targetSubdomain,
+      subdomains: Array.from(subdomains),
+    });
+
     const pos = await sendSupplierMessage<{ _id: string; token: string }>({
       subdomain: targetSubdomain,
       action: 'create-pos',
@@ -146,9 +170,6 @@ export const collectiveMutations: Record<string, Resolver> = {
   },
 };
 
-collectiveMutations.mushopCreateCollective.wrapperConfig = {
-  skipPermission: true,
-};
 
 collectiveMutations.mushopUpdateCollectiveSuppliers.wrapperConfig = {
   skipPermission: true,

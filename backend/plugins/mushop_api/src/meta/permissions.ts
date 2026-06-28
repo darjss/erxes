@@ -268,7 +268,6 @@ export const permissions: IPermissionConfig = {
           module: 'collective',
           actions: [
             'showMushopCollectives',
-            'mushopCreateCollective',
             'mushopUpdateCollectiveSuppliers',
             'mushopResyncCollective',
             'mushopRemoveCollective',

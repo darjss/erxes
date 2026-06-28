@@ -23,16 +23,49 @@ const deterministicObjectId = (...parts: string[]): string => {
     .slice(0, 24);
 };
 
+const upsertCore = async (
+  subdomain: string,
+  module: string,
+  createAction: string,
+  _id: string,
+  doc: Record<string, any>,
+  buildInput: (object: Record<string, any>) => Record<string, any> = (
+    object,
+  ) => ({ doc: object }),
+): Promise<void> => {
+  const existing = await sendTRPCMessage({
+    subdomain,
+    pluginName: 'core',
+    method: 'query',
+    module,
+    action: 'findOne',
+    input: { query: { _id } },
+    defaultValue: null,
+  });
+
+  if (existing) return;
+
+  await sendTRPCMessage({
+    subdomain,
+    pluginName: 'core',
+    method: 'mutation',
+    module,
+    action: createAction,
+    input: buildInput({ _id, ...doc }),
+  });
+};
+
 router.post('/collective', async (req: Request, res: Response) => {
   try {
     const { subdomain, payload } = req.body || {};
     const {
       collectiveId,
       products,
+      categories,
       supplierId,
       supplierName,
+      supplierCode,
       sourcePosToken,
-      targetPosToken,
     } = payload || {};
 
     if (!subdomain) {
@@ -55,52 +88,121 @@ router.post('/collective', async (req: Request, res: Response) => {
       return res.status(400).json({ error: 'payload.supplierId is required' });
     }
 
-    if (!targetPosToken) {
-      return res
-        .status(400)
-        .json({ error: 'payload.targetPosToken is required' });
-    }
-
     if (!(await isValid(subdomain, COLLECTIVE_BUNDLE_TYPE))) {
       return res.status(403).json({
         error: `Subdomain "${subdomain}" does not have an active collective bundle`,
       });
     }
 
-    const categoryCode = `collective-${collectiveId}-${supplierId}`;
-    const categoryId = deterministicObjectId(
-      'collective-cat',
+    const supplierLabel = supplierName || `Supplier ${supplierId}`;
+    // The supplier's unique, human-readable code drives all replicated codes
+    // (company / categories / products). Falls back to the id if absent.
+    const supplierKey = supplierCode || supplierId;
+
+    const companyId = deterministicObjectId(
+      'collective-company',
       collectiveId,
       supplierId,
     );
 
-    await sendTRPCMessage({
+    await upsertCore(
       subdomain,
-      pluginName: 'posclient',
-      method: 'mutation',
-      module: 'posclient',
-      action: 'crudData',
-      input: {
-        token: targetPosToken,
-        type: 'productCategory',
-        action: 'create',
-        object: {
-          _id: categoryId,
-          name: supplierName || `Supplier ${supplierId}`,
-          code: categoryCode,
-        },
+      'companies',
+      'createCompany',
+      companyId,
+      {
+        primaryName: supplierLabel,
+        names: [supplierLabel],
+        code: supplierKey,
       },
-    });
+      (object) => ({ ...object }),
+    );
+
+    const supplierCategoryId = deterministicObjectId(
+      'collective-supplier-cat',
+      collectiveId,
+      supplierId,
+    );
+    await upsertCore(
+      subdomain,
+      'productCategories',
+      'createProductCategory',
+      supplierCategoryId,
+      {
+        name: supplierLabel,
+        code: supplierKey,
+        parentId: '',
+      },
+    );
+
+    const categoryList: Record<string, any>[] = Array.isArray(categories)
+      ? categories
+      : [];
+    const sourceById = new Map<string, Record<string, any>>();
+    for (const cat of categoryList) {
+      if (cat?._id) sourceById.set(cat._id, cat);
+    }
+
+    const targetCatId = (sourceId: string) =>
+      deterministicObjectId('collective-cat', collectiveId, supplierId, sourceId);
+
+    // Create a source category and its ancestors first (depth order), so every
+    // node's cloned parent already exists. Returns the cloned category id.
+    const targetCategoryBySource = new Map<string, string>();
+    const ensureCategory = async (
+      sourceId: string,
+      seen: Set<string> = new Set(),
+    ): Promise<string> => {
+      const cached = targetCategoryBySource.get(sourceId);
+      if (cached) return cached;
+
+      const cat = sourceById.get(sourceId);
+      // Parent not in the payload, or a cycle: hang it off the supplier root.
+      if (!cat || seen.has(sourceId)) return supplierCategoryId;
+      seen.add(sourceId);
+
+      // Resolve the cloned parent first; top-level → supplier root.
+      const parentTargetId =
+        cat.parentId && sourceById.has(cat.parentId)
+          ? await ensureCategory(cat.parentId, seen)
+          : supplierCategoryId;
+
+      const cloneId = targetCatId(sourceId);
+      await upsertCore(
+        subdomain,
+        'productCategories',
+        'createProductCategory',
+        cloneId,
+        {
+          name: cat.name || cat.code || sourceId,
+          // Flat code per category regardless of depth; nesting is in parentId.
+          code: `${supplierKey}-${cat.code || sourceId}`,
+          parentId: parentTargetId,
+        },
+      );
+
+      targetCategoryBySource.set(sourceId, cloneId);
+      return cloneId;
+    };
+
+    for (const cat of categoryList) {
+      if (!cat?._id) continue;
+      try {
+        await ensureCategory(cat._id);
+      } catch {
+        // If a category fails, products under it fall back to the supplier
+        // parent rather than failing the whole sync.
+      }
+    }
 
     const results: CollectiveProductResult[] = [];
 
     for await (const doc of products) {
-      const { _id: sourceProductId, prices, ...rest } = doc || {};
+      const { _id: sourceProductId, prices, categoryId, ...rest } = doc || {};
 
       delete (rest as any).__v;
       delete (rest as any).createdAt;
       delete (rest as any).updatedAt;
-      delete (rest as any).categoryId;
       delete (rest as any).vendorId;
       delete (rest as any).tokens;
       delete (rest as any).isCheckRems;
@@ -119,33 +221,41 @@ router.post('/collective', async (req: Request, res: Response) => {
         continue;
       }
 
-      const targetProductId = sourceProductId;
+      const targetProductId = deterministicObjectId(
+        'collective-product',
+        collectiveId,
+        supplierId,
+        sourceProductId,
+      );
 
       const unitPrice =
         sourcePosToken && prices ? prices[sourcePosToken] : undefined;
 
-      const object = {
+      const targetCategoryId =
+        (categoryId && targetCategoryBySource.get(categoryId)) ||
+        supplierCategoryId;
+
+      // Code: <supplierCode>-<srcProductCode>, e.g. UB-BZD-001-PHONEX1. The
+      // category isn't repeated here — it's already linked via categoryId.
+      const targetCode = `${supplierKey}-${doc.code}`;
+
+      const doc_ = {
         ...rest,
         _id: targetProductId,
-        code: `${doc.code}_${supplierName ?? supplierId}`,
-        categoryId,
+        code: targetCode,
+        categoryId: targetCategoryId,
+        vendorId: companyId,
         ...(unitPrice !== undefined ? { unitPrice } : {}),
       };
 
       try {
-        await sendTRPCMessage({
+        await upsertCore(
           subdomain,
-          pluginName: 'posclient',
-          method: 'mutation',
-          module: 'posclient',
-          action: 'crudData',
-          input: {
-            token: targetPosToken,
-            type: 'product',
-            action: 'create',
-            object,
-          },
-        });
+          'products',
+          'createProduct',
+          targetProductId,
+          doc_,
+        );
 
         results.push({
           code: doc.code,
@@ -183,6 +293,7 @@ router.post('/collective', async (req: Request, res: Response) => {
 router.post('/collective-push', async (req: Request, res: Response) => {
   try {
     const { subdomain, payload } = req.body || {};
+
     const {
       collectiveId,
       targetSubdomain,
@@ -190,6 +301,7 @@ router.post('/collective-push', async (req: Request, res: Response) => {
       posToken,
       supplierId,
       supplierName,
+      supplierCode,
     } = payload || {};
 
     if (!subdomain) {
@@ -239,6 +351,48 @@ router.post('/collective-push', async (req: Request, res: Response) => {
       });
     }
 
+    const leafCategoryIds = new Set<string>();
+
+    for (const product of products) {
+      const categoryId = product?.categoryId;
+
+      if (categoryId) {
+        leafCategoryIds.add(categoryId);
+      }
+    }
+
+    // Resolve the categories the products sit in AND all their ancestors, so
+    // the target can rebuild the full tree. Walk up parentId until no new ids.
+    const categoryById = new Map<string, Record<string, any>>();
+    let pending = Array.from(leafCategoryIds);
+
+    while (pending.length) {
+      const fetched = (await sendTRPCMessage({
+        subdomain,
+        pluginName: 'core',
+        method: 'query',
+        module: 'productCategories',
+        action: 'find',
+        input: {
+          query: { _id: { $in: pending } },
+          fields: { _id: 1, name: 1, code: 1, parentId: 1 },
+        },
+        defaultValue: [],
+      })) as Record<string, any>[];
+
+      const nextParents: string[] = [];
+      for (const cat of fetched) {
+        if (!cat?._id || categoryById.has(cat._id)) continue;
+        categoryById.set(cat._id, cat);
+        if (cat.parentId && !categoryById.has(cat.parentId)) {
+          nextParents.push(cat.parentId);
+        }
+      }
+      pending = nextParents;
+    }
+
+    const categories = Array.from(categoryById.values());
+
     const { SUPPLIER_API_URL, MUSHOP_SECRET } = process.env;
 
     if (!SUPPLIER_API_URL || !MUSHOP_SECRET) {
@@ -252,14 +406,16 @@ router.post('/collective-push', async (req: Request, res: Response) => {
       : SUPPLIER_API_URL.replace('<subdomain>', targetSubdomain);
 
     const endpoint = `${baseUrl}/pl:supplier/webhook/mushop/collective`;
-    console.log('endpoint', endpoint);
+
     const body = JSON.stringify({
       subdomain: targetSubdomain,
       payload: {
         collectiveId,
         products,
+        categories,
         supplierId,
         supplierName,
+        supplierCode,
         sourcePosToken: posToken,
         targetPosToken,
       },

@@ -36,6 +36,7 @@ export interface ISupplierAddress {
 }
 
 export interface ISupplier {
+  code?: string;
   name?: string;
   description?: string;
   about?: string;

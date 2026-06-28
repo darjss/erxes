@@ -130,9 +130,16 @@ export const SupplierProfileForm = () => {
     <div className="flex flex-col gap-6 mx-auto p-6 w-full max-w-6xl">
       <div className="flex justify-between items-center">
         <h1 className="font-bold text-lg">Supplier profile</h1>
-        <Badge variant={statusVariant(supplier?.verificationStatus)}>
-          {supplier?.verificationStatus || 'pending'}
-        </Badge>
+        <div className="flex items-center gap-2">
+          {supplier?.code && (
+            <span className="rounded-md bg-muted px-2 py-0.5 font-mono text-xs text-muted-foreground">
+              {supplier.code}
+            </span>
+          )}
+          <Badge variant={statusVariant(supplier?.verificationStatus)}>
+            {supplier?.verificationStatus || 'pending'}
+          </Badge>
+        </div>
       </div>
       {supplier?.verificationStatus === 'unverified' &&
         supplier?.verificationNote && (
