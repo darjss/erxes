@@ -61,7 +61,7 @@ export const PreviewPanel = ({ threadId }: { threadId?: string }) => {
       <div className="fixed inset-0 z-50 flex bg-background">
         {/* Sidebar: the full file list, pinned, while an item is open. */}
         {!showList && (
-          <aside className="hidden w-72 shrink-0 flex-col border-r md:flex">
+          <aside className="ea-preview-sidebar w-72 shrink-0 flex-col border-r">
             <SidebarFileList threadId={threadId} activeId={artifact?.id} />
           </aside>
         )}
@@ -70,11 +70,11 @@ export const PreviewPanel = ({ threadId }: { threadId?: string }) => {
     );
   }
 
-  return (
-    <div className="absolute inset-0 z-30 flex flex-col bg-background lg:static lg:z-auto lg:w-[42%] lg:min-w-[360px] lg:max-w-[680px] lg:border-l border-l">
-      {body}
-    </div>
-  );
+  // Docked layout (right-side column ≥lg, full-area overlay below) is defined in
+  // chat.css as .ea-preview-dock — the responsive/arbitrary width utilities it
+  // replaces get purged from the production host CSS, which made the panel take
+  // over the whole screen instead of docking.
+  return <div className="ea-preview-dock">{body}</div>;
 };
 
 // ── A single file row (shared by the list view and the fullscreen sidebar) ────
