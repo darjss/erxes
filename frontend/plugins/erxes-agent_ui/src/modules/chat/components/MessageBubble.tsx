@@ -110,7 +110,7 @@ export const MessageBubble = memo(function MessageBubble({
           <MessageAttachments attachments={attachments} />
         )}
         {hasText ? (
-          <div className="max-w-[78%] bg-gradient-to-br from-primary to-primary/85 text-primary-foreground rounded-2xl rounded-br-md px-4 py-2.5 shadow-sm">
+          <div className="ea-user-bubble text-primary-foreground rounded-2xl rounded-br-md px-4 py-2.5 shadow-sm">
             <p className="text-sm whitespace-pre-wrap leading-relaxed">{text}</p>
             <p className="text-[10px] mt-1 text-primary-foreground/60">{time}</p>
           </div>

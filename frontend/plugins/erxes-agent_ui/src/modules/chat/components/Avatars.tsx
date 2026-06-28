@@ -2,7 +2,7 @@ import { IconRobot } from '@tabler/icons-react';
 
 export const AgentAvatar = ({ live }: { live?: boolean }) => (
   <div
-    className={`size-8 shrink-0 rounded-full bg-gradient-to-br from-primary/25 via-primary/10 to-transparent border border-primary/20 flex items-center justify-center ${
+    className={`size-8 shrink-0 rounded-full ea-avatar-tile border flex items-center justify-center ${
       live ? 'ea-avatar-live' : ''
     }`}
   >
