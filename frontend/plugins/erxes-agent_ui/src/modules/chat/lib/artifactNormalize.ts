@@ -1,4 +1,4 @@
-import type { ChartSpec } from 'erxes-ui';
+import type { ChartSpec } from '~/modules/chat/charts';
 
 // The artifact contract + the ONE normalizer, kept free of runtime imports (only
 // a type-only ChartSpec) so it is unit-testable in isolation and shared verbatim
