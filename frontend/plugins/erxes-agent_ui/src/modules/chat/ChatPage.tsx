@@ -288,7 +288,7 @@ export const ChatPage = () => {
     sendMessage('Cancelled — do not delete or merge anything.', [], undefined, true);
   };
 
-  const handleSend = () => {
+  const handleSend = async () => {
     if (
       !input.trim() ||
       !selectedAgent ||
@@ -298,10 +298,14 @@ export const ChatPage = () => {
     )
       return;
     const message = input.trim();
-    const atts = attachments.collectReady();
     // Carry the /slash-activated skill into this turn's request (names only —
     // the server force-loads their instructions). Consumed on send.
     const activeSkillNames = slash.activeSkill ? [slash.activeSkill] : undefined;
+    // Files are staged, not uploaded, until now — upload them as part of sending.
+    // If any upload fails, abort: keep the composer's text + chips so the user
+    // can retry (send again) or remove the offending file. Nothing is sent.
+    const { attachments: atts, ok } = await attachments.uploadAll();
+    if (!ok) return;
     attachments.clear();
     setInput('');
     sendMessage(message, atts, undefined, undefined, activeSkillNames);
