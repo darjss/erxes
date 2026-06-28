@@ -152,3 +152,25 @@ describe('execute_erxes_operation — fields input', () => {
     expect(mockExecute.mock.calls[0][6]).toBeUndefined();
   });
 });
+
+describe('execute_erxes_operation — security block', () => {
+  // Even if a security-blocked op somehow reaches the registry, execute refuses
+  // it by name BEFORE running anything, with a message that leaks no data.
+  const tool = () =>
+    buildTools([{ operation: 'configs', operationType: 'query' }])
+      .execute_erxes_operation as unknown as {
+      execute: (input: unknown) => Promise<{
+        success: boolean;
+        blocked?: boolean;
+        error: string;
+      }>;
+    };
+
+  it('refuses a blocked op for security reasons without executing it', async () => {
+    const res = await tool().execute({ operation: 'configs' });
+    expect(res.success).toBe(false);
+    expect(res.blocked).toBe(true);
+    expect(res.error).toMatch(/security reasons/i);
+    expect(mockExecute).not.toHaveBeenCalled();
+  });
+});
