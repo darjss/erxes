@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { useQuery } from '@apollo/client';
-import type { ChartSpec } from 'erxes-ui';
+import type { ChartSpec } from '~/modules/chat/charts';
 import { MASTRA_THREAD_ARTIFACTS } from '~/graphql/queries';
 import {
   normalizeArtifact,

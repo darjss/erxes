@@ -12,7 +12,8 @@ import {
   IconMinimize,
   IconX,
 } from '@tabler/icons-react';
-import { Button, EChart, cn, type EChartHandle } from 'erxes-ui';
+import { Button, cn } from 'erxes-ui';
+import { EChart, type EChartHandle } from '~/modules/chat/charts';
 import {
   Artifact,
   DocumentArtifact,
