@@ -8,6 +8,7 @@ import {
   type GqlFieldDef,
   type GqlTypeRef,
 } from './erxesTools';
+import { isSecurityBlockedOperation } from './securityGuard';
 
 // One discovered erxes GraphQL operation (query or mutation) the agent can run.
 export interface OperationMeta {
@@ -57,9 +58,17 @@ function buildRegistry(
   inputTypesMap: Record<string, GqlArgDef[]>,
   objectFieldsMap: Record<string, GqlFieldDef[]>,
 ): OperationRegistry {
+  // Strip security-blocked operations (e.g. `configs`, which dumps the whole
+  // secret store) before they ever enter the registry, so NO discovery surface
+  // built on it — search, capability inventory, workflow step resolution, the
+  // tool-listing UI — can reveal or resolve them. The execute tool independently
+  // refuses them by name as a backstop.
+  const visible = operations.filter(
+    (op) => !isSecurityBlockedOperation(op.operation),
+  );
   const map = new Map<string, OperationMeta>();
-  for (const op of operations) map.set(op.operation, op);
-  return { operations: map, list: operations, inputTypesMap, objectFieldsMap };
+  for (const op of visible) map.set(op.operation, op);
+  return { operations: map, list: visible, inputTypesMap, objectFieldsMap };
 }
 
 /**

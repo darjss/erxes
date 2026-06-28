@@ -17,6 +17,10 @@ import {
   isApprovedOperation,
   destructiveApprovalRequiredResult,
 } from './destructiveGuard';
+import {
+  isSecurityBlockedOperation,
+  securityBlockedResult,
+} from './securityGuard';
 import { getCurrentAuth } from '../requestContext';
 import { makeAgentProcessId, type AgentActionInput } from '../auditLog';
 
@@ -302,6 +306,24 @@ export function buildErxesMetaTools(params: {
     }),
     outputSchema: z.any(),
     execute: async ({ operation, args, fields }) => {
+      // Hard security block, checked FIRST — before any registry lookup — so a
+      // guessed or hard-coded name can't run a denied op even though it never
+      // appears in search. A few operations expose secrets or whole-system
+      // state (notably `configs`, which returns every Config document); they are
+      // refused here with a generic message that leaks nothing about the
+      // operation or the data it would have returned. The attempt is audited.
+      if (isSecurityBlockedOperation(operation)) {
+        recordAction?.({
+          operation,
+          operationType: 'query',
+          destructive: false,
+          args: coerceArgs(args),
+          status: 'blocked',
+          error: 'security-blocked',
+        });
+        return securityBlockedResult();
+      }
+
       const op = registry.operations.get(operation);
       if (!op) {
         return {
