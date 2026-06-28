@@ -68,8 +68,9 @@ export function toolStatusLine(
       return 'Calculating';
     case 'render-chart':
       return 'Rendering a chart';
-    case 'readAttachment':
-      return 'Reading the attachment';
+    case 'file-reader':
+    case 'read-attachment':
+      return 'Reading a file';
     default:
       return null;
   }

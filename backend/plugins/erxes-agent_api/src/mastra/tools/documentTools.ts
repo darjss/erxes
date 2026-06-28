@@ -4,6 +4,7 @@ import { chartSpecSchema } from '~/mastra/charts/chartSpec';
 import { renderPdfDocument } from '~/mastra/documents/pdf';
 import { renderDocxDocument } from '~/mastra/documents/docx';
 import { renderXlsxDocument, xlsxSheetSchema } from '~/mastra/documents/xlsx';
+import { renderPptxDocument } from '~/mastra/documents/pptx';
 import { persistGeneratedFile } from '~/mastra/files/persist';
 import { storeArtifact } from '~/mastra/artifactStore';
 import {
@@ -100,6 +101,23 @@ export const generateDocxTool = createTool({
   },
 });
 
+export const generatePptxTool = createTool({
+  id: 'generate-pptx',
+  description:
+    'Generate a downloadable PowerPoint (.pptx) slide deck from Markdown content. ' +
+    'Use when the user wants a presentation or slides. Separate slides with a ' +
+    '`---` line (or start each slide with a `#`/`##` heading); the first heading ' +
+    'is the slide title and the rest become bullet points. Embed a chart on a ' +
+    'slide with ![Title](chart:ID). The deck opens in the Preview panel and is ' +
+    'downloadable.',
+  inputSchema: markdownDocInput,
+  outputSchema: z.object({ artifact: documentArtifactSchema }),
+  execute: async ({ title, markdown, charts }) => {
+    const buffer = await renderPptxDocument(title, markdown, charts ?? []);
+    return finalize('pptx', title, buffer);
+  },
+});
+
 export const generateXlsxTool = createTool({
   id: 'generate-xlsx',
   description:
@@ -133,6 +151,7 @@ export const DOCUMENT_BUILTIN_TOOLS: Record<
   generatePdf: generatePdfTool,
   generateDocx: generateDocxTool,
   generateXlsx: generateXlsxTool,
+  generatePptx: generatePptxTool,
 };
 
 function slugify(title: string): string {

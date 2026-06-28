@@ -18,6 +18,9 @@ importers:
       '@ai-sdk/react':
         specifier: 2.0.206
         version: 2.0.206(react@18.3.1)(zod@3.25.76)
+      '@aiden0z/pptx-renderer':
+        specifier: 1.2.1
+        version: 1.2.1
       '@apollo/client':
         specifier: ^3.11.8
         version: 3.13.6(@types/react@18.3.1)(graphql-ws@5.16.2(graphql@16.10.0))(graphql@16.10.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -1352,6 +1355,12 @@ importers:
       html-to-docx:
         specifier: ^1.8.0
         version: 1.8.0(encoding@0.1.13)
+      jimp:
+        specifier: ^1.6.0
+        version: 1.6.0
+      jszip:
+        specifier: 3.10.1
+        version: 3.10.1
       langfuse:
         specifier: ^3.38.0
         version: 3.38.20
@@ -1364,6 +1373,9 @@ importers:
       pdf-parse:
         specifier: ^1.1.1
         version: 1.1.4
+      pptxgenjs:
+        specifier: 4.0.1
+        version: 4.0.1
       react:
         specifier: 18.3.1
         version: 18.3.1
@@ -1924,6 +1936,14 @@ packages:
       zod: ^3.25.76 || ^4.1.8
     peerDependenciesMeta:
       zod:
+        optional: true
+
+  '@aiden0z/pptx-renderer@1.2.1':
+    resolution: {integrity: sha512-cvIaoPguJ07NnFMbndgpJs6eckbLoRnom3hAx+d4V50UDk/p+21SS0jY+DzgtzPMeswBn7X7vmO1HZTpjjDEXQ==}
+    peerDependencies:
+      pdfjs-dist: ^5.0.0
+    peerDependenciesMeta:
+      pdfjs-dist:
         optional: true
 
   '@alloc/quick-lru@5.2.0':
@@ -12423,6 +12443,9 @@ packages:
   echarts@5.6.0:
     resolution: {integrity: sha512-oTbVTsXfKuEhxftHqL5xprgLoc0k7uScAwtryCgWF6hPYFLRwOUHiFmHGCBKP5NPFNkDVopOieyUqYGH8Fa3kA==}
 
+  echarts@6.1.0:
+    resolution: {integrity: sha512-q0yaFPggC9FUdsWH4blavRWFmxdrIodbkoKNAjJudAI6CA9gNPxHtV2RcZNEepZVlk4yvBYkOkbk6HIVpIyHZA==}
+
   ee-first@1.1.1:
     resolution: {integrity: sha512-WMwm9LhRUo+WUaRN+vRuETqG89IgZphVSNkdFgeb6sS/E4OrDIN7t48CAewSHXc6C8lefD8KKfr5vY61brQlow==}
 
@@ -14015,6 +14038,9 @@ packages:
   https-proxy-agent@7.0.6:
     resolution: {integrity: sha512-vK9P5/iUfdl95AI+JVyUuIcVtd4ofvtrOr3HNtM2yxC9bnMbEdp3x01OhQNnjb8IJYi38VlTE3mBXwcfvywuSw==}
     engines: {node: '>= 14'}
+
+  https@1.0.0:
+    resolution: {integrity: sha512-4EC57ddXrkaF0x83Oj8sM6SLQHAWXw90Skqu2M4AEWENZ3F02dFJE/GARA8igO79tcgYqGrD7ae4f5L3um2lgg==}
 
   human-signals@1.1.1:
     resolution: {integrity: sha512-SEQu7vl8KjNL2eoGBLF3+wAjpsNfA9XMlXAYj/3EdaNfAlxKthD1xjEQfGOUhllCGGJVNY34bRr6lPINhNjyZw==}
@@ -17290,6 +17316,9 @@ packages:
     peerDependenciesMeta:
       rxjs:
         optional: true
+
+  pptxgenjs@4.0.1:
+    resolution: {integrity: sha512-TeJISr8wouAuXw4C1F/mC33xbZs/FuEG6nH9FG1Zj+nuPcGMP5YRHl6X+j3HSUnS1f3at6k75ZZXPMZlA5Lj9A==}
 
   prelude-ls@1.2.1:
     resolution: {integrity: sha512-vkcDPrRZo1QZLbn5RLGPpg/WmIQ65qoWWhcGKf/b5eplkkarX0m9z8ppCat4mlOqUsWpyNuYgO3VRyrYHSzX5g==}
@@ -20612,6 +20641,9 @@ packages:
   zrender@5.6.1:
     resolution: {integrity: sha512-OFXkDJKcrlx5su2XbzJvj/34Q3m6PvyCZkVPHGYpcCJ52ek4U/ymZyfuV1nKE23AyBJ51E/6Yr0mhZ7xGTO4ag==}
 
+  zrender@6.1.0:
+    resolution: {integrity: sha512-oEGMDB6pOP2S6OwRR4PdVv610zrjnA3Bh+JnSG12fYJlBKjtNAoEb5fSUoCOOINlH96I2fU38/A2UpRKs67xYQ==}
+
   zustand@4.5.6:
     resolution: {integrity: sha512-ibr/n1hBzLLj5Y+yUcU7dYw8p6WnIVzdJbnX+1YpaScvZVF2ziugqHs+LAmHw4lWO9c/zRj+K1ncgWDQuthEdQ==}
     engines: {node: '>=12.7.0'}
@@ -20759,6 +20791,11 @@ snapshots:
       throttleit: 2.1.0
     optionalDependencies:
       zod: 3.25.76
+
+  '@aiden0z/pptx-renderer@1.2.1':
+    dependencies:
+      echarts: 6.1.0
+      jszip: 3.10.1
 
   '@alloc/quick-lru@5.2.0': {}
 
@@ -34991,6 +35028,11 @@ snapshots:
       tslib: 2.3.0
       zrender: 5.6.1
 
+  echarts@6.1.0:
+    dependencies:
+      tslib: 2.3.0
+      zrender: 6.1.0
+
   ee-first@1.1.1: {}
 
   ejs@3.1.10:
@@ -37350,6 +37392,8 @@ snapshots:
       debug: 4.4.0(supports-color@5.5.0)
     transitivePeerDependencies:
       - supports-color
+
+  https@1.0.0: {}
 
   human-signals@1.1.1:
     optional: true
@@ -41310,6 +41354,13 @@ snapshots:
       '@posthog/core': 1.36.0
     optionalDependencies:
       rxjs: 7.8.2
+
+  pptxgenjs@4.0.1:
+    dependencies:
+      '@types/node': 22.19.7
+      https: 1.0.0
+      image-size: 1.2.1
+      jszip: 3.10.1
 
   prelude-ls@1.2.1: {}
 
@@ -45342,6 +45393,10 @@ snapshots:
   zod@4.4.3: {}
 
   zrender@5.6.1:
+    dependencies:
+      tslib: 2.3.0
+
+  zrender@6.1.0:
     dependencies:
       tslib: 2.3.0
 
