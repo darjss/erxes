@@ -1,5 +1,13 @@
 
 
+## [3.0.45](https://github.com/erxes/erxes/compare/3.0.44...3.0.45) (2026-06-28)
+
+### erxes-agent
+
+* redesign chat UI (timeline, unified mark, artifact + pptx fixes) (#205)
+* reliably render model-emitted chart-viz blocks as charts (#206)
+
+
 ## [3.0.44](https://github.com/erxes/erxes/compare/3.0.43...3.0.44) (2026-06-24)
 
 
