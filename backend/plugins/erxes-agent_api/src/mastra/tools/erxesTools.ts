@@ -22,6 +22,7 @@ import {
   looksLikeStackFrame,
   sanitizeServerError,
 } from './serverErrorClassifier';
+import { redactSecrets } from './secretRedaction';
 
 // Re-export the introspection + humanisation surface so existing importers
 // (metaTools, operationRegistry, tests) keep their `from './erxesTools'` paths.
@@ -422,7 +423,12 @@ export async function executeErxesOperation(
     if (data?.errors) {
       return buildNotFoundResult(joinErrors(data.errors), apiUrl, authHeaders);
     }
-    return data?.data?.[erxesOperation] ?? null;
+    // Redact secret VALUES (storage/SES/Cloudflare keys, ERP tokens, integration
+    // passwords) before the result reaches the model. Reads like `configs`
+    // otherwise dump raw credentials into the transcript and on to the LLM
+    // provider; this is the single chokepoint both chat and workflows route
+    // through, so the guard holds for every operation, current and future.
+    return redactSecrets(data?.data?.[erxesOperation] ?? null);
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
     return {
