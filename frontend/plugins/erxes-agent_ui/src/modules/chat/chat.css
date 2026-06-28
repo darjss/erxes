@@ -17,6 +17,55 @@
   animation: ea-msg-in 0.28s cubic-bezier(0.21, 1.02, 0.73, 1) both;
 }
 
+/* User message bubble — the blue gradient + width cap live here, not on the
+   Tailwind utilities `from-primary` / `to-primary/85` / `max-w-[78%]`. Those
+   are unique to this plugin, and the host (core-ui) global CSS is built
+   without scanning this plugin's source, so they aren't generated in
+   production — the bubble then renders transparent (white text on a
+   transparent background = invisible). Driving the gradient off the shared
+   --primary token keeps it self-contained and theme/brand-aware. */
+.ea-user-bubble {
+  max-width: 78%;
+  background-image: linear-gradient(
+    to bottom right,
+    var(--primary),
+    color-mix(in oklch, var(--primary) 85%, transparent)
+  );
+}
+
+/* Subtle primary-tinted tiles (agent avatar, empty-state icon, selected agent
+   rail item). Same reason as .ea-user-bubble: the `from-primary/NN`,
+   `via-primary/NN`, `to-primary/NN` and `border-primary/NN` utilities these
+   used are plugin-unique and aren't generated in the production host CSS, so
+   the fill + border tint vanish there. Keep the Tailwind `border` (width) on
+   the element; only the colours live here, off the --primary token. */
+.ea-avatar-tile {
+  background-image: linear-gradient(
+    to bottom right,
+    color-mix(in oklch, var(--primary) 25%, transparent),
+    color-mix(in oklch, var(--primary) 10%, transparent),
+    transparent
+  );
+  border-color: color-mix(in oklch, var(--primary) 20%, transparent);
+}
+.ea-empty-tile {
+  background-image: linear-gradient(
+    to bottom right,
+    color-mix(in oklch, var(--primary) 20%, transparent),
+    color-mix(in oklch, var(--primary) 8%, transparent),
+    transparent
+  );
+  border-color: color-mix(in oklch, var(--primary) 20%, transparent);
+}
+.ea-rail-active {
+  background-image: linear-gradient(
+    to bottom right,
+    color-mix(in oklch, var(--primary) 25%, transparent),
+    color-mix(in oklch, var(--primary) 5%, transparent)
+  );
+  border-color: color-mix(in oklch, var(--primary) 30%, transparent);
+}
+
 /* Small elements (chips, tool rows) popping into the flow. */
 @keyframes ea-pop {
   from {

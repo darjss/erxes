@@ -7,7 +7,7 @@ import { messageText, type ToolPartView } from '~/modules/chat/lib/uiParts';
 // chat can show (an ArtifactCard inline + the Preview panel). Mirrors the
 // backend contract at backend/plugins/erxes-agent_api/src/mastra/tools/artifacts.ts
 
-export type DocumentFormat = 'pdf' | 'docx' | 'xlsx';
+export type DocumentFormat = 'pdf' | 'docx' | 'xlsx' | 'pptx';
 
 export interface ChartArtifact {
   id: string;
@@ -32,7 +32,7 @@ export interface DocumentArtifact {
 export type Artifact = ChartArtifact | DocumentArtifact;
 
 const isDocumentFormat = (value: unknown): value is DocumentFormat =>
-  value === 'pdf' || value === 'docx' || value === 'xlsx';
+  value === 'pdf' || value === 'docx' || value === 'xlsx' || value === 'pptx';
 
 /** Pull a valid artifact off a tool result, or null when there isn't one. */
 export const asArtifact = (output: unknown): Artifact | null => {

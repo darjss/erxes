@@ -17,7 +17,7 @@ export interface IMastraArtifact {
   agentId?: string;
   resourceId?: string;
   kind: 'chart' | 'document';
-  format?: 'pdf' | 'docx' | 'xlsx';
+  format?: 'pdf' | 'docx' | 'xlsx' | 'pptx';
   title: string;
   fileName?: string;
   mimeType?: string;

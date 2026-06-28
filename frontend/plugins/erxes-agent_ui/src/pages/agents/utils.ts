@@ -32,8 +32,12 @@ export const BUILTIN_TOOLS: { key: string; description: string }[] = [
     description: 'Generate a downloadable Excel spreadsheet (charts embeddable)',
   },
   {
-    key: 'readAttachment',
-    description: 'Read a file or image (text, PDF, images)',
+    key: 'generatePptx',
+    description: 'Generate a downloadable PowerPoint deck (charts embeddable)',
+  },
+  {
+    key: 'fileReader',
+    description: 'Read a file as text (PDF, Word, Excel, PowerPoint, …)',
   },
   {
     key: 'companyKnowledge',
