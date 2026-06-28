@@ -1,10 +1,10 @@
-import { useRef, useState } from 'react';
-import { IconChevronRight, IconSparkles } from '@tabler/icons-react';
+import { useState } from 'react';
+import { IconChevronRight } from '@tabler/icons-react';
 
-// Each reasoning burst is its own section, rendered in chronological order with
-// the tool calls. Live (still reasoning): shows the TAIL of the current thought
-// with no scrollbox. Finished: collapses to a one-line row; expanding prints
-// the full thought at natural height.
+// A reasoning burst as a timeline-step body — always a single line so the trace
+// only ever grows downward (no auto-expand/auto-collapse, which made the whole
+// section jump up and down as each thought streamed in and finished). Live: a
+// shimmering "Thinking…". Settled: "Reasoning". Click to read the full thought.
 export const ThinkingSection = ({
   text,
   live,
@@ -12,63 +12,33 @@ export const ThinkingSection = ({
   text: string;
   live?: boolean;
 }) => {
-  // Live bursts start open so the streaming thought is visible, but the user
-  // can collapse them; finished bursts start collapsed. When a live burst
-  // finishes it folds back to the one-line row.
-  const [expanded, setExpanded] = useState(!!live);
-  // Whether the previous render was live — bookkeeping only, so a ref.
-  const wasLive = useRef(!!live);
-
-  // When a live burst finishes it folds back to the one-line row. Adjusted
-  // during render (not in an effect) so it collapses in the same commit the
-  // stream ends, with no stale frame.
-  if (wasLive.current !== !!live) {
-    const justFinished = wasLive.current && !live;
-    wasLive.current = !!live;
-    if (justFinished) setExpanded(false);
-  }
-
-  const tail = live && text.length > 280 ? '…' + text.slice(-280) : text;
+  const [expanded, setExpanded] = useState(false);
 
   return (
-    <div
-      className={`ea-pop rounded-xl border overflow-hidden transition-colors ${
-        live
-          ? 'border-primary/20 bg-primary/4'
-          : 'border-border/60 bg-background/40 hover:border-border'
-      }`}
-    >
+    <div className="ea-pop">
       <button
         type="button"
         onClick={() => setExpanded((v) => !v)}
-        className={`w-full flex items-center gap-1.5 px-3 py-1.5 text-xs transition-colors ${
+        className={`ea-trace-row flex w-full items-center gap-2 px-1.5 py-1 text-left text-xs ${
           live ? '' : 'text-muted-foreground hover:text-foreground'
         }`}
       >
-        <IconChevronRight
-          className={`size-3.5 shrink-0 transition-transform duration-200 ${
-            expanded ? 'rotate-90' : ''
-          } ${live ? 'text-primary' : ''}`}
-        />
-        <IconSparkles
-          className={`size-3.5 shrink-0 ${
-            live ? 'text-primary animate-pulse' : ''
-          }`}
-        />
         {live ? (
           <span className="ea-shimmer-text font-medium">Thinking…</span>
         ) : (
-          <span>Thought process</span>
+          <span>Reasoning</span>
         )}
+        <span className="flex-1" />
+        <IconChevronRight
+          className={`size-3 shrink-0 text-muted-foreground opacity-40 transition-transform duration-200 ${
+            expanded ? 'rotate-90' : ''
+          }`}
+        />
       </button>
       {expanded && (
-        <div className="ea-expand px-3 pb-2.5">
-          <p
-            className={`text-xs whitespace-pre-wrap leading-relaxed ${
-              live ? 'text-muted-foreground/80' : 'text-muted-foreground'
-            }`}
-          >
-            {tail}
+        <div className="ea-expand px-1.5 pb-1.5 pt-0.5">
+          <p className="whitespace-pre-wrap text-xs leading-relaxed text-muted-foreground">
+            {text}
           </p>
         </div>
       )}

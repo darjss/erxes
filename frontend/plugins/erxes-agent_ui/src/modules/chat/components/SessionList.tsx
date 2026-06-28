@@ -6,8 +6,6 @@ import {
 } from 'react';
 import {
   IconChevronLeft,
-  IconLoader2,
-  IconMessage2,
   IconPlus,
   IconTrash,
 } from '@tabler/icons-react';
@@ -67,18 +65,11 @@ const SessionItem = ({
     <button
       type="button"
       onClick={() => onSelect(session.threadId)}
-      className={`group/sess w-full text-left rounded-md px-2.5 py-2 transition-all hover:bg-accent border-l-2 ${
-        active
-          ? 'bg-accent border-primary'
-          : 'border-transparent hover:border-border'
-      } ${working ? 'ea-working' : ''}`}
+      className={`group/sess w-full text-left rounded-md px-2.5 py-2 transition-colors hover:bg-accent ${
+        active || working ? 'bg-accent' : ''
+      }`}
     >
       <div className="flex items-center gap-1.5">
-        {working ? (
-          <IconLoader2 className="size-3.5 text-primary shrink-0 animate-spin" />
-        ) : (
-          <IconMessage2 className="size-3.5 text-muted-foreground shrink-0" />
-        )}
         {editing ? (
           <input
             ref={focusOnMount}
@@ -101,8 +92,10 @@ const SessionItem = ({
             className="text-sm flex-1 min-w-0 bg-transparent outline-none border-b border-primary"
           />
         ) : (
+          // The title is the session's summary — the whole row. It shimmers
+          // while that session is generating a reply.
           <p
-            className="text-sm truncate flex-1"
+            className={`flex-1 truncate text-sm ${working ? 'ea-shimmer-text' : ''}`}
             onDoubleClick={(e) => {
               e.stopPropagation();
               beginEdit();
@@ -126,9 +119,6 @@ const SessionItem = ({
           <IconTrash className="size-3.5" />
         </span>
       </div>
-      <p className="text-[11px] text-muted-foreground pl-5">
-        {session.messageCount} message{session.messageCount === 1 ? '' : 's'}
-      </p>
     </button>
   );
 };
@@ -199,12 +189,8 @@ export const SessionList = ({
                     : ''
                 }`}
               >
-                <div className="flex items-center gap-1.5">
-                  <IconMessage2 className="size-3.5 text-muted-foreground shrink-0" />
-                  <p className="text-sm truncate flex-1">New chat</p>
-                </div>
-                <p className="text-[11px] text-muted-foreground pl-5">
-                  Unsaved · send a message
+                <p className="truncate text-sm text-muted-foreground">
+                  New chat
                 </p>
               </div>
             )}

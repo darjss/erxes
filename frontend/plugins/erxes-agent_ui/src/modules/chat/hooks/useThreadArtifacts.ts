@@ -2,7 +2,10 @@ import { useMemo } from 'react';
 import { useQuery } from '@apollo/client';
 import type { ChartSpec } from 'erxes-ui';
 import { MASTRA_THREAD_ARTIFACTS } from '~/graphql/queries';
-import type { Artifact, DocumentFormat } from '~/modules/chat/lib/artifacts';
+import {
+  normalizeArtifact,
+  type Artifact,
+} from '~/modules/chat/lib/artifactNormalize';
 
 // Persisted artifacts for a thread (charts + generated documents), read from the
 // dedicated store so they survive reloads. Returns the flat list, a lookup by
@@ -37,32 +40,6 @@ export interface ArtifactGroup {
   linked: boolean;
 }
 
-const isDocFormat = (v: unknown): v is DocumentFormat =>
-  v === 'pdf' || v === 'docx' || v === 'xlsx';
-
-const toArtifact = (row: ArtifactRow): Artifact | null => {
-  const id = String(row.artifactId ?? row._id ?? '');
-  if (!id) return null;
-
-  if (row.kind === 'chart' && row.spec) {
-    return { id, kind: 'chart', title: row.title ?? 'Chart', spec: row.spec };
-  }
-  if (row.kind === 'document' && isDocFormat(row.format)) {
-    return {
-      id,
-      kind: 'document',
-      format: row.format,
-      title: row.title ?? 'Document',
-      fileName: row.fileName ?? 'document',
-      mimeType: row.mimeType ?? '',
-      fileKey: row.fileKey ?? '',
-      inline: Boolean(row.inline),
-      size: typeof row.size === 'number' ? row.size : undefined,
-    };
-  }
-  return null;
-};
-
 export const useThreadArtifacts = (threadId?: string) => {
   const { data, loading } = useQuery<{ mastraThreadArtifacts: ArtifactRow[] }>(
     MASTRA_THREAD_ARTIFACTS,
@@ -81,7 +58,7 @@ export const useThreadArtifacts = (threadId?: string) => {
     const groupMap = new Map<string, ArtifactGroup>();
 
     for (const row of rows) {
-      const artifact = toArtifact(row);
+      const artifact = normalizeArtifact(row);
       if (!artifact) continue;
       artifacts.push(artifact);
 

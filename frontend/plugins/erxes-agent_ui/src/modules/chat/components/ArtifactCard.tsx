@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import {
   IconChartBar,
   IconDownload,
+  IconFile,
   IconFileTypeDocx,
   IconFileTypePdf,
   IconFileTypePpt,
@@ -9,19 +10,18 @@ import {
   IconLayoutSidebarRightExpand,
 } from '@tabler/icons-react';
 import { Button } from 'erxes-ui';
-import {
-  Artifact,
-  DocumentArtifact,
-  documentUrl,
-} from '~/modules/chat/lib/artifacts';
+import { Artifact, documentUrl } from '~/modules/chat/lib/artifacts';
 import { formatFileSize } from '~/modules/chat/lib/attachments';
 import { previewStore } from '~/modules/chat/preview/previewStore';
 
-const docIcon = (format: DocumentArtifact['format']) => {
+// Icon per format — a display hint, not a gate: an unrecognized format still
+// renders (generic file icon), so a new backend format needs no change here.
+const docIcon = (format: string) => {
   if (format === 'pdf') return IconFileTypePdf;
   if (format === 'docx') return IconFileTypeDocx;
   if (format === 'pptx') return IconFileTypePpt;
-  return IconFileTypeXls;
+  if (format === 'xlsx') return IconFileTypeXls;
+  return IconFile;
 };
 
 // Inline card shown in the assistant message for a chart or generated document.

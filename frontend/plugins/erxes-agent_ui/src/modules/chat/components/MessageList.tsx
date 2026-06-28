@@ -1,11 +1,10 @@
 import { RefObject } from 'react';
-import { IconRobot } from '@tabler/icons-react';
 import { Badge, Skeleton } from 'erxes-ui';
-import { AgentUIMessage } from '~/modules/chat/types';
+import { AgentUIMessage, ChatAttachment } from '~/modules/chat/types';
 import { Artifact } from '~/modules/chat/lib/artifacts';
 import { IChatAgent } from '~/modules/chat/hooks/useChatAgents';
 import { MessageBubble } from '~/modules/chat/components/MessageBubble';
-import { WaitingIndicator } from '~/modules/chat/components/Avatars';
+import { AgentMark, WaitingIndicator } from '~/modules/chat/components/Avatars';
 
 export const MessageList = ({
   agent,
@@ -20,6 +19,8 @@ export const MessageList = ({
   onSuggestion,
   onRegenerate,
   onRate,
+  onEditMessage,
+  onResendMessage,
   storeArtifactsByMessage,
 }: {
   agent: IChatAgent;
@@ -34,6 +35,8 @@ export const MessageList = ({
   onSuggestion: (text: string) => void;
   onRegenerate: () => void;
   onRate: (messageId: string, rating: 1 | -1) => void;
+  onEditMessage: (text: string) => void;
+  onResendMessage: (text: string, attachments: ChatAttachment[]) => void;
   // Persisted artifacts per assistant message id — re-renders inline cards on
   // reload (the live message's own tool parts take priority while streaming).
   storeArtifactsByMessage?: Map<string, Artifact[]>;
@@ -47,7 +50,7 @@ export const MessageList = ({
 
   return (
     <div ref={boxRef} onScroll={onScroll} className="flex-1 overflow-auto p-4">
-      <div className="max-w-3xl mx-auto w-full space-y-4">
+      <div className="max-w-3xl mx-auto w-full space-y-6">
         {messagesLoading ? (
           <div className="p-2 space-y-3">
             {Array.from({ length: 3 }).map((_, i) => (
@@ -56,11 +59,8 @@ export const MessageList = ({
           </div>
         ) : visible.length === 0 ? (
           <div className="flex flex-col items-center justify-center min-h-[55vh] text-center gap-2 ea-msg-in">
-            <div className="relative mb-2">
-              <div className="ea-orb absolute -inset-5 rounded-full" />
-              <div className="relative size-16 rounded-2xl ea-empty-tile border flex items-center justify-center">
-                <IconRobot className="size-8 text-primary" />
-              </div>
+            <div className="mb-2">
+              <AgentMark size="lg" />
             </div>
             <p className="text-lg font-semibold">{agent.name}</p>
             {agent.description && (
@@ -101,6 +101,8 @@ export const MessageList = ({
                 ratingEnabled={ratingEnabled}
                 onRegenerate={onRegenerate}
                 onRate={onRate}
+                onEditMessage={onEditMessage}
+                onResendMessage={onResendMessage}
                 storeArtifacts={
                   msg.metadata?.messageId
                     ? storeArtifactsByMessage?.get(msg.metadata.messageId)
