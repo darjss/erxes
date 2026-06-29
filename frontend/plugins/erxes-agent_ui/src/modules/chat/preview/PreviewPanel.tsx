@@ -1,13 +1,8 @@
 import { useRef } from 'react';
 import {
   IconArrowLeft,
-  IconChartBar,
   IconDownload,
   IconFile,
-  IconFileTypeDocx,
-  IconFileTypePdf,
-  IconFileTypePpt,
-  IconFileTypeXls,
   IconMaximize,
   IconMinimize,
   IconX,
@@ -15,27 +10,22 @@ import {
 import { Button, cn } from 'erxes-ui';
 import { EChart, type EChartHandle } from '~/modules/chat/charts';
 import {
+  artifactIcon,
   Artifact,
   DocumentArtifact,
   documentUrl,
 } from '~/modules/chat/lib/artifacts';
+import { MermaidViewer } from '~/modules/chat/preview/MermaidViewer';
 import { formatFileSize } from '~/modules/chat/lib/attachments';
 import { previewStore } from '~/modules/chat/preview/previewStore';
 import { DocumentViewer } from '~/modules/chat/preview/DocumentViewer';
 import { useThreadArtifacts } from '~/modules/chat/hooks/useThreadArtifacts';
 
-const artifactIcon = (a: Artifact) => {
-  if (a.kind === 'chart') return IconChartBar;
-  if (a.format === 'pdf') return IconFileTypePdf;
-  if (a.format === 'docx') return IconFileTypeDocx;
-  if (a.format === 'pptx') return IconFileTypePpt;
-  return IconFileTypeXls;
+const artifactSubtitle = (a: Artifact): string => {
+  if (a.kind === 'chart') return 'Interactive chart';
+  if (a.kind === 'diagram') return 'Mermaid diagram';
+  return [a.format.toUpperCase(), formatFileSize(a.size)].filter(Boolean).join(' · ');
 };
-
-const artifactSubtitle = (a: Artifact): string =>
-  a.kind === 'chart'
-    ? 'Interactive chart'
-    : [a.format.toUpperCase(), formatFileSize(a.size)].filter(Boolean).join(' · ');
 
 // The Claude-artifacts-style side panel. Two views — a per-thread file list
 // (persisted, survives reloads) and a single artifact (interactive chart or an
@@ -236,7 +226,11 @@ const ItemView = ({
   const toggleFullscreen = previewStore((s) => s.toggleFullscreen);
   const chartRef = useRef<EChartHandle>(null);
   const typeLabel =
-    artifact.kind === 'chart' ? 'Chart' : artifact.format.toUpperCase();
+    artifact.kind === 'chart'
+      ? 'Chart'
+      : artifact.kind === 'diagram'
+        ? 'Diagram'
+        : artifact.format.toUpperCase();
 
   return (
     <>
@@ -296,6 +290,8 @@ const ItemView = ({
           <div className="h-full w-full p-4">
             <EChart ref={chartRef} spec={artifact.spec} height="100%" />
           </div>
+        ) : artifact.kind === 'diagram' ? (
+          <MermaidViewer definition={artifact.definition} />
         ) : (
           <DocumentViewer artifact={artifact} />
         )}

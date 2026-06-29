@@ -137,15 +137,66 @@ When asked who a user is, what they are allowed to do, or why something is (or i
 // Only injected when the agent has the renderChart tool — avoids polluting the
 // prompt of agents that will never use it.
 const RENDER_CHART_HINT = `
-**For renderChart specifically:**
-- Call renderChart whenever the user asks to visualise, chart, graph, or plot data.
-- The chart appears automatically in the Preview panel beside the chat — you do NOT
-  paste JSON, code blocks, or the chart data into your reply. Never output raw chart data.
-- After the call succeeds, write one short plain sentence telling the user the chart is
-  ready in the Preview panel (e.g. "Here's the revenue trend — it's open in the panel.").
-- Pick the chart type that fits: line/area for trends over time, bar/horizontalBar for
-  comparisons, stackedBar for parts of a whole over categories, pie/donut for shares,
-  radar for multi-metric comparison, scatter for correlation, combo to mix bars + a line.
+**renderChart — use ONLY for numeric data tables:**
+Call renderChart when the user wants to visualise a concrete dataset with real numbers
+(sales figures, survey counts, performance metrics, time-series data, etc.).
+
+- The chart renders directly in the chat bubble — never paste the data or JSON in your reply.
+- Pick the chart type that best fits the data:
+    - line / area      → trends over time
+    - bar / horizontalBar → comparisons between categories
+    - stackedBar       → part-of-whole across categories
+    - pie / donut      → shares of a single total
+    - radar            → multi-metric comparison across entities
+    - scatter          → correlation between two numeric variables
+    - combo            → bars + a line on the same axes
+- Always add a descriptive title. Include axis labels for bar/line/scatter.
+- Use the optional drilldowns field to make slices/bars clickable: for each data-row
+  label provide a sub-ChartSpec showing the breakdown detail. Clicking a bar or slice
+  will navigate into that sub-chart inline.
+- After the call write ONE short sentence (e.g. "Here's the Q3 breakdown — click any
+  bar to drill in."). Do NOT describe the data in prose — the chart speaks for itself.
+
+If the request is about STRUCTURE, LOGIC, FLOW, or RELATIONSHIPS — not a numeric
+dataset — skip renderChart entirely and use a Mermaid block instead (see below).
+`.trim();
+
+// Injected when the agent has the renderDiagram tool.
+const RENDER_DIAGRAM_HINT = `
+**Mermaid diagrams — write inline code blocks for EVERYTHING structural:**
+
+Use a fenced \`\`\`mermaid block for ANY visualisation that is NOT a numeric data chart:
+process flows, decision trees, architectures, sequences, state machines, timelines,
+entity models, class hierarchies, git graphs, mind maps, market positioning — all Mermaid.
+
+The block renders immediately in the chat. Never call renderDiagram for inline diagrams.
+
+Choose the right diagram type:
+  flowchart TD / LR   → process flows, decision trees, pipelines, logic diagrams
+  sequenceDiagram     → API/service call sequences, user ↔ system handoffs
+  erDiagram           → database schemas, entity relationships, data models
+  stateDiagram-v2     → state machines, order/ticket/lifecycle flows
+  classDiagram        → OOP models, class hierarchies, interface maps
+  gantt               → project plans, timelines, sprint schedules
+  quadrantChart       → 2×2 positioning (effort vs impact, risk vs reward)
+  gitGraph            → branching strategies, release flows
+  mindmap             → brainstorming hierarchies, concept maps
+  timeline            → historical sequences, roadmaps
+  xychart-beta        → simple trend/bar when full ECharts is overkill
+  pie                 → quick share breakdown without drill-down
+
+Rules:
+- Write valid Mermaid syntax.
+- ALWAYS wrap node label text in double quotes when it contains special characters
+  (spaces, @, ., :, /, -, parentheses, commas). Examples:
+    GOOD: P1["tester1@gmail.com"]   A["Sales Dept."]   B["Step (1/3)"]
+    BAD:  P1[tester1@gmail.com]     A[Sales Dept.]
+  Plain single-word labels without special chars don't need quotes: A[Start] is fine.
+- One diagram per reply unless the user explicitly asks for several.
+- To update a diagram: rewrite the SAME block with the change applied — never add a
+  second separate block below.
+- Call renderDiagram (the tool) ONLY when the user explicitly asks to save the diagram
+  to the Files panel for download or sharing.
 `.trim();
 
 /** Prompt section listing the agent's standalone builtin tools. The
@@ -155,12 +206,14 @@ const BUILTIN_BLOCK = (tools: ToolInfo[]) => {
   const has = (key: string) =>
     tools.some((t) => t.id === key || t.name === key);
   const hasRenderChart = has('renderChart');
+  const hasRenderDiagram = has('renderDiagram');
   return `
 ## Built-in Tools
 
 You also have these standalone tools — call them directly (no search needed):
 ${tools.map(describeTool).join('\n')}
 ${hasRenderChart ? `\n${RENDER_CHART_HINT}` : ''}
+${hasRenderDiagram ? `\n${RENDER_DIAGRAM_HINT}` : ''}
 `.trim();
 };
 

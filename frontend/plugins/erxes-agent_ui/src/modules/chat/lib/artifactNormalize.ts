@@ -32,7 +32,14 @@ export interface DocumentArtifact {
   size?: number;
 }
 
-export type Artifact = ChartArtifact | DocumentArtifact;
+export interface DiagramArtifact {
+  id: string;
+  kind: 'diagram';
+  title: string;
+  definition: string;
+}
+
+export type Artifact = ChartArtifact | DocumentArtifact | DiagramArtifact;
 
 /**
  * Normalize ANY raw artifact shape into the one UI Artifact type — the single
@@ -57,6 +64,15 @@ export const normalizeArtifact = (raw: unknown): Artifact | null => {
       kind: 'chart',
       title: String(a.title ?? spec.title ?? 'Chart'),
       spec,
+    };
+  }
+
+  if (a.kind === 'diagram') {
+    return {
+      id,
+      kind: 'diagram',
+      title: String(a.title ?? 'Diagram'),
+      definition: String(a.definition ?? ''),
     };
   }
 

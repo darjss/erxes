@@ -3,11 +3,12 @@ import type { ComponentPropsWithoutRef, ReactNode } from 'react';
 import ReactMarkdown, { type Components } from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeSanitize from 'rehype-sanitize';
-import { IconLayoutSidebarRightExpand } from '@tabler/icons-react';
+import { IconHierarchy, IconLayoutSidebarRightExpand } from '@tabler/icons-react';
 import { Button } from 'erxes-ui';
 import { EChart, parseChartViz, type ChartSpec } from '~/modules/chat/charts';
 import { CopyButton } from '~/modules/chat/components/CopyButton';
 import { previewStore } from '~/modules/chat/preview/previewStore';
+import { MermaidViewer, sanitizeMermaid } from '~/modules/chat/preview/MermaidViewer';
 import { splitStreamingMarkdown } from '~/modules/chat/lib/markdown';
 
 // Extract the raw text out of a code node's children (string or nested nodes).
@@ -24,7 +25,7 @@ const LegacyChartBlock = ({ spec }: { spec: ChartSpec }) => {
   const openArtifact = previewStore((s) => s.openArtifact);
   return (
     <div className="my-2 overflow-hidden rounded-xl border border-border/70">
-      <div className="h-64">
+      <div style={{ height: 320 }}>
         <EChart spec={spec} height="100%" />
       </div>
       <div className="flex justify-end border-t p-1.5">
@@ -48,12 +49,71 @@ const LegacyChartBlock = ({ spec }: { spec: ChartSpec }) => {
   );
 };
 
+const DIAGRAM_LABELS: Record<string, string> = {
+  flowchart: 'Flowchart', sequencediagram: 'Sequence Diagram', erdiagram: 'ER Diagram',
+  statediagram: 'State Diagram', 'statediagram-v2': 'State Diagram',
+  classdiagram: 'Class Diagram', gantt: 'Gantt Chart',
+  pie: 'Pie Chart', quadrantchart: 'Quadrant Chart', gitgraph: 'Git Graph',
+  mindmap: 'Mind Map', timeline: 'Timeline', 'xychart-beta': 'XY Chart',
+  'block-beta': 'Block Diagram', requirementdiagram: 'Requirement Diagram',
+};
+
+function diagramLabel(code: string): string {
+  const firstWord = code.trim().split(/[\s\n{]/)[0].toLowerCase();
+  return DIAGRAM_LABELS[firstWord] ?? 'Diagram';
+}
+
+// ```mermaid``` fenced blocks render inline in the chat bubble.
+// debounceMs=600 prevents Mermaid from re-compiling on every streamed token.
+// "Open" sends the diagram to the Preview panel (no modal overlay).
+const InlineMermaidBlock = ({ code }: { code: string }) => {
+  const openArtifact = previewStore((s) => s.openArtifact);
+  const cleaned  = useMemo(() => sanitizeMermaid(code), [code]);
+  const label    = useMemo(() => diagramLabel(cleaned), [cleaned]);
+  // Stable ID derived from content so repeated "Open" clicks don't add
+  // duplicate Files entries (openArtifact deduplicates by id).
+  const inlineId = useMemo(
+    () => `inline-${btoa(encodeURIComponent(cleaned)).slice(0, 16).replace(/[/+=]/g, '')}`,
+    [cleaned],
+  );
+
+  return (
+    <div className="my-2 overflow-hidden rounded-xl border border-border/70 bg-background">
+      <div className="flex items-center gap-2 px-3 py-2 bg-muted/30 border-b border-border/50">
+        <IconHierarchy className="size-4 text-primary shrink-0" />
+        <p className="flex-1 min-w-0 truncate text-sm font-medium">{label}</p>
+        <CopyButton text={cleaned} />
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() =>
+            openArtifact({
+              id: inlineId,
+              kind: 'diagram',
+              title: label,
+              definition: cleaned,
+            })
+          }
+        >
+          <IconLayoutSidebarRightExpand className="size-3.5" />
+          Open
+        </Button>
+      </div>
+      <div style={{ height: 300 }}>
+        <MermaidViewer definition={cleaned} height="100%" debounceMs={600} />
+      </div>
+    </div>
+  );
+};
+
 const CodeBlock = ({ lang, code }: { lang: string; code: string }) => {
-  // Render chart payloads the model emitted as text. A `chart-viz` fence is the
-  // canonical case, but some models tag it ```json (or leave it unlabelled), so
-  // we also catch any block carrying the chart-viz marker. parseChartViz is
-  // defensive — it recovers one, many, or run-together objects — and we render a
-  // chart for each; only a block with no valid chart falls through to code.
+  // Render Mermaid fenced blocks as inline diagrams.
+  if (lang === 'mermaid') {
+    return <InlineMermaidBlock code={code} />;
+  }
+  // Render chart payloads the model emitted as text. parseChartViz is defensive —
+  // it recovers one, many, or run-together objects; only a block with no valid
+  // chart falls through to a plain code block.
   if (lang === 'chart-viz' || /"type"\s*:\s*"chart-viz"/.test(code)) {
     const specs = parseChartViz(code);
     if (specs.length) {

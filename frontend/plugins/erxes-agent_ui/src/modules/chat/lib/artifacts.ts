@@ -1,4 +1,13 @@
 import { REACT_APP_API_URL } from 'erxes-ui';
+import {
+  IconChartBar,
+  IconFile,
+  IconFileTypeDocx,
+  IconFileTypePdf,
+  IconFileTypePpt,
+  IconFileTypeXls,
+  IconHierarchy,
+} from '@tabler/icons-react';
 import type { AgentUIMessage } from '~/modules/chat/types';
 import type { ArtifactGroup } from '~/modules/chat/hooks/useThreadArtifacts';
 import { messageText, type ToolPartView } from '~/modules/chat/lib/uiParts';
@@ -16,6 +25,7 @@ export { normalizeArtifact } from '~/modules/chat/lib/artifactNormalize';
 export type {
   Artifact,
   ChartArtifact,
+  DiagramArtifact,
   DocumentArtifact,
   DocumentFormat,
 } from '~/modules/chat/lib/artifactNormalize';
@@ -89,6 +99,17 @@ export const associateArtifacts = (
   }
 
   return result;
+};
+
+/** Canonical icon component for any artifact kind/format. */
+export const artifactIcon = (a: Artifact) => {
+  if (a.kind === 'chart')   return IconChartBar;
+  if (a.kind === 'diagram') return IconHierarchy;
+  if (a.format === 'pdf')   return IconFileTypePdf;
+  if (a.format === 'docx')  return IconFileTypeDocx;
+  if (a.format === 'pptx')  return IconFileTypePpt;
+  if (a.format === 'xlsx')  return IconFileTypeXls;
+  return IconFile;
 };
 
 /** A URL the browser can open/download for a document artifact. */

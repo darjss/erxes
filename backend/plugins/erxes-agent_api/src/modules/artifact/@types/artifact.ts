@@ -16,7 +16,9 @@ export interface IMastraArtifact {
   messageId?: string;
   agentId?: string;
   resourceId?: string;
-  kind: 'chart' | 'document';
+  kind: 'chart' | 'document' | 'diagram';
+  // Mermaid diagram definition (diagram artifacts only).
+  definition?: string;
   format?: 'pdf' | 'docx' | 'xlsx' | 'pptx';
   title: string;
   fileName?: string;

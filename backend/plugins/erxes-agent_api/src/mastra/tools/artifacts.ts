@@ -46,16 +46,25 @@ export const documentArtifactSchema = z.object({
   size: z.number().optional(),
 });
 
+export const diagramArtifactSchema = z.object({
+  id: z.string(),
+  kind: z.literal('diagram'),
+  title: z.string(),
+  definition: z.string(),
+});
+
 export const artifactSchema = z.discriminatedUnion('kind', [
   chartArtifactSchema,
   documentArtifactSchema,
+  diagramArtifactSchema,
 ]);
 
 export type ChartArtifact = z.infer<typeof chartArtifactSchema>;
 export type DocumentArtifact = z.infer<typeof documentArtifactSchema>;
+export type DiagramArtifact = z.infer<typeof diagramArtifactSchema>;
 export type Artifact = z.infer<typeof artifactSchema>;
 
 /** Short, collision-free artifact id (e.g. "chart_ab12cd"). */
-export function newArtifactId(prefix: 'chart' | 'doc'): string {
+export function newArtifactId(prefix: 'chart' | 'doc' | 'diagram'): string {
   return `${prefix}_${randomUUID().slice(0, 8)}`;
 }
