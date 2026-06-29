@@ -121,15 +121,18 @@ export interface ChatAttachment {
   size?: number;
 }
 
-// A file in the composer, before the message is sent.
+// A file in the composer, before the message is sent. Files are STAGED on
+// selection ('ready') and only uploaded when the message is actually sent, so
+// picking a file never costs a network round-trip until the user commits.
 export interface PendingAttachment {
   id: string;
   name: string;
   type: string;
   size: number;
+  file?: File; // the staged file, uploaded on send (cleared once uploaded; absent for oversize)
   url?: string; // storage key once uploaded
   previewUrl?: string; // local object URL for image thumbnails
-  status: 'uploading' | 'done' | 'error';
+  status: 'ready' | 'uploading' | 'done' | 'error';
   error?: string;
 }
 
