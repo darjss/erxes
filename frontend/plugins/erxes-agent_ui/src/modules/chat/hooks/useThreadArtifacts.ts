@@ -24,6 +24,7 @@ interface ArtifactRow {
   inline?: boolean;
   size?: number;
   spec?: ChartSpec;
+  definition?: string;
   messageId?: string;
   turnId?: string;
   prompt?: string;

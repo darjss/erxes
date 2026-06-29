@@ -140,11 +140,9 @@ export const MessageBubble = memo(function MessageBubble({
   return (
     <div className="flex justify-start items-start gap-3 group ea-msg-in">
       <AgentAvatar live={streaming} />
-      {/* A full-width reading column — NOT shrink-to-fit. Sizing the assistant
-          message to its content made the width snap wider/narrower on every
-          streamed token (live thought tail, tool rows, growing markdown); a
-          stable column keeps it still while text reflows vertically. */}
-      <div className="min-w-0 flex-1 pt-0.5">
+      {/* Hold full width during streaming so the bubble doesn't snap wider
+          when the first artifact tool call lands mid-turn. */}
+      <div className={`min-w-0 rounded-2xl rounded-bl-md px-4 py-2.5 shadow-sm ${streaming || artifacts.length > 0 ? 'w-full' : 'w-auto max-w-full'}`}>
         {activeSkills && activeSkills.length > 0 && (
           <div className="flex flex-wrap items-center gap-1 mb-1.5">
             {activeSkills.map((name) => (

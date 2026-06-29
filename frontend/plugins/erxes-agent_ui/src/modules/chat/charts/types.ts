@@ -28,7 +28,7 @@ export interface ChartSeries {
 
 export type ChartDataPoint = Record<string, string | number>;
 
-export interface ChartSpec {
+interface ChartSpecBase {
   chartType: ChartType;
   title: string;
   description?: string;
@@ -38,6 +38,14 @@ export interface ChartSpec {
   yAxisLabel?: string;
   stacked?: boolean;
   horizontal?: boolean;
+}
+
+/** A sub-chart shown when the user drills into a slice or bar. */
+export type DrilldownSpec = ChartSpecBase;
+
+export interface ChartSpec extends ChartSpecBase {
+  /** Label → sub-chart. Clicking a matching slice/bar navigates into that view. */
+  drilldowns?: Record<string, DrilldownSpec>;
 }
 
 /** Narrow an unknown value (e.g. a tool result spec) to a ChartSpec. */

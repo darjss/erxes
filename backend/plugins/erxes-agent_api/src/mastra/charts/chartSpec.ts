@@ -61,7 +61,9 @@ export const chartDataPointSchema = z.record(
   z.union([z.string(), z.number()]),
 );
 
-export const chartSpecSchema = z.object({
+// Base fields shared by both a top-level chart and a drill-down sub-chart.
+// DrilldownSpec = ChartSpecBase (no drilldowns — one level deep only).
+const chartSpecBaseSchema = z.object({
   chartType: z.enum(CHART_TYPES).describe('The kind of chart to draw.'),
   title: z.string().max(200).describe('Title shown above the chart.'),
   description: z.string().max(200).optional().describe('Optional subtitle.'),
@@ -77,7 +79,6 @@ export const chartSpecSchema = z.object({
     .describe(
       'Rows. Each row has a "label" string and a numeric value for every series key.',
     ),
-  // Optional presentation hints — safe to ignore.
   xAxisLabel: z.string().max(80).optional(),
   yAxisLabel: z.string().max(80).optional(),
   stacked: z
@@ -87,17 +88,27 @@ export const chartSpecSchema = z.object({
   horizontal: z.boolean().optional().describe('Swap axes (bar charts).'),
 });
 
+// A drill-down is exactly a ChartSpec without nested drilldowns.
+export const drilldownSpecSchema = chartSpecBaseSchema;
+
+export const chartSpecSchema = chartSpecBaseSchema.extend({
+  drilldowns: z
+    .record(z.string(), drilldownSpecSchema)
+    .optional()
+    .describe(
+      'Optional map of data-row label → a sub-chart shown when the user clicks that slice/bar. ' +
+        'Use this to add a detail breakdown: e.g. clicking "Engineering" on a department pie ' +
+        'opens a bar chart of Frontend/Backend/DevOps headcount.',
+    ),
+});
+
 export type ChartSeries = z.infer<typeof chartSeriesSchema>;
 export type ChartDataPoint = z.infer<typeof chartDataPointSchema>;
+export type DrilldownSpec = z.infer<typeof drilldownSpecSchema>;
 export type ChartSpec = z.infer<typeof chartSpecSchema>;
 
-/**
- * Normalize a raw/model-authored spec: drop unsafe colors and series with bad
- * keys, clamp strings, coerce every series value on every row to a finite
- * number. Returns a clean ChartSpec ready for both rendering paths. Throws an
- * ExpectedError-shaped Error when nothing usable remains.
- */
-export function sanitizeChartSpec(input: ChartSpec): ChartSpec {
+// Shared sanitizer for both top-level and drill-down specs.
+function sanitizeBase(input: DrilldownSpec): DrilldownSpec | null {
   const series = input.series
     .filter((s) => SAFE_KEY.test(s.key))
     .map((s) => ({
@@ -106,10 +117,7 @@ export function sanitizeChartSpec(input: ChartSpec): ChartSpec {
       color: s.color && SAFE_COLOR.test(s.color.trim()) ? s.color.trim() : undefined,
       type: s.type,
     }));
-
-  if (!series.length) {
-    throw new Error('Chart has no valid series.');
-  }
+  if (!series.length) return null;
 
   const keys = series.map((s) => s.key);
   const data = input.data.slice(0, 200).map((row) => {
@@ -133,5 +141,27 @@ export function sanitizeChartSpec(input: ChartSpec): ChartSpec {
     yAxisLabel: input.yAxisLabel?.slice(0, 80),
     stacked: input.stacked,
     horizontal: input.horizontal,
+  };
+}
+
+/**
+ * Normalize a raw/model-authored spec: drop unsafe colors and series with bad
+ * keys, clamp strings, coerce every series value on every row to a finite
+ * number. Returns a clean ChartSpec ready for both rendering paths. Throws an
+ * Error when nothing usable remains.
+ */
+export function sanitizeChartSpec(input: ChartSpec): ChartSpec {
+  const base = sanitizeBase(input);
+  if (!base) throw new Error('Chart has no valid series.');
+
+  const drilldowns: ChartSpec['drilldowns'] = {};
+  for (const [label, sub] of Object.entries(input.drilldowns ?? {})) {
+    const clean = sanitizeBase(sub);
+    if (clean) drilldowns[label] = clean;
+  }
+
+  return {
+    ...base,
+    ...(Object.keys(drilldowns).length ? { drilldowns } : {}),
   };
 }

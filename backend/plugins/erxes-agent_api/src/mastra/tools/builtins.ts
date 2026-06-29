@@ -12,7 +12,7 @@ import { agentKnowledgeTool } from '~/mastra/learning/learningTool';
 import { fileReaderTool } from './fileReaderTool';
 import { WORKFLOW_BUILTIN_TOOLS } from './workflowTools';
 import { chartSpecSchema, sanitizeChartSpec } from '~/mastra/charts/chartSpec';
-import { chartArtifactSchema, newArtifactId } from './artifacts';
+import { chartArtifactSchema, diagramArtifactSchema, newArtifactId } from './artifacts';
 import { storeArtifact } from '~/mastra/artifactStore';
 import { DOCUMENT_BUILTIN_TOOLS } from './documentTools';
 
@@ -263,7 +263,11 @@ export const renderChartTool = createTool({
     'stackedBar, pie, donut, radar, combo, or scatter). The chart opens in the ' +
     'Preview panel beside the chat. Use this whenever the user asks to see data ' +
     'as a chart, graph, or plot. The returned chart id can be reused to embed ' +
-    'the same chart inside a generated PDF/DOCX/XLSX document.',
+    'the same chart inside a generated PDF/DOCX/XLSX document. ' +
+    'Use the optional `drilldowns` field to add a clickable detail view: provide ' +
+    'a map of data-row label → sub-ChartSpec. For example, a pie chart of employees ' +
+    'per department can include a drilldown for each department showing the team ' +
+    'breakdown — clicking the slice opens the detail chart automatically.',
   inputSchema: chartSpecSchema,
   outputSchema: z.object({ artifact: chartArtifactSchema }),
   execute: async (input) => {
@@ -279,12 +283,44 @@ export const renderChartTool = createTool({
   },
 });
 
+export const renderDiagramTool = createTool({
+  id: 'render-diagram',
+  description:
+    'Render a Mermaid diagram (flowchart, sequence, pie, xychart-beta, ' +
+    'quadrantChart, gantt, classDiagram, stateDiagram, erDiagram, etc.) in ' +
+    'the Preview panel. Pass valid Mermaid syntax in `definition`. Use this ' +
+    'for process maps, architecture diagrams, flowcharts, ER diagrams, ' +
+    'market-research visualizations (pie/xychart-beta/quadrantChart), or any ' +
+    'data that is better expressed as a diagram than a chart.',
+  inputSchema: z.object({
+    title: z.string().describe('Short descriptive title for the diagram'),
+    definition: z
+      .string()
+      .describe(
+        'Complete Mermaid diagram definition starting with the type keyword ' +
+          '(e.g. "pie title ...", "flowchart LR", "xychart-beta")',
+      ),
+  }),
+  outputSchema: z.object({ artifact: diagramArtifactSchema }),
+  execute: async ({ title, definition }) => {
+    const artifact = {
+      id: newArtifactId('diagram'),
+      kind: 'diagram' as const,
+      title,
+      definition,
+    };
+    await storeArtifact(artifact);
+    return { artifact };
+  },
+});
+
 // Heterogeneous createTool instances; callers narrow per tool as needed.
 export const BUILTIN_TOOLS: Record<string, ReturnType<typeof createTool>> = {
   webSearch: webSearchTool,
   fetchUrl: fetchUrlTool,
   calculator: calculatorTool,
   renderChart: renderChartTool,
+  renderDiagram: renderDiagramTool,
   // No-ops with a clear message unless ERXES_AGENT_KNOWLEDGE=enable.
   companyKnowledge: companyKnowledgeTool,
   // Distilled lessons from past conversations. No-op unless
