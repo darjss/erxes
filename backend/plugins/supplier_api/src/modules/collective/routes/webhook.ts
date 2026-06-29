@@ -2,6 +2,7 @@ import crypto from 'crypto';
 import { Router, Request, Response } from 'express';
 import { isDev, sendTRPCMessage } from 'erxes-api-shared/utils';
 import { isValid } from '@/collective/utils/isCollective';
+import { generateModels } from '~/connectionResolvers';
 
 const COLLECTIVE_BUNDLE_TYPE = 'COLLECTIVE_BUNDLE_TYPE';
 
@@ -65,6 +66,10 @@ router.post('/collective', async (req: Request, res: Response) => {
       supplierId,
       supplierName,
       supplierCode,
+      supplierEmail,
+      supplierPhone,
+      supplierEmails,
+      supplierPhones,
       sourcePosToken,
     } = payload || {};
 
@@ -105,6 +110,21 @@ router.post('/collective', async (req: Request, res: Response) => {
       supplierId,
     );
 
+    const emailList: string[] = Array.isArray(supplierEmails)
+      ? supplierEmails
+      : [];
+    const phoneList: string[] = Array.isArray(supplierPhones)
+      ? supplierPhones
+      : [];
+    const primaryEmail = supplierEmail || emailList[0];
+    const primaryPhone = supplierPhone || phoneList[0];
+    const emails = Array.from(
+      new Set([...(primaryEmail ? [primaryEmail] : []), ...emailList]),
+    );
+    const phones = Array.from(
+      new Set([...(primaryPhone ? [primaryPhone] : []), ...phoneList]),
+    );
+
     await upsertCore(
       subdomain,
       'companies',
@@ -114,8 +134,11 @@ router.post('/collective', async (req: Request, res: Response) => {
         primaryName: supplierLabel,
         names: [supplierLabel],
         code: supplierKey,
+        ...(primaryEmail ? { primaryEmail } : {}),
+        ...(primaryPhone ? { primaryPhone } : {}),
+        ...(emails.length ? { emails } : {}),
+        ...(phones.length ? { phones } : {}),
       },
-      (object) => ({ ...object }),
     );
 
     const supplierCategoryId = deterministicObjectId(
@@ -330,6 +353,12 @@ router.post('/collective-push', async (req: Request, res: Response) => {
       });
     }
 
+    // The supplier's authoritative profile lives in this (the supplier's) own
+    // tenant — exactly one per tenant — so we read its contact info here rather
+    // than relying on mushop to pass it down.
+    const models = await generateModels(subdomain);
+    const supplier = await models.Supplier.findOne({}).lean();
+
     const products = (await sendTRPCMessage({
       subdomain,
       pluginName: 'posclient',
@@ -416,6 +445,10 @@ router.post('/collective-push', async (req: Request, res: Response) => {
         supplierId,
         supplierName,
         supplierCode,
+        supplierEmail: supplier?.primaryEmail,
+        supplierPhone: supplier?.primaryPhone,
+        supplierEmails: supplier?.emails,
+        supplierPhones: supplier?.phones,
         sourcePosToken: posToken,
         targetPosToken,
       },
