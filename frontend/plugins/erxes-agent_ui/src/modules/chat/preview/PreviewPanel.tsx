@@ -1,10 +1,11 @@
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import {
   IconArrowLeft,
   IconDownload,
   IconFile,
   IconMaximize,
   IconMinimize,
+  IconPresentation,
   IconX,
 } from '@tabler/icons-react';
 import { Button, cn } from 'erxes-ui';
@@ -19,7 +20,11 @@ import { MermaidViewer } from '~/modules/chat/preview/MermaidViewer';
 import { formatFileSize } from '~/modules/chat/lib/attachments';
 import { previewStore } from '~/modules/chat/preview/previewStore';
 import { DocumentViewer } from '~/modules/chat/preview/DocumentViewer';
+import { PresentMode } from '~/modules/chat/preview/PresentMode';
 import { useThreadArtifacts } from '~/modules/chat/hooks/useThreadArtifacts';
+
+const canPresent = (a: Artifact): a is DocumentArtifact =>
+  a.kind === 'document' && a.format === 'pptx' && !!a.slides?.length;
 
 const artifactSubtitle = (a: Artifact): string => {
   if (a.kind === 'chart') return 'Interactive chart';
@@ -225,6 +230,7 @@ const ItemView = ({
   const fullscreen = previewStore((s) => s.fullscreen);
   const toggleFullscreen = previewStore((s) => s.toggleFullscreen);
   const chartRef = useRef<EChartHandle>(null);
+  const [presenting, setPresenting] = useState(false);
   const typeLabel =
     artifact.kind === 'chart'
       ? 'Chart'
@@ -267,6 +273,16 @@ const ItemView = ({
             PNG
           </Button>
         )}
+        {canPresent(artifact) && (
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={() => setPresenting(true)}
+          >
+            <IconPresentation className="size-3.5" />
+            Present
+          </Button>
+        )}
         {artifact.kind === 'document' && <DocumentActions artifact={artifact} />}
         <Button
           variant="ghost"
@@ -296,6 +312,13 @@ const ItemView = ({
           <DocumentViewer artifact={artifact} />
         )}
       </div>
+
+      {presenting && canPresent(artifact) && (
+        <PresentMode
+          artifact={artifact}
+          onExit={() => setPresenting(false)}
+        />
+      )}
     </>
   );
 };
