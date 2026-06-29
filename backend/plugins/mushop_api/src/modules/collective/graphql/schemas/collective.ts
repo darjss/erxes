@@ -85,7 +85,7 @@ export const mutations = `
     supplierIds: [String!]!
   ): MushopCollective
 
-  mushopResyncCollective(_id: String!): MushopCollective
+  mushopResyncCollective(_id: String!, supplierIds: [String!]): MushopCollective
 
   mushopRemoveCollective(_id: String!): JSON
 `;

@@ -44,16 +44,16 @@ export const syncCollectiveProducts = async ({
     status: COLLECTIVE_STATUS.SYNCING,
   });
 
-  const filterIds = supplierIds?.length ? supplierIds : collective.supplierIds;
+  // When only a subset of suppliers is resynced, keep the existing results for
+  // the other suppliers instead of overwriting the whole syncResults array.
+  const isPartial = !!supplierIds?.length;
+  const filterIds = isPartial ? supplierIds! : collective.supplierIds;
 
   const suppliers = await models.Supplier.find({
     _id: { $in: filterIds },
   }).lean();
 
   const results: ICollectiveSupplierSyncResult[] = [];
-
-  let totalCreated = 0;
-  let totalFailed = 0;
 
   for (const supplier of suppliers) {
     const result: ICollectiveSupplierSyncResult = {
@@ -98,17 +98,26 @@ export const syncCollectiveProducts = async ({
       result.failed = 1;
     }
 
-    totalCreated += result.created;
-    totalFailed += result.failed;
     results.push(result);
   }
+
+  // Merge freshly-synced supplier results with the previously stored ones for
+  // suppliers that were not part of this (partial) sync.
+  const syncedIds = new Set(results.map((r) => r.supplierId));
+  const preserved = isPartial
+    ? (collective.syncResults || []).filter((r) => !syncedIds.has(r.supplierId))
+    : [];
+  const mergedResults = [...preserved, ...results];
+
+  const totalCreated = mergedResults.reduce((sum, r) => sum + (r.created || 0), 0);
+  const totalFailed = mergedResults.reduce((sum, r) => sum + (r.failed || 0), 0);
 
   await models.Collective.updateSyncProgress(collectiveId, {
     status:
       totalFailed > 0 && totalCreated === 0
         ? COLLECTIVE_STATUS.FAILED
         : COLLECTIVE_STATUS.ACTIVE,
-    syncResults: results,
+    syncResults: mergedResults,
     totalCreated,
     totalFailed,
     lastSyncedAt: new Date(),

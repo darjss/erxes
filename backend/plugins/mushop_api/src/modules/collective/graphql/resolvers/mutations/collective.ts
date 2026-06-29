@@ -139,13 +139,17 @@ export const collectiveMutations: Record<string, Resolver> = {
 
   mushopResyncCollective: async (
     _root: undefined,
-    { _id }: { _id: string },
+    { _id, supplierIds }: { _id: string; supplierIds?: string[] },
     { models }: IContext,
   ) => {
     const collective = await models.Collective.getCollective(_id);
 
     try {
-      syncCollectiveProducts({ models, collectiveId: collective._id });
+      syncCollectiveProducts({
+        models,
+        collectiveId: collective._id,
+        supplierIds: supplierIds?.length ? supplierIds : undefined,
+      });
     } catch (error) {
       models.Collective.updateSyncProgress(collective._id, {
         status: COLLECTIVE_STATUS.FAILED,
