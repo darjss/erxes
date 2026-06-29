@@ -35,6 +35,19 @@ const chartRefSchema = z.object({
   spec: chartSpecSchema,
 });
 
+// A single slide: a self-contained HTML body authored with the house
+// vocabulary (see documents/presentation/theme.ts). Charts are referenced as
+// <img src="chart:ID">.
+const pptxSlideSchema = z.object({
+  html: z
+    .string()
+    .min(1)
+    .describe(
+      'One slide as a self-contained HTML body using the house class ' +
+        'vocabulary (flexbox only). Reference a chart with <img src="chart:ID">.',
+    ),
+});
+
 const markdownDocInput = z.object({
   title: z.string().min(1).max(200).describe('Document title / file name.'),
   markdown: z
@@ -73,6 +86,46 @@ async function finalize(
   return { artifact };
 }
 
+// PPTX persists the deck AND each slide PNG (so the chat can render a Preview +
+// Present mode). Slide refs follow the SAME convention as fileKey: a storage key
+// or an inline data:/http URL.
+async function finalizePptx(
+  title: string,
+  pptx: Buffer,
+  slidePngs: Buffer[],
+): Promise<{ artifact: DocumentArtifact }> {
+  const slug = slugify(title);
+  const fileName = `${slug}.pptx`;
+  const mimeType = MIME_BY_FORMAT.pptx;
+  const persisted = await persistGeneratedFile({ buffer: pptx, fileName, mimeType });
+
+  const slides: string[] = [];
+  for (let i = 0; i < slidePngs.length; i++) {
+    const slide = await persistGeneratedFile({
+      buffer: slidePngs[i],
+      fileName: `${slug}-slide-${i + 1}.png`,
+      mimeType: 'image/png',
+    });
+    slides.push(slide.fileKey);
+  }
+
+  const artifact: DocumentArtifact = {
+    id: newArtifactId('doc'),
+    kind: 'document',
+    format: 'pptx',
+    title,
+    fileName,
+    mimeType,
+    fileKey: persisted.fileKey,
+    inline: persisted.inline,
+    size: persisted.size,
+    slides,
+    slideCount: slides.length,
+  };
+  await storeArtifact(artifact);
+  return { artifact };
+}
+
 export const generatePdfTool = createTool({
   id: 'generate-pdf',
   description:
@@ -104,17 +157,33 @@ export const generateDocxTool = createTool({
 export const generatePptxTool = createTool({
   id: 'generate-pptx',
   description:
-    'Generate a downloadable PowerPoint (.pptx) slide deck from Markdown content. ' +
-    'Use when the user wants a presentation or slides. Separate slides with a ' +
-    '`---` line (or start each slide with a `#`/`##` heading); the first heading ' +
-    'is the slide title and the rest become bullet points. Embed a chart on a ' +
-    'slide with ![Title](chart:ID). The deck opens in the Preview panel and is ' +
+    'Generate a downloadable, designer-quality PowerPoint (.pptx) slide deck. ' +
+    'Use when the user wants a presentation or slides. Author each slide as a ' +
+    'self-contained HTML body using the documented house class vocabulary ' +
+    '(flexbox only, on-brand erxes indigo) — ONE idea per slide. Reference a ' +
+    'chart on a slide with <img src="chart:ID">. The deck renders to branded ' +
+    'slide images and opens in the Preview panel (with Present mode) and is ' +
     'downloadable.',
-  inputSchema: markdownDocInput,
+  inputSchema: z.object({
+    title: z.string().min(1).max(200).describe('Deck title / file name.'),
+    slides: z
+      .array(pptxSlideSchema)
+      .min(1)
+      .max(40)
+      .describe('Ordered slides; each a self-contained HTML body (max 40).'),
+    charts: z
+      .array(chartRefSchema)
+      .optional()
+      .describe('Charts referenced from slides as <img src="chart:ID">.'),
+  }),
   outputSchema: z.object({ artifact: documentArtifactSchema }),
-  execute: async ({ title, markdown, charts }) => {
-    const buffer = await renderPptxDocument(title, markdown, charts ?? []);
-    return finalize('pptx', title, buffer);
+  execute: async ({ title, slides, charts }) => {
+    const { pptx, slidePngs } = await renderPptxDocument(
+      title,
+      slides,
+      charts ?? [],
+    );
+    return finalizePptx(title, pptx, slidePngs);
   },
 });
 
