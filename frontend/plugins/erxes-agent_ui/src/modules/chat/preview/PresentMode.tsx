@@ -125,7 +125,7 @@ export const PresentMode = ({
           <IconChevronLeft className="size-5" />
         </Button>
         <span className="ea-present-counter">
-          {count ? index + 1 : 0} / {count}
+          {index + 1} / {count}
         </span>
         <Button
           variant="ghost"
@@ -158,7 +158,7 @@ export const PresentMode = ({
               className={cn('ea-present-thumb', i === index && 'is-active')}
               onClick={() => setIndex(i)}
             >
-              <img src={url} alt="" draggable={false} />
+              <img src={url} alt="" loading="lazy" draggable={false} />
             </button>
           ))}
         </div>

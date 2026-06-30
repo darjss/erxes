@@ -26,10 +26,17 @@ import { useThreadArtifacts } from '~/modules/chat/hooks/useThreadArtifacts';
 const canPresent = (a: Artifact): a is DocumentArtifact =>
   a.kind === 'document' && a.format === 'pptx' && !!a.slides?.length;
 
+const slideLabel = (a: DocumentArtifact): string => {
+  const n = a.slideCount ?? a.slides?.length;
+  return n ? `${n} slide${n === 1 ? '' : 's'}` : '';
+};
+
 const artifactSubtitle = (a: Artifact): string => {
   if (a.kind === 'chart') return 'Interactive chart';
   if (a.kind === 'diagram') return 'Mermaid diagram';
-  return [a.format.toUpperCase(), formatFileSize(a.size)].filter(Boolean).join(' · ');
+  return [a.format.toUpperCase(), slideLabel(a), formatFileSize(a.size)]
+    .filter(Boolean)
+    .join(' · ');
 };
 
 // The Claude-artifacts-style side panel. Two views — a per-thread file list
