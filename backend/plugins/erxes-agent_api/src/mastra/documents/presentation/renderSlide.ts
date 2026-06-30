@@ -55,10 +55,14 @@ interface VElement {
 }
 
 const CHART_MD = /!\[[^\]]*\]\(\s*chart:([a-zA-Z0-9_-]+)\s*\)/g;
-const CHART_SRC = /chart:([a-zA-Z0-9_-]+)/g;
+// Scoped to an <img src> attribute only — a bare `chart:ID` in slide *text*
+// must not be rewritten into a giant data URL inside a text node.
+const CHART_IMG_SRC = /(\bsrc\s*=\s*)(["'])chart:([a-zA-Z0-9_-]+)\2/gi;
 
 /** Replace every chart reference in the raw HTML with the chart's PNG data URL.
- * Markdown image refs become a framed <img>; unknown ids are dropped. */
+ * Markdown image refs become a framed <img>; unknown ids resolve to an empty
+ * src so resolveNode drops the img. Substitution is scoped to image/markdown-
+ * image contexts so literal `chart:ID` in slide text is left untouched. */
 function substituteCharts(rawHtml: string, charts: DocumentChartRef[]): string {
   const urlById = new Map<string, string>();
   for (const c of charts) {
@@ -71,7 +75,10 @@ function substituteCharts(rawHtml: string, charts: DocumentChartRef[]): string {
         ? `<div class="chart-frame"><img class="chart" src="${url}" /></div>`
         : '';
     })
-    .replace(CHART_SRC, (_m, id: string) => urlById.get(id) ?? '');
+    .replace(CHART_IMG_SRC, (_m, pre: string, q: string, id: string) => {
+      const url = urlById.get(id);
+      return url ? `${pre}${q}${url}${q}` : `${pre}${q}${q}`;
+    });
 }
 
 /** Strip markup Satori can't use and that could inject noise. */
@@ -123,6 +130,26 @@ function decodeEntities(text: string): string {
 const camel = (k: string) =>
   k.trim().replace(/-([a-z])/g, (_m, c: string) => c.toUpperCase());
 
+// CSS that can make Satori fetch a remote resource server-side (SSRF). Any
+// declaration whose value contains url(...) is dropped, and these fetch-capable
+// properties are blocked outright, so the inline-style path can never reach the
+// network — charts already arrive inlined as data: URLs via substituteCharts.
+const STYLE_FETCH_PROPS = new Set([
+  'background',
+  'backgroundImage',
+  'mask',
+  'maskImage',
+  'borderImage',
+  'borderImageSource',
+  'src',
+  'content',
+  'cursor',
+  'listStyleImage',
+  'filter',
+]);
+const isFetchingDecl = (key: string, val: string): boolean =>
+  STYLE_FETCH_PROPS.has(key) || /url\s*\(/i.test(val);
+
 const ATTR_RE =
   /([a-zA-Z_:][-a-zA-Z0-9_:.]*)(?:\s*=\s*(?:"([^"]*)"|'([^']*)'|(\S+)))?/g;
 
@@ -139,9 +166,9 @@ function parseAttrs(raw: string): VProps {
       for (const decl of value.split(';')) {
         const idx = decl.indexOf(':');
         if (idx === -1) continue;
-        const key = decl.slice(0, idx).trim();
+        const key = camel(decl.slice(0, idx).trim());
         const val = decl.slice(idx + 1).trim();
-        if (key && val) style[camel(key)] = val;
+        if (key && val && !isFetchingDecl(key, val)) style[key] = val;
       }
       props.style = style;
     } else {
@@ -254,10 +281,12 @@ function resolveNode(node: unknown): unknown {
   }
 
   if (node.type === 'img') {
-    // Drop images with no usable source (e.g. an unresolved chart:ID) — Satori
-    // throws "Image source is not provided" otherwise.
+    // Allow ONLY data: URLs. Charts arrive inlined as data: via substituteCharts;
+    // a remote http(s) src would make Satori fetch it server-side, bypassing the
+    // repo's safeFetch SSRF guard. Drop anything that isn't a data: URL (also
+    // drops unresolved chart:ID / empty src — Satori throws on a missing source).
     const src = typeof props.src === 'string' ? props.src : '';
-    if (!/^(data:|https?:)/.test(src)) return null;
+    if (!src.startsWith('data:')) return null;
     if (merged.display == null) merged.display = 'flex';
     if (merged.width == null) merged.width = '100%';
     if (merged.height == null) merged.height = '100%';
@@ -266,11 +295,14 @@ function resolveNode(node: unknown): unknown {
   props.style = merged;
   // Satori exempts a node from the explicit-display rule only when its children
   // is a bare string (not a single-element array), so collapse a lone text
-  // child the way satori-html does.
+  // child the way satori-html does. An empty container must drop to undefined —
+  // satori rejects a bare `children: []` on a node without explicit display.
   props.children =
-    resolved.length === 1 && typeof resolved[0] === 'string'
-      ? resolved[0]
-      : resolved;
+    resolved.length === 0
+      ? undefined
+      : resolved.length === 1 && typeof resolved[0] === 'string'
+        ? resolved[0]
+        : resolved;
   return node;
 }
 
@@ -298,7 +330,12 @@ function ensureYoga(): Promise<void> {
       const wasm = fs.readFileSync(require.resolve('yoga-wasm-web/dist/yoga.wasm'));
       const yoga = await initYoga(wasm);
       initSatoriYoga(yoga);
-    })();
+    })().catch((err) => {
+      // Don't cache a rejected promise — a transient FS/init failure would
+      // otherwise wedge every later render. Reset so the next call retries.
+      yogaReady = null;
+      throw err;
+    });
   }
   return yogaReady;
 }

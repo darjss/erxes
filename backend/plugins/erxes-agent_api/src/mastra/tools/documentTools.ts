@@ -5,7 +5,7 @@ import { renderPdfDocument } from '~/mastra/documents/pdf';
 import { renderDocxDocument } from '~/mastra/documents/docx';
 import { renderXlsxDocument, xlsxSheetSchema } from '~/mastra/documents/xlsx';
 import { renderPptxDocument } from '~/mastra/documents/pptx';
-import { persistGeneratedFile } from '~/mastra/files/persist';
+import { persistGeneratedFile, type PersistedFile } from '~/mastra/files/persist';
 import { storeArtifact } from '~/mastra/artifactStore';
 import {
   documentArtifactSchema,
@@ -86,6 +86,11 @@ async function finalize(
   return { artifact };
 }
 
+// Aggregate ceiling on inline (base64 data:) bytes across the whole deck. The
+// per-file cap in persist.ts can't catch N slides each individually under it
+// summing to tens of MB stuffed into one stored message.
+const INLINE_DECK_MAX_BYTES = 12 * 1024 * 1024; // 12 MB
+
 // PPTX persists the deck AND each slide PNG (so the chat can render a Preview +
 // Present mode). Slide refs follow the SAME convention as fileKey: a storage key
 // or an inline data:/http URL.
@@ -99,16 +104,39 @@ async function finalizePptx(
   const mimeType = MIME_BY_FORMAT.pptx;
   const persisted = await persistGeneratedFile({ buffer: pptx, fileName, mimeType });
 
-  const slides: string[] = [];
-  for (let i = 0; i < slidePngs.length; i++) {
-    const slide = await persistGeneratedFile({
-      buffer: slidePngs[i],
-      fileName: `${slug}-slide-${i + 1}.png`,
-      mimeType: 'image/png',
-    });
-    slides.push(slide.fileKey);
+  // Slide uploads are independent — run them concurrently. allSettled (not
+  // Promise.all) so one failure never throws mid-batch leaving earlier uploads
+  // orphaned; we keep the slides that succeeded, in order, and drop the rest.
+  const settled = await Promise.allSettled(
+    slidePngs.map((buffer, i) =>
+      persistGeneratedFile({
+        buffer,
+        fileName: `${slug}-slide-${i + 1}.png`,
+        mimeType: 'image/png',
+      }),
+    ),
+  );
+  const persistedSlides = settled
+    .filter(
+      (r): r is PromiseFulfilledResult<PersistedFile> =>
+        r.status === 'fulfilled',
+    )
+    .map((r) => r.value);
+
+  // Bail if the inline-only fallback would bloat one stored message with tens of
+  // MB of base64 (data: URLs only — real cloud uploads carry no aggregate cost).
+  const inlineBytes = [persisted, ...persistedSlides]
+    .filter((p) => p.fileKey.startsWith('data:'))
+    .reduce((sum, p) => sum + p.size, 0);
+  if (inlineBytes > INLINE_DECK_MAX_BYTES) {
+    throw new Error(
+      `The generated deck is too large (${Math.round(
+        inlineBytes / 1024 / 1024,
+      )} MB) to attach inline. Configure cloud file storage (S3/R2/GCS/Azure) to enable presentation downloads.`,
+    );
   }
 
+  const slides = persistedSlides.map((p) => p.fileKey);
   const artifact: DocumentArtifact = {
     id: newArtifactId('doc'),
     kind: 'document',

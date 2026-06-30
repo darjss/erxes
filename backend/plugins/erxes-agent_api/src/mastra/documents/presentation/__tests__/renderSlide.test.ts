@@ -75,6 +75,60 @@ describe('renderSlidePng', () => {
     const png = await renderSlidePng('<div class="slide"><script>x</script></div>');
     expect(pngInfo(png).ok).toBe(true);
   });
+
+  it('never fetches remote resources (SSRF): remote <img> + background url() dropped', async () => {
+    const fetchSpy = jest.spyOn(globalThis, 'fetch');
+    const slide = `
+      <div class="slide" style="background-image:url(http://169.254.169.254/latest/meta-data/)">
+        <img src="http://169.254.169.254/internal.png" />
+        <div class="body" style="background:url('http://10.0.0.1/x.png')">hello</div>
+      </div>`;
+    const png = await renderSlidePng(slide);
+    expect(pngInfo(png).ok).toBe(true);
+    expect(fetchSpy).not.toHaveBeenCalled();
+    fetchSpy.mockRestore();
+  });
+
+  it('drops an img referencing an unknown chart id', async () => {
+    const png = await renderSlidePng(
+      '<div class="slide"><img src="chart:doesNotExist"><div class="body">ok</div></div>',
+      [CHART],
+    );
+    expect(pngInfo(png).ok).toBe(true);
+  });
+
+  it('renders a chart referenced multiple times only once', async () => {
+    const renderPng = require('~/mastra/charts/renderPng');
+    const spy = jest.spyOn(renderPng, 'renderChartPngDataUrl');
+    await renderSlidePng(
+      '<div class="slide"><img src="chart:rev"><img src="chart:rev"></div>',
+      [CHART],
+    );
+    expect(spy).toHaveBeenCalledTimes(1);
+    spy.mockRestore();
+  });
+
+  it('leaves a literal chart:ID in slide text untouched', async () => {
+    const png = await renderSlidePng(
+      '<div class="slide"><div class="body">see chart:rev below</div></div>',
+      [CHART],
+    );
+    expect(pngInfo(png).ok).toBe(true);
+  });
+
+  const ADVERSARIAL: Array<[string, string]> = [
+    ['unclosed tags', '<div class="slide"><div class="h1">Unclosed<div class="body">sib'],
+    ['stray close tag', '<div class="slide"></span><div class="body">stray</div></div>'],
+    ['mismatched tags', '<div class="slide"><b>bold<i>x</b> mismatched</i></div>'],
+    ['text + element siblings', '<div class="slide">text<div class="body">el</div>tail</div>'],
+    ['void + unknown tags', '<div class="slide"><br><hr><img><custom-tag>x</custom-tag></div>'],
+    ['lone text, no tags', 'just lone text no tags'],
+    ['empty string', ''],
+  ];
+  it.each(ADVERSARIAL)('parses adversarial input without throwing: %s', async (_name, html) => {
+    const png = await renderSlidePng(html);
+    expect(pngInfo(png).ok).toBe(true);
+  });
 });
 
 describe('renderPptxDocument', () => {
